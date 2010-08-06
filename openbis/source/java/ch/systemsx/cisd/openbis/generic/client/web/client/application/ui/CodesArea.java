@@ -39,17 +39,17 @@ abstract public class CodesArea<T extends ICodeHolder> extends MultilineVarcharF
     public final void setCodeProviders(List<T> codeProviders)
     {
         List<String> codes = Code.extractCodes(codeProviders);
-        setCodes(codes.toArray(new String[0]));
+        setCodes(codes);
     }
 
-    public final void setCodes(String[] codes)
+    public final void setCodes(List<String> codes)
     {
         String textValue = createTextValue(codes);
         setValue(textValue);
         setOriginalValue(textValue);
     }
 
-    private static String createTextValue(String[] codes)
+    private static String createTextValue(List<String> codes)
     {
         StringBuffer sb = new StringBuffer();
         for (String code : codes)

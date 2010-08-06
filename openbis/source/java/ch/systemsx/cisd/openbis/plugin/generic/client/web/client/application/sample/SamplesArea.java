@@ -47,7 +47,7 @@ abstract public class SamplesArea extends CodesArea<Sample>
         setCodeProviders(samples);
     }
 
-    public final void setSampleCodes(String[] codes)
+    public final void setSampleCodes(List<String> codes)
     {
         setCodes(codes);
     }

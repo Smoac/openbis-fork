@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -319,11 +320,11 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
-    public Date updateSample(final SampleUpdates updates)
+    public SampleUpdateResult updateSample(final SampleUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        final Date modificationDate = new Date();
+        final SampleUpdateResult result = new SampleUpdateResult();
         new AttachmentRegistrationHelper()
             {
                 @Override
@@ -344,17 +345,17 @@ public class GenericClientService extends AbstractClientService implements IGene
                                 new SampleIdentifierFactory(updates.getSampleIdentifier())
                                         .createIdentifier();
                     }
-                    Date date =
+                    SampleUpdateResult updateResult =
                             genericServer.updateSample(sessionToken, new SampleUpdatesDTO(updates
                                     .getSampleIdOrNull(), updates.getProperties(),
                                     convExperimentIdentifierOrNull, attachments, updates
                                             .getVersion(), sampleOwner, updates
                                             .getParentIdentifierOrNull(), updates
                                             .getContainerIdentifierOrNull()));
-                    modificationDate.setTime(date.getTime());
+                    result.copyFrom(updateResult);
                 }
             }.process(updates.getSessionKey(), getHttpSession(), updates.getAttachments());
-        return modificationDate;
+        return result;
     }
 
     public Date updateMaterial(TechId materialId, List<IEntityProperty> properties, Date version)

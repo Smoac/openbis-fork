@@ -59,6 +59,7 @@ import org.hibernate.validator.Pattern;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -78,7 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Friend(toClasses = EventPE.class)
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder,
-        IEntityInformationHolderDTO, IIdentifierHolder
+        IEntityInformationHolderDTO, IIdentifierHolder, ICodeHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 

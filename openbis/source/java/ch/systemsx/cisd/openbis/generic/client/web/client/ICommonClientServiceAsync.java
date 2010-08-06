@@ -712,7 +712,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#removePersonsFromAuthorizationGroup(TechId, List)
      */
-    public void removePersonsFromAuthorizationGroup(TechId create, List<String> extractCodes,
+    public void removePersonsFromAuthorizationGroup(TechId create, List<String> personsCodes,
             AsyncCallback<Void> callback);
 
     // -- custom grid filters

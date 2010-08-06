@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 
 /**
  * Service interface for the generic GWT client.
@@ -128,7 +129,7 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates sample.
      */
-    public Date updateSample(SampleUpdates updates) throws UserFailureException;
+    public SampleUpdateResult updateSample(SampleUpdates updates) throws UserFailureException;
 
     /**
      * Updates data set.

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -102,7 +103,7 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeHolder, Com
     // Helper classes
     //
 
-    public final static List<String> extractCodes(List<? extends ICodeHolder> codeProviders)
+    public final static List<String> extractCodes(Collection<? extends ICodeHolder> codeProviders)
     {
         List<String> codes = new ArrayList<String>();
         for (ICodeHolder codeProvider : codeProviders)

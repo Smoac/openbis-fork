@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -74,9 +75,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -304,12 +305,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         public void execute(List<NewSample> newSamples)
         {
             List<Sample> existingSamples = new ArrayList<Sample>();
-            List<String> extractCodes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, false);
+            List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, false);
             List<Sample> list =
                     sampleLister.list(SampleRegisterOrUpdateUtil
-                            .createListSamplesByCodeCriteria(extractCodes));
+                            .createListSamplesByCodeCriteria(codes));
             existingSamples.addAll(list);
-            List<String> codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, true);
+            codes = SampleRegisterOrUpdateUtil.extractCodes(newSamples, true);
             ListOrSearchSampleCriteria criteria =
                     SampleRegisterOrUpdateUtil.createListSamplesByCodeCriteria(codes);
             List<Sample> existingContainers = sampleLister.list(criteria);
@@ -657,21 +658,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         ExperimentUpdateResult result = new ExperimentUpdateResult();
         ExperimentPE experiment = experimentBO.getExperiment();
         result.setModificationDate(experiment.getModificationDate());
-        result.setSamples(extractSampleCodes(experiment.getSamples()));
+        result.setSamples(Code.extractCodes(experiment.getSamples()));
         return result;
-    }
-
-    @Private
-    static final String[] extractSampleCodes(List<SamplePE> samples)
-    {
-        String[] codes = new String[samples.size()];
-        int i = 0;
-        for (SamplePE samplePE : samples)
-        {
-            codes[i] = IdentifierHelper.extractCode(samplePE);
-            i++;
-        }
-        return codes;
     }
 
     public Date updateMaterial(String sessionToken, TechId materialId,
@@ -684,13 +672,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return materialBO.getMaterial().getModificationDate();
     }
 
-    public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
+    public SampleUpdateResult updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.update(updates);
         sampleBO.save();
-        return sampleBO.getSample().getModificationDate();
+        SampleUpdateResult result = new SampleUpdateResult();
+        SamplePE sample = sampleBO.getSample();
+        result.setModificationDate(sample.getModificationDate());
+        result.setParents(Code.extractCodes(sample.getParents()));
+        return result;
     }
 
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
@@ -701,21 +693,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         DataSetUpdateResult result = new DataSetUpdateResult();
         ExternalDataPE externalData = dataSetBO.getExternalData();
         result.setModificationDate(externalData.getModificationDate());
-        result.setParentCodes(extractDataSetCodes(externalData.getParents()));
+        result.setParentCodes(Code.extractCodes(externalData.getParents()));
         return result;
-    }
-
-    @Private
-    static final String[] extractDataSetCodes(Collection<DataPE> dataSets)
-    {
-        String[] codes = new String[dataSets.size()];
-        int i = 0;
-        for (DataPE dataPE : dataSets)
-        {
-            codes[i] = dataPE.getCode();
-            i++;
-        }
-        return codes;
     }
 
     public void registerOrUpdateMaterials(String sessionToken, String materialTypeCode,

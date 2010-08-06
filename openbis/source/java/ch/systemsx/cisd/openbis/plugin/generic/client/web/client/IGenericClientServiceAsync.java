@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
@@ -120,8 +121,8 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#updateSample(SampleUpdates)
      */
-    public void updateSample(SampleUpdates updates, final AsyncCallback<Date> asyncCallback)
-            throws UserFailureException;
+    public void updateSample(SampleUpdates updates,
+            final AsyncCallback<SampleUpdateResult> asyncCallback) throws UserFailureException;
 
     /**
      * @see IGenericClientService#updateDataSet(DataSetUpdates)

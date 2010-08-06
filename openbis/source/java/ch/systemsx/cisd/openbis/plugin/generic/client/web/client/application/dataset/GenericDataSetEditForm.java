@@ -184,7 +184,7 @@ public final class GenericDataSetEditForm extends
         }
     }
 
-    private void updateOriginalValues(String[] parentCodes)
+    private void updateOriginalValues(List<String> parentCodes)
     {
         updatePropertyFieldsOriginalValues();
         sampleChooser.updateOriginalValue();

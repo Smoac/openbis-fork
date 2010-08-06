@@ -37,7 +37,7 @@ public final class DataSetParentsArea extends CodesArea<ExternalData>
     public DataSetParentsArea(IMessageProvider messageProvider, String idPrefix)
     {
         super(messageProvider.getMessage(Dict.PARENTS_EMPTY));
-		this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
+        this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
         setId(createId(idPrefix));
     }
 
@@ -60,7 +60,7 @@ public final class DataSetParentsArea extends CodesArea<ExternalData>
         setCodeProviders(parents);
     }
 
-    public final void setParentCodes(String[] parentCodes)
+    public final void setParentCodes(List<String> parentCodes)
     {
         setCodes(parentCodes);
     }

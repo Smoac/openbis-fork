@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -123,7 +125,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
 
     }
 
-    public void updateOriginalValues(String[] samples)
+    public void updateOriginalValues(List<String> samples)
     {
         updatePropertyFieldsOriginalValues();
         updateFieldOriginalValue(projectChooser);

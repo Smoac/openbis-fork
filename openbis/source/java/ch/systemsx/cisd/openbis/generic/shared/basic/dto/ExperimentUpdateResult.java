@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -32,7 +33,7 @@ public class ExperimentUpdateResult implements IsSerializable, Serializable
 
     private Date modificationDate;
 
-    private String[] samples;
+    private List<String> samples;
 
     public ExperimentUpdateResult()
     {
@@ -48,12 +49,12 @@ public class ExperimentUpdateResult implements IsSerializable, Serializable
         this.modificationDate = modificationDate;
     }
 
-    public String[] getSamples()
+    public List<String> getSamples()
     {
         return samples;
     }
 
-    public void setSamples(String[] samples)
+    public void setSamples(List<String> samples)
     {
         this.samples = samples;
     }

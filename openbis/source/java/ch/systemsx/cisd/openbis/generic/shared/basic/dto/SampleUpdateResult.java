@@ -23,19 +23,19 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Stores result of data set update.
+ * Stores result of sample update.
  * 
  * @author Piotr Buczek
  */
-public class DataSetUpdateResult implements IsSerializable, Serializable
+public class SampleUpdateResult implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    Date modificationDate;
+    private Date modificationDate;
 
-    List<String> parentCodes;
+    private List<String> parents;
 
-    public DataSetUpdateResult()
+    public SampleUpdateResult()
     {
     }
 
@@ -49,14 +49,20 @@ public class DataSetUpdateResult implements IsSerializable, Serializable
         this.modificationDate = modificationDate;
     }
 
-    public List<String> getParentCodes()
+    public List<String> getParents()
     {
-        return parentCodes;
+        return parents;
     }
 
-    public void setParentCodes(List<String> parentCodes)
+    public void setParents(List<String> parents)
     {
-        this.parentCodes = parentCodes;
+        this.parents = parents;
+    }
+
+    public void copyFrom(SampleUpdateResult result)
+    {
+        setParents(result.getParents());
+        setModificationDate(result.getModificationDate());
     }
 
 }

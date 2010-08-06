@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -33,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -75,7 +75,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     }
 
     private final class UpdateSampleCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Date>
+            AbstractRegistrationForm.AbstractRegistrationCallback<SampleUpdateResult>
     {
 
         UpdateSampleCallback(final IViewContext<?> viewContext)
@@ -84,28 +84,28 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         }
 
         @Override
-        protected void process(final Date result)
+        protected void process(final SampleUpdateResult result)
         {
-            originalSample.setModificationDate(result);
-            updateOriginalValues();
+            originalSample.setModificationDate(result.getModificationDate());
+            updateOriginalValues(result.getParents());
             super.process(result);
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Date result)
+        protected String createSuccessfullRegistrationInfo(SampleUpdateResult result)
         {
             return "Sample successfully updated";
         }
     }
 
-    public void updateOriginalValues()
+    public void updateOriginalValues(List<String> parents)
     {
         updatePropertyFieldsOriginalValues();
         experimentField.updateOriginalValue();
         updateFieldOriginalValue(groupSelectionWidget);
         container.updateOriginalValue();
         parent.updateOriginalValue();
-        updateFieldOriginalValue(parentsArea);
+        parentsArea.setSampleCodes(parents);
     }
 
     private void setOriginalSample(Sample sample)
