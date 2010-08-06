@@ -141,27 +141,21 @@
   </project>
   
   <project name="args4j">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
 
   <project name="base">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
 
   <project name="common">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <!--project name="jhdf5">
@@ -174,73 +168,45 @@
   </project-->
   
   <project name="bds">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <project name="authentication">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/args4j"/>
-      <buildstatus logdir="logs/common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <project name="dbmigration">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <project name="server-common">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <project name="openbis">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/authentication"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <buildstatus logdir="logs/server-common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <project name="cifex">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/authentication"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <buildstatus logdir="logs/server-common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <project name="datamover">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <!--project name="datamover_console">
@@ -255,38 +221,21 @@
   </project-->
   
   <project name="datastore_server">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/bds"/>
-      <buildstatus logdir="logs/openbis"/>
-      <buildstatus logdir="logs/server-common"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
   
   <project name="screening">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/openbis"/>
-      <buildstatus logdir="logs/datastore_server"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
 
   <project name="rtd_yeastx">
-    <modificationset quietperiod="${quiet-period}">
-      <buildstatus logdir="logs/build_resources"/>
-      <buildstatus logdir="logs/libraries"/>
-      <buildstatus logdir="logs/common"/>
-      <buildstatus logdir="logs/datastore_server"/>
-      <buildstatus logdir="logs/dbmigration"/>
-      <svn localWorkingCopy="${project.trunk}"/>
-    </modificationset>
+    <schedule>
+      <ant target="_dummy" buildfile="${project.trunk}/build.xml"/>
+    </schedule>
   </project>
 
 </cruisecontrol>
