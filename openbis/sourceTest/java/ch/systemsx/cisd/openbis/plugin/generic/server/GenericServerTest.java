@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -43,12 +45,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -427,6 +431,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         final Date version = new Date();
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
         final SamplePE sample = new SamplePE();
+        Set<SampleRelationshipPE> newParents = new HashSet<SampleRelationshipPE>();
+        sample.setParentRelationships(newParents);
         Date newModificationDate = new Date(2);
         sample.setModificationDate(newModificationDate);
         final SampleUpdatesDTO updates =
@@ -444,7 +450,9 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(sample));
                 }
             });
-        assertEquals(newModificationDate, createServer().updateSample(SESSION_TOKEN, updates));
+        SampleUpdateResult result = createServer().updateSample(SESSION_TOKEN, updates);
+        assertEquals(newModificationDate, result.getModificationDate());
+        assertEquals(newParents.size(), result.getParents().size());
         context.assertIsSatisfied();
     }
 
