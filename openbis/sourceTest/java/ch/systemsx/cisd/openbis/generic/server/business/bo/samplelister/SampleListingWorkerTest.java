@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -52,18 +53,16 @@ public class SampleListingWorkerTest extends AbstractDAOTest
 
     private final long PARENT1_ID = 979L;
 
+    private final long GRANDPARENT1_ID = 325L;
+
     private final long PARENT2_ID = 977L;
 
-    private final long CHILD_WITH_2_PARENTS_ID = 984;
+    private final long GRANDPARENT2_ID = 4L;
+
+    private final long CHILD_WITH_2_PARENTS_ID = 984L;
 
     private final Long[] CHILDREN_IDS =
         { CHILD_WITH_2_PARENTS_ID, 985L, 986L, 987L, 988L, 989L };
-
-    private final Long[] PARENT_IDS =
-        { PARENT1_ID, PARENT2_ID };
-
-    private final Long[] GRANDPARENT_IDS =
-        { 325L, 4L };
 
     private SampleListerDAO sampleListerDAO;
 
@@ -163,8 +162,18 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         assertEquals(2, list.size());
         for (Sample s : list)
         {
-            assertTrue(Arrays.binarySearch(PARENT_IDS, s.getId()) >= 0);
-            assertTrue(Arrays.binarySearch(GRANDPARENT_IDS, s.getGeneratedFrom().getId()) >= 0);
+            long sId = s.getId().longValue();
+            long pId = s.getGeneratedFrom().getId().longValue();
+            if (sId == PARENT1_ID)
+            {
+                assertTrue(pId == GRANDPARENT1_ID);
+            } else if (sId == PARENT2_ID)
+            {
+                assertTrue(pId == GRANDPARENT2_ID);
+            } else
+            {
+                fail("unexpected parent id " + pId);
+            }
             checkSpace(s);
         }
     }
@@ -201,6 +210,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         {
             assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
             assertEquals("ID:" + s.getId(), PARENT2_ID, s.getGeneratedFrom().getId().longValue());
+            // FIXME
             // test s.getGeneratedFrom throws exception
             // assertEquals(2, s.getParents().size());
             // for (Sample parent : s.getParents())
