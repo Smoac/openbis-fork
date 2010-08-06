@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -83,6 +84,7 @@ public class PlateLayouter
         List<Widget> wellWidgets = createWellWidgets(wellMatrix, plateContent, viewContext);
 
         LayoutContainer plateMatrix = new LayoutContainer();
+        plateMatrix.setScrollMode(Scroll.AUTO);
         TableLayout layout = new TableLayout(getColumnsNum(wellMatrix));
         layout.setCellSpacing(2);
         plateMatrix.setLayout(layout);
