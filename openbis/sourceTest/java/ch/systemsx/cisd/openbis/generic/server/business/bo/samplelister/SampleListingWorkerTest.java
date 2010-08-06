@@ -50,10 +50,14 @@ public class SampleListingWorkerTest extends AbstractDAOTest
 
     private final long CONTAINER_ID = 997L;
 
-    private final long PARENT_ID = 979L;
+    private final long PARENT1_ID = 979L;
+
+    private final long PARENT2_ID = 977L;
+
+    private final long CHILD_WITH_2_PARENTS_ID = 984;
 
     private final Long[] CHILDREN_IDS =
-        { 984L, 985L, 986L, 987L, 988L, 989L };
+        { CHILD_WITH_2_PARENTS_ID, 985L, 986L, 987L, 988L, 989L };
 
     private SampleListerDAO sampleListerDAO;
 
@@ -82,7 +86,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
             checkSpace(s);
             if (Arrays.binarySearch(CHILDREN_IDS, s.getId()) >= 0)
             {
-                checkGeneratedFrom(s);
+                checkParentsAndGeneratedFrom(s);
             }
         }
     }
@@ -101,7 +105,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         {
             assertTrue(Arrays.binarySearch(CHILDREN_IDS, s.getId()) >= 0);
             checkSpace(s);
-            checkGeneratedFrom(s);
+            checkParentsAndGeneratedFrom(s);
         }
     }
 
@@ -127,7 +131,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
     public void testListSamplesForParent()
     {
         final ListSampleCriteria baseCriteria =
-                ListSampleCriteria.createForParent(new TechId(PARENT_ID));
+                ListSampleCriteria.createForParent(new TechId(PARENT1_ID));
         final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
         final SampleListingWorker worker =
                 SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
@@ -137,7 +141,7 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         {
             assertTrue(Arrays.binarySearch(CHILDREN_IDS, s.getId()) >= 0);
             checkSpace(s);
-            checkGeneratedFrom(s);
+            checkParentsAndGeneratedFrom(s);
         }
     }
 
@@ -167,9 +171,23 @@ public class SampleListingWorkerTest extends AbstractDAOTest
         assertEquals("ID:" + s.getId(), SPACE_CODE, s.getSpace().getCode());
     }
 
-    private void checkGeneratedFrom(Sample s)
+    private void checkParentsAndGeneratedFrom(Sample s)
     {
-        assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
-        assertEquals("ID:" + s.getId(), PARENT_ID, s.getGeneratedFrom().getId().longValue());
+        if (s.getId().equals(CHILD_WITH_2_PARENTS_ID))
+        {
+            assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
+            assertEquals("ID:" + s.getId(), PARENT2_ID, s.getGeneratedFrom().getId().longValue());
+            // test s.getGeneratedFrom throws exception
+            // assertEquals(2, s.getParents().size());
+            // for (Sample parent : s.getParents())
+            // {
+            // assertTrue("ID:" + s.getId(), parent.getId().equals(PARENT1_ID)
+            // || parent.getId().equals(PARENT2_ID));
+            // }
+        } else
+        {
+            assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
+            assertEquals("ID:" + s.getId(), PARENT1_ID, s.getGeneratedFrom().getId().longValue());
+        }
     }
 }

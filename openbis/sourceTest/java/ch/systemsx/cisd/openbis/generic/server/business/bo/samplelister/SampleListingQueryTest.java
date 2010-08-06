@@ -176,7 +176,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
                 daoFactory.getSampleDAO().tryFindByCodeAndGroup(DILUTION_PLATE_CODE_1, group);
         dilutionPlate2 =
                 daoFactory.getSampleDAO().tryFindByCodeAndGroup(DILUTION_PLATE_CODE_2, group);
-        final int children1 = 2;
+        final int children1 = 3;
         final int children2 = 6;
         assertEquals(children1, dilutionPlate1.getGenerated().size());
         assertEquals(children2, dilutionPlate2.getGenerated().size());
@@ -185,7 +185,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         LongSet childrenIds =
                 new LongOpenHashSet(query.getChildrenIds(parentChildRelationshipTypeId,
                         dilutionPlateIdSet));
-        assertEquals(8, childrenIds.size());
+        assertEquals(8, childrenIds.size()); // one of the children has both parents
         int sampleCount1 = 0;
         int sampleCount2 = 0;
         for (SampleRelationRecord sample : query.getParentRelations(parentChildRelationshipTypeId,
