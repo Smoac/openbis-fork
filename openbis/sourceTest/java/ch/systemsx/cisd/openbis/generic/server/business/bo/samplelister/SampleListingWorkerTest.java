@@ -59,6 +59,12 @@ public class SampleListingWorkerTest extends AbstractDAOTest
     private final Long[] CHILDREN_IDS =
         { CHILD_WITH_2_PARENTS_ID, 985L, 986L, 987L, 988L, 989L };
 
+    private final Long[] PARENT_IDS =
+        { PARENT1_ID, PARENT2_ID };
+
+    private final Long[] GRANDPARENT_IDS =
+        { 325L, 4L };
+
     private SampleListerDAO sampleListerDAO;
 
     private SecondaryEntityDAO secondaryDAO;
@@ -142,6 +148,24 @@ public class SampleListingWorkerTest extends AbstractDAOTest
             assertTrue(Arrays.binarySearch(CHILDREN_IDS, s.getId()) >= 0);
             checkSpace(s);
             checkParentsAndGeneratedFrom(s);
+        }
+    }
+
+    @Test
+    public void testListSamplesForChild()
+    {
+        final ListSampleCriteria baseCriteria =
+                ListSampleCriteria.createForChild(new TechId(CHILD_WITH_2_PARENTS_ID));
+        final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
+        final SampleListingWorker worker =
+                SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+        final List<Sample> list = worker.load();
+        assertEquals(2, list.size());
+        for (Sample s : list)
+        {
+            assertTrue(Arrays.binarySearch(PARENT_IDS, s.getId()) >= 0);
+            assertTrue(Arrays.binarySearch(GRANDPARENT_IDS, s.getGeneratedFrom().getId()) >= 0);
+            checkSpace(s);
         }
     }
 
