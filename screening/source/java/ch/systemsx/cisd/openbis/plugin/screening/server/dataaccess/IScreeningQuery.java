@@ -96,6 +96,41 @@ public interface IScreeningQuery extends BaseQuery
             + "   well_material.id = ?{1}")
     public DataIterator<WellContent> getPlateLocationsForMaterialId(long materialId);
 
+    /**
+     * @return the material to well plate mapping for the given <var>platePermId</var>. Only
+     *         consider materials of <var>materialTypeCode</var>. Only fills <var>well_code</var>
+     *         and <var>material_content_code</var>. Note that this may return more than one row per
+     *         well.
+     */
+    @Select(sql = "select "
+            + "      well.code as well_code,"
+            + "      well_material.code as material_content_code"
+            + " from samples well"
+            + "   join samples pl on pl.id = well.samp_id_part_of"
+            + "   join sample_properties well_props on well.id = well_props.samp_id"
+            + "   join materials well_material on well_props.mate_prop_id = well_material.id"
+            + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
+            + " where well_material_type.code=?{2} and pl.perm_id=?{1}")
+    public DataIterator<WellContent> getPlateMapping(String platePermId, String materialTypeCode);
+
+    /**
+     * @return the material to well plate mapping for the given <var>platePermId</var>. Consider all
+     *         material types. Only fills <var>well_code</var>, <var>material_content_code</var> and
+     *         <var>material_content_code</var>. Note that this may return more than one row per
+     *         well.
+     */
+    @Select(sql = "select "
+            + "      well.code as well_code,"
+            + "      well_material_type.code as material_content_type_code,"
+            + "      well_material.code as material_content_code"
+            + " from samples well"
+            + "   join samples pl on pl.id = well.samp_id_part_of"
+            + "   join sample_properties well_props on well.id = well_props.samp_id"
+            + "   join materials well_material on well_props.mate_prop_id = well_material.id"
+            + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
+            + " where pl.perm_id=?{1} order by material_content_type_code")
+    public DataIterator<WellContent> getPlateMapping(String platePermId);
+
     // well content with "first-level" materials (like oligos or controls)
     static final String PLATE_LOCATIONS_MANY_MATERIALS_SELECT =
             "select pl.id as plate_id, pl.perm_id as plate_perm_id, pl.code as plate_code, pl_type.code as plate_type_code, "

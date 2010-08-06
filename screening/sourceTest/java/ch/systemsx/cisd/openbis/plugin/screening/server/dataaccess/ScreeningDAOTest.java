@@ -86,6 +86,24 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
     }
 
     @Test
+    public void testGetPlateMappingAllTypes()
+    {
+        // it just tests if the sql runs
+        List<WellContent> locations =
+                EntityListingTestUtils.asList(query.getPlateMapping("xxx"));
+        AssertJUnit.assertEquals(0, locations.size());
+    }
+
+    @Test
+    public void testGetPlateMappingGeneType()
+    {
+        // it just tests if the sql runs
+        List<WellContent> locations =
+                EntityListingTestUtils.asList(query.getPlateMapping("Gene", "xxx"));
+        AssertJUnit.assertEquals(0, locations.size());
+    }
+
+    @Test
     public void testGetPlateLocationsForManyMaterials()
     {
         String[] materialTypeCodes = new String[]
