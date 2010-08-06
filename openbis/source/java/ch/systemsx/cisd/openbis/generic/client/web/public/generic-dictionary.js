@@ -26,6 +26,7 @@ var generic = {
   instance_sample: "Shared",
   generated_from_sample: "Parent",
   part_of_sample: "Container",
+  parents: "Parents",
   
   //
   // Data Set Viewer

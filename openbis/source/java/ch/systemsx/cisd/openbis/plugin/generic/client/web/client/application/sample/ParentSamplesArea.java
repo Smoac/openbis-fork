@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.SamplesArea;
 
 /**
- * {@link SamplesArea} extension to specify samples for an experiment.
+ * {@link SamplesArea} extension to specify parent samples.
  * 
- * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
-final class ExperimentSamplesArea extends SamplesArea
+final class ParentSamplesArea extends SamplesArea
 {
-    public static final String ID_SUFFIX_SAMPLES = "_samples";
 
-    public ExperimentSamplesArea(IMessageProvider messageProvider, String idPrefix)
+    public static final String ID_SUFFIX_PARENT_SAMPLES = "_parent_samples";
+
+    public ParentSamplesArea(IMessageProvider messageProvider, String idPrefix)
     {
         super(messageProvider.getMessage(Dict.SAMPLES_LIST));
-        setLabelSeparator("");
+        this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
         setId(createId(idPrefix));
     }
 
     public static String createId(String idPrefix)
     {
-        return idPrefix + ID_SUFFIX_SAMPLES;
+        return idPrefix + ID_SUFFIX_PARENT_SAMPLES;
     }
 
 }

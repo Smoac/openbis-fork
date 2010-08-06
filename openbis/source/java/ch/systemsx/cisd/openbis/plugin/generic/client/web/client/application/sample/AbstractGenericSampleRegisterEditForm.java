@@ -84,6 +84,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected SampleChooserFieldAdaptor parent;
 
+    protected ParentSamplesArea parentsArea;
+
     protected AbstractGenericSampleRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext)
     {
@@ -173,6 +175,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         fields.add(wrapUnaware(experimentField.getField()));
         fields.add(groupSelectionWidget.asDatabaseModificationAware());
         fields.add(wrapUnaware(parent.getField()));
+        fields.add(wrapUnaware(parentsArea));
         fields.add(wrapUnaware(container.getField()));
         return fields;
     }
@@ -211,6 +214,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         getId() + ID_SUFFIX_PARENT,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
                                 .withSuffix(getSampleTypeCode()));
+        parentsArea = new ParentSamplesArea(viewContext, simpleId);
         container =
                 SampleChooserField.create(viewContext.getMessage(Dict.PART_OF_SAMPLE), false, null,
                         true, false, false, viewContext.getCommonViewContext(), getId()
@@ -257,13 +261,18 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     {
         boolean showContainer = sampleType.isShowContainer();
         boolean showParents = sampleType.isShowParents();
-        container.getField().setVisible(showContainer);
-        parent.getField().setVisible(showParents);
+        FieldUtil.setVisibility(showContainer, container.getField());
+        FieldUtil.setVisibility(showParents, parent.getField(), parentsArea);
     }
 
     private String getSampleTypeCode()
     {
         return sampleType.getCode();
+    }
+
+    protected String[] getSamples()
+    {
+        return parentsArea.tryGetSampleCodes();
     }
 
 }

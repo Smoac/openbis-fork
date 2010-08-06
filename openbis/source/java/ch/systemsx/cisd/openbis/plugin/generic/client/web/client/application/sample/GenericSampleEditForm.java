@@ -102,9 +102,10 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     {
         updatePropertyFieldsOriginalValues();
         experimentField.updateOriginalValue();
-        groupSelectionWidget.updateOriginalValue(groupSelectionWidget.getValue());
+        updateFieldOriginalValue(groupSelectionWidget);
         container.updateOriginalValue();
         parent.updateOriginalValue();
+        updateFieldOriginalValue(parentsArea);
     }
 
     private void setOriginalSample(Sample sample)
@@ -126,6 +127,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         initializeGroup();
         initializeContainedInParent();
         initializeGeneratedFromParent();
+        initializeParents();
     }
 
     private void initializeGroup()
@@ -152,12 +154,22 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
 
     private void initializeGeneratedFromParent()
     {
-        // FIXME 2010-08-05, Piotr Buczek: use parents - not generatedFrom
-        Sample parentSample = originalSample.getGeneratedFrom(); 
-        if (parentSample != null)
+        List<Sample> parents = originalSample.getParents();
+        if (parents.size() == 1)
         {
-            parent.updateValue(parentSample.getIdentifier());
+            Sample parentSample = originalSample.getGeneratedFrom();
+            if (parentSample != null)
+            {
+                parent.updateValue(parentSample.getIdentifier());
+            }
         }
+    }
+
+    private void initializeParents()
+    {
+        // TODO 2010-08-06, Piotr Buczek: load in background? like in experiment
+        List<Sample> parents = originalSample.getParents();
+        parentsArea.setSamples(parents);
     }
 
     @Override

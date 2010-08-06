@@ -18,12 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.form.TextArea;
-
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CodesArea;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
@@ -33,18 +29,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  * 
  * @author Piotr Buczek
  */
-public final class DataSetParentsArea extends TextArea
+public final class DataSetParentsArea extends CodesArea<ExternalData>
 {
 
     public static final String ID_SUFFIX_PARENTS = "_parents";
 
     public DataSetParentsArea(IMessageProvider messageProvider, String idPrefix)
     {
-        super();
-
-        setHeight("" + MultilineVarcharField.EM_TO_PIXEL * 10);
-        this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
-        setEmptyText(messageProvider.getMessage(Dict.PARENTS_EMPTY));
+        super(messageProvider.getMessage(Dict.PARENTS_EMPTY));
+		this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
         setId(createId(idPrefix));
     }
 
@@ -53,59 +46,22 @@ public final class DataSetParentsArea extends TextArea
         return idPrefix + ID_SUFFIX_PARENTS;
     }
 
-    // null if the area has not been modified, the list of all data set parent
-    // codes otherwise
+    // delegation to abstract class methods
+
+    // null if the area has not been modified,
+    // the list of all data set parent codes otherwise
     public final String[] tryGetModifiedParentCodes()
     {
-        if (isDirty() == false)
-        {
-            return null;
-        }
-        String text = getValue();
-        if (StringUtils.isBlank(text) == false)
-        {
-            return text.split(GenericConstants.CODES_TEXTAREA_REGEX);
-        } else
-        {
-            return new String[0];
-        }
+        return tryGetModifiedItemList();
     }
 
     public final void setParents(List<ExternalData> parents)
     {
-        setParentCodes(extractCodes(parents));
-    }
-
-    private static String[] extractCodes(List<ExternalData> parents)
-    {
-        String[] codes = new String[parents.size()];
-        int i = 0;
-        for (ExternalData parent : parents)
-        {
-            codes[i] = parent.getCode();
-            i++;
-        }
-        return codes;
+        setCodeProviders(parents);
     }
 
     public final void setParentCodes(String[] parentCodes)
     {
-        String textValue = createTextValue(parentCodes);
-        setValue(textValue);
-        setOriginalValue(textValue);
-    }
-
-    private static String createTextValue(String[] parentCodes)
-    {
-        StringBuffer sb = new StringBuffer();
-        for (String parentCode : parentCodes)
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(", ");
-            }
-            sb.append(parentCode);
-        }
-        return sb.toString();
+        setCodes(parentCodes);
     }
 }

@@ -140,7 +140,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
 
     private IDisposableComponent tryCreatePlateMaterialReviewer()
     {
-        String[] materialItemList = materialListField.tryParseItemList();
+        String[] materialItemList = materialListField.tryGetModifiedItemList();
         if (materialItemList == null || materialItemList.length == 0)
         {
             return null;
