@@ -16,22 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
-import java.util.Set;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 
 /**
  * Translator for {@link DataStoreServicePE} into {@link DatastoreServiceDescription}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataStoreServiceTranslator
 {
     public static DatastoreServiceDescription translate(DataStoreServicePE service)
     {
-        String[] datasetTypeCodes = extractCodes(service.getDatasetTypes());
+        String[] datasetTypeCodes = Code.extractCodesToArray(service.getDatasetTypes());
         String dssCode = service.getDataStore().getCode();
         DatastoreServiceDescription dssDescription =
                 new DatastoreServiceDescription(service.getKey(), service.getLabel(),
@@ -40,19 +38,6 @@ public class DataStoreServiceTranslator
         return dssDescription;
     }
 
-    private static String[] extractCodes(Set<DataSetTypePE> datasetTypes)
-    {
-        String[] codes = new String[datasetTypes.size()];
-        int i = 0;
-        for (DataSetTypePE datasetType : datasetTypes)
-        {
-            codes[i] = datasetType.getCode();
-            i++;
-        }
-        return codes;
-    }
-
-    
     private DataStoreServiceTranslator()
     {
     }

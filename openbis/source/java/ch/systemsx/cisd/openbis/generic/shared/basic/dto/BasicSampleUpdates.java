@@ -39,9 +39,17 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
 
     private Date version;
 
+    // TODO 2010-08-06, Piotr Buczek: get rid of this
     private String parentIdentifierOrNull;
 
     private String containerIdentifierOrNull;
+
+    // New set of parent sample codes which will replace the old ones. In this way some
+    // parent samples can be unassigned and some assigned as a result. It will be assumed that
+    // all the samples belong to the same group as the child sample.
+    // If equals to null nothing should be changed.
+    // If some previously assigned parent sample is missing on this list, it will be unassigned.
+    private String[] modifiedParentCodesOrNull;
 
     public String getParentIdentifierOrNull()
     {
@@ -105,6 +113,17 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
     public void setVersion(Date version)
     {
         this.version = version;
+    }
+
+    // if null nothing should be changed
+    public String[] getModifiedParentCodesOrNull()
+    {
+        return modifiedParentCodesOrNull;
+    }
+
+    public void setModifiedParentCodesOrNull(String[] modifiedParentCodesOrNull)
+    {
+        this.modifiedParentCodesOrNull = modifiedParentCodesOrNull;
     }
 
 }

@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
@@ -152,18 +152,9 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         {
             return null;
         }
-        String[] materialTypeCodes = extractCodes(materialTypesOrNull);
+        String[] materialTypeCodes = Code.extractCodesToArray(materialTypesOrNull);
         return PlateMaterialReviewer.create(screeningViewContext, experiment, materialItemList,
                 materialTypeCodes);
     }
 
-    private static String[] extractCodes(List<MaterialType> materialTypes)
-    {
-        List<String> codes = new ArrayList<String>();
-        for (MaterialType type : materialTypes)
-        {
-            codes.add(type.getCode());
-        }
-        return codes.toArray(new String[0]);
-    }
 }

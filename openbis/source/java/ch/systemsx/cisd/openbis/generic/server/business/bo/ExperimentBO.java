@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -443,7 +444,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     void setExperimentSamples(String[] sampleCodes)
     {
         List<SamplePE> samples = experiment.getSamples();
-        String[] currentSampleCodes = extractCodes(samples);
+        String[] currentSampleCodes = Code.extractCodesToArray(samples);
         Set<String> currentSampleCodesSet = asSet(currentSampleCodes);
         Set<String> codesToAdd = asSet(sampleCodes);
         codesToAdd.removeAll(currentSampleCodesSet);
@@ -535,18 +536,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private static Set<String> asSet(String[] objects)
     {
         return new HashSet<String>(Arrays.asList(objects));
-    }
-
-    private static String[] extractCodes(List<SamplePE> samples)
-    {
-        String[] codes = new String[samples.size()];
-        int i = 0;
-        for (SamplePE sample : samples)
-        {
-            codes[i] = sample.getCode();
-            i++;
-        }
-        return codes;
     }
 
     @Private

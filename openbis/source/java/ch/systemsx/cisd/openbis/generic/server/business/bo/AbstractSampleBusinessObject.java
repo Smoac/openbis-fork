@@ -192,28 +192,76 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected void setGeneratedFrom(final SampleIdentifier sampleIdentifier,
             final SamplePE samplePE, String parentIdentifier)
     {
-        for (SampleRelationshipPE r : samplePE.getParentRelationships())
+        removeParents(samplePE);
+        final SamplePE parentPE = tryGetValidSample(parentIdentifier, sampleIdentifier);
+        if (parentPE != null)
+        {
+            RelationshipTypePE relationship = tryFindParentChildRelationshipType();
+            samplePE.addParentRelationship(new SampleRelationshipPE(parentPE, samplePE,
+                    relationship));
+        }
+    }
+
+    protected void setParents(SamplePE child, List<SamplePE> parents)
+    {
+        removeParents(child);
+        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
+        for (SamplePE parent : parents)
+        {
+            addParentRelationship(child, parent, relationshipType);
+        }
+    }
+
+    private void removeParents(SamplePE child)
+    {
+        for (SampleRelationshipPE r : child.getParentRelationships())
         {
             if (r.getRelationship().getCode().equals(
                     BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
             {
-                samplePE.removeParentRelationship(r);
+                child.removeParentRelationship(r);
             }
         }
-        final SamplePE parentPE = tryGetValidSample(parentIdentifier, sampleIdentifier);
-        if (parentPE != null)
+    }
+
+    // ineffective for adding a collection of parents
+    protected void addParent(SamplePE child, SamplePE parent)
+    {
+        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
+        addParentRelationship(child, parent, relationshipType);
+    }
+
+    protected void addParents(SamplePE child, List<SamplePE> parents)
+    {
+        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
+        for (SamplePE parent : parents)
         {
-            RelationshipTypePE relationship =
-                    getRelationshipTypeDAO().tryFindRelationshipTypeByCode(
-                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-            if (relationship == null)
-            {
-                throw new UserFailureException(
-                        "'Parent - Child' relationship definition could not be found.");
-            }
-            samplePE.addParentRelationship(new SampleRelationshipPE(parentPE, samplePE,
-                    relationship));
+            addParentRelationship(child, parent, relationshipType);
         }
+    }
+
+    private void addParentRelationship(SamplePE child, SamplePE parent,
+            RelationshipTypePE relationshipType)
+    {
+        final SampleRelationshipPE relationship =
+                new SampleRelationshipPE(child, parent, relationshipType);
+        child.addParentRelationship(relationship);
+    }
+
+    protected RelationshipTypePE tryFindParentChildRelationshipType()
+    {
+        return tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+    }
+
+    protected RelationshipTypePE tryFindRelationshipTypeByCode(String code)
+    {
+        RelationshipTypePE result = getRelationshipTypeDAO().tryFindRelationshipTypeByCode(code);
+        if (result == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "'%s' relationship definition could not be found.", code);
+        }
+        return result;
     }
 
     private SamplePE tryGetValidSample(final String parentIdentifierOrNull,

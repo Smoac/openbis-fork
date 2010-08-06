@@ -113,6 +113,11 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeHolder, Com
         return codes;
     }
 
+    public final static String[] extractCodesToArray(Collection<? extends ICodeHolder> codeProviders)
+    {
+        return extractCodes(codeProviders).toArray(new String[codeProviders.size()]);
+    }
+
     public final static class CodeProviderComparator implements Comparator<ICodeHolder>,
             Serializable
     {

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -151,7 +152,7 @@ public class PlateContentLoader
     {
         List<ExternalDataPE> analysisDatasets =
                 ScreeningUtils.filterImageAnalysisDatasets(datasets);
-        List<String> datasetCodes = extractCodes(analysisDatasets);
+        List<String> datasetCodes = Code.extractCodes(analysisDatasets);
         String dataStoreCode = extractDataStoreCode(analysisDatasets);
         return DatasetReportsLoader.loadAnalysisResults(datasetCodes, dataStoreCode,
                 externalDataTable);
@@ -163,16 +164,6 @@ public class PlateContentLoader
         String dataStoreCode = extractDataStoreCode(imageDatasets.get(0));
         ensureSameDataStore(imageDatasets, dataStoreCode);
         return dataStoreCode;
-    }
-
-    private List<String> extractCodes(List<ExternalDataPE> datasets)
-    {
-        List<String> datasetCodes = new ArrayList<String>();
-        for (ExternalDataPE dataset : datasets)
-        {
-            datasetCodes.add(dataset.getCode());
-        }
-        return datasetCodes;
     }
 
     private String extractDataStoreCode(ExternalDataPE imageDataset)
