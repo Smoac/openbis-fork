@@ -254,4 +254,12 @@ public final class IdentifierHelper
                     "Sample '%s' does not belong to the space '%s'", sample, expectedGroupCode));
         }
     }
+
+    static public void fillGroupIfNotSpecified(SampleIdentifier sample, String defaultGroupCode)
+    {
+        if (sample.isInsideHomeGroup())
+        {
+            sample.getSpaceLevel().setSpaceCode(defaultGroupCode);
+        }
+    }
 }
