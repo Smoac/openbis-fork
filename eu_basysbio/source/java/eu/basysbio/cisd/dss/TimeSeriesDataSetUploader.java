@@ -56,7 +56,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
 {
     static final IDataSetUploaderFactory FACTORY = new IDataSetUploaderFactory()
         {
-            
+
             public IDataSetUploader create(DataSetInformation dataSetInformation,
                     DataSource dataSource, IEncapsulatedOpenBISService service,
                     TimeSeriesDataSetUploaderParameters parameters)
@@ -72,16 +72,16 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             }
         };
 
-        static final IDataSetUploaderFactory FACTORY_WO_TIME_POINT = new IDataSetUploaderFactory()
+    static final IDataSetUploaderFactory FACTORY_WO_TIME_POINT = new IDataSetUploaderFactory()
         {
-            
+
             public IDataSetUploader create(DataSetInformation dataSetInformation,
                     DataSource dataSource, IEncapsulatedOpenBISService service,
                     TimeSeriesDataSetUploaderParameters parameters)
             {
                 return new TimeSeriesDataSetUploader(dataSource, service, parameters, true);
             }
-            
+
             public IDataSetUploader create(DataSetInformation dataSetInformation,
                     ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
                     TimeSeriesDataSetUploaderParameters parameters)
@@ -89,8 +89,9 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
                 return new TimeSeriesDataSetUploader(dao, service, parameters, true);
             }
         };
-        
-    private final Map<ExperimentIdentifier, Experiment> experimentCache = new HashMap<ExperimentIdentifier, Experiment>();
+
+    private final Map<ExperimentIdentifier, Experiment> experimentCache =
+            new HashMap<ExperimentIdentifier, Experiment>();
 
     private final boolean ignoringTimePointDataSetCreation;
 
@@ -112,13 +113,20 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
     protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation,
             IDropBoxFeeder feeder)
     {
+        // TODO 2010-08-08, IA: Workaround enabling upload of LCA_MIC data
+        // ("dataset for header ... already registered"). Remove after problem is fixed.
+        if (dataSetInformation.getDataSetType().getCode().startsWith("LCA_MIC"))
+        {
+            return;
+        }
         FileReader reader = null;
         try
         {
             reader = new FileReader(tsvFile);
             String fileName = tsvFile.toString();
             TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(), true, false);
+                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(),
+                            true, false);
             List<Column> columns = table.getColumns();
             List<Column> commonColumns = new ArrayList<Column>();
             List<Column> dataColumns = new ArrayList<Column>();
@@ -389,7 +397,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             dao.createDataValue(columnID, rowIDManager.getOrCreateRow(i), value);
         }
     }
-    
+
     private Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
     {
         Experiment experiment = experimentCache.get(experimentIdentifier);
