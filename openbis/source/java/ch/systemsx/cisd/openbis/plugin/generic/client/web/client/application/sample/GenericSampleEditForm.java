@@ -64,13 +64,15 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     {
         final List<IEntityProperty> properties = extractProperties();
         final List<NewAttachment> attachments = attachmentsManager.extractAttachments();
-        ExperimentIdentifier experimentIdent =
+        final ExperimentIdentifier experimentIdent =
                 experimentField != null ? experimentField.tryToGetValue() : null;
+        final String containerOrNull = StringUtils.trimToNull(container.getValue());
+        final String parentOrNull = StringUtils.trimToNull(parent.getValue());
+        final String[] parents = getParents();
         viewContext.getService().updateSample(
                 new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
                         experimentIdent, originalSample.getModificationDate(),
-                        createSampleIdentifier(), StringUtils.trimToNull(parent.getValue()),
-                        StringUtils.trimToNull(container.getValue())),
+                        createSampleIdentifier(), containerOrNull, parentOrNull, parents),
                 new UpdateSampleCallback(viewContext));
     }
 

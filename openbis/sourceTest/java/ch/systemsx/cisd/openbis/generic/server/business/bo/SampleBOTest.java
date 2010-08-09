@@ -409,7 +409,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier, Collections
-                        .<NewAttachment> emptyList(), now, null, null, null));
+                        .<NewAttachment> emptyList(), now, null, null, null, null));
 
         assertEquals(experimentToAttach, sample.getExperiment());
         context.assertIsSatisfied();
@@ -445,7 +445,7 @@ public final class SampleBOTest extends AbstractBOTest
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, SampleIdentifierFactory
-                        .parse(newSampleIdentifierWithoutDb), null, null));
+                        .parse(newSampleIdentifierWithoutDb), null, null, null));
         String newSampleIdentWithDb =
                 EXAMPLE_DATABASE_INSTANCE.getCode() + ":" + newSampleIdentifierWithoutDb;
         assertEquals(newSampleIdentWithDb, sample.getSampleIdentifier().toString());
@@ -505,7 +505,7 @@ public final class SampleBOTest extends AbstractBOTest
         assertNull(sample.getGeneratedFrom());
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, null, parent.getSampleIdentifier()
+                        .<NewAttachment> emptyList(), now, null, null, parent.getSampleIdentifier()
                         .toString(), null));
         SamplePE newParent = sample.getGeneratedFrom();
         assertNotNull(newParent);
@@ -557,8 +557,8 @@ public final class SampleBOTest extends AbstractBOTest
         assertNull(sample.getContainer());
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, null, null, container
-                        .getSampleIdentifier().toString()));
+                        .<NewAttachment> emptyList(), now, null, container.getSampleIdentifier()
+                        .toString(), null, null));
         assertNotNull(sample.getContainer());
         assertEquals(container, sample.getContainer());
         context.assertIsSatisfied();
@@ -611,8 +611,8 @@ public final class SampleBOTest extends AbstractBOTest
         assertNull(sample.getContainer());
         SampleBO bo = createSampleBO();
         bo.update(new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                .<NewAttachment> emptyList(), now, null, null, container.getSampleIdentifier()
-                .toString()));
+                .<NewAttachment> emptyList(), now, null,
+                container.getSampleIdentifier().toString(), null, null));
         bo.save();
         context.assertIsSatisfied();
     }
@@ -643,7 +643,7 @@ public final class SampleBOTest extends AbstractBOTest
         {
             createSampleBO().update(
                     new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                            .<NewAttachment> emptyList(), now, null, null, null));
+                            .<NewAttachment> emptyList(), now, null, null, null, null));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -671,7 +671,7 @@ public final class SampleBOTest extends AbstractBOTest
         {
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                            .<NewAttachment> emptyList(), now, null, null, null);
+                            .<NewAttachment> emptyList(), now, null, null, null, null);
             createSampleBO().update(updates);
         } catch (UserFailureException e)
         {
@@ -993,6 +993,6 @@ public final class SampleBOTest extends AbstractBOTest
         createSampleBO().update(
                 new SampleUpdatesDTO(sampleId, null, experimentIdentifier, Collections
                         .<NewAttachment> emptyList(), sample.getModificationDate(), null, null,
-                        null));
+                        null, null));
     }
 }

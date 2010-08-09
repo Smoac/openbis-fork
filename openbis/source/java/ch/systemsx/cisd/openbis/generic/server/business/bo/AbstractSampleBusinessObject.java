@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -130,7 +132,23 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
         String parentIdentifier = newSample.getParentIdentifier();
-        setGeneratedFrom(sampleIdentifier, samplePE, parentIdentifier);
+        if (parentIdentifier != null)
+        {
+            setGeneratedFrom(sampleIdentifier, samplePE, parentIdentifier);
+        } else if (newSample.getParents() != null)
+        {
+            final String[] parents = newSample.getParents();
+            final List<SampleIdentifier> parentIdentifiers =
+                    IdentifierHelper.extractSampleIdentifiers(parents);
+            if (sampleIdentifier.isSpaceLevel())
+            {
+                final String spaceCode = sampleIdentifier.getSpaceLevel().getSpaceCode();
+                for (SampleIdentifier si : parentIdentifiers)
+                {
+                    IdentifierHelper.fillAndCheckGroup(si, spaceCode);
+                }
+            }
+        }
         String containerIdentifier = newSample.getContainerIdentifier();
         setContainer(sampleIdentifier, samplePE, containerIdentifier);
         samplePE.setPermId(getPermIdDAO().createPermId());
@@ -214,13 +232,18 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void removeParents(SamplePE child)
     {
+        List<SampleRelationshipPE> parents = new ArrayList<SampleRelationshipPE>();
         for (SampleRelationshipPE r : child.getParentRelationships())
         {
             if (r.getRelationship().getCode().equals(
                     BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
             {
-                child.removeParentRelationship(r);
+                parents.add(r);
             }
+        }
+        for (SampleRelationshipPE r : parents)
+        {
+            child.removeParentRelationship(r);
         }
     }
 
@@ -244,7 +267,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             RelationshipTypePE relationshipType)
     {
         final SampleRelationshipPE relationship =
-                new SampleRelationshipPE(child, parent, relationshipType);
+                new SampleRelationshipPE(parent, child, relationshipType);
         child.addParentRelationship(relationship);
     }
 

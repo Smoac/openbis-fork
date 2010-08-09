@@ -41,7 +41,7 @@ public class SampleBatchUpdatesDTO extends SampleUpdatesDTO
             String containerIdentifierOrNull, SampleBatchUpdateDetails details)
     {
         super(null, properties, experimentIdentifierOrNull, null, null, sampleIdentifier,
-                parentIdentifierOrNull, containerIdentifierOrNull);
+                containerIdentifierOrNull, parentIdentifierOrNull, null);
         this.oldSampleIdentifierOrNull = oldSampleIdentifier;
         this.details = details;
     }

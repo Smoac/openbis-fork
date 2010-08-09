@@ -56,21 +56,26 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtractorWithService
 {
     static final String MS_INJECTION_PROPERTIES_FILE = "ms-injection.properties";
+
     static final String DATA_SET_PROPERTIES_FILE = "data-set.properties";
 
     static final String PROJECT_CODE_KEY = "PROJECT_CODE";
+
     static final String EXPERIMENT_CODE_KEY = "EXPERIMENT_CODE";
+
     static final String SAMPLE_CODE_KEY = "SAMPLE_CODE";
+
     static final String USER_KEY = "USER";
-    
+
     static final String DATA_SET_TYPE_KEY = "DATA_SET_TYPE";
+
     static final String FILE_TYPE_KEY = "FILE_TYPE";
+
     static final String PARENT_TYPE_KEY = "PARENT_TYPE";
-    
+
     static final String EXPERIMENT_TYPE_CODE = "MS_INJECT";
 
     static final String SAMPLE_TYPE_CODE = "MS_INJECTION";
-
 
     public DataSetInfoExtractorForMSInjection(Properties properties)
     {
@@ -95,11 +100,13 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
         ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(sampleProperties);
         getOrCreateExperiment(experimentIdentifier);
         info.setExperimentIdentifier(experimentIdentifier);
-        long sampleID = registerOrUpdateSample(sampleIdentifier, experimentIdentifier, sampleProperties);
-        
+        long sampleID =
+                registerOrUpdateSample(sampleIdentifier, experimentIdentifier, sampleProperties);
+
         Properties dataSetProperties =
                 Util.loadPropertiesFile(incomingDataSetPath, DATA_SET_PROPERTIES_FILE);
-        String dataSetTypeCode = PropertyUtils.getMandatoryProperty(dataSetProperties, DATA_SET_TYPE_KEY);
+        String dataSetTypeCode =
+                PropertyUtils.getMandatoryProperty(dataSetProperties, DATA_SET_TYPE_KEY);
         String parentTypeOrNull = dataSetProperties.getProperty(PARENT_TYPE_KEY);
         dataSetProperties.remove(DATA_SET_TYPE_KEY);
         dataSetProperties.remove(FILE_TYPE_KEY);
@@ -150,7 +157,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             Set<NewAttachment> emptySet = Collections.<NewAttachment> emptySet();
             Date version = sample.getModificationDate();
             service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
-                    experimentIdentifier, emptySet, version, sampleIdentifier, null, null));
+                    experimentIdentifier, emptySet, version, sampleIdentifier, null, null, null));
             return sample.getId();
         }
     }

@@ -43,7 +43,8 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE), "s1");
         NewSample sample =
-                new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
+                NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "parent",
+                        "container");
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createGroups());
         predicate.init(provider);
 
@@ -61,7 +62,8 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s1");
         NewSample sample =
-                new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
+                NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "parent",
+                        "container");
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
 
@@ -81,7 +83,8 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new GroupIdentifier(INSTANCE_CODE, SPACE_CODE), "s1");
         NewSample sample =
-                new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
+                NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "parent",
+                        "container");
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
 
@@ -99,7 +102,8 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         GroupIdentifier groupIdentifier = new GroupIdentifier(INSTANCE_CODE, ANOTHER_GROUP_CODE);
         SampleIdentifier sampleIdentifier = new SampleIdentifier(groupIdentifier, "s1");
         NewSample sample =
-                new NewSample(sampleIdentifier.toString(), sampleType, "parent", "container");
+                NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "parent",
+                        "container");
         List<GroupPE> groups = Arrays.asList(createGroup(groupIdentifier));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);
         predicate.init(provider);
@@ -107,7 +111,8 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
 
         assertEquals(true, status.isError());
-        assertEquals("User 'megapixel' does not have enough privileges.", status.tryGetErrorMessage());
+        assertEquals("User 'megapixel' does not have enough privileges.", status
+                .tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 }

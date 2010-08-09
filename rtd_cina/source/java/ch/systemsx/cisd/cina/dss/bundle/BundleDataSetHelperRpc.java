@@ -130,7 +130,7 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
             Sample parentSample = getOpenbisService().tryGetSampleWithExperiment(parentIdOrNull);
             sampleId = new SampleIdentifier(parentIdOrNull.getSpaceLevel(), sampleCode);
             sample =
-                    new NewSample(sampleId.toString(), replicaSampleType,
+                    NewSample.createWithParent(sampleId.toString(), replicaSampleType,
                             parentIdOrNull.toString(), null);
             sample.setExperimentIdentifier(parentSample.getExperiment().getIdentifier());
         } else if (experimentIdOrNull != null)
@@ -140,7 +140,7 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
                     new SpaceIdentifier(experimentIdOrNull.getDatabaseInstanceCode(),
                             experimentIdOrNull.getSpaceCode());
             sampleId = new SampleIdentifier(spaceId, sampleCode);
-            sample = new NewSample(sampleId.toString(), replicaSampleType, null, null);
+            sample = NewSample.createWithParent(sampleId.toString(), replicaSampleType, null, null);
             sample.setExperimentIdentifier(experimentIdOrNull.toString());
         }
 

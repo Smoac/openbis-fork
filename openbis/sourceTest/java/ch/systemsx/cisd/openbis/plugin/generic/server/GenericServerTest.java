@@ -437,7 +437,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         sample.setModificationDate(newModificationDate);
         final SampleUpdatesDTO updates =
                 new SampleUpdatesDTO(sampleId, properties, null, attachments, version, null, null,
-                        null);
+                        null, null);
         context.checking(new Expectations()
             {
                 {

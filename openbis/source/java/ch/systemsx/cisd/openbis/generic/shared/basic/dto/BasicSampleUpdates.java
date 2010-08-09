@@ -76,13 +76,14 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
     }
 
     public BasicSampleUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
-            String parentIdentifierOrNull, String containerIdentifierOrNull)
+            String containerIdentifierOrNull, String parentIdentifierOrNull, String[] parents)
     {
         this.sampleIdOrNull = sampleId;
         this.properties = properties;
         this.version = version;
-        this.parentIdentifierOrNull = parentIdentifierOrNull;
         this.containerIdentifierOrNull = containerIdentifierOrNull;
+        this.parentIdentifierOrNull = parentIdentifierOrNull;
+        this.modifiedParentCodesOrNull = parents;
     }
 
     public TechId getSampleIdOrNull()

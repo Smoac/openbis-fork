@@ -88,8 +88,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         predicate.init(provider);
         Status status =
                 predicate.evaluate(person, roles, new NewSamplesWithTypes(new SampleType(), Arrays
-                        .asList(new NewSample(sampleIdentifier1.toString(), null, null, null),
-                                new NewSample(sampleIdentifier2.toString(), null, null, null))));
+                        .asList(NewSample.createWithParent(sampleIdentifier1.toString(), null,
+                                null, null), NewSample.createWithParent(sampleIdentifier2
+                                .toString(), null, null, null))));
         assertEquals(false, status.isError());
         context.assertIsSatisfied();
     }
@@ -116,8 +117,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         predicate.init(provider);
         Status status =
                 predicate.evaluate(person, roles, new NewSamplesWithTypes(new SampleType(), Arrays
-                        .asList(new NewSample(sampleIdentifier1.toString(), null, null, null),
-                                new NewSample(sampleIdentifier2.toString(), null, null, null))));
+                        .asList(NewSample.createWithParent(sampleIdentifier1.toString(), null,
+                                null, null), NewSample.createWithParent(sampleIdentifier2
+                                .toString(), null, null, null))));
         assertEquals(true, status.isError());
         context.assertIsSatisfied();
     }
@@ -146,8 +148,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         predicate.init(provider);
         Status status =
                 predicate.evaluate(person, roles, new NewSamplesWithTypes(new SampleType(), Arrays
-                        .asList(new NewSample(sampleIdentifier1.toString(), null, null, null),
-                                new NewSample(sampleIdentifier2.toString(), null, null, null))));
+                        .asList(NewSample.createWithParent(sampleIdentifier1.toString(), null,
+                                null, null), NewSample.createWithParent(sampleIdentifier2
+                                .toString(), null, null, null))));
         assertEquals(true, status.isError());
         context.assertIsSatisfied();
     }

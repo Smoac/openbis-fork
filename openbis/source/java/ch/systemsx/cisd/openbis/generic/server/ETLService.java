@@ -601,7 +601,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         Session session = getSession(sessionToken);
         IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
-        ExternalDataPE dataSet = externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
+        ExternalDataPE dataSet =
+                externalDataDAO.tryToFindFullDataSetByCode(dataSetCode, false, false);
         if (dataSet != null)
         {
             DataSetTypePE dataSetType = dataSet.getDataSetType();
@@ -768,8 +769,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             String groupPrefix =
                     container.getGroup() != null ? ("/" + container.getGroup().getCode() + "/")
                             : "/";
-            newSamples.add(new NewSample(groupPrefix + code, SampleTypeTranslator.translate(
-                    sampleTypePE, null), null, container.getIdentifier()));
+            newSamples.add(NewSample.createWithParent(groupPrefix + code, SampleTypeTranslator
+                    .translate(sampleTypePE, null), null, container.getIdentifier()));
         }
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
     }

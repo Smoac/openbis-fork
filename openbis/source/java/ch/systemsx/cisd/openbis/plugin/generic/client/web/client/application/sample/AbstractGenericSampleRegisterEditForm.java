@@ -270,7 +270,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         return sampleType.getCode();
     }
 
-    protected String[] getSamples()
+    protected String[] getParents()
     {
         return parentsArea.tryGetSampleCodes();
     }

@@ -46,7 +46,13 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     /**
      * The parent identifier.
      */
+    // TODO 2010-08-09, Piotr Buczek: remove
     private String parentIdentifier;
+
+    // Set of parent sample codes or identifiers. It will be assumed that
+    // all the samples belong to the same group as the child sample.
+    // If equals to null then parentIdentifier should be used.
+    private String[] parentsOrNull;
 
     /**
      * The container identifier.
@@ -66,20 +72,36 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     {
     }
 
-    public NewSample(final String identifier, final SampleType sampleType,
-            final String parentIdentifier, final String containerIdentifier)
+    private NewSample(final String identifier, final SampleType sampleType,
+            final String containerIdentifier)
     {
         setIdentifier(identifier);
         setSampleType(sampleType);
-        setParentIdentifier(parentIdentifier);
         setContainerIdentifier(containerIdentifier);
     }
 
-    public NewSample(final String identifier, SampleType sampleType, String parentIdentifier,
-            String containerIdentifier, String experimentIdentifier, IEntityProperty[] properties,
+    public static NewSample createWithParent(final String identifier, final SampleType sampleType,
+            final String containerIdentifier, final String parentIdentifier)
+    {
+        NewSample result = new NewSample(identifier, sampleType, containerIdentifier);
+        result.setParentIdentifier(parentIdentifier);
+        return result;
+    }
+
+    public static NewSample createWithParents(final String identifier, final SampleType sampleType,
+            final String containerIdentifier, final String[] parents)
+    {
+        NewSample result = new NewSample(identifier, sampleType, containerIdentifier);
+        result.setParents(parents);
+        return result;
+    }
+
+    public NewSample(final String identifier, SampleType sampleType, String containerIdentifier,
+            String parentIdentifier, String experimentIdentifier, IEntityProperty[] properties,
             List<NewAttachment> attachments)
     {
-        this(identifier, sampleType, parentIdentifier, containerIdentifier);
+        this(identifier, sampleType, containerIdentifier);
+        this.parentIdentifier = parentIdentifier;
         this.experimentIdentifier = experimentIdentifier;
         this.properties = properties;
         this.attachments = attachments;
@@ -103,6 +125,16 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     public final void setSampleType(final SampleType sampleType)
     {
         this.sampleType = sampleType;
+    }
+
+    public String[] getParents()
+    {
+        return parentsOrNull;
+    }
+
+    public void setParents(String[] parents)
+    {
+        this.parentsOrNull = parents;
     }
 
     public final String getParentIdentifier()
