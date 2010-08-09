@@ -182,6 +182,9 @@
 		<move file="${jar.test.file}" todir="${dist}/${distfolder}/lib" />
 		<move file="${src.zip.file}" todir="${dist}/${distfolder}/src" />
 		<move file="${javadoc.zip.file}" todir="${dist}/${distfolder}/doc" />
+		<copy todir="${dist}/${distfolder}/doc">
+			<fileset dir="doc" includes="**" />
+		</copy>
 	  <copy todir="${dist}/${distfolder}">
 	    <fileset dir="${original.dist}"/>
 	  </copy>
