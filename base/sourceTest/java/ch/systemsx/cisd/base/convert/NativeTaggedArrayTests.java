@@ -48,12 +48,15 @@ public class NativeTaggedArrayTests
         final byte[] taggedArr = NativeTaggedArray.toByteArray(floatArr);
         assertEquals(3 * 4 + 4 + 4, taggedArr.length);
         final float[] convertedFloatArr = NativeTaggedArray.tryToFloatArray1D(taggedArr);
-        final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(taggedArr);
+        final NativeTaggedArray.NativeArrayTag tag = NativeTaggedArray.tryGetArrayTag(taggedArr);
+        final NativeArrayEncoding encoding = tag.getEncoding();
         assertNotNull(encoding);
         assertEquals(NativeData.getNativeByteOrder(), encoding.getByteOrder());
         assertEquals(4, encoding.getSizeInBytes());
         assertTrue(encoding.isFloatingPoint());
         assertFalse(encoding.isInteger());
+        assertEquals(1, tag.getDimensions().length);
+        assertEquals(3, tag.getDimensions()[0]);
         assertTrue(Arrays.equals(floatArr, convertedFloatArr));
     }
 

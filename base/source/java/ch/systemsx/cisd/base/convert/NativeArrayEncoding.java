@@ -23,7 +23,7 @@ import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
  * 
  * @author Bernd Rinn
  */
-enum NativeArrayEncoding
+public enum NativeArrayEncoding
 {
     INT8_NATIVE(false, (byte) 1, NativeData.ByteOrder.NATIVE),
 
@@ -61,6 +61,14 @@ enum NativeArrayEncoding
 
     private static final int CHAR_F = 70;
 
+    private boolean floatingPoint;
+
+    private ByteOrder byteOrder;
+
+    private byte sizeInBytes;
+
+    private byte[] magic;
+
     NativeArrayEncoding(boolean floatingPoint, byte sizeInBytes, NativeData.ByteOrder byteOrder)
     {
         this.floatingPoint = floatingPoint;
@@ -75,30 +83,34 @@ enum NativeArrayEncoding
                             sizeInBytes };
     }
 
-    private boolean floatingPoint;
-
-    private ByteOrder byteOrder;
-
-    private byte sizeInBytes;
-
-    private byte[] magic;
-
-    boolean isFloatingPoint()
+    /**
+     * Returns <code>true</code>, if the encoded array is a float array.
+     */
+    public boolean isFloatingPoint()
     {
         return floatingPoint;
     }
 
-    boolean isInteger()
+    /**
+     * Returns <code>true</code>, if the encoded array is an int array.
+     */
+    public boolean isInteger()
     {
         return floatingPoint == false;
     }
 
-    NativeData.ByteOrder getByteOrder()
+    /**
+     * Returns the byte order of the array.
+     */
+    public NativeData.ByteOrder getByteOrder()
     {
         return byteOrder;
     }
 
-    byte getSizeInBytes()
+    /**
+     * Returns the size of one element in bytes.
+     */
+    public byte getSizeInBytes()
     {
         return sizeInBytes;
     }

@@ -55,6 +55,56 @@ public class NativeTaggedArray
 
     private static final int RANK_1 = 1;
 
+    /**
+     * A class to return the array encoding and dimensions of a native tagged array.
+     */
+    public static class NativeArrayTag
+    {
+        private final NativeArrayEncoding encoding;
+
+        private final int[] dimensions;
+
+        NativeArrayTag(NativeArrayEncoding encoding, int[] dimensions)
+        {
+            this.encoding = encoding;
+            this.dimensions = dimensions;
+        }
+
+        /**
+         * Returns the {@link NativeArrayEncoding} of the array.
+         */
+        public NativeArrayEncoding getEncoding()
+        {
+            return encoding;
+        }
+
+        /**
+         * Resurns the dimensions of the array.
+         */
+        public int[] getDimensions()
+        {
+            return dimensions;
+        }
+    }
+
+    /**
+     * Returns the array tag of the native tagged array encoded in <var>data</var>, or
+     * <code>null</code>, if <var>data</var> does not encode a native tagged array.
+     */
+    public static NativeArrayTag tryGetArrayTag(byte[] data)
+    {
+        final NativeArrayEncoding encodingOrNull = NativeArrayEncoding.tryGetEncoding(data);
+        if (encodingOrNull == null)
+        {
+            return null;
+        }
+        final int rank = data[RANK_INDEX];
+        final int[] dimensions = new int[rank];
+        NativeData.copyByteToInt(data, LENGTH_INDEX, dimensions, 0, rank, encodingOrNull
+                .getByteOrder());
+        return new NativeArrayTag(encodingOrNull, dimensions);
+    }
+
     //
     // Float
     //
@@ -148,8 +198,7 @@ public class NativeTaggedArray
     public static MDFloatArray tryToFloatArray(byte[] data)
     {
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(data);
-        if (encoding == null || encoding.isInteger()
-                || encoding.getSizeInBytes() != FLOAT_SIZE)
+        if (encoding == null || encoding.isInteger() || encoding.getSizeInBytes() != FLOAT_SIZE)
         {
             return null;
         }
@@ -261,8 +310,7 @@ public class NativeTaggedArray
     public static MDDoubleArray tryToDoubleArray(byte[] data)
     {
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(data);
-        if (encoding == null || encoding.isInteger()
-                || encoding.getSizeInBytes() != DOUBLE_SIZE)
+        if (encoding == null || encoding.isInteger() || encoding.getSizeInBytes() != DOUBLE_SIZE)
         {
             return null;
         }
@@ -488,8 +536,7 @@ public class NativeTaggedArray
     public static MDIntArray tryToIntArray(byte[] data)
     {
         final NativeArrayEncoding encoding = NativeArrayEncoding.tryGetEncoding(data);
-        if (encoding == null || encoding.isFloatingPoint()
-                || encoding.getSizeInBytes() != INT_SIZE)
+        if (encoding == null || encoding.isFloatingPoint() || encoding.getSizeInBytes() != INT_SIZE)
         {
             return null;
         }
