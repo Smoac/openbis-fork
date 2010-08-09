@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
@@ -31,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchF
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2010-08-09, Piotr Buczek: write headless system tests
+@DoNotRunWith(Platform.HtmlUnit)
 public class DataSetSearchTest extends AbstractGWTTestCase
 {
 
