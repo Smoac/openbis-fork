@@ -208,20 +208,43 @@ public class SampleListingWorkerTest extends AbstractDAOTest
     {
         if (s.getId().equals(CHILD_WITH_2_PARENTS_ID))
         {
-            assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
-            assertEquals("ID:" + s.getId(), PARENT2_ID, s.getGeneratedFrom().getId().longValue());
-            // FIXME
-            // test s.getGeneratedFrom throws exception
-            // assertEquals(2, s.getParents().size());
-            // for (Sample parent : s.getParents())
-            // {
-            // assertTrue("ID:" + s.getId(), parent.getId().equals(PARENT1_ID)
-            // || parent.getId().equals(PARENT2_ID));
-            // }
+            checkParents(s, Arrays.asList(PARENT1_ID, PARENT2_ID));
+            checkGetGeneratedFromFail(s);
         } else
         {
-            assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
-            assertEquals("ID:" + s.getId(), PARENT1_ID, s.getGeneratedFrom().getId().longValue());
+            checkGeneratedFrom(s, PARENT1_ID);
         }
+    }
+
+    private void checkGetGeneratedFromFail(Sample s)
+    {
+        boolean fail = false;
+        try
+        {
+            s.getGeneratedFrom();
+        } catch (IllegalStateException e)
+        {
+            // expected
+        }
+        if (fail)
+        {
+            fail("Expected IllegalStateException");
+        }
+    }
+
+    private void checkParents(Sample s, List<Long> expectedParentIds)
+    {
+        assertEquals(expectedParentIds.size(), s.getParents().size());
+        for (Sample parent : s.getParents())
+        {
+            expectedParentIds.contains(parent.getId());
+            assertTrue("ID:" + s.getId(), expectedParentIds.contains(parent.getId()));
+        }
+    }
+
+    private void checkGeneratedFrom(Sample s, Long expectedParentId)
+    {
+        assertNotNull("ID:" + s.getId(), s.getGeneratedFrom());
+        assertEquals("ID:" + s.getId(), expectedParentId, s.getGeneratedFrom().getId());
     }
 }

@@ -142,8 +142,8 @@ final class SampleListingWorker
 
     private final LongSet idsOfSamplesAwaitingParentResolution = new LongOpenHashSet();
 
-    private final Long2ObjectMap<RelatedSampleRecord> samplesAwaitingParentResolution =
-            new Long2ObjectOpenHashMap<RelatedSampleRecord>();
+    private final List<RelatedSampleRecord> samplesAwaitingParentResolution =
+            new ArrayList<RelatedSampleRecord>();
 
     private final Long2ObjectMap<RelatedSampleRecord> samplesAwaitingContainerResolution =
             new Long2ObjectOpenHashMap<RelatedSampleRecord>();
@@ -695,18 +695,16 @@ final class SampleListingWorker
                         idsOfSamplesAwaitingParentResolution);
         for (SampleRelationRecord relation : parentRelations)
         {
-            samplesAwaitingParentResolution.put(relation.sample_id_child, new RelatedSampleRecord(
-                    sampleMap.get(relation.sample_id_child), relation.sample_id_parent));
+            samplesAwaitingParentResolution.add(new RelatedSampleRecord(sampleMap
+                    .get(relation.sample_id_child), relation.sample_id_parent));
             addRelatedParentSampleToRequested(relation.sample_id_parent);
         }
     }
 
     private void resolveParents()
     {
-        for (Long2ObjectMap.Entry<RelatedSampleRecord> e : samplesAwaitingParentResolution
-                .long2ObjectEntrySet())
+        for (RelatedSampleRecord record : samplesAwaitingParentResolution)
         {
-            final RelatedSampleRecord record = e.getValue();
             final Sample parent = sampleMap.get(record.relatedSampleId);
             record.sample.addParent(parent);
         }
