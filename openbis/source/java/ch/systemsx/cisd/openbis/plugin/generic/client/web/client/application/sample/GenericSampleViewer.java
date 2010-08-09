@@ -505,6 +505,14 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         {
             observer.addObserver(containerSamplesSection.tryGetDatabaseModificationObserver());
         }
+        if (derivedSamplesSection != null)
+        {
+            observer.addObserver(derivedSamplesSection.tryGetDatabaseModificationObserver());
+        }
+        if (parentSamplesSection != null)
+        {
+            observer.addObserver(parentSamplesSection.tryGetDatabaseModificationObserver());
+        }
         return observer;
     }
 
