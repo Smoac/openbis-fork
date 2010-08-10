@@ -770,7 +770,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                     container.getGroup() != null ? ("/" + container.getGroup().getCode() + "/")
                             : "/";
             newSamples.add(NewSample.createWithParent(groupPrefix + code, SampleTypeTranslator
-                    .translate(sampleTypePE, null), null, container.getIdentifier()));
+                    .translate(sampleTypePE, null), container.getIdentifier(), null));
         }
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
     }
