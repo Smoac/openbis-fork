@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 
 public class InternalLinkCellRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
@@ -34,7 +35,7 @@ public class InternalLinkCellRenderer implements GridCellRenderer<BaseEntityMode
             String tokenOrNull = model.tryGetLink(property);
             if (tokenOrNull == null && renderOriginalValueForEmptyToken)
             {
-                return originalValue;
+                return new MultilineHTML(originalValue).toString();
             } else
             {
                 String href = "#" + (tokenOrNull != null ? tokenOrNull : "");

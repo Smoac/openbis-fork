@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public class ParentGeneratedFromSampleColDef extends AbstractParentSampleColDef
@@ -77,7 +76,7 @@ public class ParentGeneratedFromSampleColDef extends AbstractParentSampleColDef
                 sb.append(getAsValue(parent)).append("\n");
                 counter++;
             }
-            return new MultilineHTML(sb.toString()).toString();
+            return sb.toString();
         }
     }
 
