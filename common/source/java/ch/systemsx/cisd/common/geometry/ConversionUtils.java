@@ -104,8 +104,10 @@ public class ConversionUtils
     }
 
     /**
-     * Taken from PlateUtils Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 ->
-     * Z, 27 -> AA, 28 -> AB, etc.
+     * Taken from PlateUtils.
+     * <p>
+     * Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 -> Z, 27 -> AA, 28 -> AB,
+     * etc.
      */
     public static String translateRowNumberIntoLetterCode(int rowNumber)
     {

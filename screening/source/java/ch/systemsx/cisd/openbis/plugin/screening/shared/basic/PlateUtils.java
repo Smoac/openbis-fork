@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic;
 
-import ch.systemsx.cisd.common.geometry.ConversionUtils;
 
 /**
  * Utility methods for plates.
@@ -31,7 +30,17 @@ public class PlateUtils
      */
     public static String translateRowNumberIntoLetterCode(int rowNumber)
     {
-        // Moved to conversion utils
-        return ConversionUtils.translateRowNumberIntoLetterCode(rowNumber);
+        // This code is duplicated in ch.systemsx.cisd.common.geometry.ConversionUtils.
+        // But there is no way around this, since PlateUtils needs to be translatable to JavaScript,
+        // whereas ConversionUtils does not. OTOH, ConversionUtils cannot depend on PlateUtils.
+        // Alas....
+        int rowIndex = rowNumber - 1;
+        String code = "";
+        while (rowIndex >= 0)
+        {
+            code = (char) (rowIndex % 26 + 'A') + code;
+            rowIndex = rowIndex / 26 - 1;
+        }
+        return code;
     }
 }

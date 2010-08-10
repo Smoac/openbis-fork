@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.server.library_tool
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.geometry.ConversionUtils;
+import ch.systemsx.cisd.common.geometry.Point;
+
 /**
  * Provides structured information from one row of the QIAGEN library.
  * 
@@ -73,7 +76,10 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
     {
         String wellRow = getWellRow(row);
         String wellCol = getWellCol(row);
-        return wellRow + wellCol;
+
+        // Canonicalize the well name
+        Point loc = ConversionUtils.parseSpreadsheetLocation(wellRow + wellCol);
+        return ConversionUtils.convertToSpreadsheetLocation(loc);
     }
 
     private String getWellCol(String[] row)
