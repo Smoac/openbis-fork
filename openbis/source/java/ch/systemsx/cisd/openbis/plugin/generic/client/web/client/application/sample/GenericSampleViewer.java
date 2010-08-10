@@ -202,17 +202,17 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
         containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(containerSamplesSection);
+        container.addPanel(containerSamplesSection, false);
         // Derived samples
         derivedSamplesSection = new DerivedSamplesSection(viewContext, generator);
         derivedSamplesSection.setDisplayID(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(derivedSamplesSection);
+        container.addPanel(derivedSamplesSection, false);
         // Parent samples
         parentSamplesSection = new ParentSamplesSection(viewContext, generator);
         parentSamplesSection.setDisplayID(DisplayTypeIDGenerator.PARENT_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(parentSamplesSection);
+        container.addPanel(parentSamplesSection, false);
         // Data Sets
         CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
         dataSetBrowser =
@@ -290,11 +290,11 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         {
             properties.put(messageProvider.getMessage(Dict.DERIVED_SAMPLE) + "s", generated.length);
         }
-        final List<Sample> parents = sample.getParents();
+        final Set<Sample> parents = sample.getParents();
         final int parentsSize = parents.size();
         if (parentsSize == 1)
         {
-            properties.put(messageProvider.getMessage(Dict.PARENT), parents.get(0));
+            properties.put(messageProvider.getMessage(Dict.PARENT), parents.iterator().next());
         } else if (parentsSize > 1)
         {
             properties.put(messageProvider.getMessage(Dict.PARENTS), parentsSize);

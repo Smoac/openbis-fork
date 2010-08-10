@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 public class ParentGeneratedFromSampleColDef extends AbstractParentSampleColDef
 {
     private static final String IDENTIFIER = "generatedFromParent";
+
+    private static final int MAX_PARENTS = 4;
 
     // GWT only
     public ParentGeneratedFromSampleColDef()
@@ -62,7 +65,19 @@ public class ParentGeneratedFromSampleColDef extends AbstractParentSampleColDef
             return super.tryGetValue(sample);
         } else
         {
-            return parentsSize + "";
+            StringBuilder sb = new StringBuilder();
+            int counter = 0;
+            for (Sample parent : sample.getParents())
+            {
+                if (counter == MAX_PARENTS)
+                {
+                    sb.append("... (").append(parentsSize - MAX_PARENTS).append(" more)");
+                    break;
+                }
+                sb.append(getAsValue(parent)).append("\n");
+                counter++;
+            }
+            return new MultilineHTML(sb.toString()).toString();
         }
     }
 

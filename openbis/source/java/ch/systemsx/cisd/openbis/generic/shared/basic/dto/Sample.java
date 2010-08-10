@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
@@ -52,7 +54,7 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
 
     private Sample container;
 
-    private List<Sample> parents = new ArrayList<Sample>();
+    private Set<Sample> parents = new TreeSet<Sample>();
 
     private List<IEntityProperty> properties;
 
@@ -156,12 +158,12 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.container = container;
     }
 
-    public List<Sample> getParents()
+    public Set<Sample> getParents()
     {
         return parents;
     }
 
-    public void setParents(List<Sample> parents)
+    public void setParents(Set<Sample> parents)
     {
         this.parents = parents;
     }
@@ -182,13 +184,13 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
             throw new IllegalStateException("Sample " + getIdentifier()
                     + " has more than one parent");
         }
-        return parents.get(0);
+        return parents.iterator().next();
     }
 
     // used only for testing
     public void setGeneratedFrom(final Sample generatedFrom)
     {
-        parents = new ArrayList<Sample>();
+        parents = new TreeSet<Sample>();
         parents.add(generatedFrom);
     }
 

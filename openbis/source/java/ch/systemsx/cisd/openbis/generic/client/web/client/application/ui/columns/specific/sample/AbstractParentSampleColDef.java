@@ -39,11 +39,16 @@ public abstract class AbstractParentSampleColDef extends AbstractColumnDefinitio
         Sample parent = tryGetParent(sample);
         if (parent != null)
         {
-            return parent.getIdentifier();
+            return getAsValue(parent);
         } else
         {
             return null;
         }
+    }
+
+    protected final String getAsValue(Sample sample)
+    {
+        return sample.getIdentifier();
     }
 
     @Override

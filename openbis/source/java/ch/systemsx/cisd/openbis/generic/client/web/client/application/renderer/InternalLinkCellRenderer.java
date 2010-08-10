@@ -9,6 +9,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 
 public class InternalLinkCellRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
+    private final boolean renderOriginalValueForEmptyToken;
+
+    public InternalLinkCellRenderer(boolean renderOriginalValueForEmptyToken)
+    {
+        this.renderOriginalValueForEmptyToken = renderOriginalValueForEmptyToken;
+    }
+
+    public InternalLinkCellRenderer()
+    {
+        this(false);
+    }
 
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
@@ -21,8 +32,14 @@ public class InternalLinkCellRenderer implements GridCellRenderer<BaseEntityMode
         { // TODO 2010-05-18, IA: almost the same as LinkRenderer#createLinkRenderer()
             String originalValue = String.valueOf(model.get(property));
             String tokenOrNull = model.tryGetLink(property);
-            String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
-            return LinkRenderer.renderAsLinkWithAnchor(originalValue, href, false);
+            if (tokenOrNull == null && renderOriginalValueForEmptyToken)
+            {
+                return originalValue;
+            } else
+            {
+                String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
+                return LinkRenderer.renderAsLinkWithAnchor(originalValue, href, false);
+            }
         }
     }
 }

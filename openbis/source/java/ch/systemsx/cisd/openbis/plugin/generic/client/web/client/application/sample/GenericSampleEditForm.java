@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -156,7 +157,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
 
     private void initializeGeneratedFromParent()
     {
-        List<Sample> parents = originalSample.getParents();
+        Set<Sample> parents = originalSample.getParents();
         if (parents.size() == 1)
         {
             Sample parentSample = originalSample.getGeneratedFrom();
@@ -170,7 +171,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     private void initializeParents()
     {
         // TODO 2010-08-06, Piotr Buczek: load in background? like in experiment
-        List<Sample> parents = originalSample.getParents();
+        Set<Sample> parents = originalSample.getParents();
         parentsArea.setSamples(parents);
     }
 

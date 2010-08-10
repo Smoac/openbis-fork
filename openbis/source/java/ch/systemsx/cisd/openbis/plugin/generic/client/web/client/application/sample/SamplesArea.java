@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CodesArea;
@@ -42,7 +43,7 @@ abstract public class SamplesArea extends CodesArea<Sample>
         return tryGetModifiedItemList();
     }
 
-    public final void setSamples(List<Sample> samples)
+    public final void setSamples(Collection<Sample> samples)
     {
         setCodeProviders(samples);
     }

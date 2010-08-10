@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
@@ -36,7 +37,7 @@ abstract public class CodesArea<T extends ICodeHolder> extends MultilineVarcharF
         setEmptyText(emptyTextMsg);
     }
 
-    public final void setCodeProviders(List<T> codeProviders)
+    public final void setCodeProviders(Collection<T> codeProviders)
     {
         List<String> codes = Code.extractCodes(codeProviders);
         setCodes(codes);

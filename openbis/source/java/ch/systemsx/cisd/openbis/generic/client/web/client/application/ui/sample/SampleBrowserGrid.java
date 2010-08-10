@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InternalLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.AbstractParentSampleColDef;
@@ -612,9 +613,11 @@ public class SampleBrowserGrid extends
                 linkCellRenderer);
         schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
         // setup link renderers and listeners on parent columns
+        GridCellRenderer<BaseEntityModel<?>> parentLinkCellRenderer =
+                createParentLinkCellRenderer();
         for (final AbstractParentSampleColDef parentColDef : parentColumnsSchema)
         {
-            schema.setGridCellRendererFor(parentColDef.getIdentifier(), linkCellRenderer);
+            schema.setGridCellRendererFor(parentColDef.getIdentifier(), parentLinkCellRenderer);
             registerLinkClickListenerFor(parentColDef.getIdentifier(),
                     new OpenEntityDetailsTabCellClickListener()
                         {
@@ -627,6 +630,11 @@ public class SampleBrowserGrid extends
         }
 
         return schema;
+    }
+
+    protected final GridCellRenderer<BaseEntityModel<?>> createParentLinkCellRenderer()
+    {
+        return new InternalLinkCellRenderer(true);
     }
 
     @Override

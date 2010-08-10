@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -681,7 +682,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         SampleUpdateResult result = new SampleUpdateResult();
         SamplePE sample = sampleBO.getSample();
         result.setModificationDate(sample.getModificationDate());
-        result.setParents(Code.extractCodes(sample.getParents()));
+        List<String> parents = Code.extractCodes(sample.getParents());
+        Collections.sort(parents);
+        result.setParents(parents);
         return result;
     }
 
