@@ -418,11 +418,7 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testEditSampleChangeGroupToShared()
     {
-        final SamplePE sample = new SamplePE();
-        sample.setId(SAMPLE_TECH_ID.getId());
-        String code = "sampleCode";
-        sample.setCode(code);
-        sample.setGroup(EXAMPLE_GROUP);
+        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
 
         Date now = new Date();
         sample.setModificationDate(now);
@@ -440,7 +436,7 @@ public final class SampleBOTest extends AbstractBOTest
                     will(returnValue(false));
                 }
             });
-        String newSampleIdentifierWithoutDb = "/" + code;
+        String newSampleIdentifierWithoutDb = "/" + sample.getCode();
         assertNotNull(sample.getGroup());
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
@@ -455,20 +451,10 @@ public final class SampleBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testEditSamplesParent()
+    public final void testEditSampleParent()
     {
-
-        final SamplePE parent = new SamplePE();
-        parent.setId(SAMPLE_TECH_ID.getId());
-        String parentCode = "sampleParent";
-        parent.setCode(parentCode);
-        parent.setGroup(EXAMPLE_GROUP);
-
-        final SamplePE sample = new SamplePE();
-        sample.setId(SAMPLE_TECH_ID.getId());
-        String code = "sampleCode";
-        sample.setCode(code);
-        sample.setGroup(EXAMPLE_GROUP);
+        final SamplePE parent = createSample("sampleParent", EXAMPLE_GROUP);
+        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
 
         Date now = new Date();
         sample.setModificationDate(now);
@@ -503,32 +489,101 @@ public final class SampleBOTest extends AbstractBOTest
                 }
             });
         assertNull(sample.getGeneratedFrom());
-        createSampleBO().update(
-                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, null, null, parent.getSampleIdentifier()
-                        .toString(), null));
+        createSampleBO()
+                .update(
+                        new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                                .<NewAttachment> emptyList(), now, null, null, parent
+                                .getIdentifier(), null));
         SamplePE newParent = sample.getGeneratedFrom();
         assertNotNull(newParent);
         assertEquals(parent, newParent);
         context.assertIsSatisfied();
-
     }
 
     @Test
-    public final void testEditSamplesContainer()
+    public final void testEditSampleParents()
     {
+        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
+        final SamplePE parent1Group1 = createSample("sampleParent1", EXAMPLE_GROUP);
+        final SamplePE parent2Group1 = createSample("sampleParent2", EXAMPLE_GROUP);
+        final SamplePE parent3Group2 = createSample("sampleParent3", EXAMPLE_GROUP2);
 
-        final SamplePE container = new SamplePE();
-        container.setId(SAMPLE_TECH_ID.getId());
-        String parentCode = "sampleContainer";
-        container.setCode(parentCode);
-        container.setGroup(EXAMPLE_GROUP);
+        Date now = new Date();
+        sample.setModificationDate(now);
 
+        prepareTryToLoadOfSampleWithId(sample);
+        prepareNoPropertiesToUpdate(sample);
+        context.checking(new Expectations()
+            {
+                {
+
+                    allowing(daoFactory).getRelationshipTypeDAO();
+                    will(returnValue(relationshipTypeDAO));
+
+                    exactly(1).of(relationshipTypeDAO).tryFindRelationshipTypeByCode(
+                            BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    RelationshipTypePE relationship = new RelationshipTypePE();
+                    relationship.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                    will(returnValue(relationship));
+                    allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
+                            EXAMPLE_DATABASE_INSTANCE.getCode());
+                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
+
+                    allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                            EXAMPLE_GROUP.getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    will(returnValue(EXAMPLE_GROUP));
+
+                    allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                            EXAMPLE_GROUP2.getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    will(returnValue(EXAMPLE_GROUP2));
+
+                    allowing(sampleDAO).tryFindByCodeAndGroup(parent1Group1.getCode(),
+                            EXAMPLE_GROUP);
+                    will(returnValue(parent1Group1));
+
+                    allowing(sampleDAO).tryFindByCodeAndGroup(parent2Group1.getCode(),
+                            EXAMPLE_GROUP);
+                    will(returnValue(parent2Group1));
+
+                    allowing(sampleDAO).tryFindByCodeAndGroup(parent3Group2.getCode(),
+                            EXAMPLE_GROUP2);
+                    will(returnValue(parent3Group2));
+
+                    allowing(externalDataDAO).hasExternalData(with(sample));
+                    will(returnValue(false));
+                }
+            });
+        assertEquals(0, sample.getParents().size());
+        createSampleBO().update(
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                        .<NewAttachment> emptyList(), now, null, null, null, new String[]
+                    { parent1Group1.getIdentifier(), parent2Group1.getCode(),
+                            parent3Group2.getIdentifier() }));
+        List<SamplePE> parents = sample.getParents();
+        assertEquals(3, parents.size());
+        Collections.sort(parents);
+        assertEquals(parent1Group1, parents.get(0));
+        assertEquals(parent2Group1, parents.get(1));
+        assertEquals(parent3Group2, parents.get(2));
+        context.assertIsSatisfied();
+    }
+
+    private SamplePE createSample(String code, GroupPE group)
+    {
         final SamplePE sample = new SamplePE();
         sample.setId(SAMPLE_TECH_ID.getId());
-        String code = "sampleCode";
         sample.setCode(code);
-        sample.setGroup(EXAMPLE_GROUP);
+        sample.setGroup(group);
+        return sample;
+    }
+
+    @Test
+    public final void testEditSampleContainer()
+    {
+        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
+        final SamplePE container = createSample("sampleContainer", EXAMPLE_GROUP);
 
         Date now = new Date();
         sample.setModificationDate(now);
@@ -567,18 +622,8 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testEditAndSaveSamplesContainerFromDifferentGroup()
     {
-
-        final SamplePE container = new SamplePE();
-        container.setId(SAMPLE_TECH_ID.getId());
-        String parentCode = "sampleContainer";
-        container.setCode(parentCode);
-        container.setGroup(EXAMPLE_GROUP2);
-
-        final SamplePE sample = new SamplePE();
-        sample.setId(SAMPLE_TECH_ID.getId());
-        String code = "sampleCode";
-        sample.setCode(code);
-        sample.setGroup(EXAMPLE_GROUP);
+        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
+        final SamplePE container = createSample("sampleContainer", EXAMPLE_GROUP2);
 
         Date now = new Date();
         sample.setModificationDate(now);
@@ -620,10 +665,7 @@ public final class SampleBOTest extends AbstractBOTest
     @Test
     public final void testEditSampleNoExperimentForSampleWithDatasets()
     {
-        final SamplePE sample = new SamplePE();
-        sample.setId(SAMPLE_TECH_ID.getId());
-        sample.setCode("sampleCode");
-        sample.setGroup(EXAMPLE_GROUP);
+        final SamplePE sample = createSample("sampleCode", EXAMPLE_GROUP);
 
         Date now = new Date();
         sample.setModificationDate(now);
