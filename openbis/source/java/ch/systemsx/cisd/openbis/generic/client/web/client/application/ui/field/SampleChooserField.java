@@ -39,6 +39,8 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
     {
         Field<?> getField();
 
+        SampleChooserField getChooserField();
+
         /** @return the sample identifier (as a string) which is set as a field value */
         String getValue();
 
@@ -93,6 +95,11 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
         return new SampleChooserFieldAdaptor()
             {
                 public Field<?> getField()
+                {
+                    return chooserField;
+                }
+
+                public SampleChooserField getChooserField()
                 {
                     return chooserField;
                 }

@@ -17,20 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -38,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -275,42 +270,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     // attaches specified existing samples to the sample as parents
     private void attachParents(String[] parentCodes)
     {
-        List<SamplePE> parents =
-                findSamplesByCodes(getSampleDAO(), asSet(parentCodes), sample.getGroup());
-        setParents(sample, parents);
-    }
-
-    // Finds samples in the specified group. Throws exception if some samples do not exist.
-    private static List<SamplePE> findSamplesByCodes(ISampleDAO sampleDAO, Set<String> sampleCodes,
-            GroupPE group)
-    {
-        List<SamplePE> samples = new ArrayList<SamplePE>();
-        List<String> missingSamples = new ArrayList<String>();
-        for (String code : sampleCodes)
-        {
-            SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group);
-            if (sample == null)
-            {
-                missingSamples.add(code);
-            } else
-            {
-                samples.add(sample);
-            }
-        }
-        if (missingSamples.size() > 0)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Samples with following codes do not exist in the space '%s': '%s'.", group
-                            .getCode(), CollectionUtils.abbreviate(missingSamples, 10));
-        } else
-        {
-            return samples;
-        }
-    }
-
-    private static Set<String> asSet(String[] objects)
-    {
-        return new HashSet<String>(Arrays.asList(objects));
+        setParents(sample, parentCodes);
     }
 
     public void setGeneratedCode()

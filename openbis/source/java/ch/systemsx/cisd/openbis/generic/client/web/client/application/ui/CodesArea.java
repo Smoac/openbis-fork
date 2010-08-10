@@ -50,17 +50,30 @@ abstract public class CodesArea<T extends ICodeHolder> extends MultilineVarcharF
         setOriginalValue(textValue);
     }
 
+    public final void appendCode(String code)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getValue() == null ? "" : getValue());
+        appendCode(sb, code);
+        setValue(sb.toString());
+    }
+
     private static String createTextValue(List<String> codes)
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (String code : codes)
         {
-            if (sb.length() > 0)
-            {
-                sb.append(", ");
-            }
-            sb.append(code);
+            appendCode(sb, code);
         }
         return sb.toString();
+    }
+
+    private static final void appendCode(StringBuilder sb, String code)
+    {
+        if (sb.length() > 0)
+        {
+            sb.append(", ");
+        }
+        sb.append(code);
     }
 }

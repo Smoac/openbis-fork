@@ -99,20 +99,9 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
                         : null;
 
         final String containerOrNull = StringUtils.trimToNull(container.getValue());
-        final String parentOrNull = StringUtils.trimToNull(parent.getValue());
-        final NewSample newSample;
-        if (parentOrNull == null)
-        {
-            final String[] parents = getParents();
-            newSample =
-                    NewSample.createWithParents(createSampleIdentifier(), sampleType,
-                            containerOrNull, parents);
-        } else
-        {
-            newSample =
-                    NewSample.createWithParent(createSampleIdentifier(), sampleType,
-                            containerOrNull, parentOrNull);
-        }
+        final NewSample newSample =
+                NewSample.createWithParents(createSampleIdentifier(), sampleType, containerOrNull,
+                        getParents());
         final List<IEntityProperty> properties = extractProperties();
         newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
         newSample.setAttachments(attachmentsManager.extractAttachments());

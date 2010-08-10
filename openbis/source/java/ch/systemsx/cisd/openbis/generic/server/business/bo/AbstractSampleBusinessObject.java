@@ -138,20 +138,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         } else if (newSample.getParents() != null)
         {
             final String[] parents = newSample.getParents();
-            final List<SampleIdentifier> parentIdentifiers =
-                    IdentifierHelper.extractSampleIdentifiers(parents);
-            if (sampleIdentifier.isSpaceLevel())
-            {
-                final String spaceCode = sampleIdentifier.getSpaceLevel().getSpaceCode();
-                final List<SamplePE> parentPEs = new ArrayList<SamplePE>();
-                for (SampleIdentifier si : parentIdentifiers)
-                {
-                    IdentifierHelper.fillGroupIfNotSpecified(si, spaceCode);
-                    SamplePE parent = getSampleByIdentifier(si);
-                    parentPEs.add(parent);
-                }
-                addParents(samplePE, parentPEs);
-            }
+            setParents(samplePE, parents);
         }
         String containerIdentifier = newSample.getContainerIdentifier();
         setContainer(sampleIdentifier, samplePE, containerIdentifier);
@@ -224,13 +211,35 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
     }
 
-    protected void setParents(SamplePE child, List<SamplePE> parents)
+    protected void setParents(final SamplePE childPE, final String[] parents)
     {
-        removeParents(child);
-        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
-        for (SamplePE parent : parents)
+        final List<SampleIdentifier> parentIdentifiers =
+                IdentifierHelper.extractSampleIdentifiers(parents);
+        final SampleIdentifier childIdentifier = childPE.getSampleIdentifier();
+        if (childIdentifier.isSpaceLevel())
         {
-            addParentRelationship(child, parent, relationshipType);
+            final String spaceCode = childIdentifier.getSpaceLevel().getSpaceCode();
+            for (SampleIdentifier si : parentIdentifiers)
+            {
+                IdentifierHelper.fillGroupIfNotSpecified(si, spaceCode);
+            }
+        }
+        final List<SamplePE> parentPEs = new ArrayList<SamplePE>();
+        for (SampleIdentifier si : parentIdentifiers)
+        {
+            SamplePE parent = getSampleByIdentifier(si);
+            parentPEs.add(parent);
+        }
+        setParents(childPE, parentPEs);
+    }
+
+    private void setParents(SamplePE childPE, List<SamplePE> parentPEs)
+    {
+        removeParents(childPE);
+        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
+        for (SamplePE parentPE : parentPEs)
+        {
+            addParentRelationship(childPE, parentPE, relationshipType);
         }
     }
 
@@ -248,22 +257,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         for (SampleRelationshipPE r : parents)
         {
             child.removeParentRelationship(r);
-        }
-    }
-
-    // ineffective for adding a collection of parents
-    protected void addParent(SamplePE child, SamplePE parent)
-    {
-        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
-        addParentRelationship(child, parent, relationshipType);
-    }
-
-    protected void addParents(SamplePE child, List<SamplePE> parents)
-    {
-        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
-        for (SamplePE parent : parents)
-        {
-            addParentRelationship(child, parent, relationshipType);
         }
     }
 

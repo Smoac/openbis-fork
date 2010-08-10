@@ -68,12 +68,11 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         final ExperimentIdentifier experimentIdent =
                 experimentField != null ? experimentField.tryToGetValue() : null;
         final String containerOrNull = StringUtils.trimToNull(container.getValue());
-        final String parentOrNull = StringUtils.trimToNull(parent.getValue());
         final String[] parents = getParents();
         viewContext.getService().updateSample(
                 new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
                         experimentIdent, originalSample.getModificationDate(),
-                        createSampleIdentifier(), containerOrNull, parentOrNull, parents),
+                        createSampleIdentifier(), containerOrNull, null, parents),
                 new UpdateSampleCallback(viewContext));
     }
 
@@ -107,7 +106,6 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         experimentField.updateOriginalValue();
         updateFieldOriginalValue(groupSelectionWidget);
         container.updateOriginalValue();
-        parent.updateOriginalValue();
         parentsArea.setSampleCodes(parents);
     }
 
@@ -129,7 +127,6 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         experimentField.updateValue(originalExperiment);
         initializeGroup();
         initializeContainedInParent();
-        initializeGeneratedFromParent();
         initializeParents();
     }
 
@@ -152,19 +149,6 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         if (containerSample != null)
         {
             container.updateValue(containerSample.getIdentifier());
-        }
-    }
-
-    private void initializeGeneratedFromParent()
-    {
-        Set<Sample> parents = originalSample.getParents();
-        if (parents.size() == 1)
-        {
-            Sample parentSample = originalSample.getGeneratedFrom();
-            if (parentSample != null)
-            {
-                parent.updateValue(parentSample.getIdentifier());
-            }
         }
     }
 
