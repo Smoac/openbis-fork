@@ -29,9 +29,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDataset
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
@@ -491,6 +493,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                 }
             });
         return result;
+    }
+
+    public List<PlateWellMaterialMapping> listPlateMaterialMapping(
+            List<? extends PlateIdentifier> plates,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull)
+    {
+        return openbisScreeningServer.listPlateMaterialMapping(sessionToken, plates,
+                materialTypeIdentifierOrNull);
     }
 
     // --------- helpers -----------

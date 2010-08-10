@@ -111,7 +111,8 @@ public interface IScreeningQuery extends BaseQuery
             + "   join materials well_material on well_props.mate_prop_id = well_material.id"
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where well_material_type.code=?{2} and pl.perm_id=?{1}")
-    public DataIterator<WellContent> getPlateMapping(String platePermId, String materialTypeCode);
+    public DataIterator<WellContent> getPlateMappingForMaterialType(String platePermId,
+            String materialTypeCode);
 
     /**
      * @return the material to well plate mapping for the given <var>platePermId</var>. Consider all
@@ -130,6 +131,44 @@ public interface IScreeningQuery extends BaseQuery
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where pl.perm_id=?{1} order by material_content_type_code")
     public DataIterator<WellContent> getPlateMapping(String platePermId);
+
+    /**
+     * @return the material to well plate mapping for the given <var>spaceCode</var> and
+     *         <var>plateCode</var>. Only consider materials of <var>materialTypeCode</var>. Only
+     *         fills <var>well_code</var> and <var>material_content_code</var>. Note that this may
+     *         return more than one row per well.
+     */
+    @Select(sql = "select "
+            + "      well.code as well_code,"
+            + "      well_material.code as material_content_code"
+            + " from samples well"
+            + "   join samples pl on pl.id = well.samp_id_part_of"
+            + "   join groups sp on pl.grou_id = sp.id"
+            + "   join sample_properties well_props on well.id = well_props.samp_id"
+            + "   join materials well_material on well_props.mate_prop_id = well_material.id"
+            + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
+            + " where well_material_type.code = ?{3} and pl.code = ?{2} and sp.code = ?{1}")
+    public DataIterator<WellContent> getPlateMappingForMaterialType(String spaceCode,
+            String plateCode, String materialTypeCode);
+
+    /**
+     * @return the material to well plate mapping for the given <var>spaceCode</var> and
+     *         <var>plateCode</var>. Consider all material types. Only fills <var>well_code</var>,
+     *         <var>material_content_code</var> and <var>material_content_code</var>. Note that this
+     *         may return more than one row per well.
+     */
+    @Select(sql = "select "
+            + "      well.code as well_code,"
+            + "      well_material_type.code as material_content_type_code,"
+            + "      well_material.code as material_content_code"
+            + " from samples well"
+            + "   join samples pl on pl.id = well.samp_id_part_of"
+            + "   join groups sp on pl.grou_id = sp.id"
+            + "   join sample_properties well_props on well.id = well_props.samp_id"
+            + "   join materials well_material on well_props.mate_prop_id = well_material.id"
+            + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
+            + " where sp.code = ?{1} and pl.code = ?{2} order by material_content_type_code")
+    public DataIterator<WellContent> getPlateMapping(String spaceCode, String plateCode);
 
     // well content with "first-level" materials (like oligos or controls)
     static final String PLATE_LOCATIONS_MANY_MATERIALS_SELECT =
@@ -157,5 +196,32 @@ public interface IScreeningQuery extends BaseQuery
         { TypeMapper.class/* default */, StringArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<WellContent> getPlateLocationsForMaterialCodes(long experimentId,
             String[] nestedMaterialCodes, String[] materialTypeCodes);
+
+    /**
+     * Returns the plate geometry string for the plate with given <var>platePermId</var>, or
+     * <code>null</code>, if no plate with that perm id can be found.
+     */
+    @Select(sql = "select cvte.code  from sample_properties sp "
+            + "         join samples pl on pl.id = sp.samp_id "
+            + "         join controlled_vocabulary_terms cvte on cvte.id = sp.cvte_id "
+            + "         join sample_type_property_types stpt on stpt.id = sp.stpt_id "
+            + "         join property_types pt on pt.id = stpt.prty_id "
+            + "      where pt.code = 'PLATE_GEOMETRY' "
+            + "         and pt.is_internal_namespace = true and pl.perm_id = ?{1}")
+    public String tryGetPlateGeometry(String platePermId);
+
+    /**
+     * Returns the plate geometry string for the plate with given <var>spaceCode</var> and
+     * <var>plateCode</var>, or <code>null</code>, if no plate with that code can be found.
+     */
+    @Select(sql = "select cvte.code from sample_properties sp "
+            + "         join samples pl on pl.id = sp.samp_id "
+            + "         join controlled_vocabulary_terms cvte on cvte.id = sp.cvte_id "
+            + "         join sample_type_property_types stpt on stpt.id = sp.stpt_id "
+            + "         join property_types pt on pt.id = stpt.prty_id "
+            + "         join groups space on pl.grou_id = space.id"
+            + "      where pt.code = 'PLATE_GEOMETRY' "
+            + "         and pt.is_internal_namespace = true and space.code = ?{1} and pl.code = ?{2}")
+    public String tryGetPlateGeometry(String spaceCode, String plateCode);
 
 }

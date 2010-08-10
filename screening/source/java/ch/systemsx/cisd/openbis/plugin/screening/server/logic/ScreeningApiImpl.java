@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,10 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.QueryTool;
+
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -49,19 +54,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContentWithExperiment;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Contains implementations of the screening public API calls.
@@ -304,6 +314,121 @@ public class ScreeningApiImpl
         }
     }
 
+    public List<PlateWellMaterialMapping> listPlateMaterialMapping(
+            List<? extends PlateIdentifier> plates,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull)
+    {
+        final List<PlateWellMaterialMapping> result =
+                new ArrayList<PlateWellMaterialMapping>(plates.size());
+        final IScreeningQuery query = createScreeningQuery();
+        for (PlateIdentifier plate : plates)
+        {
+            result.add(toPlateWellMaterialMapping(plate, materialTypeIdentifierOrNull,
+                    getPlateGeometry(query, plate), getPlateMapping(query, plate,
+                            materialTypeIdentifierOrNull)));
+        }
+        return result;
+    }
+
+    private PlateWellMaterialMapping toPlateWellMaterialMapping(
+            PlateIdentifier plateIdentifier,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull,
+            String plateGeometryStr,
+            DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> wellContentList)
+    {
+        final Geometry plateGeometry = Geometry.createFromPlateGeometryString(plateGeometryStr);
+        final PlateWellMaterialMapping result =
+                new PlateWellMaterialMapping(plateIdentifier, plateGeometry, 1);
+        if (materialTypeIdentifierOrNull != null)
+        {
+            for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent wellContent : wellContentList)
+            {
+                final WellLocation location =
+                        ScreeningUtils.tryCreateLocationFromMatrixCoordinate(wellContent.well_code);
+                final String materialContentCode = wellContent.material_content_code;
+                result.getMaterialsForWell(location.getRow(), location.getColumn()).add(
+                        new MaterialIdentifier(materialTypeIdentifierOrNull, materialContentCode));
+            }
+        } else
+        {
+            final Map<String, MaterialTypeIdentifier> map =
+                    new HashMap<String, MaterialTypeIdentifier>();
+            for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent wellContent : wellContentList)
+            {
+                MaterialTypeIdentifier typeId = map.get(wellContent.material_content_type_code);
+                if (typeId == null)
+                {
+                    typeId = new MaterialTypeIdentifier(wellContent.material_content_type_code);
+                    map.put(typeId.getMaterialTypeCode(), typeId);
+                }
+                final WellLocation location =
+                        ScreeningUtils.tryCreateLocationFromMatrixCoordinate(wellContent.well_code);
+                final String materialContentCode = wellContent.material_content_code;
+                result.getMaterialsForWell(location.getRow(), location.getColumn()).add(
+                        new MaterialIdentifier(typeId, materialContentCode));
+            }
+        }
+        return result;
+    }
+
+    private String getPlateGeometry(IScreeningQuery query, PlateIdentifier plate)
+    {
+        final String plateGeometry;
+        if (plate.getPermId() == null)
+        {
+            plateGeometry =
+                    query.tryGetPlateGeometry(plate.tryGetSpaceCode(), plate.getPlateCode());
+            if (plateGeometry == null)
+            {
+                throw new IllegalArgumentException("No plate with code '" + plate.tryGetSpaceCode()
+                        + "/" + plate.getPlateCode() + "' found.");
+            }
+        } else
+        {
+            plateGeometry = query.tryGetPlateGeometry(plate.getPermId());
+            if (plateGeometry == null)
+            {
+                throw new IllegalArgumentException("No plate with perm id '" + plate.getPermId()
+                        + "' found.");
+            }
+        }
+        return plateGeometry;
+    }
+
+    private DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> getPlateMapping(
+            IScreeningQuery query, PlateIdentifier plate,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull)
+    {
+        if (materialTypeIdentifierOrNull != null)
+        {
+            if (plate.getPermId() == null)
+            {
+                return query.getPlateMappingForMaterialType(plate.tryGetSpaceCode(), plate
+                        .getPlateCode(), materialTypeIdentifierOrNull.getMaterialTypeCode());
+            } else
+            {
+                return query.getPlateMappingForMaterialType(plate.getPermId(),
+                        materialTypeIdentifierOrNull.getMaterialTypeCode());
+            }
+        } else
+        {
+            if (plate.getPermId() == null)
+            {
+                return query.getPlateMapping(plate.tryGetSpaceCode(), plate.getPlateCode());
+            } else
+            {
+                return query.getPlateMapping(plate.getPermId());
+            }
+        }
+
+    }
+
+    private IScreeningQuery createScreeningQuery()
+    {
+        final Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        return QueryTool.getQuery(connection, IScreeningQuery.class);
+    }
+
     private ExperimentIdentifier getExperimentIdentifierFromDB(
             ExperimentIdentifier experimentIdentifierFromUser)
     {
@@ -326,7 +451,7 @@ public class ScreeningApiImpl
             if (StringUtils.isEmpty(spaceCode))
             {
                 throw new UserFailureException(
-                        "Space code is null but there are no experiments outside a space, "
+                        "Space code is empty but there are no experiments outside a space, "
                                 + "use null to denote your home space.");
             }
             final ProjectPE projectPE =

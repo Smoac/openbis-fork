@@ -89,9 +89,29 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
     public void testGetPlateMappingAllTypes()
     {
         // it just tests if the sql runs
-        List<WellContent> locations =
-                EntityListingTestUtils.asList(query.getPlateMapping("xxx"));
+        List<WellContent> locations = EntityListingTestUtils.asList(query.getPlateMapping("xxx"));
         AssertJUnit.assertEquals(0, locations.size());
+    }
+
+    @Test
+    public void testGetPlateMappingAllTypesAugmentedCode()
+    {
+        // it just tests if the sql runs
+        List<WellContent> locations =
+                EntityListingTestUtils.asList(query.getPlateMapping("xxx", "yyy"));
+        AssertJUnit.assertEquals(0, locations.size());
+    }
+
+    @Test
+    public void testGetPlateGeometryAugmentedCode()
+    {
+        AssertJUnit.assertEquals("384_WELLS_16X24", query.tryGetPlateGeometry("CISD", "MP002-1"));
+    }
+
+    @Test
+    public void testGetPlateGeometry()
+    {
+        AssertJUnit.assertEquals("384_WELLS_16X24", query.tryGetPlateGeometry("200811050917877-331"));
     }
 
     @Test
@@ -99,7 +119,17 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
     {
         // it just tests if the sql runs
         List<WellContent> locations =
-                EntityListingTestUtils.asList(query.getPlateMapping("Gene", "xxx"));
+                EntityListingTestUtils.asList(query.getPlateMappingForMaterialType("xxx", "Gene"));
+        AssertJUnit.assertEquals(0, locations.size());
+    }
+
+    @Test
+    public void testGetPlateMappingGeneTypeAugmentedCode()
+    {
+        // it just tests if the sql runs
+        List<WellContent> locations =
+                EntityListingTestUtils.asList(query.getPlateMappingForMaterialType("xxx", "yyy",
+                        "Gene"));
         AssertJUnit.assertEquals(0, locations.size());
     }
 

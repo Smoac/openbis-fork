@@ -31,9 +31,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDataset
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 
 /**
@@ -212,5 +214,17 @@ public interface IScreeningOpenbisServiceFacade
      */
     public List<ImageDatasetMetadata> listImageMetadata(
             List<? extends IImageDatasetIdentifier> imageDatasets);
+
+    /**
+     * For a given list of <var>plates</var>, return the mapping of plate wells to materials
+     * contained in each well.
+     * 
+     * @param plates The list of plates to get the mapping for
+     * @param materialTypeIdentifierOrNull If not <code>null</code>, consider only materials of the
+     *            given type for the mapping.
+     * @return A list of well to material mappings, one element for each plate.
+     */
+    public List<PlateWellMaterialMapping> listPlateMaterialMapping(List<? extends PlateIdentifier> plates,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull);
 
 }

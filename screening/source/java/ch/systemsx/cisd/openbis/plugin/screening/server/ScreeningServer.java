@@ -55,8 +55,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -226,6 +228,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             List<String> datasetCodes)
     {
         return createScreeningApiImpl(sessionToken).getDatasetIdentifiers(datasetCodes);
+    }
+
+    public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
+            List<? extends PlateIdentifier> plates,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull)
+    {
+        return createScreeningApiImpl(sessionToken).listPlateMaterialMapping(plates,
+                materialTypeIdentifierOrNull);
     }
 
     private ScreeningApiImpl createScreeningApiImpl(String sessionToken)

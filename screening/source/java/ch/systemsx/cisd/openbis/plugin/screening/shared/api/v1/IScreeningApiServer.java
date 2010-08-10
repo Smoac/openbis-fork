@@ -37,8 +37,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 
 /**
@@ -159,5 +161,23 @@ public interface IScreeningApiServer extends IRpcService
     @MinimalMinorVersion(2)
     List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets);
+
+    /**
+     * For a given list of <var>plates</var>, return the mapping of plate wells to materials
+     * contained in each well.
+     * 
+     * @param plates The list of plates to get the mapping for
+     * @param materialTypeIdentifierOrNull If not <code>null</code>, consider only materials of the
+     *            given type for the mapping.
+     * @return A list of well to material mappings, one element for each plate.
+     * @since 1.2
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(2)
+    List<PlateWellMaterialMapping> listPlateMaterialMapping(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = ScreeningPlateListReadOnlyPredicate.class) List<? extends PlateIdentifier> plates,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull);
 
 }

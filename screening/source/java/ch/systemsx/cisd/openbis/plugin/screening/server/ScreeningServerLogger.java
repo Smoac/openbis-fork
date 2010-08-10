@@ -38,8 +38,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -187,6 +189,21 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             List<String> datasetCodes)
     {
         logAccess(sessionToken, "getDatasetIdentifiers", "datasets(%s)", datasetCodes);
+        return null;
+    }
+
+    public List<PlateWellMaterialMapping> listPlateMaterialMapping(String sessionToken,
+            List<? extends PlateIdentifier> plates,
+            MaterialTypeIdentifier materialTypeIdentifierOrNull)
+    {
+        if (materialTypeIdentifierOrNull != null)
+        {
+            logAccess(sessionToken, "listPlateMaterialMapping", "plates(%s), materialType(%s)", plates,
+                    materialTypeIdentifierOrNull);
+        } else
+        {
+            logAccess(sessionToken, "listPlateMaterialMapping", "plates(%s)", plates);
+        }
         return null;
     }
 
