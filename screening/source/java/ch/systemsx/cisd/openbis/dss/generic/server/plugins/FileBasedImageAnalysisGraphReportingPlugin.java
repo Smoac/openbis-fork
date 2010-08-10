@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.TabularDataGraphServlet;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractTabularDataGraphServlet;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphCollectionConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDataMergingReportingPlugin;
@@ -36,10 +36,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * Reporting plugin that returns a table in which each column contains a graph. The number and
  * format of the graphs can be configured in a properties file.
+ * <p>
+ * This plugin reads data from a file. The {@link DatabaseImageAnalysisGraphReportingPlugin} reads
+ * from the imaging db.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReportingPlugin
+public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMergingReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 
@@ -52,7 +55,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
 
     private final static String PROPERTIES_FILE_KEY = "properties-file";
 
-    public ImageAnalysisGraphReportingPlugin(Properties properties, File storeRoot)
+    public FileBasedImageAnalysisGraphReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, SEMICOLON_SEPARATOR);
         graphServletPath = properties.getProperty(SERVLET_PATH_PROP, "datastore_server_graph/");
@@ -60,7 +63,7 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
         if (propertiesFilePath == null)
         {
             throw new EnvironmentFailureException(
-                    "ImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
+                    "DatabaseImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
                             + PROPERTIES_FILE_KEY + "key).");
         }
 
@@ -121,10 +124,11 @@ public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReport
             GeneratedImageTableCell imageCell =
                     new GeneratedImageTableCell(graphServletPath, getImageWidth(),
                             getImageHeight(), getThumbnailWidth(), getThumbnailHeight());
-            imageCell.addParameter(TabularDataGraphServlet.DATASET_CODE_PARAM, dataset
+            imageCell.addParameter(AbstractTabularDataGraphServlet.DATASET_CODE_PARAM, dataset
                     .getDatasetCode());
-            imageCell.addParameter(TabularDataGraphServlet.FILE_PATH_PARAM, file.getAbsolutePath());
-            imageCell.addParameter(TabularDataGraphServlet.GRAPH_TYPE_CODE, graphTypeCode);
+            imageCell.addParameter(AbstractTabularDataGraphServlet.FILE_PATH_PARAM, file
+                    .getAbsolutePath());
+            imageCell.addParameter(AbstractTabularDataGraphServlet.GRAPH_TYPE_CODE, graphTypeCode);
 
             row.add(imageCell);
         }

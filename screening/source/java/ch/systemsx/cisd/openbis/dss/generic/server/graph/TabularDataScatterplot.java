@@ -29,7 +29,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -42,7 +42,7 @@ public class TabularDataScatterplot extends
      * @param configuration
      */
     public TabularDataScatterplot(TabularDataScatterplotConfiguration configuration,
-            DatasetFileLines fileLines, OutputStream out)
+            ITabularData fileLines, OutputStream out)
     {
         super(configuration, fileLines, out);
     }

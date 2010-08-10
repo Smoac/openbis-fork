@@ -32,7 +32,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 
 /**
  * Abstract superclass for the different kinds of graphs.
@@ -44,11 +44,11 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
 {
     protected final T configuration;
 
-    protected final DatasetFileLines fileLines;
+    protected final ITabularData fileLines;
 
     protected final OutputStream out;
 
-    protected AbstractTabularDataGraph(T configuration, DatasetFileLines fileLines, OutputStream out)
+    protected AbstractTabularDataGraph(T configuration, ITabularData fileLines, OutputStream out)
     {
         this.configuration = configuration;
         this.fileLines = fileLines;

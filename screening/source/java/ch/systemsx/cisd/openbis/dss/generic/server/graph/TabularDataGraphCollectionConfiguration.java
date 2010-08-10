@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 /**
@@ -222,7 +222,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
      * @param fileLines The data to generate a graph from
      * @param out The stream to write the graph to
      */
-    public ITabularDataGraph getGraph(String graphName, DatasetFileLines fileLines, OutputStream out)
+    public ITabularDataGraph getGraph(String graphName, ITabularData fileLines, OutputStream out)
     {
         TabularDataGraphConfiguration config = graphTypeMap.get(graphName);
         if (null == config)

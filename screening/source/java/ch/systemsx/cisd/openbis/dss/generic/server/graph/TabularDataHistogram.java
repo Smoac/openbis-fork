@@ -28,7 +28,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.statistics.HistogramDataset;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -41,7 +41,7 @@ public class TabularDataHistogram extends
      * @param configuration
      */
     public TabularDataHistogram(TabularDataHistogramConfiguration configuration,
-            DatasetFileLines fileLines, OutputStream out)
+            ITabularData fileLines, OutputStream out)
     {
         super(configuration, fileLines, out);
     }

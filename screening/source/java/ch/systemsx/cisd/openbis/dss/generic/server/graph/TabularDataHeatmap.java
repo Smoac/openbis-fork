@@ -40,7 +40,7 @@ import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -52,7 +52,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
      * @param configuration
      */
     public TabularDataHeatmap(TabularDataHeatmapConfiguration configuration,
-            DatasetFileLines fileLines, OutputStream out)
+            ITabularData fileLines, OutputStream out)
     {
         super(configuration, fileLines, out);
     }
