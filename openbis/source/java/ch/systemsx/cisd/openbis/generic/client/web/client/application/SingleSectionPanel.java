@@ -44,7 +44,7 @@ abstract public class SingleSectionPanel extends ContentPanel
     /**
      * Whether additional components created for this section (e.g. browsers) should be
      * automatically disposed when the section is detached from its container. For sections that can
-     * temporarily removed from container as in {@link SectionsPanel} it should be turned off and
+     * be temporarily removed from container as in {@link SectionsPanel} it should be turned off and
      * the container should dispose section components manually.
      */
     private boolean autoDisposeComponents = true;
