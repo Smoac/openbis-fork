@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Bernd Rinn
  */
-public class DatasetFileLines
+public class DatasetFileLines implements ITabularData
 {
     private final String[] headerTokens;
 
