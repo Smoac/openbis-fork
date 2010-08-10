@@ -122,7 +122,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleTypeCode = DILUTION_PLATE;
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
-                .parent("MP1-MIXED"));
+                .parents("MP1-MIXED"));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode

@@ -49,7 +49,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 
     private final List<PropertyField> properties;
 
-    private String parent;
+    private String parentsOrNull;
 
     private String container;
 
@@ -62,9 +62,9 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
         this.properties = new ArrayList<PropertyField>();
     }
 
-    public final FillSampleRegistrationForm parent(final String parentFieldValue)
+    public final FillSampleRegistrationForm parents(final String parents)
     {
-        this.parent = parentFieldValue;
+        this.parentsOrNull = parents;
         return this;
     }
 
@@ -96,12 +96,12 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
                         + GroupSelectionWidget.SUFFIX + FORM_ID);
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
 
-        if (StringUtils.isBlank(parent) == false)
+        if (StringUtils.isBlank(parentsOrNull) == false)
         {
             final SampleChooserField parentField =
                     (SampleChooserField) GWTTestUtil.getWidgetWithID(FORM_ID
-                            + GenericSampleRegistrationForm.ID_SUFFIX_PARENT);
-            parentField.setValue(parent);
+                            + ParentSamplesArea.ID_SUFFIX_PARENT_SAMPLES);
+            parentField.setValue(parentsOrNull);
         }
         if (StringUtils.isBlank(container) == false)
         {
