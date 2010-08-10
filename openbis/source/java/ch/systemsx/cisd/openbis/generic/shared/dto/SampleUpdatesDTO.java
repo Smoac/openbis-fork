@@ -44,10 +44,9 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
             ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
             Date version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull,
-            String parentIdentifierOrNull, String[] parentsOrNull)
+            String[] modifiedParentCodesOrNull)
     {
-        super(sampleId, properties, version, containerIdentifierOrNull, parentIdentifierOrNull,
-                parentsOrNull);
+        super(sampleId, properties, version, containerIdentifierOrNull, modifiedParentCodesOrNull);
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
         this.attachments = attachments;
         this.sampleIdentifier = sampleIdentifier;

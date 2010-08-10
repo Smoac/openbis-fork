@@ -167,12 +167,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         getSampleChildRelationships().add(relationship);
     }
 
-    public void removeChildRelationship(final SampleRelationshipPE relationship)
-    {
-        getSampleChildRelationships().remove(relationship);
-        relationship.setParentSample(null);
-    }
-
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "childSample")
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     @Fetch(FetchMode.SUBSELECT)
@@ -191,7 +185,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Transient
     public Set<SampleRelationshipPE> getParentRelationships()
     {
-
         return new UnmodifiableSetDecorator<SampleRelationshipPE>(getSampleParentRelationships());
     }
 
@@ -225,10 +218,13 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         getSampleParentRelationships().add(relationship);
     }
 
+	// TODO 2010-08-10, Piotr Buczek: check
     public void removeParentRelationship(final SampleRelationshipPE relationship)
     {
         getSampleParentRelationships().remove(relationship);
+        relationship.getParentSample().getSampleChildRelationships().remove(relationship);
         relationship.setChildSample(null);
+        relationship.setParentSample(null);
     }
 
     /**

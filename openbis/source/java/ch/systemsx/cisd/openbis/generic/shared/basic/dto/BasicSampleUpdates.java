@@ -39,9 +39,6 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
 
     private Date version;
 
-    // TODO 2010-08-06, Piotr Buczek: get rid of this when we change batch import/update
-    private String parentIdentifierOrNull;
-
     private String containerIdentifierOrNull;
 
     // New set of parent sample codes which will replace the old ones. In this way some
@@ -53,12 +50,13 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
 
     public String getParentIdentifierOrNull()
     {
-        return parentIdentifierOrNull;
-    }
-
-    public void setParentIdentifierOrNull(String parentIdentifierOrNull)
-    {
-        this.parentIdentifierOrNull = parentIdentifierOrNull;
+        if (modifiedParentCodesOrNull == null || modifiedParentCodesOrNull.length == 0)
+        {
+            return null;
+        } else
+        {
+            return modifiedParentCodesOrNull[0];
+        }
     }
 
     public String getContainerIdentifierOrNull()
@@ -76,14 +74,13 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
     }
 
     public BasicSampleUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
-            String containerIdentifierOrNull, String parentIdentifierOrNull, String[] parents)
+            String containerIdentifierOrNull, String[] modifiedParentCodesOrNull)
     {
         this.sampleIdOrNull = sampleId;
         this.properties = properties;
         this.version = version;
         this.containerIdentifierOrNull = containerIdentifierOrNull;
-        this.parentIdentifierOrNull = parentIdentifierOrNull;
-        this.modifiedParentCodesOrNull = parents;
+        this.modifiedParentCodesOrNull = modifiedParentCodesOrNull;
     }
 
     public TechId getSampleIdOrNull()

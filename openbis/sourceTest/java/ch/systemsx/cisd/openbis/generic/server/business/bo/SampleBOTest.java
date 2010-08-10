@@ -409,7 +409,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, experimentIdentifier, Collections
-                        .<NewAttachment> emptyList(), now, null, null, null, null));
+                        .<NewAttachment> emptyList(), now, null, null, null));
 
         assertEquals(experimentToAttach, sample.getExperiment());
         context.assertIsSatisfied();
@@ -441,7 +441,7 @@ public final class SampleBOTest extends AbstractBOTest
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, SampleIdentifierFactory
-                        .parse(newSampleIdentifierWithoutDb), null, null, null));
+                        .parse(newSampleIdentifierWithoutDb), null, null));
         String newSampleIdentWithDb =
                 EXAMPLE_DATABASE_INSTANCE.getCode() + ":" + newSampleIdentifierWithoutDb;
         assertEquals(newSampleIdentWithDb, sample.getSampleIdentifier().toString());
@@ -489,11 +489,11 @@ public final class SampleBOTest extends AbstractBOTest
                 }
             });
         assertNull(sample.getGeneratedFrom());
-        createSampleBO()
-                .update(
-                        new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                                .<NewAttachment> emptyList(), now, null, null, parent
-                                .getIdentifier(), null));
+        String[] modifiedParents = new String[]
+            { parent.getIdentifier() };
+        createSampleBO().update(
+                new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
+                        .<NewAttachment> emptyList(), now, null, null, modifiedParents));
         SamplePE newParent = sample.getGeneratedFrom();
         assertNotNull(newParent);
         assertEquals(parent, newParent);
@@ -556,11 +556,13 @@ public final class SampleBOTest extends AbstractBOTest
                 }
             });
         assertEquals(0, sample.getParents().size());
+        String[] modifiedParents =
+                new String[]
+                    { parent1Group1.getIdentifier(), parent2Group1.getCode(),
+                            parent3Group2.getIdentifier() };
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                        .<NewAttachment> emptyList(), now, null, null, null, new String[]
-                    { parent1Group1.getIdentifier(), parent2Group1.getCode(),
-                            parent3Group2.getIdentifier() }));
+                        .<NewAttachment> emptyList(), now, null, null, modifiedParents));
         List<SamplePE> parents = sample.getParents();
         assertEquals(3, parents.size());
         Collections.sort(parents);
@@ -613,7 +615,7 @@ public final class SampleBOTest extends AbstractBOTest
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, null, container.getSampleIdentifier()
-                        .toString(), null, null));
+                        .toString(), null));
         assertNotNull(sample.getContainer());
         assertEquals(container, sample.getContainer());
         context.assertIsSatisfied();
@@ -657,7 +659,7 @@ public final class SampleBOTest extends AbstractBOTest
         SampleBO bo = createSampleBO();
         bo.update(new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                 .<NewAttachment> emptyList(), now, null,
-                container.getSampleIdentifier().toString(), null, null));
+                container.getSampleIdentifier().toString(), null));
         bo.save();
         context.assertIsSatisfied();
     }
@@ -685,7 +687,7 @@ public final class SampleBOTest extends AbstractBOTest
         {
             createSampleBO().update(
                     new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                            .<NewAttachment> emptyList(), now, null, null, null, null));
+                            .<NewAttachment> emptyList(), now, null, null, null));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -713,7 +715,7 @@ public final class SampleBOTest extends AbstractBOTest
         {
             SampleUpdatesDTO updates =
                     new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                            .<NewAttachment> emptyList(), now, null, null, null, null);
+                            .<NewAttachment> emptyList(), now, null, null, null);
             createSampleBO().update(updates);
         } catch (UserFailureException e)
         {
@@ -1035,6 +1037,6 @@ public final class SampleBOTest extends AbstractBOTest
         createSampleBO().update(
                 new SampleUpdatesDTO(sampleId, null, experimentIdentifier, Collections
                         .<NewAttachment> emptyList(), sample.getModificationDate(), null, null,
-                        null, null));
+                        null));
     }
 }

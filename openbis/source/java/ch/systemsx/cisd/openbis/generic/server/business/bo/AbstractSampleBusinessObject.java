@@ -213,6 +213,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     protected void setParents(final SamplePE childPE, final String[] parents)
     {
+        removeParents(childPE);
         final List<SampleIdentifier> parentIdentifiers =
                 IdentifierHelper.extractSampleIdentifiers(parents);
         final SampleIdentifier childIdentifier = childPE.getSampleIdentifier();
@@ -230,12 +231,11 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             SamplePE parent = getSampleByIdentifier(si);
             parentPEs.add(parent);
         }
-        setParents(childPE, parentPEs);
+        addParents(childPE, parentPEs);
     }
 
-    private void setParents(SamplePE childPE, List<SamplePE> parentPEs)
+    private void addParents(SamplePE childPE, List<SamplePE> parentPEs)
     {
-        removeParents(childPE);
         RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
         for (SamplePE parentPE : parentPEs)
         {

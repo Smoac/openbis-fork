@@ -57,9 +57,9 @@ public class SampleUpdates extends BasicSampleUpdates
     public SampleUpdates(String sessionKey, TechId sampleId, List<IEntityProperty> properties,
             List<NewAttachment> attachments, ExperimentIdentifier experimentIdentifierOrNull,
             Date version, String sampleIdentifier, String containerIdentifierOrNull,
-            String[] parents)
+            String[] modifiedParentCodesOrNull)
     {
-        super(sampleId, properties, version, containerIdentifierOrNull, null, parents);
+        super(sampleId, properties, version, containerIdentifierOrNull, modifiedParentCodesOrNull);
         this.sessionKey = sessionKey;
         this.attachments = attachments;
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;

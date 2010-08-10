@@ -73,31 +73,39 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTestCase
 {
     private static final String PROJECT_CODE = "MS2";
+
     private static final String EXPERIMENT_CODE = "2010-02";
+
     private static final String SAMPLE_CODE = "U09-1242";
+
     private static final String SAMPLE_IDENTIFIER =
             DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + Constants.MS_DATA_SPACE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + SAMPLE_CODE;
+
     private static final String EXPERIMENT_IDENTIFIER =
             DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + Constants.MS_DATA_SPACE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + PROJECT_CODE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + EXPERIMENT_CODE;
+
     private static final long EXPERIMENT_ID = 42;
+
     private static final long SAMPLE_ID = 43;
+
     private static final String SAMPLE_PROPERTY = "name";
-    
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private IDataSetInfoExtractor extractor;
+
     private File dataSet;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -107,7 +115,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         dataSet = new File(workingDirectory, "data-set");
         dataSet.mkdirs();
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
@@ -115,7 +123,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingPropertiesFile()
     {
@@ -128,10 +136,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             assertEquals("Missing properties file '" + MS_INJECTION_PROPERTIES_FILE + "'.", ex
                     .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testPropertiesFileIsAFolder()
     {
@@ -142,19 +150,19 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Properties file '" + MS_INJECTION_PROPERTIES_FILE
-                    + "' is a folder.", ex.getMessage());
+            assertEquals("Properties file '" + MS_INJECTION_PROPERTIES_FILE + "' is a folder.", ex
+                    .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingSampleCode()
     {
         Properties properties = new Properties();
         save(properties, MS_INJECTION_PROPERTIES_FILE);
-        
+
         try
         {
             extractor.getDataSetInformation(dataSet, service);
@@ -164,18 +172,18 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             assertEquals("Given key '" + SAMPLE_CODE_KEY + "' not found in properties '[]'", ex
                     .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingProjectCode()
     {
         Properties properties = new Properties();
-        
+
         properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         save(properties, MS_INJECTION_PROPERTIES_FILE);
-        
+
         try
         {
             extractor.getDataSetInformation(dataSet, service);
@@ -185,10 +193,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             assertEquals("Given key '" + PROJECT_CODE_KEY + "' not found in properties '["
                     + SAMPLE_CODE_KEY + "]'", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingExperimentCode()
     {
@@ -196,7 +204,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         properties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
         save(properties, MS_INJECTION_PROPERTIES_FILE);
-        
+
         try
         {
             extractor.getDataSetInformation(dataSet, service);
@@ -206,10 +214,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             assertEquals("Given key '" + EXPERIMENT_CODE_KEY + "' not found in properties '["
                     + PROJECT_CODE_KEY + ", " + SAMPLE_CODE_KEY + "]'", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingDataSetPropertiesFile()
     {
@@ -222,19 +230,20 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         SampleTypePropertyType pt = createPropertyType(SAMPLE_CODE_KEY, true);
         prepareGetExperimentAndGetSampleType(true, pt);
         prepareRegisterSample();
-        
+
         try
         {
             extractor.getDataSetInformation(dataSet, service);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Missing properties file '" + DATA_SET_PROPERTIES_FILE + "'.", ex.getMessage());
+            assertEquals("Missing properties file '" + DATA_SET_PROPERTIES_FILE + "'.", ex
+                    .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingDataSetType()
     {
@@ -249,7 +258,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         SampleTypePropertyType pt = createPropertyType(SAMPLE_CODE_KEY, true);
         prepareGetExperimentAndGetSampleType(true, pt);
         prepareRegisterSample();
-        
+
         try
         {
             extractor.getDataSetInformation(dataSet, service);
@@ -259,10 +268,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             assertEquals("Given key '" + DATA_SET_TYPE_KEY + "' not found in properties '[]'", ex
                     .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterRawData()
     {
@@ -283,9 +292,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         prepareGetExperimentAndGetSampleType(false, pt1, pt2);
         prepareRegisterSample();
         prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
@@ -293,10 +302,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         assertEquals(1, dProps.size());
         assertEquals("CENTROID", dProps.get(0).getPropertyCode());
         assertEquals("true", dProps.get(0).getValue());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterSupersedingRawDataWhichUpdatesSampleProperties()
     {
@@ -315,9 +324,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         prepareGetExperimentAndGetSampleType(false);
         prepareUpdateSample("Isaac");
         prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(EXPERIMENT_IDENTIFIER, info.getExperimentIdentifier().toString());
@@ -325,10 +334,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         assertEquals(1, dProps.size());
         assertEquals("CENTROID", dProps.get(0).getPropertyCode());
         assertEquals("true", dProps.get(0).getValue());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRegisterParentDataSet()
     {
@@ -354,9 +363,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                     will(returnValue(Arrays.asList(ds1, ds2, ds3)));
                 }
             });
-        
+
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
-        
+
         assertEquals(Constants.MS_DATA_SPACE, info.getSpaceCode());
         assertEquals(null, info.getSampleCode());
         assertEquals(null, info.getSampleIdentifier());
@@ -365,7 +374,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         List<String> parentDataSetCodes = info.getParentDataSetCodes();
         assertEquals("raw2", parentDataSetCodes.get(0));
         assertEquals(1, parentDataSetCodes.size());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -403,8 +412,8 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         context.assertIsSatisfied();
     }
 
-    private void prepareGetExperimentAndGetSampleType(
-            final boolean experimentExists, final SampleTypePropertyType... sampleTypePropertyTypes)
+    private void prepareGetExperimentAndGetSampleType(final boolean experimentExists,
+            final SampleTypePropertyType... sampleTypePropertyTypes)
     {
         context.checking(new Expectations()
             {
@@ -441,7 +450,8 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             });
     }
 
-    private void prepareGetDataSetType(final String dataSetType, final DataSetTypePropertyType... types)
+    private void prepareGetDataSetType(final String dataSetType,
+            final DataSetTypePropertyType... types)
     {
         context.checking(new Expectations()
             {
@@ -461,9 +471,10 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         context.checking(new Expectations()
             {
                 {
-                    one(service).tryGetSampleWithExperiment(SampleIdentifierFactory.parse(SAMPLE_IDENTIFIER));
+                    one(service).tryGetSampleWithExperiment(
+                            SampleIdentifierFactory.parse(SAMPLE_IDENTIFIER));
                     will(returnValue(null));
-                    
+
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
                             public boolean matches(Object item)
@@ -473,7 +484,8 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                                     NewSample sample = (NewSample) item;
                                     assertEquals(SAMPLE_TYPE_CODE, sample.getSampleType().getCode());
                                     assertEquals(SAMPLE_IDENTIFIER, sample.getIdentifier());
-                                    assertEquals(EXPERIMENT_IDENTIFIER, sample.getExperimentIdentifier());
+                                    assertEquals(EXPERIMENT_IDENTIFIER, sample
+                                            .getExperimentIdentifier());
                                     IEntityProperty[] properties = sample.getProperties();
                                     Map<String, IEntityProperty> map =
                                             new HashMap<String, IEntityProperty>();
@@ -497,7 +509,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                 }
             });
     }
-    
+
     private void prepareUpdateSample(final String newName)
     {
         context.checking(new Expectations()
@@ -508,11 +520,11 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                     Sample sample = new Sample();
                     sample.setId(SAMPLE_ID);
                     sample.setModificationDate(new Date(4711));
-                    sample.setProperties(Arrays.<IEntityProperty> asList(createProperty(SAMPLE_PROPERTY,
-                            "Albert")));
+                    sample.setProperties(Arrays.<IEntityProperty> asList(createProperty(
+                            SAMPLE_PROPERTY, "Albert")));
                     SampleType sampleType = new SampleType();
-                    sampleType.setSampleTypePropertyTypes(Arrays.asList(createPropertyType(SAMPLE_PROPERTY,
-                            true)));
+                    sampleType.setSampleTypePropertyTypes(Arrays.asList(createPropertyType(
+                            SAMPLE_PROPERTY, true)));
                     sample.setSampleType(sampleType);
                     will(returnValue(sample));
 
@@ -523,18 +535,20 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                                 if (item instanceof SampleUpdatesDTO)
                                 {
                                     SampleUpdatesDTO sampleUpdate = (SampleUpdatesDTO) item;
-                                    assertEquals(SAMPLE_ID, sampleUpdate.getSampleIdOrNull().getId().longValue());
+                                    assertEquals(SAMPLE_ID, sampleUpdate.getSampleIdOrNull()
+                                            .getId().longValue());
                                     assertEquals(0, sampleUpdate.getAttachments().size());
                                     assertEquals(null, sampleUpdate.getContainerIdentifierOrNull());
-                                    assertEquals(null, sampleUpdate.getParentIdentifierOrNull());
+                                    assertEquals(null, sampleUpdate.getModifiedParentCodesOrNull());
                                     assertEquals(EXPERIMENT_IDENTIFIER, sampleUpdate
                                             .getExperimentIdentifierOrNull().toString());
                                     assertEquals(SAMPLE_IDENTIFIER, sampleUpdate
                                             .getSampleIdentifier().toString());
                                     List<IEntityProperty> properties = sampleUpdate.getProperties();
-                                    assertEquals(SAMPLE_PROPERTY, properties.get(0).getPropertyType()
-                                            .getCode());
-                                    assertEquals(newName == null ? "Albert" : newName, properties.get(0).getValue());
+                                    assertEquals(SAMPLE_PROPERTY, properties.get(0)
+                                            .getPropertyType().getCode());
+                                    assertEquals(newName == null ? "Albert" : newName, properties
+                                            .get(0).getValue());
                                     assertEquals(1, properties.size());
                                     return true;
                                 }
@@ -575,7 +589,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         stpt.setPropertyType(propertyType);
         return stpt;
     }
-    
+
     private DataSetTypePropertyType createDataSetPropertyType(String key, boolean mandatory)
     {
         DataSetTypePropertyType etpt = new DataSetTypePropertyType();
@@ -585,7 +599,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         etpt.setPropertyType(propertyType);
         return etpt;
     }
-    
+
     private EntityProperty createProperty(String name, String value)
     {
         EntityProperty entityProperty = new EntityProperty();
@@ -595,7 +609,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         entityProperty.setValue(value);
         return entityProperty;
     }
-    
+
     private ExternalData createDataSet(String type, String code, int timestamp)
     {
         ExternalData ds = new ExternalData();
@@ -604,5 +618,5 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         ds.setRegistrationDate(new Date(timestamp));
         return ds;
     }
-    
+
 }

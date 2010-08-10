@@ -157,7 +157,7 @@ public class DataSetInfoExtractorForMSInjection extends AbstractDataSetInfoExtra
             Set<NewAttachment> emptySet = Collections.<NewAttachment> emptySet();
             Date version = sample.getModificationDate();
             service.updateSample(new SampleUpdatesDTO(sampleID, propertiesList,
-                    experimentIdentifier, emptySet, version, sampleIdentifier, null, null, null));
+                    experimentIdentifier, emptySet, version, sampleIdentifier, null, null));
             return sample.getId();
         }
     }

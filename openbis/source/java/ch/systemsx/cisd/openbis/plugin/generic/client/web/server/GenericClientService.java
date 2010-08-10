@@ -351,7 +351,6 @@ public class GenericClientService extends AbstractClientService implements IGene
                                     convExperimentIdentifierOrNull, attachments, updates
                                             .getVersion(), sampleOwner, updates
                                             .getContainerIdentifierOrNull(), updates
-                                            .getParentIdentifierOrNull(), updates
                                             .getModifiedParentCodesOrNull()));
                     result.copyFrom(updateResult);
                 }
