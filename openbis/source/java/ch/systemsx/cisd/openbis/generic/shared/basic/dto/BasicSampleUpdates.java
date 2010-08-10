@@ -39,7 +39,7 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
 
     private Date version;
 
-    // TODO 2010-08-06, Piotr Buczek: get rid of this
+    // TODO 2010-08-06, Piotr Buczek: get rid of this when we change batch import/update
     private String parentIdentifierOrNull;
 
     private String containerIdentifierOrNull;

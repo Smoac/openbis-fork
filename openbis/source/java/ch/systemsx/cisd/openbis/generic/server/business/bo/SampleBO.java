@@ -238,7 +238,6 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         updateProperties(updates.getProperties());
         updateGroup(sample, updates.getSampleIdentifier(), null);
         updateExperiment(sample, updates.getExperimentIdentifierOrNull(), null);
-        // TODO 2010-08-06, Piotr Buczek: get rid of this
         setGeneratedFrom(updates.getSampleIdentifier(), sample, updates.getParentIdentifierOrNull());
         setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull());
         for (NewAttachment attachment : updates.getAttachments())

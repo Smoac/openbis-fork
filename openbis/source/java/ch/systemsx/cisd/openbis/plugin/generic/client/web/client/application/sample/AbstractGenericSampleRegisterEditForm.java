@@ -218,7 +218,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                         .getCommonViewContext(), getId() + ID_SUFFIX_PARENT,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
                                 .withSuffix(getSampleTypeCode()));
-        parentsArea = new ParentSamplesArea(viewContext, simpleId);
+        parentsArea = new ParentSamplesArea(viewContext, getId());
         SampleChooserButton parentChooserButton = parentButton.getChooserButton();
         parentChooserButton.addChosenEntityListener(new IChosenEntityListener<Sample>()
             {

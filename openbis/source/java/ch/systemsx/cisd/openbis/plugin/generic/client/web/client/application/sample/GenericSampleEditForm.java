@@ -72,7 +72,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         viewContext.getService().updateSample(
                 new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
                         experimentIdent, originalSample.getModificationDate(),
-                        createSampleIdentifier(), containerOrNull, null, parents),
+                        createSampleIdentifier(), containerOrNull, parents),
                 new UpdateSampleCallback(viewContext));
     }
 
