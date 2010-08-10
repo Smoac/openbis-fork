@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic;
 
+import ch.systemsx.cisd.common.geometry.ConversionUtils;
+
 /**
  * Utility methods for plates.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PlateUtils
@@ -29,13 +31,7 @@ public class PlateUtils
      */
     public static String translateRowNumberIntoLetterCode(int rowNumber)
     {
-        int rowIndex = rowNumber - 1;
-        String code = "";
-        while (rowIndex >= 0)
-        {
-            code = (char) (rowIndex % 26 + 'A') + code;
-            rowIndex = rowIndex / 26 - 1;
-        }
-        return code;
+        // Moved to conversion utils
+        return ConversionUtils.translateRowNumberIntoLetterCode(rowNumber);
     }
 }

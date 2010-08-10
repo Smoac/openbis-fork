@@ -97,24 +97,22 @@ public final class LocationTest
         assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate(""));
         assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate("8"));
         assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate("M"));
-        assertEquals(new Location(2, 1), Location.tryCreateLocationFromTransposedMatrixCoordinate("A02"));
-        assertEquals(new Location(7, 26), Location.tryCreateLocationFromTransposedMatrixCoordinate("z7"));
-        assertEquals(new Location(34, 15), Location.tryCreateLocationFromTransposedMatrixCoordinate("O34"));
+        assertEquals(new Location(2, 1), Location
+                .tryCreateLocationFromTransposedMatrixCoordinate("A02"));
+        assertEquals(new Location(7, 26), Location
+                .tryCreateLocationFromTransposedMatrixCoordinate("z7"));
+        assertEquals(new Location(34, 15), Location
+                .tryCreateLocationFromTransposedMatrixCoordinate("O34"));
     }
 
     @Test
     public final void testCreateMatrixCoordinateFromLocation()
     {
-        assertEquals("A01", Location.tryCreateMatrixCoordinateFromLocation(new Location(1, 1)));
-        assertEquals("A02", Location.tryCreateMatrixCoordinateFromLocation(new Location(2, 1)));
-        assertEquals("Z07", Location.tryCreateMatrixCoordinateFromLocation(new Location(7, 26)));
+        assertEquals("A1", Location.tryCreateMatrixCoordinateFromLocation(new Location(1, 1)));
+        assertEquals("A2", Location.tryCreateMatrixCoordinateFromLocation(new Location(2, 1)));
+        assertEquals("Z7", Location.tryCreateMatrixCoordinateFromLocation(new Location(7, 26)));
         assertEquals("O34", Location.tryCreateMatrixCoordinateFromLocation(new Location(34, 15)));
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public final void testCreateMatrixCoordinateFromTooBigNumber()
-    {
-        Location.tryCreateMatrixCoordinateFromLocation(new Location(134, 27));
+        assertEquals("AA134", Location.tryCreateMatrixCoordinateFromLocation(new Location(134, 27)));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)

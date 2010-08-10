@@ -96,15 +96,27 @@ public class ConversionUtils
         {
             throw new IllegalArgumentException("Unspecified point.");
         }
-        // TODO 2010-07-26, Tomasz Pylak: support double-letter coordinates
-        if (p.getX() >= 26 || p.getX() < 0)
-        {
-            throw new IllegalArgumentException("Unsupported value: " + p.getX());
-        }
-        String xText = "" + (char) (p.getX() + 'A');
+
+        String xText = translateRowNumberIntoLetterCode(p.getX() + 1);
         int y = p.getY() + 1;
-        String yText = (y < 10 ? "0" + y : "" + y);
+        String yText = "" + y;
         return String.format("%s%s", xText, yText);
+    }
+
+    /**
+     * Taken from PlateUtils Translates a row number into letter code. Thus, 1 -> A, 2 -> B, 26 ->
+     * Z, 27 -> AA, 28 -> AB, etc.
+     */
+    public static String translateRowNumberIntoLetterCode(int rowNumber)
+    {
+        int rowIndex = rowNumber - 1;
+        String code = "";
+        while (rowIndex >= 0)
+        {
+            code = (char) (rowIndex % 26 + 'A') + code;
+            rowIndex = rowIndex / 26 - 1;
+        }
+        return code;
     }
 
     private static int getLetterNumber(final char ch)
