@@ -21,7 +21,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
 
-public abstract class ChosenEntitySetter<T> extends TriggerField<String>
+abstract class ChosenEntitySetter<T> extends TriggerField<String> implements IChosenEntitySetter<T>
 {
     private static final int TEXT_CHOOSER_FIELD_WIDTH = 342;
 
@@ -40,7 +40,7 @@ public abstract class ChosenEntitySetter<T> extends TriggerField<String>
         listeners.add(listener);
     }
 
-    void setChosenEntity(T entityOrNull)
+    public void setChosenEntity(T entityOrNull)
     {
         if (entityOrNull != null)
         {

@@ -36,8 +36,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserButton;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserButton.SampleChooserButtonAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -84,7 +86,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected SampleChooserFieldAdaptor container;
 
-    protected SampleChooserFieldAdaptor parent;
+    protected SampleChooserButtonAdaptor parentButton;
 
     protected ParentSamplesArea parentsArea;
 
@@ -176,7 +178,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(wrapUnaware(experimentField.getField()));
         fields.add(groupSelectionWidget.asDatabaseModificationAware());
-        fields.add(wrapUnaware(parent.getField()));
+        fields.add(wrapUnaware(parentButton.getField()));
         fields.add(wrapUnaware(parentsArea));
         fields.add(wrapUnaware(container.getField()));
         return fields;
@@ -210,15 +212,15 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                 new GroupSelectionWidget(viewContext, getId(), true, false, initialGroupCodeOrNull);
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
-        parent =
-                SampleChooserField.create(viewContext.getMessage(Dict.GENERATED_FROM_SAMPLE),
-                        false, null, true, false, false, viewContext.getCommonViewContext(),
-                        getId() + ID_SUFFIX_PARENT,
+        parentButton =
+                SampleChooserButton.create(viewContext.getMessage(Dict.PARENTS), viewContext
+                        .getMessage(Dict.ADD_PARENT), true, false, false, viewContext
+                        .getCommonViewContext(), getId() + ID_SUFFIX_PARENT,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
                                 .withSuffix(getSampleTypeCode()));
         parentsArea = new ParentSamplesArea(viewContext, simpleId);
-        SampleChooserField parentChooserField = parent.getChooserField();
-        parentChooserField.addChosenEntityListener(new IChosenEntityListener<Sample>()
+        SampleChooserButton parentChooserButton = parentButton.getChooserButton();
+        parentChooserButton.addChosenEntityListener(new IChosenEntityListener<Sample>()
             {
                 public void entityChosen(Sample entity)
                 {
@@ -276,7 +278,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         boolean showContainer = sampleType.isShowContainer();
         boolean showParents = sampleType.isShowParents();
         FieldUtil.setVisibility(showContainer, container.getField());
-        FieldUtil.setVisibility(showParents, parent.getField(), parentsArea);
+        FieldUtil.setVisibility(showParents, parentButton.getField(), parentsArea);
     }
 
     private String getSampleTypeCode()

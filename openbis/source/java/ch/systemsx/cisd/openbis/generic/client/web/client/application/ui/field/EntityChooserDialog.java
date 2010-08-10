@@ -45,7 +45,8 @@ class EntityChooserDialog<T> extends SimpleDialog
     private final IDelegatedAction onCancelAction;
 
     public EntityChooserDialog(DisposableEntityChooser<T> entityBrowser,
-            ChosenEntitySetter<T> chosenEntitySetter, String title, IMessageProvider messageProvider)
+            IChosenEntitySetter<T> chosenEntitySetter, String title,
+            IMessageProvider messageProvider)
     {
         super(entityBrowser.getComponent(), title, messageProvider.getMessage(Dict.BUTTON_CHOOSE),
                 messageProvider);
@@ -79,7 +80,7 @@ class EntityChooserDialog<T> extends SimpleDialog
     }
 
     private static <T> IDelegatedAction createAcceptAction(
-            final ChosenEntitySetter<T> chosenEntitySetter,
+            final IChosenEntitySetter<T> chosenEntitySetter,
             final DisposableEntityChooser<T> entityBrowser)
     {
         return new IDelegatedAction()
@@ -94,7 +95,8 @@ class EntityChooserDialog<T> extends SimpleDialog
     }
 
     private static <T> IDelegatedAction createCancelAction(
-            final ChosenEntitySetter<T> chosenEntitySetter, final IDisposableComponent entityBrowser)
+            final IChosenEntitySetter<T> chosenEntitySetter,
+            final IDisposableComponent entityBrowser)
     {
         return new IDelegatedAction()
             {

@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 /**
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
-public interface IChosenEntityListener<T>
+public interface IChosenEntitySetter<T>
 {
-    public void entityChosen(T entity);
+    public void setChosenEntity(T entityOrNull);
 }

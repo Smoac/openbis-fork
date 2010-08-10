@@ -500,6 +500,8 @@ public abstract class Dict
 
     public static final String GENERATED_FROM_SAMPLE = "generated_from_sample";
 
+    public static final String ADD_PARENT = "add_parent";
+
     public static final String PART_OF_SAMPLE = "part_of_sample";
 
     //

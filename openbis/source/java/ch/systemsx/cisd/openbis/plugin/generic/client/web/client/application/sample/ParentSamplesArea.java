@@ -32,7 +32,7 @@ final class ParentSamplesArea extends SamplesArea
     public ParentSamplesArea(IMessageProvider messageProvider, String idPrefix)
     {
         super(messageProvider.getMessage(Dict.SAMPLES_LIST));
-        this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
+        setLabelSeparator("");
         setId(createId(idPrefix));
     }
 
