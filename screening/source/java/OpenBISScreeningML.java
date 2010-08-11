@@ -63,12 +63,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * % Add the API jar file to the classpath
  * javaaddpath('/home/brinn/matlab/openbis_screening_api-batteries_included.jar')
  * % Login to server
- * OpenBISML.login('user', 'secret', 'https://www.infectome.org')
+ * OpenBISScreeningML.login('user', 'secret', 'https://www.infectome.org')
  * 
  * % ...perform calls on the server...
  * 
  * % Logout to close the session on the server
- * OpenBISML.logout()
+ * OpenBISScreeningML.logout()
  * </pre>
  * 
  * <i>Note: using this login your password will end up in the Matlab command history. An alternative
@@ -78,7 +78,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * 
  * @author Bernd Rinn
  */
-public class OpenBISML
+public class OpenBISScreeningML
 {
     private static IScreeningOpenbisServiceFacade openbis = null;
 
@@ -94,7 +94,7 @@ public class OpenBISML
 
     private static Map<String, Plate> plateCodeToPlateMap = new HashMap<String, Plate>();
 
-    private OpenBISML()
+    private OpenBISScreeningML()
     {
         // Not to be constructed.
     }
@@ -128,7 +128,7 @@ public class OpenBISML
      * Matlab example:
      * 
      * <pre>
-     * OpenBISML.login('user', 'secret', 'https://www.infectome.org')
+     * OpenBISScreeningML.login('user', 'secret', 'https://www.infectome.org')
      * </pre>
      * 
      * @param user The user id on the server
@@ -177,7 +177,7 @@ public class OpenBISML
      * Matlab example:
      * 
      * <pre>
-     * OpenBISML.logout()
+     * OpenBISScreeningML.logout()
      * </pre>
      */
     public static void logout()
@@ -205,7 +205,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get the experiments
-     * exps = OpenBISML.listExperiments();
+     * exps = OpenBISScreeningML.listExperiments();
      * % How many experiments do we have?
      * length(exps)
      * % Get all information about experiment 3
@@ -243,7 +243,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get the plates
-     * plates = OpenBISML.listPlates();
+     * plates = OpenBISScreeningML.listPlates();
      * % How many plates do we have?
      * length(plates)
      * % Get all information about plate 2
@@ -285,7 +285,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get the plates of experiment MYEXP in project PROJ of space SPACE
-     * plates = OpenBISML.listPlates('/SPACE/PROJ/MYEXP');
+     * plates = OpenBISScreeningML.listPlates('/SPACE/PROJ/MYEXP');
      * % How many plates do we have?
      * length(plates)
      * % Get all information about plate 2
@@ -338,7 +338,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get the channels of experiment MYEXP in project PROJ of space SPACE
-     * channels = OpenBISML.listChannels('/SPACE/PROJ/MYEXP');
+     * channels = OpenBISScreeningML.listChannels('/SPACE/PROJ/MYEXP');
      * % How many channels do we have?
      * length(channels)
      * % What is the name of channel 1?
@@ -389,7 +389,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get the features of experiment MYEXP in project PROJ of space SPACE
-     * features = OpenBISML.listFeatures('/SPACE/PROJ/MYEXP');
+     * features = OpenBISScreeningML.listFeatures('/SPACE/PROJ/MYEXP');
      * % How many features do we have?
      * length(features)
      * % What is the name of features 1?
@@ -441,7 +441,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Load the images for all channels of well B10 of plate P005 in space SPACE
-     * imginfo = OpenBISML.loadImages('/SPACE/P005', 2, 10)
+     * imginfo = OpenBISScreeningML.loadImages('/SPACE/P005', 2, 10)
      * % Get the plate-well descriptions of all locations
      * imginfo(2,:,3)
      * % Show the third image (assuming there are at least three images)
@@ -476,7 +476,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Load the images for channel DAPI of well H10 of plate P005 in space SPACE
-     * imginfo=OpenBISML.loadImages('/SPACE/P005', 8, 10, 'DAPI')
+     * imginfo=OpenBISScreeningML.loadImages('/SPACE/P005', 8, 10, 'DAPI')
      * % Get the channel names and tile numbers of all locations
      * imginfo(2,:,1:2)
      * % Show the second image (assuming there are at least two images)
@@ -678,7 +678,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get feature matrix for experiment /SPACE/PROJ/MYEXP for locations connected to GENENAME
-     * fmatrix = OpenBISML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME');
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME');
      * % Get the feature vector for the second location (assuming there are at least two locations)
      * loc2 = fmatrix(1,2,:)
      * % Get the values of the fifth feature for all locations (assuming there are at least 5 features)
@@ -717,7 +717,7 @@ public class OpenBISML
      * <pre>
      * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for 
      * % experiment /SPACE/PROJ/MYEXP for locations connected to GENENAME
-     * fmatrix = OpenBISML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('/SPACE/PROJ/MYEXP', 'GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
      * % Get the feature vector for the second location (assuming there are at least two locations)
      * loc2 = fmatrix(1,2,:)
      * % Get the values of the fourth feature for all locations (assuming there are at least 4 features)
@@ -812,7 +812,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get feature matrix for GENENAME
-     * fmatrix = OpenBISML.getFeatureMatrix('GENENAME');
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME');
      * % Get the feature vector for the second location (assuming there are at least two locations)
      * loc2 = fmatrix(1,2,:)
      * % Get the values of the fifth feature for all locations (assuming there are at least 5 features)
@@ -849,7 +849,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for GENENAME
-     * fmatrix = OpenBISML.getFeatureMatrix('GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
+     * fmatrix = OpenBISScreeningML.getFeatureMatrix('GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
      * % Get the feature vector for the second location (assuming there are at least two locations)
      * loc2 = fmatrix(1,2,:)
      * % Get the values of the second feature ('FEATURE2' here) for all locations
@@ -933,7 +933,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get feature matrix for PLATECODE
-     * fmatrix = OpenBISML.getFeatureMatrixForPlate('PLATECODE');
+     * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE');
      * % Get the feature vector for the second location (assuming there are at least two locations)
      * loc2 = fmatrix(1,2,:)
      * % Get the values of the fourth feature for all locations (assuming there are at least 4 features)
@@ -970,7 +970,7 @@ public class OpenBISML
      * 
      * <pre>
      * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for PLATECODE
-     * fmatrix = OpenBISML.getFeatureMatrixForPlate('PLATECODE', ('FEATURE1','FEATURE2','FEATURE3'));
+     * fmatrix = OpenBISScreeningML.getFeatureMatrixForPlate('PLATECODE', ('FEATURE1','FEATURE2','FEATURE3'));
      * % Get the feature vector for the second location (assuming there are at least two locations)
      * loc2 = fmatrix(1,2,:)
      * % Get the values of the second feature for all locations

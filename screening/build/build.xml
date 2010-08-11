@@ -138,7 +138,7 @@
     <echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
     <recursive-jar destfile="${dist.screening-api.jar}">
       <fileset dir="${classes.screening}">
-        <include name="OpenBISML*.class" />
+        <include name="OpenBISScreeningML*.class" />
         <include name="ch/systemsx/cisd/common/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
         <include name="ch/systemsx/cisd/openbis/dss/screening/shared/api/v1/**/*.class" />
