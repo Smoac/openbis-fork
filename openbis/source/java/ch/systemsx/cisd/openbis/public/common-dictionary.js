@@ -37,7 +37,7 @@ var common = {
   url: "URL",
   reason: "Reason",
   delete_confirmation_message_with_reason: "You are deleting {0}(s).<br><br>Please enter a reason or cancel deletion.",
-  add_attachment: "Add attachment",
+  add_attachment: "Add attachment...",
   data_view: "Data View",
   main_data_set_path: "Main Data Set Path",
   main_data_set_path_tooltip: "The path (relative to the top directory of a data set) that will be used as a starting point of 'main data set' lookup.\nExample: 'original/images/'",

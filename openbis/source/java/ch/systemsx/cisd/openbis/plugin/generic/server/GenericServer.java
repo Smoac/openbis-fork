@@ -471,13 +471,16 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 newSampleIdentifier = oldSampleIdentifier;
             }
             final String parentIdentifierOrNull = updatedSample.getParentIdentifier();
+            final String[] parentsOrNull =
+                    (parentIdentifierOrNull == null) ? new String[0] : new String[]
+                        { parentIdentifierOrNull };
             final String containerIdentifierOrNull = updatedSample.getContainerIdentifier();
             final SampleBatchUpdateDetails batchUpdateDetails =
                     createBatchUpdateDetails(updatedSample);
 
             samples.add(new SampleBatchUpdatesDTO(oldSampleIdentifier, properties,
-                    experimentIdentifierOrNull, newSampleIdentifier, parentIdentifierOrNull,
-                    containerIdentifierOrNull, batchUpdateDetails));
+                    experimentIdentifierOrNull, newSampleIdentifier, containerIdentifierOrNull,
+                    parentsOrNull, batchUpdateDetails));
         }
         return samples;
     }

@@ -37,11 +37,11 @@ public class SampleBatchUpdatesDTO extends SampleUpdatesDTO
 
     public SampleBatchUpdatesDTO(SampleIdentifier oldSampleIdentifier,
             List<IEntityProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
-            SampleIdentifier sampleIdentifier, String parentIdentifierOrNull,
-            String containerIdentifierOrNull, SampleBatchUpdateDetails details)
+            SampleIdentifier sampleIdentifier, String containerIdentifierOrNull,
+            String[] modifiedParentCodesOrNull, SampleBatchUpdateDetails details)
     {
         super(null, properties, experimentIdentifierOrNull, null, null, sampleIdentifier,
-                containerIdentifierOrNull, new String[] {parentIdentifierOrNull});
+                containerIdentifierOrNull, modifiedParentCodesOrNull);
         this.oldSampleIdentifierOrNull = oldSampleIdentifier;
         this.details = details;
     }
