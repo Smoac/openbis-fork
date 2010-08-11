@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeI
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -1045,9 +1046,85 @@ public class OpenBISScreeningML
         return result;
     }
 
+    /**
+     * Returns the gene mapping for the given <var>plateCodes</var> in <code>[0]</code> and location
+     * annotations in <code>[1]</code>.
+     * <p>
+     * One row in the matrix corresponds to one well.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for PLATECODE
+     * genes = getGeneMappingForPlate('PLATECODE');
+     * % Get the plate well location description of the 10th wells
+     * loc2 = genes(2,10,1)
+     * % Get the gene ids that are in the 10th well
+     * geneIds = genes(1,10,:)
+     * </pre>
+     * 
+     * @param platesCodes The augmented codes of the plates to get the mapping for
+     * @return <code>{ gene ids, annotations per well }</code> where <code>gene ids</code> can be 0,
+     *         1 or more gene ids. <code>annotations per location</code> contain:
+     *         <p>
+     *         <code>{ plate well description, plate augmented code, plate perm id,
+     *         plate space code, plate code, row, column }</code>
+     */
+    public static Object[][][] getGeneMappingForPlates(String[] platesCodes)
+    {
+        checkLoggedIn();
+        final List<PlateWellMaterialMapping> mappingList =
+                openbis
+                        .listPlateMaterialMapping(toPlates(platesCodes),
+                                MaterialTypeIdentifier.GENE);
+        int size = 0;
+        for (PlateWellMaterialMapping mapping : mappingList)
+        {
+            size +=
+                    mapping.getPlateGeometry().getNumberOfRows()
+                            * mapping.getPlateGeometry().getNumberOfColumns();
+        }
+        final Object[][][] result = new Object[2][size][];
+        int resultIdx = 0;
+        for (PlateWellMaterialMapping mapping : mappingList)
+        {
+            for (int row = 1; row <= mapping.getPlateGeometry().getNumberOfRows(); ++row)
+            {
+                for (int col = 1; col <= mapping.getPlateGeometry().getNumberOfColumns(); ++col)
+                {
+                    final List<MaterialIdentifier> genes = mapping.getMaterialsForWell(row, col);
+                    result[0][resultIdx] = new Object[genes.size()];
+                    for (int i = 0; i < genes.size(); ++i)
+                    {
+                        result[0][resultIdx][i] = genes.get(i).getMaterialCode();
+                    }
+                    final PlateIdentifier plate = mapping.getPlateIdentifier();
+                    result[1][resultIdx] =
+                            new Object[]
+                                { createPlateWellDescription(plate, row, col),
+                                        plate.getAugmentedCode(), plate.getPermId(),
+                                        plate.tryGetSpaceCode(), plate.getPlateCode(), row, col, };
+                    ++resultIdx;
+                }
+            }
+        }
+        return result;
+    }
+
     //
     // Helper methods
     //
+
+    private static List<PlateIdentifier> toPlates(String[] augmentedPlateCodes)
+    {
+        final List<PlateIdentifier> result =
+                new ArrayList<PlateIdentifier>(augmentedPlateCodes.length);
+        for (String plateCode : augmentedPlateCodes)
+        {
+            result.add(PlateIdentifier.createFromAugmentedCode(plateCode));
+        }
+        return result;
+    }
 
     private static void arraycopy(double[] src, Object[] dest)
     {
