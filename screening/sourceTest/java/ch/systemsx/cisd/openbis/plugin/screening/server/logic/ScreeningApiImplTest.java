@@ -102,7 +102,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
     private static PlateIdentifier createSharedPlate(String plateCode)
     {
-        return PlateIdentifier.createFromAugmentedCode(plateCode);
+        return PlateIdentifier.createFromAugmentedCode("/" + plateCode);
     }
 
     @Test
