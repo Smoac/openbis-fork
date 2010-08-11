@@ -201,19 +201,17 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     protected void setGeneratedFrom(final SampleIdentifier sampleIdentifier,
             final SamplePE samplePE, String parentIdentifier)
     {
-        removeParents(samplePE);
-        final SamplePE parentPE = tryGetValidSample(parentIdentifier, sampleIdentifier);
-        if (parentPE != null)
+        final Set<SamplePE> newParents = new HashSet<SamplePE>();
+        final SamplePE parentOrNull = tryGetValidSample(parentIdentifier, sampleIdentifier);
+        if (parentOrNull != null)
         {
-            RelationshipTypePE relationship = tryFindParentChildRelationshipType();
-            samplePE.addParentRelationship(new SampleRelationshipPE(parentPE, samplePE,
-                    relationship));
+            newParents.add(parentOrNull);
         }
+        replaceParents(samplePE, newParents);
     }
 
     protected void setParents(final SamplePE childPE, final String[] parents)
     {
-        removeParents(childPE);
         final List<SampleIdentifier> parentIdentifiers =
                 IdentifierHelper.extractSampleIdentifiers(parents);
         final SampleIdentifier childIdentifier = childPE.getSampleIdentifier();
@@ -225,47 +223,41 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 IdentifierHelper.fillGroupIfNotSpecified(si, spaceCode);
             }
         }
-        final List<SamplePE> parentPEs = new ArrayList<SamplePE>();
+        final Set<SamplePE> parentPEs = new HashSet<SamplePE>();
         for (SampleIdentifier si : parentIdentifiers)
         {
             SamplePE parent = getSampleByIdentifier(si);
             parentPEs.add(parent);
         }
-        addParents(childPE, parentPEs);
+        replaceParents(childPE, parentPEs);
     }
 
-    private void addParents(SamplePE childPE, List<SamplePE> parentPEs)
+    private void replaceParents(SamplePE child, Set<SamplePE> newParents)
     {
-        RelationshipTypePE relationshipType = tryFindParentChildRelationshipType();
-        for (SamplePE parentPE : parentPEs)
-        {
-            addParentRelationship(childPE, parentPE, relationshipType);
-        }
-    }
-
-    private void removeParents(SamplePE child)
-    {
-        List<SampleRelationshipPE> parents = new ArrayList<SampleRelationshipPE>();
+        List<SampleRelationshipPE> oldParents = new ArrayList<SampleRelationshipPE>();
         for (SampleRelationshipPE r : child.getParentRelationships())
         {
             if (r.getRelationship().getCode().equals(
                     BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
             {
-                parents.add(r);
+                oldParents.add(r);
             }
         }
-        for (SampleRelationshipPE r : parents)
+        for (SampleRelationshipPE r : oldParents)
         {
-            child.removeParentRelationship(r);
+            if (newParents.contains(r.getParentSample()))
+            {
+                newParents.remove(r.getParentSample());
+            } else
+            {
+                child.removeParentRelationship(r);
+            }
         }
-    }
-
-    private void addParentRelationship(SamplePE child, SamplePE parent,
-            RelationshipTypePE relationshipType)
-    {
-        final SampleRelationshipPE relationship =
-                new SampleRelationshipPE(parent, child, relationshipType);
-        child.addParentRelationship(relationship);
+        RelationshipTypePE relationship = tryFindParentChildRelationshipType();
+        for (SamplePE newParent : newParents)
+        {
+            child.addParentRelationship(new SampleRelationshipPE(newParent, child, relationship));
+        }
     }
 
     protected RelationshipTypePE tryFindParentChildRelationshipType()
