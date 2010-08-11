@@ -105,13 +105,18 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
     @Test
     public void testGetPlateGeometryAugmentedCode()
     {
-        AssertJUnit.assertEquals("384_WELLS_16X24", query.tryGetPlateGeometry("CISD", "MP002-1"));
+        final PlateGeometryContainer container = query.tryGetPlateGeometry("CISD", "MP002-1");
+        AssertJUnit.assertEquals("384_WELLS_16X24", container.plate_geometry);
+        AssertJUnit.assertEquals("200811050917877-331", container.perm_id);
     }
 
     @Test
     public void testGetPlateGeometry()
     {
-        AssertJUnit.assertEquals("384_WELLS_16X24", query.tryGetPlateGeometry("200811050917877-331"));
+        final PlateGeometryContainer container = query.tryGetPlateGeometry("200811050917877-331");
+        AssertJUnit.assertEquals("384_WELLS_16X24", container.plate_geometry);
+        AssertJUnit.assertEquals("MP002-1", container.plate_code);
+        AssertJUnit.assertEquals("CISD", container.space_code);
     }
 
     @Test

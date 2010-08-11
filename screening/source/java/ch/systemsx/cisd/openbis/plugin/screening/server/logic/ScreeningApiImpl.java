@@ -31,6 +31,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.PlateGeometryContainer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -77,6 +79,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * 
  * @author Tomasz Pylak
  */
+@Friend(toClasses =
+    { ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent.class,
+            PlateGeometryContainer.class })
 public class ScreeningApiImpl
 {
     private final Session session;
@@ -332,12 +337,16 @@ public class ScreeningApiImpl
     private PlateWellMaterialMapping toPlateWellMaterialMapping(
             PlateIdentifier plateIdentifier,
             MaterialTypeIdentifier materialTypeIdentifierOrNull,
-            String plateGeometryStr,
+            PlateGeometryContainer plateGeometryContainer,
             DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> wellContentList)
     {
-        final Geometry plateGeometry = Geometry.createFromPlateGeometryString(plateGeometryStr);
+        final Geometry plateGeometry =
+                Geometry.createFromPlateGeometryString(plateGeometryContainer.plate_geometry);
+        final PlateIdentifier finalPlateIdentifier =
+                new PlateIdentifier(plateGeometryContainer.plate_code,
+                        plateGeometryContainer.space_code, plateGeometryContainer.perm_id);
         final PlateWellMaterialMapping result =
-                new PlateWellMaterialMapping(plateIdentifier, plateGeometry, 1);
+                new PlateWellMaterialMapping(finalPlateIdentifier, plateGeometry, 1);
         if (materialTypeIdentifierOrNull != null)
         {
             for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent wellContent : wellContentList)
@@ -370,28 +379,31 @@ public class ScreeningApiImpl
         return result;
     }
 
-    private String getPlateGeometry(IScreeningQuery query, PlateIdentifier plate)
+    private PlateGeometryContainer getPlateGeometry(IScreeningQuery query, PlateIdentifier plate)
     {
-        final String plateGeometry;
+        final PlateGeometryContainer plateGeometryContainer;
         if (plate.getPermId() == null)
         {
-            plateGeometry =
+            plateGeometryContainer =
                     query.tryGetPlateGeometry(plate.tryGetSpaceCode(), plate.getPlateCode());
-            if (plateGeometry == null)
+            if (plateGeometryContainer == null)
             {
                 throw new IllegalArgumentException("No plate with code '" + plate.tryGetSpaceCode()
                         + "/" + plate.getPlateCode() + "' found.");
             }
+            plateGeometryContainer.space_code = plate.tryGetSpaceCode();
+            plateGeometryContainer.plate_code = plate.getPlateCode();
         } else
         {
-            plateGeometry = query.tryGetPlateGeometry(plate.getPermId());
-            if (plateGeometry == null)
+            plateGeometryContainer = query.tryGetPlateGeometry(plate.getPermId());
+            if (plateGeometryContainer == null)
             {
                 throw new IllegalArgumentException("No plate with perm id '" + plate.getPermId()
                         + "' found.");
             }
+            plateGeometryContainer.perm_id = plate.getPermId();
         }
-        return plateGeometry;
+        return plateGeometryContainer;
     }
 
     private DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> getPlateMapping(

@@ -183,20 +183,23 @@ public interface IScreeningQuery extends BaseQuery
      * Returns the plate geometry string for the plate with given <var>platePermId</var>, or
      * <code>null</code>, if no plate with that perm id can be found.
      */
-    @Select(sql = "select cvte.code  from sample_properties sp "
+    @Select(sql = "select space.code as space_code, pl.code as plate_code, cvte.code as plate_geometry "
+            + "      from sample_properties sp "
             + "         join samples pl on pl.id = sp.samp_id "
             + "         join controlled_vocabulary_terms cvte on cvte.id = sp.cvte_id "
             + "         join sample_type_property_types stpt on stpt.id = sp.stpt_id "
             + "         join property_types pt on pt.id = stpt.prty_id "
+            + "         join groups space on pl.grou_id = space.id"
             + "      where pt.code = 'PLATE_GEOMETRY' "
             + "         and pt.is_internal_namespace = true and pl.perm_id = ?{1}")
-    public String tryGetPlateGeometry(String platePermId);
+    public PlateGeometryContainer tryGetPlateGeometry(String platePermId);
 
     /**
      * Returns the plate geometry string for the plate with given <var>spaceCode</var> and
      * <var>plateCode</var>, or <code>null</code>, if no plate with that code can be found.
      */
-    @Select(sql = "select cvte.code from sample_properties sp "
+    @Select(sql = "select pl.perm_id, cvte.code as plate_geometry "
+            + "      from sample_properties sp "
             + "         join samples pl on pl.id = sp.samp_id "
             + "         join controlled_vocabulary_terms cvte on cvte.id = sp.cvte_id "
             + "         join sample_type_property_types stpt on stpt.id = sp.stpt_id "
@@ -204,6 +207,6 @@ public interface IScreeningQuery extends BaseQuery
             + "         join groups space on pl.grou_id = space.id"
             + "      where pt.code = 'PLATE_GEOMETRY' "
             + "         and pt.is_internal_namespace = true and space.code = ?{1} and pl.code = ?{2}")
-    public String tryGetPlateGeometry(String spaceCode, String plateCode);
+    public PlateGeometryContainer tryGetPlateGeometry(String spaceCode, String plateCode);
 
 }
