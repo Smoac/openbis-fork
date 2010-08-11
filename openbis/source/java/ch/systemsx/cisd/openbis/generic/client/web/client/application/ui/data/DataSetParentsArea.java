@@ -62,6 +62,6 @@ public final class DataSetParentsArea extends CodesArea<ExternalData>
 
     public final void setParentCodes(List<String> parentCodes)
     {
-        setCodes(parentCodes);
+        setItems(parentCodes);
     }
 }

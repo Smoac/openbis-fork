@@ -227,7 +227,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                     if (entity != null)
                     {
                         String sampleIdentifier = entity.getIdentifier();
-                        parentsArea.appendCode(sampleIdentifier);
+                        parentsArea.appendItem(sampleIdentifier);
                     }
                 }
             });
@@ -288,7 +288,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected String[] getParents()
     {
-        return parentsArea.tryGetSampleCodes();
+        return parentsArea.tryGetSamples();
     }
 
 }

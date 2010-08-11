@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineItemsField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
  * 
  * @author Piotr Buczek
  */
-abstract public class CodesArea<T extends ICodeHolder> extends MultilineVarcharField
+abstract public class CodesArea<T extends ICodeHolder> extends MultilineItemsField
 {
     public CodesArea(String emptyTextMsg)
     {
@@ -40,40 +40,7 @@ abstract public class CodesArea<T extends ICodeHolder> extends MultilineVarcharF
     public final void setCodeProviders(Collection<T> codeProviders)
     {
         List<String> codes = Code.extractCodes(codeProviders);
-        setCodes(codes);
+        setItems(codes);
     }
 
-    public final void setCodes(List<String> codes)
-    {
-        String textValue = createTextValue(codes);
-        setValue(textValue);
-        setOriginalValue(textValue);
-    }
-
-    public final void appendCode(String code)
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getValue() == null ? "" : getValue());
-        appendCode(sb, code);
-        setValue(sb.toString());
-    }
-
-    private static String createTextValue(List<String> codes)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (String code : codes)
-        {
-            appendCode(sb, code);
-        }
-        return sb.toString();
-    }
-
-    private static final void appendCode(StringBuilder sb, String code)
-    {
-        if (sb.length() > 0)
-        {
-            sb.append(", ");
-        }
-        sb.append(code);
-    }
 }

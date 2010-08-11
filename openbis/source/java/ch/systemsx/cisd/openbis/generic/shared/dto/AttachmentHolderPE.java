@@ -25,6 +25,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -36,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @MappedSuperclass
 public abstract class AttachmentHolderPE implements Serializable, IIdentifierHolder, IPermIdHolder
-
 {
     //
     // Version

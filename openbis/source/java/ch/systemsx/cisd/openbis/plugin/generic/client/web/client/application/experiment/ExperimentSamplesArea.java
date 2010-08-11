@@ -16,16 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.Collection;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CodesArea;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.SamplesArea;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * {@link SamplesArea} extension to specify samples for an experiment.
+ * {@link CodesArea} extension to specify samples for an experiment.
  * 
  * @author Tomasz Pylak
  */
-final class ExperimentSamplesArea extends SamplesArea
+final class ExperimentSamplesArea extends CodesArea<Sample>
 {
     public static final String ID_SUFFIX_SAMPLES = "_samples";
 
@@ -39,6 +43,25 @@ final class ExperimentSamplesArea extends SamplesArea
     public static String createId(String idPrefix)
     {
         return idPrefix + ID_SUFFIX_SAMPLES;
+    }
+
+    // delegation to abstract class methods
+
+    // null if the area has not been modified,
+    // the list of all sample codes otherwise
+    public final String[] tryGetSampleCodes()
+    {
+        return tryGetModifiedItemList();
+    }
+
+    public void setSamples(Collection<Sample> samples)
+    {
+        setCodeProviders(samples);
+    }
+
+    public final void setSampleCodes(List<String> codes)
+    {
+        setItems(codes);
     }
 
 }

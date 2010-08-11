@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineItemsField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -46,7 +46,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
 
     private final IEntityInformationHolderWithIdentifier experiment;
 
-    private final MultilineVarcharField materialListField;
+    private final MultilineItemsField materialListField;
 
     private List<MaterialType> materialTypesOrNull;
 
@@ -71,9 +71,9 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
                     });
     }
 
-    private MultilineVarcharField createMaterialListArea()
+    private MultilineItemsField createMaterialListArea()
     {
-        MultilineVarcharField area = new MultilineVarcharField("", true, 10);
+        MultilineItemsField area = new MultilineItemsField("", true, 10);
         area.setWidth(TEXT_AREA_WIDTH);
         area.setEmptyText(screeningViewContext
                 .getMessage(Dict.PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS));

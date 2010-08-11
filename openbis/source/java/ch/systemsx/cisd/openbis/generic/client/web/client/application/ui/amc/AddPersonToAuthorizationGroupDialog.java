@@ -143,7 +143,7 @@ public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDia
             String text = multiplePersonsField.getValue();
             if (StringUtils.isBlank(text) == false)
             {
-                codes.addAll(Arrays.asList(text.split(GenericConstants.CODES_TEXTAREA_REGEX)));
+                codes.addAll(Arrays.asList(text.split(GenericConstants.ITEMS_TEXTAREA_REGEX)));
             }
         }
         return codes;

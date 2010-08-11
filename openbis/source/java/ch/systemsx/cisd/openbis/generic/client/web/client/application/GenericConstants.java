@@ -110,7 +110,9 @@ public final class GenericConstants
 
     public static final String BATCH_OPERATION_KIND = "batch_operation_kind";
 
-    public static final String CODES_TEXTAREA_REGEX = "\n|\r\n|, *";
+    public static final String ITEMS_TEXTAREA_REGEX = "\n|\r\n|, *";
+
+    public static final String ITEMS_TEXTAREA_DEFAULT_SEPARATOR = ", ";
 
     /** A regular expression that match email addresses. */
     public static final String EMAIL_REGEX =

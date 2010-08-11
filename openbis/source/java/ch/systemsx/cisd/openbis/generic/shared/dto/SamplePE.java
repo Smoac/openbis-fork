@@ -218,13 +218,10 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         getSampleParentRelationships().add(relationship);
     }
 
-	// TODO 2010-08-10, Piotr Buczek: check
     public void removeParentRelationship(final SampleRelationshipPE relationship)
     {
         getSampleParentRelationships().remove(relationship);
-        relationship.getParentSample().getSampleChildRelationships().remove(relationship);
         relationship.setChildSample(null);
-        relationship.setParentSample(null);
     }
 
     /**

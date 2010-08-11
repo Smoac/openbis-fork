@@ -106,7 +106,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         experimentField.updateOriginalValue();
         updateFieldOriginalValue(groupSelectionWidget);
         container.updateOriginalValue();
-        parentsArea.setSampleCodes(parents);
+        parentsArea.setSamples(parents);
     }
 
     private void setOriginalSample(Sample sample)

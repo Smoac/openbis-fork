@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -682,7 +683,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         SampleUpdateResult result = new SampleUpdateResult();
         SamplePE sample = sampleBO.getSample();
         result.setModificationDate(sample.getModificationDate());
-        List<String> parents = Code.extractCodes(sample.getParents());
+        List<String> parents = IdentifierExtractor.extract(sample.getParents());
         Collections.sort(parents);
         result.setParents(parents);
         return result;

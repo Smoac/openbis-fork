@@ -262,4 +262,5 @@ public final class IdentifierHelper
             sample.getSpaceLevel().setSpaceCode(defaultGroupCode);
         }
     }
+
 }

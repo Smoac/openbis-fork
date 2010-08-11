@@ -25,7 +25,7 @@ var generic = {
   
   instance_sample: "Shared",
   generated_from_sample: "Parent",
-  add_parent: "Add Parent",
+  add_parent: "Add Parent...",
   part_of_sample: "Container",
   parents: "Parents",
   

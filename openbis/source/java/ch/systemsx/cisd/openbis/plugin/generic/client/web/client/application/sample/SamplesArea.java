@@ -43,13 +43,18 @@ abstract public class SamplesArea extends CodesArea<Sample>
         return tryGetModifiedItemList();
     }
 
-    public final void setSamples(Collection<Sample> samples)
+    public void setSamples(Collection<Sample> samples)
     {
         setCodeProviders(samples);
     }
 
     public final void setSampleCodes(List<String> codes)
     {
-        setCodes(codes);
+        setItems(codes);
+    }
+
+    public final void setSampleIdentifiers(List<String> identifiers)
+    {
+        setItems(identifiers);
     }
 }
