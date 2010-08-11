@@ -156,9 +156,6 @@ public class CsvFileReaderHelper
      */
     public static class DefaultTsvFileReaderConfiguration extends DefaultCsvFileReaderConfiguration
     {
-        public static final ICsvFileReaderConfiguration INSTANCE =
-                new DefaultTsvFileReaderConfiguration();
-
         @Override
         public char getColumnDelimiter()
         {
