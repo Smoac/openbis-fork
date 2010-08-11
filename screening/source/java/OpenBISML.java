@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisS
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -850,8 +852,8 @@ public class OpenBISML
      * fmatrix = OpenBISML.getFeatureMatrix('GENENAME', ('FEATURE1','FEATURE2','FEATURE3'));
      * % Get the feature vector for the second location (assuming there are at least two locations)
      * loc2 = fmatrix(1,2,:)
-     * % Get the values of the fourth feature for all locations (assuming there are at least 4 features)
-     * feature5 = fmatrix(1,:,4)
+     * % Get the values of the second feature ('FEATURE2' here) for all locations
+     * feature2 = fmatrix(1,:,2)
      * % What are the features?
      * featureNames = fmatrix(3,:)
      * % Get the plate-well descriptions of the locations
@@ -918,6 +920,131 @@ public class OpenBISML
         return result;
     }
 
+    /**
+     * Returns the feature matrix of all available features for all locations (a location is one
+     * well position in one feature vector data set) of all feature vector data sets of the given
+     * <var>plate</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
+     * annotation in <code>[2]</code>.
+     * <p>
+     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
+     * dataset), one column corresponds to one feature.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get feature matrix for PLATECODE
+     * fmatrix = OpenBISML.getFeatureMatrixForPlate('PLATECODE');
+     * % Get the feature vector for the second location (assuming there are at least two locations)
+     * loc2 = fmatrix(1,2,:)
+     * % Get the values of the fourth feature for all locations (assuming there are at least 4 features)
+     * feature5 = fmatrix(1,:,4)
+     * % What are the features?
+     * featureNames = fmatrix(3,:)
+     * % Get the plate-well descriptions of the locations
+     * locationDescriptions = fmatrix(2,:,1)
+     * </pre>
+     * 
+     * @param plate The gene name as stored as material code
+     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
+     *         <code>annotations per location</code> contain:
+     *         <p>
+     *         <code>{ plate well description, plate augmented code, plate perm id,
+     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
+     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     */
+    public static Object[][][] getFeatureMatrixForPlate(String plate)
+    {
+        return getFeatureMatrixForPlate(plate, (String[]) null);
+    }
+
+    /**
+     * Returns the feature matrix of the specified features for all locations (a location is one
+     * well position in one feature vector data set) of all feature vector data sets of the given
+     * <var>plate</var> in <code>[0]</code>, location annotations in <code>[1]</code> and feature
+     * annotation in <code>[2]</code>.
+     * <p>
+     * One row in the matrix corresponds to one location (i.e. one well and one feature vector
+     * dataset), one column corresponds to one feature.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get feature matrix for features FEATURE1, FEATURE2 and FEATURE for PLATECODE
+     * fmatrix = OpenBISML.getFeatureMatrixForPlate('PLATECODE', ('FEATURE1','FEATURE2','FEATURE3'));
+     * % Get the feature vector for the second location (assuming there are at least two locations)
+     * loc2 = fmatrix(1,2,:)
+     * % Get the values of the second feature for all locations
+     * feature5 = fmatrix(1,:,2)
+     * % What are the features?
+     * featureNames = fmatrix(3,:)
+     * % Get the plate-well descriptions of the locations
+     * locationDescriptions = fmatrix(2,:,1)
+     * </pre>
+     * 
+     * @param plate The gene name as stored as material code
+     * @param features The names of the features to contain the feature matrix
+     * @return <code>{ feature matrix, annotations per location, feature names }</code> where
+     *         <code>annotations per location</code> contain:
+     *         <p>
+     *         <code>{ plate well description, plate augmented code, plate perm id,
+     *         plate space code, plate code, row, column, experiment augmented code, experiment perm
+     *         id, experiment space code, experiment project code, experiment code, data set code }</code>
+     */
+    public static Object[][][] getFeatureMatrixForPlate(String plate, String[] features)
+    {
+        checkLoggedIn();
+        final List<FeatureVectorDataset> featureVectors =
+                openbis.loadFeaturesForPlates(Arrays.asList(PlateIdentifier
+                        .createFromAugmentedCode(plate)), (features == null) ? null : Arrays
+                        .asList(features));
+        final List<String> featureNameList =
+                featureVectors.get(featureVectors.size() - 1).getFeatureNames();
+        final Object[][][] result = new Object[3][][];
+        if (featureVectors.isEmpty())
+        {
+            return result;
+        }
+        int numberOfRows = 0;
+        for (FeatureVectorDataset fvds : featureVectors)
+        {
+            numberOfRows += fvds.getFeatureVectors().size();
+        }
+        result[0] = new Object[numberOfRows][featureNameList.size()];
+        result[1] = new Object[numberOfRows][13];
+        int resultIdx = 0;
+        for (FeatureVectorDataset fvds : featureVectors)
+        {
+            final FeatureVectorDatasetReference datasetRef = fvds.getDataset();
+            for (FeatureVector f : fvds.getFeatureVectors())
+            {
+                arraycopy(f.getValues(), result[0][resultIdx]);
+                final Object[] annotations =
+                        new Object[]
+                            { createPlateWellDescription(datasetRef.getPlate(), f),
+                                    datasetRef.getPlate().getAugmentedCode(),
+                                    datasetRef.getPlate().getPermId(),
+                                    datasetRef.getPlate().tryGetSpaceCode(),
+                                    datasetRef.getPlate().getPlateCode(),
+                                    f.getWellPosition().getWellRow(),
+                                    f.getWellPosition().getWellColumn(),
+                                    datasetRef.getExperimentIdentifier().getAugmentedCode(),
+                                    datasetRef.getExperimentIdentifier().getPermId(),
+                                    datasetRef.getExperimentIdentifier().getSpaceCode(),
+                                    datasetRef.getExperimentIdentifier().getProjectCode(),
+                                    datasetRef.getExperimentIdentifier().getExperimentCode(),
+                                    datasetRef.getDatasetCode(), };
+                System.arraycopy(annotations, 0, result[1][resultIdx], 0, annotations.length);
+                resultIdx++;
+            }
+        }
+        result[2] = new Object[featureNameList.size()][1];
+        for (int i = 0; i < featureNameList.size(); ++i)
+        {
+            result[2][i][0] = featureNameList.get(i);
+        }
+        return result;
+    }
+
     //
     // Helper methods
     //
@@ -934,6 +1061,12 @@ public class OpenBISML
     {
         return createPlateWellDescription(f.getDatasetWellReference().getPlate(), f
                 .getWellPosition().getWellRow(), f.getWellPosition().getWellColumn());
+    }
+
+    private static String createPlateWellDescription(PlateIdentifier p, FeatureVector f)
+    {
+        return createPlateWellDescription(p, f.getWellPosition().getWellRow(), f.getWellPosition()
+                .getWellColumn());
     }
 
     private static String createPlateWellDescription(PlateIdentifier p, int row, int col)
