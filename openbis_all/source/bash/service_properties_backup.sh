@@ -24,8 +24,10 @@ export PLATFORM=`uname -s`
 if [ $PLATFORM = "SunOS" ];
 then
   export LN=/usr/bin/ln
+  export MAIL=/usr/bin/mailx
 else 
   export LN=/bin/ln
+  export MAIL=/bin/mailx
 fi
 
 umask 077
@@ -40,6 +42,7 @@ if [ $? -ne 0 ]; then
         rm $BACKUP_DIR/$SP
         export LATEST_FILE=`ls -1rt $BACKUP_DIR/${SP}_* | tail -1`     
         $LN -s $LATEST_FILE $BACKUP_DIR/$SP
+	$MAIL -s "$PRODUCTIVE changed!" manuel.kohler@bsse.ethz.ch < $LATEST_FILE 
 fi
 
 # openBIS DSS
@@ -52,6 +55,7 @@ if [ $? -ne 0 ]; then
         rm $BACKUP_DIR/$DSS_SP
         export LATEST_FILE=`ls -1rt  $BACKUP_DIR/${DSS_SP}_* | tail -1`     
         $LN -s $LATEST_FILE $BACKUP_DIR/$DSS_SP
+	$MAIL -s "$DSS_PRODUCTIVE changed!" manuel.kohler@bsse.ethz.ch < $LATEST_FILE 
 fi
 
 #/usr/bin/find $BACKUP_DIR -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
