@@ -267,19 +267,41 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
+     * For a given set of plates and a set of features (given by their name), provide all the
+     * feature vectors.
+     * 
+     * @param plates The plates to get the feature vectors for
+     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     *            available features should be loaded.
+     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
+     *         <var>featureDatasets</var>.
+     */
+    public List<FeatureVectorDataset> loadFeaturesForPlates(
+            List<? extends PlateIdentifier> plates,
+            final List<String> featureNamesOrNull)
+    {
+        final List<FeatureVectorDatasetReference> datasets = listFeatureVectorDatasets(plates);
+        return loadFeatures(datasets, featureNamesOrNull);
+    }
+    
+    /**
      * For a given set of data sets and a set of features (given by their name), provide all the
      * feature vectors.
      * 
+     * @param featureDatasets The data sets to get the feature vectors for
+     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeatures(
-            List<FeatureVectorDatasetReference> featureDatasets, final List<String> featureNames)
+            List<FeatureVectorDatasetReference> featureDatasets,
+            final List<String> featureNamesOrNull)
     {
-        if (featureNames.size() == 0)
-        {
-            throw new IllegalArgumentException("no feature names has been specified");
-        }
+        final List<String> featureNames =
+                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNames(featureDatasets)
+                        : featureNamesOrNull;
+
         final List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
         featureVectorDataSetReferenceMultiplexer.process(featureDatasets,
                 new IReferenceHandler<FeatureVectorDatasetReference>()

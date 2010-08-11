@@ -123,18 +123,30 @@ public interface IScreeningOpenbisServiceFacade
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
-     * Conceptually, for a given list of dataset well references (i.e. specified wells on specified
-     * feature vector data sets) and a set of features (given by their name) provide the feature
-     * matrix. In this matrix, each column is one feature, each row is one well in one data set.
-     * <p>
-     * Physically, the result is delivered as a list of feature vector datasets. Each entry in this
-     * list corresponds to one well in one dataset.
+     * For a given set of plates and a set of features (given by their name), provide all the
+     * feature vectors.
      * 
+     * @param plates The plates to get the feature vectors for
+     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     *            available features should be loaded.
+     * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
+     *         <var>featureDatasets</var>.
+     */
+    public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
+            final List<String> featureNamesOrNull);
+
+    /**
+     * For a given set of data sets and a set of features (given by their name), provide all the
+     * feature vectors.
+     * 
+     * @param featureDatasets The data sets to get the feature vectors for
+     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeatures(
-            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames);
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNamesOrNull);
 
     /**
      * Conceptually, for a given list of dataset well references (i.e. specified wells on specified
@@ -224,7 +236,8 @@ public interface IScreeningOpenbisServiceFacade
      *            given type for the mapping.
      * @return A list of well to material mappings, one element for each plate.
      */
-    public List<PlateWellMaterialMapping> listPlateMaterialMapping(List<? extends PlateIdentifier> plates,
+    public List<PlateWellMaterialMapping> listPlateMaterialMapping(
+            List<? extends PlateIdentifier> plates,
             MaterialTypeIdentifier materialTypeIdentifierOrNull);
 
 }
