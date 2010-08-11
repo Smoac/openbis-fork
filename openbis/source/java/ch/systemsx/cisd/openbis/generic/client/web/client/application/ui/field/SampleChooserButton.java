@@ -68,7 +68,7 @@ public class SampleChooserButton extends Button implements IChosenEntitySetter<S
 
     }
 
-    public static SampleChooserButtonAdaptor create(final String labelField,
+    public static SampleChooserButtonAdaptor create(final String labelFieldOrNull,
             final String buttonText, final boolean addShared, final boolean addAll,
             final boolean excludeWithoutExperiment,
             final IViewContext<ICommonClientServiceAsync> viewContext, String idOrNull,
@@ -92,7 +92,7 @@ public class SampleChooserButton extends Button implements IChosenEntitySetter<S
         }
         final SampleChooserButtonAdaptor adaptor = asSampleChooserFieldAdaptor(chooserButton);
         Field<?> field = adaptor.getField();
-        field.setFieldLabel(labelField);
+        field.setLabelSeparator("");
         return adaptor;
     }
 

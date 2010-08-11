@@ -178,8 +178,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                 new ArrayList<DatabaseModificationAwareField<?>>();
         fields.add(wrapUnaware(experimentField.getField()));
         fields.add(groupSelectionWidget.asDatabaseModificationAware());
-        fields.add(wrapUnaware(parentButton.getField()));
         fields.add(wrapUnaware(parentsArea));
+        fields.add(wrapUnaware(parentButton.getField()));
         fields.add(wrapUnaware(container.getField()));
         return fields;
     }
@@ -213,9 +213,9 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         FieldUtil.markAsMandatory(groupSelectionWidget);
         groupSelectionWidget.setFieldLabel(viewContext.getMessage(Dict.GROUP));
         parentButton =
-                SampleChooserButton.create(viewContext.getMessage(Dict.PARENTS), viewContext
-                        .getMessage(Dict.ADD_PARENT), true, false, false, viewContext
-                        .getCommonViewContext(), getId() + ID_SUFFIX_PARENT,
+                SampleChooserButton.create(null, viewContext.getMessage(Dict.ADD_PARENT), true,
+                        false, false, viewContext.getCommonViewContext(), getId()
+                                + ID_SUFFIX_PARENT,
                         SampleTypeDisplayID.SAMPLE_REGISTRATION_PARENT_CHOOSER
                                 .withSuffix(getSampleTypeCode()));
         parentsArea = new ParentSamplesArea(viewContext, getId());

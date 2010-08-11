@@ -38,8 +38,8 @@ final class ParentSamplesArea extends MultilineItemsField
     public ParentSamplesArea(IMessageProvider messageProvider, String idPrefix)
     {
         super("", false);
+        setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
         setEmptyText(messageProvider.getMessage(Dict.SAMPLES_LIST));
-        setLabelSeparator("");
         setId(createId(idPrefix));
     }
 
