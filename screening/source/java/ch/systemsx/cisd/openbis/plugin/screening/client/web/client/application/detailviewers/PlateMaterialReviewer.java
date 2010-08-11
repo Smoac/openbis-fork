@@ -161,8 +161,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     private Component createExperimentChooser()
     {
         LayoutContainer container = new LayoutContainer();
-        // container.setLayout(new RowLayout(Orientation.HORIZONTAL));
-        container.setWidth(600);
+        container.setWidth(400);
 
         ExperimentChooserFieldAdaptor singleExperimentChooser = createSingleExperimentChooser();
         RadioGroup experimentRadioChooser = createExperimentRadio(singleExperimentChooser);
