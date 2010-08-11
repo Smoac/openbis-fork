@@ -31,7 +31,7 @@ public class PlateIdentifier extends PermanentIdentifier
         }
         if (splitted.length == 2 && splitted[0].length() == 0) // Shared sample
         {
-            return new PlateIdentifier(splitted[0], "");
+            return new PlateIdentifier(splitted[1], "");
         }
         if (splitted.length != 3 || splitted[0].length() != 0)
         {
