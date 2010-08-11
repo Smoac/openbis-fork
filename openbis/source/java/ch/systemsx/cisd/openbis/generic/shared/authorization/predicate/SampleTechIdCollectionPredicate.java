@@ -43,7 +43,7 @@ public class SampleTechIdCollectionPredicate extends
     }
 
     @Override
-    public List<SampleOwnerIdentifier> convert(List<TechId> techIds)
+    public List<SampleOwnerIdentifier> tryConvert(List<TechId> techIds)
     {
         ArrayList<SampleOwnerIdentifier> ownerIds = new ArrayList<SampleOwnerIdentifier>();
 

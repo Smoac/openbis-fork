@@ -57,6 +57,21 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             }
         }),
 
+    EXPERIMENT(new AbstractColumnDefinitionKind<WellContent>(Dict.EXPERIMENT, true)
+        {
+            @Override
+            public String tryGetValue(WellContent entity)
+            {
+                return entity.getExperiment().toString();
+            }
+
+            @Override
+            public String tryGetLink(WellContent entity)
+            {
+                return LinkExtractor.tryExtract(entity.getExperiment());
+            }
+        }),
+
     PLATE(new AbstractColumnDefinitionKind<WellContent>(Dict.PLATE)
         {
             @Override

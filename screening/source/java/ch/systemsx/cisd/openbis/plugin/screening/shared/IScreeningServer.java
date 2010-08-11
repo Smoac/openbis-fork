@@ -23,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.PlateMaterialsSearchCriteriaPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
@@ -69,14 +69,8 @@ public interface IScreeningServer extends IServer
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<WellContent> getPlateLocations(
-            String sessionToken,
-            TechId geneMaterialId,
-            @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier);
-
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<WellContent> listPlateLocations(
+    @ReturnValueFilter(validatorClass = WellContentValidator.class)
+    public List<WellContent> listPlateWells(
             String sessionToken,
             @AuthorizationGuard(guardClass = PlateMaterialsSearchCriteriaPredicate.class) PlateMaterialsSearchCriteria materialCriteria);
 

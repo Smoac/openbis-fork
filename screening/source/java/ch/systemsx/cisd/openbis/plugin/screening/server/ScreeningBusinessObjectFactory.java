@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
@@ -53,7 +53,7 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
     }
 
-    public IHCSDatasetLoader createHCSDatasetLoader(ExternalDataPE dataSet)
+    public IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet)
     {
         String dssCode = dataSet.getDataStore().getCode();
         String dataSetCode = dataSet.getCode();

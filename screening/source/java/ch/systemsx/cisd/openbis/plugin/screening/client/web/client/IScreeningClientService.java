@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -74,18 +71,10 @@ public interface IScreeningClientService extends IClientService
     public PlateImages getPlateContentForDataset(TechId datasetId);
 
     /**
-     * @return well locations which belong to a parent plate connected to a specified experiment.
-     *         Each well will have a material property (e.g. oligo), which is connected through
-     *         another material property to a material (e.g. gene) with a specified id.
+     * @return well locations which belong to a parent plate connected to a specified experiment(s)
+     *         and have specified material(s) inside.
      */
-    public List<WellContent> getPlateLocations(TechId geneMaterialId,
-            ExperimentIdentifier experimentIdentifier) throws UserFailureException;
-
-    /**
-     * Similar to {@link #getPlateLocations(TechId, ExperimentIdentifier)}, but allows to specify a
-     * list of materials for which locations should be found.
-     */
-    public ResultSet<WellContent> listPlateLocations(
+    public ResultSet<WellContent> listPlateWells(
             DefaultResultSetConfig<String, WellContent> gridCriteria,
             PlateMaterialsSearchCriteria materialCriteria);
 

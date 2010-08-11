@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -52,6 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -154,18 +154,18 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      * experiment
      */
     public static final void openPlateLocationsMaterialViewer(final IIdAndCodeHolder materialId,
-            final ExperimentIdentifier experimentIdentifier,
+            final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         AbstractTabItemFactory tab =
-                createPlateLocationsMaterialViewerTabFactory(materialId, experimentIdentifier,
+                createPlateLocationsMaterialViewerTabFactory(materialId, experimentCriteriaOrNull,
                         viewContext);
         DispatcherHelper.dispatchNaviEvent(tab);
     }
 
     private static final AbstractTabItemFactory createPlateLocationsMaterialViewerTabFactory(
             final IIdAndCodeHolder materialId,
-            final ExperimentIdentifier experimentIdentifierOrNull,
+            final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         return new AbstractTabItemFactory()
@@ -175,7 +175,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 {
                     final DatabaseModificationAwareComponent viewer =
                             PlateLocationsMaterialViewer.create(viewContext, TechId
-                                    .create(materialId), experimentIdentifierOrNull);
+                                    .create(materialId), experimentCriteriaOrNull);
                     return createMaterialViewerTab(materialId, viewer, viewContext);
                 }
 

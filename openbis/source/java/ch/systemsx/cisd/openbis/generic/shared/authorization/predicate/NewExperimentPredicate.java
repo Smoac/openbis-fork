@@ -39,7 +39,7 @@ public final class NewExperimentPredicate extends
     //
 
     @Override
-    public final SpaceIdentifier convert(final NewExperiment value)
+    public final SpaceIdentifier tryConvert(final NewExperiment value)
     {
         ExperimentIdentifier identifier =
                 new ExperimentIdentifierFactory(value.getIdentifier()).createIdentifier();

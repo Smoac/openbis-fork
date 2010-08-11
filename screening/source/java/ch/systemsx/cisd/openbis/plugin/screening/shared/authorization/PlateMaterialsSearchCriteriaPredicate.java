@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.Delegated
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * @author Tomasz Pylak
@@ -39,9 +40,16 @@ public final class PlateMaterialsSearchCriteriaPredicate extends
     }
 
     @Override
-    public TechId convert(PlateMaterialsSearchCriteria value)
+    public TechId tryConvert(PlateMaterialsSearchCriteria value)
     {
-        return value.getExperimentId();
+        SingleExperimentSearchCriteria exp = value.getExperimentCriteria().tryGetExperiment();
+        if (exp != null)
+        {
+            return exp.getExperimentId();
+        } else
+        {
+            return null;
+        }
     }
 
 }

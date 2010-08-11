@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -47,9 +47,9 @@ public class ScreeningUtils
         }
     }
 
-    public static DatasetReference createDatasetReference(ExternalDataPE dataset)
+    public static DatasetReference createDatasetReference(ExternalData dataset)
     {
-        DataStorePE dataStore = dataset.getDataStore();
+        DataStore dataStore = dataset.getDataStore();
         String dataTypeCode = dataset.getDataSetType().getCode();
         String fileTypeCode = dataset.getFileFormatType().getCode();
         return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode, fileTypeCode,

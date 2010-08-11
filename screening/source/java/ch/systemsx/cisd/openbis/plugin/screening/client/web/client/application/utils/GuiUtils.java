@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
@@ -46,7 +47,7 @@ public class GuiUtils
         return withLabel(component, label, 0);
     }
 
-    public static Widget withLabel(Widget component, String label, int margin)
+    public static Component withLabel(Widget component, String label, int margin)
     {
         LayoutContainer c = new LayoutContainer();
         c.setLayout(new TableLayout(2));

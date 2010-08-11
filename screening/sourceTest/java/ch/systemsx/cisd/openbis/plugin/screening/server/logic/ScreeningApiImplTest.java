@@ -70,7 +70,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     @Test
     public void testListImageDatasets()
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
+        final PlateIdentifier pi1 = createSharedPlate("p1");
         context.checking(new Expectations()
             {
                 {
@@ -100,10 +100,15 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    private static PlateIdentifier createSharedPlate(String plateCode)
+    {
+        return PlateIdentifier.createFromAugmentedCode(plateCode);
+    }
+
     @Test
     public void testListImageDatasetsWithMissingPlateGeometry()
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
+        final PlateIdentifier pi1 = createSharedPlate("p1");
         context.checking(new Expectations()
             {
                 {
@@ -163,7 +168,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     @Test
     public void testListFeatureVectorDatasets()
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
+        final PlateIdentifier pi1 = createSharedPlate("p1");
         context.checking(new Expectations()
             {
                 {
@@ -188,7 +193,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                 screeningApi.listFeatureVectorDatasets(Arrays.asList(pi1));
 
         assertEquals(2, dataSets.size());
-        
+
         assertEquals("2", dataSets.get(0).getDatasetCode());
         assertEquals(Geometry.createFromRowColDimensions(16, 24), dataSets.get(0)
                 .getPlateGeometry());
@@ -207,7 +212,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
     private void assertListImageDatasetsFailsFor(final String plateGeometry)
     {
-        final PlateIdentifier pi1 = new PlateIdentifier("p1", "");
+        final PlateIdentifier pi1 = createSharedPlate("p1");
         context.checking(new Expectations()
             {
                 {

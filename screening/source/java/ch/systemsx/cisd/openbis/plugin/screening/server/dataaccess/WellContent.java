@@ -51,17 +51,19 @@ public class WellContent
     public String material_content_code;
 
     public String material_content_type_code;
-    
+
     // a pointer to the experiment of the plate
-    
+
     public long exp_id;
-    
+
     public String exp_code;
-    
+
+    public String exp_type_code;
+
     public String exp_perm_id;
-    
+
     public String proj_code;
-    
+
     public String space_code;
 
 }

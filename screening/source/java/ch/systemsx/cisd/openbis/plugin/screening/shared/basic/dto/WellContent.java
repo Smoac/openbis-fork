@@ -34,6 +34,8 @@ public class WellContent implements IsSerializable
 
     private EntityReference plate;
 
+    private ExperimentReference experiment;
+
     // a pointer to a material which was being searched for inside a well
     private EntityReference materialContent;
 
@@ -47,11 +49,12 @@ public class WellContent implements IsSerializable
     }
 
     public WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
-            EntityReference materialContent)
+            ExperimentReference experiment, EntityReference materialContent)
     {
         this.locationOrNull = locationOrNull;
         this.well = well;
         this.plate = plate;
+        this.experiment = experiment;
         this.materialContent = materialContent;
     }
 
@@ -80,9 +83,15 @@ public class WellContent implements IsSerializable
         return imagesOrNull;
     }
 
+    public ExperimentReference getExperiment()
+    {
+        return experiment;
+    }
+
     public WellContent cloneWithImages(DatasetImagesReference images)
     {
-        WellContent clone = new WellContent(locationOrNull, well, plate, materialContent);
+        WellContent clone =
+                new WellContent(locationOrNull, well, plate, experiment, materialContent);
         clone.imagesOrNull = images;
         return clone;
     }
@@ -90,7 +99,7 @@ public class WellContent implements IsSerializable
     @Override
     public String toString()
     {
-        return "location = " + locationOrNull + ", plate = " + plate + ", well = " + well
-                + ", content = " + materialContent;
+        return "location = " + locationOrNull + ", experiment = " + experiment + ", plate = "
+                + plate + ", well = " + well + ", content = " + materialContent;
     }
 }

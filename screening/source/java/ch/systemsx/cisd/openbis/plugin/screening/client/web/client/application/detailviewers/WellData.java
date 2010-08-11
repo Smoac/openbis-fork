@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -33,18 +34,15 @@ class WellData
 
     private WellImages imagesOrNull;
 
-    private ExperimentIdentifier experimentIdentifier;
+    private String experimentDisplayIdentifier;
+
+    private TechId experimentId;
 
     public static WellData create(PlateImages plateImages, WellLocation location)
     {
-        ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(plateImages);
+        Experiment experiment = plateImages.getPlate().getExperiment();
         WellImages wellImages = tryCreateWellImages(plateImages, location);
-        return new WellData(wellImages, experimentIdentifier);
-    }
-
-    private static ExperimentIdentifier getExperimentIdentifier(PlateImages plateImages)
-    {
-        return ExperimentIdentifier.createIdentifier(plateImages.getPlate().getExperiment());
+        return new WellData(wellImages, experiment.getId(), experiment.getIdentifier());
     }
 
     private static WellImages tryCreateWellImages(PlateImages plateImages, WellLocation location)
@@ -59,10 +57,11 @@ class WellData
         }
     }
 
-    private WellData(WellImages imagesOrNull, ExperimentIdentifier experimentIdentifier)
+    private WellData(WellImages imagesOrNull, long experimentId, String experimentDisplayIdentifier)
     {
         this.imagesOrNull = imagesOrNull;
-        this.experimentIdentifier = experimentIdentifier;
+        this.experimentId = new TechId(experimentId);
+        this.experimentDisplayIdentifier = experimentDisplayIdentifier;
     }
 
     public void setMetadata(WellMetadata well)
@@ -80,9 +79,14 @@ class WellData
         return imagesOrNull;
     }
 
-    public ExperimentIdentifier getExperiment()
+    public TechId getExperimentId()
     {
-        return experimentIdentifier;
+        return experimentId;
+    }
+
+    public String getExperimentDisplayIdentifier()
+    {
+        return experimentDisplayIdentifier;
     }
 
     public String getWellDescription()

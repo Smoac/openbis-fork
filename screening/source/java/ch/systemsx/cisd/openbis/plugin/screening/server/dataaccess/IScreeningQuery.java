@@ -37,27 +37,42 @@ public interface IScreeningQuery extends BaseQuery
 
     public static final int FETCH_SIZE = 1000;
 
+    final String WELLS_FOR_MATERIAL_ID_SELECT =
+            "select "
+                    + "      pl.id as plate_id,"
+                    + "      exp.id as exp_id,"
+                    + "      exp.code as exp_code,"
+                    + "      exp.perm_id as exp_perm_id,"
+                    + "      exp_type.code as exp_type_code,"
+                    + "      projects.code as proj_code,"
+                    + "      groups.code as space_code,"
+                    + "      pl.perm_id as plate_perm_id,"
+                    + "      pl.code as plate_code,"
+                    + "      pl_type.code as plate_type_code,"
+                    + "      well.id as well_id,"
+                    + "      well.perm_id as well_perm_id,"
+                    + "      well.code as well_code,"
+                    + "      well_type.code as well_type_code,"
+                    + "      well_material.id as material_content_id,"
+                    + "      well_material.code as material_content_code,"
+                    + "      well_material_type.code as material_content_type_code"
+                    + " from samples pl"
+                    + "   join samples well on pl.id = well.samp_id_part_of"
+                    + "   join experiments exp on pl.expe_id = exp.id"
+                    + "   join experiment_types exp_type on exp.exty_id = exp_type.id"
+                    + "   join projects on exp.proj_id = projects.id"
+                    + "   join groups on projects.grou_id = groups.id"
+                    + "   join sample_types pl_type on pl.saty_id = pl_type.id"
+                    + "   join sample_types well_type on well.saty_id = well_type.id"
+                    + "   join sample_properties well_props on well.id = well_props.samp_id"
+                    + "   join materials well_material on well_props.mate_prop_id = well_material.id"
+                    + "   join material_types well_material_type on well_material.maty_id = well_material_type.id";
+
     /**
      * @return well locations which belong to a parent plate connected to a specified experiment.
-     *         Each well will have a material property (e.g. oligo) with the specified id.
+     *         Each well will have a material property (e.g. gene) with the specified id.
      */
-    @Select(sql = "select pl.id as plate_id, pl.perm_id as plate_perm_id, pl.code as plate_code, pl_type.code as plate_type_code, "
-            + "      well.id as well_id, well.perm_id as well_perm_id, well.code as well_code, well_type.code as well_type_code, "
-            + "      well_material.id as material_content_id, well_material.code as material_content_code, "
-            + "      well_material_type.code as material_content_type_code                     "
-            + "from experiments exp, samples pl, samples well,                                     "
-            + "     sample_properties well_props, materials well_material, "
-            + "     sample_types pl_type, sample_types well_type, material_types well_material_type "
-            + "where                                                                               "
-            // find 'well' belonging to the plate which belongs to this experiment
-            + "exp.id = ?{2} and pl.expe_id = exp.id and well.samp_id_part_of = pl.id and             "
-            // find 'well_material' assigned to the well
-            + "well_props.samp_id = well.id and well_material.id = well_props.mate_prop_id and "
-            // well content material property must point to the specified material id
-            + "well_material.id = ?{1} and "
-            // additional joins to entity type tables
-            + "pl_type.id = pl.saty_id and well_type.id = well.saty_id and                         "
-            + "well_material_type.id = well_material.maty_id ")
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = ?{1} and exp.id = ?{2}")
     public DataIterator<WellContent> getPlateLocationsForMaterialId(long materialId,
             long experimentId);
 
@@ -65,36 +80,19 @@ public interface IScreeningQuery extends BaseQuery
      * @return well locations which are connected to a given material (e.g. gene) with the specified
      *         id.
      */
-    @Select(sql = "select "
-            + "      pl.id as plate_id,"
-            + "      exp.id as exp_id,"
-            + "      exp.code as exp_code,"
-            + "      exp.perm_id as exp_perm_id,"
-            + "      projects.code as proj_code,"
-            + "      groups.code as space_code,"
-            + "      pl.perm_id as plate_perm_id,"
-            + "      pl.code as plate_code,"
-            + "      pl_type.code as plate_type_code,"
-            + "      well.id as well_id,"
-            + "      well.perm_id as well_perm_id,"
-            + "      well.code as well_code,"
-            + "      well_type.code as well_type_code,"
-            + "      well_material.id as material_content_id,"
-            + "      well_material.code as material_content_code,"
-            + "      well_material_type.code as material_content_type_code"
-            + " from samples pl"
-            + "   join samples well on pl.id = well.samp_id_part_of"
-            + "   join experiments exp on pl.expe_id = exp.id"
-            + "   join projects on exp.proj_id = projects.id"
-            + "   join groups on projects.grou_id = groups.id"
-            + "   join sample_types pl_type on pl.saty_id = pl_type.id"
-            + "   join sample_types well_type on well.saty_id = well_type.id"
-            + "   join sample_properties well_props on well.id = well_props.samp_id"
-            + "   join materials well_material on well_props.mate_prop_id = well_material.id"
-            + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
-            + " where                                               "
-            + "   well_material.id = ?{1}")
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = ?{1}")
     public DataIterator<WellContent> getPlateLocationsForMaterialId(long materialId);
+
+    /**
+     * @return well locations which belong to a parent plate connected to a specified experiment.
+     *         Each well will have a material property (e.g. gene) with one of the specified codes.
+     *         The connected material will have one of the specified types.
+     */
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.code = any(?{1}) and "
+            + "well_material_type.code = any(?{2}) and exp.id = ?{3}", parameterBindings =
+        { StringArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
+    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(String[] materialCodes,
+            String[] materialTypeCodes, long experimentId);
 
     /**
      * @return the material to well plate mapping for the given <var>platePermId</var>. Only
@@ -133,6 +131,17 @@ public interface IScreeningQuery extends BaseQuery
     public DataIterator<WellContent> getPlateMapping(String platePermId);
 
     /**
+     * @return well locations with the specified materials, from any experiment. Each well will have
+     *         a material property (e.g. gene) with one of the specified codes. The connected
+     *         material will have one of the specified types.
+     */
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.code = any(?{1}) and "
+            + "well_material_type.code = any(?{2})", parameterBindings =
+        { StringArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(String[] materialCodes,
+            String[] materialTypeCodes);
+
+    /**
      * @return the material to well plate mapping for the given <var>spaceCode</var> and
      *         <var>plateCode</var>. Only consider materials of <var>materialTypeCode</var>. Only
      *         fills <var>well_code</var> and <var>material_content_code</var>. Note that this may
@@ -169,33 +178,6 @@ public interface IScreeningQuery extends BaseQuery
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where sp.code = ?{1} and pl.code = ?{2} order by material_content_type_code")
     public DataIterator<WellContent> getPlateMapping(String spaceCode, String plateCode);
-
-    // well content with "first-level" materials (like oligos or controls)
-    static final String PLATE_LOCATIONS_MANY_MATERIALS_SELECT =
-            "select pl.id as plate_id, pl.perm_id as plate_perm_id, pl.code as plate_code, pl_type.code as plate_type_code, "
-                    + "well.id as well_id, well.perm_id as well_perm_id, well.code as well_code, well_type.code as well_type_code, "
-                    + "well_material.id as material_content_id, well_material.code as material_content_code, "
-                    + "well_material_type.code as material_content_type_code "
-                    + "from "
-                    + "experiments exp, samples pl, samples well, "
-                    + "sample_properties well_props, materials well_material, "
-                    + "sample_types pl_type, sample_types well_type, material_types well_material_type "
-                    + "where "
-                    // -- find 'well' belonging to the plate which belongs to this experiment
-                    + "exp.id = ?{1} and pl.expe_id = exp.id and well.samp_id_part_of = pl.id and "
-                    // -- find 'well_material' assigned to the well
-                    + "well_props.samp_id = well.id and well_material.id = well_props.mate_prop_id and "
-                    // -- filter the materials in the wells
-                    + "well_material.code = any(?{2}) and "
-                    + "well_material_type.code = any(?{3}) and "
-                    // -- additional joins to entity type tables
-                    + "pl_type.id = pl.saty_id and well_type.id = well.saty_id and     "
-                    + "well_material_type.id = well_material.maty_id ";
-
-    @Select(sql = PLATE_LOCATIONS_MANY_MATERIALS_SELECT, parameterBindings =
-        { TypeMapper.class/* default */, StringArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(long experimentId,
-            String[] nestedMaterialCodes, String[] materialTypeCodes);
 
     /**
      * Returns the plate geometry string for the plate with given <var>platePermId</var>, or

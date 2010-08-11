@@ -25,12 +25,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * A viewer for a material which can be a content of the well.
@@ -41,29 +41,30 @@ public class PlateLocationsMaterialViewer extends GenericMaterialViewer
 {
 
     /**
-     * @param experimentIdentifierOrNull if the experiment is specified, it will be chosen
+     * @param experimentCriteriaOrNull if the experiment criteria are specified, they will be chosen
      *            automatically when the window opens.
      */
     public static DatabaseModificationAwareComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext, TechId materialId,
-            ExperimentIdentifier experimentIdentifierOrNull)
+            ExperimentSearchCriteria experimentCriteriaOrNull)
     {
         PlateLocationsMaterialViewer viewer =
-                new PlateLocationsMaterialViewer(viewContext, materialId, experimentIdentifierOrNull);
+                new PlateLocationsMaterialViewer(viewContext, materialId, experimentCriteriaOrNull);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final ExperimentIdentifier experimentIdentifierOrNull;
+    private final ExperimentSearchCriteria experimentCriteriaOrNull;
 
-    private PlateLocationsMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final TechId materialTechId, ExperimentIdentifier experimentIdentifierOrNull)
+    private PlateLocationsMaterialViewer(
+            final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final TechId materialTechId, ExperimentSearchCriteria experimentCriteriaOrNull)
     {
         super(viewContext, materialTechId);
         this.screeningViewContext = viewContext;
-        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+        this.experimentCriteriaOrNull = experimentCriteriaOrNull;
     }
 
     @Override
@@ -79,7 +80,7 @@ public class PlateLocationsMaterialViewer extends GenericMaterialViewer
 
         List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
         sections.add(new PlateLocationsMaterialSection(screeningViewContext, materialId,
-                experimentIdentifierOrNull));
+                experimentCriteriaOrNull));
         return sections;
     }
 

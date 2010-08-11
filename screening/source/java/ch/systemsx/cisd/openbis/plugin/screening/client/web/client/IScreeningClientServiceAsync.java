@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -61,17 +58,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     public void getDataSetInfo(TechId datasetTechId, AsyncCallback<ExternalData> callback);
 
     /**
-     * @see IScreeningClientService#getPlateLocations(TechId,
-     *      ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier)
-     */
-    public void getPlateLocations(TechId geneMaterialId, ExperimentIdentifier experimentIdentifier,
-            AsyncCallback<List<WellContent>> callback);
-
-    /**
-     * @see IScreeningClientService#listPlateLocations(DefaultResultSetConfig,
+     * @see IScreeningClientService#listPlateWells(DefaultResultSetConfig,
      *      PlateMaterialsSearchCriteria)
      */
-    public void listPlateLocations(DefaultResultSetConfig<String, WellContent> gridCriteria,
+    public void listPlateWells(DefaultResultSetConfig<String, WellContent> gridCriteria,
             PlateMaterialsSearchCriteria materialCriteria,
             AsyncCallback<ResultSet<WellContent>> callback);
 

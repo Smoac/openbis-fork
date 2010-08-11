@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -50,6 +49,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A dialog which shows the content of the well.
@@ -58,9 +59,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 public class WellContentDialog extends Dialog
 {
-
-    private static final int SINGLE_IMG_SIZE_MULTIPLY_FACTOR = 3;
-
     public static void showContentDialog(final WellData wellData, DefaultChannelState channelState,
             final ScreeningViewContext viewContext)
     {
@@ -69,7 +67,7 @@ public class WellContentDialog extends Dialog
         container.setScrollMode(Scroll.AUTO);
 
         final WellContentDialog contentDialog =
-                new WellContentDialog(wellData.tryGetMetadata(), wellData.getExperiment(),
+                new WellContentDialog(wellData.tryGetMetadata(), getExperiment(wellData),
                         viewContext);
         LayoutContainer descriptionContainer = contentDialog.createContentDescription();
         container.add(descriptionContainer);
@@ -86,9 +84,9 @@ public class WellContentDialog extends Dialog
                     createImageViewer(images, channelState, viewContext, imgW, imgH);
             container.add(imageViewer);
 
-            int imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-            dialogWidth = imgW * imageSizeMultiplyFactor * images.getTileColsNum() + 100;
-            dialogHeight = imgH * imageSizeMultiplyFactor * images.getTileRowsNum() + 300;
+            float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
+            dialogWidth = (int) (imgW * imageSizeMultiplyFactor) * images.getTileColsNum() + 100;
+            dialogHeight = (int) (imgH * imageSizeMultiplyFactor) * images.getTileRowsNum() + 300;
         } else
         {
             dialogWidth = 300;
@@ -98,30 +96,32 @@ public class WellContentDialog extends Dialog
         setupContentAndShow(contentDialog, container, dialogWidth, dialogHeight, title);
     }
 
-    private static int getImageSizeMultiplyFactor(WellImages images)
+    private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
     {
-        if (images.getTileColsNum() == 1 && images.getTileRowsNum() == 1)
-        {
-            return SINGLE_IMG_SIZE_MULTIPLY_FACTOR;
-        } else
-        {
-            return 1;
-        }
+        return new SingleExperimentSearchCriteria(wellData.getExperimentId().getId(), wellData
+                .getExperimentDisplayIdentifier());
+    }
+
+    private static float getImageSizeMultiplyFactor(WellImages images)
+    {
+        float dim = Math.max(images.getTileRowsNum(), images.getTileColsNum());
+        // if there are more than 3 tiles, make them smaller, if there are less, make them bigger
+        return 3.0F / dim;
     }
 
     // ----------------
 
     private final WellMetadata metadataOrNull;
 
-    private final ExperimentIdentifier experimentIdentifier;
+    private final SingleExperimentSearchCriteria experiment;
 
     private final ScreeningViewContext viewContext;
 
     private WellContentDialog(WellMetadata metadataOrNull,
-            ExperimentIdentifier experimentIdentifier, ScreeningViewContext viewContext)
+            SingleExperimentSearchCriteria experiment, ScreeningViewContext viewContext)
     {
         this.metadataOrNull = metadataOrNull;
-        this.experimentIdentifier = experimentIdentifier;
+        this.experiment = experiment;
         this.viewContext = viewContext;
     }
 
@@ -207,8 +207,8 @@ public class WellContentDialog extends Dialog
                 {
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
-                            .openPlateLocationsMaterialViewer(material, experimentIdentifier,
-                                    viewContext);
+                            .openPlateLocationsMaterialViewer(material, ExperimentSearchCriteria
+                                    .createExperiment(experiment), viewContext);
                 }
             });
     }
@@ -225,14 +225,15 @@ public class WellContentDialog extends Dialog
             DefaultChannelState channelState, final IViewContext<?> viewContext,
             final int imageWidth, final int imageHeight)
     {
-        final int imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
+        final float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
                 public LayoutContainer create(String channel)
                 {
                     String sessionId = getSessionId(viewContext);
-                    return createTilesGrid(images, channel, sessionId, imageWidth
-                            * imageSizeMultiplyFactor, imageHeight * imageSizeMultiplyFactor);
+                    return createTilesGrid(images, channel, sessionId,
+                            (int) (imageWidth * imageSizeMultiplyFactor),
+                            (int) (imageHeight * imageSizeMultiplyFactor));
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images

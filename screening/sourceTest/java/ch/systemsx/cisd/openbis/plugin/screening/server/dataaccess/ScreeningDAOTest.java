@@ -139,11 +139,21 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
         String[] materialTypeCodes = new String[]
             { ScreeningConstants.GENE_PLUGIN_TYPE_CODE };
         // it just tests if the sql is correct
+        String[] materialCodes = new String[]
+            { "grs", "abc" };
+
+        // one experiment
         List<WellContent> locations =
-                EntityListingTestUtils.asList(query.getPlateLocationsForMaterialCodes(1,
-                        new String[]
-                            { "grs", "abc" }, materialTypeCodes));
+                EntityListingTestUtils.asList(query.getPlateLocationsForMaterialCodes(materialCodes,
+                        materialTypeCodes, 1));
         AssertJUnit.assertEquals(0, locations.size());
+
+        // all experiments
+        locations =
+                EntityListingTestUtils.asList(query.getPlateLocationsForMaterialCodes(
+                        materialCodes, materialTypeCodes));
+        AssertJUnit.assertEquals(0, locations.size());
+
     }
 
 }

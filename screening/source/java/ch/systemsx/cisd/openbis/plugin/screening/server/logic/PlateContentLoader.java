@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
@@ -56,16 +58,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoade
 public class PlateContentLoader
 {
     public static TableModel loadImageAnalysisForPlate(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
+            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
+            TechId plateId)
     {
-        return new PlateContentLoader(session, businessObjectFactory)
+        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
                 .loadImageAnalysisForPlate(plateId);
     }
 
     public static TableModel loadImageAnalysisForExperiment(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId experimentId)
+            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
+            TechId experimentId)
     {
-        return new PlateContentLoader(session, businessObjectFactory)
+        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
                 .loadImageAnalysisForExperiment(experimentId);
     }
 
@@ -74,9 +78,11 @@ public class PlateContentLoader
      * image analysis only if one dataset with such a data exist.
      */
     public static PlateContent loadImagesAndMetadata(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
+            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
+            TechId plateId)
     {
-        return new PlateContentLoader(session, businessObjectFactory).getPlateContent(plateId);
+        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
+                .getPlateContent(plateId);
     }
 
     /**
@@ -84,9 +90,10 @@ public class PlateContentLoader
      * BDS-HCS format.
      */
     public static PlateImages loadImagesAndMetadataForDataset(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, TechId datasetId)
+            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
+            TechId datasetId)
     {
-        return new PlateContentLoader(session, businessObjectFactory)
+        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
                 .getPlateContentForDataset(datasetId);
     }
 
@@ -94,11 +101,14 @@ public class PlateContentLoader
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
 
+    private final String defaultDataStoreBaseURL;
+
     private PlateContentLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory)
+            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
+        this.defaultDataStoreBaseURL = defaultDataStoreBaseURL;
     }
 
     private PlateImages getPlateContentForDataset(TechId datasetId)
@@ -111,8 +121,7 @@ public class PlateContentLoader
                     externalData.getCode());
         }
         List<WellMetadata> wells = loadWells(new TechId(HibernateUtils.getId(plate)));
-        DatasetImagesReference datasetImagesReference =
-                loadImages(createExternalDataTable(), externalData);
+        DatasetImagesReference datasetImagesReference = loadImages(translate(externalData));
         Geometry plateGeometry = getPlateGeometry(plate);
         return new PlateImages(translate(plate), wells, datasetImagesReference, plateGeometry
                 .getNumberOfRows(), plateGeometry.getNumberOfColumns());
@@ -131,6 +140,12 @@ public class PlateContentLoader
         externalDataBO.loadDataByTechId(datasetId);
         ExternalDataPE externalData = externalDataBO.getExternalData();
         return externalData;
+    }
+
+    private ExternalData translate(ExternalDataPE externalData)
+    {
+        return ExternalDataTranslator.translate(externalData, defaultDataStoreBaseURL, session
+                .getBaseIndexURL());
     }
 
     private TableModel loadImageAnalysisForPlate(TechId plateId)
@@ -198,7 +213,7 @@ public class PlateContentLoader
         DatasetImagesReference imageDataset = null;
         if (imageDatasets.size() == 1)
         {
-            imageDataset = loadImages(externalDataTable, imageDatasets.get(0));
+            imageDataset = loadImages(translate(imageDatasets.get(0)));
         }
 
         List<ExternalDataPE> analysisDatasets =
@@ -206,7 +221,8 @@ public class PlateContentLoader
         DatasetReference analysisDataset = null;
         if (analysisDatasets.size() == 1)
         {
-            analysisDataset = ScreeningUtils.createDatasetReference(analysisDatasets.get(0));
+            analysisDataset =
+                    ScreeningUtils.createDatasetReference(translate(analysisDatasets.get(0)));
         }
 
         Geometry plateGeometry = PlateDimensionParser.getPlateGeometry(plate.getProperties());
@@ -257,16 +273,14 @@ public class PlateContentLoader
         return externalDataTable.getExternalData();
     }
 
-    private DatasetImagesReference loadImages(IExternalDataTable externalDataTable,
-            ExternalDataPE dataset)
+    private DatasetImagesReference loadImages(ExternalData dataset)
     {
-        PlateImageParameters imageParameters = loadImageParams(dataset, externalDataTable);
+        PlateImageParameters imageParameters = loadImageParams(dataset);
         return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset),
                 imageParameters);
     }
 
-    private PlateImageParameters loadImageParams(ExternalDataPE dataset,
-            IExternalDataTable externalDataTable)
+    private PlateImageParameters loadImageParams(ExternalData dataset)
     {
         final IHCSDatasetLoader loader = businessObjectFactory.createHCSDatasetLoader(dataset);
         return PlateImageParametersFactory.create(loader);

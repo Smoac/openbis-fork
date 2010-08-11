@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -165,20 +164,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
-    public List<WellContent> getPlateLocations(TechId geneMaterialId,
-            ExperimentIdentifier experimentIdentifier) throws UserFailureException
-    {
-        try
-        {
-            return server.getPlateLocations(getSessionToken(), geneMaterialId,
-                    parseExperimentIdentifier(experimentIdentifier));
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public ResultSet<WellContent> listPlateLocations(
+    public ResultSet<WellContent> listPlateWells(
             DefaultResultSetConfig<String, WellContent> gridCriteria,
             final PlateMaterialsSearchCriteria materialCriteria)
     {
@@ -188,7 +174,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
                 {
                     public List<WellContent> getOriginalData() throws UserFailureException
                     {
-                        return server.listPlateLocations(getSessionToken(), materialCriteria);
+                        return server.listPlateWells(getSessionToken(), materialCriteria);
                     }
                 });
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
@@ -201,13 +187,6 @@ public final class ScreeningClientService extends AbstractClientService implemen
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
-    }
-
-    private static ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier parseExperimentIdentifier(
-            ExperimentIdentifier experimentIdentifier)
-    {
-        return new ExperimentIdentifierFactory(experimentIdentifier.getIdentifier())
-                .createIdentifier();
     }
 
     public GenericTableResultSet listPlateMetadata(

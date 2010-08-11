@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * {@link IPredicate}.
  * <p>
  * Each implementation should know how to convert <code>T</code> to <code>P</code> by implementing
- * {@link #convert(Object)} method. Note that {@link #doEvaluation(PersonPE, List, Object)}
+ * {@link #tryConvert(Object)} method. Note that {@link #doEvaluation(PersonPE, List, Object)}
  * delegates its call to {@link IPredicate#evaluate(PersonPE, List, Object)} of the specified
  * <code>delegate</code>.
  * </p>
@@ -47,9 +47,9 @@ public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
     }
 
     /**
-     * Converts given <var>value</var> to type needed.
+     * Converts given <var>value</var> to type needed. Returns null if no authorization is needed.
      */
-    public abstract P convert(final T value);
+    public abstract P tryConvert(final T value);
 
     //
     // AbstractPredicate
@@ -65,7 +65,13 @@ public abstract class DelegatedPredicate<P, T> extends AbstractPredicate<T>
     public final Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T value)
     {
-        return delegate.evaluate(person, allowedRoles, convert(value));
+        P convertedValue = tryConvert(value);
+        if (convertedValue != null)
+        {
+            return delegate.evaluate(person, allowedRoles, convertedValue);
+        } else
+        {
+            return Status.OK;
+        }
     }
-
 }

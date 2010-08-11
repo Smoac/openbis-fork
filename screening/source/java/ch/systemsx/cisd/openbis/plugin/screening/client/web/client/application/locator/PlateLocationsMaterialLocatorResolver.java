@@ -8,9 +8,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * {@link MaterialLocatorResolver} for screening materials.
@@ -78,10 +80,35 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
          * Opens the tab with <var>result</var> entity details.
          */
         @Override
-        protected final void process(final IEntityInformationHolder result)
+        protected final void process(final IEntityInformationHolder material)
         {
-            ClientPluginFactory.openPlateLocationsMaterialViewer(result,
-                    experimentIdentifierOrNull, viewContext);
+            if (experimentIdentifierOrNull == null)
+            {
+                ClientPluginFactory.openPlateLocationsMaterialViewer(material, null, viewContext);
+            } else
+            {
+                fetchExperimentAndShowLocations(material, experimentIdentifierOrNull);
+            }
+        }
+
+        private void fetchExperimentAndShowLocations(final IEntityInformationHolder material,
+                ExperimentIdentifier experimentIdentifier)
+        {
+            viewContext.getCommonService().getExperimentInfo(experimentIdentifier.getIdentifier(),
+                    new AbstractAsyncCallback<Experiment>(viewContext)
+                        {
+                            @Override
+                            protected void process(Experiment experiment)
+                            {
+                                ExperimentSearchCriteria experimentCriteria =
+                                        ExperimentSearchCriteria.createExperiment(experiment
+                                                .getId(), experiment.getIdentifier());
+                                ClientPluginFactory.openPlateLocationsMaterialViewer(material,
+                                        experimentCriteria,
+                                        OpenEntityDetailsTabCallback.this.viewContext);
+                            }
+
+                        });
         }
     }
 

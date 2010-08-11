@@ -18,8 +18,16 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -31,6 +39,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
@@ -43,16 +54,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.PlateMaterialReviewerColDefKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A grid with a list of material (e.g. gene) locations on the plate with a fast access to images.
@@ -61,6 +78,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
  */
 public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent>
 {
+    private static final String ALL_EXPERIMENTS_TEXT = "All experiments";
+
+    private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
+
     private static final int IMAGE_WIDTH_PX = 200;
 
     private static final int IMAGE_HEIGHT_PX = 120;
@@ -75,44 +96,190 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
             IEntityInformationHolderWithIdentifier experiment, String[] materialItemList,
             String[] materialTypeCodes)
     {
-        PlateMaterialsSearchCriteria materialCriteria =
-                new PlateMaterialsSearchCriteria(experiment.getId(), materialItemList,
-                        materialTypeCodes);
-        return create(viewContext, materialCriteria, experiment);
+        ExperimentSearchCriteria experimentCriteria =
+                ExperimentSearchCriteria.createExperiment(experiment.getId(), experiment
+                        .getIdentifier());
+        MaterialSearchCriteria materialCriteria =
+                MaterialSearchCriteria.createCodesCriteria(materialItemList, materialTypeCodes);
+        return create(viewContext, experimentCriteria, materialCriteria);
+    }
+
+    public static IDisposableComponent create(
+            IViewContext<IScreeningClientServiceAsync> viewContext,
+            ExperimentSearchCriteria experimentCriteriaOrNull, TechId materialId)
+    {
+        return create(viewContext, experimentCriteriaOrNull, MaterialSearchCriteria
+                .createIdCriteria(materialId));
     }
 
     private static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
-            PlateMaterialsSearchCriteria materialCriteria,
-            IEntityInformationHolderWithIdentifier experiment)
+            ExperimentSearchCriteria experimentCriteriaOrNull,
+            MaterialSearchCriteria materialCriteria)
     {
-        ToolBar toolbar = new ToolBar();
-        toolbar.add(new Label("Channel:"));
-        ChannelComboBox chooser = new ChannelComboBox();
-        toolbar.add(chooser);
-        return new PlateMaterialReviewer(viewContext, materialCriteria, experiment, chooser)
-                .asDisposableWithToolbar(toolbar);
+        PlateMaterialReviewer reviewer =
+                new PlateMaterialReviewer(viewContext, experimentCriteriaOrNull, materialCriteria);
+        return reviewer.asDisposableWithToolbar(reviewer.createToolbar());
     }
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private final PlateMaterialsSearchCriteria materialCriteria;
-
-    private final ExperimentIdentifier experiment;
-
     private final ChannelComboBox channelChooser;
 
+    private final MaterialSearchCriteria materialCriteria;
+
+    // null if experiment has not been chosen
+    private ExperimentSearchCriteria experimentCriteriaOrNull;
+
+    // stores the state of the single experiment chooser, even when we are looking in all
+    // experiments
+    private SingleExperimentSearchCriteria singleExperimentChooserStateOrNull;
+
     private PlateMaterialReviewer(IViewContext<IScreeningClientServiceAsync> viewContext,
-            PlateMaterialsSearchCriteria materialCriteria,
-            IEntityInformationHolderWithIdentifier experiment, ChannelComboBox chooser)
+            ExperimentSearchCriteria experimentCriteriaOrNull,
+            MaterialSearchCriteria materialCriteria)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID,
-                DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
+                experimentCriteriaOrNull != null, DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         this.viewContext = viewContext;
+        this.experimentCriteriaOrNull = experimentCriteriaOrNull;
+        this.singleExperimentChooserStateOrNull = null;
         this.materialCriteria = materialCriteria;
-        channelChooser = chooser;
-        this.experiment = new ExperimentIdentifier(experiment.getIdentifier());
+        this.channelChooser = new ChannelComboBox();
         registerClickListeners();
+    }
+
+    private ToolBar createToolbar()
+    {
+        ToolBar toolbar = new ToolBar();
+        toolbar.add(createExperimentChooser());
+        toolbar.add(new Label("Channel:"));
+        toolbar.add(channelChooser);
+        return toolbar;
+    }
+
+    private Component createExperimentChooser()
+    {
+        LayoutContainer container = new LayoutContainer();
+        // container.setLayout(new RowLayout(Orientation.HORIZONTAL));
+        container.setWidth(600);
+
+        ExperimentChooserFieldAdaptor singleExperimentChooser = createSingleExperimentChooser();
+        RadioGroup experimentRadioChooser = createExperimentRadio(singleExperimentChooser);
+
+        container.add(experimentRadioChooser);
+        container.add(singleExperimentChooser.getField());
+        return container;
+    }
+
+    private ExperimentChooserFieldAdaptor createSingleExperimentChooser()
+    {
+        ExperimentChooserFieldAdaptor experimentChooser =
+                ExperimentChooserField.create("", true, null, viewContext.getCommonViewContext());
+        final ExperimentChooserField chooserField = experimentChooser.getChooserField();
+        chooserField.addChosenEntityListener(new IChosenEntityListener<Experiment>()
+            {
+                public void entityChosen(Experiment experiment)
+                {
+                    if (experiment != null)
+                    {
+                        chooseSingleExperiment(chooserField, experiment);
+                    }
+                }
+            });
+
+        chooserField.setEditable(false);
+        if (experimentCriteriaOrNull != null && experimentCriteriaOrNull.tryGetExperiment() != null)
+        {
+            updateSingleExperimentChooser(chooserField, experimentCriteriaOrNull.tryGetExperiment());
+        } else
+        {
+            // we search in all experiments or single experiment has not been chosen
+            this.singleExperimentChooserStateOrNull = null;
+            chooserField.reset();
+        }
+        if (experimentCriteriaOrNull == null || experimentCriteriaOrNull.tryGetExperiment() != null)
+        {
+            chooserField.setEmptyText(CHOOSE_ONE_EXPERIMENT_TEXT);
+        } else
+        {
+            chooserField.setEmptyText(ALL_EXPERIMENTS_TEXT);
+        }
+        return experimentChooser;
+    }
+
+    private void chooseSingleExperiment(final ExperimentChooserField chooserField,
+            Experiment experiment)
+    {
+        SingleExperimentSearchCriteria singleExperiment =
+                new SingleExperimentSearchCriteria(experiment.getId(), experiment.getIdentifier());
+        updateSingleExperimentChooser(chooserField, singleExperiment);
+        PlateMaterialReviewer.this.experimentCriteriaOrNull =
+                ExperimentSearchCriteria.createExperiment(singleExperiment);
+        refresh();
+    }
+
+    private void updateSingleExperimentChooser(ExperimentChooserField chooserField,
+            SingleExperimentSearchCriteria singleExperiment)
+    {
+        this.singleExperimentChooserStateOrNull = singleExperiment;
+        chooserField.updateValue(new ExperimentIdentifier(singleExperiment.getDisplayIdentifier()));
+    }
+
+    private boolean isAllExperimentsChoosen()
+    {
+        return experimentCriteriaOrNull != null
+                && experimentCriteriaOrNull.tryGetExperiment() == null;
+    }
+
+    private RadioGroup createExperimentRadio(
+            final ExperimentChooserFieldAdaptor singleExperimentChooser)
+    {
+        final RadioGroup experimentRadio = new RadioGroup();
+        experimentRadio.setSelectionRequired(true);
+        experimentRadio.setOrientation(Orientation.HORIZONTAL);
+
+        final Radio allExps = new Radio();
+        allExps.setBoxLabel(ALL_EXPERIMENTS_TEXT);
+        experimentRadio.add(allExps);
+
+        final Radio oneExps = new Radio();
+        oneExps.setBoxLabel("Single experiment");
+        experimentRadio.add(oneExps);
+
+        experimentRadio.setValue(isAllExperimentsChoosen() ? allExps : oneExps);
+        experimentRadio.setAutoHeight(true);
+        experimentRadio.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    if (allExps.getValue())
+                    {
+                        singleExperimentChooser.getChooserField().setEnabled(false);
+                        singleExperimentChooser.getChooserField()
+                                .setEmptyText(ALL_EXPERIMENTS_TEXT);
+                        experimentCriteriaOrNull = ExperimentSearchCriteria.createAllExperiments();
+                        PlateMaterialReviewer.this.refresh();
+                    } else
+                    {
+                        singleExperimentChooser.getChooserField().setEmptyText(
+                                CHOOSE_ONE_EXPERIMENT_TEXT);
+
+                        singleExperimentChooser.getChooserField().setEnabled(true);
+                        if (singleExperimentChooserStateOrNull == null)
+                        {
+                            experimentCriteriaOrNull = null;
+                        } else
+                        {
+                            experimentCriteriaOrNull =
+                                    ExperimentSearchCriteria
+                                            .createExperiment(singleExperimentChooserStateOrNull);
+                            PlateMaterialReviewer.this.refresh();
+                        }
+                    }
+                }
+            });
+        return experimentRadio;
     }
 
     private void registerClickListeners()
@@ -123,8 +290,13 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
                             EntityReference contentMaterial = wellContent.getMaterialContent();
+                            ExperimentReference experiment = wellContent.getExperiment();
+                            ExperimentSearchCriteria experimentCriteria =
+                                    ExperimentSearchCriteria.createExperiment(experiment.getId(),
+                                            experiment.getExperimentIdentifier());
+
                             ClientPluginFactory.openPlateLocationsMaterialViewer(contentMaterial,
-                                    experiment, viewContext);
+                                    experimentCriteria, viewContext);
                         }
                     });
         registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.PLATE.id(),
@@ -154,6 +326,14 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                                 showEntityViewer(imageDataset.getDatasetReference(),
                                         specialKeyPressed);
                             }
+                        }
+                    });
+        registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.EXPERIMENT.id(),
+                new ICellListener<WellContent>()
+                    {
+                        public void handle(WellContent wellContent, boolean specialKeyPressed)
+                        {
+                            showEntityViewer(wellContent.getExperiment(), specialKeyPressed);
                         }
                     });
 
@@ -232,10 +412,20 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     }
 
     @Override
+    protected boolean isRefreshEnabled()
+    {
+        return experimentCriteriaOrNull != null;
+    }
+
+    @Override
     protected void listEntities(DefaultResultSetConfig<String, WellContent> resultSetConfig,
             final AbstractAsyncCallback<ResultSet<WellContent>> callback)
     {
-        viewContext.getService().listPlateLocations(resultSetConfig, materialCriteria, callback);
+        assert experimentCriteriaOrNull != null : "experiment not specified";
+
+        PlateMaterialsSearchCriteria searchCriteria =
+                new PlateMaterialsSearchCriteria(experimentCriteriaOrNull, materialCriteria);
+        viewContext.getService().listPlateWells(resultSetConfig, searchCriteria, callback);
     }
 
     @Override

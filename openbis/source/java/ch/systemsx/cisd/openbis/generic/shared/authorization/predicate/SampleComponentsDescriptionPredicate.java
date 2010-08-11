@@ -37,7 +37,7 @@ public final class SampleComponentsDescriptionPredicate extends
     //
 
     @Override
-    public final PermId convert(final SampleComponentsDescription value)
+    public final PermId tryConvert(final SampleComponentsDescription value)
     {
         return new PermId(value.getContainerPermId());
     }

@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.GenePlateLocationsLoader;
@@ -129,44 +128,37 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public PlateContent getPlateContent(String sessionToken, TechId plateId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory, plateId);
+        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory,
+                getDataStoreBaseURL(), plateId);
     }
 
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImagesAndMetadataForDataset(session, businessObjectFactory,
-                datasetId);
+                getDataStoreBaseURL(), datasetId);
     }
 
-    public List<WellContent> getPlateLocations(String sessionToken, TechId geneMaterialId,
-            ExperimentIdentifier experimentIdentifier)
-    {
-        Session session = getSession(sessionToken);
-        return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
-                geneMaterialId, experimentIdentifier, true);
-    }
-
-    public List<WellContent> listPlateLocations(String sessionToken,
+    public List<WellContent> listPlateWells(String sessionToken,
             PlateMaterialsSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
-                materialCriteria, true);
+                getDataStoreBaseURL(), materialCriteria, true);
     }
 
     public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImageAnalysisForExperiment(session, businessObjectFactory,
-                experimentId);
+                getDataStoreBaseURL(), experimentId);
     }
 
     public TableModel loadImageAnalysisForPlate(String sessionToken, TechId plateId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader
-                .loadImageAnalysisForPlate(session, businessObjectFactory, plateId);
+        return PlateContentLoader.loadImageAnalysisForPlate(session, businessObjectFactory,
+                getDataStoreBaseURL(), plateId);
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
@@ -206,8 +198,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
-
-    MaterialIdentifier materialIdentifier, boolean findDatasets)
+            MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
         return createScreeningApiImpl(sessionToken)
                 .listPlateWells(materialIdentifier, findDatasets);

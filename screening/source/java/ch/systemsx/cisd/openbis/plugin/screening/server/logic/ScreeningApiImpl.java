@@ -70,7 +70,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContentWithExperiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -249,8 +248,8 @@ public class ScreeningApiImpl
                 getExperimentIdentifierFromDB(experimentIdentifier);
         wellContent =
                 GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
-                        new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId(),
-                        false);
+                        dataStoreBaseURL, new TechId(materialOrNull.getId()),
+                        fullExperimentIdentifier.getPermId(), false);
         if (findDatasets)
         {
             final Set<Plate> plates = new HashSet<Plate>(wellContent.size());
@@ -287,14 +286,14 @@ public class ScreeningApiImpl
             throw UserFailureException.fromTemplate("Material '%s' does not exist",
                     materialIdentifier.getAugmentedCode());
         }
-        final List<WellContentWithExperiment> wellContent =
+        final List<WellContent> wellContent =
                 GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
-                        new TechId(materialOrNull.getId()));
+                        dataStoreBaseURL, new TechId(materialOrNull.getId()));
 
         if (findDatasets)
         {
             final Set<Plate> plates = new HashSet<Plate>(wellContent.size());
-            for (WellContentWithExperiment w : wellContent)
+            for (WellContent w : wellContent)
             {
                 plates.add(asPlate(w));
             }
@@ -512,18 +511,17 @@ public class ScreeningApiImpl
                 wellContent.getPlate().getPermId(), experimentIdentifier);
     }
 
-    private static Plate asPlate(WellContentWithExperiment wellContent)
+    private static Plate asPlate(WellContent wellContent)
     {
-        return new Plate(wellContent.getPlate().getCode(), wellContent.getExperiment().getProject()
-                .getSpace().getCode(), wellContent.getPlate().getPermId(),
-                asExperiment(wellContent));
+        return new Plate(wellContent.getPlate().getCode(), wellContent.getExperiment()
+                .getSpaceCode(), wellContent.getPlate().getPermId(), asExperiment(wellContent));
     }
 
-    private static ExperimentIdentifier asExperiment(WellContentWithExperiment wellContent)
+    private static ExperimentIdentifier asExperiment(WellContent wellContent)
     {
         return new ExperimentIdentifier(wellContent.getExperiment().getCode(), wellContent
-                .getExperiment().getProject().getCode(), wellContent.getExperiment().getProject()
-                .getSpace().getCode(), wellContent.getExperiment().getPermId());
+                .getExperiment().getProjectCode(), wellContent.getExperiment().getSpaceCode(),
+                wellContent.getExperiment().getPermId());
     }
 
     private static PlateWellReferenceWithDatasets asPlateWellReference(
@@ -571,12 +569,11 @@ public class ScreeningApiImpl
     }
 
     private static List<PlateWellReferenceWithDatasets> asPlateWellReferences(
-            List<WellContentWithExperiment> wellContents,
-            Map<String, DatasetReferenceHolder> plateToDatasetsMap)
+            List<WellContent> wellContents, Map<String, DatasetReferenceHolder> plateToDatasetsMap)
     {
         final List<PlateWellReferenceWithDatasets> plateWellReferences =
                 new ArrayList<PlateWellReferenceWithDatasets>();
-        for (WellContentWithExperiment wellContent : wellContents)
+        for (WellContent wellContent : wellContents)
         {
             plateWellReferences.add(asPlateWellReference(asExperiment(wellContent), wellContent,
                     plateToDatasetsMap));
