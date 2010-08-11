@@ -102,6 +102,9 @@ class PlateDatasetLoader
 
     private void loadSamples()
     {
+        // NOTE: plate identifier can use augmented codes or/and permIds. That is why we have to use
+        // both when fetching plates.
+        // It can result in fetching the same sample twice, but it does not hurt.
         String[] sampleCodesArray = extractSampleCodes();
         String[] samplePermIdArray = extractPermIds();
         ListOrSearchSampleCriteria criteria =
