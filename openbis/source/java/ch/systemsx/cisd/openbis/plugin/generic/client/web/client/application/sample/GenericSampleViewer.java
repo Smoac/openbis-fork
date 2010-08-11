@@ -202,17 +202,17 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
         containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(containerSamplesSection);
+        container.addPanel(containerSamplesSection, false);
         // Derived samples
         derivedSamplesSection = new DerivedSamplesSection(viewContext, generator);
         derivedSamplesSection.setDisplayID(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(derivedSamplesSection);
+        container.addPanel(derivedSamplesSection, false);
         // Parent samples
         parentSamplesSection = new ParentSamplesSection(viewContext, generator);
         parentSamplesSection.setDisplayID(DisplayTypeIDGenerator.PARENT_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(parentSamplesSection);
+        container.addPanel(parentSamplesSection, false);
         // Data Sets
         CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
         dataSetBrowser =
