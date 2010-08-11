@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * Reporting plugin that returns a table in which each column contains a graph. The number and
  * format of the graphs can be configured in a properties file.
  * <p>
- * This plugin reads data from a file. The {@link DatabaseImageAnalysisGraphReportingPlugin} reads
+ * This plugin reads data from a file. The {@link ImageAnalysisGraphReportingPlugin} reads
  * from the imaging db.
  * 
  * @author Chandrasekhar Ramakrishnan
@@ -63,7 +63,7 @@ public class FileBasedImageAnalysisGraphReportingPlugin extends AbstractDataMerg
         if (propertiesFilePath == null)
         {
             throw new EnvironmentFailureException(
-                    "DatabaseImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
+                    "ImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
                             + PROPERTIES_FILE_KEY + "key).");
         }
 

@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DatabaseImageAnalysisGraphReportingPlugin extends AbstractDataMergingReportingPlugin
+public class ImageAnalysisGraphReportingPlugin extends AbstractDataMergingReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 
@@ -54,7 +54,7 @@ public class DatabaseImageAnalysisGraphReportingPlugin extends AbstractDataMergi
 
     private final static String PROPERTIES_FILE_KEY = "properties-file";
 
-    public DatabaseImageAnalysisGraphReportingPlugin(Properties properties, File storeRoot)
+    public ImageAnalysisGraphReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, SEMICOLON_SEPARATOR);
         graphServletPath = properties.getProperty(SERVLET_PATH_PROP, "datastore_server_graph/");
@@ -62,7 +62,7 @@ public class DatabaseImageAnalysisGraphReportingPlugin extends AbstractDataMergi
         if (propertiesFilePath == null)
         {
             throw new EnvironmentFailureException(
-                    "DatabaseImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
+                    "ImageAnalysisGraphReportingPlugin requires a properties file (specified with the "
                             + PROPERTIES_FILE_KEY + "key).");
         }
 
