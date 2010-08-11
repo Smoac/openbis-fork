@@ -59,7 +59,7 @@ public class PlateIdentifier extends PermanentIdentifier
      * An empty <var>spaceCode</var> is interpreted as the home space, a <code>null</code>
      * <var>spaceCode</code> is interpreted as 'no space', i.e. identifies a shared sample.
      */
-    public PlateIdentifier(String plateCode, String spaceCodeOrNull)
+    protected PlateIdentifier(String plateCode, String spaceCodeOrNull)
     {
         this(plateCode, spaceCodeOrNull, null);
     }
@@ -111,7 +111,7 @@ public class PlateIdentifier extends PermanentIdentifier
     {
         return "".equals(spaceCodeOrNull);
     }
-    
+
     @Override
     public String toString()
     {
