@@ -54,8 +54,9 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         sample.setSampleType(sampleType);
         sample.setProperties(new IEntityProperty[]
             { property("COMMENT", "test sample") });
-        sample.setParents(new String[]
-            { "c1", "C2" });
+        String[] parents = new String[]
+            { "c1", "C2", "CISD:/CISD/C3" };
+        sample.setParents(parents);
         genericClientService.registerSample("session", sample);
 
         Sample s = getSample(identifier);
@@ -63,9 +64,9 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         assertEquals("COMMENT", properties.get(0).getPropertyType().getCode());
         assertEquals("test sample", properties.get(0).getValue());
         assertEquals(1, properties.size());
-        assertEquals(2, s.getParents().size());
-        assertEquals("[CISD:/CISD/C1, CISD:/CISD/C2]", Arrays.toString(IdentifierExtractor.extract(
-                s.getParents()).toArray()));
+        assertEquals(parents.length, s.getParents().size());
+        assertEquals("[CISD:/CISD/C1, CISD:/CISD/C2, CISD:/CISD/C3]", Arrays
+                .toString(IdentifierExtractor.extract(s.getParents()).toArray()));
     }
 
     private Sample getSample(String sampleIdentifier)
