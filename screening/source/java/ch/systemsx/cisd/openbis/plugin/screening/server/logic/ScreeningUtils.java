@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -52,8 +53,16 @@ public class ScreeningUtils
         DataStore dataStore = dataset.getDataStore();
         String dataTypeCode = dataset.getDataSetType().getCode();
         String fileTypeCode = dataset.getFileFormatType().getCode();
+        String downloadUrl = dataStore.getDownloadUrl();
+        // NOTE: we have to remove a standard prefix until LMS-1699 is done
+        if (downloadUrl.endsWith(GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME))
+        {
+            int toRemoveLength =
+                    ("/" + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME).length();
+            downloadUrl = downloadUrl.substring(0, downloadUrl.length() - toRemoveLength);
+        }
         return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode, fileTypeCode,
-                dataStore.getCode(), dataStore.getDownloadUrl());
+                dataStore.getCode(), downloadUrl);
     }
 
     public static List<ExternalDataPE> filterImageAnalysisDatasets(List<ExternalDataPE> datasets)
