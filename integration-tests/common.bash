@@ -18,7 +18,7 @@ LOCAL_PROJECTS=..
 OPENBIS_SERVER=$WORK/openBIS-server
 
 SSH_CRUISE_CONTROL_NAME=ci@cisd-vesuvio.ethz.ch
-CRUISE_CONTROL_ARTIFACTS=cruisecontrol-bin/artifacts
+HUDSON_ARTIFACTS=hudson/jobs
 
 # ----------------------------- global state
 
@@ -320,10 +320,11 @@ function fetch_latest_artifacts_from_cruise_control {
     local proj_name=$1
     local dest_dir=$2
     
-    local list_cmd="ls -1 $CRUISE_CONTROL_ARTIFACTS/$proj_name | sort | tail -1"
+    local last_build="$HUDSON_ARTIFACTS/$proj_name/lastSuccessful/archive/_main/targets/dist"
+    local list_cmd="ls -1 $last_build | sort | tail -1"
     local last=`echo $list_cmd | ssh $SSH_CRUISE_CONTROL_NAME -T`
     echo "Fetching artifacts for $proj_name: $last" 
-    scp $SSH_CRUISE_CONTROL_NAME:$CRUISE_CONTROL_ARTIFACTS/$proj_name/$last/*.zip $dest_dir
+    scp $SSH_CRUISE_CONTROL_NAME:$last_build/*.zip $dest_dir
 }
 
 # -------------------------- installation
