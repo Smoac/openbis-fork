@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.common.maintenance;
 
 import java.util.Date;
 import java.util.Timer;

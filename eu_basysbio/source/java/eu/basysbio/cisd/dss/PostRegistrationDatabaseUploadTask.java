@@ -35,8 +35,8 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.etlserver.IMaintenanceTask;
 import ch.systemsx.cisd.etlserver.plugins.HierarchicalStorageUpdater;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -48,8 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
@@ -67,8 +65,9 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
             LogFactory.getLogger(LogCategory.OPERATION, PostRegistrationDatabaseUploadTask.class);
 
     private final IEncapsulatedOpenBISService service;
+
     private final File storeRoot;
-    
+
     private TimeSeriesDataSetUploaderParameters parameters;
 
     private DataSource dataSource;
@@ -88,7 +87,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         parameters = new TimeSeriesDataSetUploaderParameters(properties);
         dataSource = DBUtils.createDBContext(properties).getDataSource();
     }
-    
+
     public void execute()
     {
         Set<String> knownDataSets = getKnownDataSets();
@@ -106,7 +105,8 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                     for (File dataSetFile : dataSetFiles)
                     {
                         TimeSeriesDataSetUploader uploader =
-                                new TimeSeriesDataSetUploader(dataSource, service, parameters, false);
+                                new TimeSeriesDataSetUploader(dataSource, service, parameters,
+                                        false);
                         DataSetInformation dataSetInformation = createDataSetInformation(dataSet);
                         try
                         {
@@ -176,6 +176,5 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         }
 
     }
-
 
 }
