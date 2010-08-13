@@ -13,7 +13,7 @@
         // can be overridden by setting a corresponding system property.
     -->
     <bean id="propertyConfigurer"
-        class="ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer">
+        class="ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer">
         <property name="location" value="classpath:service.properties" />
         <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
         <property name="ignoreUnresolvablePlaceholders" value="true" />
