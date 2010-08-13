@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
+import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
@@ -61,11 +62,6 @@ public class Parameters
 
     /** property with thread names separated by delimiter */
     private static final String INPUT_THREAD_NAMES = "inputs";
-
-    /**
-     * property with maintenance plugin names separated by delimiter
-     */
-    private static final String MAINTENANCE_PLUGINS = "maintenance-plugins";
 
     @Option(name = "s", longName = "server-url", metaVar = "URL", usage = "URL of the server")
     private String serverURL;
@@ -183,7 +179,8 @@ public class Parameters
             PropertyUtils.trimProperties(serviceProperties);
             this.threads = createThreadParameters(serviceProperties);
             this.timingParameters = TimingParameters.create(serviceProperties);
-            this.maintenancePlugins = createMaintenancePlugins(serviceProperties);
+            this.maintenancePlugins =
+                    MaintenanceTaskUtils.createMaintenancePlugins(serviceProperties);
 
             initCommandLineParametersFromProperties();
 
@@ -243,31 +240,6 @@ public class Parameters
         {
             return asThreadParameters(sectionsProperties);
         }
-    }
-
-    private static MaintenanceTaskParameters[] createMaintenancePlugins(
-            final Properties serviceProperties)
-    {
-        SectionProperties[] sectionsProperties =
-                PropertyParametersUtil.extractSectionProperties(serviceProperties,
-                        MAINTENANCE_PLUGINS, true);
-        return asMaintenanceParameters(sectionsProperties);
-    }
-
-    private static MaintenanceTaskParameters[] asMaintenanceParameters(
-            SectionProperties[] sectionProperties)
-    {
-        final MaintenanceTaskParameters[] maintenanceParameters =
-                new MaintenanceTaskParameters[sectionProperties.length];
-        for (int i = 0; i < maintenanceParameters.length; i++)
-        {
-            SectionProperties section = sectionProperties[i];
-            operationLog.info("Create parameters for maintenance plugin '" + section.getKey()
-                    + "'.");
-            maintenanceParameters[i] =
-                    new MaintenanceTaskParameters(section.getProperties(), section.getKey());
-        }
-        return maintenanceParameters;
     }
 
     private static ThreadParameters[] asThreadParameters(SectionProperties[] sectionProperties)

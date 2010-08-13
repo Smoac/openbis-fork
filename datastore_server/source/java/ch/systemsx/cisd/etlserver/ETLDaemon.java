@@ -19,7 +19,6 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
@@ -55,8 +54,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
-import ch.systemsx.cisd.common.maintenance.MaintenancePlugin;
-import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
+import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
@@ -474,24 +472,8 @@ public final class ETLDaemon
         }
         printInitialLogMessage(parameters);
         startupServer(parameters);
-        startupMaintenancePlugins(parameters.getMaintenancePlugins());
+        MaintenanceTaskUtils.startupMaintenancePlugins(parameters.getMaintenancePlugins());
         operationLog.info("Data Store Server ready and waiting for data.");
-    }
-
-    private static void startupMaintenancePlugins(MaintenanceTaskParameters[] maintenancePlugins)
-    {
-
-        List<MaintenancePlugin> plugins = new ArrayList<MaintenancePlugin>();
-        for (MaintenanceTaskParameters parameters : maintenancePlugins)
-        {
-            MaintenancePlugin plugin = new MaintenancePlugin(parameters);
-            plugins.add(plugin);
-        }
-        for (MaintenancePlugin plugin : plugins)
-        {
-            plugin.start();
-        }
-
     }
 
 }

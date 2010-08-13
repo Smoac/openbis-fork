@@ -64,15 +64,15 @@ public class PropertyParametersUtil
      * Extracts properties of the specified sections.
      * 
      * @param properties list of all properties
-     * @param sectionNamestPropertyName property name, its value should contain a list of section
+     * @param sectionNamesPropertyName property name, its value should contain a list of section
      *            names
      * @param attachGeneralProperties if true, each section will have also global properties
      *            attached (those which do not belong to any section)
      */
     public static SectionProperties[] extractSectionProperties(final Properties properties,
-            String sectionNamestPropertyName, boolean attachGeneralProperties)
+            String sectionNamesPropertyName, boolean attachGeneralProperties)
     {
-        final String[] names = tryParseItemisedProperty(properties, sectionNamestPropertyName);
+        final String[] names = tryParseItemisedProperty(properties, sectionNamesPropertyName);
         if (names == null)
         {
             return new SectionProperties[0];
