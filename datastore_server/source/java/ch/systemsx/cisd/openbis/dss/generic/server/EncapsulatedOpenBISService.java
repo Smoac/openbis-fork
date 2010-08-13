@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
@@ -207,7 +208,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         dataStoreServerInfo.setDataStoreCode(dataStoreCode);
         if (StringUtils.isBlank(downloadUrl))
         {
-            final String msg = "'download-url' has to be set.";
+            final String msg =
+                    "'" + DssPropertyParametersUtil.DOWNLOAD_URL_KEY + "' has to be set.";
             throw new ConfigurationFailureException(msg);
         }
         dataStoreServerInfo.setDownloadUrl(downloadUrl);

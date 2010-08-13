@@ -37,6 +37,8 @@ public class DssPropertyParametersUtil
     @Private
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
+    public static final String DOWNLOAD_URL_KEY = "download-url";
+
     private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     /** loads server configuration */

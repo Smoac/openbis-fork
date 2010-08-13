@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -47,7 +46,6 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.mail.JavaMailProperties;
 import ch.systemsx.cisd.common.test.LogMonitoringAppender;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -248,11 +246,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context = new Mockery();
         dataSetInfoExtractor = context.mock(IDataSetInfoExtractor.class);
         typeExtractor = context.mock(ITypeExtractor.class);
-        final Properties properties = new Properties();
-        properties.setProperty(JavaMailProperties.MAIL_SMTP_HOST, "host");
-        properties.setProperty(JavaMailProperties.MAIL_FROM, "me");
         String storeRoot = workingDirectory.getPath();
-        properties.setProperty(DssPropertyParametersUtil.STOREROOT_DIR_KEY, storeRoot);
         storageProcessor = context.mock(IStorageProcessor.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);
@@ -264,6 +258,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         PluginUtilTest.createPluginTaskProviders(new File(storeRoot)));
         authorizedLimsService.setUsername("u");
         authorizedLimsService.setPassword("p");
+        authorizedLimsService.setDownloadUrl("url");
         dataSetValidator = context.mock(IDataSetValidator.class);
         handler =
                 new TransferredDataSetHandler("dss", storageProcessor, plugin,
