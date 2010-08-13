@@ -84,9 +84,8 @@ public class WellContentDialog extends Dialog
                     createImageViewer(images, channelState, viewContext, imgW, imgH);
             container.add(imageViewer);
 
-            float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-            dialogWidth = (int) (imgW * imageSizeMultiplyFactor) * images.getTileColsNum() + 100;
-            dialogHeight = (int) (imgH * imageSizeMultiplyFactor) * images.getTileRowsNum() + 300;
+            dialogWidth = getDialogWidth(images, imgW);
+            dialogHeight = getDialogHeight(images, imgH);
         } else
         {
             dialogWidth = 300;
@@ -94,6 +93,19 @@ public class WellContentDialog extends Dialog
         }
         String title = "Well Content: " + wellData.getWellDescription();
         setupContentAndShow(contentDialog, container, dialogWidth, dialogHeight, title);
+    }
+
+    private static int getDialogWidth(final WellImages images, int imgW)
+    {
+        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
+        return (int) (imgW * imageSizeMultiplyFactor) * images.getTileColsNum() + 100;
+    }
+
+    private static int getDialogHeight(final WellImages images, int imgH)
+    {
+        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
+        return Math
+                .max((int) (imgH * imageSizeMultiplyFactor) * images.getTileRowsNum() + 100, 300);
     }
 
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
