@@ -507,15 +507,13 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                ExternalDataTranslator.translate(externalDataPE, DATA_STORE_BASE_URL,
-                        BASE_INDEX_URL);
+                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
         prepareGetSession();
         final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDatasetLister(SESSION,
-                            DATA_STORE_BASE_URL);
+                    one(commonBusinessObjectFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listBySampleTechId(sampleId, showOnlyDirectlyConnected);
@@ -548,14 +546,12 @@ public final class CommonServerTest extends AbstractServerTestCase
         dataStorePE.setCode("DST");
         externalDataPE.setDataStore(dataStorePE);
         final ExternalData externalData =
-                ExternalDataTranslator.translate(externalDataPE, DATA_STORE_BASE_URL,
-                        BASE_INDEX_URL);
+                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
         prepareGetSession();
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDatasetLister(SESSION,
-                            DATA_STORE_BASE_URL);
+                    one(commonBusinessObjectFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     one(datasetLister).listByExperimentTechIds(Collections.singleton(experimentId));
                     will(returnValue(Arrays.asList(externalData)));

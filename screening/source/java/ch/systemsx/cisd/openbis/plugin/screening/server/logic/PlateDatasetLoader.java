@@ -50,8 +50,6 @@ class PlateDatasetLoader
 
     protected final IScreeningBusinessObjectFactory businessObjectFactory;
 
-    protected final String dataStoreBaseURL;
-
     // Parameter state
     private final Collection<? extends PlateIdentifier> plates;
 
@@ -71,12 +69,11 @@ class PlateDatasetLoader
     private boolean loaded = false;
 
     PlateDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            String dataStoreBaseURL, String homeSpaceOrNull,
-            Collection<? extends PlateIdentifier> plates, String... datasetTypeCodes)
+            String homeSpaceOrNull, Collection<? extends PlateIdentifier> plates,
+            String... datasetTypeCodes)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
-        this.dataStoreBaseURL = dataStoreBaseURL;
         this.homeSpaceOrNull = (homeSpaceOrNull != null) ? ("/" + homeSpaceOrNull + "/") : null;
         this.plates = plates;
         this.datasetTypeCodes = datasetTypeCodes;
@@ -120,8 +117,7 @@ class PlateDatasetLoader
     private void loadDatasets()
     {
         List<Long> sampleIds = extractSampleIds();
-        IDatasetLister datasetLister =
-                businessObjectFactory.createDatasetLister(session, dataStoreBaseURL);
+        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         datasets = datasetLister.listBySampleIds(sampleIds);
         datasets = ScreeningUtils.filterExternalDataByType(datasets, datasetTypeCodes);
     }

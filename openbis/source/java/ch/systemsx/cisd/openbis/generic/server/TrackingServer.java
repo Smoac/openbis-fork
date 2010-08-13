@@ -84,8 +84,7 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
 
         // retrieve data sets connected to samples of type specified in criteria
         // (these samples don't have properties loaded but ids are loaded)
-        final IDatasetLister datasetLister =
-                businessObjectFactory.createDatasetLister(session, getDataStoreBaseURL());
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         final List<ExternalData> dataSets = datasetLister.listByTrackingCriteria(criteria);
         // retrieve samples enriched with their dependent samples and properties
         // (drawback - samples directly connected to data sets are retrieved twice)

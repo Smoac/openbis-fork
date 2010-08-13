@@ -643,8 +643,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         ExternalDataPE externalDataPE = externalDataBO.tryExternalData();
         if (null == externalDataPE)
             return null;
-        return ExternalDataTranslator.translate(externalDataPE, dataStoreBaseURLProvider
-                .getDataStoreBaseURL(), session.getBaseIndexURL());
+        return ExternalDataTranslator.translate(externalDataPE, session.getBaseIndexURL());
     }
 
     public void checkDataSetAccess(String sessionToken, String dataSetCode)
@@ -718,7 +717,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public String getDefaultDataStoreBaseURL(String sessionToken)
     {
         // See DataStoreApiUrlUtilities
-        String url = getDataStoreBaseURL();
+        // TODO 2010-08-13, Piotr Buczek: get directly from properties
+        String url = getDefaultDataStoreBaseURL();
         // Strip the web application name from the URL
         if (url.endsWith("/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME))
         {

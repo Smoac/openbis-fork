@@ -95,10 +95,9 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
         return getCommonBusinessObjectFactory().createExternalDataBO(session);
     }
 
-    public IDatasetLister createDatasetLister(Session session, String defaultDataStoreBaseURL)
+    public IDatasetLister createDatasetLister(Session session)
     {
-        return getCommonBusinessObjectFactory().createDatasetLister(session,
-                defaultDataStoreBaseURL);
+        return getCommonBusinessObjectFactory().createDatasetLister(session);
     }
 
 }

@@ -19,34 +19,27 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DataStoreTranslator
 {
-    public static DataStore translate(DataStorePE dataStorePE, String defaultDataStoreBaseURL)
+    public static DataStore translate(DataStorePE dataStorePE)
     {
         DataStore dataStore = new DataStore();
         String downloadUrl = dataStorePE.getDownloadUrl();
-        downloadUrl = translateDownloadUrl(defaultDataStoreBaseURL, downloadUrl);
+        downloadUrl = translateDownloadUrl(downloadUrl);
         dataStore.setDownloadUrl(downloadUrl);
         dataStore.setCode(StringEscapeUtils.escapeHtml(dataStorePE.getCode()));
         return dataStore;
     }
 
-    public static String translateDownloadUrl(String defaultDataStoreBaseURL, String downloadUrl)
+    public static String translateDownloadUrl(String downloadUrl)
     {
-        if (StringUtils.isBlank(downloadUrl))
-        {
-            return defaultDataStoreBaseURL;
-        } else
-        {
-            return downloadUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-        }
+        return downloadUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
     }
 }

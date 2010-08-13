@@ -83,8 +83,6 @@ public class DatasetLister implements IDatasetLister
 
     private final String baseIndexURL;
 
-    private final String defaultDataStoreBaseURL;
-
     //
     // Working interfaces
     //
@@ -108,30 +106,28 @@ public class DatasetLister implements IDatasetLister
 
     private final Map<Long, LocatorType> locatorTypes = new HashMap<Long, LocatorType>();
 
-    public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL,
-            String defaultDataStoreBaseURL)
+    public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL)
     {
         DatasetListerDAO dao = DatasetListerDAO.create(daoFactory);
         SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
 
-        return create(dao, referencedEntityDAO, baseIndexURL, defaultDataStoreBaseURL);
+        return create(dao, referencedEntityDAO, baseIndexURL);
     }
 
     static IDatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO,
-            String baseIndexURL, String defaultDataStoreBaseURL)
+            String baseIndexURL)
     {
         IDatasetListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                propertiesEnricher, referencedEntityDAO, baseIndexURL, defaultDataStoreBaseURL);
+                propertiesEnricher, referencedEntityDAO, baseIndexURL);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
-            SecondaryEntityDAO referencedEntityDAO, String baseIndexURL,
-            String defaultDataStoreBaseURL)
+            SecondaryEntityDAO referencedEntityDAO, String baseIndexURL)
     {
         assert databaseInstance != null;
         assert query != null;
@@ -142,7 +138,6 @@ public class DatasetLister implements IDatasetLister
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
         this.baseIndexURL = baseIndexURL;
-        this.defaultDataStoreBaseURL = defaultDataStoreBaseURL;
     }
 
     public List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
@@ -491,7 +486,7 @@ public class DatasetLister implements IDatasetLister
         dataStores.clear();
         for (DataStoreRecord code : query.getDataStores(databaseInstanceId))
         {
-            dataStores.put(code.id, createDataStore(code, defaultDataStoreBaseURL));
+            dataStores.put(code.id, createDataStore(code));
         }
     }
 
@@ -500,14 +495,11 @@ public class DatasetLister implements IDatasetLister
         codeHolder.setCode(escapeHtml(codeRecord.code));
     }
 
-    private static DataStore createDataStore(DataStoreRecord codeRecord,
-            String defaultDataStoreBaseURL)
+    private static DataStore createDataStore(DataStoreRecord codeRecord)
     {
         DataStore result = new DataStore();
         setCode(result, codeRecord);
-        String downloadUrl =
-                DataStoreTranslator.translateDownloadUrl(defaultDataStoreBaseURL,
-                        codeRecord.download_url);
+        String downloadUrl = DataStoreTranslator.translateDownloadUrl(codeRecord.download_url);
         result.setDownloadUrl(downloadUrl);
         return result;
     }

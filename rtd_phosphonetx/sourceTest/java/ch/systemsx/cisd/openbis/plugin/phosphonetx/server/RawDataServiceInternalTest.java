@@ -92,7 +92,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
         prepareGetSession();
         prepareListRawDataSamples(1L, 2L, 3L, 42L);
         final long[] ids = new long[]
-            { 2};
+            { 2 };
         context.checking(new Expectations()
             {
                 {
@@ -189,7 +189,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                         }));
                     will(returnValue(samples));
 
-                    one(boFactory).createDatasetLister(SESSION, "");
+                    one(boFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listByExperimentTechIds(experimentIds);

@@ -157,11 +157,11 @@ public class UploadingCommandTest extends AssertJUnit
         createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
         ExternalData dataSet1 =
-                ExternalDataTranslator.translate(createDataSet("1", LOCATION1), "?", "?",
+                ExternalDataTranslator.translate(createDataSet("1", LOCATION1), "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         System.out.println("ds1:" + dataSet1.getExperiment().getProperties());
         ExternalData dataSet2 =
-                ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?", "?",
+                ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
         command =

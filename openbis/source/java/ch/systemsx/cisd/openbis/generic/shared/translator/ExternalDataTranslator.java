@@ -58,24 +58,21 @@ public class ExternalDataTranslator
         for (ExternalDataPE externalDataPE : list)
         {
             ExternalData data =
-                    translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL, true,
+                    translate(externalDataPE, baseIndexURL, true,
                             ExperimentTranslator.LoadableFields.PROPERTIES);
             result.add(data);
         }
         return result;
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE,
-            String defaultDataStoreBaseURL, String baseIndexURL,
+    public static ExternalData translate(ExternalDataPE externalDataPE, String baseIndexURL,
             final LoadableFields... withExperimentFields)
     {
-        return translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL, true,
-                withExperimentFields);
+        return translate(externalDataPE, baseIndexURL, true, withExperimentFields);
     }
 
-    public static ExternalData translate(ExternalDataPE externalDataPE,
-            String defaultDataStoreBaseURL, String baseIndexURL, boolean loadSampleProperties,
-            final LoadableFields... withExperimentFields)
+    public static ExternalData translate(ExternalDataPE externalDataPE, String baseIndexURL,
+            boolean loadSampleProperties, final LoadableFields... withExperimentFields)
     {
         SamplePE sampleOrNull = externalDataPE.tryGetSample();
         ExperimentPE experiment = externalDataPE.getExperiment();
@@ -106,8 +103,7 @@ public class ExternalDataTranslator
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
         externalData.setSample(sampleOrNull == null ? null : fillSample(new Sample(), sampleOrNull,
                 loadSampleProperties));
-        externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
-                defaultDataStoreBaseURL));
+        externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore()));
         externalData.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
                 EntityKind.DATA_SET, externalData.getIdentifier()));
         setProperties(externalDataPE, externalData);

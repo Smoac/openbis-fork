@@ -51,5 +51,5 @@ public interface IScreeningBusinessObjectFactory
 
     public IExternalDataBO createExternalDataBO(Session session);
 
-    public IDatasetLister createDatasetLister(Session session, String defaultDataStoreBaseURL);
+    public IDatasetLister createDatasetLister(Session session);
 }

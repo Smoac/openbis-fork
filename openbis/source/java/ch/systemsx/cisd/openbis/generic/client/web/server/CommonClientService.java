@@ -165,7 +165,6 @@ public final class CommonClientService extends AbstractClientService implements
         this.commonServer = commonServer;
     }
 
-    @Override
     public String getDataStoreBaseURL()
     {
         return this.dataStoreBaseURL;

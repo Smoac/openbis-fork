@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -204,6 +205,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         dataStoreServerInfo.setPort(port);
         dataStoreServerInfo.setUseSSL(useSSL);
         dataStoreServerInfo.setDataStoreCode(dataStoreCode);
+        if (StringUtils.isBlank(downloadUrl))
+        {
+            final String msg = "'download-url' has to be set.";
+            throw new ConfigurationFailureException(msg);
+        }
         dataStoreServerInfo.setDownloadUrl(downloadUrl);
         dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());
         dataStoreServerInfo.setServicesDescriptions(pluginTaskDescriptions);
@@ -316,7 +322,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public SampleIdentifier tryToGetSampleIdentifier(String samplePermID) throws UserFailureException
+    synchronized public SampleIdentifier tryToGetSampleIdentifier(String samplePermID)
+            throws UserFailureException
     {
         checkSessionToken();
         try
@@ -467,7 +474,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                     + ".");
         }
     }
-    
+
     synchronized public void deleteDataSet(String dataSetCode, String reason)
             throws UserFailureException
     {

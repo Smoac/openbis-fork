@@ -50,17 +50,19 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validato
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class RawDataServiceInternal extends AbstractServer<IRawDataServiceInternal> implements IRawDataServiceInternal
+public class RawDataServiceInternal extends AbstractServer<IRawDataServiceInternal> implements
+        IRawDataServiceInternal
 {
-     @Private static final String SPACE_CODE = "MS_DATA";
+    @Private
+    static final String SPACE_CODE = "MS_DATA";
 
-    @Private static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
-    
-    private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR = new RawDataSampleValidator();
+    @Private
+    static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
+
+    private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR =
+            new RawDataSampleValidator();
 
     private ICommonBusinessObjectFactory businessObjectFactory;
 
@@ -87,12 +89,12 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
     {
         return new RawDataServiceInternalLogger(getSessionManager(), context);
     }
-    
+
     public List<MsInjectionSample> listRawDataSamples(String sessionToken)
     {
         return loadAllRawDataSamples(getSession(sessionToken));
     }
-    
+
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
@@ -135,7 +137,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         ListSampleCriteria criteria = new ListSampleCriteria();
         SampleTypePE sampleTypePE =
-            getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(RAW_DATA_SAMPLE_TYPE);
+                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(RAW_DATA_SAMPLE_TYPE);
         criteria.setSampleType(SampleTypeTranslator.translate(sampleTypePE, null));
         criteria.setIncludeSpace(true);
         criteria.setSpaceCode(SPACE_CODE);
@@ -147,10 +149,10 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         {
             manager.addSample(sample);
         }
-        manager.gatherDataSets(businessObjectFactory.createDatasetLister(session, ""));
+        manager.gatherDataSets(businessObjectFactory.createDatasetLister(session));
         return manager.getSamples();
     }
-    
+
     private String findDataStoreServer(String dataSetProcessingKey)
     {
         List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();

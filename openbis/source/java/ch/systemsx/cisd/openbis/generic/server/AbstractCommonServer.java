@@ -109,7 +109,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
 
     protected IDatasetLister createDatasetLister(Session session)
     {
-        return businessObjectFactory.createDatasetLister(session, getDataStoreBaseURL());
+        return businessObjectFactory.createDatasetLister(session);
     }
 
 }

@@ -58,18 +58,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoade
 public class PlateContentLoader
 {
     public static TableModel loadImageAnalysisForPlate(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
-            TechId plateId)
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
     {
-        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
+        return new PlateContentLoader(session, businessObjectFactory)
                 .loadImageAnalysisForPlate(plateId);
     }
 
     public static TableModel loadImageAnalysisForExperiment(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
-            TechId experimentId)
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId experimentId)
     {
-        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
+        return new PlateContentLoader(session, businessObjectFactory)
                 .loadImageAnalysisForExperiment(experimentId);
     }
 
@@ -78,11 +76,9 @@ public class PlateContentLoader
      * image analysis only if one dataset with such a data exist.
      */
     public static PlateContent loadImagesAndMetadata(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
-            TechId plateId)
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
     {
-        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
-                .getPlateContent(plateId);
+        return new PlateContentLoader(session, businessObjectFactory).getPlateContent(plateId);
     }
 
     /**
@@ -90,10 +86,9 @@ public class PlateContentLoader
      * BDS-HCS format.
      */
     public static PlateImages loadImagesAndMetadataForDataset(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL,
-            TechId datasetId)
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId datasetId)
     {
-        return new PlateContentLoader(session, businessObjectFactory, defaultDataStoreBaseURL)
+        return new PlateContentLoader(session, businessObjectFactory)
                 .getPlateContentForDataset(datasetId);
     }
 
@@ -101,14 +96,11 @@ public class PlateContentLoader
 
     private final IScreeningBusinessObjectFactory businessObjectFactory;
 
-    private final String defaultDataStoreBaseURL;
-
     private PlateContentLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String defaultDataStoreBaseURL)
+            IScreeningBusinessObjectFactory businessObjectFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
-        this.defaultDataStoreBaseURL = defaultDataStoreBaseURL;
     }
 
     private PlateImages getPlateContentForDataset(TechId datasetId)
@@ -144,8 +136,7 @@ public class PlateContentLoader
 
     private ExternalData translate(ExternalDataPE externalData)
     {
-        return ExternalDataTranslator.translate(externalData, defaultDataStoreBaseURL, session
-                .getBaseIndexURL());
+        return ExternalDataTranslator.translate(externalData, session.getBaseIndexURL());
     }
 
     private TableModel loadImageAnalysisForPlate(TechId plateId)

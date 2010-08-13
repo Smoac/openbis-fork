@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import jline.ConsoleReader;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.varia.NullAppender;
-
-import jline.ConsoleReader;
 
 import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.CmdLineParser;
@@ -118,7 +118,6 @@ public class Login
             }
         }
 
-        @SuppressWarnings("unused")
         public List<String> getArgs()
         {
             return Collections.unmodifiableList(args);

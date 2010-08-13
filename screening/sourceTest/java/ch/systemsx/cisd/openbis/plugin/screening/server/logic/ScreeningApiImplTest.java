@@ -52,8 +52,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class ScreeningApiImplTest extends AbstractServerTestCase
 {
-    private static final String DSS_URL = "http://localhost:8889/";
-
     private static final String SERVER_URL = "server-url";
 
     private IScreeningBusinessObjectFactory screeningBOFactory;
@@ -64,7 +62,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     public void beforeMethod()
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
-        screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory, DSS_URL);
+        screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory);
     }
 
     @Test
@@ -80,7 +78,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     Sample p1 = plateSample(pi1, "384_WELLS_16X24");
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), imageAnalysisDataSet(
@@ -118,7 +116,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     Sample p1 = plateSample(pi1, null);
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));
@@ -178,7 +176,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     Sample p1 = plateSample(pi1, "384_WELLS_16X24");
                     will(returnValue(Arrays.asList(p1)));
 
-                    exactly(2).of(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    exactly(2).of(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), imageAnalysisDataSet(
@@ -222,7 +220,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     Sample p1 = plateSample(pi1, plateGeometry);
                     will(returnValue(Arrays.asList(p1)));
 
-                    one(screeningBOFactory).createDatasetLister(SESSION, DSS_URL);
+                    one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
                     will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1))));

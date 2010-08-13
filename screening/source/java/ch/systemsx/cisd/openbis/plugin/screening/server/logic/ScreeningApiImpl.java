@@ -90,23 +90,20 @@ public class ScreeningApiImpl
 
     private final IDAOFactory daoFactory;
 
-    private final String dataStoreBaseURL;
-
     public ScreeningApiImpl(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
-            IDAOFactory daoFactory, String dataStoreBaseURL)
+            IDAOFactory daoFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
-        this.dataStoreBaseURL = dataStoreBaseURL;
     }
 
     public List<FeatureVectorDatasetReference> listFeatureVectorDatasets(
             List<? extends PlateIdentifier> plates)
     {
         FeatureVectorDatasetLoader datasetRetriever =
-                new FeatureVectorDatasetLoader(session, businessObjectFactory, dataStoreBaseURL,
-                        session.tryGetHomeGroupCode(), plates);
+                new FeatureVectorDatasetLoader(session, businessObjectFactory, session
+                        .tryGetHomeGroupCode(), plates);
         List<FeatureVectorDatasetReference> result = datasetRetriever.getFeatureVectorDatasets();
 
         return result;
@@ -114,8 +111,8 @@ public class ScreeningApiImpl
 
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
-        return new ImageDatasetLoader(session, businessObjectFactory, dataStoreBaseURL, session
-                .tryGetHomeGroupCode(), plates).getImageDatasets();
+        return new ImageDatasetLoader(session, businessObjectFactory,
+                session.tryGetHomeGroupCode(), plates).getImageDatasets();
     }
 
     public List<Plate> listPlates()
@@ -253,8 +250,8 @@ public class ScreeningApiImpl
                 getExperimentIdentifierFromDB(experimentIdentifier);
         wellContent =
                 GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
-                        dataStoreBaseURL, new TechId(materialOrNull.getId()),
-                        fullExperimentIdentifier.getPermId(), false);
+                        new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId(),
+                        false);
         if (findDatasets)
         {
             final Set<Plate> plates = new HashSet<Plate>(wellContent.size());
@@ -263,8 +260,8 @@ public class ScreeningApiImpl
                 plates.add(asPlate(fullExperimentIdentifier, w));
             }
             final FeatureVectorDatasetLoader datasetRetriever =
-                    new FeatureVectorDatasetLoader(session, businessObjectFactory,
-                            dataStoreBaseURL, session.tryGetHomeGroupCode(), plates);
+                    new FeatureVectorDatasetLoader(session, businessObjectFactory, session
+                            .tryGetHomeGroupCode(), plates);
             final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasets();
             final List<FeatureVectorDatasetReference> featureVectorDatasets =
                     datasetRetriever.getFeatureVectorDatasets();
@@ -293,7 +290,7 @@ public class ScreeningApiImpl
         }
         final List<WellContent> wellContent =
                 GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
-                        dataStoreBaseURL, new TechId(materialOrNull.getId()));
+                        new TechId(materialOrNull.getId()));
 
         if (findDatasets)
         {
@@ -303,8 +300,8 @@ public class ScreeningApiImpl
                 plates.add(asPlate(w));
             }
             final FeatureVectorDatasetLoader datasetRetriever =
-                    new FeatureVectorDatasetLoader(session, businessObjectFactory,
-                            dataStoreBaseURL, session.tryGetHomeGroupCode(), plates);
+                    new FeatureVectorDatasetLoader(session, businessObjectFactory, session
+                            .tryGetHomeGroupCode(), plates);
             final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasets();
             final List<FeatureVectorDatasetReference> featureVectorDatasets =
                     datasetRetriever.getFeatureVectorDatasets();

@@ -65,29 +65,26 @@ public class GenePlateLocationsLoader
 {
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            String dataStoreBaseURL, TechId geneMaterialId, String experimentPermId,
-            boolean enrichWithImages)
+            TechId geneMaterialId, String experimentPermId, boolean enrichWithImages)
     {
-        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory,
-                dataStoreBaseURL).getPlateLocations(geneMaterialId, experimentPermId,
-                enrichWithImages);
+        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
+                .getPlateLocations(geneMaterialId, experimentPermId, enrichWithImages);
     }
 
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            String dataStoreBaseURL, TechId geneMaterialId)
+            TechId geneMaterialId)
     {
-        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory,
-                dataStoreBaseURL).getPlateLocations(geneMaterialId);
+        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
+                .getPlateLocations(geneMaterialId);
     }
 
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            String dataStoreBaseURL, PlateMaterialsSearchCriteria materialCriteria,
-            boolean enrichWithImages)
+            PlateMaterialsSearchCriteria materialCriteria, boolean enrichWithImages)
     {
-        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory,
-                dataStoreBaseURL).getPlateLocations(materialCriteria, enrichWithImages);
+        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
+                .getPlateLocations(materialCriteria, enrichWithImages);
     }
 
     private final Session session;
@@ -96,16 +93,12 @@ public class GenePlateLocationsLoader
 
     private final IDAOFactory daoFactory;
 
-    private final String dataStoreBaseURL;
-
     private GenePlateLocationsLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            String dataStoreBaseURL)
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.daoFactory = daoFactory;
-        this.dataStoreBaseURL = dataStoreBaseURL;
     }
 
     private List<WellContent> getPlateLocations(PlateMaterialsSearchCriteria materialCriteria,
@@ -235,8 +228,7 @@ public class GenePlateLocationsLoader
     {
         Set<Long> plateIds = extractPlateIds(locations);
 
-        IDatasetLister datasetLister =
-                businessObjectFactory.createDatasetLister(session, dataStoreBaseURL);
+        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         List<ExternalData> imageDatasets = datasetLister.listBySampleIds(plateIds);
         imageDatasets =
                 ScreeningUtils.filterExternalDataByType(imageDatasets,

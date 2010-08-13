@@ -358,8 +358,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         fileFormatTypePE.setDescription("Portable Network Graphics");
         externalDataPE.setFileFormatType(fileFormatTypePE);
         final ExternalData externalData =
-                ExternalDataTranslator.translate(externalDataPE, "§SHOULDN'T BE USED",
-                        BASE_INDEX_URL, false);
+                ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL, false);
         context.checking(new Expectations()
             {
                 {

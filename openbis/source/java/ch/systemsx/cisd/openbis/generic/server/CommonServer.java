@@ -774,8 +774,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         datasetBO.enrichWithChildren();
         datasetBO.enrichWithProperties();
         final ExternalDataPE dataset = datasetBO.getExternalData();
-        return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), session
-                .getBaseIndexURL(), false);
+        return ExternalDataTranslator.translate(dataset, session.getBaseIndexURL(), false);
     }
 
     public List<ExternalData> listRelatedDataSets(String sessionToken,
@@ -790,8 +789,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
             for (final ExternalDataPE hit : resultSet)
             {
-                list.add(ExternalDataTranslator.translate(hit, getDataStoreBaseURL(), session
-                        .getBaseIndexURL(), false));
+                list.add(ExternalDataTranslator.translate(hit, session.getBaseIndexURL(), false));
             }
             return list;
         } catch (final DataAccessException ex)

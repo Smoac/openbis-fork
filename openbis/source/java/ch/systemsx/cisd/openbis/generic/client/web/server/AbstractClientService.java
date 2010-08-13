@@ -98,11 +98,6 @@ public abstract class AbstractClientService implements IClientService,
         this.requestContextProvider = requestContextProvider;
     }
 
-    protected String getDataStoreBaseURL()
-    {
-        return commonClientService.getDataStoreBaseURL();
-    }
-
     @SuppressWarnings("unchecked")
     protected final <K> IResultSetManager<K> getResultSetManager()
     {

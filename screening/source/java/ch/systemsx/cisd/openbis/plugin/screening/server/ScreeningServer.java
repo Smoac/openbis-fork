@@ -128,15 +128,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public PlateContent getPlateContent(String sessionToken, TechId plateId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory,
-                getDataStoreBaseURL(), plateId);
+        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory, plateId);
     }
 
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImagesAndMetadataForDataset(session, businessObjectFactory,
-                getDataStoreBaseURL(), datasetId);
+                datasetId);
     }
 
     public List<WellContent> listPlateWells(String sessionToken,
@@ -144,21 +143,21 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
-                getDataStoreBaseURL(), materialCriteria, true);
+                materialCriteria, true);
     }
 
     public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImageAnalysisForExperiment(session, businessObjectFactory,
-                getDataStoreBaseURL(), experimentId);
+                experimentId);
     }
 
     public TableModel loadImageAnalysisForPlate(String sessionToken, TechId plateId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImageAnalysisForPlate(session, businessObjectFactory,
-                getDataStoreBaseURL(), plateId);
+        return PlateContentLoader
+                .loadImageAnalysisForPlate(session, businessObjectFactory, plateId);
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
@@ -232,8 +231,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     private ScreeningApiImpl createScreeningApiImpl(String sessionToken)
     {
         final Session session = getSession(sessionToken);
-        return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory(),
-                getDataStoreBaseURL());
+        return new ScreeningApiImpl(session, businessObjectFactory, getDAOFactory());
     }
 
     public void logoutScreening(String sessionToken)

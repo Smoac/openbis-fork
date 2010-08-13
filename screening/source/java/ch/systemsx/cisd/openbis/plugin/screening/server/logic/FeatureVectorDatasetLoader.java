@@ -48,10 +48,10 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
     private List<ExternalData> featureVectorDatasets;
 
     FeatureVectorDatasetLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, String dataStoreBaseURL,
-            String homeSpaceOrNull, Collection<? extends PlateIdentifier> plates)
+            IScreeningBusinessObjectFactory businessObjectFactory, String homeSpaceOrNull,
+            Collection<? extends PlateIdentifier> plates)
     {
-        super(session, businessObjectFactory, dataStoreBaseURL, homeSpaceOrNull, plates,
+        super(session, businessObjectFactory, homeSpaceOrNull, plates,
                 ScreeningConstants.IMAGE_DATASET_TYPE,
                 ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
         featureVectorDatasetTypeCode = ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE;
@@ -69,8 +69,7 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
     {
         final Long2ObjectSortedMap<ExternalData> featureVectorDatasetSet =
                 new Long2ObjectLinkedOpenHashMap<ExternalData>();
-        IDatasetLister datasetLister =
-                businessObjectFactory.createDatasetLister(session, dataStoreBaseURL);
+        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
 
         for (ExternalData data : getDatasets())
         {

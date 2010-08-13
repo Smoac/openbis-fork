@@ -59,7 +59,7 @@ public class DatasetListerTest extends AbstractDAOTest
                 DatasetListingQueryTest.createDatasetListerDAO(daoFactory);
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
-        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "url1", "url2");
+        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "url");
         SamplePE sample =
                 DatasetListingQueryTest.getSample("CISD", "CP-TEST-1", datasetListerDAO
                         .getDatabaseInstanceId(), daoFactory);
@@ -76,13 +76,13 @@ public class DatasetListerTest extends AbstractDAOTest
         assertFalse(externalData.getProperties().isEmpty());
         AssertJUnit.assertNotNull(externalData.getExperiment());
     }
-    
+
     @Test
     public void testListParents()
     {
-        Map<Long, Set<Long>> map = lister.listParentIds(Arrays.<Long>asList(2L, 4L, 9L));
+        Map<Long, Set<Long>> map = lister.listParentIds(Arrays.<Long> asList(2L, 4L, 9L));
         System.out.println(map);
-        
+
         assertEquals(null, map.get(2L));
         assertEquals("[2]", map.get(4L).toString());
         List<Long> list = new ArrayList<Long>(map.get(9L));
