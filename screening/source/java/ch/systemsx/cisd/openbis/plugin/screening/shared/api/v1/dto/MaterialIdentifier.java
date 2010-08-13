@@ -49,7 +49,7 @@ public class MaterialIdentifier implements Serializable
     
     public String getAugmentedCode()
     {
-        return materialCode + "(" + materialTypeIdentifier.getMaterialTypeCode() + ")";
+        return materialCode + " (" + materialTypeIdentifier.getMaterialTypeCode() + ")";
     }
 
     @Override
