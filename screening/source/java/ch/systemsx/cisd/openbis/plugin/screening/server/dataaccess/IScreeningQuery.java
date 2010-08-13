@@ -95,6 +95,17 @@ public interface IScreeningQuery extends BaseQuery
             String[] materialTypeCodes, long experimentId);
 
     /**
+     * @return well locations with the specified materials, from any experiment. Each well will have
+     *         a material property (e.g. gene) with one of the specified codes. The connected
+     *         material will have one of the specified types.
+     */
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.code = any(?{1}) and "
+            + "well_material_type.code = any(?{2})", parameterBindings =
+        { StringArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(String[] materialCodes,
+            String[] materialTypeCodes);
+
+    /**
      * @return the material to well plate mapping for the given <var>platePermId</var>. Only
      *         consider materials of <var>materialTypeCode</var>. Only fills <var>well_code</var>
      *         and <var>material_content_code</var>. Note that this may return more than one row per
@@ -129,17 +140,6 @@ public interface IScreeningQuery extends BaseQuery
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
             + " where pl.perm_id=?{1} order by material_content_type_code")
     public DataIterator<WellContent> getPlateMapping(String platePermId);
-
-    /**
-     * @return well locations with the specified materials, from any experiment. Each well will have
-     *         a material property (e.g. gene) with one of the specified codes. The connected
-     *         material will have one of the specified types.
-     */
-    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.code = any(?{1}) and "
-            + "well_material_type.code = any(?{2})", parameterBindings =
-        { StringArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(String[] materialCodes,
-            String[] materialTypeCodes);
 
     /**
      * @return the material to well plate mapping for the given <var>spaceCode</var> and
