@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -81,7 +81,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     private static final String DATA_SPACE_KEY = "data-space";
 
     @Resource(name = "propertyConfigurer")
-    private ExposablePropertyPaceholderConfigurer configurer;
+    private ExposablePropertyPlaceholderConfigurer configurer;
 
     /**
      * map from dbKey to IDAO

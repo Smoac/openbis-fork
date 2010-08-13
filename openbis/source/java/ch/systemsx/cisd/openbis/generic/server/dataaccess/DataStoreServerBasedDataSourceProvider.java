@@ -27,7 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
@@ -45,7 +45,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
     private static final String DATA_STORE_SERVERS_KEY = "data-store-servers";
 
     @Resource(name = "propertyConfigurer")
-    private ExposablePropertyPaceholderConfigurer configurer;
+    private ExposablePropertyPlaceholderConfigurer configurer;
     
     private final IDAOFactory daoFactory;
     

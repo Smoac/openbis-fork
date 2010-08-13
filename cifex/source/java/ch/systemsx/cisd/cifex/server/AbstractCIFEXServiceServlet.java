@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.utilities.Template;
 
 /**
@@ -85,9 +85,9 @@ abstract class AbstractCIFEXServiceServlet extends HttpServlet
         final BeanFactory context =
                 WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
         domainModel = (IDomainModel) context.getBean(DOMAIN_MODEL_BEAN_NAME);
-        final ExposablePropertyPaceholderConfigurer configurer =
-                (ExposablePropertyPaceholderConfigurer) context
-                        .getBean(ExposablePropertyPaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME);
+        final ExposablePropertyPlaceholderConfigurer configurer =
+                (ExposablePropertyPlaceholderConfigurer) context
+                        .getBean(ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME);
         serviceProperties = configurer.getResolvedProps();
         postInitialization();
     }
