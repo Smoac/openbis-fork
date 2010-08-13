@@ -123,6 +123,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     private final IDataStoreServiceFactory dssFactory;
 
+    private String defaultDataStoreBaseURL;
+
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
@@ -714,11 +716,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
-    public String getDefaultDataStoreBaseURL(String sessionToken)
+    public void setDefaultDataStoreBaseURL(String defaultDataStoreBaseURL)
     {
-        // See DataStoreApiUrlUtilities
-        // TODO 2010-08-13, Piotr Buczek: get directly from properties
-        String url = getDefaultDataStoreBaseURL();
+        String url = defaultDataStoreBaseURL;
         // Strip the web application name from the URL
         if (url.endsWith("/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME))
         {
@@ -736,7 +736,17 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             url = url.substring(0, url.length() - 1);
         }
 
-        return url;
+        this.defaultDataStoreBaseURL = url;
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Set default DSS baseURL to '" + this.defaultDataStoreBaseURL + "'.");
+        }
+    }
+
+    public String getDefaultDataStoreBaseURL(String sessionToken)
+    {
+        return defaultDataStoreBaseURL;
     }
 
     public Map<String, String> listOrRegisterComponents(String sessionToken,

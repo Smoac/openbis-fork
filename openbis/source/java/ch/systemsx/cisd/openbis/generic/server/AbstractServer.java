@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IRemoteHostValidator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -84,10 +83,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Resource(name = ComponentNames.REMOTE_HOST_VALIDATOR)
     private IRemoteHostValidator remoteHostValidator;
-
-    // NOTE: we use the fact that the COMMON_SERVICE configured in XML implements provider interface
-    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVICE)
-    protected IDataStoreBaseURLProvider dataStoreBaseURLProvider;
 
     protected AbstractServer()
     {
@@ -200,11 +195,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     protected final IDAOFactory getDAOFactory()
     {
         return daoFactory;
-    }
-
-    protected final String getDefaultDataStoreBaseURL()
-    {
-        return dataStoreBaseURLProvider.getDataStoreBaseURL();
     }
 
     // Call this when session object is not needed but you want just to

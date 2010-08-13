@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -152,31 +149,15 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslat
  * @author Franz-Josef Elmer
  */
 public final class CommonClientService extends AbstractClientService implements
-        ICommonClientService, IDataStoreBaseURLProvider
+        ICommonClientService
 {
     private final ICommonServer commonServer;
-
-    private String dataStoreBaseURL;
 
     public CommonClientService(final ICommonServer commonServer,
             final IRequestContextProvider requestContextProvider)
     {
         super(requestContextProvider);
         this.commonServer = commonServer;
-    }
-
-    public String getDataStoreBaseURL()
-    {
-        return this.dataStoreBaseURL;
-    }
-
-    public final void setDataStoreBaseURL(String dataStoreBaseURL)
-    {
-        this.dataStoreBaseURL = dataStoreBaseURL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Set Data Store Server base URL to '" + this.dataStoreBaseURL + "'.");
-        }
     }
 
     @Override

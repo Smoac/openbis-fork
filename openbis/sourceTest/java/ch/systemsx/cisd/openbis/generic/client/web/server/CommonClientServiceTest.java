@@ -145,7 +145,6 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         super.setUp();
         commonServer = context.mock(ICommonServer.class);
         commonClientService = new CommonClientService(commonServer, requestContextProvider);
-        commonClientService.setDataStoreBaseURL(DATA_STORE_BASE_URL);
         commonClientService.setCifexURL(CIFEX_URL);
         commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
     }
