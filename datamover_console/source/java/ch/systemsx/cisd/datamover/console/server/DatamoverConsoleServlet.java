@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.datamover.console.server;
 
-import static ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
+import static ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.GWTSpringController;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.datamover.console.client.EnvironmentFailureException;
 import ch.systemsx.cisd.datamover.console.client.IDatamoverConsoleService;
 import ch.systemsx.cisd.datamover.console.client.UserFailureException;
@@ -86,8 +86,8 @@ public class DatamoverConsoleServlet extends GWTSpringController implements IDat
         if (service instanceof DatamoverConsoleService)
         {
             DatamoverConsoleService datamoverConsoleService = (DatamoverConsoleService) service;
-            final ExposablePropertyPaceholderConfigurer configurer =
-                    (ExposablePropertyPaceholderConfigurer) context
+            final ExposablePropertyPlaceholderConfigurer configurer =
+                    (ExposablePropertyPlaceholderConfigurer) context
                             .getBean(PROPERTY_CONFIGURER_BEAN_NAME);
 
             ConfigParameters configParameters = new ConfigParameters(configurer.getResolvedProps());
