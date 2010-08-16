@@ -34,12 +34,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
  */
 public class ChannelWidgetWithListener
 {
-    final LayoutContainer container = new LayoutContainer();
+    final private LayoutContainer container;
 
-    final IChanneledViewerFactory viewerFactory;
+    final private IChanneledViewerFactory viewerFactory;
 
     public ChannelWidgetWithListener(final IChanneledViewerFactory viewerFactory)
     {
+        this.container = new LayoutContainer();
         this.viewerFactory = viewerFactory;
     }
 
