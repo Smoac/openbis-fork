@@ -88,9 +88,9 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listChannelStackImages
+     * @see IScreeningClientService#listImageChannelStacks(String, String, WellLocation)
      */
-    public void listChannelStackImages(String datasetCode, String datastoreCode,
+    public void listImageChannelStacks(String datasetCode, String datastoreCode,
             WellLocation wellLocation,
             AsyncCallback<List<ChannelStackImageReference>> abstractAsyncCallback);
 

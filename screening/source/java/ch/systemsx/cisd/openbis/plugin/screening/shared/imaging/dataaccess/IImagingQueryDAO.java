@@ -43,17 +43,46 @@ public interface IImagingQueryDAO extends TransactionQuery
                     + "CHANNEL_STACKS.SPOT_ID = SPOTS.ID ";
 
     public static final String SQL_NO_MULTIDIMENTIONAL_DATA_COND =
-    // " and CHANNEL_STACKS.T_in_SEC is NULL and CHANNEL_STACKS.Z_in_M is NULL";
             " order by CHANNEL_STACKS.T_in_SEC, CHANNEL_STACKS.Z_in_M limit 1";
 
+    /**
+     * @return an image for the specified chanel, well and tile. If many images for different
+     *         timepoints or depths exist, the first one is returned.
+     */
     @Select(SQL_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID " + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetImage(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 
+    /**
+     * @return a thumbnail for the specified chanel, well and tile. If many images for different
+     *         timepoints or depths exist, the first one is returned.
+     */
     @Select(SQL_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetThumbnail(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
+
+    /** @return an image for the specified chanel and channel stack or null */
+    @Select("select i.* from IMAGES as i "
+            + "join ACQUIRED_IMAGES on ACQUIRED_IMAGES.IMG_ID = i.ID "
+            + "join CHANNEL_STACKS on ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID "
+            + "where                                                                "
+            + "ACQUIRED_IMAGES.CHANNEL_ID = ?{1} and CHANNEL_STACKS.ID = ?{2} and "
+            + "CHANNEL_STACKS.DS_ID = ?{3}")
+    // The condition on dataset equality is just to ensure that the stack channel belongs the right
+    // dataset.
+    public ImgImageDTO tryGetImage(long channelId, Long channelStackId, long datasetId);
+
+    /** @return a thumbnail for the specified chanel and channel stack or null */
+    @Select("select i.* from IMAGES as i "
+            + "join ACQUIRED_IMAGES on ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
+            + "join CHANNEL_STACKS on ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID "
+            + "where                                                                "
+            + "ACQUIRED_IMAGES.CHANNEL_ID = ?{1} and CHANNEL_STACKS.ID = ?{2} and "
+            + "CHANNEL_STACKS.DS_ID = ?{3}")
+    // The condition on dataset equality is just to ensure that the stack channel belongs the right
+    // dataset.
+    public ImgImageDTO tryGetThumbnail(long channelId, Long channelStackId, long datasetId);
 
     // simple getters
 
@@ -68,6 +97,10 @@ public interface IImagingQueryDAO extends TransactionQuery
 
     @Select("select * from CONTAINERS where ID = ?{1}")
     public ImgContainerDTO getContainerById(long containerId);
+
+    @Select("select * from CHANNEL_STACKS cs join SPOTS s on s.id = cs.spot_id where "
+            + "cs.ds_id = ?{1} and s.x = ?{2} and s.y = ?{3}")
+    public List<ImgChannelStackDTO> listChannelStacks(long datasetId, int spotX, int spotY);
 
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);

@@ -21,7 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 
@@ -114,5 +117,30 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
     public boolean isMultidimensional()
     {
         return dataset.getIsMultidimensional();
+    }
+
+    public List<ChannelStackImageReference> listImageChannelStacks(WellLocation wellLocation)
+    {
+        int spotYRow = wellLocation.getRow();
+        int spotXColumn = wellLocation.getColumn();
+        List<ImgChannelStackDTO> stacks =
+                query.listChannelStacks(dataset.getId(), spotXColumn, spotYRow);
+        return convert(stacks);
+    }
+
+    private static List<ChannelStackImageReference> convert(List<ImgChannelStackDTO> stacks)
+    {
+        List<ChannelStackImageReference> result = new ArrayList<ChannelStackImageReference>();
+        for (ImgChannelStackDTO stack : stacks)
+        {
+            result.add(convert(stack));
+        }
+        return result;
+    }
+
+    private static ChannelStackImageReference convert(ImgChannelStackDTO stack)
+    {
+        return new ChannelStackImageReference(stack.getId(), stack.getRow(), stack.getColumn(),
+                stack.getT(), stack.getZ());
     }
 }

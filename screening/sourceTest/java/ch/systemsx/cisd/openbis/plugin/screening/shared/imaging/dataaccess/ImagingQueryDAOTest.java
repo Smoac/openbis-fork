@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -28,15 +29,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
 /**
  * Tests for {@link IImagingQueryDAO}.
@@ -118,22 +110,50 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         addAcquiredImage(imageId1, channelStackId, channelId1);
         addAcquiredImage(imageId2, channelStackId, channelId2);
 
-        testGetImage(datasetId, channelId1, channelId2);
+        testGetImage(datasetId, channelStackId, channelId1, channelId2);
+        testListChannelStacks(datasetId, channelStackId, spotId);
     }
 
-    private void testGetImage(final long datasetId, final long channelId1, final long channelId2)
+    private void testListChannelStacks(long datasetId, long channelStackId, long spotId)
     {
-        ImgImageDTO image1 =
-                dao.tryGetImage(channelId1, datasetId, new Location(X_WELL_COLUMN, Y_WELL_ROW),
-                        new Location(X_TILE_COLUMN, Y_TILE_ROW));
+        List<ImgChannelStackDTO> stack =
+                dao.listChannelStacks(datasetId, X_WELL_COLUMN, Y_WELL_ROW);
+        assertEquals(1, stack.size());
+        ImgChannelStackDTO stackDTO = stack.get(0);
+        assertEquals(channelStackId, stackDTO.getId());
+        assertEquals(spotId, stackDTO.getSpotId());
+        assertEquals(datasetId, stackDTO.getDatasetId());
+        assertEquals(TIMEPOINT, stackDTO.getT());
+        assertNull(stackDTO.getZ());
+        assertEquals(Y_WELL_ROW, stackDTO.getRow().intValue());
+        assertEquals(X_WELL_COLUMN, stackDTO.getColumn().intValue());
+    }
+
+    private void testGetImage(final long datasetId, final long channelStackId,
+            final long channelId1, final long channelId2)
+    {
+        Location tileLocation = new Location(X_TILE_COLUMN, Y_TILE_ROW);
+        Location wellLocation = new Location(X_WELL_COLUMN, Y_WELL_ROW);
+        ImgImageDTO image1 = dao.tryGetImage(channelId1, datasetId, tileLocation, wellLocation);
         assertEquals(PATH1, image1.getFilePath());
         assertEquals(ColorComponent.BLUE, image1.getColorComponent());
 
-        ImgImageDTO image2 =
-                dao.tryGetImage(channelId2, datasetId, new Location(X_WELL_COLUMN, Y_WELL_ROW),
-                        new Location(X_TILE_COLUMN, Y_TILE_ROW));
+        ImgImageDTO image1bis = dao.tryGetImage(channelId1, channelStackId, datasetId);
+        assertEquals(image1, image1bis);
+
+        ImgImageDTO thumbnail1 =
+                dao.tryGetThumbnail(channelId1, datasetId, tileLocation, wellLocation);
+        assertEquals(image1, thumbnail1);
+
+        ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId1, channelStackId, datasetId);
+        assertEquals(thumbnail1, thumbnail1bis);
+
+        ImgImageDTO image2 = dao.tryGetImage(channelId2, datasetId, wellLocation, tileLocation);
         assertEquals(PATH2, image2.getFilePath());
         assertEquals(ColorComponent.RED, image2.getColorComponent());
+
+        ImgImageDTO image2bis = dao.tryGetImage(channelId2, channelStackId, datasetId);
+        assertEquals(image2, image2bis);
     }
 
     private void testChannelMethods(final long experimentId, final long datasetId,
@@ -259,6 +279,9 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final ImgAcquiredImageDTO acquiredImage = new ImgAcquiredImageDTO();
         acquiredImage.setImageId(imageId);
+        // we set the same image to be its thumbnail to simplify tests
+        acquiredImage.setThumbnailId(imageId);
+
         acquiredImage.setChannelStackId(channelStackId);
         acquiredImage.setChannelId(channelId);
 

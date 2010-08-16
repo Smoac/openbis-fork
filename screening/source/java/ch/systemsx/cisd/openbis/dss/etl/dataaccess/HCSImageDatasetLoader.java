@@ -31,7 +31,6 @@ import com.sun.media.jai.codec.ImageEncoder;
 import com.sun.media.jai.codec.TIFFEncodeParam;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
@@ -40,7 +39,9 @@ import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference.LocationImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
@@ -67,14 +68,20 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
      * @param chosenChannel start from 1
      * @return image (with absolute path, page and color)
      */
-    public AbsoluteImageReference tryGetImage(String chosenChannel, Location wellLocation,
-            Location tileLocation, Size thumbnailSizeOrNull)
+    public AbsoluteImageReference tryGetImage(String chosenChannel,
+            ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull)
     {
         assert StringUtils.isBlank(chosenChannel) == false;
-        assert tileLocation.getX() <= getDataset().getFieldNumberOfColumns();
-        assert tileLocation.getY() <= getDataset().getFieldNumberOfRows();
-        assert wellLocation.getX() <= getContainer().getNumberOfColumns();
-        assert wellLocation.getY() <= getContainer().getNumberOfRows();
+        LocationImageChannelStackReference stackLocations =
+                channelStackReference.tryGetChannelStackLocations();
+        if (stackLocations != null)
+        {
+            assert stackLocations.getTileLocation().getX() <= getDataset()
+                    .getFieldNumberOfColumns();
+            assert stackLocations.getTileLocation().getY() <= getDataset().getFieldNumberOfRows();
+            assert stackLocations.getWellLocation().getX() <= getContainer().getNumberOfColumns();
+            assert stackLocations.getWellLocation().getY() <= getContainer().getNumberOfRows();
+        }
 
         Long chosenChannelId =
                 query.tryGetChannelIdByChannelNameDatasetIdOrExperimentId(getDataset().getId(),
@@ -86,16 +93,13 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
 
         ImgImageDTO imageDTO;
         IContent content = null;
+        long datasetId = getDataset().getId();
         if (thumbnailSizeOrNull != null)
         {
-            imageDTO =
-                    query.tryGetThumbnail(chosenChannelId, getDataset().getId(), tileLocation,
-                            wellLocation);
+            imageDTO = tryGetThumbnail(chosenChannelId, channelStackReference, datasetId);
             if (imageDTO == null)
             {
-                imageDTO =
-                        query.tryGetImage(chosenChannelId, getDataset().getId(), tileLocation,
-                                wellLocation);
+                imageDTO = tryGetImage(chosenChannelId, channelStackReference, datasetId);
                 if (imageDTO != null)
                 {
                     content =
@@ -108,9 +112,7 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
             }
         } else
         {
-            imageDTO =
-                    query.tryGetImage(chosenChannelId, getDataset().getId(), tileLocation,
-                            wellLocation);
+            imageDTO = tryGetImage(chosenChannelId, channelStackReference, datasetId);
             if (imageDTO != null)
             {
                 content = contentRepository.getContent(imageDTO.getFilePath());
@@ -138,6 +140,42 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         } else
         {
             return null;
+        }
+    }
+
+    private ImgImageDTO tryGetImage(long channelId,
+            ImageChannelStackReference channelStackReference, long datasetId)
+    {
+        LocationImageChannelStackReference locations =
+                channelStackReference.tryGetChannelStackLocations();
+        if (locations != null)
+        {
+            return query.tryGetImage(channelId, datasetId, locations.getTileLocation(), locations
+                    .getWellLocation());
+        } else
+        {
+            Long channelStackId = channelStackReference.tryGetChannelStackId();
+            assert channelStackId != null : "invalid specification of the channel stack: "
+                    + channelStackReference;
+            return query.tryGetImage(channelId, channelStackId, datasetId);
+        }
+    }
+
+    private ImgImageDTO tryGetThumbnail(long channelId,
+            ImageChannelStackReference channelStackReference, long datasetId)
+    {
+        LocationImageChannelStackReference locations =
+                channelStackReference.tryGetChannelStackLocations();
+        if (locations != null)
+        {
+            return query.tryGetThumbnail(channelId, datasetId, locations.getTileLocation(),
+                    locations.getWellLocation());
+        } else
+        {
+            Long channelStackId = channelStackReference.tryGetChannelStackId();
+            assert channelStackId != null : "invalid specification of the channel stack: "
+                    + channelStackReference;
+            return query.tryGetThumbnail(channelId, channelStackId, datasetId);
         }
     }
 

@@ -207,10 +207,17 @@ public class GenePlateLocationsLoader
         List<PlateImageParameters> imageParameters = new ArrayList<PlateImageParameters>();
         for (ExternalData dataSet : imageDatasets)
         {
-            final IHCSDatasetLoader loader = businessObjectFactory.createHCSDatasetLoader(dataSet);
+            final IHCSDatasetLoader loader = createHCSDatasetLoader(dataSet);
             imageParameters.add(PlateImageParametersFactory.create(loader));
         }
         return asDatasetToParamsMap(imageParameters);
+    }
+
+    private IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet)
+    {
+        String datastoreCode = dataSet.getDataStore().getCode();
+        String datasetCode = dataSet.getCode();
+        return businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
     }
 
     private static Map<String/* dataset code */, PlateImageParameters> asDatasetToParamsMap(

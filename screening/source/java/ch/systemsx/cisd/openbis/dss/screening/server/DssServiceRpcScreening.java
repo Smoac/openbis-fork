@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -179,9 +180,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 AbsoluteImageReference image;
                 for (String channelName : imageAccessor.getChannelsNames())
                 {
-                    image =
-                            imageAccessor.tryGetImage(channelName, new Location(col, row),
-                                    new Location(1, 1), null);
+                    ImageChannelStackReference channelStackReference =
+                            ImageChannelStackReference.createFromLocations(new Location(col, row),
+                                    new Location(1, 1));
+                    image = imageAccessor.tryGetImage(channelName, channelStackReference, null);
                     if (image != null)
                     {
                         return image.getContent();
@@ -330,7 +332,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 getTileLocation(imageRef.getTile(), imageAccessor.getWellGeometry());
         try
         {
-            return ImageChannelsUtils.getImage(imageAccessor, wellLocation, tileLocation, imageRef
+            ImageChannelStackReference channelStackReference =
+                    ImageChannelStackReference.createFromLocations(wellLocation, tileLocation);
+            return ImageChannelsUtils.getImage(imageAccessor, channelStackReference, imageRef
                     .getChannel(), null);
         } catch (EnvironmentFailureException e)
         {

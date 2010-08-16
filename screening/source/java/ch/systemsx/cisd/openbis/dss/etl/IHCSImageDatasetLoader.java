@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
@@ -29,6 +29,6 @@ public interface IHCSImageDatasetLoader extends IHCSDatasetLoader
      * @param chosenChannel start from 1
      * @return image (with absolute path, page and color)
      */
-    AbsoluteImageReference tryGetImage(String chosenChannel, Location wellLocation,
-            Location tileLocation, Size thumbnailSizeOrNull);
+    AbsoluteImageReference tryGetImage(String chosenChannel,
+            ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull);
 }

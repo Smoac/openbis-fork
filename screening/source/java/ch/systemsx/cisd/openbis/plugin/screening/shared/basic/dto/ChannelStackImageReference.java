@@ -88,7 +88,8 @@ public class ChannelStackImageReference implements IsSerializable,
             desc += ", z=" + zOrNull;
         }
 
-        return "tile [" + tileRow + "," + tileCol + "]" + desc;
+        return "channelStack=" + channelStackTechId + ", tile[" + tileRow + "," + tileCol + "]"
+                + desc;
     }
 
     public int compareTo(ChannelStackImageReference other)

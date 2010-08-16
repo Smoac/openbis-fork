@@ -59,10 +59,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -144,6 +146,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
                 materialCriteria, true);
+    }
+
+    public List<ChannelStackImageReference> listImageChannelStacks(String sessionToken,
+            String datasetCode, String datastoreCode, WellLocation wellLocation)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader.loadImageChannelStacks(session, businessObjectFactory,
+                datasetCode, datastoreCode, wellLocation);
     }
 
     public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
@@ -260,5 +270,4 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
-
 }

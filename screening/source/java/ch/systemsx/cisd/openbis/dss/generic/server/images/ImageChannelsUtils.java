@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
@@ -53,8 +52,6 @@ public class ImageChannelsUtils
     {
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
-        Location wellLocation = params.getWellLocation();
-        Location tileLocation = params.getTileLocation();
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
         Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
@@ -63,14 +60,14 @@ public class ImageChannelsUtils
             for (String chosenChannel : imageAccessor.getChannelsNames())
             {
                 AbsoluteImageReference image =
-                        getImage(imageAccessor, wellLocation, tileLocation, chosenChannel,
+                        getImage(imageAccessor, params.getChannelStack(), chosenChannel,
                                 thumbnailSizeOrNull);
                 images.add(image);
             }
         } else
         {
             AbsoluteImageReference image =
-                    getImage(imageAccessor, wellLocation, tileLocation, params.getChannel(),
+                    getImage(imageAccessor, params.getChannelStack(), params.getChannel(),
                             thumbnailSizeOrNull);
             images.add(image);
         }
@@ -242,12 +239,12 @@ public class ImageChannelsUtils
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
     public static AbsoluteImageReference getImage(IHCSImageDatasetLoader imageAccessor,
-            Location wellLocation, Location tileLocation, String chosenChannel,
+            ImageChannelStackReference channelStackReference, String chosenChannel,
             Size thumbnailSizeOrNull)
     {
         AbsoluteImageReference image =
-                imageAccessor.tryGetImage(chosenChannel, wellLocation, tileLocation,
-                        thumbnailSizeOrNull);
+                imageAccessor
+                        .tryGetImage(chosenChannel, channelStackReference, thumbnailSizeOrNull);
         if (image != null)
         {
             return image;
@@ -255,7 +252,7 @@ public class ImageChannelsUtils
         {
             throw EnvironmentFailureException.fromTemplate("No "
                     + (thumbnailSizeOrNull != null ? "thumbnail" : "image")
-                    + " found for well %s, tile %s and channel %s", wellLocation, tileLocation,
+                    + " found for channel stack %s and channel %s", channelStackReference,
                     chosenChannel);
         }
     }

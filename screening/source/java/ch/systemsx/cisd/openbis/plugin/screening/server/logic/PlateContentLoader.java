@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -90,6 +91,17 @@ public class PlateContentLoader
     {
         return new PlateContentLoader(session, businessObjectFactory)
                 .getPlateContentForDataset(datasetId);
+    }
+
+    /**
+     * Loads information about all channels stacks of a given well in a given dataset.
+     */
+    public static List<ChannelStackImageReference> loadImageChannelStacks(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
+            String datastoreCode, WellLocation wellLocation)
+    {
+        return new PlateContentLoader(session, businessObjectFactory).loadImageChannelStacks(
+                datasetCode, datastoreCode, wellLocation);
     }
 
     private final Session session;
@@ -273,8 +285,15 @@ public class PlateContentLoader
 
     private PlateImageParameters loadImageParams(ExternalData dataset)
     {
-        final IHCSDatasetLoader loader = businessObjectFactory.createHCSDatasetLoader(dataset);
+        final IHCSDatasetLoader loader = createHCSDatasetLoader(dataset);
         return PlateImageParametersFactory.create(loader);
+    }
+
+    private IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet)
+    {
+        String datastoreCode = dataSet.getDataStore().getCode();
+        String datasetCode = dataSet.getCode();
+        return businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
@@ -304,5 +323,13 @@ public class PlateContentLoader
     {
         return new ListOrSearchSampleCriteria(ListOrSearchSampleCriteria
                 .createForContainer(plateId));
+    }
+
+    private List<ChannelStackImageReference> loadImageChannelStacks(String datasetCode,
+            String datastoreCode, WellLocation wellLocation)
+    {
+        IHCSDatasetLoader datasetLoader =
+                businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
+        return datasetLoader.listImageChannelStacks(wellLocation);
     }
 }

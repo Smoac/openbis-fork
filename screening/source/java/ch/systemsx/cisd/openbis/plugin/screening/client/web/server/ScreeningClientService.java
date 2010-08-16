@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -284,10 +283,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return server.getVocabulary(sessionToken, ScreeningConstants.PLATE_GEOMETRY);
     }
 
-    public List<ChannelStackImageReference> listChannelStackImages(String datasetCode,
+    public List<ChannelStackImageReference> listImageChannelStacks(String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {
-        // TODO 2010-08-16, Tomasz Pylak: implement me!!!!!!!!!!!!
-        return new ArrayList<ChannelStackImageReference>();
+        final String sessionToken = getSessionToken();
+        return server
+                .listImageChannelStacks(sessionToken, datasetCode, datastoreCode, wellLocation);
     }
 }

@@ -108,7 +108,7 @@ public class WellContentDialog extends Dialog
             final WellData wellData, final WellImages images,
             final DefaultChannelState channelState, final ScreeningViewContext viewContext)
     {
-        viewContext.getService().listChannelStackImages(images.getDatasetCode(),
+        viewContext.getService().listImageChannelStacks(images.getDatasetCode(),
                 images.getDatastoreCode(), images.getWellLocation(),
                 new AbstractAsyncCallback<List<ChannelStackImageReference>>(viewContext)
                     {

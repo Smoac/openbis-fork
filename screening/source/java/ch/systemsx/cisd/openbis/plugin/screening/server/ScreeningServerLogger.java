@@ -42,10 +42,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * The <i>screening</i> specific {@link AbstractServerLogger} extension.
@@ -91,6 +93,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             PlateMaterialsSearchCriteria materialCriteria)
     {
         logAccess(sessionToken, "getPlateLocations", "criteria(%s)", materialCriteria);
+        return null;
+    }
+
+    public List<ChannelStackImageReference> listImageChannelStacks(String sessionToken,
+            String datasetCode, String datastoreCode, WellLocation wellLocation)
+    {
+        logAccess(sessionToken, "listImageChannelStacks", "dataset(%s) well(%s)", datasetCode,
+                wellLocation);
         return null;
     }
 
@@ -189,8 +199,8 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         if (materialTypeIdentifierOrNull != null)
         {
-            logAccess(sessionToken, "listPlateMaterialMapping", "plates(%s), materialType(%s)", plates,
-                    materialTypeIdentifierOrNull);
+            logAccess(sessionToken, "listPlateMaterialMapping", "plates(%s), materialType(%s)",
+                    plates, materialTypeIdentifierOrNull);
         } else
         {
             logAccess(sessionToken, "listPlateMaterialMapping", "plates(%s)", plates);
@@ -207,5 +217,4 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         return ScreeningServer.MINOR_VERSION;
     }
-
 }

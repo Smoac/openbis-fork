@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.images;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -34,9 +33,7 @@ public class TileImageReference
 
     protected String datasetCode;
 
-    protected Location wellLocation;
-
-    protected Location tileLocation;
+    protected ImageChannelStackReference channelStackReference;
 
     protected boolean mergeAllChannels;
 
@@ -68,13 +65,8 @@ public class TileImageReference
         return channel;
     }
 
-    public Location getWellLocation()
+    public ImageChannelStackReference getChannelStack()
     {
-        return wellLocation;
-    }
-
-    public Location getTileLocation()
-    {
-        return tileLocation;
+        return channelStackReference;
     }
 }

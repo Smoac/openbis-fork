@@ -103,7 +103,7 @@ public interface IScreeningClientService extends IClientService
             throws UserFailureException;
 
     /** Lists all images for a given well in the given dataset */
-    public List<ChannelStackImageReference> listChannelStackImages(String datasetCode,
+    public List<ChannelStackImageReference> listImageChannelStacks(String datasetCode,
             String datastoreCode, WellLocation wellLocation);
 
     /**

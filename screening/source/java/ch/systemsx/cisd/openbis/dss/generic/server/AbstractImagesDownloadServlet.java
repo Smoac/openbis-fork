@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
 
 /**
@@ -55,6 +56,8 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
 
         private final static String DATASET_CODE_PARAM = "dataset";
 
+        private final static String CHANNEL_STACK_ID_PARAM = "channelStackId";
+
         private final static String WELL_ROW_PARAM = "wellRow";
 
         private final static String WELL_COLUMN_PARAM = "wellCol";
@@ -77,15 +80,8 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
             String displayModeText = request.getParameter(DISPLAY_MODE_PARAM);
             String displayMode = displayModeText == null ? "" : displayModeText;
             this.thumbnailSizeOrNull = tryAsThumbnailDisplayMode(displayMode);
-
             this.datasetCode = getParam(request, DATASET_CODE_PARAM);
-
-            int wellRow = getIntParam(request, WELL_ROW_PARAM);
-            int wellCol = getIntParam(request, WELL_COLUMN_PARAM);
-            int tileRow = getIntParam(request, TILE_ROW_PARAM);
-            int tileCol = getIntParam(request, TILE_COL_PARAM);
-            this.wellLocation = new Location(wellCol, wellRow);
-            this.tileLocation = new Location(tileCol, tileRow);
+            this.channelStackReference = getImageChannelStackReference(request);
 
             this.channel = getParam(request, CHANNEL_PARAM);
             String mergeChannelsText = request.getParameter(MERGE_CHANNELS_PARAM);
@@ -94,7 +90,37 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
                             .equalsIgnoreCase("true");
         }
 
+        private ImageChannelStackReference getImageChannelStackReference(HttpServletRequest request)
+        {
+            Integer channelStackId = tryGetIntParam(request, CHANNEL_STACK_ID_PARAM);
+            if (channelStackId == null)
+            {
+                int wellRow = getIntParam(request, WELL_ROW_PARAM);
+                int wellCol = getIntParam(request, WELL_COLUMN_PARAM);
+                int tileRow = getIntParam(request, TILE_ROW_PARAM);
+                int tileCol = getIntParam(request, TILE_COL_PARAM);
+                Location wellLocation = new Location(wellCol, wellRow);
+                Location tileLocation = new Location(tileCol, tileRow);
+                return ImageChannelStackReference.createFromLocations(wellLocation, tileLocation);
+            } else
+            {
+                return ImageChannelStackReference.createFromId(channelStackId);
+            }
+        }
+
         private static int getIntParam(HttpServletRequest request, String paramName)
+        {
+
+            Integer value = tryGetIntParam(request, paramName);
+            if (value == null)
+            {
+                throw new UserFailureException("parameter " + paramName
+                        + " should be an integer, but is: " + value);
+            }
+            return value.intValue();
+        }
+
+        private static Integer tryGetIntParam(HttpServletRequest request, String paramName)
         {
             String value = getParam(request, paramName);
             try
@@ -102,8 +128,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
                 return Integer.valueOf(value);
             } catch (NumberFormatException e)
             {
-                throw new UserFailureException("parameter " + paramName
-                        + " should be an integer, but is: " + value);
+                return null;
             }
         }
 
