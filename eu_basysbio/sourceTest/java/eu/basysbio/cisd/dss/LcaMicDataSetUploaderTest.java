@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.cifex.CifexExtractorHelper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -90,7 +91,39 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void test()
+    public void testNonUniqueBbaIDs()
+    {
+        File tsvFile = new File(workingDirectory, "data.tsv");
+        FileUtilities
+                .writeToFile(
+                        tsvFile,
+                        "# Ma::MS::B1::NT::EX::T1::NC::GrowthRate::Value[h^(-1)]::LIN::BBA9001#A_S20090325-2::NC\t0.68\n"
+                                + "Time (s)\t"
+                                + "Ma::MS::B1::NT::EX::T1::NC::LcaMicCfd::Value[um]::LIN::BBA9001#A_S20090325-2::NC\t"
+                                + "Ma::MS::B1::NT::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::BBA9002#A_S20090325-2::NC\t"
+                                + "Ma::MS::B1::NT::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::BBA9001#A_S20090325-2::NC\n"
+                                + "12\t2.5\t5.5\tN/A\n42\t42.5\t45.5\t3.25\n");
+
+        DataSetInformation dataSetInformation = new DataSetInformation();
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier("p1", "e1"));
+        dataSetInformation.setDataSetCode("abc-1");
+        dataSetInformation.setUploadingUserEmail("ab@c.de");
+        try
+        {
+            uploader.handleTSVFile(tsvFile, dataSetInformation, feeder);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Invalid headers: All BBA IDs should be the same. "
+                    + "The folowing two different BBA IDs found: "
+                    + "BBA9001#A_S20090325-2 BBA9002#A_S20090325-2", ex.getMessage());
+        }
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testHappyCase()
     {
         File tsvFile = new File(workingDirectory, "data.tsv");
         FileUtilities.writeToFile(tsvFile, LcaMicDataSetPropertiesExtractorTest.EXAMPLE 
@@ -104,8 +137,8 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
         
         List<String> data = getData(1);
         assertEquals("BBA ID\t" +
-        		"Ma::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t" +
-        		"Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC", data.get(0));
+                "Ma::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t" +
+                "Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC", data.get(0));
         assertEquals("BBA9001#A_S20090325-2\t2.5\t42.5", data.get(1));
         checkProperties(1);
         data = getData(2);

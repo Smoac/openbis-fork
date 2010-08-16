@@ -94,6 +94,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                     property.setValue(HeaderUtils.join(timeValues));
                 }
             }
+            String lastBBAID = null;
             for (int i = 1; i < columns.size(); i++)
             {
                 Column column = columns.get(i);
@@ -105,11 +106,19 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                 {
                     throw new UserFailureException("Invalid header: Missing BBA ID: " + header);
                 }
-                String bbaID = items[10];
-                if (bbaID.startsWith("BBA") == false)
+                String bbaIDOfColumn = items[10];
+                if (bbaIDOfColumn.startsWith("BBA") == false)
                 {
                     throw new UserFailureException("Invalid header: BBA ID doesn't start with 'BBA': " + header);
                 }
+                if (lastBBAID != null && bbaIDOfColumn.equals(lastBBAID) == false)
+                {
+                    throw new UserFailureException(
+                            "Invalid headers: All BBA IDs should be the same. "
+                                    + "The folowing two different BBA IDs found: " + lastBBAID
+                                    + " " + bbaIDOfColumn);
+                }
+                lastBBAID = bbaIDOfColumn;
                 items[10] = "NB";
                 StringBuilder builder = new StringBuilder("BBA ID");
                 for (String value : timeValues)
@@ -117,7 +126,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                     items[3] = value;
                     builder.append("\t").append(StringUtils.join(items, DataColumnHeader.SEPARATOR));
                 }
-                builder.append("\n").append(bbaID);
+                builder.append("\n").append(bbaIDOfColumn);
                 List<String> values = column.getValues();
                 for (String value : values)
                 {
