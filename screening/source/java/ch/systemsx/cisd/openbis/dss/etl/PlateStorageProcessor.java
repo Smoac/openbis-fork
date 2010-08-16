@@ -205,16 +205,26 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     // ---------------------------------
 
-    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(Experiment experiment,
-            DataSetInformation dataSetInformation)
+    private ImageDatasetInfo createImageDatasetInfo(Experiment experiment,
+            DataSetInformation dataSetInformation, HCSImageFileExtractionResult extractionResult)
     {
         ScreeningContainerDatasetInfo info =
                 ScreeningContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
+        boolean hasImageSeries = hasImageSeries(extractionResult.getImages());
+        return new ImageDatasetInfo(info, spotGeometry.getRows(), spotGeometry.getColumns(),
+                hasImageSeries);
+    }
 
-        info.setTileRows(spotGeometry.getRows());
-        info.setTileColumns(spotGeometry.getColumns());
-
-        return info;
+    private boolean hasImageSeries(List<AcquiredPlateImage> images)
+    {
+        for (AcquiredPlateImage image : images)
+        {
+            if (image.tryGetTimePoint() != null || image.tryGetDepth() != null)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private PlateDimension getPlateGeometry(final DataSetInformation dataSetInformation)
@@ -506,8 +516,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private void storeInDatabase(Experiment experiment, DataSetInformation dataSetInformation,
             HCSImageFileExtractionResult extractionResult)
     {
-        ScreeningContainerDatasetInfo info =
-                createScreeningDatasetInfo(experiment, dataSetInformation);
+        ImageDatasetInfo info =
+                createImageDatasetInfo(experiment, dataSetInformation, extractionResult);
 
         if (currentTransaction != null)
         {

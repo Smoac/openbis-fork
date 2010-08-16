@@ -40,6 +40,9 @@ public class PlateImageParameters implements IsSerializable
 
     private List<String> channelsNames;
 
+    // true if any well in the dataset has a time series (or depth stack) of images
+    private boolean isMultidimensional;
+
     public int getRowsNum()
     {
         return rowsNum;
@@ -103,6 +106,16 @@ public class PlateImageParameters implements IsSerializable
     public int getChannelsNumber()
     {
         return channelsNames.size();
+    }
+
+    public boolean isMultidimensional()
+    {
+        return isMultidimensional;
+    }
+
+    public void setIsMultidimensional(boolean isMultidimensional)
+    {
+        this.isMultidimensional = isMultidimensional;
     }
 
 }

@@ -41,6 +41,11 @@ public class ImgDatasetDTO extends AbstractHashable
     @ResultColumn("CONT_ID")
     private long containerId;
 
+    // a redundant information if there are timepoint or depth stack data for any spots in this
+    // dataset
+    @ResultColumn("IS_MULTIDIMENSIONAL")
+    private boolean isMultidimensional;
+
     @SuppressWarnings("unused")
     private ImgDatasetDTO()
     {
@@ -48,12 +53,13 @@ public class ImgDatasetDTO extends AbstractHashable
     }
 
     public ImgDatasetDTO(String permId, Integer fieldNumberOfRowsOrNull,
-            Integer fieldNumberOfColumnsOrNull, long containerId)
+            Integer fieldNumberOfColumnsOrNull, long containerId, boolean isMultidimensional)
     {
         this.permId = permId;
         this.fieldNumberOfColumnsOrNull = fieldNumberOfColumnsOrNull;
         this.fieldNumberOfRowsOrNull = fieldNumberOfRowsOrNull;
         this.containerId = containerId;
+        this.isMultidimensional = isMultidimensional;
     }
 
     public long getId()
@@ -106,4 +112,13 @@ public class ImgDatasetDTO extends AbstractHashable
         this.containerId = containerId;
     }
 
+    public boolean getIsMultidimensional()
+    {
+        return isMultidimensional;
+    }
+
+    public void setMultidimensional(boolean isMultidimensional)
+    {
+        this.isMultidimensional = isMultidimensional;
+    }
 }

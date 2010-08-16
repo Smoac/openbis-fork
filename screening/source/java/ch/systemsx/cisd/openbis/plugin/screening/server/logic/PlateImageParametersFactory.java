@@ -45,6 +45,7 @@ public class PlateImageParametersFactory
         params.setColsNum(plateGeometry.getColumns());
         params.setTileRowsNum(wellGeometry.getRows());
         params.setTileColsNum(wellGeometry.getColumns());
+        params.setIsMultidimensional(loader.isMultidimensional());
         List<String> escapedChannelNames = new ArrayList<String>();
         for (String name : channelsNames)
         {

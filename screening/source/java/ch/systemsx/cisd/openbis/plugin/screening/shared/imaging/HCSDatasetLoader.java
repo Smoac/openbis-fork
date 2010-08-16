@@ -110,4 +110,9 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         }
         return channelNames;
     }
+
+    public boolean isMultidimensional()
+    {
+        return dataset.getIsMultidimensional();
+    }
 }

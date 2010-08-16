@@ -210,7 +210,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         final Integer fieldsWidth = 1;
         final Integer fieldsHeight = 2;
         final ImgDatasetDTO dataset =
-                new ImgDatasetDTO(permId, fieldsHeight, fieldsWidth, containerId);
+                new ImgDatasetDTO(permId, fieldsHeight, fieldsWidth, containerId, false);
         final long datasetId = dao.addDataset(dataset);
 
         final ImgDatasetDTO loadedDataset = dao.tryGetDatasetByPermId(DS_PERM_ID);

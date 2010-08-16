@@ -196,7 +196,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 {
                     String permID = "ds" + dataSetID;
                     one(dao).tryGetDatasetByPermId(permID);
-                    ImgDatasetDTO dataSet = new ImgDatasetDTO(permID, null, null, 100 + dataSetID);
+                    ImgDatasetDTO dataSet =
+                            new ImgDatasetDTO(permID, null, null, 100 + dataSetID, false);
                     dataSet.setId(dataSetID);
                     will(returnValue(dataSet));
 

@@ -76,7 +76,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         final Integer fieldsWidth = 1;
         final Integer fieldsHeight = 2;
         final ImgDatasetDTO ds =
-                new ImgDatasetDTO(DS_PERM_ID, fieldsHeight, fieldsWidth, containerId);
+                new ImgDatasetDTO(DS_PERM_ID, fieldsHeight, fieldsWidth, containerId, false);
         final long datasetId = imagingDao.addDataset(ds);
 
         ds.setId(datasetId);

@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSp
  */
 public class HCSDatasetUploader
 {
-    public static void upload(IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
+    public static void upload(IImagingQueryDAO dao, ImageDatasetInfo info,
             List<AcquiredPlateImage> images, Set<HCSImageFileExtractionResult.Channel> channels)
     {
         new HCSDatasetUploader(dao).upload(info, images, channels);
@@ -53,7 +53,7 @@ public class HCSDatasetUploader
         this.dao = dao;
     }
 
-    private void upload(ScreeningContainerDatasetInfo info, List<AcquiredPlateImage> images,
+    private void upload(ImageDatasetInfo info, List<AcquiredPlateImage> images,
             Set<HCSImageFileExtractionResult.Channel> channels)
     {
         ExperimentWithChannelsAndContainer basicStruct =
@@ -360,8 +360,8 @@ public class HCSDatasetUploader
         }
     }
 
-    private long createDataset(long contId, ScreeningContainerDatasetInfo info)
+    private long createDataset(long contId, ImageDatasetInfo info)
     {
-        return ScreeningContainerDatasetInfoHelper.createDataset(dao, info, contId);
+        return ScreeningContainerDatasetInfoHelper.createImageDataset(dao, info, contId);
     }
 }

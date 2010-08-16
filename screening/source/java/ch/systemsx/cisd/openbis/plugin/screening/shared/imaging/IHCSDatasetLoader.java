@@ -37,4 +37,6 @@ public interface IHCSDatasetLoader
 
     List<String> getChannelsNames();
 
+    boolean isMultidimensional();
+
 }

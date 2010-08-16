@@ -39,8 +39,6 @@ public class ScreeningContainerDatasetInfo
 
     private int containerRows, containerColumns;
 
-    private int tileRows, tileColumns;
-
     public String getExperimentPermId()
     {
         return experimentPermId;
@@ -89,26 +87,6 @@ public class ScreeningContainerDatasetInfo
     public void setContainerColumns(int containerColumns)
     {
         this.containerColumns = containerColumns;
-    }
-
-    public int getTileRows()
-    {
-        return tileRows;
-    }
-
-    public void setTileRows(int tileRows)
-    {
-        this.tileRows = tileRows;
-    }
-
-    public int getTileColumns()
-    {
-        return tileColumns;
-    }
-
-    public void setTileColumns(int tileColumns)
-    {
-        this.tileColumns = tileColumns;
     }
 
     public static ScreeningContainerDatasetInfo createScreeningDatasetInfo(

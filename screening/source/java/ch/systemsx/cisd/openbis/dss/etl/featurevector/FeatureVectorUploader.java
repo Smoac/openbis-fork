@@ -49,7 +49,7 @@ public class FeatureVectorUploader
     {
         ScreeningContainerDatasetInfoHelper helper = new ScreeningContainerDatasetInfoHelper(dao);
         long contId = helper.getOrCreateExperimentAndContainer(info).getContainerId();
-        long dataSetId = helper.createDataset(contId, info);
+        long dataSetId = helper.createFeatureVectorDataset(contId, info);
 
         uploadFeatureVectors(dao, fvecs, dataSetId);
     }

@@ -49,18 +49,21 @@ public class ScreeningContainerDatasetInfoHelper
         return getOrCreateExperimentAndContainer(dao, info);
     }
 
-    public long createDataset(long contId, ScreeningContainerDatasetInfo info)
+    public long createFeatureVectorDataset(long contId, ScreeningContainerDatasetInfo info)
     {
-        return createDataset(dao, info, contId);
+        boolean isMultidimensional = false;
+        ImgDatasetDTO dataset =
+                new ImgDatasetDTO(info.getDatasetPermId(), 0, 0, contId, isMultidimensional);
+        return dao.addDataset(dataset);
     }
 
     // Package-visible static methods
-    public static long createDataset(IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
-            long contId)
+
+    public static long createImageDataset(IImagingQueryDAO dao, ImageDatasetInfo info, long contId)
     {
         ImgDatasetDTO dataset =
                 new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(), info
-                        .getTileColumns(), contId);
+                        .getTileColumns(), contId, info.hasImageSeries());
         return dao.addDataset(dataset);
     }
 
