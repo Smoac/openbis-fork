@@ -32,6 +32,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -59,53 +61,79 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
  */
 public class WellContentDialog extends Dialog
 {
+    private static final int ONE_IMAGE_WIDTH_PX = 200;
+
+    private static final int ONE_IMAGE_HEIGHT_PX = 120;
+
+    private static final int NO_IMAGES_DIALOG_WIDTH_PX = 300;
+
+    private static final int NO_IMAGES_DIALOG_HEIGHT_PX = 160;
+
     public static void showContentDialog(final WellData wellData, DefaultChannelState channelState,
             final ScreeningViewContext viewContext)
     {
-        final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
-        container.setScrollMode(Scroll.AUTO);
 
         final WellContentDialog contentDialog =
                 new WellContentDialog(wellData.tryGetMetadata(), getExperiment(wellData),
                         viewContext);
-        LayoutContainer descriptionContainer = contentDialog.createContentDescription();
-        container.add(descriptionContainer);
 
-        int dialogWidth;
-        int dialogHeight;
-
-        final WellImages images = wellData.tryGetImages();
-        if (images != null)
+        final WellImages imagesOrNull = wellData.tryGetImages();
+        if (imagesOrNull != null && imagesOrNull.isMultidimensional())
         {
-            int imgW = 200;
-            int imgH = 120;
-            LayoutContainer imageViewer =
-                    createImageViewer(images, channelState, viewContext, imgW, imgH);
-            container.add(imageViewer);
-
-            dialogWidth = getDialogWidth(images, imgW);
-            dialogHeight = getDialogHeight(images, imgH);
+            showTimepointImageViewer(contentDialog, wellData, imagesOrNull, channelState,
+                    viewContext);
         } else
         {
-            dialogWidth = 300;
-            dialogHeight = 160;
+            if (imagesOrNull != null)
+            {
+                LayoutContainer imageViewer =
+                        createImageViewer(imagesOrNull, channelState, viewContext);
+                contentDialog.addComponent(imageViewer);
+            }
+            contentDialog.setupContentAndShow(wellData);
         }
-        String title = "Well Content: " + wellData.getWellDescription();
-        setupContentAndShow(contentDialog, container, dialogWidth, dialogHeight, title);
     }
 
-    private static int getDialogWidth(final WellImages images, int imgW)
+    private static void showTimepointImageViewer(final WellContentDialog contentDialog,
+            final WellData wellData, final WellImages images,
+            final DefaultChannelState channelState, final ScreeningViewContext viewContext)
     {
-        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return (int) (imgW * imageSizeMultiplyFactor) * images.getTileColsNum() + 100;
+        viewContext.getService().listChannelStackImages(images.getDatasetCode(),
+                images.getDatastoreCode(), images.getWellLocation(),
+                new AbstractAsyncCallback<List<ChannelStackImageReference>>(viewContext)
+                    {
+                        @Override
+                        protected void process(List<ChannelStackImageReference> channelStackImages)
+                        {
+                            LayoutContainer imageViewer =
+                                    createTimepointImageViewer(channelStackImages, images,
+                                            channelState, viewContext);
+                            contentDialog.addComponent(imageViewer);
+                            contentDialog.setupContentAndShow(wellData);
+                        }
+                    });
     }
 
-    private static int getDialogHeight(final WellImages images, int imgH)
+    private static LayoutContainer createTimepointImageViewer(
+            List<ChannelStackImageReference> channelStackImages, WellImages images,
+            DefaultChannelState channelState, IViewContext<?> viewContext)
+    {
+        System.out.println("result: " + channelStackImages);
+        // TODO 2010-08-16, Tomasz Pylak: implement me!
+        return new LayoutContainer();
+    }
+
+    private static int getDialogWidth(final WellImages images)
     {
         float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return Math
-                .max((int) (imgH * imageSizeMultiplyFactor) * images.getTileRowsNum() + 100, 300);
+        return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor) * images.getTileColsNum() + 100;
+    }
+
+    private static int getDialogHeight(final WellImages images)
+    {
+        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
+        return Math.max((int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor)
+                * images.getTileRowsNum() + 100, 300);
     }
 
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
@@ -129,25 +157,50 @@ public class WellContentDialog extends Dialog
 
     private final ScreeningViewContext viewContext;
 
+    private final LayoutContainer dialogContent;
+
     private WellContentDialog(WellMetadata metadataOrNull,
             SingleExperimentSearchCriteria experiment, ScreeningViewContext viewContext)
     {
         this.metadataOrNull = metadataOrNull;
         this.experiment = experiment;
         this.viewContext = viewContext;
+
+        this.dialogContent = new LayoutContainer();
+        dialogContent.setLayout(new RowLayout());
+        dialogContent.setScrollMode(Scroll.AUTO);
+
+        LayoutContainer descriptionContainer = createContentDescription();
+        dialogContent.add(descriptionContainer);
+
     }
 
-    private static void setupContentAndShow(Dialog dialog, Widget content, int width, int height,
-            String title)
+    public void addComponent(LayoutContainer component)
     {
-        dialog.setHeading(title);
-        dialog.setLayout(new FitLayout());
-        dialog.setScrollMode(Scroll.AUTO);
-        dialog.setHideOnButtonClick(true);
-        dialog.add(content);
-        dialog.setWidth(width);
-        dialog.setHeight(height);
-        dialog.show();
+        dialogContent.add(component);
+    }
+
+    private void setupContentAndShow(WellData wellData)
+    {
+        String title = "Well Content: " + wellData.getWellDescription();
+        setHeading(title);
+        setLayout(new FitLayout());
+        setScrollMode(Scroll.AUTO);
+        setHideOnButtonClick(true);
+        add(dialogContent);
+
+        final WellImages imagesOrNull = wellData.tryGetImages();
+        if (imagesOrNull != null)
+        {
+            setWidth(getDialogWidth(imagesOrNull));
+            setHeight(getDialogHeight(imagesOrNull));
+        } else
+        {
+            setWidth(NO_IMAGES_DIALOG_WIDTH_PX);
+            setHeight(NO_IMAGES_DIALOG_HEIGHT_PX);
+        }
+
+        show();
     }
 
     private LayoutContainer createContentDescription()
@@ -234,8 +287,7 @@ public class WellContentDialog extends Dialog
     // -------------
 
     private static LayoutContainer createImageViewer(final WellImages images,
-            DefaultChannelState channelState, final IViewContext<?> viewContext,
-            final int imageWidth, final int imageHeight)
+            DefaultChannelState channelState, final IViewContext<?> viewContext)
     {
         final float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
@@ -244,8 +296,8 @@ public class WellContentDialog extends Dialog
                 {
                     String sessionId = getSessionId(viewContext);
                     return createTilesGrid(images, channel, sessionId,
-                            (int) (imageWidth * imageSizeMultiplyFactor),
-                            (int) (imageHeight * imageSizeMultiplyFactor));
+                            (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor),
+                            (int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor));
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
@@ -303,8 +355,43 @@ public class WellContentDialog extends Dialog
     }
 
     /** generates URL of an image on Data Store server */
+    // TODO 2010-08-16, Tomasz Pylak: implement and use me!!!!
+    @SuppressWarnings("unused")
+    private static String createDatastoreImageUrl(WellImages images, String channel,
+            ChannelStackImageReference channelStackRef, int width, int height, String sessionID)
+    {
+        URLMethodWithParameters methodWithParameters =
+                createBasicImageURL(images, channel, sessionID);
+
+        methodWithParameters
+                .addParameter("channelStackId", channelStackRef.getChannelStackTechId());
+        String linkURL = methodWithParameters.toString();
+        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
+
+        String imageURL = methodWithParameters.toString();
+        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
+    }
+
+    /** generates URL of an image on Data Store server */
     private static String createDatastoreImageUrl(WellImages images, String channel, int tileRow,
             int tileCol, int width, int height, String sessionID)
+    {
+        URLMethodWithParameters methodWithParameters =
+                createBasicImageURL(images, channel, sessionID);
+
+        methodWithParameters.addParameter("wellRow", images.getWellLocation().getRow());
+        methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());
+        methodWithParameters.addParameter("tileRow", tileRow);
+        methodWithParameters.addParameter("tileCol", tileCol);
+        String linkURL = methodWithParameters.toString();
+        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
+
+        String imageURL = methodWithParameters.toString();
+        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
+    }
+
+    private static URLMethodWithParameters createBasicImageURL(WellImages images, String channel,
+            String sessionID)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(images.getDownloadUrl() + "/"
@@ -316,15 +403,7 @@ public class WellContentDialog extends Dialog
         {
             methodWithParameters.addParameter("mergeChannels", "true");
         }
-        methodWithParameters.addParameter("wellRow", images.getWellLocation().getRow());
-        methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());
-        methodWithParameters.addParameter("tileRow", tileRow);
-        methodWithParameters.addParameter("tileCol", tileCol);
-        String linkURL = methodWithParameters.toString();
-        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
-
-        String imageURL = methodWithParameters.toString();
-        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
+        return methodWithParameters;
     }
 
     private static String getSessionId(IViewContext<?> viewContext)

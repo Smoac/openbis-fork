@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
@@ -29,11 +31,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -82,6 +86,13 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> exportCriteria,
             AsyncCallback<String> callback);
+
+    /**
+     * @see IScreeningClientService#listChannelStackImages
+     */
+    public void listChannelStackImages(String datasetCode, String datastoreCode,
+            WellLocation wellLocation,
+            AsyncCallback<List<ChannelStackImageReference>> abstractAsyncCallback);
 
     /**
      * @see IScreeningClientService#registerLibrary(LibraryRegistrationInfo)

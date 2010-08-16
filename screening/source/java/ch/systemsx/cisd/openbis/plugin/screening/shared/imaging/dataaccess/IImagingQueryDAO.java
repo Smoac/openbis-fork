@@ -33,32 +33,25 @@ public interface IImagingQueryDAO extends TransactionQuery
     public static final int FETCH_SIZE = 1000;
 
     public static final String SQL_IMAGE =
-            ", CHANNEL_STACKS cs, SPOTS s "
+            "select i.* from CHANNEL_STACKS, SPOTS, ACQUIRED_IMAGES, IMAGES as i "
                     + "where                                                                "
-                    // where acquired_images.channel.id = ?{channelId}
-                    // and acquired_images.channel_stack.dataset.id = ?{datasetId}
-                    + "ai.CHANNEL_ID = ?{1} and cs.DS_ID = ?{2} and "
-                    // and acquired_images.channel_stack.x = tileX
-                    // and acquired_images.channel_stack.y = tileY
-                    // and acquired_images.channel_stack.spot.x = wellX
-                    // and acquired_images.channel_stack.spot.y = wellY
-                    + "cs.x = ?{3.x} and cs.y = ?{3.y} and s.x = ?{4.x} and s.y = ?{4.y} and "
+                    + "ACQUIRED_IMAGES.CHANNEL_ID = ?{1} and CHANNEL_STACKS.DS_ID = ?{2} and "
+                    + "CHANNEL_STACKS.x = ?{3.x} and CHANNEL_STACKS.y = ?{3.y} and "
+                    + "SPOTS.x = ?{4.x} and SPOTS.y = ?{4.y} and "
                     // joins
-                    + "ai.CHANNEL_STACK_ID = cs.ID and cs.SPOT_ID = s.ID "
-                    // TODO 2010-07-27, Tomasz Pylak: select the first image if there are many time
-                    // points or depth scans.
-                    // Should be deleted when support for time points will be added!
-                    + "order by cs.T_in_SEC, cs.Z_in_M limit 1";
+                    + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID and "
+                    + "CHANNEL_STACKS.SPOT_ID = SPOTS.ID ";
 
-    // select acquired_images.images.* from acquired_images
-    @Select("select i.* " + "from ACQUIRED_IMAGES as ai join IMAGES as i on ai.IMG_ID = i.ID "
-            + SQL_IMAGE)
+    public static final String SQL_NO_MULTIDIMENTIONAL_DATA_COND =
+    // " and CHANNEL_STACKS.T_in_SEC is NULL and CHANNEL_STACKS.Z_in_M is NULL";
+            " order by CHANNEL_STACKS.T_in_SEC, CHANNEL_STACKS.Z_in_M limit 1";
+
+    @Select(SQL_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID " + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetImage(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 
-    // select acquired_images.thumbnail.* from acquired_images
-    @Select("select i.* "
-            + "from ACQUIRED_IMAGES as ai join IMAGES as i on ai.THUMBNAIL_ID = i.ID " + SQL_IMAGE)
+    @Select(SQL_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
+            + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetThumbnail(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 

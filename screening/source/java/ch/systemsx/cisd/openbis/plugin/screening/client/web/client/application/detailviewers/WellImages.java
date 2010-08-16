@@ -37,6 +37,8 @@ public class WellImages
 
     private final String datasetCode;
 
+    private final String datastoreCode;
+
     private final String downloadUrl;
 
     private final WellLocation location;
@@ -44,20 +46,23 @@ public class WellImages
     // has timepoints or depth stack?
     private final boolean isMultidimensional;
 
-    public WellImages(PlateImageParameters imageParams, String downloadUrl, WellLocation location)
+    public WellImages(PlateImageParameters imageParams, String datastoreCode, String downloadUrl,
+            WellLocation location)
     {
         this.tileRowsNum = imageParams.getTileRowsNum();
         this.tileColsNum = imageParams.getTileColsNum();
         this.channelsNames = imageParams.getChannelsNames();
         this.isMultidimensional = imageParams.isMultidimensional();
         this.datasetCode = imageParams.getDatasetCode();
+        this.datastoreCode = datastoreCode;
         this.downloadUrl = downloadUrl;
         this.location = location;
     }
 
     public WellImages(DatasetImagesReference images, WellLocation location)
     {
-        this(images.getImageParameters(), images.getDownloadUrl(), location);
+        this(images.getImageParameters(), images.getDatastoreCode(), images.getDownloadUrl(),
+                location);
     }
 
     public int getTileRowsNum()
@@ -88,6 +93,11 @@ public class WellImages
     public String getDatasetCode()
     {
         return datasetCode;
+    }
+
+    public String getDatastoreCode()
+    {
+        return datastoreCode;
     }
 
     public boolean isMultidimensional()

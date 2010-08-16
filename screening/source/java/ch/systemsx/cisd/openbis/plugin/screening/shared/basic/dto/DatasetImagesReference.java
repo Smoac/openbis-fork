@@ -47,6 +47,11 @@ public class DatasetImagesReference implements IsSerializable
         this.imageParameters = imageParameters;
     }
 
+    public String getDatastoreCode()
+    {
+        return dataset.getDatastoreCode();
+    }
+
     public String getDownloadUrl()
     {
         return dataset.getDownloadUrl();

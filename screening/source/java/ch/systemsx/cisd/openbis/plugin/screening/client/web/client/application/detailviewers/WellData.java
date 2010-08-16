@@ -50,7 +50,8 @@ class WellData
         DatasetImagesReference images = plateImages.tryGetImages();
         if (images != null)
         {
-            return new WellImages(images.getImageParameters(), images.getDownloadUrl(), location);
+            return new WellImages(images.getImageParameters(), images.getDatastoreCode(), images
+                    .getDownloadUrl(), location);
         } else
         {
             return null;
