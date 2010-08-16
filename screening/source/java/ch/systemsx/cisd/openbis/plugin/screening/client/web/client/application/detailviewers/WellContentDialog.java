@@ -16,13 +16,23 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SliderEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -119,8 +129,13 @@ public class WellContentDialog extends Dialog
             DefaultChannelState channelState, IViewContext<?> viewContext)
     {
         System.out.println("result: " + channelStackImages);
-        // TODO 2010-08-16, Tomasz Pylak: implement me!
-        return new LayoutContainer();
+        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
+        String sessionId = getSessionId(viewContext);
+
+        return createTilesGridForStack(channelStackImages, images, channelState.getDefaultChannel(images
+                .getChannelsNames()), sessionId,
+                (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor),
+                (int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor));
     }
 
     private static int getDialogWidth(final WellImages images)
@@ -295,7 +310,7 @@ public class WellContentDialog extends Dialog
                 public LayoutContainer create(String channel)
                 {
                     String sessionId = getSessionId(viewContext);
-                    return createTilesGrid(images, channel, sessionId,
+                    return createTilesGridWithSlider(images, channel, sessionId,
                             (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor),
                             (int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor));
                 }
@@ -354,9 +369,160 @@ public class WellContentDialog extends Dialog
         return container;
     }
 
+    private static LayoutContainer createTilesGridForStack(
+            List<ChannelStackImageReference> channelStackImages, WellImages images, String channel,
+            String sessionId, int imageWidth, int imageHeight)
+    {
+        final LayoutContainer mainContainer = new LayoutContainer();
+
+        final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
+        Map<Float, List<ChannelStackImageReference>> channelStackImagesByTimepoint =
+                groupImagesByTimepoint(channelStackImages);
+
+        int counter = 0;
+        for (Entry<Float, List<ChannelStackImageReference>> entry : channelStackImagesByTimepoint
+                .entrySet())
+        {
+            List<ChannelStackImageReference> imageReferences = entry.getValue();
+            Collections.sort(imageReferences); // TODO needed? were data already sorted?
+            final LayoutContainer container =
+                    new LayoutContainer(new TableLayout(images.getTileColsNum()));
+            frames.add(container);
+            for (ChannelStackImageReference imageReference : imageReferences)
+            {
+                Component tileContent;
+                String imageURL =
+                        createDatastoreImageUrl(images, channel, imageReference, imageWidth,
+                                imageHeight, sessionId);
+                tileContent = new Html(imageURL);
+                tileContent.setHeight("" + imageHeight);
+                PlateStyleSetter.setPointerCursor(tileContent);
+                container.add(tileContent);
+            }
+            mainContainer.add(container);
+            if (counter > 0)
+            {
+                container.setVisible(false);
+            }
+            counter++;
+        }
+
+        final Float[] timepoints = channelStackImagesByTimepoint.keySet().toArray(new Float[0]);
+        final Slider slider = createTimepointsSlider(frames.size() - 1, new Listener<SliderEvent>()
+            {
+                public void handleEvent(SliderEvent e)
+                {
+                    int oldValue = e.getOldValue();
+                    int newValue = e.getNewValue();
+                    frames.get(oldValue).hide();
+                    frames.get(newValue).show();
+                    mainContainer.remove(mainContainer.getItem(0));
+                    mainContainer.insert(new Label(createTimepointLabel(timepoints, newValue)), 0);
+                    mainContainer.layout();
+                }
+            });
+        mainContainer.insert(slider, 0);
+        mainContainer.insert(new Label(createTimepointLabel(timepoints, 0)), 0);
+        slider.setValue(0);
+
+        return mainContainer;
+    }
+
+    private static String createTimepointLabel(Float[] timepoints, int value)
+    {
+        return "Timepoint: " + timepoints[value] + "sec (" + value + "/" + (timepoints.length - 1)
+                + ")";
+    }
+
+    private static Map<Float, List<ChannelStackImageReference>> groupImagesByTimepoint(
+            List<ChannelStackImageReference> channelStackImages)
+    {
+        Map<Float, List<ChannelStackImageReference>> result =
+                new TreeMap<Float, List<ChannelStackImageReference>>();
+        for (ChannelStackImageReference ref : channelStackImages)
+        {
+            Float t = ref.tryGetTimepoint();
+            List<ChannelStackImageReference> imageReferences = result.get(t);
+            if (imageReferences == null)
+            {
+                imageReferences = new ArrayList<ChannelStackImageReference>();
+                result.put(t, imageReferences);
+            }
+            imageReferences.add(ref);
+        }
+        return result;
+    }
+
+    // TODO 2010-08-16, Piotr Buczek: remove this code - this is just to demo slider behaviour
+    private static LayoutContainer createTilesGridWithSlider(WellImages images, String channel,
+            String sessionId, int imageWidth, int imageHeight)
+    {
+        final LayoutContainer mainContainer = new LayoutContainer();
+
+        final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
+        final List<String> channelNames = images.getChannelsNames();
+        final int channels = channelNames.size() - 1;
+
+        int counter = 0;
+        for (String channelName : channelNames)
+        {
+            final LayoutContainer container =
+                    new LayoutContainer(new TableLayout(images.getTileColsNum()));
+            frames.add(container);
+            for (int row = 1; row <= images.getTileRowsNum(); row++)
+            {
+                for (int col = 1; col <= images.getTileColsNum(); col++)
+                {
+                    Component tileContent;
+                    String imageURL =
+                            createDatastoreImageUrl(images, channelName, row, col, imageWidth,
+                                    imageHeight, sessionId);
+                    tileContent = new Html(imageURL);
+                    tileContent.setHeight("" + imageHeight);
+                    PlateStyleSetter.setPointerCursor(tileContent);
+                    container.add(tileContent);
+                }
+            }
+            mainContainer.add(container);
+            if (counter > 0)
+            {
+                container.setVisible(false);
+            }
+            counter++;
+        }
+
+        final Slider slider = createTimepointsSlider(frames.size() - 1, new Listener<SliderEvent>()
+            {
+                public void handleEvent(SliderEvent e)
+                {
+                    int oldValue = e.getOldValue();
+                    int newValue = e.getNewValue();
+                    frames.get(oldValue).hide();
+                    frames.get(newValue).show();
+                    mainContainer.remove(mainContainer.getItem(0));
+                    mainContainer.insert(new Label("Timepoint: " + newValue + "/" + channels), 0);
+                    mainContainer.layout();
+                }
+            });
+        mainContainer.insert(slider, 0);
+        mainContainer.insert(new Label("Timepoint: 0/" + channels), 0);
+        slider.setValue(0);
+
+        return mainContainer;
+    }
+
+    private static final Slider createTimepointsSlider(int maxValue, Listener<SliderEvent> listener)
+    {
+        final Slider slider = new Slider();
+        slider.setWidth(230);
+        slider.setIncrement(1);
+        slider.setMaxValue(maxValue);
+        slider.setClickToChange(true);
+        slider.addListener(Events.Change, listener);
+        return slider;
+    }
+
     /** generates URL of an image on Data Store server */
-    // TODO 2010-08-16, Tomasz Pylak: implement and use me!!!!
-    @SuppressWarnings("unused")
     private static String createDatastoreImageUrl(WellImages images, String channel,
             ChannelStackImageReference channelStackRef, int width, int height, String sessionID)
     {
