@@ -105,12 +105,11 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                     for (File dataSetFile : dataSetFiles)
                     {
                         TimeSeriesDataSetUploader uploader =
-                                new TimeSeriesDataSetUploader(dataSource, service, parameters,
-                                        false);
+                                new TimeSeriesDataSetUploader(dataSource, service, parameters);
                         DataSetInformation dataSetInformation = createDataSetInformation(dataSet);
                         try
                         {
-                            uploader.upload(dataSetFile, dataSetInformation, DUMMY_FEEDER);
+                            uploader.upload(dataSetFile, dataSetInformation);
                             uploader.commit();
                             if (operationLog.isInfoEnabled())
                             {

@@ -108,7 +108,7 @@ abstract class AbstractDataSetUploader implements IDataSetUploader
         }
     }
 
-    public void upload(File originalData, DataSetInformation dataSetInformation, IDropBoxFeeder feeder)
+    public void upload(File originalData, DataSetInformation dataSetInformation)
     {
         ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
         if (experimentIdentifier == null)
@@ -118,7 +118,7 @@ abstract class AbstractDataSetUploader implements IDataSetUploader
         }
         if (originalData.isFile())
         {
-            handleTSVFile(originalData, dataSetInformation, feeder);
+            handleTSVFile(originalData, dataSetInformation);
         } else
         {
             File[] tsvFiles = originalData.listFiles(new FilenameFilter()
@@ -136,13 +136,12 @@ abstract class AbstractDataSetUploader implements IDataSetUploader
             }
             for (File tsvFile : tsvFiles)
             {
-                handleTSVFile(tsvFile, dataSetInformation, feeder);
+                handleTSVFile(tsvFile, dataSetInformation);
             }
         }
 
     }
 
-    protected abstract void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation,
-            IDropBoxFeeder feeder);
+    protected abstract void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation);
 
 }

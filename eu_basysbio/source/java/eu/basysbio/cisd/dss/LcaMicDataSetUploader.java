@@ -73,8 +73,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
     }
 
     @Override
-    protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation,
-            IDropBoxFeeder feeder)
+    protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation)
     {
         FileReader reader = null;
         try

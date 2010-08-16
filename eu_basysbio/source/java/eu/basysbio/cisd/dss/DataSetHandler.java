@@ -50,8 +50,6 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
 
     private final TimeSeriesDataSetUploaderParameters parameters;
     
-    private final TimePointDataDropBoxFeeder dropBoxFeeder;
-    
     final DataSetUploaderFactory factory;
     
     private eu.basysbio.cisd.dss.IDataSetUploader uploader;
@@ -68,9 +66,7 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         this.dataSource = dataSource;
         this.service = service;
         parameters = new TimeSeriesDataSetUploaderParameters(properties);
-        dropBoxFeeder = new TimePointDataDropBoxFeeder(properties, this, service);
-        factory = new DataSetUploaderFactory(TimeSeriesDataSetUploader.FACTORY_WO_TIME_POINT);
-        factory.register(TIME_SERIES, TimeSeriesDataSetUploader.FACTORY);
+        factory = new DataSetUploaderFactory(TimeSeriesDataSetUploader.FACTORY);
         factory.register(LCA_MIC, LcaMicDataSetUploader.FACTORY);
     }
     
@@ -111,7 +107,7 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     public Status handle(File originalData, DataSetInformation dataSetInformation, Map<String, String> parameterBindings)
     {
         uploader = createUploader(dataSetInformation);
-        uploader.upload(originalData, dataSetInformation, dropBoxFeeder);
+        uploader.upload(originalData, dataSetInformation);
         return Status.OK;
     }
 

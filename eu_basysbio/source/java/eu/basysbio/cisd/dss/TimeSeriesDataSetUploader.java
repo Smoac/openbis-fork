@@ -38,16 +38,8 @@ import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * @author Franz-Josef Elmer
@@ -61,57 +53,34 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
                     DataSource dataSource, IEncapsulatedOpenBISService service,
                     TimeSeriesDataSetUploaderParameters parameters)
             {
-                return new TimeSeriesDataSetUploader(dataSource, service, parameters, false);
+                return new TimeSeriesDataSetUploader(dataSource, service, parameters);
             }
 
             public IDataSetUploader create(DataSetInformation dataSetInformation,
                     ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
                     TimeSeriesDataSetUploaderParameters parameters)
             {
-                return new TimeSeriesDataSetUploader(dao, service, parameters, false);
-            }
-        };
-
-    static final IDataSetUploaderFactory FACTORY_WO_TIME_POINT = new IDataSetUploaderFactory()
-        {
-
-            public IDataSetUploader create(DataSetInformation dataSetInformation,
-                    DataSource dataSource, IEncapsulatedOpenBISService service,
-                    TimeSeriesDataSetUploaderParameters parameters)
-            {
-                return new TimeSeriesDataSetUploader(dataSource, service, parameters, true);
-            }
-
-            public IDataSetUploader create(DataSetInformation dataSetInformation,
-                    ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
-                    TimeSeriesDataSetUploaderParameters parameters)
-            {
-                return new TimeSeriesDataSetUploader(dao, service, parameters, true);
+                return new TimeSeriesDataSetUploader(dao, service, parameters);
             }
         };
 
     private final Map<ExperimentIdentifier, Experiment> experimentCache =
             new HashMap<ExperimentIdentifier, Experiment>();
 
-    private final boolean ignoringTimePointDataSetCreation;
-
     TimeSeriesDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,
-            TimeSeriesDataSetUploaderParameters parameters, boolean ignoringTimePointDataSetCreation)
+            TimeSeriesDataSetUploaderParameters parameters)
     {
         super(dataSource, service, parameters);
-        this.ignoringTimePointDataSetCreation = ignoringTimePointDataSetCreation;
     }
 
     TimeSeriesDataSetUploader(ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
-            TimeSeriesDataSetUploaderParameters parameters, boolean ignoringTimePointDataSetCreation)
+            TimeSeriesDataSetUploaderParameters parameters)
     {
         super(dao, service, parameters);
-        this.ignoringTimePointDataSetCreation = ignoringTimePointDataSetCreation;
     }
 
     @Override
-    protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation,
-            IDropBoxFeeder feeder)
+    protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation)
     {
         // TODO 2010-08-08, IA: Workaround enabling upload of LCA_MIC data
         // ("dataset for header ... already registered"). Remove after problem is fixed.
@@ -150,7 +119,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             for (Column dataColumn : dataColumns)
             {
                 createDataSet(commonColumns, dataColumn, dataSetInformation, headers, dataSetID,
-                        rowIDManager, feeder);
+                        rowIDManager);
             }
         } catch (RuntimeException ex)
         {
@@ -195,7 +164,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
 
     private void createDataSet(List<Column> commonColumns, Column dataColumn,
             DataSetInformation dataSetInformation, Set<DataColumnHeader> headers, long dataSetID,
-            RowIDManager rowIDManager, IDropBoxFeeder feeder)
+            RowIDManager rowIDManager)
     {
         DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
         if (headers.contains(dataColumnHeader))
@@ -205,20 +174,10 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
         assertUniqueDataColumnHeader(dataColumnHeader);
         Experiment experiment = getExperiment(dataColumnHeader, dataSetInformation);
         String sampleCode = createSampleCode(dataColumnHeader).toUpperCase();
-        if (ignoringTimePointDataSetCreation == false)
-        {
-            createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
-        }
         headers.add(dataColumnHeader);
 
         createSampleAndDataColumn(dataColumn, dataSetID, rowIDManager, dataColumnHeader,
                 experiment, sampleCode);
-
-        if (ignoringTimePointDataSetCreation == false)
-        {
-            feeder.feed(dataSetInformation.tryGetUploadingUserEmail(), sampleCode, commonColumns,
-                    dataColumn);
-        }
     }
 
     private void assertUniqueDataColumnHeader(DataColumnHeader dataColumnHeader)
@@ -240,35 +199,6 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             throw new UserFailureException("For data column '" + dataColumnHeader
                     + "' following data sets have already been registered: " + dataSets);
         }
-    }
-
-    private long createSampleIfNecessary(String sampleCode, int timePoint, Experiment experiment)
-    {
-        ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(new TechId(experiment.getId()));
-        List<Sample> samples = service.listSamples(criteria);
-        for (Sample sample : samples)
-        {
-            if (sample.getCode().equals(sampleCode))
-            {
-                return sample.getId();
-            }
-        }
-        NewSample sample = new NewSample();
-        SampleType sampleType = new SampleType();
-        sampleType.setCode(parameters.getSampleTypeCode());
-        sample.setSampleType(sampleType);
-        sample.setExperimentIdentifier(experiment.getIdentifier());
-        String sampleIdentifier = Util.createSampleIdentifier(experiment, sampleCode);
-        sample.setIdentifier(sampleIdentifier);
-        EntityProperty property = new EntityProperty();
-        PropertyType propertyType = new PropertyType();
-        propertyType.setCode("TIME_POINT");
-        property.setPropertyType(propertyType);
-        property.setValue(Integer.toString(timePoint));
-        sample.setProperties(new EntityProperty[]
-            { property });
-        return service.registerSample(sample, null);
     }
 
     private Experiment getExperiment(DataColumnHeader dataColumnHeader,
@@ -359,26 +289,8 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             String sampleCode)
     {
         Long sampleID = null;
-        if (ignoringTimePointDataSetCreation == false)
-        {
-            sampleID = getOrCreateSample(experiment, sampleCode);
-        }
         long columnID = dao.createDataColumn(dataColumnHeader, dataSetID, sampleID);
         createDataValues(dataColumn, rowIDManager, columnID);
-    }
-
-    private long getOrCreateSample(Experiment experiment, String sampleCode)
-    {
-        String sampleIdentifier = Util.createSampleIdentifier(experiment, sampleCode);
-        Sample sample =
-                service.tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier));
-        String samplePermID = sample.getPermId();
-        Long sampleId = dao.tryToGetSampleIDByPermID(samplePermID);
-        if (sampleId == null)
-        {
-            sampleId = dao.createSample(samplePermID);
-        }
-        return sampleId;
     }
 
     private void createDataValues(Column dataColumn, RowIDManager rowIDManager, long columnID)

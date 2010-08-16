@@ -28,8 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 interface IDataSetUploader
 {
 
-    public void upload(File originalData, DataSetInformation dataSetInformation,
-            IDropBoxFeeder feeder);
+    public void upload(File originalData, DataSetInformation dataSetInformation);
     
     public void commit();
     

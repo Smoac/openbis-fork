@@ -110,7 +110,7 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
         dataSetInformation.setUploadingUserEmail("ab@c.de");
         try
         {
-            uploader.handleTSVFile(tsvFile, dataSetInformation, feeder);
+            uploader.handleTSVFile(tsvFile, dataSetInformation);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -133,7 +133,7 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier("p1", "e1"));
         dataSetInformation.setDataSetCode("abc-1");
         dataSetInformation.setUploadingUserEmail("ab@c.de");
-        uploader.handleTSVFile(tsvFile, dataSetInformation, feeder);
+        uploader.handleTSVFile(tsvFile, dataSetInformation);
         
         List<String> data = getData(1);
         assertEquals("BBA ID\t" +

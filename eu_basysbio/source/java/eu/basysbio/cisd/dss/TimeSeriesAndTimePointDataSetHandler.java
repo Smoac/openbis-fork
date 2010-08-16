@@ -17,7 +17,6 @@
 package eu.basysbio.cisd.dss;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,13 +31,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
-import ch.systemsx.cisd.etlserver.ThreadParameters;
-import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -55,12 +50,6 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
     @Private
     static final String HELPDESK_EMAIL = "helpdesk.openbis.basysbio@bsse.ethz.ch";
 
-    private static final IDataSetValidator DUMMY_DATA_SET_VALIDATOR = new IDataSetValidator()
-        {
-            public void assertValidDataSet(DataSetType dataSetType, File incomingDataSetFileOrFolder)
-            {
-            }
-        };
 
     private static enum TypeOfDerivedDataSet
     {
@@ -103,18 +92,6 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                 int until = dataSetFileName.length() - CIFEX_DIR_ENDING.length();
                 dataSetFileName = dataSetFileName.substring(0, until);
             }
-        }
-
-        void setNumberOfExpectedDerivedDataSets(TypeOfDerivedDataSet type,
-                int numberOfDerivedDataSets)
-        {
-            this.type = type;
-            this.numberOfDerivedDataSets = numberOfDerivedDataSets;
-        }
-
-        void addDerivedDataSetCode(String code)
-        {
-            count++;
         }
 
         void logSendEMailAndHandlerError(Logger logger, IMailClient mailClient, boolean sendEMail)
@@ -166,22 +143,9 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, TimeSeriesAndTimePointDataSetHandler.class);
 
-    private static final FilenameFilter LCA_MIC_TIME_SERIES_FILE_FILTER = new FilenameFilter()
-        {
-
-            public boolean accept(File dir, String name)
-            {
-                return name.startsWith(DataSetHandler.LCA_MIC_TIME_SERIES);
-            }
-        };
-
     private final IDataSetHandler delegator;
 
     private final IMailClient mailClient;
-
-    private final IDataSetHandler timePointDataSetHandler;
-
-    private final File timePointDataSetFolder;
 
     private final ITimeProvider timeProvider;
 
@@ -193,28 +157,17 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
         this.delegator = delegator;
         this.service = openbisService;
         this.mailClient = new MailClient(parentProperties);
-        Properties specificProperties =
-                ExtendedProperties.getSubset(parentProperties,
-                        IDataSetHandler.DATASET_HANDLER_KEY + '.', true);
-        ThreadParameters threadParameters = new ThreadParameters(specificProperties, "time point");
-        timePointDataSetFolder = threadParameters.getIncomingDataDirectory();
-        timePointDataSetHandler =
-                ETLDaemon.createDataSetHandler(parentProperties, threadParameters, openbisService,
-                        mailClient, DUMMY_DATA_SET_VALIDATOR, false);
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
     }
 
     @Private
     TimeSeriesAndTimePointDataSetHandler(IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService, IMailClient mailClient,
-            IDataSetHandler timePointDataSetHandler, File timePointDataSetFolder,
             ITimeProvider timeProvider)
     {
         this.delegator = delegator;
         service = openbisService;
         this.mailClient = mailClient;
-        this.timePointDataSetHandler = timePointDataSetHandler;
-        this.timePointDataSetFolder = timePointDataSetFolder;
         this.timeProvider = timeProvider;
     }
 
@@ -232,12 +185,6 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
                 MessageBuilder builder =
                     new MessageBuilder(dataSetInformation.tryGetUploadingUserEmail(), timeProvider);
                 builder.setDataSetFileName(dataSet);
-                File[] files = timePointDataSetFolder.listFiles();
-                handleDerivedDataSets(files, TypeOfDerivedDataSet.TIME_POINT, timePointDataSetHandler,
-                        dataSetInfos, builder);
-                files = dataSet.getParentFile().listFiles(LCA_MIC_TIME_SERIES_FILE_FILTER);
-                handleDerivedDataSets(files, TypeOfDerivedDataSet.LCA_MIC_TIME_SERIES, delegator,
-                        dataSetInfos, builder);
                 DataSetType dataSetType = dataSetInformation.getDataSetType();
                 boolean lcaMicTimeSeries =
                     dataSetType.getCode().equals(DataSetHandler.LCA_MIC_TIME_SERIES);
@@ -258,34 +205,6 @@ public class TimeSeriesAndTimePointDataSetHandler implements IDataSetHandler
             }
         }
         return dataSetInfos;
-    }
-
-    private void handleDerivedDataSets(File[] files, TypeOfDerivedDataSet type,
-            IDataSetHandler handler, List<DataSetInformation> dataSetInfos, MessageBuilder builder)
-    {
-        if (files != null && files.length > 0)
-        {
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info("Starting registration of " + files.length + " " + type.name
-                        + " data sets.");
-            }
-            builder.setNumberOfExpectedDerivedDataSets(type, files.length);
-            for (File file : files)
-            {
-                List<DataSetInformation> result = handler.handleDataSet(file);
-                dataSetInfos.addAll(result);
-                if (result.isEmpty() == false)
-                {
-                    builder.addDerivedDataSetCode(getDataSetCode(result));
-                }
-            }
-        }
-    }
-
-    private String getDataSetCode(List<DataSetInformation> result)
-    {
-        return result.get(0).getDataSetCode();
     }
 
 }
