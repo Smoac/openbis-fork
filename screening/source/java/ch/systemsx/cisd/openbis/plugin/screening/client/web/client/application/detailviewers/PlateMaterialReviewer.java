@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.PlateMaterialReviewerColDefKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
@@ -368,26 +369,32 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                         Grid<BaseEntityModel<?>> grid)
                 {
                     final WellContent entity = (WellContent) model.getBaseObject();
-                    if (entity != null && entity.tryGetImages() != null)
+                    if (entity == null)
                     {
-                        final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
-                            {
-                                public Widget create(String channel)
-                                {
-                                    return WellContentDialog.createImageViewerForChannel(
-                                            viewContext, entity, IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX,
-                                            channel);
-                                }
-                            };
-                        ChannelWidgetWithListener widgetWithListener =
-                                new ChannelWidgetWithListener(viewerFactory);
-                        widgetWithListener.update(channelChooser.getSimpleValue());
-                        channelChooser.addNamesAndListener(entity.tryGetImages()
-                                .getImageParameters().getChannelsNames(), widgetWithListener
-                                .asSelectionChangedListener());
-                        return widgetWithListener.asWidget();
+                        return null;
                     }
-                    return null;
+                    DatasetImagesReference images = entity.tryGetImages();
+                    if (images == null)
+                    {
+                        return null;
+                    }
+
+                    final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
+                        {
+                            public Widget create(String channel)
+                            {
+                                return WellContentDialog.createImageViewerForChannel(viewContext,
+                                        entity, IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX, channel);
+                            }
+                        };
+                    ChannelWidgetWithListener widgetWithListener =
+                            new ChannelWidgetWithListener(viewerFactory);
+                    widgetWithListener.update(channelChooser.getSimpleValue());
+
+                    PlateImageParameters imageParameters = images.getImageParameters();
+                    channelChooser.addNamesAndListener(imageParameters.getChannelsNames(),
+                            widgetWithListener.asSelectionChangedListener());
+                    return widgetWithListener.asWidget();
                 }
             };
         schema.setGridCellRendererFor(PlateMaterialReviewerColDefKind.IMAGE.id(), render);
