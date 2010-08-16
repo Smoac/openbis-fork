@@ -44,7 +44,7 @@ public class DoubleTableCell implements ISerializableComparable
             double v1 = number;
             DoubleTableCell numberTableCell = (DoubleTableCell) o;
             double v2 = numberTableCell.number;
-            return v1 < v2 ? -1 : (v1 > v2 ? 1 : 0);
+            return Double.compare(v1, v2);
         }
         return toString().compareTo(o.toString());
     }
