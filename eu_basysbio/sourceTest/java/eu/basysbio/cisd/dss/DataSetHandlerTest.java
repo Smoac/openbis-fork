@@ -16,8 +16,6 @@
 
 package eu.basysbio.cisd.dss;
 
-import static eu.basysbio.cisd.dss.DataSetTypeTranslator.DATA_SET_TYPES_KEY;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
