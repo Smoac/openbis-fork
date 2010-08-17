@@ -116,7 +116,7 @@ public class HCSDatasetUploader
                 new HashMap<ImgChannelStackDTO, List<AcquiredImageInStack>>();
         for (AcquiredPlateImage image : images)
         {
-            ImgChannelStackDTO stackDTO = makeStackDTO(image, spotIds, datasetId);
+            ImgChannelStackDTO stackDTO = makeStackDtoWithouId(image, spotIds, datasetId);
             List<AcquiredImageInStack> stackImages = map.get(stackDTO);
             if (stackImages == null)
             {
@@ -125,7 +125,16 @@ public class HCSDatasetUploader
             stackImages.add(makeAcquiredImageInStack(image));
             map.put(stackDTO, stackImages);
         }
+        setChannelStackIds(map.keySet());
         return map;
+    }
+
+    private void setChannelStackIds(Set<ImgChannelStackDTO> channelStacks)
+    {
+        for (ImgChannelStackDTO channelStack : channelStacks)
+        {
+            channelStack.setId(dao.createChannelStackId());
+        }
     }
 
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
@@ -134,12 +143,13 @@ public class HCSDatasetUploader
                 .getThumbnailFilePathOrNull());
     }
 
-    private ImgChannelStackDTO makeStackDTO(AcquiredPlateImage image, Long[][] spotIds,
+    private ImgChannelStackDTO makeStackDtoWithouId(AcquiredPlateImage image, Long[][] spotIds,
             long datasetId)
     {
         long spotId = getSpotId(image, spotIds);
-        return new ImgChannelStackDTO(dao.createChannelStackId(), image.getTileRow(), image
-                .getTileColumn(), datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth());
+        int dummyId = 0;
+        return new ImgChannelStackDTO(dummyId, image.getTileRow(), image.getTileColumn(),
+                datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth());
     }
 
     private static long getSpotId(AcquiredPlateImage image, Long[][] spotIds)

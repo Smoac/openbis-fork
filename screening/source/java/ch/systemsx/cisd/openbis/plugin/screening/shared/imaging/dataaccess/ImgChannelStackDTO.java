@@ -18,12 +18,14 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import net.lemnik.eodsql.ResultColumn;
 
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 
 /**
  * @author Tomasz Pylak
  */
-public class ImgChannelStackDTO extends AbstractHashable
+public class ImgChannelStackDTO
 {
     @ResultColumn("ID")
     private long id;
@@ -127,6 +129,70 @@ public class ImgChannelStackDTO extends AbstractHashable
     public void setSpotId(long spotId)
     {
         this.spotId = spotId;
+    }
+
+    @Override
+    // use all fields besides id
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (datasetId ^ (datasetId >>> 32));
+        result = prime * result + ((column == null) ? 0 : column.hashCode());
+        result = prime * result + ((row == null) ? 0 : row.hashCode());
+        result = prime * result + (int) (spotId ^ (spotId >>> 32));
+        result = prime * result + ((t == null) ? 0 : t.hashCode());
+        result = prime * result + ((z == null) ? 0 : z.hashCode());
+        return result;
+    }
+
+    @Override
+    // use all fields besides id
+    public boolean equals(Object obj)
+    {
+        if (obj == null)
+            return false;
+        if (this == obj)
+            return true;
+        if (getClass() != obj.getClass())
+            return false;
+        ImgChannelStackDTO other = (ImgChannelStackDTO) obj;
+        if (datasetId != other.datasetId)
+            return false;
+        if (column == null)
+        {
+            if (other.column != null)
+                return false;
+        } else if (!column.equals(other.column))
+            return false;
+        if (row == null)
+        {
+            if (other.row != null)
+                return false;
+        } else if (!row.equals(other.row))
+            return false;
+        if (spotId != other.spotId)
+            return false;
+        if (t == null)
+        {
+            if (other.t != null)
+                return false;
+        } else if (!t.equals(other.t))
+            return false;
+        if (z == null)
+        {
+            if (other.z != null)
+                return false;
+        } else if (!z.equals(other.z))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
     }
 
 }
