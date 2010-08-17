@@ -378,7 +378,11 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         return null;
                     }
+                    PlateImageParameters imageParameters = images.getImageParameters();
+                    if (imageParameters.isMultidimensional())
+                    {
 
+                    }
                     final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
                         {
                             public Widget create(String channel)
@@ -391,7 +395,6 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                             new ChannelWidgetWithListener(viewerFactory);
                     widgetWithListener.update(channelChooser.getSimpleValue());
 
-                    PlateImageParameters imageParameters = images.getImageParameters();
                     channelChooser.addNamesAndListener(imageParameters.getChannelsNames(),
                             widgetWithListener.asSelectionChangedListener());
                     return widgetWithListener.asWidget();

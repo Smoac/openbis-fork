@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -44,5 +44,5 @@ public interface IHCSDatasetLoader
     /**
      * Loads information about all channels stacks of a given well.
      */
-    List<ImageChannelStackReference> listImageChannelStacks(WellLocation wellLocation);
+    List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocation);
 }

@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.PlateMaterialsSearchCriteriaPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
@@ -79,7 +79,7 @@ public interface IScreeningServer extends IServer
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<ImageChannelStackReference> listImageChannelStacks(String sessionToken,
+    public List<WellImageChannelStack> listImageChannelStacks(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
             String datastoreCode, WellLocation wellLocation);
 

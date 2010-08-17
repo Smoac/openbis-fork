@@ -30,7 +30,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 
 /**
  * Allows to view timepoint images of the well.
@@ -41,10 +41,10 @@ class WellContentTimepointsViewer
 {
 
     public static LayoutContainer createTilesGrid(String sessionId,
-            List<ImageChannelStackReference> channelStackImages, WellImages images, String channel,
+            List<WellImageChannelStack> channelStackImages, WellImages images, String channel,
             int imageWidth, int imageHeight)
     {
-        Map<Float, List<ImageChannelStackReference>> channelStackImagesByTimepoint =
+        Map<Float, List<WellImageChannelStack>> channelStackImagesByTimepoint =
                 groupImagesByTimepoint(channelStackImages);
 
         List<LayoutContainer> frames =
@@ -82,15 +82,15 @@ class WellContentTimepointsViewer
     }
 
     private static List<LayoutContainer> createTimepointFrames(
-            Map<Float, List<ImageChannelStackReference>> channelStackImagesByTimepoint,
+            Map<Float, List<WellImageChannelStack>> channelStackImagesByTimepoint,
             WellImages images, String channel, String sessionId, int imageWidth, int imageHeight)
     {
         final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
         int counter = 0;
-        for (Entry<Float, List<ImageChannelStackReference>> entry : channelStackImagesByTimepoint
+        for (Entry<Float, List<WellImageChannelStack>> entry : channelStackImagesByTimepoint
                 .entrySet())
         {
-            List<ImageChannelStackReference> imageReferences = entry.getValue();
+            List<WellImageChannelStack> imageReferences = entry.getValue();
             final LayoutContainer container =
                     createTilesGridForTimepoint(imageReferences, images, channel, sessionId,
                             imageWidth, imageHeight);
@@ -113,19 +113,19 @@ class WellContentTimepointsViewer
     }
 
     private static LayoutContainer createTilesGridForTimepoint(
-            List<ImageChannelStackReference> channelStackReferences, WellImages images,
+            List<WellImageChannelStack> channelStackReferences, WellImages images,
             String channel, String sessionId, int imageWidth, int imageHeight)
     {
         final LayoutContainer container =
                 new LayoutContainer(new TableLayout(images.getTileColsNum()));
 
-        ImageChannelStackReference[/* tileRow */][/* tileCol */] tilesMap =
+        WellImageChannelStack[/* tileRow */][/* tileCol */] tilesMap =
                 createTilesMap(channelStackReferences, images);
         for (int row = 1; row <= images.getTileRowsNum(); row++)
         {
             for (int col = 1; col <= images.getTileColsNum(); col++)
             {
-                ImageChannelStackReference stackRef = tilesMap[row - 1][col - 1];
+                WellImageChannelStack stackRef = tilesMap[row - 1][col - 1];
                 if (stackRef != null)
                 {
                     ImageUrlUtils.addImageUrlWidget(container, sessionId, images, channel,
@@ -139,13 +139,13 @@ class WellContentTimepointsViewer
         return container;
     }
 
-    private static ImageChannelStackReference[][] createTilesMap(
-            List<ImageChannelStackReference> stackReferences, WellImages images)
+    private static WellImageChannelStack[][] createTilesMap(
+            List<WellImageChannelStack> stackReferences, WellImages images)
     {
         int rows = images.getTileRowsNum();
         int cols = images.getTileColsNum();
-        ImageChannelStackReference[][] map = new ImageChannelStackReference[rows][cols];
-        for (ImageChannelStackReference stackRef : stackReferences)
+        WellImageChannelStack[][] map = new WellImageChannelStack[rows][cols];
+        for (WellImageChannelStack stackRef : stackReferences)
         {
             map[stackRef.getTileRow() - 1][stackRef.getTileCol() - 1] = stackRef;
         }
@@ -167,18 +167,18 @@ class WellContentTimepointsViewer
         return "Timepoint: " + timepoint + "sec (" + sequenceNumber + "/" + numberOfSequences + ")";
     }
 
-    private static Map<Float, List<ImageChannelStackReference>> groupImagesByTimepoint(
-            List<ImageChannelStackReference> channelStackImages)
+    private static Map<Float, List<WellImageChannelStack>> groupImagesByTimepoint(
+            List<WellImageChannelStack> channelStackImages)
     {
-        Map<Float, List<ImageChannelStackReference>> result =
-                new TreeMap<Float, List<ImageChannelStackReference>>();
-        for (ImageChannelStackReference ref : channelStackImages)
+        Map<Float, List<WellImageChannelStack>> result =
+                new TreeMap<Float, List<WellImageChannelStack>>();
+        for (WellImageChannelStack ref : channelStackImages)
         {
             Float t = ref.tryGetTimepoint();
-            List<ImageChannelStackReference> imageReferences = result.get(t);
+            List<WellImageChannelStack> imageReferences = result.get(t);
             if (imageReferences == null)
             {
-                imageReferences = new ArrayList<ImageChannelStackReference>();
+                imageReferences = new ArrayList<WellImageChannelStack>();
                 result.put(t, imageReferences);
             }
             imageReferences.add(ref);

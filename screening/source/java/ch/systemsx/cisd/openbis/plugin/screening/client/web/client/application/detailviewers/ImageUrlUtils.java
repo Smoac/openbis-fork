@@ -22,7 +22,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -50,7 +50,7 @@ public class ImageUrlUtils
      * container.
      */
     public static void addImageUrlWidget(LayoutContainer container, String sessionId,
-            WellImages images, String channel, ImageChannelStackReference channelStackRef,
+            WellImages images, String channel, WellImageChannelStack channelStackRef,
             int imageWidth, int imageHeight)
     {
         String imageURL =
@@ -61,7 +61,7 @@ public class ImageUrlUtils
 
     /** generates URL of an image on Data Store server */
     private static String createDatastoreImageUrl(String sessionID, WellImages images,
-            String channel, ImageChannelStackReference channelStackRef, int width, int height)
+            String channel, WellImageChannelStack channelStackRef, int width, int height)
     {
         URLMethodWithParameters methodWithParameters =
                 createBasicImageURL(sessionID, images, channel);

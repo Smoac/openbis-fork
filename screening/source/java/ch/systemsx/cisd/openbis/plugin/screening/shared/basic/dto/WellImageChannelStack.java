@@ -20,11 +20,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Describes one channel stack which has images for many channels and a specific tile (and
- * optionally timepoint and/or depth).
+ * optionally timepoint and/or depth) of one well.
  * 
  * @author Tomasz Pylak
  */
-public class ImageChannelStackReference implements IsSerializable
+public class WellImageChannelStack implements IsSerializable
 {
     // technical id in the imaging db
     private long channelStackTechId;
@@ -35,12 +35,12 @@ public class ImageChannelStackReference implements IsSerializable
 
     // GWT only
     @SuppressWarnings("unused")
-    private ImageChannelStackReference()
+    private WellImageChannelStack()
     {
     }
 
-    public ImageChannelStackReference(long channelStackTechId, int tileRow, int tileCol,
-            Float tOrNull, Float zOrNull)
+    public WellImageChannelStack(long channelStackTechId, int tileRow, int tileCol, Float tOrNull,
+            Float zOrNull)
     {
         this.channelStackTechId = channelStackTechId;
         this.tileRow = tileRow;

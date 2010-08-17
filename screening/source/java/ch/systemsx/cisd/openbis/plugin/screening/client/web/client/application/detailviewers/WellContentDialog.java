@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.S
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -170,10 +170,10 @@ public class WellContentDialog extends Dialog
     {
         viewContext.getService().listImageChannelStacks(images.getDatasetCode(),
                 images.getDatastoreCode(), images.getWellLocation(),
-                new AbstractAsyncCallback<List<ImageChannelStackReference>>(viewContext)
+                new AbstractAsyncCallback<List<WellImageChannelStack>>(viewContext)
                     {
                         @Override
-                        protected void process(List<ImageChannelStackReference> channelStackImages)
+                        protected void process(List<WellImageChannelStack> channelStackImages)
                         {
                             LayoutContainer imageViewer =
                                     createTimepointImageViewer(channelStackImages, images,
@@ -185,7 +185,7 @@ public class WellContentDialog extends Dialog
     }
 
     private static LayoutContainer createTimepointImageViewer(
-            final List<ImageChannelStackReference> channelStackImages, final WellImages images,
+            final List<WellImageChannelStack> channelStackImages, final WellImages images,
             final DefaultChannelState channelState, IViewContext<?> viewContext)
     {
         final String sessionId = getSessionId(viewContext);
