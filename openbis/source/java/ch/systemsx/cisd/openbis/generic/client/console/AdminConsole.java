@@ -25,9 +25,9 @@ import java.util.Map;
 import jline.ConsoleReader;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -73,7 +73,7 @@ public class AdminConsole
             Map<String, ICommand> commands = createCommands();
             String sessionToken = session.getSessionToken();
             List<String> lines = FileUtilities.loadToStringList(new File(script));
-            ScriptContext context = new ScriptContext();
+            ScriptContext context = new ScriptContext(ExtendedProperties.getSubset(System.getProperties(), "openbis.", true));
             for (int i = 0; i < lines.size(); i++)
             {
                 String line = lines.get(i).trim();
@@ -86,14 +86,16 @@ public class AdminConsole
                     ICommand cmd = commands.get(command);
                     if (cmd == null)
                     {
-                        throw createException(i, line, "Unknown command: " + command);
-                    }
-                    try
+                        printError(i, line, "Unknown command: " + command);
+                    } else
                     {
-                        cmd.execute(service, sessionToken, context, argument);
-                    } catch (RuntimeException ex)
-                    {
-                        throw createException(i, line, ex);
+                        try
+                        {
+                            cmd.execute(service, sessionToken, context, argument);
+                        } catch (RuntimeException ex)
+                        {
+                            printError(i, line, ex);
+                        }
                     }
                 }
             }
@@ -101,16 +103,11 @@ public class AdminConsole
         }
     }
     
-    private static UserFailureException createException(int lineIndex, String line, Object reason)
+    private static void printError(int lineIndex, String line, Object reason)
     {
         String message = "Error in line " + (lineIndex + 1) + " [" + line
                 + "]\nReason: " + reason;
-        if (reason instanceof Throwable)
-        {
-            Throwable throwable = (Throwable) reason;
-            return new UserFailureException(message, throwable);
-        }
-        return new UserFailureException(message);
+        System.err.println(message);
     }
 
     private static ConsoleReader getConsoleReader()

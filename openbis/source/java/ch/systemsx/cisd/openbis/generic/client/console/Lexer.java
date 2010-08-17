@@ -81,7 +81,6 @@ class Lexer
                 }
                 if (character == '\"')
                 {
-                    context.finishToken();
                     return IN_QUOTED_TOKEN;
                 }
                 context.addCharacter(character);
@@ -95,8 +94,7 @@ class Lexer
             {
                 if (character == '\"')
                 {
-                    context.finishToken();
-                    return BETWEEN_TOKENS;
+                    return IN_TOKEN;
                 }
                 context.addCharacter(character);
                 return this;

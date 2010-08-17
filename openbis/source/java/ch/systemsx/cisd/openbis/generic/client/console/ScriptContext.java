@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.console;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.utilities.Template;
 
@@ -30,6 +32,15 @@ import ch.systemsx.cisd.common.utilities.Template;
 class ScriptContext
 {
     private final Map<String, String> bindings = new HashMap<String, String>();
+    
+    ScriptContext(Properties properties)
+    {
+        Set<Entry<Object, Object>> entrySet = properties.entrySet();
+        for (Entry<Object, Object> entry : entrySet)
+        {
+            bind((String) entry.getKey(), (String) entry.getValue());
+        }
+    }
     
     void bind(String variable, String value)
     {

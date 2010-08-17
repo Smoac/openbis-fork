@@ -38,8 +38,8 @@ public class LexerTest extends AssertJUnit
         check("[alpha]", " alpha\t  ");
         check("[a, b, hello world]", "a  b \"hello world\"");
         check("[a, b, hello \t world ]", " a\tb \"hello \t world \"  ");
-        check("[a, b, hello 'world']", "a  b\"hello 'world'\"");
-        check("[a, b]", "\"a\"\"b\"");
+        check("[a, b, hello 'world']", "a  b \"hello 'world'\"");
+        check("[a=hello world]", "a=\"hello world\"");
     }
     
     private void check(String expectedTokens, String input)

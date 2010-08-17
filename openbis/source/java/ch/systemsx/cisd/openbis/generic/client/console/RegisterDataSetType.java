@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.console;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
@@ -26,10 +30,84 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  */
 class RegisterDataSetType implements ICommand
 {
+    private static interface AttributeSetter<T>
+    {
+        public String getAttributeName();
+        public void setAttributeFor(T object, String value);
+    }
+    
+    private enum DataSetTypeAttributeSetter implements AttributeSetter<DataSetType>
+    {
+        DESCRIPTION("description")
+        {
+            public void setAttributeFor(DataSetType type, String value)
+            {
+                type.setDescription(value);
+
+            }
+        },
+        PATTERN("main-pattern")
+        {
+            public void setAttributeFor(DataSetType type, String value)
+            {
+                type.setMainDataSetPattern(value);
+                
+            }
+        },
+        PATH("main-path")
+        {
+            public void setAttributeFor(DataSetType type, String value)
+            {
+                type.setMainDataSetPath(value);
+
+            }
+        };
+        
+        private final String attributeName;
+        private DataSetTypeAttributeSetter(String attributeName)
+        {
+            this.attributeName = attributeName;
+        }
+        
+        public String getAttributeName()
+        {
+            return attributeName;
+        }
+    }
+
+    private final Map<String, AttributeSetter<DataSetType>> attributeSetters =
+            new HashMap<String, AttributeSetter<DataSetType>>();
+
+    RegisterDataSetType()
+    {
+        for (DataSetTypeAttributeSetter attributeSetter : DataSetTypeAttributeSetter.values())
+        {
+            attributeSetters.put(attributeSetter.getAttributeName(), attributeSetter);
+        }
+    }
 
     public void execute(ICommonServer server, String sessionToken, ScriptContext context, String argument)
     {
-        server.registerDataSetType(sessionToken, new DataSetType(argument));
+        List<String> tokens = Lexer.extractTokens(argument);
+        DataSetType dataSetType = new DataSetType(tokens.get(0));
+        for (int i = 1; i < tokens.size(); i++)
+        {
+            String token = tokens.get(i);
+            int indexOfEqualSign = token.indexOf('=');
+            if (indexOfEqualSign < 0)
+            {
+                throw new IllegalArgumentException("Missing '=': " + token);
+            }
+            String key = token.substring(0, indexOfEqualSign);
+            String value = token.substring(indexOfEqualSign + 1);
+            AttributeSetter<DataSetType> attributeSetter = attributeSetters.get(key);
+            if (attributeSetter == null)
+            {
+                throw new IllegalArgumentException("Unknown attribute '" + key + "': " + token);
+            }
+            attributeSetter.setAttributeFor(dataSetType, value);
+        }
+        server.registerDataSetType(sessionToken, dataSetType);
     }
 
 }
