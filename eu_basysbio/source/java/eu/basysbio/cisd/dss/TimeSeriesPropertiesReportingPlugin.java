@@ -63,7 +63,7 @@ public class TimeSeriesPropertiesReportingPlugin extends AbstractDatastorePlugin
             }
             addTableCellValue(row, headers, "CODE", dataset.getDatasetCode());
             File file = getDataSubDir(dataset);
-            List<NewProperty> properies = HeaderUtils.extractHeaderProperties(file, true);
+            List<NewProperty> properies = HeaderUtils.extractHeaderProps(file, true, false, true);
             for (NewProperty p : properies)
             {
                 addTableCellValue(row, headers, p.getPropertyCode(), p.getValue());
