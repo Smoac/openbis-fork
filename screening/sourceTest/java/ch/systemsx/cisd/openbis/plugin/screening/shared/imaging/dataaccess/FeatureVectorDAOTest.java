@@ -21,6 +21,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.sql.SQLException;
 import java.util.List;
 
+import net.lemnik.eodsql.QueryTool;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -56,7 +58,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        dao = DBUtils.getQuery(datasource, IImagingQueryDAO.class);
+        dao = QueryTool.getQuery(datasource, IImagingQueryDAO.class);
     }
 
     private ImgDatasetDTO createDataSet()
