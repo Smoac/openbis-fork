@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +31,9 @@ import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
@@ -43,6 +48,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 {
+    private static final String DYNAMIX_TOKEN_SEPARATOR = "_";
+
     private static final String POSITION_MAPPING_FILE_NAME = "pos2loc.tsv";
 
     private final List<String> channelNames;
@@ -87,7 +94,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
      */
     protected final Location tryGetPlateLocation(final String plateLocation)
     {
-        final String[] tokens = StringUtils.split(plateLocation, "_");
+        final String[] tokens = StringUtils.split(plateLocation, DYNAMIX_TOKEN_SEPARATOR);
         Integer row = new Integer(tokens[0]);
         Integer column = new Integer(tokens[1]);
         return Location.tryCreateLocationFromRowAndColumn(row, column);
@@ -102,8 +109,8 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     @Override
     protected final ImageFileInfo tryExtractImageInfo(File imageFile, SampleIdentifier datasetSample)
     {
-        final String baseName = FilenameUtils.getBaseName(imageFile.getPath());
-        final String[] tokens = StringUtils.split(baseName, "_");
+        String baseName = FilenameUtils.getBaseName(imageFile.getPath());
+        String[] tokens = StringUtils.split(baseName, DYNAMIX_TOKEN_SEPARATOR);
         if (tokens == null || tokens.length != 5)
         {
             if (operationLog.isDebugEnabled())
@@ -119,14 +126,48 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         // "left_dia_pos100_t20100227_152439.tif"
         ImageFileInfo info = new ImageFileInfo();
         // row_column - will be parsed later. It's unnecessary and should be refactored.
-        info.setPlateLocationToken(wellLocation.getRow() + "_" + wellLocation.getColumn());
+        info.setPlateLocationToken(wellLocation.getRow() + DYNAMIX_TOKEN_SEPARATOR
+                + wellLocation.getColumn());
         info.setWellLocationToken(null);
         info.setChannelToken(tokens[1]);
 
+        long timepoint = getSecondsFromFirstMeasurement(imageFile, tokens);
+        info.setTimepointToken("" + timepoint);
+        return info;
+    }
+
+    private static long getSecondsFromFirstMeasurement(File imageFile, String[] tokens)
+    {
         File[] images = imageFile.getParentFile().listFiles();
         Arrays.sort(images);
-        info.setTimepointToken("" + Arrays.asList(images).indexOf(imageFile));
-        return info;
+        String firstMeasurementFilePath = images[0].getPath();
+
+        String firstMeasurementFileBaseName = FilenameUtils.getBaseName(firstMeasurementFilePath);
+        String[] firstMeasurementTokens =
+                StringUtils.split(firstMeasurementFileBaseName, DYNAMIX_TOKEN_SEPARATOR);
+
+        return getSecondsFromFirstMeasurement(tokens, firstMeasurementTokens);
+    }
+
+    @Private
+    static long getSecondsFromFirstMeasurement(String[] tokens, String[] firstMeasurementTokens)
+    {
+        Date firstMeasurementDate = parseDate(firstMeasurementTokens);
+        Date thisMeasurementDate = parseDate(tokens);
+        return (thisMeasurementDate.getTime() - firstMeasurementDate.getTime()) / 1000;
+    }
+
+    private static Date parseDate(String[] tokens)
+    {
+        // t20100227_152439 -> 20100227152439
+        String dateToken = tokens[3].substring(1) + tokens[4];
+        try
+        {
+            return new SimpleDateFormat("yyyymmddhhmmss").parse(dateToken);
+        } catch (ParseException ex)
+        {
+            throw new EnvironmentFailureException("Cannot parse the data in the file name: " + ex);
+        }
     }
 
     private WellLocation getWellLocation(File imageFile, final String[] tokens)
