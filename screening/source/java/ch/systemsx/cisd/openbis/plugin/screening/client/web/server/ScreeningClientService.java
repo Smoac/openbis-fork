@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -283,7 +283,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return server.getVocabulary(sessionToken, ScreeningConstants.PLATE_GEOMETRY);
     }
 
-    public List<ChannelStackImageReference> listImageChannelStacks(String datasetCode,
+    public List<ImageChannelStackReference> listImageChannelStacks(String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {
         final String sessionToken = getSessionToken();

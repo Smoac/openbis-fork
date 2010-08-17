@@ -1,0 +1,120 @@
+/*
+ * Copyright 2010 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
+
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+
+/**
+ * Generates URLs pointing to the images on Data Store server.
+ * 
+ * @author Tomasz Pylak
+ */
+public class ImageUrlUtils
+{
+    /**
+     * Creates a widget which displays the URL to the specified image on DSS and adds it to the
+     * container.
+     */
+    public static void addImageUrlWidget(LayoutContainer container, String sessionId,
+            WellImages images, String channel, int row, int col, int imageWidth, int imageHeight)
+    {
+        String imageURL =
+                createDatastoreImageUrl(sessionId, images, channel, row, col, imageWidth,
+                        imageHeight);
+        addUrlWidget(container, imageURL, imageHeight);
+    }
+
+    /**
+     * Creates a widget which displays the URL to the specified image on DSS and adds it to the
+     * container.
+     */
+    public static void addImageUrlWidget(LayoutContainer container, String sessionId,
+            WellImages images, String channel, ImageChannelStackReference channelStackRef,
+            int imageWidth, int imageHeight)
+    {
+        String imageURL =
+                createDatastoreImageUrl(sessionId, images, channel, channelStackRef, imageWidth,
+                        imageHeight);
+        addUrlWidget(container, imageURL, imageHeight);
+    }
+
+    /** generates URL of an image on Data Store server */
+    private static String createDatastoreImageUrl(String sessionID, WellImages images,
+            String channel, ImageChannelStackReference channelStackRef, int width, int height)
+    {
+        URLMethodWithParameters methodWithParameters =
+                createBasicImageURL(sessionID, images, channel);
+
+        methodWithParameters
+                .addParameter("channelStackId", channelStackRef.getChannelStackTechId());
+        String linkURL = methodWithParameters.toString();
+        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
+
+        String imageURL = methodWithParameters.toString();
+        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
+    }
+
+    /** creates a widget which displays the specified URL and adds it to the container */
+    private static void addUrlWidget(LayoutContainer container, String url, int height)
+    {
+        Component tileContent = new Html(url);
+        tileContent.setHeight("" + height);
+        PlateStyleSetter.setPointerCursor(tileContent);
+        container.add(tileContent);
+    }
+
+    /** generates URL of an image on Data Store server */
+    private static String createDatastoreImageUrl(String sessionID, WellImages images,
+            String channel, int tileRow, int tileCol, int width, int height)
+    {
+        URLMethodWithParameters methodWithParameters =
+                createBasicImageURL(sessionID, images, channel);
+
+        methodWithParameters.addParameter("wellRow", images.getWellLocation().getRow());
+        methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());
+        methodWithParameters.addParameter("tileRow", tileRow);
+        methodWithParameters.addParameter("tileCol", tileCol);
+        String linkURL = methodWithParameters.toString();
+        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
+
+        String imageURL = methodWithParameters.toString();
+        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
+    }
+
+    private static URLMethodWithParameters createBasicImageURL(String sessionID, WellImages images,
+            String channel)
+    {
+        URLMethodWithParameters methodWithParameters =
+                new URLMethodWithParameters(images.getDownloadUrl() + "/"
+                        + ScreeningConstants.DATASTORE_SCREENING_SERVLET_URL);
+        methodWithParameters.addParameter("sessionID", sessionID);
+        methodWithParameters.addParameter("dataset", images.getDatasetCode());
+        methodWithParameters.addParameter("channel", channel);
+        if (channel.equals(ScreeningConstants.MERGED_CHANNELS))
+        {
+            methodWithParameters.addParameter("mergeChannels", "true");
+        }
+        return methodWithParameters;
+    }
+}

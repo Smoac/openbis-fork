@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -96,7 +96,7 @@ public class PlateContentLoader
     /**
      * Loads information about all channels stacks of a given well in a given dataset.
      */
-    public static List<ChannelStackImageReference> loadImageChannelStacks(Session session,
+    public static List<ImageChannelStackReference> loadImageChannelStacks(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {
@@ -325,7 +325,7 @@ public class PlateContentLoader
                 .createForContainer(plateId));
     }
 
-    private List<ChannelStackImageReference> loadImageChannelStacks(String datasetCode,
+    private List<ImageChannelStackReference> loadImageChannelStacks(String datasetCode,
             String datastoreCode, WellLocation wellLocation)
     {
         IHCSDatasetLoader datasetLoader =

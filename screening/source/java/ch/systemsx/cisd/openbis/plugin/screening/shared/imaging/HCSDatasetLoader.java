@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
@@ -119,7 +119,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return dataset.getIsMultidimensional();
     }
 
-    public List<ChannelStackImageReference> listImageChannelStacks(WellLocation wellLocation)
+    public List<ImageChannelStackReference> listImageChannelStacks(WellLocation wellLocation)
     {
         int spotYRow = wellLocation.getRow();
         int spotXColumn = wellLocation.getColumn();
@@ -128,9 +128,9 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return convert(stacks);
     }
 
-    private static List<ChannelStackImageReference> convert(List<ImgChannelStackDTO> stacks)
+    private static List<ImageChannelStackReference> convert(List<ImgChannelStackDTO> stacks)
     {
-        List<ChannelStackImageReference> result = new ArrayList<ChannelStackImageReference>();
+        List<ImageChannelStackReference> result = new ArrayList<ImageChannelStackReference>();
         for (ImgChannelStackDTO stack : stacks)
         {
             result.add(convert(stack));
@@ -138,9 +138,9 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return result;
     }
 
-    private static ChannelStackImageReference convert(ImgChannelStackDTO stack)
+    private static ImageChannelStackReference convert(ImgChannelStackDTO stack)
     {
-        return new ChannelStackImageReference(stack.getId(), stack.getRow(), stack.getColumn(),
+        return new ImageChannelStackReference(stack.getId(), stack.getRow(), stack.getColumn(),
                 stack.getT(), stack.getZ());
     }
 }

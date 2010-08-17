@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelStackImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -92,7 +92,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void listImageChannelStacks(String datasetCode, String datastoreCode,
             WellLocation wellLocation,
-            AsyncCallback<List<ChannelStackImageReference>> abstractAsyncCallback);
+            AsyncCallback<List<ImageChannelStackReference>> abstractAsyncCallback);
 
     /**
      * @see IScreeningClientService#registerLibrary(LibraryRegistrationInfo)

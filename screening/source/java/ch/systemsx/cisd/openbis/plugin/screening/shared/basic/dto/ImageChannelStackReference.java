@@ -24,8 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class ChannelStackImageReference implements IsSerializable,
-        Comparable<ChannelStackImageReference>
+public class ImageChannelStackReference implements IsSerializable
 {
     // technical id in the imaging db
     private long channelStackTechId;
@@ -36,11 +35,11 @@ public class ChannelStackImageReference implements IsSerializable,
 
     // GWT only
     @SuppressWarnings("unused")
-    private ChannelStackImageReference()
+    private ImageChannelStackReference()
     {
     }
 
-    public ChannelStackImageReference(long channelStackTechId, int tileRow, int tileCol,
+    public ImageChannelStackReference(long channelStackTechId, int tileRow, int tileCol,
             Float tOrNull, Float zOrNull)
     {
         this.channelStackTechId = channelStackTechId;
@@ -91,16 +90,4 @@ public class ChannelStackImageReference implements IsSerializable,
         return "channelStack=" + channelStackTechId + ", tile[" + tileRow + "," + tileCol + "]"
                 + desc;
     }
-
-    public int compareTo(ChannelStackImageReference other)
-    {
-        if (this.tileRow == other.tileRow)
-        {
-            return this.tileCol < other.tileCol ? -1 : (this.tileCol == other.tileCol ? 0 : 1);
-        } else
-        {
-            return this.tileRow < other.tileRow ? -1 : 1;
-        }
-    }
-
 }

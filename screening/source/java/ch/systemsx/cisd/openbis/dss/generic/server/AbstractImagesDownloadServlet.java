@@ -122,7 +122,11 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
 
         private static Integer tryGetIntParam(HttpServletRequest request, String paramName)
         {
-            String value = getParam(request, paramName);
+            String value = request.getParameter(paramName);
+            if (value == null)
+            {
+                return null;
+            }
             try
             {
                 return Integer.valueOf(value);
