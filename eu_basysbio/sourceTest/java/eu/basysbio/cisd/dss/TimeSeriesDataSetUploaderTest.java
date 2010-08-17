@@ -31,16 +31,12 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -49,21 +45,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses=TimeSeriesDataSetUploader.class)
-public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
+public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
 {
     private static final String DATA_SET_CODE = "DS1";
 
     private static final long DATA_SET_SPECIAL_ID = 4711;
 
-    private static final String GROUP_CODE = "/G1";
-
-    private static final long EXP_ID = 42L;
-
-    private static final String EXP_PERM_ID = "perm-" + EXP_ID;
-
     private static final long EXP_SPECIAL_ID = 2 * EXP_ID;
-
-    private static final String PROJECT_CODE = "P1";
 
     private static final long ROW1_ID = 1;
 
@@ -296,21 +284,6 @@ public class TimeSeriesDataSetUploaderTest extends AbstractFileSystemTestCase
             });
     }
     
-    private Experiment createExperiment(String code)
-    {
-        Experiment experiment = new Experiment();
-        experiment.setId(EXP_ID);
-        experiment.setCode(code);
-        experiment.setPermId(EXP_PERM_ID);
-        Project project = new Project();
-        project.setCode(PROJECT_CODE);
-        Space space = new Space();
-        space.setIdentifier(GROUP_CODE);
-        project.setSpace(space);
-        experiment.setProject(project);
-        return experiment;
-    }
-
     private DataSetInformation createDataSetInformation(String dataSetTypeCode)
     {
         DataSetInformation dataSetInformation = new DataSetInformation();

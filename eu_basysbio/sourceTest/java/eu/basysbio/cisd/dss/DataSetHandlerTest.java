@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.etlserver.utils.Column;
@@ -99,24 +98,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     {
         // To following line of code should also be called at the end of each test method.
         // Otherwise one does not known which test failed.
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testMissingTimeSeriesDropBoxProperty()
-    {
-        try
-        {
-            Properties properties = new Properties();
-            createHandler(properties);
-            fail("ConfigurationFailureException expected");
-        } catch (ConfigurationFailureException ex)
-        {
-            assertEquals("Given key '"
-                    + TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH
-                    + "' not found in properties '[]'", ex.getMessage());
-        }
-
         context.assertIsSatisfied();
     }
 
@@ -260,7 +241,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         Properties properties = new Properties();
         properties.setProperty(
                 TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                .getAbsolutePath());
+                        .getAbsolutePath());
         DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         prepareGetOrCreateDataSet(false);

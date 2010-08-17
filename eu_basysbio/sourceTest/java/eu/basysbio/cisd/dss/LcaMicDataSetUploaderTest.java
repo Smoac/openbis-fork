@@ -26,7 +26,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.cifex.CifexExtractorHelper;
@@ -39,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  *
  * @author Franz-Josef Elmer
  */
-public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
+public class LcaMicDataSetUploaderTest extends UploaderTestCase
 {
     private static FilenameFilter TXT_FILTER = new FilenameFilter()
         {
@@ -61,7 +60,6 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
     private ITimeSeriesDAO dao;
     private IEncapsulatedOpenBISService service;
     private LcaMicDataSetUploader uploader;
-    private IDropBoxFeeder feeder;
     private File dropBox;
 
     @BeforeMethod
@@ -70,7 +68,6 @@ public class LcaMicDataSetUploaderTest extends AbstractFileSystemTestCase
         context = new Mockery();
         dao = context.mock(ITimeSeriesDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
-        feeder = context.mock(IDropBoxFeeder.class);
         dropBox = new File(workingDirectory, "drop-box");
         dropBox.mkdirs();
         Properties properties = new Properties();

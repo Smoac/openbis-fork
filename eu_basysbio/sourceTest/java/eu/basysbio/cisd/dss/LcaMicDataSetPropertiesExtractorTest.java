@@ -53,7 +53,7 @@ public class LcaMicDataSetPropertiesExtractorTest extends AbstractFileSystemTest
         IDataSetPropertiesExtractor extractor =
                 new LcaMicDataSetPropertiesExtractor(new Properties());
         List<NewProperty> props = extractor.extractDataSetProperties(ds);
-        assertEquals(12, props.size());
+        assertEquals(13, props.size());
         Map<String, String> map = new HashMap<String, String>();
         for (NewProperty property : props)
         {
