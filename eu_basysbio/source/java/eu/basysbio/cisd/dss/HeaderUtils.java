@@ -343,7 +343,7 @@ class HeaderUtils
                 TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE);
     }
 
-    private static List<NewProperty> extractHeaderProps(File dir, boolean ignoreEmptyLines,
+    static List<NewProperty> extractHeaderProps(File dir, boolean ignoreEmptyLines,
             boolean ignoreHashedLines, boolean multipleValuesAllowed,
             TimeSeriesPropertyType... ignoredTypes)
     {

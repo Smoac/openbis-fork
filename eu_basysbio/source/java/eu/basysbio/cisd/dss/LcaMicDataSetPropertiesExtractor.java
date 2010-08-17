@@ -53,8 +53,7 @@ class LcaMicDataSetPropertiesExtractor extends DataSetPropertiesExtractor
         String[] items = StringUtils.split(lines.get(0), " \t");
         NewProperty growthRate = new NewProperty(GROWTH_RATE, items[items.length - 1]);
         List<NewProperty> properties =
-                HeaderUtils.extractHeaderPropertiesIgnoringTimeSeriesDataSetType(
-                        incomingDataSetPath, ignoreEmptyLines, true, true);
+                HeaderUtils.extractHeaderProps(incomingDataSetPath, ignoreEmptyLines, true, true);
         properties.add(growthRate);
         return properties;
     }

@@ -38,7 +38,6 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.plugins.HierarchicalStorageUpdater;
-import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -52,15 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
 {
-    private static final IDropBoxFeeder DUMMY_FEEDER = new IDropBoxFeeder()
-        {
-
-            public void feed(String userEmail, String sampleCode, List<Column> commonColumns,
-                    Column dataColumn)
-            {
-            }
-        };
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PostRegistrationDatabaseUploadTask.class);
 
