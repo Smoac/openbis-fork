@@ -34,21 +34,9 @@ class TimeSeriesDataSetUploaderParameters
 
     static final String DEFAULT_EXPERIMENT_CODE_TEMPLATE = "{0}_{1}_{2}";
 
-    static final String SAMPLE_CODE_TEMPLATE_KEY = "sample-code-template";
-
-    static final String DEFAULT_SAMPLE_CODE_TEMPLATE = "{0}_{1}_{2}";
-
-    static final String SAMPLE_TYPE_CODE_KEY = "sample-type-code";
-
-    static final String DEFAULT_SAMPLE_TYPE_CODE = "TIME_POINT";
-
     static final String IGNORE_EMPTY_LINES_KEY = "ignore-empty-lines";
 
     private final MessageFormat experimentCodeFormat;
-
-    private final MessageFormat sampleCodeFormat;
-
-    private final String sampleTypeCode;
 
     private final boolean ignoreEmptyLines;
 
@@ -69,14 +57,10 @@ class TimeSeriesDataSetUploaderParameters
             throw new ConfigurationFailureException(
                     "Time series data set drop box is not a folder: " + timeSeriesDropBox);
         }
-        sampleTypeCode = properties.getProperty(SAMPLE_TYPE_CODE_KEY, DEFAULT_SAMPLE_TYPE_CODE);
         ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
         experimentCodeFormat =
                 new MessageFormat(properties.getProperty(EXPERIMENT_CODE_TEMPLATE_KEY,
                         DEFAULT_EXPERIMENT_CODE_TEMPLATE));
-        sampleCodeFormat =
-                new MessageFormat(properties.getProperty(SAMPLE_CODE_TEMPLATE_KEY,
-                        DEFAULT_SAMPLE_CODE_TEMPLATE));
     }
     
     File getTimeSeriesDropBox()
@@ -87,16 +71,6 @@ class TimeSeriesDataSetUploaderParameters
     MessageFormat getExperimentCodeFormat()
     {
         return experimentCodeFormat;
-    }
-
-    MessageFormat getSampleCodeFormat()
-    {
-        return sampleCodeFormat;
-    }
-
-    String getSampleTypeCode()
-    {
-        return sampleTypeCode;
     }
 
     boolean isIgnoreEmptyLines()

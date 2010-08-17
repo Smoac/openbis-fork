@@ -173,11 +173,10 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
         }
         assertUniqueDataColumnHeader(dataColumnHeader);
         Experiment experiment = getExperiment(dataColumnHeader, dataSetInformation);
-        String sampleCode = createSampleCode(dataColumnHeader).toUpperCase();
         headers.add(dataColumnHeader);
 
         createSampleAndDataColumn(dataColumn, dataSetID, rowIDManager, dataColumnHeader,
-                experiment, sampleCode);
+                experiment);
     }
 
     private void assertUniqueDataColumnHeader(DataColumnHeader dataColumnHeader)
@@ -237,14 +236,6 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
                             dataColumnHeader.getBiologicalReplicateCode() });
     }
 
-    private String createSampleCode(DataColumnHeader dataColumnHeader)
-    {
-        return parameters.getSampleCodeFormat().format(
-                new Object[]
-                    { createExperimentCode(dataColumnHeader), dataColumnHeader.getTimePointType(),
-                            Integer.toString(dataColumnHeader.getTimePoint()) });
-    }
-
     private long getOrCreateDataSet(DataSetInformation dataSetInformation,
             ExperimentIdentifier experimentIdentifier)
     {
@@ -285,8 +276,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
     }
 
     private void createSampleAndDataColumn(Column dataColumn, long dataSetID,
-            RowIDManager rowIDManager, DataColumnHeader dataColumnHeader, Experiment experiment,
-            String sampleCode)
+            RowIDManager rowIDManager, DataColumnHeader dataColumnHeader, Experiment experiment)
     {
         Long sampleID = null;
         long columnID = dao.createDataColumn(dataColumnHeader, dataSetID, sampleID);

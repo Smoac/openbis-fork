@@ -129,8 +129,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(
                 TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
                         .getAbsolutePath());
-        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
-        properties.setProperty(Util.TRANSLATION_KEY + "a", "Alpha");
         DataSetHandler handler = createHandler(properties);
 
         File file = createDataExample();
@@ -155,8 +153,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(
                 TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
                         .getAbsolutePath());
-        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS");
-        properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
         DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         DataSetInformation dataSetInformation =
@@ -183,7 +179,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(
                 TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
                         .getAbsolutePath());
-        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "b");
         DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         prepareGetOrCreateDataSet(true);
@@ -232,8 +227,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(
                 TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
                         .getAbsolutePath());
-        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS, b");
-        properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
         DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         prepareGetOrCreateDataSet(false);
@@ -270,8 +263,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(
                 TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
                 .getAbsolutePath());
-        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS, b");
-        properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
         DataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         prepareGetOrCreateDataSet(false);

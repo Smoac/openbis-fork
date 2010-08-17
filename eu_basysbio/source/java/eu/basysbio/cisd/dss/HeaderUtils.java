@@ -327,7 +327,7 @@ class HeaderUtils
      */
     public static List<NewProperty> extractHeaderProperties(File dir, boolean ignoreEmptyLines)
     {
-        return extractHeaderProperties(dir, ignoreEmptyLines, false, false);
+        return extractHeaderProps(dir, ignoreEmptyLines, false, false);
     }
 
     /**
@@ -336,16 +336,28 @@ class HeaderUtils
      * 
      * @param multipleValuesAllowed If <code>true</code> multiple values for same header element allowed.
      */
-    public static List<NewProperty> extractHeaderProperties(File dir, boolean ignoreEmptyLines,
-            boolean ignoreHashedLines, boolean multipleValuesAllowed)
+    public static List<NewProperty> extractHeaderPropertiesIgnoringTimeSeriesDataSetType(File dir,
+            boolean ignoreEmptyLines, boolean ignoreHashedLines, boolean multipleValuesAllowed)
     {
+        return extractHeaderProps(dir, ignoreEmptyLines, ignoreHashedLines, multipleValuesAllowed,
+                TimeSeriesPropertyType.TIME_SERIES_DATA_SET_TYPE);
+    }
 
+    private static List<NewProperty> extractHeaderProps(File dir, boolean ignoreEmptyLines,
+            boolean ignoreHashedLines, boolean multipleValuesAllowed,
+            TimeSeriesPropertyType... ignoredTypes)
+    {
+        HashSet<TimeSeriesPropertyType> typesToBeIgnored = new HashSet<TimeSeriesPropertyType>(Arrays.asList(ignoredTypes));
         Collection<DataColumnHeader> headers = loadHeaders(dir, ignoreEmptyLines, ignoreHashedLines);
         Map<DataHeaderProperty, Set<String>> values = extractHeaderPropertyValues(headers);
 
         List<NewProperty> headerProperties = new ArrayList<NewProperty>();
         for (TimeSeriesPropertyType pt : TIME_SERIES_HEADER_PROPERTIES)
         {
+            if (typesToBeIgnored.contains(pt))
+            {
+                continue;
+            }
             NewProperty property = extractProperty(pt, multipleValuesAllowed, values);
             if (property == null)
             {

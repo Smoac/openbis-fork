@@ -16,11 +16,6 @@
 
 package eu.basysbio.cisd.dss;
 
-import java.util.Properties;
-
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -30,21 +25,5 @@ class Util
     static int parseIntegerWithPlusSign(String number)
     {
         return Integer.parseInt(number.startsWith("+") ? number.substring(1) : number);
-    }
-
-    static String createSampleIdentifier(Experiment experiment, String sampleCode)
-    {
-        String groupIdentifier = experiment.getProject().getSpace().getIdentifier();
-        String sampleIdentifier =
-                groupIdentifier + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR
-                        + sampleCode;
-        return sampleIdentifier;
-    }
-
-    static final String TRANSLATION_KEY = "translation.";
-
-    static Properties getTranslationProperties(Properties global)
-    {
-        return ExtendedProperties.getSubset(global, TRANSLATION_KEY, true);
     }
 }
