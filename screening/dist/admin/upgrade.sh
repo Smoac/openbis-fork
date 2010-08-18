@@ -25,8 +25,8 @@ mv $ROOT_DIR/openBIS-server $OLD_BIS
 mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server-$NOW
 
 # pg_restore -d db-name db-file.dmp 
-pg_dump -U openbis -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB-${NOW}.dmp
-pg_dump -U openbis -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
+pg_dump -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB-${NOW}.dmp
+pg_dump -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
 
 echo Installing openBIS Datastore Server
 unzip $ROOT_DIR/datastore*.zip

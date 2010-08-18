@@ -13,4 +13,4 @@ fi
 
 source $BASE/env
 
-psql -U postgres -d $OPENBIS_DB -c "update persons set display_settings = (select display_settings from persons where user_id = '$TEMPLATE_USER') where user_id != '$TEMPLATE_USER'"
+psql -U $DB_USER_NAME -d $OPENBIS_DB -c "update persons set display_settings = (select display_settings from persons where user_id = '$TEMPLATE_USER') where user_id != '$TEMPLATE_USER'"

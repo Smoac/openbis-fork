@@ -1,6 +1,8 @@
 OPENBIS_DB=openbis_screening_mydb
 IMAGING_DB=imaging_mydb
 
+DB_USER_NAME=postgres
+
 # Unalias rm and cp commands
 alias cp='cp'
 alias rm='rm'
