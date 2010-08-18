@@ -25,9 +25,7 @@ import it.unimi.dsi.fastutil.longs.LongArraySet;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -36,6 +34,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
@@ -138,23 +137,17 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         experimentIds.add((long) experiment2.getId());
         List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(experimentIds));
         assertTrue(datasets.size() > 0);
-        Map<Long, Integer> dataSetCounters = new HashMap<Long, Integer>();
+        Counters<Long> counters = new Counters<Long>();
         for (DatasetRecord record : datasets)
         {
             assertDatasetCorrect(record);
             assertEqualWithFetchedById(record);
-            Integer counter = dataSetCounters.get(record.expe_id);
-            if (counter == null)
-            {
-                counter = 0;
-            }
-            counter++;
-            dataSetCounters.put(record.expe_id, counter);
+            counters.count(record.expe_id);
         }
         
-        assertEquals(1, dataSetCounters.get(experiment1.getId()).intValue());
-        assertEquals(1, dataSetCounters.get(experiment2.getId()).intValue());
-        assertEquals(2, dataSetCounters.size());
+        assertEquals(1, counters.getCountOf(experiment1.getId()));
+        assertEquals(1, counters.getCountOf(experiment2.getId()));
+        assertEquals(2, counters.getNumberOfDifferentObjectsCounted());
     }
 
     @Test
