@@ -116,7 +116,7 @@ public class QueryResultFilterTest extends AssertJUnit
     {
         PersonPE person = new PersonPE();
         ArrayList<TableModelColumnHeader> header = new ArrayList<TableModelColumnHeader>();
-        header.add(new TableModelColumnHeader("title", 1));
+        header.add(new TableModelColumnHeader("title", "t", 1));
         ArrayList<TableModelRow> rows = new ArrayList<TableModelRow>();
         ArrayList<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
         values.add(new StringTableCell("value"));
@@ -151,7 +151,7 @@ public class QueryResultFilterTest extends AssertJUnit
     {
         final PersonPE person = new PersonPE();
         ArrayList<TableModelColumnHeader> header = new ArrayList<TableModelColumnHeader>();
-        TableModelColumnHeader magicHeader = new TableModelColumnHeader("Sample", 1);
+        TableModelColumnHeader magicHeader = new TableModelColumnHeader("Sample", "s", 1);
         magicHeader.setEntityKind(EntityKind.SAMPLE);
         header.add(magicHeader);
         ArrayList<TableModelRow> rows = new ArrayList<TableModelRow>();

@@ -43,18 +43,13 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     
     private int defaultColumnWidth = 150;
 
-    public TableModelColumnHeader(String title, int index)
-    {
-        this(title, title, index);
-    }
-    
     public TableModelColumnHeader(String title, String id, int index)
     {
         this.title = title;
         this.id = id;
         this.index = index;
     }
-
+    
     public void setDataType(DataTypeCode dataType)
     {
         this.dataType = dataType;
