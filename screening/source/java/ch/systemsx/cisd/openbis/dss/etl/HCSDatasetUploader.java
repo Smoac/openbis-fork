@@ -18,17 +18,12 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfoHelper.ExperimentWithChannelsAndContainer;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
@@ -278,40 +273,12 @@ public class HCSDatasetUploader
     {
         Boolean[][] newSpotMatrix = extractNewSpots(rows, columns, images, existingSpots);
         List<ImgSpotDTO> newSpots = makeSpotDTOs(newSpotMatrix, contId);
-        enrichWithPermIds(newSpots, containerPermId);
         for (ImgSpotDTO spot : newSpots)
         {
             long id = dao.addSpot(spot);
             spot.setId(id);
         }
         return newSpots;
-    }
-
-    private void enrichWithPermIds(List<ImgSpotDTO> newSpots, String containerPermId)
-    {
-        Map<String, String> permIds = getOrCreateWells(newSpots, containerPermId);
-        for (ImgSpotDTO spot : newSpots)
-        {
-            spot.setPermId(permIds.get(createCoordinate(spot)));
-        }
-    }
-
-    private Map<String, String> getOrCreateWells(List<ImgSpotDTO> newSpots, String containerPermId)
-    {
-        IEncapsulatedOpenBISService server = ServiceProvider.getOpenBISService();
-        Set<String> codes = new HashSet<String>();
-        for (ImgSpotDTO spot : newSpots)
-        {
-            codes.add(createCoordinate(spot));
-        }
-        return server.listOrRegisterComponents(containerPermId, codes,
-                ScreeningConstants.OLIGO_WELL_TYPE_CODE);
-    }
-
-    private static String createCoordinate(ImgSpotDTO spot)
-    {
-        return Location.tryCreateMatrixCoordinateFromLocation(new Location(spot.getColumn(), spot
-                .getRow()));
     }
 
     private static Boolean[][] extractNewSpots(int rows, int columns,

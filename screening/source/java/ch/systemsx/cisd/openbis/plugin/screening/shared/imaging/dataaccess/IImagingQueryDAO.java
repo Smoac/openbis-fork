@@ -166,8 +166,8 @@ public interface IImagingQueryDAO extends TransactionQuery
             + "?{1.fieldNumberOfRows}, ?{1.containerId}, ?{1.isMultidimensional}) returning ID")
     public long addDataset(ImgDatasetDTO dataset);
 
-    @Select("insert into SPOTS (X, Y, CONT_ID, PERM_ID) values "
-            + "(?{1.column}, ?{1.row}, ?{1.containerId}, ?{1.permId}) returning ID")
+    @Select("insert into SPOTS (X, Y, CONT_ID) values "
+            + "(?{1.column}, ?{1.row}, ?{1.containerId}) returning ID")
     public long addSpot(ImgSpotDTO spot);
 
     @Select("insert into FEATURE_DEFS (NAME, DESCRIPTION, DS_ID) values "

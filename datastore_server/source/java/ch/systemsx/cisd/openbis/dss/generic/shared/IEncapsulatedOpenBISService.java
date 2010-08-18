@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -40,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleComponentsDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -103,7 +100,8 @@ public interface IEncapsulatedOpenBISService
      * 
      * @return <code>null</code> if nothing found.
      */
-    public SampleIdentifier tryToGetSampleIdentifier(String samplePermID) throws UserFailureException;
+    public SampleIdentifier tryToGetSampleIdentifier(String samplePermID)
+            throws UserFailureException;
 
     /**
      * Gets the experiment type with assigned property types for the specified experiment type code.
@@ -164,7 +162,7 @@ public interface IEncapsulatedOpenBISService
      */
     public void registerDataSet(final DataSetInformation dataSetInformation,
             final NewExternalData data) throws UserFailureException;
-    
+
     /**
      * Deletes specified data set if it exists.
      * 
@@ -242,10 +240,6 @@ public interface IEncapsulatedOpenBISService
     /** See {@link IETLLIMSService#checkSpaceAccess(String, SpaceIdentifier)} */
     public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId);
 
-    /** See {@link IETLLIMSService#listOrRegisterComponents(String, SampleComponentsDescription)} */
-    public Map<String, String> listOrRegisterComponents(final String containerPermId,
-            Set<String> codes, String sampleTypeCode) throws UserFailureException;
-
     /**
      * See {@link IETLLIMSService#tryGetSession(String)}
      * 
@@ -259,4 +253,5 @@ public interface IEncapsulatedOpenBISService
      */
     public ExternalData tryGetDataSetForServer(final String dataSetCode)
             throws UserFailureException;
+
 }

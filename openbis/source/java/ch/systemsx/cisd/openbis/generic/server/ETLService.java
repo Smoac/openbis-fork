@@ -19,12 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_APPLICATION_PATH;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -89,7 +87,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleComponentsDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -749,99 +746,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return defaultDataStoreBaseURL;
     }
 
-    public Map<String, String> listOrRegisterComponents(String sessionToken,
-            SampleComponentsDescription components) throws UserFailureException
-    {
-        assert sessionToken != null : "Unspecified session token.";
-        assert components != null : "Unspecified components.";
-
-        final Session session = getSession(sessionToken);
-        SamplePE container = getContainer(components.getContainerPermId());
-        Set<String> codesToGet = new HashSet<String>(components.getCodes());
-        Map<String, String> result = new HashMap<String, String>();
-        tryLoadSamples(session, listSamplesForContainer(session, container), codesToGet, result);
-        if (codesToGet.size() > 0)
-        {
-            registerSamples(components.getSampleTypeCode(), session, container, codesToGet);
-            tryLoadSamples(session, listSamplesForContainer(session, container), codesToGet, result);
-        }
-        assert codesToGet.size() == 0 : "All samples should exist at this point";
-        return result;
-    }
-
-    private void registerSamples(String sampleTypeCode, final Session session, SamplePE container,
-            Set<String> codesToGet)
-    {
-        final SampleTypePE sampleTypePE = getSampleType(sampleTypeCode);
-        List<NewSample> newSamples = new ArrayList<NewSample>();
-        for (String code : codesToGet)
-        {
-            String groupPrefix =
-                    container.getGroup() != null ? ("/" + container.getGroup().getCode() + "/")
-                            : "/";
-            newSamples.add(NewSample.createWithParent(groupPrefix + code, SampleTypeTranslator
-                    .translate(sampleTypePE, null), container.getIdentifier(), null));
-        }
-        getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
-    }
-
-    private SamplePE getContainer(String containerPermId)
-    {
-        SamplePE container = daoFactory.getSampleDAO().tryToFindByPermID(containerPermId);
-        if (container == null)
-        {
-            throw new UserFailureException(String.format("Container '%s' not found.",
-                    containerPermId));
-        }
-        return container;
-    }
-
-    List<Sample> listSamplesForContainer(Session session, SamplePE container)
-    {
-        ListOrSearchSampleCriteria criteria = createListSamplesByContainerCriteria(container);
-        return businessObjectFactory.createSampleLister(session).list(criteria);
-    }
-
-    private SampleTypePE getSampleType(String sampleTypeCode)
-    {
-        final SampleTypePE sampleTypePE =
-                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
-        if (sampleTypePE == null)
-        {
-            throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
-                    sampleTypeCode);
-        }
-        return sampleTypePE;
-    }
-
-    private static ListOrSearchSampleCriteria createListSamplesByContainerCriteria(
-            SamplePE container)
-    {
-        ListOrSearchSampleCriteria criteria =
-                new ListOrSearchSampleCriteria(ListOrSearchSampleCriteria
-                        .createForContainer(new TechId(container.getId())));
-        criteria.setEnrichDependentSamplesWithProperties(false);
-        return criteria;
-    }
-
-    private static void tryLoadSamples(final Session session, List<Sample> samples,
-            Set<String> codesToGet, Map<String, String> result)
-    {
-        for (Sample s : samples)
-        {
-            String subCode = s.getSubCode();
-            if (codesToGet.contains(subCode))
-            {
-                result.put(subCode, s.getPermId());
-                codesToGet.remove(subCode);
-            }
-        }
-    }
-
     public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
         return tryGetDataSet(sessionToken, dataSetCode);
     }
+
+    
 
 }

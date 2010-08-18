@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
@@ -56,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleComponentsDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -737,13 +734,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.unarchiveDatasets(sessionToken, dataSetCodes);
     }
 
-    public Map<String, String> listOrRegisterComponents(String containerPermId, Set<String> codes,
-            String sampleTypeCode) throws UserFailureException
-    {
-        return service.listOrRegisterComponents(sessionToken, new SampleComponentsDescription(
-                containerPermId, codes, sampleTypeCode));
-    }
-
     public SessionContextDTO tryGetSession(String sToken)
     {
         return service.tryGetSession(sToken);
@@ -753,4 +743,5 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.tryGetDataSetForServer(sessionToken, dataSetCode);
     }
+
 }

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -42,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleComponentsDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -135,8 +133,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public void deleteDataSet(String sessionToken, String dataSetCode, String reason)
             throws UserFailureException
     {
-        logTracking(sessionToken, "deleteDataSet", "DATA_SET(%s) REASON(%s)",
-                dataSetCode, reason);
+        logTracking(sessionToken, "deleteDataSet", "DATA_SET(%s) REASON(%s)", dataSetCode, reason);
     }
 
     public Experiment tryToGetExperiment(String sessionToken,
@@ -293,16 +290,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public Map<String, String> listOrRegisterComponents(String sessionToken,
-            SampleComponentsDescription components) throws UserFailureException
-    {
-        logTracking(sessionToken, "listOrRegisterComponents", "CONTAINER(%s) CODES(%s) TYPE(%s)",
-                components.getContainerPermId(), components.getCodes().size(), components
-                        .getSampleTypeCode());
-
-        return null;
-    }
-
     public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
@@ -310,4 +297,6 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logAccess(sessionToken, "tryGetDataSetForServer", "DATA_SET(%s)", dataSetCode);
         return null;
     }
+
+
 }
