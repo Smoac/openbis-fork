@@ -58,7 +58,7 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
     @Test
     public void testUnknownCell()
     {
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader("col");
         IRowBuilder rowBuilder = builder.addRow();
         try
@@ -112,14 +112,14 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("col");
-        builder.addHeader("col");
+        builder.addHeader("col", 200);
         builder.addRow(Arrays.asList(new StringTableCell("hello"), new IntegerTableCell(42)));
         builder.addRow(Arrays.asList(new StringTableCell("world"), new DateTableCell(4711)));
         
         TableModel tableModel = builder.getTableModel();
         
         assertHeader("col", 150, 0, DataTypeCode.VARCHAR, tableModel.getHeader().get(0));
-        assertHeader("col", 150, 1, DataTypeCode.VARCHAR, tableModel.getHeader().get(1));
+        assertHeader("col", "col2", 200, 1, DataTypeCode.VARCHAR, tableModel.getHeader().get(1));
         assertEquals(2, tableModel.getHeader().size());
         List<TableModelRow> rows = tableModel.getRows();
         assertEquals(new StringTableCell("hello"), rows.get(0).getValues().get(0));
@@ -182,9 +182,17 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
     private void assertHeader(String expectedTitle, int expectedDefaultWidth, int expectedIndex,
             DataTypeCode expectedDataType, TableModelColumnHeader header)
     {
+        assertHeader(expectedTitle, expectedTitle, expectedDefaultWidth, expectedIndex,
+                expectedDataType, header);
+    }
+
+    private void assertHeader(String expectedTitle, String expectedID, int expectedDefaultWidth,
+            int expectedIndex, DataTypeCode expectedDataType, TableModelColumnHeader header)
+    {
         assertEquals(expectedTitle, header.getTitle());
         assertEquals("Header '" + header + "'", expectedDefaultWidth, header.getDefaultColumnWidth());
         assertEquals("Header '" + header + "'", expectedIndex, header.getIndex());
+        assertEquals("Header '" + header + "'", expectedID, header.getId());
         assertEquals("Header '" + header + "'", expectedDataType, header.getDataType());
     }
 }

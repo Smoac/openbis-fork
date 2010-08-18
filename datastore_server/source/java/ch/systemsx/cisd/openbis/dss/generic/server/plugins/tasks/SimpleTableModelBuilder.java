@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
@@ -47,6 +48,8 @@ public class SimpleTableModelBuilder
     private final List<TableModelRow> rows;
 
     private final List<TableModelColumnHeader> headers;
+    
+    private final Counters<String> counters = new Counters<String>();
     
     private final Map<String, Integer> titleToIndexMap;
 
@@ -85,6 +88,17 @@ public class SimpleTableModelBuilder
     }
     
     /**
+     * Adds header with specified title, specified code and default column width 150.
+     * 
+     * @throws UserFailureException if non-unique header titles are not allowed and a header with
+     *             same title has already been added.
+     */
+    public void addHeader(String title, String code)
+    {
+        addHeader(title, code, 150);
+    }
+    
+    /**
      * Adds header with specified title and specified default column width.
      * 
      * @throws UserFailureException if non-unique header titles are not allowed and a header with
@@ -92,7 +106,20 @@ public class SimpleTableModelBuilder
      */
     public void addHeader(String title, int defaultColumnWidth)
     {
-        TableModelColumnHeader header = new TableModelColumnHeader(title, headers.size());
+        addHeader(title, title, defaultColumnWidth);
+    }
+    
+    /**
+     * Adds header with specified title, specified code and specified default column width.
+     * 
+     * @throws UserFailureException if non-unique header titles are not allowed and a header with
+     *             same title has already been added.
+     */
+    public void addHeader(String title, String code, int defaultColumnWidth)
+    {
+        int count = counters.count(code);
+        String id = count == 1 ? code : code + count;
+        TableModelColumnHeader header = new TableModelColumnHeader(title, id, headers.size());
         header.setDefaultColumnWidth(defaultColumnWidth);
         Integer replacedValue = titleToIndexMap.put(title, headers.size());
         if (uniqueHeaderTitles && replacedValue != null)
@@ -103,10 +130,16 @@ public class SimpleTableModelBuilder
     }
     
     /**
-     * Adds an empty row and returns a row builder for setting values of this row.
+     * Adds an empty row and returns a row builder for setting values of this row. 
+     * 
+     * @throws UnsupportedOperationException if header titles are not forced to be unique
      */
     public IRowBuilder addRow()
     {
+        if (uniqueHeaderTitles == false)
+        {
+            throw new UnsupportedOperationException("Method only supported for unique header titles.");
+        }
         final List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
         StringTableCell emptyCell = new StringTableCell("");
         for (int i = 0; i < headers.size(); i++)
