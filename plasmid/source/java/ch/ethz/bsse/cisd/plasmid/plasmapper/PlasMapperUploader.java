@@ -47,9 +47,26 @@ public class PlasMapperUploader
 {
     // http://www.java-tips.org/other-api-tips/httpclient/how-to-use-multipart-post-method-for-uploading.html
 
-    private final static String PLASMAPPER_URL = "http://localhost:8082/PlasMapper";
+    private final static String PLASMAPPER_URL = "http://localhost:8080/PlasMapper";
 
-    private final static String GRAPHIC_MAP_SERVLET_PATH = "/servlet/DrawVectorMap";
+    public enum PlasMapperService
+    {
+
+        GRAPHIC_MAP("/servlet/DrawVectorMap"), GENEBANK_OUTPUT("/servlet/GenbankOutput");
+
+        private final String servletPath;
+
+        PlasMapperService(String servletPath)
+        {
+            this.servletPath = servletPath;
+        }
+
+        String getServiceURL()
+        {
+            return PLASMAPPER_URL + servletPath;
+        }
+
+    }
 
     private static final String LIST_SEPARATOR = ",";
 
@@ -65,7 +82,6 @@ public class PlasMapperUploader
     {
         Properties p = new Properties();
         p.setProperty("vendor", "Amersham%20Pharmacia");
-        p.setProperty("Submit", "Graphic Map");
         p.setProperty("showOption", "1,2,3,4,5,6,7,8,9");
         p.setProperty("restriction", "1");
         p.setProperty("orfLen", "200");
@@ -112,7 +128,7 @@ public class PlasMapperUploader
         p.setProperty("biomoby", "true"); // special: result of request == relative path to PNG file
 
         PlasMapperUploader uploader = new PlasMapperUploader(p);
-        uploader.upload(new File("PRS316.gb"));
+        uploader.upload(new File("PRS316.gb"), PlasMapperService.GRAPHIC_MAP);
     }
 
     private Properties properties;
@@ -125,14 +141,17 @@ public class PlasMapperUploader
     /**
      * Makes an HTTP multipart POST request with given file.
      * 
-     * @return path to output image or null if upload failed / the server's response to the request
+     * @param gbFile file to be uploaded
+     * @param service service to be used for upload
+     * @return the server's response to the request depending on the service (path to output image
+     *         or sequence in genebank format)
      */
-    public String upload(File gbFile)
+    public String upload(File gbFile, PlasMapperService service)
     {
         assert gbFile.getName().toLowerCase().endsWith(".gb");
         assert gbFile.exists();
 
-        final PostMethod post = new PostMethod(getServiceURL());
+        final PostMethod post = new PostMethod(service.getServiceURL());
         try
         {
             Part filePart = new FilePart(FILE_PART_NAME, gbFile);
@@ -148,6 +167,7 @@ public class PlasMapperUploader
                         + post.getStatusLine()));
             }
             String response = post.getResponseBodyAsString();
+            System.err.println(String.format("Response of service: '%s'", response));
             operationLog.info(String.format("Response of service: '%s'", response));
             return response;
         } catch (final Exception ex)
@@ -181,11 +201,6 @@ public class PlasMapperUploader
             }
         }
         return parts.toArray(new Part[0]);
-    }
-
-    private String getServiceURL()
-    {
-        return PLASMAPPER_URL + GRAPHIC_MAP_SERVLET_PATH;
     }
 
 }
