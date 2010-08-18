@@ -61,22 +61,22 @@ class WellContentTimepointsViewer
         final LayoutContainer mainContainer = new LayoutContainer();
         addAll(mainContainer, frames);
 
-        final Slider slider = createTimepointsSlider(frames.size() - 1, new Listener<SliderEvent>()
+        final Slider slider = createTimepointsSlider(frames.size(), new Listener<SliderEvent>()
             {
                 public void handleEvent(SliderEvent e)
                 {
                     int oldValue = e.getOldValue();
                     int newValue = e.getNewValue();
-                    frames.get(oldValue).hide();
-                    frames.get(newValue).show();
+                    frames.get(oldValue + 1).hide();
+                    frames.get(newValue + 1).show();
                     mainContainer.remove(mainContainer.getItem(0));
                     mainContainer.insert(new Label(createTimepointLabel(timepoints, newValue)), 0);
                     mainContainer.layout();
                 }
             });
         mainContainer.insert(slider, 0);
-        mainContainer.insert(new Label(createTimepointLabel(timepoints, 0)), 0);
-        slider.setValue(0);
+        mainContainer.insert(new Label(createTimepointLabel(timepoints, 1)), 0);
+        slider.setValue(1);
 
         return mainContainer;
     }
@@ -113,8 +113,8 @@ class WellContentTimepointsViewer
     }
 
     private static LayoutContainer createTilesGridForTimepoint(
-            List<WellImageChannelStack> channelStackReferences, WellImages images,
-            String channel, String sessionId, int imageWidth, int imageHeight)
+            List<WellImageChannelStack> channelStackReferences, WellImages images, String channel,
+            String sessionId, int imageWidth, int imageHeight)
     {
         final LayoutContainer container =
                 new LayoutContainer(new TableLayout(images.getTileColsNum()));
@@ -163,7 +163,7 @@ class WellContentTimepointsViewer
     private static String createTimepointLabel(Float[] timepoints, int sequenceNumber)
     {
         Float timepoint = timepoints[sequenceNumber];
-        int numberOfSequences = timepoints.length - 1;
+        int numberOfSequences = timepoints.length;
         return "Timepoint: " + timepoint + "sec (" + sequenceNumber + "/" + numberOfSequences + ")";
     }
 
@@ -191,6 +191,7 @@ class WellContentTimepointsViewer
         final Slider slider = new Slider();
         slider.setWidth(230);
         slider.setIncrement(1);
+        slider.setMinValue(1);
         slider.setMaxValue(maxValue);
         slider.setClickToChange(true);
         slider.addListener(Events.Change, listener);
