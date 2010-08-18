@@ -1,0 +1,17 @@
+CONF=$1
+
+BASE=`dirname "$0"`
+if [ ${BASE#/} == ${BASE} ]; then
+    BASE="`pwd`/${BASE}"
+fi
+
+ROOT=$BASE/..
+
+cp $CONF/service.properties $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties
+cp $CONF/datastore_servere-service.properties $ROOT/datastore_server/etc/service.properties
+cp $CONF/tabular-data-graph.properties $ROOT/datastore_server/etc/tabular-data-graph.properties
+#cp $CONF/log.xml $ROOT/datastore_server/etc/log.xml
+cp $CONF/passwd.sh $ROOT/openBIS-server/jetty/bin/passwd.sh
+cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/datastore_server.conf
+cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/bin/openbis.conf
+cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/jetty.xml
