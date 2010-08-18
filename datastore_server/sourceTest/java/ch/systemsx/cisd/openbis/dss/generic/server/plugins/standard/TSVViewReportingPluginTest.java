@@ -31,6 +31,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -65,11 +66,16 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
     @Test
     public void testCreateReport()
     {
-        FileUtilities.writeToFile(new File(dataSetInStore, TEST_FILE), "a\tb\n1\t2\n\t4");
+        FileUtilities.writeToFile(new File(dataSetInStore, TEST_FILE), "a\t<42>b\n1\t2\n\t4");
         TSVViewReportingPlugin plugin = new TSVViewReportingPlugin(new Properties(), store);
         TableModel tableModel = plugin.createReport(Arrays.asList(datasetDescription));
         
-        assertEquals("[a, b]", tableModel.getHeader().toString());
+        List<TableModelColumnHeader> headers = tableModel.getHeader();
+        assertEquals("a", headers.get(0).getTitle());
+        assertEquals("A", headers.get(0).getId());
+        assertEquals("b", headers.get(1).getTitle());
+        assertEquals("42", headers.get(1).getId());
+        assertEquals(2, headers.size());
         List<TableModelRow> rows = tableModel.getRows();
         assertEquals("[1, 2]", rows.get(0).getValues().toString());
         assertEquals("[, 4]", rows.get(1).getValues().toString());

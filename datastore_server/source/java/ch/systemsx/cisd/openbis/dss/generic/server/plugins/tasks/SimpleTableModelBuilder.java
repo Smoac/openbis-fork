@@ -117,8 +117,7 @@ public class SimpleTableModelBuilder
      */
     public void addHeader(String title, String code, int defaultColumnWidth)
     {
-        int count = counters.count(code);
-        String id = count == 1 ? code : code + count;
+        String id = createUniqueID(code);
         TableModelColumnHeader header = new TableModelColumnHeader(title, id, headers.size());
         header.setDefaultColumnWidth(defaultColumnWidth);
         Integer replacedValue = titleToIndexMap.put(title, headers.size());
@@ -127,6 +126,22 @@ public class SimpleTableModelBuilder
             throw new UserFailureException("There is already a header with title '" + title + "'.");
         }
         headers.add(header);
+    }
+
+    private String createUniqueID(String code)
+    {
+        StringBuilder builder = new StringBuilder(code.toUpperCase());
+        for (int i = 0, n = builder.length(); i < n; i++)
+        {
+            if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".indexOf(builder.charAt(i)) < 0)
+            {
+                builder.setCharAt(i, '_');
+            }
+        }
+        String normalizedCode = builder.toString();
+        int count = counters.count(normalizedCode);
+        String id = count == 1 ? normalizedCode : normalizedCode + count;
+        return id;
     }
     
     /**

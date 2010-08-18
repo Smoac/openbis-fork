@@ -112,14 +112,14 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("col");
-        builder.addHeader("col", 200);
+        builder.addHeader("Col", 200);
         builder.addRow(Arrays.asList(new StringTableCell("hello"), new IntegerTableCell(42)));
         builder.addRow(Arrays.asList(new StringTableCell("world"), new DateTableCell(4711)));
         
         TableModel tableModel = builder.getTableModel();
         
-        assertHeader("col", 150, 0, DataTypeCode.VARCHAR, tableModel.getHeader().get(0));
-        assertHeader("col", "col2", 200, 1, DataTypeCode.VARCHAR, tableModel.getHeader().get(1));
+        assertHeader("col", "COL", 150, 0, DataTypeCode.VARCHAR, tableModel.getHeader().get(0));
+        assertHeader("Col", "COL2", 200, 1, DataTypeCode.VARCHAR, tableModel.getHeader().get(1));
         assertEquals(2, tableModel.getHeader().size());
         List<TableModelRow> rows = tableModel.getRows();
         assertEquals(new StringTableCell("hello"), rows.get(0).getValues().get(0));
@@ -150,21 +150,21 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
     public void testRowBuilder()
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-        builder.addHeader("col1");
+        builder.addHeader("col?1");
         builder.addHeader("col2", 300);
         IRowBuilder rowBuilder = builder.addRow();
         rowBuilder.setCell("col2", new IntegerTableCell(42));
         rowBuilder = builder.addRow();
-        rowBuilder.setCell("col1", new StringTableCell("hello"));
+        rowBuilder.setCell("col?1", new StringTableCell("hello"));
         rowBuilder.setCell("col2", 3.125);
         rowBuilder = builder.addRow();
-        rowBuilder.setCell("col1", "world");
+        rowBuilder.setCell("col?1", "world");
         rowBuilder.setCell("col2", 4711);
         
         TableModel tableModel = builder.getTableModel();
         
-        assertHeader("col1", 150, 0, DataTypeCode.VARCHAR, tableModel.getHeader().get(0));
-        assertHeader("col2", 300, 1, DataTypeCode.REAL, tableModel.getHeader().get(1));
+        assertHeader("col?1", "COL_1", 150, 0, DataTypeCode.VARCHAR, tableModel.getHeader().get(0));
+        assertHeader("col2", "COL2", 300, 1, DataTypeCode.REAL, tableModel.getHeader().get(1));
         assertEquals(2, tableModel.getHeader().size());
         List<TableModelRow> rows = tableModel.getRows();
         assertEquals(new StringTableCell(""), rows.get(0).getValues().get(0));
@@ -179,13 +179,6 @@ public class SimpleTableModelBuilderTest extends AssertJUnit
         assertEquals(3, rows.size());
     }
     
-    private void assertHeader(String expectedTitle, int expectedDefaultWidth, int expectedIndex,
-            DataTypeCode expectedDataType, TableModelColumnHeader header)
-    {
-        assertHeader(expectedTitle, expectedTitle, expectedDefaultWidth, expectedIndex,
-                expectedDataType, header);
-    }
-
     private void assertHeader(String expectedTitle, String expectedID, int expectedDefaultWidth,
             int expectedIndex, DataTypeCode expectedDataType, TableModelColumnHeader header)
     {

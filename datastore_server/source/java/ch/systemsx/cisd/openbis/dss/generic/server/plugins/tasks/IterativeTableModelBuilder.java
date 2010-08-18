@@ -31,8 +31,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**
@@ -126,24 +124,21 @@ public class IterativeTableModelBuilder
      */
     public TableModel getTableModel()
     {
-        final List<TableModelColumnHeader> headers =
-                new ArrayList<TableModelColumnHeader>(columnMap.size());
-        final List<TableModelRow> rows = new ArrayList<TableModelRow>(rowIdentifiers.size());
-        int idx = 0;
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         for (Entry<String, Map<String, String>> column : columnMap.entrySet())
         {
-            headers.add(new TableModelColumnHeader(column.getKey(), idx++));
+            builder.addHeader(column.getKey());
         }
         for (String rowId : rowIdentifiers)
         {
-            final List<ISerializableComparable> rowValues = new ArrayList<ISerializableComparable>(headers.size());
-            for (TableModelColumnHeader header : headers)
+            final List<ISerializableComparable> rowValues = new ArrayList<ISerializableComparable>(columnMap.size());
+            for (String header : columnMap.keySet())
             {
-                final String valueOrNull = columnMap.get(header.getTitle()).get(rowId);
+                final String valueOrNull = columnMap.get(header).get(rowId);
                 rowValues.add(TableCellUtil.createTableCell((valueOrNull == null) ? "" : valueOrNull));
             }
-            rows.add(new TableModelRow(rowValues));
+            builder.addRow(rowValues);
         }
-        return new TableModel(headers, rows);
+        return builder.getTableModel();
     }
 }
