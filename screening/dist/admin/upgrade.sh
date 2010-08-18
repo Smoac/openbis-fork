@@ -2,13 +2,12 @@
 # Upgrades openbis for screening. 
 # Assumes that openbis is installed in the parent directory of the directory where this script is located. 
 
-OPENBIS_DB=openbis_screening_lmc
-IMAGING_DB=imaging_productive
-
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
+
+source $BASE/env
 
 ROOT_DIR=$BASE/..
 BACKUP_DIR=$ROOT_DIR/old

@@ -2,7 +2,15 @@
 # Use with care!
 # Overrides all user display settings with the settings of the template user.
 
-DB=openbis_screening_mydb
+echo Remove 'exit' after configuring existing user name, currently it is $TEMPLATE_USER
+exit
 TEMPLATE_USER=openbis-user-name
 
-psql -U postgres -d $DB -c "update persons set display_settings = (select display_settings from persons where user_id = '$TEMPLATE_USER') where user_id != '$TEMPLATE_USER'"
+BASE=`dirname "$0"`
+if [ ${BASE#/} == ${BASE} ]; then
+    BASE="`pwd`/${BASE}"
+fi
+
+source $BASE/env
+
+psql -U postgres -d $OPENBIS_DB -c "update persons set display_settings = (select display_settings from persons where user_id = '$TEMPLATE_USER') where user_id != '$TEMPLATE_USER'"

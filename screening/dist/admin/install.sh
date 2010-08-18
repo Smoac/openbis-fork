@@ -2,12 +2,12 @@
 # Installs openbis for screening for the first time. 
 # openbis will be installed in the parent directory of the directory where this script is located. 
 
-OPENBIS_DB=openbis_screening_mydb
-
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
+
+source $BASE/env
 
 ROOT_DIR=$BASE/..
 CONFIG=$ROOT_DIR/config
