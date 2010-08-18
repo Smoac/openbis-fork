@@ -36,6 +36,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcDaoSupport;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
@@ -137,6 +138,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                         List<TableModelColumnHeader> headers =
                                 new ArrayList<TableModelColumnHeader>();
                         int columnCount = metaData.getColumnCount();
+                        Counters<String> counters = new Counters<String>();
                         for (int i = 1; i <= columnCount; i++)
                         {
                             String columnName = JdbcUtils.lookupColumnName(metaData, i);
@@ -145,8 +147,14 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                             {
                                 columnName = entityKindOrNull.getDescription();
                             }
+                            int count = counters.count(columnName);
+                            String id = columnName;
+                            if (count > 1)
+                            {
+                                id += count;
+                            }
                             TableModelColumnHeader header =
-                                    new TableModelColumnHeader(columnName, i - 1);
+                                    new TableModelColumnHeader(columnName, id, i - 1);
                             header.setDataType(getDataTypeCode(metaData.getColumnType(i)));
                             header.setEntityKind(entityKindOrNull);
                             headers.add(header);
@@ -163,31 +171,38 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                                                 MAX_ROWS);
                                 break;
                             }
-                            List<ISerializableComparable> cells =
-                                    new ArrayList<ISerializableComparable>();
-                            for (int i = 1; i <= columnCount; i++)
-                            {
-                                Object value = JdbcUtils.getResultSetValue(resultSet, i);
-                                if (value instanceof Integer || value instanceof Long)
-                                {
-                                    cells.add(new IntegerTableCell(((Number) value).longValue()));
-                                } else if (value instanceof Number)
-                                {
-                                    Number number = (Number) value;
-                                    cells.add(new DoubleTableCell(number.doubleValue()));
-                                } else
-                                {
-                                    String string = value == null ? "" : value.toString();
-                                    cells.add(new StringTableCell(string));
-                                }
-                            }
-                            rows.add(new TableModelRow(cells));
+                            rows.add(createRow(resultSet, columnCount));
                         }
                         return new TableModel(headers, rows, messageOrNull);
                     } finally
                     {
                         JdbcUtils.closeResultSet(resultSet);
                     }
+                }
+
+                private TableModelRow createRow(ResultSet resultSet, int columnCount)
+                        throws SQLException
+                {
+                    List<ISerializableComparable> cells =
+                            new ArrayList<ISerializableComparable>();
+                    for (int i = 1; i <= columnCount; i++)
+                    {
+                        Object value = JdbcUtils.getResultSetValue(resultSet, i);
+                        if (value instanceof Integer || value instanceof Long)
+                        {
+                            cells.add(new IntegerTableCell(((Number) value).longValue()));
+                        } else if (value instanceof Number)
+                        {
+                            Number number = (Number) value;
+                            cells.add(new DoubleTableCell(number.doubleValue()));
+                        } else
+                        {
+                            String string = value == null ? "" : value.toString();
+                            cells.add(new StringTableCell(string));
+                        }
+                    }
+                    TableModelRow row = new TableModelRow(cells);
+                    return row;
                 }
 
             };
