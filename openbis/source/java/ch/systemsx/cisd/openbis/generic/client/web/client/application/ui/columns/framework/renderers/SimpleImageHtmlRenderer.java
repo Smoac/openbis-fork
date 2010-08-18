@@ -34,18 +34,7 @@ public class SimpleImageHtmlRenderer
 
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
         String imageURL = methodWithParameters.toString();
-        return createEmbededImageHtml(imageURL, linkURL);
+        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL);
     }
 
-    public static String createEmbededImageHtml(String imageURL, String linkURLOrNull)
-    {
-        String linkStart = "", linkEnd = "";
-        if (linkURLOrNull != null)
-        {
-            linkStart = "<a class='link-style' href='" + linkURLOrNull + "' target='_blank'>";
-            linkEnd = "</a>";
-        }
-        return "<div align='center'>" + linkStart + "<img src='" + imageURL + "' alt='" + " image "
-                + "'/>" + linkEnd + "</div>";
-    }
 }

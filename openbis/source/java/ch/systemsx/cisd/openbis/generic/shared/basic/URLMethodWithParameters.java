@@ -87,4 +87,16 @@ public class URLMethodWithParameters implements IsSerializable
         return builder.toString();
     }
 
+    /** Creates HTML which displays an image linking to the given URL (if it is specified). */
+    public static String createEmbededImageHtml(String imageURL, String linkURLOrNull)
+    {
+        String linkStart = "", linkEnd = "";
+        if (linkURLOrNull != null)
+        {
+            linkStart = "<a class='link-style' href='" + linkURLOrNull + "' target='_blank'>";
+            linkEnd = "</a>";
+        }
+        return "<div align='center'>" + linkStart + "<img src='" + imageURL + "' alt='" + " image "
+                + "'/>" + linkEnd + "</div>";
+    }
 }

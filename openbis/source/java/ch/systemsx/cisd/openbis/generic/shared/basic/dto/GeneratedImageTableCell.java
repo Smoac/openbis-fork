@@ -150,12 +150,8 @@ public class GeneratedImageTableCell implements ISerializableComparable
         urlMethodThumb.addParameter(IMAGE_WIDTH_PARAM, thumbnailWidth);
         urlMethodThumb.addParameter(IMAGE_HEIGHT_PARAM, thumbnailHeight);
 
-        return getEmbededImageHtml(urlMethodThumb.toString(), urlMethodImage.toString());
+        return URLMethodWithParameters.createEmbededImageHtml(urlMethodThumb.toString(),
+                urlMethodImage.toString());
     }
 
-    private String getEmbededImageHtml(String thumbURL, String imageURL)
-    {
-        return "<div align='center'><a class='link-style' href='" + imageURL
-                + "' target='_blank'><img src='" + thumbURL + "' alt='" + "image" + "'/></a></div>";
-    }
 }

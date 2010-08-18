@@ -274,14 +274,14 @@ public class WellContentDialog extends Dialog
     private static int getDialogWidth(WellImages images)
     {
         float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor) * images.getTileColsNum() + 100;
+        return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor) * images.getTileColsNum() + 30;
     }
 
     private static int getDialogHeight(WellImages images)
     {
         float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
         return Math.max((int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor)
-                * images.getTileRowsNum() + 100, 300);
+                * images.getTileRowsNum() + 300, 300);
     }
 
     private static int getImageHeight(WellImages images)

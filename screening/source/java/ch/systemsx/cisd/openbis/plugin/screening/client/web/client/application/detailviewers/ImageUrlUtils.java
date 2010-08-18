@@ -20,10 +20,9 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 
 /**
  * Generates URLs pointing to the images on Data Store server.
@@ -75,7 +74,7 @@ public class ImageUrlUtils
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
 
         String imageURL = methodWithParameters.toString();
-        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
+        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL);
     }
 
     /** creates a widget which displays the specified URL and adds it to the container */
@@ -107,7 +106,7 @@ public class ImageUrlUtils
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
 
         String imageURL = methodWithParameters.toString();
-        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
+        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL);
     }
 
     private static URLMethodWithParameters createBasicImageURL(String sessionID, WellImages images,
