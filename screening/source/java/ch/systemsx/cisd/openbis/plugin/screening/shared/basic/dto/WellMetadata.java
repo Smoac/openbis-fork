@@ -30,7 +30,7 @@ public class WellMetadata implements IsSerializable
 {
     private Sample wellSample; // with fetched properties
 
-    private WellLocation locationOrNull;
+    private WellLocation locationOrNull; // null if invalid code
 
     public Sample getWellSample()
     {
