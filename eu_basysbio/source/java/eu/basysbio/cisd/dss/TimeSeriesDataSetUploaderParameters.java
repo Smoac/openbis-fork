@@ -19,6 +19,7 @@ package eu.basysbio.cisd.dss;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -29,6 +30,8 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 class TimeSeriesDataSetUploaderParameters
 {
     static final String TIME_SERIES_DATA_SET_DROP_BOX_PATH = "time-series-data-set-drop-box-path";
+    
+    static final String DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING = "data-set-type-pattern-for-default-handling";
 
     static final String EXPERIMENT_CODE_TEMPLATE_KEY = "experiment-code-template";
 
@@ -42,10 +45,13 @@ class TimeSeriesDataSetUploaderParameters
 
     private final File timeSeriesDropBox;
 
+    private final Pattern patternForDefaultHandling;
+
     TimeSeriesDataSetUploaderParameters(Properties properties)
     {
         String timeSeriesDataSetDropBoxPath =
                 PropertyUtils.getMandatoryProperty(properties, TIME_SERIES_DATA_SET_DROP_BOX_PATH);
+        patternForDefaultHandling = Pattern.compile(PropertyUtils.getMandatoryProperty(properties, DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING));
         timeSeriesDropBox = new File(timeSeriesDataSetDropBoxPath);
         if (timeSeriesDropBox.exists() == false)
         {
@@ -76,6 +82,11 @@ class TimeSeriesDataSetUploaderParameters
     boolean isIgnoreEmptyLines()
     {
         return ignoreEmptyLines;
+    }
+
+    Pattern getPatternForDefaultHandling()
+    {
+        return patternForDefaultHandling;
     }
 
 }

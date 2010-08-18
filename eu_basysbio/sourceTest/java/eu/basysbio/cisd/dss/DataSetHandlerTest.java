@@ -104,11 +104,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     @Test
     public void testMissingExperiment() throws IOException
     {
-        Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
-        DataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler();
 
         File file = createDataExample();
 
@@ -128,11 +124,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     @Test
     public void testWrongExperiment() throws IOException
     {
-        Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
-        DataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler();
         File file = createDataExample();
         DataSetInformation dataSetInformation =
                 createDataSetInformation(DataSetHandler.TIME_SERIES);
@@ -154,11 +146,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     @Test
     public void testDataSetAlreadyExists()
     {
-        Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
-        DataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler();
         File file = createDataExample();
         prepareGetOrCreateDataSet(true);
         prepareCreateRows();
@@ -202,11 +190,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     @Test
     public void testTimeSeries()
     {
-        Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
-        DataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler();
         File file = createDataExample();
         prepareGetOrCreateDataSet(false);
         prepareCreateRows();
@@ -238,11 +222,7 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     @Test
     public void testGeneric()
     {
-        Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
-        DataSetHandler handler = createHandler(properties);
+        DataSetHandler handler = createHandler();
         File file = createDataExample();
         prepareGetOrCreateDataSet(false);
         prepareCreateRows();
@@ -352,8 +332,13 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
             });
     }
 
-    private DataSetHandler createHandler(final Properties properties)
+    private DataSetHandler createHandler()
     {
+        final Properties properties = new Properties();
+        properties.setProperty(
+                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
+                        .getAbsolutePath());
+        properties.setProperty(TimeSeriesDataSetUploaderParameters.DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING, ".*");
         return new DataSetHandler(properties, dataSource, service)
             {
                 @Override

@@ -18,9 +18,11 @@ package eu.basysbio.cisd.dss;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -34,10 +36,12 @@ class DataSetUploaderFactory implements IDataSetUploaderFactory
     private final Map<String, IDataSetUploaderFactory> factories =
             new LinkedHashMap<String, IDataSetUploaderFactory>();
     private final IDataSetUploaderFactory defaultFactory;
+    private final Pattern pattern;
 
-    DataSetUploaderFactory(IDataSetUploaderFactory defaultFactory)
+    DataSetUploaderFactory(IDataSetUploaderFactory defaultFactory, Pattern pattern)
     {
         this.defaultFactory = defaultFactory;
+        this.pattern = pattern;
     }
 
     void register(String dataSetType, IDataSetUploaderFactory uploaderFactory)
@@ -63,7 +67,15 @@ class DataSetUploaderFactory implements IDataSetUploaderFactory
     {
         String dataSetType = dataSetInformation.getDataSetType().getCode();
         IDataSetUploaderFactory factory = factories.get(dataSetType);
-        return factory == null ? defaultFactory : factory;
+        if (factory != null)
+        {
+            return factory;
+        }
+        if (pattern.matcher(dataSetType).matches() == false)
+        {
+            throw new UserFailureException("Unable to handle data sets of type " + dataSetType);
+        }
+        return defaultFactory;
     }
 
 }

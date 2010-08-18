@@ -19,6 +19,7 @@ package eu.basysbio.cisd.dss;
 import java.io.File;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -66,7 +67,8 @@ class DataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         this.dataSource = dataSource;
         this.service = service;
         parameters = new TimeSeriesDataSetUploaderParameters(properties);
-        factory = new DataSetUploaderFactory(TimeSeriesDataSetUploader.FACTORY);
+        Pattern patternForDefaultHandling = parameters.getPatternForDefaultHandling();
+        factory = new DataSetUploaderFactory(TimeSeriesDataSetUploader.FACTORY, patternForDefaultHandling);
         factory.register(LCA_MIC, LcaMicDataSetUploader.FACTORY);
     }
     
