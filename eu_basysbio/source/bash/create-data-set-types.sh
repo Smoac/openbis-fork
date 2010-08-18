@@ -1,4 +1,18 @@
 #!/bin/bash
+#
+# Script to create data set types *_TIME_SERIES.
+#
+# Prerequisites: 
+#    1. openbis-admin-console.zip is unpacked at the same place as this script is located
+#    2. create-data-set-type.txt is in the same directory as this script
+#
+# Usage:
+#    ./create-data-set-types.sh <base-url> <user id>
+#
+# The user will be prompted for his/her password.
+# Note: The script continuous running in case of an error. Only an error message will be printed.
+#
+# author: Franz-Josef Elmer
 
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <base url> <user id>"
