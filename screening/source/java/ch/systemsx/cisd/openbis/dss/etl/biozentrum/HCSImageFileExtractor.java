@@ -27,9 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>BioZentrum</i>.
- * <p>
- * Accepted file names convention:
- * </p>
  * 
  * @author Izabela Adamczyk
  */
