@@ -2325,7 +2325,7 @@ COPY property_types (id, code, description, label, daty_id, registration_timesta
 13	COLUMN	Column number in the Box	Column	3	2010-05-26 18:38:35.546129+02	1	\N	f	f	1	\N
 16	ROW	Row letter in the Box	Row	7	2010-05-27 17:58:56.942478+02	1	7	f	f	1	\N
 14	DERIVATIVE_OF	Codes (separated by commas) of those Plasmids that the current Plasmid is a combination of. One of the Plasmid is the Parent.	Derivative Of	1	2010-05-26 21:45:36.120436+02	1	\N	f	f	1	\N
-17	FILE_NAME	Name of the file stored in DSS	File Name	1	2010-05-30 12:55:28.819182+02	1	\N	f	f	1	\N
+17	FILE_NAME	Name of the original file stored in DSS	Original File Name	1	2010-05-30 12:55:28.819182+02	1	\N	f	f	1	\N
 \.
 
 
