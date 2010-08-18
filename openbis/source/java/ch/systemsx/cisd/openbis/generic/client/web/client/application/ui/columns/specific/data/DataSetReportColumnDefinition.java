@@ -72,7 +72,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
 
     public String getIdentifier()
     {
-        return "colIndex_" + columnHeader.getIndex();
+        return columnHeader.getId();
     }
 
     public String getValue(GridRowModel<TableModelRow> rowModel)

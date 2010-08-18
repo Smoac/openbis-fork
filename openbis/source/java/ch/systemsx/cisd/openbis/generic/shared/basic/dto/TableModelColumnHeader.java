@@ -31,6 +31,8 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 
     private String title;
 
+    private String id;
+    
     // allows to fetch the value for this column from the row content
     private int index;
 
@@ -43,7 +45,13 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 
     public TableModelColumnHeader(String title, int index)
     {
+        this(title, title, index);
+    }
+    
+    public TableModelColumnHeader(String title, String id, int index)
+    {
         this.title = title;
+        this.id = id;
         this.index = index;
     }
 
@@ -60,6 +68,12 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     public String getTitle()
     {
         return title;
+    }
+
+    
+    public final String getId()
+    {
+        return id;
     }
 
     public int getIndex()
