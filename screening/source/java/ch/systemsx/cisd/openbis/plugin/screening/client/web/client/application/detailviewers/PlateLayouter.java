@@ -184,6 +184,9 @@ public class PlateLayouter
         legend.add(createEmptyWellWidget());
         legend.add(new Text("Empty well"));
 
+        legend.add(noMetadataWellWidget());
+        legend.add(new Text("No metadata well"));
+
         return legend;
     }
 
@@ -192,6 +195,13 @@ public class PlateLayouter
         Component widget = createBox();
         widget.setEnabled(false);
         return PlateStyleSetter.setEmptyWellStyle(widget);
+    }
+
+    private static Component noMetadataWellWidget()
+    {
+        Component widget = createBox();
+        widget.setEnabled(true);
+        return PlateStyleSetter.setNoMetadataWellStyle(widget);
     }
 
     private static Component createWellWidget(final WellData wellData,
@@ -218,7 +228,13 @@ public class PlateLayouter
         {
             Component widget = createBox();
             // we may have images but at the same time no metadata
-            return PlateStyleSetter.setEmptyWellStyle(widget);
+            if (wellData.tryGetImages() != null)
+            {
+                return PlateStyleSetter.setNoMetadataWellStyle(widget);
+            } else
+            {
+                return PlateStyleSetter.setEmptyWellStyle(widget);
+            }
         } else
         {
             boolean isControlWell = isControlWell(metadata);

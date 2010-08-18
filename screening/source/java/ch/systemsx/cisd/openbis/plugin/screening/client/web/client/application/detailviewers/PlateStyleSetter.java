@@ -57,6 +57,14 @@ public class PlateStyleSetter
         return widget;
     }
 
+    public static Component setNoMetadataWellStyle(Component widget)
+    {
+        setBackgroudColor(widget, "#BBBBBB");
+        setPointerCursor(widget);
+        setWellSize(widget);
+        return widget;
+    }
+
     private static void setWellSize(Component widget)
     {
         widget.setWidth(WELL_WIDGET_SIZE);
