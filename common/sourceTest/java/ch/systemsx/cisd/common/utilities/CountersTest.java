@@ -31,8 +31,10 @@ public class CountersTest extends AssertJUnit
     {
         Counters<String> counters = new Counters<String>();
         
+        assertEquals(0, counters.getNumberOfDifferentObjectsCounted());
         assertEquals(0, counters.getCountOf("a"));
         assertEquals(1, counters.count("a"));
+        assertEquals(1, counters.getNumberOfDifferentObjectsCounted());
         assertEquals(1, counters.getCountOf("a"));
         assertEquals(1, counters.count("b"));
         assertEquals(1, counters.getCountOf("a"));
@@ -41,5 +43,6 @@ public class CountersTest extends AssertJUnit
         assertEquals(3, counters.count("a"));
         assertEquals(3, counters.getCountOf("a"));
         assertEquals(1, counters.getCountOf("b"));
+        assertEquals(2, counters.getNumberOfDifferentObjectsCounted());
     }
 }

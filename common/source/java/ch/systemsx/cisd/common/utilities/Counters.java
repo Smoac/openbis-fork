@@ -60,4 +60,12 @@ public class Counters<T>
         }
         return counter.increment();
     }
+    
+    /**
+     * Returns the number of different object for which {@link #count(Object)} has been invoked.
+     */
+    public int getNumberOfDifferentObjectsCounted()
+    {
+        return counters.size();
+    }
 }
