@@ -36,7 +36,7 @@ unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
 $ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
 
 $BASE/restore-config-from-backup.sh $CONFIG
-cp -r $OLD_BIS/jetty/indices/ $ROOT_DIR/openBIS-server/jetty/
+cp -r $OLD_BIS/jetty/indices* $ROOT_DIR/openBIS-server/jetty/
 
 mv $ROOT_DIR/*.zip $BACKUP_DIR/
 $BASE/allup.sh

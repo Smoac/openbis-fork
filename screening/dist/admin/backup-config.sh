@@ -11,7 +11,7 @@ fi
 ROOT=$BASE/..
 
 cp $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/service.properties
-cp $ROOT/datastore_server/etc/service.properties $CONF/datastore-service.properties
+cp $ROOT/datastore_server/etc/service.properties $CONF/datastore_servere-service.properties
 cp $ROOT/datastore_server/etc/tabular-data-graph.properties $CONF/tabular-data-graph.properties
 #cp $ROOT/datastore_server/etc/log.xml $CONF/log.xml
 cp $ROOT/openBIS-server/jetty/bin/passwd.sh $CONF/passwd.sh
