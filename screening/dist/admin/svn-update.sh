@@ -2,12 +2,12 @@
 # Author: Tomasz Pylak
 # Updates all the screening admin scripts to the version found in SVN.
 
-unalias rm
-
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
+
+source $BASE/env
 
 SVN=svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin
 cd $BASE

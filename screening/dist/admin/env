@@ -1,2 +1,6 @@
 OPENBIS_DB=openbis_screening_mydb
 IMAGING_DB=imaging_mydb
+
+# Unalias rm and cp commands
+alias cp='cp'
+alias rm='rm'

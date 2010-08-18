@@ -12,7 +12,6 @@ source $BASE/env
 ROOT_DIR=$BASE/..
 BACKUP_DIR=$ROOT_DIR/old
 
-unalias cp
 $BASE/alldown.sh
 
 NOW=`date +%y%m%d-%H%m`
