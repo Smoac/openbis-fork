@@ -66,7 +66,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
     @Test
     public void testCreateReport()
     {
-        FileUtilities.writeToFile(new File(dataSetInStore, TEST_FILE), "a\t<42>b\n1\t2\n\t4");
+        FileUtilities.writeToFile(new File(dataSetInStore, TEST_FILE), "a\t<1?a:b>b\n1\t2\n\t4");
         TSVViewReportingPlugin plugin = new TSVViewReportingPlugin(new Properties(), store);
         TableModel tableModel = plugin.createReport(Arrays.asList(datasetDescription));
         
@@ -74,7 +74,7 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
         assertEquals("a", headers.get(0).getTitle());
         assertEquals("A", headers.get(0).getId());
         assertEquals("b", headers.get(1).getTitle());
-        assertEquals("42", headers.get(1).getId());
+        assertEquals("1_A_B", headers.get(1).getId());
         assertEquals(2, headers.size());
         List<TableModelRow> rows = tableModel.getRows();
         assertEquals("[1, 2]", rows.get(0).getValues().toString());
