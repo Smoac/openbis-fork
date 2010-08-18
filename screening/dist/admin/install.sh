@@ -23,7 +23,7 @@ unzip $ROOT_DIR/datastore*.zip
 
 echo Installing openBIS Application Server
 unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
-./$ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
+$ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
 
 $BASE/restore-config-from-backup.sh $CONFIG
 
