@@ -98,8 +98,11 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select("select * from CONTAINERS where ID = ?{1}")
     public ImgContainerDTO getContainerById(long containerId);
 
-    @Select("select cs.* from CHANNEL_STACKS cs join SPOTS s on s.id = cs.spot_id where "
-            + "cs.ds_id = ?{1} and s.x = ?{2} and s.y = ?{3}")
+    // join with container is needed to use spots index
+    @Select("select cs.* from CHANNEL_STACKS cs               "
+            + "join SPOTS s on s.id = cs.spot_id              "
+            + "join CONTAINERS c on c.id = s.cont_id          "
+            + "where cs.ds_id = ?{1} and s.x = ?{2} and s.y = ?{3}")
     public List<ImgChannelStackDTO> listChannelStacks(long datasetId, int spotX, int spotY);
 
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
