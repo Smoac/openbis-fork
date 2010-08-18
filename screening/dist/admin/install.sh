@@ -20,11 +20,9 @@ psql -U $USER -d $OPENBIS_DB -f $CONFIG/empty-screening-database.sql
 
 echo Installing openBIS Datastore Server
 unzip $ROOT_DIR/datastore*.zip
-cp $CONFIG/.keystore $ROOT_DIR/datastore_server/etc/openBIS.keystore
 
 echo Installing openBIS Application Server
 unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
-cp $CONFIG/.keystore $ROOT_DIR/openBIS-server/openBIS.keystore
 ./$ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
 
 $BASE/restore-config-from-backup.sh $CONFIG
