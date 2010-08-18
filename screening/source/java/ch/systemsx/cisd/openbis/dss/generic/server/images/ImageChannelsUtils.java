@@ -57,7 +57,7 @@ public class ImageChannelsUtils
         Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
         if (params.isMergeAllChannels())
         {
-            for (String chosenChannel : imageAccessor.getChannelsNames())
+            for (String chosenChannel : imageAccessor.getImageParameters().getChannelsNames())
             {
                 AbsoluteImageReference image =
                         getImage(imageAccessor, params.getChannelStack(), chosenChannel,

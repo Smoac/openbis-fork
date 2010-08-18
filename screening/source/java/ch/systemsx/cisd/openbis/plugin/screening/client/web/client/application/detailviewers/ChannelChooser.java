@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -32,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Handles displaying images in different channels.
@@ -83,16 +81,6 @@ class ChannelChooser
         container.add(viewerFactory.create(initialChannel));
         container.setScrollMode(Scroll.AUTO);
         return container;
-    }
-
-    public static List<String> createChannelsDescriptions(List<String> realChannelsNames)
-    {
-        assert realChannelsNames.size() > 0 : "there has to be at least one channel";
-
-        final List<String> allChannelsNames = new ArrayList<String>();
-        allChannelsNames.add(ScreeningConstants.MERGED_CHANNELS);
-        allChannelsNames.addAll(realChannelsNames);
-        return allChannelsNames;
     }
 
     /**

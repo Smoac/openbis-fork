@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
+import org.apache.commons.lang.StringEscapeUtils;
+
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
@@ -55,6 +57,10 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         {
             throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
         }
+        String[] namesAsArray =
+                query.getChannelNamesByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
+                        .getExperimentId());
+        this.channelNames = new ArrayList<String>(Arrays.asList(namesAsArray));
     }
 
     /** has to be called at the end */
@@ -72,51 +78,14 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return container;
     }
 
-    public Geometry getPlateGeometry()
-    {
-        return new Geometry(getContainer().getNumberOfRows(), getContainer().getNumberOfColumns());
-    }
-
     protected final ImgDatasetDTO getDataset()
     {
         return dataset;
     }
 
-    public String getDatasetPermId()
-    {
-        return dataset.getPermId();
-    }
-
-    public Geometry getWellGeometry()
-    {
-        return new Geometry(getDataset().getFieldNumberOfRows(), getDataset()
-                .getFieldNumberOfColumns());
-    }
-
     public int getChannelCount()
     {
-        if (channelCount == null)
-        {
-            channelCount = getChannelsNames().size();
-        }
-        return channelCount;
-    }
-
-    public List<String> getChannelsNames()
-    {
-        if (channelNames == null)
-        {
-            String[] namesAsArray =
-                    query.getChannelNamesByDatasetIdOrExperimentId(getDataset().getId(),
-                            getContainer().getExperimentId());
-            channelNames = new ArrayList<String>(Arrays.asList(namesAsArray));
-        }
-        return channelNames;
-    }
-
-    public boolean isMultidimensional()
-    {
-        return dataset.getIsMultidimensional();
+        return channelNames.size();
     }
 
     public List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocation)
@@ -140,7 +109,25 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     private static WellImageChannelStack convert(ImgChannelStackDTO stack)
     {
-        return new WellImageChannelStack(stack.getId(), stack.getRow(), stack.getColumn(),
-                stack.getT(), stack.getZ());
+        return new WellImageChannelStack(stack.getId(), stack.getRow(), stack.getColumn(), stack
+                .getT(), stack.getZ());
+    }
+
+    public PlateImageParameters getImageParameters()
+    {
+        PlateImageParameters params = new PlateImageParameters();
+        params.setDatasetCode(dataset.getPermId());
+        params.setRowsNum(getContainer().getNumberOfRows());
+        params.setColsNum(getContainer().getNumberOfColumns());
+        params.setTileRowsNum(getDataset().getFieldNumberOfRows());
+        params.setTileColsNum(getDataset().getFieldNumberOfColumns());
+        params.setIsMultidimensional(dataset.getIsMultidimensional());
+        List<String> escapedChannelNames = new ArrayList<String>();
+        for (String name : channelNames)
+        {
+            escapedChannelNames.add(StringEscapeUtils.escapeCsv(name));
+        }
+        params.setChannelsNames(escapedChannelNames);
+        return params;
     }
 }

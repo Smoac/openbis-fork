@@ -320,7 +320,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
-                            DatasetImagesReference imageDataset = wellContent.tryGetImages();
+                            DatasetImagesReference imageDataset = wellContent.tryGetImageDataset();
                             if (imageDataset != null)
                             {
                                 showEntityViewer(imageDataset.getDatasetReference(),
@@ -373,16 +373,12 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         return null;
                     }
-                    DatasetImagesReference images = entity.tryGetImages();
+                    DatasetImagesReference images = entity.tryGetImageDataset();
                     if (images == null)
                     {
                         return null;
                     }
                     PlateImageParameters imageParameters = images.getImageParameters();
-                    if (imageParameters.isMultidimensional())
-                    {
-
-                    }
                     final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
                         {
                             public Widget create(String channel)

@@ -208,7 +208,7 @@ public class GenePlateLocationsLoader
         for (ExternalData dataSet : imageDatasets)
         {
             final IHCSDatasetLoader loader = createHCSDatasetLoader(dataSet);
-            imageParameters.add(PlateImageParametersFactory.create(loader));
+            imageParameters.add(loader.getImageParameters());
         }
         return asDatasetToParamsMap(imageParameters);
     }

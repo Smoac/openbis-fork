@@ -127,14 +127,14 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             @Override
             public String tryGetValue(WellContent entity)
             {
-                DatasetImagesReference imageDataset = entity.tryGetImages();
+                DatasetImagesReference imageDataset = entity.tryGetImageDataset();
                 return imageDataset != null ? imageDataset.getDatasetReference().getCode() : null;
             }
 
             @Override
             public String tryGetLink(WellContent entity)
             {
-                DatasetImagesReference imageDataset = entity.tryGetImages();
+                DatasetImagesReference imageDataset = entity.tryGetImageDataset();
                 if (imageDataset != null)
                 {
                     return LinkExtractor.tryExtract(imageDataset.getDatasetReference());
@@ -150,7 +150,7 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             @Override
             public String tryGetValue(WellContent entity)
             {
-                DatasetImagesReference imageDataset = entity.tryGetImages();
+                DatasetImagesReference imageDataset = entity.tryGetImageDataset();
                 return imageDataset != null ? imageDataset.getDatasetReference().getFileTypeCode()
                         : null;
             }
@@ -161,7 +161,7 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             @Override
             public String tryGetValue(WellContent entity)
             {
-                if (entity != null && entity.tryGetImages() != null)
+                if (entity != null && entity.tryGetImageDataset() != null)
                 {
                     // Used only for export and filtering, renderer will set the image browser
                     // widget as a value of this column in the GUI

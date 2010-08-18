@@ -38,6 +38,7 @@ class WellData
 
     private TechId experimentId;
 
+    /** metadata have to be set separately with {@link #setMetadata} */
     public static WellData create(PlateImages plateImages, WellLocation location)
     {
         Experiment experiment = plateImages.getPlate().getExperiment();
@@ -50,8 +51,7 @@ class WellData
         DatasetImagesReference images = plateImages.tryGetImages();
         if (images != null)
         {
-            return new WellImages(images.getImageParameters(), images.getDatastoreCode(), images
-                    .getDownloadUrl(), location);
+            return new WellImages(images, location);
         } else
         {
             return null;

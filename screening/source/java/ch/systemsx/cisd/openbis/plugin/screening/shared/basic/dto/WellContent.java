@@ -78,7 +78,7 @@ public class WellContent implements IsSerializable
         return materialContent;
     }
 
-    public DatasetImagesReference tryGetImages()
+    public DatasetImagesReference tryGetImageDataset()
     {
         return imagesOrNull;
     }

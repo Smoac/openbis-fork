@@ -285,8 +285,7 @@ public class PlateContentLoader
 
     private PlateImageParameters loadImageParams(ExternalData dataset)
     {
-        final IHCSDatasetLoader loader = createHCSDatasetLoader(dataset);
-        return PlateImageParametersFactory.create(loader);
+        return createHCSDatasetLoader(dataset).getImageParameters();
     }
 
     private IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet)

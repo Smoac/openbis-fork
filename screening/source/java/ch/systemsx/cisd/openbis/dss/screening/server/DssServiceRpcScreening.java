@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
@@ -60,6 +59,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDataset
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -162,23 +162,23 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
         IContent imageFile = getAnyImagePath(imageAccessor, dataset);
-        Geometry wellGeometry = imageAccessor.getWellGeometry();
-        int tilesNumber = wellGeometry.getColumns() * wellGeometry.getRows();
+        PlateImageParameters params = imageAccessor.getImageParameters();
+        int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
         BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
-        return new ImageDatasetMetadata(dataset, imageAccessor.getChannelsNames(), tilesNumber,
-                image.getWidth(), image.getHeight());
+        return new ImageDatasetMetadata(dataset, params.getChannelsNames(), tilesNumber, image
+                .getWidth(), image.getHeight());
     }
 
     private static IContent getAnyImagePath(IHCSImageDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset)
     {
-        Geometry plateGeometry = imageAccessor.getPlateGeometry();
-        for (int row = 1; row <= plateGeometry.getRows(); row++)
+        PlateImageParameters params = imageAccessor.getImageParameters();
+        for (int row = 1; row <= params.getRowsNum(); row++)
         {
-            for (int col = 1; col <= plateGeometry.getColumns(); col++)
+            for (int col = 1; col <= params.getColsNum(); col++)
             {
                 AbsoluteImageReference image;
-                for (String channelName : imageAccessor.getChannelsNames())
+                for (String channelName : params.getChannelsNames())
                 {
                     ImageChannelStackReference channelStackReference =
                             ImageChannelStackReference.createFromLocations(new Location(col, row),
@@ -329,7 +329,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         Location wellLocation = asLocation(imageRef.getWellPosition());
         Location tileLocation =
-                getTileLocation(imageRef.getTile(), imageAccessor.getWellGeometry());
+                getTileLocation(imageRef.getTile(), imageAccessor.getImageParameters()
+                        .getTileColsNum());
         try
         {
             ImageChannelStackReference channelStackReference =
@@ -344,10 +345,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     }
 
     // tile - start from 0
-    private static Location getTileLocation(int tile, Geometry wellGeometry)
+    private static Location getTileLocation(int tile, int tileColumnsNum)
     {
-        int row = (tile / wellGeometry.getColumns()) + 1;
-        int col = (tile % wellGeometry.getColumns()) + 1;
+        int row = (tile / tileColumnsNum) + 1;
+        int col = (tile % tileColumnsNum) + 1;
         return new Location(row, col);
     }
 

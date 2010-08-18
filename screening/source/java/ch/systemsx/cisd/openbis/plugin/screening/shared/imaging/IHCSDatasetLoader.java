@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.List;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -28,18 +28,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 public interface IHCSDatasetLoader
 {
 
-    /** has to be called at the end */
+    /** Has to be called at the end. */
     void close();
 
-    String getDatasetPermId();
-
-    Geometry getPlateGeometry();
-
-    Geometry getWellGeometry();
-
-    List<String> getChannelsNames();
-
-    boolean isMultidimensional();
+    /** Dataset metadata. */
+    PlateImageParameters getImageParameters();
 
     /**
      * Loads information about all channels stacks of a given well.

@@ -37,9 +37,15 @@ public class SimpleImageHtmlRenderer
         return createEmbededImageHtml(imageURL, linkURL);
     }
 
-    public static String createEmbededImageHtml(String imageURL, String linkURL)
+    public static String createEmbededImageHtml(String imageURL, String linkURLOrNull)
     {
-        return "<div align='center'><a class='link-style' href='" + linkURL
-                + "' target='_blank'><img src='" + imageURL + "' alt='" + "image" + "'/></a></div>";
+        String linkStart = "", linkEnd = "";
+        if (linkURLOrNull != null)
+        {
+            linkStart = "<a class='link-style' href='" + linkURLOrNull + "' target='_blank'>";
+            linkEnd = "</a>";
+        }
+        return "<div align='center'>" + linkStart + "<img src='" + imageURL + "' alt='" + " image "
+                + "'/>" + linkEnd + "</div>";
     }
 }

@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  */
 public class ImageChannelStackReference extends AbstractHashable
 {
-    public static final class LocationImageChannelStackReference
+    public static final class LocationImageChannelStackReference extends AbstractHashable
     {
         protected Location wellLocation;
 

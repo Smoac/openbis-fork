@@ -19,89 +19,69 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Images of one well.
+ * Stores: 1. image dataset reference and metadata 2. well location
  * 
  * @author Tomasz Pylak
  */
 public class WellImages
 {
-    private final int tileRowsNum;
+    private final PlateImageParameters imageParams;
 
-    private final int tileColsNum;
+    private final DatasetReference dataset;
 
-    private final List<String> channelsNames;
+    private final WellLocation wellLocation;
 
-    private final String datasetCode;
-
-    private final String datastoreCode;
-
-    private final String downloadUrl;
-
-    private final WellLocation location;
-
-    // has timepoints or depth stack?
-    private final boolean isMultidimensional;
-
-    public WellImages(PlateImageParameters imageParams, String datastoreCode, String downloadUrl,
-            WellLocation location)
+    public WellImages(DatasetImagesReference imageDataset, WellLocation location)
     {
-        this.tileRowsNum = imageParams.getTileRowsNum();
-        this.tileColsNum = imageParams.getTileColsNum();
-        this.channelsNames = imageParams.getChannelsNames();
-        this.isMultidimensional = imageParams.isMultidimensional();
-        this.datasetCode = imageParams.getDatasetCode();
-        this.datastoreCode = datastoreCode;
-        this.downloadUrl = downloadUrl;
-        this.location = location;
-    }
-
-    public WellImages(DatasetImagesReference images, WellLocation location)
-    {
-        this(images.getImageParameters(), images.getDatastoreCode(), images.getDownloadUrl(),
-                location);
+        assert imageDataset != null : "image dataset is null";
+        assert location != null : "location is null";
+        this.imageParams = imageDataset.getImageParameters();
+        this.dataset = imageDataset.getDatasetReference();
+        this.wellLocation = location;
     }
 
     public int getTileRowsNum()
     {
-        return tileRowsNum;
+        return imageParams.getTileRowsNum();
     }
 
     public int getTileColsNum()
     {
-        return tileColsNum;
+        return imageParams.getTileColsNum();
     }
 
     public List<String> getChannelsNames()
     {
-        return channelsNames;
-    }
-
-    public String getDownloadUrl()
-    {
-        return downloadUrl;
-    }
-
-    public WellLocation getWellLocation()
-    {
-        return location;
-    }
-
-    public String getDatasetCode()
-    {
-        return datasetCode;
-    }
-
-    public String getDatastoreCode()
-    {
-        return datastoreCode;
+        return imageParams.getChannelsNames();
     }
 
     public boolean isMultidimensional()
     {
-        return isMultidimensional;
+        return imageParams.isMultidimensional();
+    }
+
+    public String getDatasetCode()
+    {
+        return dataset.getCode();
+    }
+
+    public String getDownloadUrl()
+    {
+        return dataset.getDownloadUrl();
+    }
+
+    public String getDatastoreCode()
+    {
+        return dataset.getDatastoreCode();
+    }
+
+    public WellLocation getWellLocation()
+    {
+        return wellLocation;
     }
 }

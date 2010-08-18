@@ -35,13 +35,16 @@ public class ImageUrlUtils
     /**
      * Creates a widget which displays the URL to the specified image on DSS and adds it to the
      * container.
+     * 
+     * @param createImageLinks if true, each thumbnail will link to the original image
      */
     public static void addImageUrlWidget(LayoutContainer container, String sessionId,
-            WellImages images, String channel, int row, int col, int imageWidth, int imageHeight)
+            WellImages images, String channel, int row, int col, int imageWidth, int imageHeight,
+            boolean createImageLinks)
     {
         String imageURL =
                 createDatastoreImageUrl(sessionId, images, channel, row, col, imageWidth,
-                        imageHeight);
+                        imageHeight, createImageLinks);
         addUrlWidget(container, imageURL, imageHeight);
     }
 
@@ -84,9 +87,14 @@ public class ImageUrlUtils
         container.add(tileContent);
     }
 
-    /** generates URL of an image on Data Store server */
+    /**
+     * generates URL of an image on Data Store server
+     * 
+     * @param createImageLinks
+     */
     private static String createDatastoreImageUrl(String sessionID, WellImages images,
-            String channel, int tileRow, int tileCol, int width, int height)
+            String channel, int tileRow, int tileCol, int width, int height,
+            boolean createImageLinks)
     {
         URLMethodWithParameters methodWithParameters =
                 createBasicImageURL(sessionID, images, channel);
@@ -95,7 +103,7 @@ public class ImageUrlUtils
         methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());
         methodWithParameters.addParameter("tileRow", tileRow);
         methodWithParameters.addParameter("tileCol", tileCol);
-        String linkURL = methodWithParameters.toString();
+        String linkURL = createImageLinks ? methodWithParameters.toString() : null;
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
 
         String imageURL = methodWithParameters.toString();
