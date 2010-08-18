@@ -1,3 +1,7 @@
+#!/bin/bash
+# Overrides all configuration files with those which can be found in the specified config backup directory.
+# Assumes that openbis is installed in the parent directory of the directory where this script is located. 
+
 CONF=$1
 
 BASE=`dirname "$0"`

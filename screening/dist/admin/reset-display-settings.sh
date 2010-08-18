@@ -1,3 +1,7 @@
+#!/bin/bash
+# Use with care!
+# Overrides all user display settings with the settings of the template user.
+
 DB=openbis_screening_mydb
 TEMPLATE_USER=openbis-user-name
 

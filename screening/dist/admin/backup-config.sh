@@ -1,3 +1,6 @@
+#!/bin/bash
+# makes a backup of all configuration files to the specified directory
+
 CONF=$1
 
 BASE=`dirname "$0"`

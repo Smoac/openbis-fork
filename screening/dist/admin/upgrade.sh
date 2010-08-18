@@ -1,4 +1,5 @@
-# Updates openbis for screening. 
+#!/bin/bash
+# Upgrades openbis for screening. 
 # Assumes that openbis is installed in the parent directory of the directory where this script is located. 
 
 OPENBIS_DB=openbis_screening_lmc
