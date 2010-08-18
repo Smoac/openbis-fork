@@ -17,15 +17,18 @@
 package ch.ethz.bsse.cisd.plasmid.dss;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 
+import ch.ethz.bsse.cisd.plasmid.plasmapper.PlasMapperUploader;
+import ch.ethz.bsse.cisd.plasmid.plasmapper.PlasMapperUploader.PlasMapperService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
-import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -44,6 +47,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, PlasmidStorageProcessor.class);
+
+    // TODO 2010-08-28, Piotr Buczek: get from properties
+    private final static String PLASMAPPER_PATH = "/Users/buczekp/CISD/cifex/jetty/webapps";
+
     private static final String ORIGINAL_DIR = "original";
 
     private static final String GENERATED_DIR = "generated";
@@ -52,14 +61,11 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
 
     private static final String PNG_FILE_EXTENSION = ".png";
 
+    private PlasMapperUploader uploader = new PlasMapperUploader();
+
     public PlasmidStorageProcessor(Properties properties)
     {
         super(properties);
-    }
-
-    public PlasmidStorageProcessor(IStorageProcessor delegatedProcessor)
-    {
-        super(delegatedProcessor);
     }
 
     @Override
@@ -74,7 +80,6 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
                 DataSetTypeOracle.DataSetTypeInfo.SEQ_FILE.name()))
         {
             File originalDir = new File(answer, ORIGINAL_DIR);
-            assert originalDir.isDirectory();
             File[] files = originalDir.listFiles();
             assert files.length == 1;
             File seqFile = files[0];
@@ -86,10 +91,12 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
             File generatedDir = new File(answer, GENERATED_DIR);
             if (generatedDir.mkdir())
             {
-                File pngFile = new File(generatedDir, pngFileName);
-                File gbFile = new File(generatedDir, gbFileName);
-                createEmptyFileHandled(pngFile);
-                createEmptyFileHandled(gbFile);
+                final File pngFileDest = new File(generatedDir, pngFileName);
+                final File gbFileDest = new File(generatedDir, gbFileName);
+
+                operationLog.info("Uploading '" + seqFile.getName() + "' to PlasMapper.");
+                uploadAndMoveGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP, pngFileDest);
+                uploadAndMoveGeneratedFile(seqFile, PlasMapperService.GENEBANK_OUTPUT, gbFileDest);
             } else
             {
                 throw new EnvironmentFailureException("Couldn't create directory '" + generatedDir
@@ -99,14 +106,24 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
         return answer;
     }
 
-    private static final void createEmptyFileHandled(File file)
+    private void uploadAndMoveGeneratedFile(final File seqFile, final PlasMapperService service,
+            final File destinationFile)
     {
-        try
+        String outputFilePath = uploader.upload(seqFile, service);
+        File outputFile = new File(PLASMAPPER_PATH + outputFilePath);
+        if (outputFile.isFile())
         {
-            file.createNewFile();
-        } catch (IOException ex)
+            operationLog.info("Moving file '" + outputFile.getName() + "' from '" + outputFile
+                    + "' to " + destinationFile);
+            if (outputFile.renameTo(destinationFile) == false)
+            {
+                throw new EnvironmentFailureException("Couldn't move file '" + outputFile
+                        + "' to '" + destinationFile + "'.");
+            }
+        } else
         {
-            throw new EnvironmentFailureException("Couldn't create file '" + file + "'.", ex);
+            throw new EnvironmentFailureException("'" + outputFile
+                    + "' doesn't exist or is not a file.");
         }
     }
 

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * Uploads provided file to PlasMapper.
+ * Uploads provided sequence file to PlasMapper.
  * 
  * @author Piotr Buczek
  */
@@ -47,7 +47,59 @@ public class PlasMapperUploader
 {
     // http://www.java-tips.org/other-api-tips/httpclient/how-to-use-multipart-post-method-for-uploading.html
 
-    private final static String PLASMAPPER_URL = "http://localhost:8080/PlasMapper";
+    private final static String PLASMAPPER_URL = "http://localhost:8082/PlasMapper";
+
+    private static Properties createDefaultProperties()
+    {
+        Properties result = new Properties();
+        result.setProperty("vendor", "Amersham%20Pharmacia");
+        result.setProperty("showOption", "1,2,3,4,5,6,7,8,9");
+        result.setProperty("restriction", "1");
+        result.setProperty("orfLen", "200");
+        result.setProperty("strand", "1,2");
+        result.setProperty("featureName1", "");
+        result.setProperty("featureName2", "");
+        result.setProperty("featureName3", "");
+        result.setProperty("featureName4", "");
+        result.setProperty("featureName5", "");
+        result.setProperty("featureName6", "");
+        result.setProperty("dir1", "1");
+        result.setProperty("dir2", "1");
+        result.setProperty("dir3", "1");
+        result.setProperty("dir4", "1");
+        result.setProperty("dir5", "1");
+        result.setProperty("dir6", "1");
+        result.setProperty("category1", "origin_of_replication");
+        result.setProperty("category2", "origin_of_replication");
+        result.setProperty("category3", "origin_of_replication");
+        result.setProperty("category4", "origin_of_replication");
+        result.setProperty("category5", "origin_of_replication");
+        result.setProperty("category6", "origin_of_replication");
+        result.setProperty("stop1", "");
+        result.setProperty("stop2", "");
+        result.setProperty("stop3", "");
+        result.setProperty("stop4", "");
+        result.setProperty("stop5", "");
+        result.setProperty("stop6", "");
+        result.setProperty("scheme", "0");
+        result.setProperty("shading", "0");
+        result.setProperty("labColor", "0");
+        result.setProperty("labelBox", "1");
+        result.setProperty("labels", "0");
+        result.setProperty("innerLabels", "0");
+        result.setProperty("legend", "0");
+        result.setProperty("arrow", "0");
+        result.setProperty("tickMark", "0");
+        result.setProperty("mapTitle", "");
+        result.setProperty("comment", "Created using PlasMapper");
+        result.setProperty("imageFormat", "PNG");
+        result.setProperty("imageSize", "900 x 900");
+        result.setProperty("backbone", "medium");
+        result.setProperty("arc", "medium");
+        result.setProperty("biomoby", "true"); // special: result of request == relative path to PNG
+        // file
+        return result;
+    }
 
     public enum PlasMapperService
     {
@@ -80,53 +132,7 @@ public class PlasMapperUploader
 
     public static void main(String[] args)
     {
-        Properties p = new Properties();
-        p.setProperty("vendor", "Amersham%20Pharmacia");
-        p.setProperty("showOption", "1,2,3,4,5,6,7,8,9");
-        p.setProperty("restriction", "1");
-        p.setProperty("orfLen", "200");
-        p.setProperty("strand", "1,2");
-        p.setProperty("featureName1", "");
-        p.setProperty("featureName2", "");
-        p.setProperty("featureName3", "");
-        p.setProperty("featureName4", "");
-        p.setProperty("featureName5", "");
-        p.setProperty("featureName6", "");
-        p.setProperty("dir1", "1");
-        p.setProperty("dir2", "1");
-        p.setProperty("dir3", "1");
-        p.setProperty("dir4", "1");
-        p.setProperty("dir5", "1");
-        p.setProperty("dir6", "1");
-        p.setProperty("category1", "origin_of_replication");
-        p.setProperty("category2", "origin_of_replication");
-        p.setProperty("category3", "origin_of_replication");
-        p.setProperty("category4", "origin_of_replication");
-        p.setProperty("category5", "origin_of_replication");
-        p.setProperty("category6", "origin_of_replication");
-        p.setProperty("stop1", "");
-        p.setProperty("stop2", "");
-        p.setProperty("stop3", "");
-        p.setProperty("stop4", "");
-        p.setProperty("stop5", "");
-        p.setProperty("stop6", "");
-        p.setProperty("scheme", "0");
-        p.setProperty("shading", "0");
-        p.setProperty("labColor", "0");
-        p.setProperty("labelBox", "1");
-        p.setProperty("labels", "0");
-        p.setProperty("innerLabels", "0");
-        p.setProperty("legend", "0");
-        p.setProperty("arrow", "0");
-        p.setProperty("tickMark", "0");
-        p.setProperty("mapTitle", "");
-        p.setProperty("comment", "Created using PlasMapper");
-        p.setProperty("imageFormat", "PNG");
-        p.setProperty("imageSize", "900 x 900");
-        p.setProperty("backbone", "medium");
-        p.setProperty("arc", "medium");
-        p.setProperty("biomoby", "true"); // special: result of request == relative path to PNG file
-
+        Properties p = createDefaultProperties();
         PlasMapperUploader uploader = new PlasMapperUploader(p);
         uploader.upload(new File("PRS316.gb"), PlasMapperService.GRAPHIC_MAP);
     }
@@ -138,23 +144,25 @@ public class PlasMapperUploader
         this.properties = properties;
     }
 
+    public PlasMapperUploader()
+    {
+        this(createDefaultProperties());
+    }
+
     /**
      * Makes an HTTP multipart POST request with given file.
      * 
-     * @param gbFile file to be uploaded
+     * @param seqFile file to be uploaded
      * @param service service to be used for upload
      * @return the server's response to the request depending on the service (path to output image
      *         or sequence in genebank format)
      */
-    public String upload(File gbFile, PlasMapperService service)
+    public String upload(File seqFile, PlasMapperService service)
     {
-        assert gbFile.getName().toLowerCase().endsWith(".gb");
-        assert gbFile.exists();
-
         final PostMethod post = new PostMethod(service.getServiceURL());
         try
         {
-            Part filePart = new FilePart(FILE_PART_NAME, gbFile);
+            Part filePart = new FilePart(FILE_PART_NAME, seqFile);
             Part[] parts = createParts(filePart, properties);
             post.setRequestEntity(new MultipartRequestEntity(parts, post.getParams()));
             HttpClient client = new HttpClient();
@@ -167,8 +175,12 @@ public class PlasMapperUploader
                         + post.getStatusLine()));
             }
             String response = post.getResponseBodyAsString();
-            System.err.println(String.format("Response of service: '%s'", response));
-            operationLog.info(String.format("Response of service: '%s'", response));
+            if (response.endsWith("\n"))
+            {
+                response = response.substring(0, response.lastIndexOf("\n"));
+            }
+            System.err.println(String.format("Response of %s service: '%s'", service, response));
+            operationLog.info(String.format("Response of %s service: '%s'", service, response));
             return response;
         } catch (final Exception ex)
         {
