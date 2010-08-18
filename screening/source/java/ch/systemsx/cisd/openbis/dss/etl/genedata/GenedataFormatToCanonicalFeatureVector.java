@@ -84,7 +84,8 @@ public class GenedataFormatToCanonicalFeatureVector
         int count = counters.count(name);
         ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO();
         featureDef.setCode(count == 1 ? name : name + count);
-        featureDef.setName(name);
+        featureDef.setLabel(name);
+        featureDef.setDescription(name);
         featureVector.setFeatureDef(featureDef);
         PlateFeatureValues valuesValues = convertColumnToValues(geometry, feature);
         ImgFeatureValuesDTO values = new ImgFeatureValuesDTO(0., 0., valuesValues, 0);

@@ -116,18 +116,18 @@ public class FeatureTableBuilder
         final Bundle bundle = new Bundle();
         final List<ImgFeatureDefDTO> featureDefinitions =
                 dao.listFeatureDefsByDataSetId(dataSet.getId());
-        final Map<String, ImgFeatureDefDTO> featureNameToDefMap =
+        final Map<String, ImgFeatureDefDTO> featureCodeToDefMap =
                 new LinkedHashMap<String, ImgFeatureDefDTO>();
         for (ImgFeatureDefDTO def : featureDefinitions)
         {
-            featureNameToDefMap.put(def.getName(), def);
+            featureCodeToDefMap.put(def.getCode(), def);
         }
         bundle.dataSet = dataSet;
         bundle.featureDefToValuesMap = new HashMap<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>>();
         bundles.add(bundle);
         if (useAllFeatures)
         {
-            featureNames.addAll(featureNameToDefMap.keySet());
+            featureNames.addAll(featureCodeToDefMap.keySet());
         }
         for (String featureName : featureNames)
         {
@@ -136,7 +136,7 @@ public class FeatureTableBuilder
                 featureNameToIndexMap.put(featureName,
                         new Integer(featureNameToIndexMap.size()));
             }
-            final ImgFeatureDefDTO featureDefinition = featureNameToDefMap.get(featureName);
+            final ImgFeatureDefDTO featureDefinition = featureCodeToDefMap.get(featureName);
             if (featureDefinition != null)
             {
                 List<ImgFeatureValuesDTO> featureValueSets =
@@ -222,8 +222,8 @@ public class FeatureTableBuilder
             {
                 break;
             }
-            Integer index = featureNameToIndexMap.get(featureDefinition.getName());
-            assert index != null : "No index for feature " + featureDefinition.getName();
+            Integer index = featureNameToIndexMap.get(featureDefinition.getCode());
+            assert index != null : "No index for feature " + featureDefinition.getCode();
             valueArray[index] =
                     featureValues.getForWellLocation(wellPosition.getWellRow(), wellPosition
                             .getWellColumn());

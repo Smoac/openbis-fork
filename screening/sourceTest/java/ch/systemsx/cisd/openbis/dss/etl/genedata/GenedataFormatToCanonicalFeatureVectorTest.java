@@ -66,7 +66,7 @@ public class GenedataFormatToCanonicalFeatureVectorTest extends AbstractFileSyst
     private void verifyFeature(CanonicalFeatureVector feature, String featureName, float[] values)
     {
         ImgFeatureDefDTO featureDef = feature.getFeatureDef();
-        assertEquals(featureName, featureDef.getName());
+        assertEquals(featureName, featureDef.getLabel());
         List<ImgFeatureValuesDTO> featureValues = feature.getValues();
         assertEquals(1, featureValues.size());
         ImgFeatureValuesDTO featureValue = featureValues.get(0);

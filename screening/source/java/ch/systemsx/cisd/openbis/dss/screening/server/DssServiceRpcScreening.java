@@ -123,7 +123,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(identifier);
             for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
             {
-                String featureName = featureDefinition.getName();
+                String featureName = featureDefinition.getLabel();
                 if (result.contains(featureName) == false)
                 {
                     result.add(featureName);

@@ -134,7 +134,8 @@ public class CsvToCanonicalFeatureVector
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
         CodeAndTitle codeAndTitle = new CodeAndTitle(column.name);
         ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO();
-        featureDef.setName(codeAndTitle.getTitle());
+        featureDef.setLabel(codeAndTitle.getTitle());
+        featureDef.setDescription(codeAndTitle.getTitle());
         String code = codeAndTitle.getCode();
         int count = counters.count(code);
         featureDef.setCode(count == 1 ? code : code + count);

@@ -54,7 +54,7 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
         // Check total cells feature
         CanonicalFeatureVector totalCells = fvs.get(0);
         ImgFeatureDefDTO def = totalCells.getFeatureDef();
-        assertEquals("TotalCells", def.getName());
+        assertEquals("TotalCells", def.getLabel());
         assertEquals(1, totalCells.getValues().size());
         ImgFeatureValuesDTO values = totalCells.getValues().get(0);
         PlateFeatureValues darr = values.getValues();
@@ -66,7 +66,7 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
         // Check InfectionIndex
         CanonicalFeatureVector infectionIndex = fvs.get(2);
         def = infectionIndex.getFeatureDef();
-        assertEquals("InfectionIndex", def.getName());
+        assertEquals("InfectionIndex", def.getLabel());
         assertEquals(1, infectionIndex.getValues().size());
         values = infectionIndex.getValues().get(0);
         darr = values.getValues();

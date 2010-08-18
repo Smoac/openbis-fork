@@ -104,7 +104,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         assertEquals(1, featureDefs.size());
 
         ImgFeatureDefDTO featureDef = featureDefs.get(0);
-        assertEquals(TEST_FEATURE_NAME, featureDef.getName());
+        assertEquals(TEST_FEATURE_NAME, featureDef.getLabel());
 
         createFeatureValues(featureDef);
         List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef);
