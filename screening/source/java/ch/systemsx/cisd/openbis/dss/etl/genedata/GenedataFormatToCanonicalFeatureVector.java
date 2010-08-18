@@ -25,6 +25,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -62,22 +63,29 @@ public class GenedataFormatToCanonicalFeatureVector
     private ArrayList<CanonicalFeatureVector> convertFeaturesToFeatureFectors()
     {
         ArrayList<CanonicalFeatureVector> result = new ArrayList<CanonicalFeatureVector>();
+        Counters<String> counters = new Counters<String>();
         for (FeatureParser feature : features)
         {
-            CanonicalFeatureVector featureVector = convertFeatureToFeatureVector(feature);
+            CanonicalFeatureVector featureVector = convertFeatureToFeatureVector(feature, counters);
             result.add(featureVector);
         }
 
         return result;
     }
 
-    private CanonicalFeatureVector convertFeatureToFeatureVector(FeatureParser feature)
+    private CanonicalFeatureVector convertFeatureToFeatureVector(FeatureParser feature,
+            Counters<String> counters)
     {
         final Geometry geometry =
                 Geometry.createFromRowColDimensions(feature.numberOfRows, feature.numberOfColumns);
 
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
-        featureVector.setFeatureDef(new ImgFeatureDefDTO(feature.name, feature.name, 0));
+        String name = feature.name;
+        int count = counters.count(name);
+        ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO();
+        featureDef.setCode(count == 1 ? name : name + count);
+        featureDef.setName(name);
+        featureVector.setFeatureDef(featureDef);
         PlateFeatureValues valuesValues = convertColumnToValues(geometry, feature);
         ImgFeatureValuesDTO values = new ImgFeatureValuesDTO(0., 0., valuesValues, 0);
         featureVector.setValues(Collections.singletonList(values));

@@ -21,7 +21,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
@@ -112,13 +114,14 @@ public class CsvToCanonicalFeatureVector
                 Geometry.createFromRowColDimensions(maxPlateGeometryRow, maxPlateGeometryCol);
 
         ArrayList<CanonicalFeatureVector> result = new ArrayList<CanonicalFeatureVector>();
+        Counters<String> counters = new Counters<String>();
         for (FeatureColumn column : columns)
         {
             if ((true == column.isWellName) || (false == column.isNumeric))
             {
                 continue;
             }
-            CanonicalFeatureVector featureVector = convertColumnToFeatureVector(geometry, column);
+            CanonicalFeatureVector featureVector = convertColumnToFeatureVector(geometry, column, counters);
             result.add(featureVector);
         }
 
@@ -126,10 +129,16 @@ public class CsvToCanonicalFeatureVector
     }
 
     private CanonicalFeatureVector convertColumnToFeatureVector(Geometry geometry,
-            FeatureColumn column)
+            FeatureColumn column, Counters<String> counters)
     {
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
-        featureVector.setFeatureDef(new ImgFeatureDefDTO(column.name, column.name, 0));
+        CodeAndTitle codeAndTitle = new CodeAndTitle(column.name);
+        ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO();
+        featureDef.setName(codeAndTitle.getTitle());
+        String code = codeAndTitle.getCode();
+        int count = counters.count(code);
+        featureDef.setCode(count == 1 ? code : code + count);
+        featureVector.setFeatureDef(featureDef);
         final PlateFeatureValues valuesValues = convertColumnToByteArray(geometry, column);
         ImgFeatureValuesDTO values = new ImgFeatureValuesDTO(0., 0., valuesValues, 0);
         featureVector.setValues(Collections.singletonList(values));

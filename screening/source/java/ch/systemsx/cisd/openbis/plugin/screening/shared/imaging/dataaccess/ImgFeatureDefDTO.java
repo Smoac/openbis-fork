@@ -35,16 +35,17 @@ public class ImgFeatureDefDTO extends AbstractHashable
     @ResultColumn("NAME")
     private String name;
 
+    @ResultColumn("CODE")
+    private String code;
+    
     @ResultColumn("DESCRIPTION")
     private String description;
 
     @ResultColumn("DS_ID")
     private long dataSetId;
 
-    @SuppressWarnings("unused")
-    private ImgFeatureDefDTO()
+    public ImgFeatureDefDTO()
     {
-        // All Data-Object classes must have a default constructor.
     }
 
     public ImgFeatureDefDTO(String name, String description, long dataSetId)
@@ -72,6 +73,16 @@ public class ImgFeatureDefDTO extends AbstractHashable
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    public String getCode()
+    {
+        return code;
     }
 
     public long getDataSetId()
