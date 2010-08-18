@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -155,7 +156,8 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();
         for (String title : lines.getHeaderTokens())
         {
-            addHeader(tableBuilder, title);
+            CodeAndTitle codeAndTitle = new CodeAndTitle(title);
+            tableBuilder.addHeader(codeAndTitle.getTitle(), codeAndTitle.getCode());
         }
         for (String[] line : lines.getDataLines())
         {
@@ -169,22 +171,6 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         return tableBuilder.getTableModel();
     }
     
-    private void addHeader(SimpleTableModelBuilder builder, String title)
-    {
-        String headerTitle = title;
-        String headerCode = title;
-        if (title.startsWith("<"))
-        {
-            int indexOfClosing = title.indexOf('>');
-            if (indexOfClosing > 0)
-            {
-                headerCode = title.substring(1, indexOfClosing).trim();
-                headerTitle = title.substring(indexOfClosing + 1).trim();
-            }
-        }
-        builder.addHeader(headerTitle, headerCode);
-    }
-
     protected static TableModel createTransposedTableModel(DatasetFileLines lines)
     {
         int columns = lines.getHeaderTokens().length;

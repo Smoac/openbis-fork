@@ -115,7 +115,7 @@ public class SimpleTableModelBuilder
      * @throws UserFailureException if non-unique header titles are not allowed and a header with
      *             same title has already been added.
      */
-    public void addHeader(String title, String code, int defaultColumnWidth)
+    private void addHeader(String title, String code, int defaultColumnWidth)
     {
         String id = createUniqueID(code);
         TableModelColumnHeader header = new TableModelColumnHeader(title, id, headers.size());
@@ -130,18 +130,8 @@ public class SimpleTableModelBuilder
 
     private String createUniqueID(String code)
     {
-        StringBuilder builder = new StringBuilder(code.toUpperCase());
-        for (int i = 0, n = builder.length(); i < n; i++)
-        {
-            if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".indexOf(builder.charAt(i)) < 0)
-            {
-                builder.setCharAt(i, '_');
-            }
-        }
-        String normalizedCode = builder.toString();
-        int count = counters.count(normalizedCode);
-        String id = count == 1 ? normalizedCode : normalizedCode + count;
-        return id;
+        int count = counters.count(code);
+        return count == 1 ? code : code + count;
     }
     
     /**
