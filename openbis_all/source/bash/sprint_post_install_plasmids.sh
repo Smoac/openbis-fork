@@ -4,17 +4,19 @@
 
 JETTY_WEBAPPS=~/sprint/openBIS-server/jetty/webapps/
 CONFIG_DIR=~/config
+PLASMAPPER_WEBAPP_NAME=PlasMapper
 
 function copy_rec_or_die {
   SRC=$1
   DEST=$2
-	if [ -f $SRC ]; then
-		echo Copy $SRC to $DEST
-		cp -r $SRC $DEST
-	else
-			echo -e "\n[ERROR]: cannot copy $SRC to $DEST, because $SRC does not exist"
-		exit 1
-	fi
+        if [ -d $SRC ]; then
+                echo Copy dir $SRC to $DEST
+                cp -r $SRC $DEST
+        else
+                echo -e "\n[ERROR]: cannot copy $SRC to $DEST, because $SRC does not exist or is not a directory"
+                exit 1
+        fi
 }
 
-copy_rec_or_die $CONFIG_DIR/PlasMapper $JETTY_WEBAPPS
+rm -fr $JETTY_WEBAPPS/$PLASMAPPER_WEBAPP_NAME
+copy_rec_or_die $CONFIG_DIR/$PLASMAPPER_WEBAPP_NAME $JETTY_WEBAPPS
