@@ -29,8 +29,14 @@ public class CodeAndTitleTest extends AssertJUnit
     @Test
     public void testNormalize()
     {
-        assertEquals("", CodeAndTitle.normalize(""));
-        assertEquals("ABC_123", CodeAndTitle.normalize("Abc=123"));
+        assertNormalized("", "");
+        assertNormalized("ABC_123", "Abc=123");
+    }
+    
+    private void assertNormalized(String expectedNormalizedCode, String code)
+    {
+        assertEquals(expectedNormalizedCode, CodeAndTitle.normalize(code));
+        assertEquals(expectedNormalizedCode, CodeAndTitle.normalize(CodeAndTitle.normalize(code)));
     }
     
     @Test
