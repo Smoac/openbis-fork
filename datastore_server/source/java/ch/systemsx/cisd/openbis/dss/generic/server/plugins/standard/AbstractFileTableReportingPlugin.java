@@ -154,7 +154,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
     protected TableModel createTableModel(DatasetFileLines lines)
     {
         SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();
-        for (String title : lines.getHeaderTokens())
+        for (String title : lines.getHeaderLabels())
         {
             CodeAndTitle codeAndTitle = new CodeAndTitle(title);
             tableBuilder.addHeader(codeAndTitle.getTitle(), codeAndTitle.getCode());
@@ -173,7 +173,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
     
     protected static TableModel createTransposedTableModel(DatasetFileLines lines)
     {
-        int columns = lines.getHeaderTokens().length;
+        int columns = lines.getHeaderLabels().length;
         int rows = lines.getDataLines().size() + 1;
         String[][] all = new String[columns][rows];
         for (int r = 0; r < rows; r++)
@@ -181,7 +181,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
             for (int c = 0; c < columns; c++)
             {
                 all[c][r] =
-                        (r == 0) ? lines.getHeaderTokens()[c] : lines.getDataLines().get(r - 1)[c];
+                        (r == 0) ? lines.getHeaderLabels()[c] : lines.getDataLines().get(r - 1)[c];
             }
         }
         SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();

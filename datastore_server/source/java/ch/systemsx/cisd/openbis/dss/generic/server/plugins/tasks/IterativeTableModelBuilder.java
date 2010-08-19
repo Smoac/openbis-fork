@@ -60,7 +60,7 @@ public class IterativeTableModelBuilder
     private int findIndexOfIdentifierColumn(DatasetFileLines lines)
     {
         int idx = 0;
-        for (String columnHeader : lines.getHeaderTokens())
+        for (String columnHeader : lines.getHeaderLabels())
         {
             if (isIdentifierColumn(columnHeader))
             {
@@ -85,7 +85,7 @@ public class IterativeTableModelBuilder
                     + rowIdentifierColumnHeader + "'.");
             return;
         }
-        final String[] columnHeaders = lines.getHeaderTokens();
+        final String[] columnHeaders = lines.getHeaderLabels();
         int colIdx = 0;
         for (String columnHeader : columnHeaders)
         {

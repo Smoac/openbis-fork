@@ -95,7 +95,12 @@ public class DatasetFileLines implements ITabularData
         return file;
     }
 
-    public String[] getHeaderTokens()
+    public String[] getHeaderLabels()
+    {
+        return headerTokens;
+    }
+
+    public String[] getHeaderCodes()
     {
         return headerTokens;
     }

@@ -26,7 +26,9 @@ import java.util.List;
 public interface ITabularData
 {
 
-    public abstract String[] getHeaderTokens();
+    public abstract String[] getHeaderLabels();
+    
+    public String[] getHeaderCodes();
 
     public abstract List<String[]> getDataLines();
 

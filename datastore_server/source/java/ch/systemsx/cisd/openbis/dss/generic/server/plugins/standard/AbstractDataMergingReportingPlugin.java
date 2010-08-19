@@ -78,7 +78,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractFileTab
     {
         File dir = getDataSubDir(dataset);
         final DatasetFileLines lines = loadFromDirectory(dataset, dir);
-        return lines.getHeaderTokens();
+        return lines.getHeaderLabels();
     }
 
     /**

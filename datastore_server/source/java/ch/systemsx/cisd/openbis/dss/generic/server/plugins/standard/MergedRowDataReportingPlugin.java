@@ -62,14 +62,14 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
             {
                 final File dir = getDataSubDir(dataset);
                 final DatasetFileLines lines = loadFromDirectory(dataset, dir);
-                if (Arrays.equals(titles, lines.getHeaderTokens()) == false)
+                if (Arrays.equals(titles, lines.getHeaderLabels()) == false)
                 {
                     throw UserFailureException.fromTemplate(
                             "All Data Set files should have the same headers, "
                                     + "but file header of '%s': \n\t '%s' "
                                     + "is different than file header of '%s': \n\t '%s'.",
                             firstDataset.getDatasetCode(), StringUtils.join(titles, "\t"), dataset
-                                    .getDatasetCode(), StringUtils.join(lines.getHeaderTokens(),
+                                    .getDatasetCode(), StringUtils.join(lines.getHeaderLabels(),
                                     "\t"));
                 }
                 addDataRows(builder, dataset, lines, false);
