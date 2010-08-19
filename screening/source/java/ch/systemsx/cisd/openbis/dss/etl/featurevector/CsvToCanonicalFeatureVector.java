@@ -94,7 +94,7 @@ public class CsvToCanonicalFeatureVector
             CsvToCanonicalFeatureVectorConfiguration config, int maxRow, int maxCol)
     {
         this.configuration = config;
-        this.header = fileLines.getHeaderTokens();
+        this.header = fileLines.getHeaderLabels();
         this.lines = fileLines.getDataLines();
         this.maxPlateGeometryRow = maxRow;
         this.maxPlateGeometryCol = maxCol;

@@ -66,7 +66,9 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
         private final String dataSetCode;
 
-        private String[] headerTokens;
+        private String[] headerCodes;
+        
+        private String[] headerLabels;
 
         private ArrayList<String[]> lines;
 
@@ -84,17 +86,22 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             final FeatureTableBuilder tableBuilder = new FeatureTableBuilder(dao, service);
             tableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
 
-            List<CodeAndTitle> featureNames = tableBuilder.getCodesAndLabels();
-            int headerTokensLength = featureNames.size() + 3;
-            headerTokens = new String[headerTokensLength];
-            headerTokens[0] = WELL_NAME_COLUMN;
-            headerTokens[1] = WELL_ROW_COLUMN;
-            headerTokens[2] = WELL_COLUMN_COLUMN;
+            List<CodeAndTitle> featureCodeAndLabels = tableBuilder.getCodesAndLabels();
+            int headerTokensLength = featureCodeAndLabels.size() + 3;
+            headerLabels = new String[headerTokensLength];
+            headerLabels[0] = WELL_NAME_COLUMN;
+            headerLabels[1] = WELL_ROW_COLUMN;
+            headerLabels[2] = WELL_COLUMN_COLUMN;
+            headerCodes = new String[headerTokensLength];
+            headerCodes[0] = CodeAndTitle.normalize(WELL_NAME_COLUMN);
+            headerCodes[1] = CodeAndTitle.normalize(WELL_NAME_COLUMN);
+            headerCodes[2] = CodeAndTitle.normalize(WELL_NAME_COLUMN);
 
             int i = 1;
-            for (CodeAndTitle name : featureNames)
+            for (CodeAndTitle featureCodeAndLabel : featureCodeAndLabels)
             {
-                headerTokens[i++] = name.getTitle();
+                headerCodes[i] = featureCodeAndLabel.getCode();
+                headerLabels[i++] = featureCodeAndLabel.getTitle();
             }
 
             lines = new ArrayList<String[]>();
@@ -154,9 +161,14 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             return lines;
         }
 
-        public String[] getHeaderTokens()
+        public String[] getHeaderLabels()
         {
-            return headerTokens;
+            return headerLabels;
+        }
+
+        public String[] getHeaderCodes()
+        {
+            return headerCodes;
         }
 
     }

@@ -75,7 +75,7 @@ public class TabularDataHistogram extends
     protected JFreeChart createDataChart(Dataset dataset)
     {
         JFreeChart chart = ChartFactory.createHistogram(getTitle(), // title
-                configuration.getXAxisColumn(), // x-axis label
+                getXAxisLabel(), // x-axis label
                 "Count", // y-axis label
                 (HistogramDataset) dataset, // data
                 PlotOrientation.VERTICAL, // plot orientation

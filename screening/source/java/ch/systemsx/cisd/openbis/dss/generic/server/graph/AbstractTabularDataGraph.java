@@ -98,6 +98,31 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     }
 
     /**
+     * Returns x-axis label.
+     */
+    protected String getXAxisLabel()
+    {
+        return getColumnLabel(configuration.getXAxisColumn());
+    }
+
+    /**
+     * Returns y-axis label.
+     */
+    protected String getYAxisLabel()
+    {
+        return getColumnLabel(configuration.getYAxisColumn());
+    }
+    
+    /**
+     * Maps specified column code onto a column label. Returns column code if mapping doesn't work.
+     */
+    protected String getColumnLabel(String columnCode)
+    {
+        int columnNumber = tryColumnNumberForHeader(columnCode);
+        return columnNumber < 0 ? columnCode : fileLines.getHeaderLabels()[columnNumber];
+    }
+
+    /**
      * Return the column number for the X column or -1 if none was found
      */
     protected int tryXColumnNumber()
@@ -116,13 +141,13 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     /**
      * Return the column number for the column header or -1 if none was found
      */
-    protected int tryColumnNumberForHeader(String columnHeader)
+    protected int tryColumnNumberForHeader(String columnHeaderCode)
     {
-        String[] headers = fileLines.getHeaderTokens();
+        String[] headers = fileLines.getHeaderCodes();
         int i = 0;
         for (String header : headers)
         {
-            if (columnHeader.equals(header))
+            if (columnHeaderCode.equals(header))
             {
                 return i;
             }
@@ -141,8 +166,8 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         JFreeChart chart =
                 ChartFactory.createXYAreaChart(
                         "Error : Could not find requested columns in dataset.", // title
-                        configuration.getXAxisColumn(), // x-axis label
-                        configuration.getYAxisColumn(), // y-axis label
+                        getXAxisLabel(), // x-axis label
+                        getYAxisLabel(), // y-axis label
                         dataset, // data
                         PlotOrientation.VERTICAL, // plot orientation
                         false, // create legend?

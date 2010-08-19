@@ -75,8 +75,8 @@ public class TabularDataScatterplot extends
     protected JFreeChart createDataChart(Dataset dataset)
     {
         JFreeChart chart = ChartFactory.createScatterPlot(getTitle(), // title
-                configuration.getXAxisColumn(), // x-axis label
-                configuration.getYAxisColumn(), // y-axis label
+                getXAxisLabel(), // x-axis label
+                getYAxisLabel(), // y-axis label
                 (XYDataset) dataset, // data
                 PlotOrientation.VERTICAL, // plot orientation
                 false, // create legend?

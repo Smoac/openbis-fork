@@ -289,11 +289,11 @@ public class MigrationStepFrom003To004 implements IMigrationStep
         for (File datasetFile : datasetFiles)
         {
             DatasetFileLines fileLines = tryReadFeatureVectors(datasetFile, ',');
-            if (fileLines == null || fileLines.getHeaderTokens().length <= 2)
+            if (fileLines == null || fileLines.getHeaderLabels().length <= 2)
             {
                 fileLines = tryReadFeatureVectors(datasetFile, ';');
             }
-            if (fileLines != null && fileLines.getHeaderTokens().length > 2)
+            if (fileLines != null && fileLines.getHeaderLabels().length > 2)
             {
                 return fileLines;
             }
