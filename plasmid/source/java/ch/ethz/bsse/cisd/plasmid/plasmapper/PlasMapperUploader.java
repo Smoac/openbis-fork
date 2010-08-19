@@ -45,9 +45,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public class PlasMapperUploader
 {
-    // http://www.java-tips.org/other-api-tips/httpclient/how-to-use-multipart-post-method-for-uploading.html
 
-    private final static String PLASMAPPER_URL = "http://localhost:8082/PlasMapper";
+    private final static String DEFAULT_PLASMAPPER_URL = "http://localhost:8082/PlasMapper";
 
     private static Properties createDefaultProperties()
     {
@@ -113,9 +112,9 @@ public class PlasMapperUploader
             this.servletPath = servletPath;
         }
 
-        String getServiceURL()
+        String getServletPath()
         {
-            return PLASMAPPER_URL + servletPath;
+            return servletPath;
         }
 
     }
@@ -133,20 +132,23 @@ public class PlasMapperUploader
     public static void main(String[] args)
     {
         Properties p = createDefaultProperties();
-        PlasMapperUploader uploader = new PlasMapperUploader(p);
+        PlasMapperUploader uploader = new PlasMapperUploader(DEFAULT_PLASMAPPER_URL, p);
         uploader.upload(new File("PRS316.gb"), PlasMapperService.GRAPHIC_MAP);
     }
 
-    private Properties properties;
+    private final String baseUrl;
 
-    public PlasMapperUploader(Properties properties)
+    private final Properties properties;
+
+    public PlasMapperUploader(String baseUrl, Properties properties)
     {
+        this.baseUrl = baseUrl;
         this.properties = properties;
     }
 
-    public PlasMapperUploader()
+    public PlasMapperUploader(String baseUrl)
     {
-        this(createDefaultProperties());
+        this(baseUrl, createDefaultProperties());
     }
 
     /**
@@ -159,7 +161,7 @@ public class PlasMapperUploader
      */
     public String upload(File seqFile, PlasMapperService service)
     {
-        final PostMethod post = new PostMethod(service.getServiceURL());
+        final PostMethod post = new PostMethod(baseUrl + service.getServletPath());
         try
         {
             Part filePart = new FilePart(FILE_PART_NAME, seqFile);

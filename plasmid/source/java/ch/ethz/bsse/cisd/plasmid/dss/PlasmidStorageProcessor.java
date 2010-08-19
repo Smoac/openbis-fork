@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -50,8 +51,9 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PlasmidStorageProcessor.class);
 
-    // TODO 2010-08-28, Piotr Buczek: get from properties
-    private final static String PLASMAPPER_PATH = "/Users/buczekp/CISD/cifex/jetty/webapps";
+    private final static String PLASMAPPER_BASE_URL_KEY = "plasmapper-base-url";
+
+    private final static String PLASMAPPER_ROOT_DIR_KEY = "plasmapper-root-dir";
 
     private static final String ORIGINAL_DIR = "original";
 
@@ -61,11 +63,28 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
 
     private static final String PNG_FILE_EXTENSION = ".png";
 
-    private PlasMapperUploader uploader = new PlasMapperUploader();
+    private final PlasMapperUploader uploader;
+
+    private final String serverRootDir;
 
     public PlasmidStorageProcessor(Properties properties)
     {
         super(properties);
+        final String baseUrl =
+                PropertyUtils.getMandatoryProperty(properties, PLASMAPPER_BASE_URL_KEY);
+        this.uploader = new PlasMapperUploader(baseUrl);
+        this.serverRootDir =
+                PropertyUtils.getMandatoryProperty(properties, PLASMAPPER_ROOT_DIR_KEY);
+
+        final File serverRootFile = new File(serverRootDir);
+        if ((serverRootFile.isDirectory() && serverRootFile.canRead()) == false)
+        {
+            final String msg =
+                    String.format("'%s' (value of '%s' property) is supposed to be a path "
+                            + "to an existing readable directory but isn't.", serverRootDir,
+                            PLASMAPPER_ROOT_DIR_KEY);
+            throw new EnvironmentFailureException(msg);
+        }
     }
 
     @Override
@@ -110,14 +129,14 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
             final File destinationFile)
     {
         String outputFilePath = uploader.upload(seqFile, service);
-        File outputFile = new File(PLASMAPPER_PATH + outputFilePath);
+        File outputFile = new File(serverRootDir + outputFilePath);
         if (outputFile.isFile())
         {
-            operationLog.info("Moving file '" + outputFile.getName() + "' from '" + outputFile
-                    + "' to " + destinationFile);
+            operationLog.info("Renaming and moving file '" + outputFile.getName() + "' from '"
+                    + outputFile + "' to " + destinationFile);
             if (outputFile.renameTo(destinationFile) == false)
             {
-                throw new EnvironmentFailureException("Couldn't move file '" + outputFile
+                throw new EnvironmentFailureException("Couldn't rename file '" + outputFile
                         + "' to '" + destinationFile + "'.");
             }
         } else
