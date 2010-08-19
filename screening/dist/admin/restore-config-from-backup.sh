@@ -18,6 +18,7 @@ cp $CONF/tabular-data-graph.properties $ROOT/datastore_server/etc/tabular-data-g
 cp $CONF/passwd.sh $ROOT/openBIS-server/jetty/bin/passwd.sh
 cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/datastore_server.conf
 cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/bin/openbis.conf
+cp $CONF/passwd $ROOT/openBIS-server/jetty/etc/passwd
 cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/jetty.xml
 cp $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
 cp $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
