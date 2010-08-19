@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import ch.ethz.bsse.cisd.plasmid.plasmapper.PlasMapperUploader;
 import ch.ethz.bsse.cisd.plasmid.plasmapper.PlasMapperUploader.PlasMapperService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -114,8 +115,8 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
                 final File gbFileDest = new File(generatedDir, gbFileName);
 
                 operationLog.info("Uploading '" + seqFile.getName() + "' to PlasMapper.");
-                uploadAndMoveGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP, pngFileDest);
-                uploadAndMoveGeneratedFile(seqFile, PlasMapperService.GENEBANK_OUTPUT, gbFileDest);
+                uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GRAPHIC_MAP, pngFileDest);
+                uploadAndCopyGeneratedFile(seqFile, PlasMapperService.GENEBANK_OUTPUT, gbFileDest);
             } else
             {
                 throw new EnvironmentFailureException("Couldn't create directory '" + generatedDir
@@ -125,20 +126,17 @@ public class PlasmidStorageProcessor extends AbstractDelegatingStorageProcessor
         return answer;
     }
 
-    private void uploadAndMoveGeneratedFile(final File seqFile, final PlasMapperService service,
+    // WORKAROUND cannot move the file because it is on a different filesystem
+    private void uploadAndCopyGeneratedFile(final File seqFile, final PlasMapperService service,
             final File destinationFile)
     {
         String outputFilePath = uploader.upload(seqFile, service);
         File outputFile = new File(serverRootDir + outputFilePath);
         if (outputFile.isFile())
         {
-            operationLog.info("Renaming and moving file '" + outputFile.getName() + "' from '"
+            operationLog.info("Renaming and copying file '" + outputFile.getName() + "' from '"
                     + outputFile + "' to " + destinationFile);
-            if (outputFile.renameTo(destinationFile) == false)
-            {
-                throw new EnvironmentFailureException("Couldn't rename file '" + outputFile
-                        + "' to '" + destinationFile + "'.");
-            }
+            FileUtilities.copyFileTo(outputFile, destinationFile, false);
         } else
         {
             throw new EnvironmentFailureException("'" + outputFile
