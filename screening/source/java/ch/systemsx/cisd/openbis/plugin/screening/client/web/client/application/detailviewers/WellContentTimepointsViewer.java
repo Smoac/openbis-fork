@@ -67,8 +67,11 @@ class WellContentTimepointsViewer
                 {
                     int oldValue = e.getOldValue();
                     int newValue = e.getNewValue();
-                    frames.get(oldValue + 1).hide();
-                    frames.get(newValue + 1).show();
+                    if (oldValue > 0)
+                    {
+                        frames.get(oldValue - 1).hide();
+                    }
+                    frames.get(newValue - 1).show();
                     mainContainer.remove(mainContainer.getItem(0));
                     mainContainer.insert(new Label(createTimepointLabel(timepoints, newValue)), 0);
                     mainContainer.layout();
@@ -162,7 +165,7 @@ class WellContentTimepointsViewer
 
     private static String createTimepointLabel(Float[] timepoints, int sequenceNumber)
     {
-        Float timepoint = timepoints[sequenceNumber];
+        Float timepoint = timepoints[sequenceNumber - 1];
         int numberOfSequences = timepoints.length;
         return "Timepoint: " + timepoint + "sec (" + sequenceNumber + "/" + numberOfSequences + ")";
     }
