@@ -1,0 +1,49 @@
+/*
+ * Copyright 2010 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class CodeAndTitleTest extends AssertJUnit
+{
+    @Test
+    public void testNormalize()
+    {
+        assertEquals("", CodeAndTitle.normalize(""));
+        assertEquals("ABC_123", CodeAndTitle.normalize("Abc=123"));
+    }
+    
+    @Test
+    public void testConstructor()
+    {
+        assertCodeAndTitle("ABC_1_2_3_4", "abc", new CodeAndTitle("<abc?1=2-3+4> abc"));
+        assertCodeAndTitle("ABC_123_", "abc<123>", new CodeAndTitle("abc<123>"));
+    }
+
+    private void assertCodeAndTitle(String expectedCode, String expectedTitle,
+            CodeAndTitle codeAndTitle)
+    {
+        assertEquals(expectedCode, codeAndTitle.getCode());
+        assertEquals(expectedTitle, codeAndTitle.getTitle());
+    }
+}
