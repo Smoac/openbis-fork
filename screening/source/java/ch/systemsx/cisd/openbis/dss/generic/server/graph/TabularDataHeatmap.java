@@ -129,6 +129,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
 
         NumberAxis scaleAxis = new NumberAxis("Scale");
         scaleAxis.setRange(dataset.getRange());
+        scaleAxis.setStandardTickUnits(new TabularDataTickUnitSource());
         PaintScaleLegend psl = new PaintScaleLegend(paintScale, scaleAxis);
         psl.setMargin(new RectangleInsets(5, 5, 5, 5));
         psl.setPosition(RectangleEdge.RIGHT);

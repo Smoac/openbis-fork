@@ -45,6 +45,23 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     }
 
     @Test
+    public void testBigNumberScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Test", "BigNumber", "TotalCells", 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getBigNumberDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertNotSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
     public void testIncorrectlyConfiguredScatterplot() throws IOException
     {
         File outputFile = getImageOutputFile();

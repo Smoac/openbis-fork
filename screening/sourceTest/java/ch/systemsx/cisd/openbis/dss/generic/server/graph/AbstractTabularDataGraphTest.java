@@ -57,6 +57,25 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     }
 
     /**
+     * Return the tabular data as a DatasetFileLines.
+     */
+    protected DatasetFileLines getBigNumberDatasetFileLines() throws IOException
+    {
+        File file =
+                new File(
+                        "sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/graph/BigNumbers.csv");
+        CsvReader reader = getCsvReader(file);
+        List<String[]> lines = new ArrayList<String[]>();
+        while (reader.readRecord())
+        {
+            lines.add(reader.getValues());
+        }
+
+        return new DatasetFileLines(file, "test", lines);
+
+    }
+
+    /**
      * Get a CsvReader for parsing a tabular data file.
      */
     protected CsvReader getCsvReader(File file) throws IOException
@@ -108,9 +127,19 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
      */
     protected File getTestImageOutputFile()
     {
-        // return new File(workingDirectory, "test.png");
+        return getTestImageOutputFile("test.png");
+    }
+
+    /**
+     * Return a file for writing an image to. The file will <b>not</b> be deleted when the test
+     * completes. Use this to view the result of the graph; useful for tweaking appearance.
+     * 
+     * @param fileName The name for the output file
+     */
+    protected File getTestImageOutputFile(String fileName)
+    {
         // For Testing, put it on the Desktop
-        return new File(new File(TARGETS_DIRECTORY + "/" + UNIT_TEST_WORKING_DIRECTORY), "test.png");
+        return new File(new File(TARGETS_DIRECTORY + "/" + UNIT_TEST_WORKING_DIRECTORY), fileName);
     }
 
 }

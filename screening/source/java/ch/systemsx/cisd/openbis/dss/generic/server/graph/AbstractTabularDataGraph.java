@@ -229,6 +229,10 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
 
         ValueAxis axis = plot.getDomainAxis();
         axis.setAutoRange(true);
+        axis.setStandardTickUnits(new TabularDataTickUnitSource());
+
+        axis = plot.getRangeAxis();
+        axis.setStandardTickUnits(new TabularDataTickUnitSource());
     }
 
     protected void setAxisLabelFontSize(Axis axis)

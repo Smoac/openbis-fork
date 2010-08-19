@@ -43,6 +43,23 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
     }
 
     @Test
+    public void testBigNumberHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Test", "BigNumber", 300, 200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getBigNumberDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
     public void testIncorrectlyConfiguredHistogram() throws IOException
     {
         File outputFile = getImageOutputFile();
