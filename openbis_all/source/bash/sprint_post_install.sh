@@ -126,6 +126,7 @@ case "$SERVER" in
 	echo PLASMIDS:$PLASMIDS;
 	restore_common
 	create_individual_greeting_message
+    $BIN/sprint_post_install_plasmids.sh
 	;;
 	*)
 	echo Wrong Server! $SERVER is not in the list of openBIS Servers.;
