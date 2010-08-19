@@ -91,10 +91,10 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         final ImgContainerDTO p2 = new ImgContainerDTO("p2", 2, 1, 0);
         final SampleIdentifier p2Identifier =
                 new SampleIdentifier(new SpaceIdentifier("1", "S"), "P2");
-        final ImgFeatureDefDTO ds1f1 = new ImgFeatureDefDTO("f1", "", 1);
-        final ImgFeatureDefDTO ds1f2 = new ImgFeatureDefDTO("f2", "", 1);
-        final ImgFeatureDefDTO ds2f2 = new ImgFeatureDefDTO("f2", "", 2);
-        final ImgFeatureDefDTO ds2f3 = new ImgFeatureDefDTO("f3", "", 2);
+        final ImgFeatureDefDTO ds1f1 = new ImgFeatureDefDTO("f1", "F1", "", 1);
+        final ImgFeatureDefDTO ds1f2 = new ImgFeatureDefDTO("f2", "F2", "", 1);
+        final ImgFeatureDefDTO ds2f2 = new ImgFeatureDefDTO("f2", "F2", "", 2);
+        final ImgFeatureDefDTO ds2f3 = new ImgFeatureDefDTO("f3", "F3", "", 2);
         final ImgFeatureValuesDTO ds1f1Values =
                 createFeatureValues("12, 2.5", "24, 3.25", "-1.5, 42");
         final ImgFeatureValuesDTO ds1f2Values =

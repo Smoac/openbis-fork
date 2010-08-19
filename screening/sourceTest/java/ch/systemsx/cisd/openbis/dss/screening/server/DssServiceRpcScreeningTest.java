@@ -127,14 +127,14 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         "f1", "f2"));
 
         assertSame(r1, dataSets.get(0).getDataset());
-        assertEquals("[f1, f2]", dataSets.get(0).getFeatureNames().toString());
+        assertEquals("[F1, F2]", dataSets.get(0).getFeatureNames().toString());
         assertFeatureVector(1, 1, dataSets.get(0).getFeatureVectors().get(0), 244.5, 245.5);
         assertFeatureVector(1, 2, dataSets.get(0).getFeatureVectors().get(1), 242.25, 243.25);
         assertEquals(2, dataSets.get(0).getFeatureVectors().size());
         assertSame(r2, dataSets.get(1).getDataset());
-        assertEquals("[f1, f2]", dataSets.get(1).getFeatureNames().toString());
-        assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), Float.NaN, 249.0);
-        assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), Float.NaN, 244.5);
+        assertEquals("[F2]", dataSets.get(1).getFeatureNames().toString());
+        assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), 249.0);
+        assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), 244.5);
         assertEquals(2, dataSets.get(1).getFeatureVectors().size());
         assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
@@ -174,7 +174,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
                     for (String name : featureNames)
                     {
-                        one(dao).getFeatureValues(new ImgFeatureDefDTO(name, "", 0));
+                        one(dao).getFeatureValues(new ImgFeatureDefDTO(name, name, "", 0));
                         int offset = Integer.parseInt(name, 16);
                         PlateFeatureValues array =
                                 new PlateFeatureValues(NativeTaggedArray
@@ -205,7 +205,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     List<ImgFeatureDefDTO> defs = new ArrayList<ImgFeatureDefDTO>();
                     for (String name : featureNames)
                     {
-                        defs.add(new ImgFeatureDefDTO(name, "", 0));
+                        defs.add(new ImgFeatureDefDTO(name, name, "", 0));
                     }
                     will(returnValue(defs));
                 }

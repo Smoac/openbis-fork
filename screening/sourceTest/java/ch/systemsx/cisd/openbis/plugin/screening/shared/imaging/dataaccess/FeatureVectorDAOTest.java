@@ -149,8 +149,8 @@ public class FeatureVectorDAOTest extends AbstractDBTest
     {
         // Attach a feature def to it
         ImgFeatureDefDTO featureDef =
-                new ImgFeatureDefDTO(TEST_FEATURE_LABEL, "Test", dataSet.getId());
-        featureDef.setCode(CodeAndTitle.normalize(featureDef.getLabel()));
+                new ImgFeatureDefDTO(TEST_FEATURE_LABEL,
+                        CodeAndTitle.normalize(TEST_FEATURE_LABEL), "Test", dataSet.getId());
         return dao.addFeatureDef(featureDef);
     }
 }

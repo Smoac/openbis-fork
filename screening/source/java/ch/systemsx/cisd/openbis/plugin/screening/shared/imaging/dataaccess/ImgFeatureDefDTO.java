@@ -48,9 +48,10 @@ public class ImgFeatureDefDTO extends AbstractHashable
     {
     }
 
-    public ImgFeatureDefDTO(String label, String description, long dataSetId)
+    public ImgFeatureDefDTO(String label, String code, String description, long dataSetId)
     {
         this.label = label;
+        this.code = code;
         this.description = description;
         this.dataSetId = dataSetId;
     }

@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
@@ -81,9 +82,10 @@ public class GenedataFormatToCanonicalFeatureVector
 
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
         String name = feature.name;
-        int count = counters.count(name);
+        String code = CodeAndTitle.normalize(name);
+        int count = counters.count(code);
         ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO();
-        featureDef.setCode(count == 1 ? name : name + count);
+        featureDef.setCode(count == 1 ? code : code + count);
         featureDef.setLabel(name);
         featureDef.setDescription(name);
         featureVector.setFeatureDef(featureDef);

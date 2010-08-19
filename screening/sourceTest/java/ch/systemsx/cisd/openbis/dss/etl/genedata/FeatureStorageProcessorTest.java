@@ -99,16 +99,14 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
                     one(dao).addDataset(with(any(ImgDatasetDTO.class)));
                     will(returnValue(datasetId));
 
-                    ImgFeatureDefDTO featureDTO = new ImgFeatureDefDTO("alpha", "alpha", datasetId);
-                    featureDTO.setCode("alpha");
+                    ImgFeatureDefDTO featureDTO = new ImgFeatureDefDTO("alpha", "ALPHA", "alpha", datasetId);
                     one(dao).addFeatureDef(with(equal(featureDTO)));
                     will(returnValue((long) 1));
 
                     one(dao).addFeatureValues(with(any(ImgFeatureValuesDTO.class)));
                     will(returnValue((long) 1));
 
-                    featureDTO = new ImgFeatureDefDTO("beta", "beta", datasetId);
-                    featureDTO.setCode("beta");
+                    featureDTO = new ImgFeatureDefDTO("beta", "BETA", "beta", datasetId);
                     one(dao).addFeatureDef(with(equal(featureDTO)));
                     will(returnValue((long) 2));
 
