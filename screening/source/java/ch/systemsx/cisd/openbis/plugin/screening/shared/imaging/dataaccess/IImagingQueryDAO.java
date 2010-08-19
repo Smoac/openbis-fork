@@ -171,7 +171,7 @@ public interface IImagingQueryDAO extends TransactionQuery
     public long addSpot(ImgSpotDTO spot);
 
     @Select("insert into FEATURE_DEFS (LABEL, CODE, DESCRIPTION, DS_ID) values "
-            + "(?{1.label}, ?{1.label}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
+            + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
     public long addFeatureDef(ImgFeatureDefDTO featureDef);
 
     @Select(sql = "insert into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
