@@ -46,7 +46,7 @@ public final class AuthorizationGroupSelectionWidget extends
             final String idSuffix)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.AUTHORIZATION_GROUP,
-                ModelDataPropertyNames.CODE, "user group", "user groups");
+                ModelDataPropertyNames.CODE, "Authorization Group", "Authorization Groups");
         this.viewContext = viewContext;
         setAutoSelectFirst(false);
     }

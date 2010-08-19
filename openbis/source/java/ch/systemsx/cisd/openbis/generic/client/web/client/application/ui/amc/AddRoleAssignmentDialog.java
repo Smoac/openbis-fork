@@ -87,7 +87,7 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
         RadioGroup radioGroup = new RadioGroup();
         radioGroup.setFieldLabel("Grantee Type");
         authGroupRadio = new Radio();
-        authGroupRadio.setBoxLabel("User Group");
+        authGroupRadio.setBoxLabel("Authorization Group");
         authGroupRadio.setId(AUTH_GROUP_RADIO);
 
         personRadio = new Radio();

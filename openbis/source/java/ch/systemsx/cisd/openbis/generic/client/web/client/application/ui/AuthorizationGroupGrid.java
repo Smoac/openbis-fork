@@ -275,7 +275,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
     private Window createEditDialog(final AuthorizationGroup authGroup)
     {
         final String title =
-                viewContext.getMessage(Dict.EDIT_TITLE, "User Group", authGroup.getCode());
+                viewContext.getMessage(Dict.EDIT_TITLE, "Authorization Group", authGroup.getCode());
 
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
