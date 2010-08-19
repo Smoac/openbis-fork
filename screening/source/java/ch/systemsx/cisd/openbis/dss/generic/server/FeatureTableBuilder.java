@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
@@ -40,8 +41,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
- * Builder for a table of feature vectors. After building a list of feature names and a list of
- * {@link FeatureTableRow}s are available. Feature vectores are retrieved from
+ * Builder for a table of feature vectors. After building a list of feature codes and a list of
+ * {@link FeatureTableRow}s are available. Feature vectors are retrieved from
  * {@link IImagingQueryDAO}.
  * 
  * @author Franz-Josef Elmer
@@ -63,9 +64,9 @@ public class FeatureTableBuilder
 
     private final List<Bundle> bundles;
 
-    private final Map<String, Integer> featureNameToIndexMap;
+    private final Map<CodeAndTitle, Integer> featureCodeLabelToIndexMap;
 
-    private final Set<String> featureNames;
+    private final Set<String> featureCodes;
     
     private final boolean useAllFeatures;
 
@@ -80,17 +81,17 @@ public class FeatureTableBuilder
     /**
      * Creates an instance for specified DAO and openBIS service but filters on specified features.
      * 
-     * @param featureNames And empty list means no filtering.
+     * @param featureCodes And empty list means no filtering.
      */
-    public FeatureTableBuilder(List<String> featureNames, IImagingQueryDAO dao,
+    public FeatureTableBuilder(List<String> featureCodes, IImagingQueryDAO dao,
             IEncapsulatedOpenBISService service)
     {
         this.dao = dao;
         this.service = service;
         bundles = new ArrayList<Bundle>();
-        featureNameToIndexMap = new LinkedHashMap<String, Integer>();
-        this.featureNames = new LinkedHashSet<String>(featureNames);
-        this.useAllFeatures = featureNames.isEmpty();
+        featureCodeLabelToIndexMap = new LinkedHashMap<CodeAndTitle, Integer>();
+        this.featureCodes = new LinkedHashSet<String>(featureCodes);
+        this.useAllFeatures = featureCodes.isEmpty();
     }
 
     /**
@@ -127,24 +128,25 @@ public class FeatureTableBuilder
         bundles.add(bundle);
         if (useAllFeatures)
         {
-            featureNames.addAll(featureCodeToDefMap.keySet());
+            featureCodes.addAll(featureCodeToDefMap.keySet());
         }
-        for (String featureName : featureNames)
+        for (String featureCode : featureCodes)
         {
-            if (featureNameToIndexMap.containsKey(featureName) == false)
-            {
-                featureNameToIndexMap.put(featureName,
-                        new Integer(featureNameToIndexMap.size()));
-            }
-            final ImgFeatureDefDTO featureDefinition = featureCodeToDefMap.get(featureName);
+            final ImgFeatureDefDTO featureDefinition = featureCodeToDefMap.get(featureCode);
             if (featureDefinition != null)
             {
+                CodeAndTitle codeAndLabel = getCodeAndLabel(featureDefinition);
+                if (featureCodeLabelToIndexMap.containsKey(codeAndLabel) == false)
+                {
+                    featureCodeLabelToIndexMap.put(codeAndLabel,
+                            new Integer(featureCodeLabelToIndexMap.size()));
+                }
                 List<ImgFeatureValuesDTO> featureValueSets =
                         dao.getFeatureValues(featureDefinition);
                 if (featureValueSets.isEmpty())
                 {
                     throw new UserFailureException("At least one set of values for feature "
-                            + featureName + " of data set " + dataSetCode + " expected.");
+                            + featureCode + " of data set " + dataSetCode + " expected.");
                 }
                 bundle.featureDefToValuesMap.put(featureDefinition, featureValueSets);
             }
@@ -152,13 +154,18 @@ public class FeatureTableBuilder
         return bundle;
     }
 
-    /**
-     * Returns all feature names found. If the feature name list in the constructor is not empty the
-     * result will a subset of this list.
-     */
-    public List<String> getFeatureNames()
+    private CodeAndTitle getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)
     {
-        return new ArrayList<String>(featureNameToIndexMap.keySet());
+        return new CodeAndTitle(featureDefinition.getCode(), featureDefinition.getLabel());
+    }
+
+    /**
+     * Returns all feature codes/labels found. If the feature code list in the constructor is not empty the
+     * result will a list where the codes are a subset of this list.
+     */
+    public List<CodeAndTitle> getFeatureCodes()
+    {
+        return new ArrayList<CodeAndTitle>(featureCodeLabelToIndexMap.keySet());
     }
 
     /**
@@ -206,7 +213,7 @@ public class FeatureTableBuilder
         row.setPlateIdentifier(identifier);
         row.setReference(reference);
         row.setWellPosition(wellPosition);
-        float[] valueArray = new float[featureNameToIndexMap.size()];
+        float[] valueArray = new float[featureCodeLabelToIndexMap.size()];
         Arrays.fill(valueArray, Float.NaN);
         for (Entry<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> entry : featureDefToValuesMap
                 .entrySet())
@@ -222,7 +229,7 @@ public class FeatureTableBuilder
             {
                 break;
             }
-            Integer index = featureNameToIndexMap.get(featureDefinition.getCode());
+            Integer index = featureCodeLabelToIndexMap.get(getCodeAndLabel(featureDefinition));
             assert index != null : "No index for feature " + featureDefinition.getCode();
             valueArray[index] =
                     featureValues.getForWellLocation(wellPosition.getWellRow(), wellPosition

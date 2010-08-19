@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackRefer
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
@@ -212,7 +213,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         FeatureTableBuilder builder =
                 new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
         builder.addFeatureVectorsOfDataSet(dataset.getDatasetCode());
-        List<String> existingFeatureNames = builder.getFeatureNames();
+        List<String> existingFeatureNames = getCodes(builder);
         List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
         for (FeatureTableRow featureTableRow : featureTableRows)
@@ -236,7 +237,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private List<FeatureVectorWithDescription> createFeatureVectorList(
             final FeatureTableBuilder builder)
     {
-        final List<String> featureNames = builder.getFeatureNames();
+        final List<String> featureNames = getCodes(builder);
         final List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
         final List<FeatureVectorWithDescription> result =
                 new ArrayList<FeatureVectorWithDescription>(featureTableRows.size());
@@ -245,6 +246,17 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             result.add(createFeatureVector(featureTableRow, featureNames));
         }
         return result;
+    }
+    
+    private List<String> getCodes(FeatureTableBuilder builder)
+    {
+        List<CodeAndTitle> featureCodesAndLabels = builder.getFeatureCodes();
+        List<String> codes = new ArrayList<String>();
+        for (CodeAndTitle codeAndTitle : featureCodesAndLabels)
+        {
+            codes.add(codeAndTitle.getCode());
+        }
+        return codes;
     }
 
     private FeatureVectorWithDescription createFeatureVector(FeatureTableRow featureTableRow,

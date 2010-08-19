@@ -23,6 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
@@ -83,7 +84,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             final FeatureTableBuilder tableBuilder = new FeatureTableBuilder(dao, service);
             tableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
 
-            List<String> featureNames = tableBuilder.getFeatureNames();
+            List<CodeAndTitle> featureNames = tableBuilder.getFeatureCodes();
             int headerTokensLength = featureNames.size() + 3;
             headerTokens = new String[headerTokensLength];
             headerTokens[0] = WELL_NAME_COLUMN;
@@ -91,9 +92,9 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             headerTokens[2] = WELL_COLUMN_COLUMN;
 
             int i = 1;
-            for (String name : featureNames)
+            for (CodeAndTitle name : featureNames)
             {
-                headerTokens[i++] = name;
+                headerTokens[i++] = name.getTitle();
             }
 
             lines = new ArrayList<String[]>();
