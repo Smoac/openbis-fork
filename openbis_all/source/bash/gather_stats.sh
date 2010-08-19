@@ -12,7 +12,8 @@ SERVERS=" openbis@sprint-openbis.ethz.ch
           sbsuser@openbis-dsu.ethz.ch
           openbis@openbis-scu.ethz.ch
           openbis@openbis-test.ethz.ch
-          openbis@basysbio.ethz.ch"
+          openbis@basysbio.ethz.ch
+          openbis@bs-plasmids.ethz.ch"
 
 SQL="WITH RECURSIVE data_set_parents(id, parent_ids, cycle) AS (
         SELECT  r.data_id_child AS data_id, 
