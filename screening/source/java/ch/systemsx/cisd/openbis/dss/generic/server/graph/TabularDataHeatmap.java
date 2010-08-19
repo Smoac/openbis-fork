@@ -146,8 +146,19 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
     {
         // Use the Color Brewer RdBu color scheme with 11 steps
         Range range = dataset.getRange();
-        LookupPaintScale paintScale =
-                new LookupPaintScale(range.getLowerBound(), range.getUpperBound(), Color.WHITE);
+        double lowerBound = range.getLowerBound();
+        double upperBound = range.getUpperBound();
+
+        // Handle the degenerate case
+        if (lowerBound == upperBound)
+        {
+            LookupPaintScale paintScale =
+                    new LookupPaintScale(lowerBound, lowerBound + 1, Color.WHITE);
+            paintScale.add(lowerBound, new Color(247, 247, 247));
+            return paintScale;
+        }
+
+        LookupPaintScale paintScale = new LookupPaintScale(lowerBound, upperBound, Color.WHITE);
         double binMin = range.getLowerBound();
         double binStep = range.getLength() / 11;
         // 1
