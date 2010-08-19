@@ -18,5 +18,10 @@ function copy_rec_or_die {
         fi
 }
 
+# To make the script can be also used to update PlasMapper:
+# - remove old webapp with old tmp files
+# - remove old servlets from work directory
 rm -fr $JETTY_WEBAPPS/$PLASMAPPER_WEBAPP_NAME
+rm -fr $JETTY_WEBAPPS/../work/*$PLASMAPPER_WEBAPP_NAME*
+
 copy_rec_or_die $CONFIG_DIR/$PLASMAPPER_WEBAPP_NAME $JETTY_WEBAPPS
