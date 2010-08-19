@@ -250,7 +250,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     
     private List<String> getCodes(FeatureTableBuilder builder)
     {
-        List<CodeAndTitle> featureCodesAndLabels = builder.getFeatureCodes();
+        List<CodeAndTitle> featureCodesAndLabels = builder.getCodesAndLabels();
         List<String> codes = new ArrayList<String>();
         for (CodeAndTitle codeAndTitle : featureCodesAndLabels)
         {

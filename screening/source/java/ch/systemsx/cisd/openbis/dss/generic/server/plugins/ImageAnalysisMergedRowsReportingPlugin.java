@@ -85,16 +85,16 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
             String dataSetCode = datasetDescription.getDatasetCode();
             featureTableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
         }
-        List<CodeAndTitle> featureNames = featureTableBuilder.getFeatureCodes();
+        List<CodeAndTitle> codeAndLabels = featureTableBuilder.getCodesAndLabels();
         List<FeatureTableRow> rows = featureTableBuilder.createFeatureTableRows();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(DATA_SET_CODE_TITLE);
         builder.addHeader(PLATE_IDENTIFIER_TITLE);
         builder.addHeader(ROW_TITLE);
         builder.addHeader(COLUMN_TITLE);
-        for (CodeAndTitle featureName : featureNames)
+        for (CodeAndTitle codeAndLabel : codeAndLabels)
         {
-            builder.addHeader(featureName.getTitle(), featureName.getCode());
+            builder.addHeader(codeAndLabel.getTitle(), codeAndLabel.getCode());
         }
         for (FeatureTableRow row : rows)
         {

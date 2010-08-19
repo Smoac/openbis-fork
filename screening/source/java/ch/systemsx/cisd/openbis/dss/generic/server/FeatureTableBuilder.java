@@ -154,16 +154,11 @@ public class FeatureTableBuilder
         return bundle;
     }
 
-    private CodeAndTitle getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)
-    {
-        return new CodeAndTitle(featureDefinition.getCode(), featureDefinition.getLabel());
-    }
-
     /**
      * Returns all feature codes/labels found. If the feature code list in the constructor is not empty the
      * result will a list where the codes are a subset of this list.
      */
-    public List<CodeAndTitle> getFeatureCodes()
+    public List<CodeAndTitle> getCodesAndLabels()
     {
         return new ArrayList<CodeAndTitle>(featureCodeLabelToIndexMap.keySet());
     }
@@ -238,4 +233,10 @@ public class FeatureTableBuilder
         row.setFeatureValues(valueArray);
         return row;
     }
+    
+    private CodeAndTitle getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)
+    {
+        return new CodeAndTitle(featureDefinition.getCode(), featureDefinition.getLabel());
+    }
+
 }

@@ -84,7 +84,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             final FeatureTableBuilder tableBuilder = new FeatureTableBuilder(dao, service);
             tableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
 
-            List<CodeAndTitle> featureNames = tableBuilder.getFeatureCodes();
+            List<CodeAndTitle> featureNames = tableBuilder.getCodesAndLabels();
             int headerTokensLength = featureNames.size() + 3;
             headerTokens = new String[headerTokensLength];
             headerTokens[0] = WELL_NAME_COLUMN;
