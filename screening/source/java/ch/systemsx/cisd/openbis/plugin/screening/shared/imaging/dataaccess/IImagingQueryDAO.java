@@ -108,13 +108,13 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select("select name from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by NAME")
+    @Select("select label from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by LABEL")
     public String[] getChannelNamesByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by NAME", fetchSize = FETCH_SIZE)
+    @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by LABEL", fetchSize = FETCH_SIZE)
     public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by name", fetchSize = FETCH_SIZE)
+    @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by LABEL", fetchSize = FETCH_SIZE)
     public List<ImgChannelDTO> getChannelsByExperimentId(long experimentId);
 
     @Select("select * from SPOTS where cont_id = ?{1}")
@@ -153,8 +153,8 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
     public long addExperiment(String experimentPermId);
 
-    @Select("insert into CHANNELS (NAME, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
-            + "(?{1.name}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
+    @Select("insert into CHANNELS (LABEL, CODE, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
+            + "(?{1.name}, ?{1.name}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
     public long addChannel(ImgChannelDTO channel);
 
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
@@ -170,8 +170,8 @@ public interface IImagingQueryDAO extends TransactionQuery
             + "(?{1.column}, ?{1.row}, ?{1.containerId}) returning ID")
     public long addSpot(ImgSpotDTO spot);
 
-    @Select("insert into FEATURE_DEFS (NAME, CODE, DESCRIPTION, DS_ID) values "
-            + "(?{1.name}, ?{1.code}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
+    @Select("insert into FEATURE_DEFS (LABEL, CODE, DESCRIPTION, DS_ID) values "
+            + "(?{1.label}, ?{1.label}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
     public long addFeatureDef(ImgFeatureDefDTO featureDef);
 
     @Select(sql = "insert into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
@@ -186,7 +186,7 @@ public interface IImagingQueryDAO extends TransactionQuery
             + "where ID = ?{1.id}")
     public void updateChannel(ImgChannelDTO channel);
 
-    @Select("select ID from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and NAME = upper(?{3})")
+    @Select("select ID from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and LABEL = upper(?{3})")
     public Long tryGetChannelIdByChannelNameDatasetIdOrExperimentId(long id, long experimentId,
             String chosenChannel);
 
