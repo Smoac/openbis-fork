@@ -40,11 +40,11 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     /**
      * Return the tabular data as a DatasetFileLines.
      */
-    protected DatasetFileLines getDatasetFileLines() throws IOException
+    protected DatasetFileLines getDatasetFileLines(String fileName) throws IOException
     {
         File file =
-                new File(
-                        "sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/graph/CP037-1df.csv");
+                new File("sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/graph/"
+                        + fileName);
         CsvReader reader = getCsvReader(file);
         List<String[]> lines = new ArrayList<String[]>();
         while (reader.readRecord())
@@ -53,7 +53,14 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
         }
 
         return new DatasetFileLines(file, "test", lines);
+    }
 
+    /**
+     * Return the tabular data as a DatasetFileLines.
+     */
+    protected DatasetFileLines getDatasetFileLines() throws IOException
+    {
+        return getDatasetFileLines("CP037-1df.csv");
     }
 
     /**
@@ -61,18 +68,7 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
      */
     protected DatasetFileLines getBigNumberDatasetFileLines() throws IOException
     {
-        File file =
-                new File(
-                        "sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/graph/BigNumbers.csv");
-        CsvReader reader = getCsvReader(file);
-        List<String[]> lines = new ArrayList<String[]>();
-        while (reader.readRecord())
-        {
-            lines.add(reader.getValues());
-        }
-
-        return new DatasetFileLines(file, "test", lines);
-
+        return getDatasetFileLines("BigNumbers.csv");
     }
 
     /**

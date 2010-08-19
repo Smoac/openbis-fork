@@ -60,6 +60,24 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
     }
 
     @Test
+    public void testLotsOf0sHeatmap() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHeatmapConfiguration config =
+                new TabularDataHeatmapConfiguration("Test", "WellName", "Zero", 300, 200);
+        AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
+                new TabularDataHeatmap(config, getBigNumberDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertEquals(0, graph.tryXColumnNumber());
+        assertEquals(0, graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
     public void testIncorrectlyConfiguredHeatmap() throws IOException
     {
         File outputFile = getImageOutputFile();
