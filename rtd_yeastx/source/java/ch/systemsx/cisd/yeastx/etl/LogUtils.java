@@ -146,7 +146,8 @@ class LogUtils
     private void sendErrorMessage(IMailClient mailClient, String notificationEmail)
     {
         String subject = String.format(ERROR_NOTIFICATION_EMAIL_SUBJECT, loggingDir.getName());
-        mailClient.sendMessage(subject, createErrorNotificationContent(), null, null, notificationEmail);
+        mailClient.sendMessage(subject, createErrorNotificationContent(), null, null,
+                notificationEmail);
     }
 
     private String createErrorNotificationContent()
@@ -182,7 +183,7 @@ class LogUtils
 
     private void notifyUserByLogFile(String message)
     {
-        OutputStream output;
+        OutputStream output = null;
         try
         {
             output = new FileOutputStream(getUserLogFile(loggingDir), true);
@@ -191,6 +192,9 @@ class LogUtils
         {
             adminError("Cannot notify a user because " + ex.getMessage() + "\n The message was: "
                     + message);
+        } finally
+        {
+            IOUtils.closeQuietly(output);
         }
     }
 

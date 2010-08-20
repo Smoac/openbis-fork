@@ -279,7 +279,7 @@ class DatasetMappingUtil
                     unprocessedLines.add(line);
                 }
             }
-            IOUtils.writeLines(unprocessedLines, "\n", new FileOutputStream(mappingFile));
+            writeLines(mappingFile, unprocessedLines);
         } catch (IOException ex)
         {
             log.mappingFileError(mappingFile, "cannot clean dataset mappings file: "
@@ -287,10 +287,21 @@ class DatasetMappingUtil
         }
     }
 
+    private static void writeLines(File file, List<String> lines) throws IOException,
+            FileNotFoundException
+    {
+        FileOutputStream stream = new FileOutputStream(file);
+        IOUtils.writeLines(lines, "\n", stream);
+        IOUtils.closeQuietly(stream);
+    }
+
     @SuppressWarnings("unchecked")
     private static List<String> readLines(File mappingFile) throws IOException,
             FileNotFoundException
     {
-        return IOUtils.readLines(new FileInputStream(mappingFile));
+        FileInputStream stream = new FileInputStream(mappingFile);
+        List lines = IOUtils.readLines(stream);
+        IOUtils.closeQuietly(stream);
+        return lines;
     }
 }
