@@ -1,3 +1,15 @@
+h1. How to test on productive server (temporary)
+
+1. Go to https://openbis-csb.ethz.ch/openbis (all CISD developers have INSTANCE_ADMIN role assigned)
+- there is a test experiment EXPERIMENT_TEST and a test sample SAMPLE_TEST with a few datasets.
+- to keep the instance clean one should only:
+-- create/delete samples attached to EXPERIMENT_TEST (don't delete sample SAMPLE_TEST)
+-- register/delete datasets attached to test samples 
+2. Login to bs-plasmids.ethz.ch as openbis 
+3. There is a link 'dss-data' to a shared directory with e.g. a dropbox ('incoming') and an example
+of a directory with files that can be registered as datasets for sample SAMPLE_TEST.
+- to register datasets for the SAMPLE_TEST sample copy ~/dss-data/SAMPLE_TEST to ~/dss-data/incoming 
+
 h1. Quick Setup for development mode
 
 1. openbis 
