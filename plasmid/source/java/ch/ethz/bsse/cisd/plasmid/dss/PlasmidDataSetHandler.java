@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
@@ -75,7 +76,8 @@ public class PlasmidDataSetHandler implements IDataSetHandler
         final File[] hiddenFiles = dataSet.listFiles((FileFilter) HiddenFileFilter.HIDDEN);
         for (File file : hiddenFiles)
         {
-            String deletionStatus = file.delete() ? "Deleted" : "Failed to delete";
+            String deletionStatus =
+                    FileUtilities.deleteRecursively(file) ? "Deleted" : "Failed to delete";
             operationLog.info(String.format("%s hidden file: %s", deletionStatus, file));
         }
         if (dataSet.delete() == false)
