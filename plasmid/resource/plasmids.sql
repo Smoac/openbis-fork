@@ -2078,7 +2078,7 @@ COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_manage
 
 COPY data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) FROM stdin;
 1	UNKNOWN	\N	1	2010-05-26 17:41:21.272491+02	\N	\N
-2	SEQ_FILE	\N	1	2010-05-26 17:41:21.272491+02	\N	\N
+2	SEQ_FILE	\N	1	2010-05-26 17:41:21.272491+02	generated\*.png	\N
 3	RAW_DATA	\N	1	2010-05-26 17:41:58.696032+02	\N	\N
 4	VERIFICATION	\N	1	2010-05-26 17:42:07.328466+02	*.*	\N
 \.
