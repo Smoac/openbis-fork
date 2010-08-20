@@ -131,9 +131,14 @@ public class PlasMapperUploader
 
     public static void main(String[] args)
     {
-        Properties p = createDefaultProperties();
-        PlasMapperUploader uploader = new PlasMapperUploader(DEFAULT_PLASMAPPER_URL, p);
-        uploader.upload(new File("PRS316.gb"), PlasMapperService.GRAPHIC_MAP);
+        final Properties p = createDefaultProperties();
+        final PlasMapperUploader uploader = new PlasMapperUploader(DEFAULT_PLASMAPPER_URL, p);
+        final File seqFile = new File("PRS316.gb");
+        for (PlasMapperService service : PlasMapperService.values())
+        {
+            String response = uploader.upload(seqFile, service);
+            System.out.println(String.format("Response of %s service: '%s'", service, response));
+        }
     }
 
     private final String baseUrl;
@@ -181,7 +186,6 @@ public class PlasMapperUploader
             {
                 response = response.substring(0, response.lastIndexOf("\n"));
             }
-            System.err.println(String.format("Response of %s service: '%s'", service, response));
             operationLog.info(String.format("Response of %s service: '%s'", service, response));
             return response;
         } catch (final Exception ex)
