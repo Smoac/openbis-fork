@@ -133,7 +133,7 @@ public class PlasMapperUploader
     {
         final Properties p = createDefaultProperties();
         final PlasMapperUploader uploader = new PlasMapperUploader(DEFAULT_PLASMAPPER_URL, p);
-        final File seqFile = new File("PRS316.gb");
+        final File seqFile = new File("resource/example/FRP_1/PRS316.gb");
         for (PlasMapperService service : PlasMapperService.values())
         {
             String response = uploader.upload(seqFile, service);
