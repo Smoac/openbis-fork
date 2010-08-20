@@ -1,0 +1,32 @@
+h1. Quick Setup for development mode
+
+1. openbis 
+1.1 in service.properties set: database.kind = plasmids
+1.2 create a clean db using the script plasmid/resource/recreate_db.sh (change OWNER)
+
+2. PlasMapper
+2.1. unzip plasmid/resource/PlasMapper/jetty.zip
+2.2. unzip plasmid/resource/PlasMapper/PlasMapper_dist.zip and move PlasMapper to webapps
+2.3. Install blastall. Latest version can be downloaded from ftp://ftp.ncbi.nih.gov/blast/executables/release/LATEST.
+2.3. change all paths leading to PlasMapper webapp dir and blastall in 
+PlasMapper/WEB-INF/classes/ca/ualberta/xdong/plasMapper/annotate/plasMapConfiguration_en_CA.properties
+
+3. plasmids
+3.1 in targets create directories:
+- targets/playground/data/incoming
+- targets/playground/data/incoming-cifex
+- targets/playground/data/store
+3.2 change in /etc/service.properties values of properties needed for PlasMapper integration
+main-thread.storage-processor.plasmapper-root-dir
+main-thread.storage-processor.plasmapper-base-url
+
+h1. Run and prepare data
+
+1. run openbis
+2. import samples using plasmid/resource/example/sample-import.tsv (multiple sample type)
+3. run plasmid DSS using launch configuration from plasmid/resource/eclipse
+4. run the external jetty with PlasMapper deployed
+ 
+To test dataset registration and integration with PlasMapper copy an example directory 
+plasmid/resource/example/FRP_1 to targets/playground/data/incoming. Datasets
+will be attached to sample with code 'BOX_1:FRP_1'.

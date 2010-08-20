@@ -1,5 +1,7 @@
 This directory contains:
 
+- jetty.zip
+    version 7.1.4 of jetty with configuration that allows easy deployment of Plasmapper (port 8082)
 - PlasMapper_download.tar.gz 
 		version 2.0 of PlasMapper downloaded from http://wishart.biology.ualberta.ca/PlasMapper.
 - PlasMapper_dist.zip 
