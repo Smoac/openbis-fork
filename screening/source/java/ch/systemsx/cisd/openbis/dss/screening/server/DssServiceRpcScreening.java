@@ -172,7 +172,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         PlateImageParameters params = imageAccessor.getImageParameters();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
         BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
-        return new ImageDatasetMetadata(dataset, params.getChannelsNames(), tilesNumber, image
+        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), tilesNumber, image
                 .getWidth(), image.getHeight());
     }
 
@@ -185,12 +185,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             for (int col = 1; col <= params.getColsNum(); col++)
             {
                 AbsoluteImageReference image;
-                for (String channelName : params.getChannelsNames())
+                for (String channelCode : params.getChannelsCodes())
                 {
                     ImageChannelStackReference channelStackReference =
                             ImageChannelStackReference.createFromLocations(new Location(col, row),
                                     new Location(1, 1));
-                    image = imageAccessor.tryGetImage(channelName, channelStackReference, null);
+                    image = imageAccessor.tryGetImage(channelCode, channelStackReference, null);
                     if (image != null)
                     {
                         return image.getContent();
@@ -266,7 +266,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         }
         return result;
     }
-    
+
     private List<String> getCodes(FeatureTableBuilder builder)
     {
         List<CodeAndLabel> featureCodesAndLabels = builder.getCodesAndLabels();

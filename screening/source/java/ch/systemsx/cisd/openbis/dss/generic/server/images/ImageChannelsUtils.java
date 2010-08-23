@@ -57,7 +57,7 @@ public class ImageChannelsUtils
         Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
         if (params.isMergeAllChannels())
         {
-            for (String chosenChannel : imageAccessor.getImageParameters().getChannelsNames())
+            for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
             {
                 AbsoluteImageReference image =
                         getImage(imageAccessor, params.getChannelStack(), chosenChannel,
@@ -243,16 +243,16 @@ public class ImageChannelsUtils
     // --------- common
 
     /**
-     * @param chosenChannel starts from 1
+     * @param chosenChannelCode starts from 1
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
     public static AbsoluteImageReference getImage(IHCSImageDatasetLoader imageAccessor,
-            ImageChannelStackReference channelStackReference, String chosenChannel,
+            ImageChannelStackReference channelStackReference, String chosenChannelCode,
             Size thumbnailSizeOrNull)
     {
         AbsoluteImageReference image =
                 imageAccessor
-                        .tryGetImage(chosenChannel, channelStackReference, thumbnailSizeOrNull);
+                        .tryGetImage(chosenChannelCode, channelStackReference, thumbnailSizeOrNull);
         if (image != null)
         {
             return image;
@@ -261,7 +261,7 @@ public class ImageChannelsUtils
             throw EnvironmentFailureException.fromTemplate("No "
                     + (thumbnailSizeOrNull != null ? "thumbnail" : "image")
                     + " found for channel stack %s and channel %s", channelStackReference,
-                    chosenChannel);
+                    chosenChannelCode);
         }
     }
 

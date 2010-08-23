@@ -299,29 +299,36 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         return components;
     }
 
-    protected final static List<String> extractChannelNames(final Properties properties)
-    {
-        return PropertyUtils.getMandatoryList(properties, PlateStorageProcessor.CHANNEL_NAMES);
-    }
-
-    protected final static Set<Channel> createChannels(List<String> channelNames)
+    protected final static Set<Channel> createChannels(List<ChannelDescription> channelDescriptions)
     {
         Set<Channel> channels = new HashSet<Channel>();
-        for (String channelName : channelNames)
+        for (ChannelDescription channelDescription : channelDescriptions)
         {
-            channels.add(new Channel(channelName, null, null));
+            channels.add(new Channel(channelDescription.getCode(), null, null, channelDescription
+                    .getLabel()));
         }
         return channels;
     }
 
-    protected final static void ensureChannelExist(List<String> channelNames, String channelName)
+    protected final static List<ChannelDescription> tryExtractChannelDescriptions(
+            final Properties properties)
     {
-        if (channelNames.indexOf(channelName) == -1)
+        return PlateStorageProcessor.extractChannelDescriptions(properties);
+    }
+
+    protected final static void ensureChannelExist(List<ChannelDescription> channelDescriptions,
+            String channelCode)
+    {
+        for (ChannelDescription channelDescription : channelDescriptions)
         {
-            throw UserFailureException.fromTemplate(
-                    "Channel '%s' is not one of: %s. Change the configuration.", channelName,
-                    channelNames);
+            if (channelDescription.getCode().equals(channelCode))
+            {
+                return;
+            }
         }
+        throw UserFailureException.fromTemplate(
+                "Channel '%s' is not one of: %s. Change the configuration.", channelCode,
+                channelDescriptions);
     }
 
     protected final static Geometry getWellGeometry(final Properties properties)
@@ -342,10 +349,10 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
     }
 
     protected static final AcquiredPlateImage createImage(Location plateLocation,
-            Location wellLocation, String imageRelativePath, String channelName,
+            Location wellLocation, String imageRelativePath, String channelCode,
             Float timepointOrNull, ColorComponent colorComponent)
     {
-        return new AcquiredPlateImage(plateLocation, wellLocation, channelName, timepointOrNull,
+        return new AcquiredPlateImage(plateLocation, wellLocation, channelCode, timepointOrNull,
                 null, new RelativeImageReference(imageRelativePath, null, colorComponent));
     }
 }

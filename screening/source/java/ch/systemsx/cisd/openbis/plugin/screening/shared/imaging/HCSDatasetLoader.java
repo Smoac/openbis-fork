@@ -47,7 +47,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     protected Integer channelCount;
 
-    protected List<String> channelNames;
+    protected List<String> channelCodes;
 
     public HCSDatasetLoader(IImagingQueryDAO query, String datasetPermId)
     {
@@ -57,10 +57,10 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         {
             throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
         }
-        String[] namesAsArray =
-                query.getChannelNamesByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
+        String[] codesAsArray =
+                query.getChannelCodesByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
                         .getExperimentId());
-        this.channelNames = new ArrayList<String>(Arrays.asList(namesAsArray));
+        this.channelCodes = new ArrayList<String>(Arrays.asList(codesAsArray));
     }
 
     /** has to be called at the end */
@@ -85,7 +85,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     public int getChannelCount()
     {
-        return channelNames.size();
+        return channelCodes.size();
     }
 
     public List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocation)
@@ -122,12 +122,12 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         params.setTileRowsNum(getDataset().getFieldNumberOfRows());
         params.setTileColsNum(getDataset().getFieldNumberOfColumns());
         params.setIsMultidimensional(dataset.getIsMultidimensional());
-        List<String> escapedChannelNames = new ArrayList<String>();
-        for (String name : channelNames)
+        List<String> escapedChannelCodes = new ArrayList<String>();
+        for (String name : channelCodes)
         {
-            escapedChannelNames.add(StringEscapeUtils.escapeCsv(name));
+            escapedChannelCodes.add(StringEscapeUtils.escapeCsv(name));
         }
-        params.setChannelsNames(escapedChannelNames);
+        params.setChannelsCodes(escapedChannelCodes);
         return params;
     }
 }

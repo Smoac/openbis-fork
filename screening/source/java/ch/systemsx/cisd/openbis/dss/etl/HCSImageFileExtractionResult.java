@@ -60,7 +60,7 @@ public final class HCSImageFileExtractionResult
     /**
      * A channel in which the image has been acquired.
      * <p>
-     * Each channel has its <code>name</code> which uniquely identifies it in one experiment or
+     * Each channel has its <code>code</code> which uniquely identifies it in one experiment or
      * dataset.
      * </p>
      * 
@@ -68,23 +68,27 @@ public final class HCSImageFileExtractionResult
      */
     public static final class Channel
     {
-        private final String name;
+        private final String code;
+
+        private final String label;
 
         private final String description;
 
         private final Integer wavelength;
 
-        public Channel(String name, String descriptionOrNull, Integer wavelengthOrNull)
+        public Channel(String code, String descriptionOrNull, Integer wavelengthOrNull, String label)
         {
-            assert name != null : "name is null";
-            this.name = name;
+            assert code != null : "code is null";
+            assert label != null : "label is null";
+            this.label = label;
+            this.code = code;
             this.description = descriptionOrNull;
             this.wavelength = wavelengthOrNull;
         }
 
-        public String getName()
+        public String getCode()
         {
-            return name;
+            return code;
         }
 
         public String tryGetDescription()
@@ -96,6 +100,12 @@ public final class HCSImageFileExtractionResult
         {
             return wavelength;
         }
+
+        public String getLabel()
+        {
+            return label;
+        }
+
     }
 
 }

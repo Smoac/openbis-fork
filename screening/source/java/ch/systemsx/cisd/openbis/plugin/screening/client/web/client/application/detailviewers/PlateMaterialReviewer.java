@@ -391,7 +391,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                             new ChannelWidgetWithListener(viewerFactory);
                     widgetWithListener.update(channelChooser.getSimpleValue());
 
-                    channelChooser.addNamesAndListener(imageParameters.getChannelsNames(),
+                    channelChooser.addCodesAndListener(imageParameters.getChannelsCodes(),
                             widgetWithListener.asSelectionChangedListener());
                     return widgetWithListener.asWidget();
                 }

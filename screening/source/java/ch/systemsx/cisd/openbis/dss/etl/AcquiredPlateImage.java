@@ -30,7 +30,7 @@ public class AcquiredPlateImage extends AbstractHashable
 
     private final Location tileLocation;
 
-    private final String channelName;
+    private final String channelCode;
 
     // can be null
     private final Float timePointOrNull, depthOrNull;
@@ -40,12 +40,12 @@ public class AcquiredPlateImage extends AbstractHashable
 
     private RelativeImageReference thumbnailFilePathOrNull;
     
-    public AcquiredPlateImage(Location wellLocation, Location tileLocation, String channelName,
+    public AcquiredPlateImage(Location wellLocation, Location tileLocation, String channelCode,
             Float timePointOrNull, Float depthOrNull, RelativeImageReference imageFilePath)
     {
         this.wellLocation = wellLocation;
         this.tileLocation = tileLocation;
-        this.channelName = channelName.toUpperCase();
+        this.channelCode = channelCode.toUpperCase();
         this.timePointOrNull = timePointOrNull;
         this.depthOrNull = depthOrNull;
         this.imageFilePath = imageFilePath;
@@ -71,9 +71,9 @@ public class AcquiredPlateImage extends AbstractHashable
         return tileLocation.getX();
     }
 
-    public String getChannelName()
+    public String getChannelCode()
     {
-        return channelName;
+        return channelCode;
     }
 
     public Float tryGetTimePoint()

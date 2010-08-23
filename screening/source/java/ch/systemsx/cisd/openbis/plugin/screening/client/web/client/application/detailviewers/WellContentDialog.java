@@ -130,7 +130,7 @@ public class WellContentDialog extends Dialog
             return new Text("Incorrect well code.");
         }
         PlateImageParameters imageParameters = imageDataset.getImageParameters();
-        if (imageParameters.getChannelsNames().contains(channel) == false
+        if (imageParameters.getChannelsCodes().contains(channel) == false
                 && channel.equals(ScreeningConstants.MERGED_CHANNELS) == false)
         {
             return new Text("No images available for this channel.");
@@ -197,7 +197,7 @@ public class WellContentDialog extends Dialog
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsNames());
+                .getChannelsCodes());
     }
 
     private static LayoutContainer createTilesGrid(final WellImages images, String channel,
@@ -266,7 +266,7 @@ public class WellContentDialog extends Dialog
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsNames());
+                .getChannelsCodes());
     }
 
     // ---------------- STATIC METHODS -------------------

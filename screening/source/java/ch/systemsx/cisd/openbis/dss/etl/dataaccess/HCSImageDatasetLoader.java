@@ -65,13 +65,13 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
     }
 
     /**
-     * @param chosenChannel start from 1
+     * @param chosenChannelCode 
      * @return image (with absolute path, page and color)
      */
-    public AbsoluteImageReference tryGetImage(String chosenChannel,
+    public AbsoluteImageReference tryGetImage(String chosenChannelCode,
             ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull)
     {
-        assert StringUtils.isBlank(chosenChannel) == false;
+        assert StringUtils.isBlank(chosenChannelCode) == false;
         LocationImageChannelStackReference stackLocations =
                 channelStackReference.tryGetChannelStackLocations();
         if (stackLocations != null)
@@ -84,8 +84,8 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         }
 
         Long chosenChannelId =
-                query.tryGetChannelIdByChannelNameDatasetIdOrExperimentId(getDataset().getId(),
-                        getContainer().getExperimentId(), chosenChannel);
+                query.tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(getDataset().getId(),
+                        getContainer().getExperimentId(), chosenChannelCode);
         if (chosenChannelId == null)
         {
             return null;

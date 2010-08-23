@@ -257,7 +257,7 @@ public class ScreeningContainerDatasetInfoHelper
 
     private static void addChannel(Map<String, Long> map, ImgChannelDTO channelDTO)
     {
-        map.put(channelDTO.getName(), channelDTO.getId());
+        map.put(channelDTO.getCode(), channelDTO.getId());
     }
 
     private static Map<String, ImgChannelDTO> asNameMap(List<ImgChannelDTO> channels)
@@ -265,7 +265,7 @@ public class ScreeningContainerDatasetInfoHelper
         Map<String, ImgChannelDTO> nameMap = new HashMap<String, ImgChannelDTO>();
         for (ImgChannelDTO channel : channels)
         {
-            nameMap.put(channel.getName(), channel);
+            nameMap.put(channel.getCode(), channel);
         }
         return nameMap;
     }
@@ -274,11 +274,11 @@ public class ScreeningContainerDatasetInfoHelper
             Map<String, ImgChannelDTO> existingChannels)
     {
         ImgChannelDTO channelDTO = makeChannelDTO(channel, expId);
-        String channelName = channelDTO.getName();
-        ImgChannelDTO existingChannel = existingChannels.get(channelName);
+        String channelCode = channelDTO.getCode();
+        ImgChannelDTO existingChannel = existingChannels.get(channelCode);
         if (existingChannel == null)
         {
-            throw createInvalidNewChannelException(expId, existingChannels, channelName);
+            throw createInvalidNewChannelException(expId, existingChannels, channelCode);
         }
         // a channel with a specified name already exists for an experiment, its description
         // will be updated. Wavelength will be updated only if it was null before.
@@ -291,8 +291,8 @@ public class ScreeningContainerDatasetInfoHelper
         {
             throw UserFailureException.fromTemplate(
                     "There are already datasets registered for the experiment "
-                            + "which use the same channel name, but with a different wavelength! "
-                            + "Channel %s, old wavelength %d, new wavelength %d.", channelName,
+                            + "which use the same channel code, but with a different wavelength! "
+                            + "Channel %s, old wavelength %d, new wavelength %d.", channelCode,
                     existingChannel.getWavelength(), channelDTO.getWavelength());
         }
         channelDTO.setId(existingChannel.getId());
@@ -305,7 +305,7 @@ public class ScreeningContainerDatasetInfoHelper
     {
         return UserFailureException.fromTemplate(
                 "Experiment with id '%d' has already some channels registered "
-                        + "and does not have a channel with a name '%s'. "
+                        + "and does not have a channel with a code '%s'. "
                         + "Register a new experiment to use new channels. "
                         + "Available channel names in this experiment: %s.", expId, channelName,
                 existingChannels.keySet());
@@ -322,7 +322,7 @@ public class ScreeningContainerDatasetInfoHelper
     private static ImgChannelDTO makeChannelDTO(HCSImageFileExtractionResult.Channel channel,
             long expId)
     {
-        return ImgChannelDTO.createExperimentChannel(channel.getName(),
-                channel.tryGetDescription(), channel.tryGetWavelength(), expId);
+        return ImgChannelDTO.createExperimentChannel(channel.getCode(),
+                channel.tryGetDescription(), channel.tryGetWavelength(), expId, channel.getLabel());
     }
 }

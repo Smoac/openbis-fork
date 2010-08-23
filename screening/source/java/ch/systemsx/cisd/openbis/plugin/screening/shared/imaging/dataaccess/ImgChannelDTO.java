@@ -30,7 +30,10 @@ public class ImgChannelDTO extends AbstractHashable
     private long id;
 
     @ResultColumn("LABEL")
-    private String name;
+    private String label;
+
+    @ResultColumn("CODE")
+    private String code;
 
     @ResultColumn("DESCRIPTION")
     private String descriptionOrNull;
@@ -46,16 +49,17 @@ public class ImgChannelDTO extends AbstractHashable
     @ResultColumn("EXP_ID")
     private Long experimentIdOrNull;
 
-    public static ImgChannelDTO createDatasetChannel(String name, String descriptionOrNull,
-            Integer wavelengthOrNull, long datasetId)
+    public static ImgChannelDTO createDatasetChannel(String code, String descriptionOrNull,
+            Integer wavelengthOrNull, long datasetId, String label)
     {
-        return new ImgChannelDTO(name, descriptionOrNull, wavelengthOrNull, datasetId, null);
+        return new ImgChannelDTO(code, descriptionOrNull, wavelengthOrNull, datasetId, null, label);
     }
 
-    public static ImgChannelDTO createExperimentChannel(String name, String descriptionOrNull,
-            Integer wavelengthOrNull, long experimentId)
+    public static ImgChannelDTO createExperimentChannel(String code, String descriptionOrNull,
+            Integer wavelengthOrNull, long experimentId, String label)
     {
-        return new ImgChannelDTO(name, descriptionOrNull, wavelengthOrNull, null, experimentId);
+        return new ImgChannelDTO(code, descriptionOrNull, wavelengthOrNull, null, experimentId,
+                label);
     }
 
     private ImgChannelDTO()
@@ -63,12 +67,13 @@ public class ImgChannelDTO extends AbstractHashable
         // All Data-Object classes must have a default constructor.
     }
 
-    private ImgChannelDTO(String name, String descriptionOrNull, Integer wavelengthOrNull,
-            Long datasetIdOrNull, Long experimentIdOrNull)
+    private ImgChannelDTO(String code, String descriptionOrNull, Integer wavelengthOrNull,
+            Long datasetIdOrNull, Long experimentIdOrNull, String label)
     {
         assert (datasetIdOrNull == null && experimentIdOrNull != null)
                 || (datasetIdOrNull != null && experimentIdOrNull == null);
-        this.name = name.toUpperCase();
+        this.code = code.toUpperCase();
+        this.label = label;
         this.descriptionOrNull = descriptionOrNull;
         this.wavelengthOrNull = wavelengthOrNull;
         this.datasetIdOrNull = datasetIdOrNull;
@@ -85,14 +90,14 @@ public class ImgChannelDTO extends AbstractHashable
         this.id = id;
     }
 
-    public String getName()
+    public String getCode()
     {
-        return name;
+        return code;
     }
 
-    public void setName(String name)
+    public void setCode(String code)
     {
-        this.name = name;
+        this.code = code;
     }
 
     public String getDescription()
@@ -103,6 +108,16 @@ public class ImgChannelDTO extends AbstractHashable
     public void setDescription(String description)
     {
         this.descriptionOrNull = description;
+    }
+
+    public String getLabel()
+    {
+        return label;
+    }
+
+    public void setLabel(String label)
+    {
+        this.label = label;
     }
 
     /** can be null */

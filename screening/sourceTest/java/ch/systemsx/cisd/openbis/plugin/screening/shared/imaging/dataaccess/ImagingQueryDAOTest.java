@@ -42,6 +42,8 @@ import ch.systemsx.cisd.bds.hcs.Location;
 public class ImagingQueryDAOTest extends AbstractDBTest
 {
 
+    private static final String CHANNEL_LABEL = "Channel Label";
+
     private static final int PAGE = 1;
 
     private static final int Y_TILE_ROW = 2;
@@ -162,7 +164,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         // test countChannelByDatasetIdOrExperimentId
         assertEquals(2, dao.countChannelByDatasetIdOrExperimentId(datasetId, experimentId));
         String[] channelNames =
-                dao.getChannelNamesByDatasetIdOrExperimentId(datasetId, experimentId);
+                dao.getChannelCodesByDatasetIdOrExperimentId(datasetId, experimentId);
         assertEquals("DSCHANNEL", channelNames[0]);
         assertEquals("EXPCHANNEL", channelNames[1]);
 
@@ -173,7 +175,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
                 || channels[1] == channelId1 && channels[0] == channelId2);
 
         // test get id of first channel
-        assertEquals(channels[0], dao.tryGetChannelIdByChannelNameDatasetIdOrExperimentId(
+        assertEquals(channels[0], dao.tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(
                 datasetId, experimentId, "dsChannel").intValue());
 
         List<ImgChannelDTO> experimentChannels = dao.getChannelsByExperimentId(experimentId);
@@ -253,7 +255,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final ImgChannelDTO channel =
                 ImgChannelDTO.createDatasetChannel(DS_CHANNEL, CHANNEL_DESCRIPTION, WAVELENGTH,
-                        datasetId);
+                        datasetId, CHANNEL_LABEL);
         return dao.addChannel(channel);
     }
 
@@ -261,7 +263,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final ImgChannelDTO channel =
                 ImgChannelDTO.createExperimentChannel(EXP_CHANNEL, CHANNEL_DESCRIPTION, WAVELENGTH,
-                        experimentId);
+                        experimentId, CHANNEL_LABEL);
         return dao.addChannel(channel);
     }
 

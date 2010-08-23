@@ -50,7 +50,7 @@ public class ChannelComboBox extends SimpleComboBox<String>
     public ChannelComboBox(List<String> names, String initialValue)
     {
         this();
-        addUniqueNames(names);
+        addUniqueCodes(names);
         if (initialValue != null)
         {
             setSimpleValue(initialValue);
@@ -74,11 +74,11 @@ public class ChannelComboBox extends SimpleComboBox<String>
     /**
      * Adds names to the combo box if they were not yet present.
      */
-    private void addUniqueNames(List<String> names)
+    private void addUniqueCodes(List<String> codes)
     {
         List<String> withMerged = new ArrayList<String>();
         withMerged.add(ScreeningConstants.MERGED_CHANNELS);
-        withMerged.addAll(names);
+        withMerged.addAll(codes);
         for (String s : withMerged)
         {
             if (findModel(s) == null)
@@ -88,10 +88,10 @@ public class ChannelComboBox extends SimpleComboBox<String>
         }
     }
 
-    public void addNamesAndListener(List<String> newNames,
+    public void addCodesAndListener(List<String> newCodes,
             SelectionChangedListener<SimpleComboValue<String>> listener)
     {
-        addUniqueNames(newNames);
+        addUniqueCodes(newCodes);
         addSelectionChangedListener(listener);
         autoselect();
     }

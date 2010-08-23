@@ -25,7 +25,6 @@ import java.util.Set;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
@@ -50,7 +49,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
     private final TileMapper tileMapperOrNull;
 
-    private final List<String> channelNames;
+    private final List<ChannelDescription> channelDescriptions;
 
     private final List<ColorComponent> channelColorComponentsOrNull;
 
@@ -59,7 +58,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
-        this.channelNames = extractChannelNames(properties);
+        this.channelDescriptions = tryExtractChannelDescriptions(properties);
         this.channelColorComponentsOrNull = tryGetChannelComponents(properties);
         checkChannelsAndColorComponents();
         this.wellGeometry = getWellGeometry(properties);
@@ -70,7 +69,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     private void checkChannelsAndColorComponents()
     {
         if (channelColorComponentsOrNull != null
-                && channelColorComponentsOrNull.size() != channelNames.size())
+                && channelColorComponentsOrNull.size() != channelDescriptions.size())
         {
             throw ConfigurationFailureException.fromTemplate(
                     "There should be exactly one color component for each channel name."
@@ -126,34 +125,24 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
             for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
             {
                 ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
-                String channelName = channelNames.get(i);
-                images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelName,
-                        timepointOrNull, colorComponent));
+                ChannelDescription channelDescription = channelDescriptions.get(i);
+                images.add(createImage(plateLocation, wellLocation, imageRelativePath,
+                        channelDescription.getCode(), timepointOrNull, colorComponent));
             }
         } else
         {
-            String channelName = channelToken.toUpperCase();
-            ensureChannelExist(channelName);
-            images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelName,
+            String channelCode = channelToken.toUpperCase();
+            ensureChannelExist(channelDescriptions, channelCode);
+            images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelCode,
                     timepointOrNull, null));
         }
         return images;
     }
 
-    private void ensureChannelExist(String channelName)
-    {
-        if (channelNames.indexOf(channelName) == -1)
-        {
-            throw UserFailureException.fromTemplate(
-                    "Channel '%s' is not one of: %s. Change the configuration.", channelName,
-                    channelNames);
-        }
-    }
-
     @Override
     protected Set<Channel> getAllChannels()
     {
-        return createChannels(channelNames);
+        return createChannels(channelDescriptions);
     }
 
     @Override

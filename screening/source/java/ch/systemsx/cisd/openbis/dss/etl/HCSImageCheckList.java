@@ -39,10 +39,10 @@ public final class HCSImageCheckList
 
     private final Map<FullLocation, Check> imageMap;
 
-    public HCSImageCheckList(final List<String> channelNames, final PlateDimension plateGeometry,
+    public HCSImageCheckList(final List<String> channelCodes, final PlateDimension plateGeometry,
             final Geometry wellGeometry)
     {
-        if (channelNames.size() < 1)
+        if (channelCodes.size() < 1)
         {
             throw new IllegalArgumentException("Number of channels smaller than one.");
         }
@@ -55,7 +55,7 @@ public final class HCSImageCheckList
             throw new IllegalArgumentException("Unspecified well geometry.");
         }
         imageMap = new HashMap<FullLocation, Check>();
-        for (String channelName : channelNames)
+        for (String channelCode : channelCodes)
         {
             for (int wellCol = 1; wellCol <= plateGeometry.getColsNum(); wellCol++)
             {
@@ -66,13 +66,13 @@ public final class HCSImageCheckList
                         for (int tileRow = 1; tileRow <= wellGeometry.getRows(); tileRow++)
                         {
                             imageMap.put(new FullLocation(wellRow, wellCol, tileRow, tileCol,
-                                    channelName), new Check());
+                                    channelCode), new Check());
                         }
                     }
                 }
             }
         }
-        assert imageMap.size() == channelNames.size() * plateGeometry.getColsNum()
+        assert imageMap.size() == channelCodes.size() * plateGeometry.getColsNum()
                 * plateGeometry.getRowsNum() * wellGeometry.getColumns() * wellGeometry.getRows() : "Wrong map size";
     }
 
@@ -95,7 +95,7 @@ public final class HCSImageCheckList
     private static FullLocation createLocation(AcquiredPlateImage image)
     {
         return new FullLocation(image.getWellRow(), image.getWellColumn(), image.getTileRow(),
-                image.getTileColumn(), image.getChannelName());
+                image.getTileColumn(), image.getChannelCode());
     }
 
     public final List<FullLocation> getCheckedOnFullLocations()
@@ -119,7 +119,7 @@ public final class HCSImageCheckList
     {
         private boolean checkedOff;
 
-        private List<Float> timepoints = new ArrayList<Float>();
+        private final List<Float> timepoints = new ArrayList<Float>();
 
         final void checkOff(Float timepointOrNull)
         {
@@ -139,15 +139,15 @@ public final class HCSImageCheckList
 
         final int tileRow, tileCol;
 
-        final String channelName;
+        final String channelCode;
 
-        public FullLocation(int wellRow, int wellCol, int tileRow, int tileCol, String channelName)
+        public FullLocation(int wellRow, int wellCol, int tileRow, int tileCol, String channelCode)
         {
             this.wellRow = wellRow;
             this.wellCol = wellCol;
             this.tileRow = tileRow;
             this.tileCol = tileCol;
-            this.channelName = channelName.toUpperCase();
+            this.channelCode = channelCode.toUpperCase();
         }
 
         private final static String toString(final int row, final int col, final String type)
@@ -162,7 +162,7 @@ public final class HCSImageCheckList
         @Override
         public final String toString()
         {
-            return "[channel=" + channelName + ", " + toString(wellRow, wellCol, "well") + ", "
+            return "[channel=" + channelCode + ", " + toString(wellRow, wellCol, "well") + ", "
                     + toString(tileRow, tileCol, "tile") + "]";
         }
     }

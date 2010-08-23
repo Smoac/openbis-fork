@@ -26,9 +26,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoade
 public interface IHCSImageDatasetLoader extends IHCSDatasetLoader
 {
     /**
-     * @param chosenChannel start from 1
+     * @param chosenChannelCode start from 1
      * @return image (with absolute path, page and color)
      */
-    AbsoluteImageReference tryGetImage(String chosenChannel,
+    AbsoluteImageReference tryGetImage(String chosenChannelCode,
             ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull);
 }

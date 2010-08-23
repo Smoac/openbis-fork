@@ -38,7 +38,7 @@ public class PlateImageParameters implements IsSerializable
 
     private int tileColsNum;
 
-    private List<String> channelsNames;
+    private List<String> channelsCodes;
 
     // true if any well in the dataset has a time series (or depth stack) of images
     private boolean isMultidimensional;
@@ -93,19 +93,19 @@ public class PlateImageParameters implements IsSerializable
         this.datasetCode = datasetCode;
     }
 
-    public void setChannelsNames(List<String> channelsNames)
+    public void setChannelsCodes(List<String> channelsCodes)
     {
-        this.channelsNames = channelsNames;
+        this.channelsCodes = channelsCodes;
     }
 
-    public List<String> getChannelsNames()
+    public List<String> getChannelsCodes()
     {
-        return channelsNames;
+        return channelsCodes;
     }
 
     public int getChannelsNumber()
     {
-        return channelsNames.size();
+        return channelsCodes.size();
     }
 
     public boolean isMultidimensional()

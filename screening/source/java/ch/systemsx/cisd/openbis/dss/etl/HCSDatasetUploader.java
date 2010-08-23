@@ -65,23 +65,23 @@ public class HCSDatasetUploader
 
     private static class AcquiredImageInStack
     {
-        private final String channelName;
+        private final String channelCode;
 
         private final RelativeImageReference imageFilePath;
 
         private final RelativeImageReference thumbnailPathOrNull;
 
-        public AcquiredImageInStack(String channelName, RelativeImageReference imageFilePath,
+        public AcquiredImageInStack(String channelCode, RelativeImageReference imageFilePath,
                 RelativeImageReference thumbnailPathOrNull)
         {
-            this.channelName = channelName.toUpperCase();
+            this.channelCode = channelCode.toUpperCase();
             this.imageFilePath = imageFilePath;
             this.thumbnailPathOrNull = thumbnailPathOrNull;
         }
 
-        public String getChannelName()
+        public String getChannelCode()
         {
-            return channelName;
+            return channelCode;
         }
 
         public RelativeImageReference getImageFilePath()
@@ -134,7 +134,7 @@ public class HCSDatasetUploader
 
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
     {
-        return new AcquiredImageInStack(image.getChannelName(), image.getImageReference(), image
+        return new AcquiredImageInStack(image.getChannelCode(), image.getImageReference(), image
                 .getThumbnailFilePathOrNull());
     }
 
@@ -184,7 +184,7 @@ public class HCSDatasetUploader
         List<ImgAcquiredImageDTO> acquiredImageDTOs = imagesToCreate.getAcquiredImages();
         for (AcquiredImageInStack image : images)
         {
-            long channelTechId = channelsMap.get(image.getChannelName());
+            long channelTechId = channelsMap.get(image.getChannelCode());
 
             ImgImageDTO imageDTO = mkImageWithIdDTO(image.getImageFilePath());
             ImgImageDTO thumbnailDTO = tryMkImageWithIdDTO(image.getThumbnailPathOrNull());

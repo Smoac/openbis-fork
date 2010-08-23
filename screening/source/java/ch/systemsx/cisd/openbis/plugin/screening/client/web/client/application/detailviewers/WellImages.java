@@ -55,9 +55,9 @@ public class WellImages
         return imageParams.getTileColsNum();
     }
 
-    public List<String> getChannelsNames()
+    public List<String> getChannelsCodes()
     {
-        return imageParams.getChannelsNames();
+        return imageParams.getChannelsCodes();
     }
 
     public boolean isMultidimensional()

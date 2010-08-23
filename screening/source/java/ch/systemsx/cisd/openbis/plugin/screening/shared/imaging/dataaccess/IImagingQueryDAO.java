@@ -108,8 +108,8 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select("select label from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by LABEL")
-    public String[] getChannelNamesByDatasetIdOrExperimentId(long datasetId, long experimentId);
+    @Select("select code from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by CODE")
+    public String[] getChannelCodesByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
     @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by LABEL", fetchSize = FETCH_SIZE)
     public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);
@@ -154,7 +154,7 @@ public interface IImagingQueryDAO extends TransactionQuery
     public long addExperiment(String experimentPermId);
 
     @Select("insert into CHANNELS (LABEL, CODE, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
-            + "(?{1.name}, ?{1.name}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
+            + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
     public long addChannel(ImgChannelDTO channel);
 
     @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
@@ -186,8 +186,8 @@ public interface IImagingQueryDAO extends TransactionQuery
             + "where ID = ?{1.id}")
     public void updateChannel(ImgChannelDTO channel);
 
-    @Select("select ID from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and LABEL = upper(?{3})")
-    public Long tryGetChannelIdByChannelNameDatasetIdOrExperimentId(long id, long experimentId,
-            String chosenChannel);
+    @Select("select ID from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and CODE = upper(?{3})")
+    public Long tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(long id, long experimentId,
+            String chosenChannelCode);
 
 }

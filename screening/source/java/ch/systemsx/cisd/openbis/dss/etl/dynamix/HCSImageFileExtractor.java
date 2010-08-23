@@ -36,6 +36,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
+import ch.systemsx.cisd.openbis.dss.etl.ChannelDescription;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dynamix.WellLocationMappingUtils.DynamixWellPosition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -52,32 +53,32 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
     private static final String POSITION_MAPPING_FILE_NAME = "pos2loc.tsv";
 
-    private final List<String> channelNames;
+    private final List<ChannelDescription> channelDescriptions;
 
     private final Map<File/* mapping file */, Map<DynamixWellPosition, WellLocation>> wellLocationMapCache;
 
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
-        this.channelNames = extractChannelNames(properties);
+        this.channelDescriptions = tryExtractChannelDescriptions(properties);
         this.wellLocationMapCache = new HashMap<File, Map<DynamixWellPosition, WellLocation>>();
     }
 
     @Override
     protected final Set<Channel> getAllChannels()
     {
-        return createChannels(channelNames);
+        return createChannels(channelDescriptions);
     }
 
     @Override
     protected final List<AcquiredPlateImage> getImages(String channelToken, Location plateLocation,
             Location wellLocation, Float timepointOrNull, String imageRelativePath)
     {
-        String channelName = channelToken.toUpperCase();
-        ensureChannelExist(channelNames, channelName);
+        String channelCode = channelToken.toUpperCase();
+        ensureChannelExist(channelDescriptions, channelCode);
 
         List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
-        images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelName,
+        images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelCode,
                 timepointOrNull, null));
         return images;
     }

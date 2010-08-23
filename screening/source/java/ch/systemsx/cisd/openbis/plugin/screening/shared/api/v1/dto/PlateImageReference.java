@@ -42,7 +42,7 @@ public class PlateImageReference extends DatasetIdentifier
     }
 
     /**
-     * channel name
+     * channel code
      */
     public String getChannel()
     {

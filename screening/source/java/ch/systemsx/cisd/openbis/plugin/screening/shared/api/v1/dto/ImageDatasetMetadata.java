@@ -50,7 +50,7 @@ public class ImageDatasetMetadata implements Serializable
     }
 
     /**
-     * names of channels in which images have been acquired for the described dataset
+     * codes of channels in which images have been acquired for the described dataset
      */
     public List<String> getChannelNames()
     {
