@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -33,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class DatasetFileLines implements ITabularData
 {
     private final String[] headerTokens;
+    
+    private final String[] headerCodes;
 
     private final List<String[]> dataLines;
 
@@ -58,6 +61,11 @@ public class DatasetFileLines implements ITabularData
                     lines.size());
         }
         this.headerTokens = lines.get(0);
+        headerCodes = new String[headerTokens.length];
+        for (int i = 0; i < headerCodes.length; i++)
+        {
+            headerCodes[i] = CodeAndLabel.normalize(headerTokens[i]);
+        }
         dataLines = new ArrayList<String[]>(lines.size());
         for (int i = 1; i < lines.size(); i++)
         {
@@ -95,14 +103,20 @@ public class DatasetFileLines implements ITabularData
         return file;
     }
 
+    /**
+     * Returns the headers as defined in CSV file.
+     */
     public String[] getHeaderLabels()
     {
         return headerTokens;
     }
 
+    /**
+     * Returns the normalized headers. Normalization is done by {@link CodeAndLabel#normalize(String)}.
+     */
     public String[] getHeaderCodes()
     {
-        return headerTokens;
+        return headerCodes;
     }
 
     public List<String[]> getDataLines()

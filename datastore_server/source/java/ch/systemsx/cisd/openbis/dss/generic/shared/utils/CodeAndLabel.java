@@ -23,7 +23,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
  * 
  * @author Franz-Josef Elmer
  */
-public class CodeAndTitle
+public class CodeAndLabel
 {
     /**
      * Normalizes the specified code. That is lower-case characters are turned to upper case and any
@@ -48,7 +48,7 @@ public class CodeAndTitle
     /**
      * Creates an instance for specified code and title. The code will be normalized.
      */
-    public CodeAndTitle(String code, String title)
+    public CodeAndLabel(String code, String title)
     {
         this.code = normalize(code);
         this.title = title;
@@ -58,7 +58,7 @@ public class CodeAndTitle
      * Creates an instance from specified title with optional code prefix in form of
      * <code>&lt;code&gt;</code>. The code will be normalized.
      */
-    public CodeAndTitle(String titleWithOptionalCode)
+    public CodeAndLabel(String titleWithOptionalCode)
     {
         String t = titleWithOptionalCode;
         String c = titleWithOptionalCode;
@@ -98,11 +98,11 @@ public class CodeAndTitle
         {
             return true;
         }
-        if (obj instanceof CodeAndTitle == false)
+        if (obj instanceof CodeAndLabel == false)
         {
             return false;
         }
-        CodeAndTitle codeAndTitle = (CodeAndTitle) obj;
+        CodeAndLabel codeAndTitle = (CodeAndLabel) obj;
         return codeAndTitle.code.equals(code) && codeAndTitle.title.equals(title);
     }
 

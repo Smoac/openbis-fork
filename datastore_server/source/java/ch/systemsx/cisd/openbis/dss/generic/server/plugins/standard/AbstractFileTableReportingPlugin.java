@@ -34,7 +34,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -156,7 +156,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();
         for (String title : lines.getHeaderLabels())
         {
-            CodeAndTitle codeAndTitle = new CodeAndTitle(title);
+            CodeAndLabel codeAndTitle = new CodeAndLabel(title);
             tableBuilder.addHeader(codeAndTitle.getTitle(), codeAndTitle.getCode());
         }
         for (String[] line : lines.getDataLines())

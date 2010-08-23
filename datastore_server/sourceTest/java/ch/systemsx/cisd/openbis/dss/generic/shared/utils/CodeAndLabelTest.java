@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
  *
  * @author Franz-Josef Elmer
  */
-public class CodeAndTitleTest extends AssertJUnit
+public class CodeAndLabelTest extends AssertJUnit
 {
     @Test
     public void testNormalize()
@@ -35,19 +35,19 @@ public class CodeAndTitleTest extends AssertJUnit
     
     private void assertNormalized(String expectedNormalizedCode, String code)
     {
-        assertEquals(expectedNormalizedCode, CodeAndTitle.normalize(code));
-        assertEquals(expectedNormalizedCode, CodeAndTitle.normalize(CodeAndTitle.normalize(code)));
+        assertEquals(expectedNormalizedCode, CodeAndLabel.normalize(code));
+        assertEquals(expectedNormalizedCode, CodeAndLabel.normalize(CodeAndLabel.normalize(code)));
     }
     
     @Test
     public void testConstructor()
     {
-        assertCodeAndTitle("ABC_1_2_3_4", "abc", new CodeAndTitle("<abc?1=2-3+4> abc"));
-        assertCodeAndTitle("ABC_123_", "abc<123>", new CodeAndTitle("abc<123>"));
+        assertCodeAndTitle("ABC_1_2_3_4", "abc", new CodeAndLabel("<abc?1=2-3+4> abc"));
+        assertCodeAndTitle("ABC_123_", "abc<123>", new CodeAndLabel("abc<123>"));
     }
 
     private void assertCodeAndTitle(String expectedCode, String expectedTitle,
-            CodeAndTitle codeAndTitle)
+            CodeAndLabel codeAndTitle)
     {
         assertEquals(expectedCode, codeAndTitle.getCode());
         assertEquals(expectedTitle, codeAndTitle.getTitle());
