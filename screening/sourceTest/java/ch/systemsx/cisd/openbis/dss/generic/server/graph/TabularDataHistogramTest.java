@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -32,7 +34,7 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Test", "InfectedCells", 300, 200, 6);
+                new TabularDataHistogramConfiguration("Test", new CodeAndLabel("InfectedCells"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getDatasetFileLines(), getOutputStream(outputFile));
         assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
@@ -48,7 +50,7 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Test", "BigNumber", 300, 200, 6);
+                new TabularDataHistogramConfiguration("Test", new CodeAndLabel("BigNumber"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getBigNumberDatasetFileLines(),
                         getOutputStream(outputFile));
@@ -65,7 +67,7 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Test", "Non-Existant", 300, 200, 6);
+                new TabularDataHistogramConfiguration("Test", new CodeAndLabel("Non-Existant"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
                 new TabularDataHistogram(config, getDatasetFileLines(), getOutputStream(outputFile));
 

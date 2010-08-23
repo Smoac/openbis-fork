@@ -58,6 +58,8 @@ public class TabularDataGraphCollectionConfigurationTest extends AssertJUnit
         assertEquals("scatter1", graphConfig.getTitle());
         assertEquals(30, graphConfig.getImageHeight());
         assertEquals(30, graphConfig.getImageWidth());
+        assertEquals("<TOTALCELLS> TotalCells", graphConfig.getXAxisColumn().toString());
+        assertEquals("<INFCELLS> Infected Cells", graphConfig.getYAxisColumn().toString());
 
         assertEquals("hist", graphNames.get(1));
         graphConfig = configuration.getGraphConfiguration(graphNames.get(1));
@@ -66,6 +68,7 @@ public class TabularDataGraphCollectionConfigurationTest extends AssertJUnit
         assertEquals("heat", graphNames.get(2));
         graphConfig = configuration.getGraphConfiguration(graphNames.get(2));
         assertEquals("Infected Cells", graphConfig.getTitle());
+        assertEquals("<WELLNAME> WellName", graphConfig.getXAxisColumn().toString());
 
         assertEquals("scatter2", graphNames.get(3));
     }

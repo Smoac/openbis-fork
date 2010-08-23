@@ -101,7 +101,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             for (CodeAndLabel featureCodeAndLabel : featureCodeAndLabels)
             {
                 headerCodes[i] = featureCodeAndLabel.getCode();
-                headerLabels[i++] = featureCodeAndLabel.getTitle();
+                headerLabels[i++] = featureCodeAndLabel.getLabel();
             }
 
             lines = new ArrayList<String[]>();

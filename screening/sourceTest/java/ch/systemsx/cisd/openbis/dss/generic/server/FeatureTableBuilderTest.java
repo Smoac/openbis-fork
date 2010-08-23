@@ -143,7 +143,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
                     {
                         String codeAndLabels = featureCodesAndLabels[i];
                         CodeAndLabel codeAndTitle = new CodeAndLabel(codeAndLabels);
-                        String title = codeAndTitle.getTitle();
+                        String title = codeAndTitle.getLabel();
                         String code = codeAndTitle.getCode();
                         if (filteredCodeOrNull == null || filteredCodeOrNull.equals(code))
                         {

@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 /**
@@ -39,6 +40,10 @@ import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
  */
 public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderConfiguration
 {
+    private static final String CODE_POSTFIX = ".code";
+
+    private static final String LABEL_POSTFIX = ".label";
+
     private static final String SEPARATOR_PROPERTY_KEY = "separator";
 
     private static final String IGNORE_COMMENTS_PROPERTY_KEY = "ignore-comments";
@@ -172,9 +177,9 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         switch (type)
         {
             case HEATMAP:
-                String xAxis = PropertyUtils.getMandatoryProperty(props, X_AXIS_KEY);
-                String yAxis = PropertyUtils.getMandatoryProperty(props, Y_AXIS_KEY);
-                String zAxis = PropertyUtils.getMandatoryProperty(props, COLUMN_KEY);
+                CodeAndLabel xAxis = getCodeAndLabel(props, X_AXIS_KEY);
+                CodeAndLabel yAxis = getCodeAndLabel(props, Y_AXIS_KEY);
+                CodeAndLabel zAxis = getCodeAndLabel(props, COLUMN_KEY);
                 if (xAxis.equals(yAxis))
                 {
                     return new TabularDataHeatmapConfiguration(title, xAxis, zAxis,
@@ -185,18 +190,41 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
                             getThumbnailWidth(), getThumbnailHeight());
                 }
             case HISTOGRAM:
-                return new TabularDataHistogramConfiguration(title, PropertyUtils
-                        .getMandatoryProperty(props, COLUMN_KEY), getThumbnailWidth(),
-                        getThumbnailHeight(), PropertyUtils.getInt(props, NUMBER_OF_BINS_KEY, 10));
+                return new TabularDataHistogramConfiguration(title, getCodeAndLabel(props,
+                        COLUMN_KEY), getThumbnailWidth(), getThumbnailHeight(), PropertyUtils
+                        .getInt(props, NUMBER_OF_BINS_KEY, 10));
             case SCATTERPLOT:
-                return new TabularDataScatterplotConfiguration(title, PropertyUtils
-                        .getMandatoryProperty(props, X_AXIS_KEY), PropertyUtils
-                        .getMandatoryProperty(props, Y_AXIS_KEY), getThumbnailWidth(),
-                        getThumbnailHeight());
+                xAxis = getCodeAndLabel(props, X_AXIS_KEY);
+                yAxis = getCodeAndLabel(props, Y_AXIS_KEY);
+                return new TabularDataScatterplotConfiguration(title, xAxis, yAxis,
+                        getThumbnailWidth(), getThumbnailHeight());
         }
 
         // should never get here
         return null;
+    }
+    
+    private CodeAndLabel getCodeAndLabel(Properties properties, String key)
+    {
+        String labelWithOptionalCode = properties.getProperty(key);
+        if (labelWithOptionalCode != null)
+        {
+            return new CodeAndLabel(labelWithOptionalCode);
+        }
+        String labelKey = key + LABEL_POSTFIX;
+        String label = properties.getProperty(labelKey);
+        String codeKey = key + CODE_POSTFIX;
+        String code = properties.getProperty(codeKey);
+        if (label == null && code == null)
+        {
+            throw new IllegalArgumentException("Missing one of the following properties: " + key
+                    + ", " + codeKey + ", " + labelKey);
+        }
+        if (code == null)
+        {
+            return new CodeAndLabel(label);
+        }
+        return new CodeAndLabel(code, label);
     }
 
     /**

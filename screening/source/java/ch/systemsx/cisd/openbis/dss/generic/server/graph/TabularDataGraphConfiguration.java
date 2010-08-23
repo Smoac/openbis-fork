@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+
 /**
  * Represents the configuration data for a graph generated from tabular data.
  * 
@@ -33,10 +35,10 @@ public class TabularDataGraphConfiguration
     private final String title;
 
     // the column that is used as the x-axis
-    private final String xAxisColumn;
+    private final CodeAndLabel xAxisColumn;
 
     // the column that is used as the y-axis
-    private final String yAxisColumn;
+    private final CodeAndLabel yAxisColumn;
 
     private final int imageWidth;
 
@@ -51,8 +53,8 @@ public class TabularDataGraphConfiguration
      * @param imageWidth The desired width of the resulting image
      * @param imageHeight The desired height of the resulting image
      */
-    protected TabularDataGraphConfiguration(GraphType graphType, String title, String xAxisColumn,
-            String yAxisColumn, int imageWidth, int imageHeight)
+    protected TabularDataGraphConfiguration(GraphType graphType, String title, CodeAndLabel xAxisColumn,
+            CodeAndLabel yAxisColumn, int imageWidth, int imageHeight)
     {
         this.graphType = graphType;
         this.title = title;
@@ -78,7 +80,7 @@ public class TabularDataGraphConfiguration
     /**
      * The name of the column from which the x values come.
      */
-    protected String getXAxisColumn()
+    protected CodeAndLabel getXAxisColumn()
     {
         return xAxisColumn;
     }
@@ -86,7 +88,7 @@ public class TabularDataGraphConfiguration
     /**
      * The name of the column from which the y values come.
      */
-    protected String getYAxisColumn()
+    protected CodeAndLabel getYAxisColumn()
     {
         return yAxisColumn;
     }

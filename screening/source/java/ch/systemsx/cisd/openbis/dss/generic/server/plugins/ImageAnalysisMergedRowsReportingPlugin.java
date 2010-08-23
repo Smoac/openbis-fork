@@ -94,7 +94,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         builder.addHeader(COLUMN_TITLE);
         for (CodeAndLabel codeAndLabel : codeAndLabels)
         {
-            builder.addHeader(codeAndLabel.getTitle(), codeAndLabel.getCode());
+            builder.addHeader(codeAndLabel.getLabel(), codeAndLabel.getCode());
         }
         for (FeatureTableRow row : rows)
         {

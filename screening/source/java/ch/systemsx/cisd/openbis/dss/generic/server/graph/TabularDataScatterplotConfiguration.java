@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -32,8 +34,8 @@ public class TabularDataScatterplotConfiguration extends TabularDataGraphConfigu
      * @param imageWidth
      * @param imageHeight
      */
-    public TabularDataScatterplotConfiguration(String title, String xAxisColumn,
-            String yAxisColumn, int imageWidth, int imageHeight)
+    public TabularDataScatterplotConfiguration(String title, CodeAndLabel xAxisColumn,
+            CodeAndLabel yAxisColumn, int imageWidth, int imageHeight)
     {
         super(GraphType.SCATTERPLOT, title, xAxisColumn, yAxisColumn, imageWidth, imageHeight);
     }

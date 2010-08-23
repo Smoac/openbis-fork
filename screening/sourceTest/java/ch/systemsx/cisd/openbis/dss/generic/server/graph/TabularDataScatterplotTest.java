@@ -21,6 +21,8 @@ import java.io.IOException;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -31,13 +33,18 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
+        CodeAndLabel xAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        CodeAndLabel yAxisColumn = new CodeAndLabel("<INFECTEDCELLS> Infected Cells");
         TabularDataScatterplotConfiguration config =
-                new TabularDataScatterplotConfiguration("Test", "TotalCells", "InfectedCells", 300,
+                new TabularDataScatterplotConfiguration("Test", xAxisColumn, yAxisColumn, 300,
                         200);
         TabularDataScatterplot graph =
                 new TabularDataScatterplot(config, getDatasetFileLines(),
                         getOutputStream(outputFile));
-        assertNotSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        assertEquals(1, graph.tryXColumnNumber());
+        assertEquals("Total Cells", graph.getXAxisLabel());
+        assertEquals(2, graph.tryYColumnNumber());
+        assertEquals("Infected Cells", graph.getYAxisLabel());
         graph.generateImage();
 
         assertTrue(outputFile.exists());
@@ -49,12 +56,17 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
+        CodeAndLabel xAxisColumn = new CodeAndLabel("BIGNumber", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
-                new TabularDataScatterplotConfiguration("Test", "BigNumber", "TotalCells", 300, 200);
+                new TabularDataScatterplotConfiguration("Test", xAxisColumn, yAxisColumn, 300, 200);
         TabularDataScatterplot graph =
                 new TabularDataScatterplot(config, getBigNumberDatasetFileLines(),
                         getOutputStream(outputFile));
-        assertNotSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        assertEquals(21, graph.tryXColumnNumber());
+        assertEquals("BigNumber", graph.getXAxisLabel());
+        assertEquals(1, graph.tryYColumnNumber());
+        assertEquals("Total Cells", graph.getYAxisLabel());
         graph.generateImage();
 
         assertTrue(outputFile.exists());
@@ -67,7 +79,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataScatterplotConfiguration config =
-                new TabularDataScatterplotConfiguration("Test", "TotalCells", "Non-existant", 300,
+                new TabularDataScatterplotConfiguration("Test", new CodeAndLabel("TotalCells"), new CodeAndLabel("Non-existant"), 300,
                         200);
         TabularDataScatterplot graph =
                 new TabularDataScatterplot(config, getDatasetFileLines(),

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -23,7 +25,7 @@ public class TabularDataHeatmapConfiguration extends TabularDataGraphConfigurati
 {
 
     // the column that is used as the y-axis
-    private final String zAxisColumn;
+    private final CodeAndLabel zAxisColumn;
 
     private final boolean isXYSplit;
 
@@ -37,8 +39,8 @@ public class TabularDataHeatmapConfiguration extends TabularDataGraphConfigurati
      * @param imageWidth The desired width of the resulting image
      * @param imageHeight The desired height of the resulting image
      */
-    protected TabularDataHeatmapConfiguration(String title, String xAxisColumn, String yAxisColumn,
-            String zAxisColumn, int imageWidth, int imageHeight)
+    protected TabularDataHeatmapConfiguration(String title, CodeAndLabel xAxisColumn, CodeAndLabel yAxisColumn,
+            CodeAndLabel zAxisColumn, int imageWidth, int imageHeight)
     {
         super(GraphType.HEATMAP, title, xAxisColumn, yAxisColumn, imageWidth, imageHeight);
         this.zAxisColumn = zAxisColumn;
@@ -55,7 +57,7 @@ public class TabularDataHeatmapConfiguration extends TabularDataGraphConfigurati
      * @param imageWidth The desired width of the resulting image
      * @param imageHeight The desired height of the resulting image
      */
-    protected TabularDataHeatmapConfiguration(String title, String indexColumn, String zAxisColumn,
+    protected TabularDataHeatmapConfiguration(String title, CodeAndLabel indexColumn, CodeAndLabel zAxisColumn,
             int imageWidth, int imageHeight)
     {
         super(GraphType.HEATMAP, title, indexColumn, indexColumn, imageWidth, imageHeight);
@@ -63,7 +65,7 @@ public class TabularDataHeatmapConfiguration extends TabularDataGraphConfigurati
         isXYSplit = false;
     }
 
-    protected String getZAxisColumn()
+    protected CodeAndLabel getZAxisColumn()
     {
         return zAxisColumn;
     }

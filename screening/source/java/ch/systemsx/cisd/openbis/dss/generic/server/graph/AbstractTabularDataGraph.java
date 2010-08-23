@@ -117,10 +117,15 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     /**
      * Maps specified column code onto a column label. Returns column code if mapping doesn't work.
      */
-    protected String getColumnLabel(String columnCode)
+    protected String getColumnLabel(CodeAndLabel columnCode)
     {
+        String label = columnCode.getLabel();
+        if (label != null)
+        {
+            return label;
+        }
         int columnNumber = tryColumnNumberForHeader(columnCode);
-        return columnNumber < 0 ? columnCode : fileLines.getHeaderLabels()[columnNumber];
+        return columnNumber < 0 ? columnCode.getCode() : fileLines.getHeaderLabels()[columnNumber];
     }
 
     /**
@@ -140,17 +145,16 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     }
 
     /**
-     * Return the column number for the column header or -1 if none was found. Argument will
-     * be first normalized.
+     * Return the column number for the code of the column header or -1 if none was found.
      */
-    protected int tryColumnNumberForHeader(String columnHeaderCode)
+    protected int tryColumnNumberForHeader(CodeAndLabel columnHeaderCode)
     {
-        String normalizedCode = CodeAndLabel.normalize(columnHeaderCode);
+        String code = columnHeaderCode.getCode();
         String[] headers = fileLines.getHeaderCodes();
         int i = 0;
         for (String header : headers)
         {
-            if (normalizedCode.equals(header))
+            if (code.equals(header))
             {
                 return i;
             }

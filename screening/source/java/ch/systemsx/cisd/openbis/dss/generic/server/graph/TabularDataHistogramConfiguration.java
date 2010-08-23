@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -33,7 +35,7 @@ public class TabularDataHistogramConfiguration extends TabularDataGraphConfigura
      * @param imageHeight The desired height of the resulting image
      * @param numberOfBins The number of bins in the histogram
      */
-    protected TabularDataHistogramConfiguration(String title, String histogramColumn,
+    protected TabularDataHistogramConfiguration(String title, CodeAndLabel histogramColumn,
             int imageWidth, int imageHeight, int numberOfBins)
     {
         super(GraphType.HISTOGRAM, title, histogramColumn, histogramColumn, imageWidth, imageHeight);
