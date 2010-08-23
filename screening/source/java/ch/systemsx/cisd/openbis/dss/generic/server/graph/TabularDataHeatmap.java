@@ -24,6 +24,7 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
@@ -139,6 +140,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         psl.setPosition(RectangleEdge.RIGHT);
         psl.setAxisOffset(5.0);
         chart.addSubtitle(psl);
+
         return chart;
     }
 
@@ -198,6 +200,15 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         binMin += binStep;
         paintScale.add(binMin, new Color(103, 0, 31));
         return paintScale;
+    }
+
+    @Override
+    protected void configureChart(JFreeChart chart, int imageWidth, int imageHeight)
+    {
+        super.configureChart(chart, imageWidth, imageHeight);
+        PaintScaleLegend psl = (PaintScaleLegend) chart.getSubtitle(0);
+        ValueAxis axis = psl.getAxis();
+        configureAxisFonts(imageWidth, axis);
     }
 
     private HeatmapData parseData(int xColumn, int yColumn, int zColumn)

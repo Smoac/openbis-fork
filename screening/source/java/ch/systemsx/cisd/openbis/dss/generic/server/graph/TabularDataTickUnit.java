@@ -95,7 +95,7 @@ public class TabularDataTickUnit extends NumberTickUnit
         StringBuilder sb = new StringBuilder();
         if (greaterThan1)
         {
-            for (int i = 1; i < precision; ++i)
+            for (int i = 0; i < precision; ++i)
             {
                 sb.append("#");
             }

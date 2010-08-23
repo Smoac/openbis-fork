@@ -29,6 +29,7 @@ import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.DefaultXYDataset;
 
@@ -43,6 +44,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration> implements
         ITabularDataGraph
 {
+    private static final int SMALL_TICK_LABEL_FONT_SIZE = 7;
+
+    private static final int SMALL_LABEL_FONT_SIZE = 9;
+
+    private static final int SMALL_TITLE_FONT_SIZE = 12;
+
+    private static final int SMALL_FONT_TRANSITION_SIZE = 400;
+
     protected final T configuration;
 
     protected final ITabularData fileLines;
@@ -113,7 +122,7 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     {
         return getColumnLabel(configuration.getYAxisColumn());
     }
-    
+
     /**
      * Maps specified column code onto a column label. Returns column code if mapping doesn't work.
      */
@@ -249,8 +258,18 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
 
     protected void configureChart(JFreeChart chart, int imageWidth, int imageHeight)
     {
+        // Set the background color
         chart.setBackgroundPaint(Color.WHITE);
 
+        // Set the font size
+        if (imageWidth < SMALL_FONT_TRANSITION_SIZE)
+        {
+            TextTitle title = chart.getTitle();
+            Font oldFont = title.getFont();
+            title.setFont(new Font(oldFont.getName(), oldFont.getStyle(), SMALL_TITLE_FONT_SIZE));
+        }
+
+        // Configure the plot
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setBackgroundPaint(Color.WHITE);
         plot.setDomainGridlinesVisible(false);
@@ -259,12 +278,31 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
         plot.setDomainCrosshairVisible(false);
         plot.setRangeCrosshairVisible(false);
 
+        // Configure the domain axis
         ValueAxis axis = plot.getDomainAxis();
-        axis.setAutoRange(true);
         axis.setStandardTickUnits(new TabularDataTickUnitSource());
+        axis.setAutoRange(true);
+        configureAxisFonts(imageWidth, axis);
 
+        // Configure the range axis
         axis = plot.getRangeAxis();
         axis.setStandardTickUnits(new TabularDataTickUnitSource());
+        axis.setAutoRange(true);
+        configureAxisFonts(imageWidth, axis);
+    }
+
+    protected void configureAxisFonts(int imageWidth, ValueAxis axis)
+    {
+        if (imageWidth < SMALL_FONT_TRANSITION_SIZE)
+        {
+            Font oldFont = axis.getLabelFont();
+            axis
+                    .setLabelFont(new Font(oldFont.getName(), oldFont.getStyle(),
+                            SMALL_LABEL_FONT_SIZE));
+            oldFont = axis.getTickLabelFont();
+            axis.setTickLabelFont(new Font(oldFont.getName(), oldFont.getStyle(),
+                    SMALL_TICK_LABEL_FONT_SIZE));
+        }
     }
 
     protected void setAxisLabelFontSize(Axis axis)
