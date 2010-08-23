@@ -94,10 +94,10 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             headerLabels[2] = WELL_COLUMN_COLUMN;
             headerCodes = new String[headerTokensLength];
             headerCodes[0] = CodeAndLabel.normalize(WELL_NAME_COLUMN);
-            headerCodes[1] = CodeAndLabel.normalize(WELL_NAME_COLUMN);
-            headerCodes[2] = CodeAndLabel.normalize(WELL_NAME_COLUMN);
+            headerCodes[1] = CodeAndLabel.normalize(WELL_ROW_COLUMN);
+            headerCodes[2] = CodeAndLabel.normalize(WELL_COLUMN_COLUMN);
 
-            int i = 1;
+            int i = 3;
             for (CodeAndLabel featureCodeAndLabel : featureCodeAndLabels)
             {
                 headerCodes[i] = featureCodeAndLabel.getCode();
@@ -114,9 +114,9 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
                 String rowLetter = PlateUtils.translateRowNumberIntoLetterCode(pos.getWellRow());
                 String columnNumber = Integer.toString(row.getWellPosition().getWellColumn());
                 line[0] = rowLetter + columnNumber;
-                line[1] = rowLetter;
-                line[2] = columnNumber;
-                i = 1;
+                line[1] = Integer.toString(pos.getWellRow());
+                line[2] = Integer.toString(pos.getWellColumn());
+                i = 3;
                 float[] values = row.getFeatureValues();
                 for (float value : values)
                 {
@@ -124,36 +124,6 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
                 }
                 lines.add(line);
             }
-            // final ImgDatasetDTO dataSet = dao.tryGetDatasetByPermId(dataSetCode);
-            // if (dataSet == null)
-            // {
-            // throw new UserFailureException("Unkown data set " + dataSetCode);
-            // }
-            //
-            // final List<ImgFeatureDefDTO> featureDefinitions =
-            // dao.listFeatureDefsByDataSetId(dataSet.getId());
-            //
-            // int headersLength = featureDefinitions.size();
-            // headerTokens = new String[headersLength];
-            // lines = new ArrayList<String[]>();
-            // int featureDefCount = 0;
-            // for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
-            // {
-            // headerTokens[featureDefCount++] = featureDefinition.getName();
-            // }
-            // int numRows = dataSet.getFieldNumberOfRows();
-            // int numCols = dataSet.getFieldNumberOfColumns();
-            // for (int row = 0; row < numRows; ++row)
-            // {
-            // for (int col = 0; col < numCols; ++col)
-            // {
-            // for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
-            // {
-            // List<ImgFeatureValuesDTO> featureValues =
-            // dao.getFeatureValues(featureDefinition);
-            // }
-            // }
-            // }
         }
 
         public List<String[]> getDataLines()

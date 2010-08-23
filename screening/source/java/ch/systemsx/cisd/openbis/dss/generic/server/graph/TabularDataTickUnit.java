@@ -30,16 +30,27 @@ public class TabularDataTickUnit extends NumberTickUnit
 {
     private static final long serialVersionUID = 1L;
 
+    /** Constant for log(10.0). */
+    final private static double LOG_10_VALUE = Math.log(10.0);
+
     final private static int largeScientificNotationTransition = 6;
 
     final private static int smallScientificNotationTransition = 3;
 
-    /**
-     * @param size
-     */
     public TabularDataTickUnit(double size)
     {
-        super(size, getNumberFormat(Math.abs(size), size >= 1.0));
+        // The precision is determined by the number of digits in size
+        this(size, Math.abs(Math.ceil(Math.log(size) / LOG_10_VALUE)), size >= 1.0);
+    }
+
+    /**
+     * @param size The tick unit size
+     * @param precision The number of digits we want to show
+     * @param greaterThan1 Is the tick unit greater than 1?
+     */
+    public TabularDataTickUnit(double size, double precision, boolean greaterThan1)
+    {
+        super(size, getNumberFormat(precision, greaterThan1));
     }
 
     /**
@@ -99,6 +110,12 @@ public class TabularDataTickUnit extends NumberTickUnit
         }
 
         return new DecimalFormat(sb.toString());
+    }
+
+    @Override
+    public String valueToString(double value)
+    {
+        return super.valueToString(value);
     }
 
 }

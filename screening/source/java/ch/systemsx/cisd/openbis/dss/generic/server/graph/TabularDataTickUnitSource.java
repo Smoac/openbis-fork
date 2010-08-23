@@ -75,6 +75,6 @@ public class TabularDataTickUnitSource implements TickUnitSource, Serializable
         final double halfTickIncrement = fullTickIncrement / 2;
         final double tickIncrement =
                 (size <= halfTickIncrement) ? halfTickIncrement : fullTickIncrement;
-        return new TabularDataTickUnit(tickIncrement);
+        return new TabularDataTickUnit(tickIncrement, Math.abs(higher), size >= 1.0);
     }
 }

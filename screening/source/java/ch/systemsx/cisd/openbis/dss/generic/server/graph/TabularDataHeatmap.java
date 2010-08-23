@@ -216,7 +216,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             {
                 try
                 {
-                    element.x = Integer.parseInt(line[xColumn]);
+                    element.x = (int) Float.parseFloat(line[xColumn]);
                 } catch (NumberFormatException ex)
                 {
                     // handle a case when X is alphanumeric
@@ -224,7 +224,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
                             Location.tryCreateLocationFromTransposedMatrixCoordinate(
                                     line[xColumn] + "1").getY();
                 }
-                element.y = Integer.parseInt(line[yColumn]);
+                element.y = (int) Float.parseFloat(line[yColumn]);
             } else
             {
                 Location loc =

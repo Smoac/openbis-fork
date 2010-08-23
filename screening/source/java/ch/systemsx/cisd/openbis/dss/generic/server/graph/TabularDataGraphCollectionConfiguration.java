@@ -185,7 +185,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
                                 TabularDataGraphServlet.WELL_ROW_COLUMN);
                 CodeAndLabel yAxis =
                         getCodeAndLabelWithDefault(props, Y_AXIS_KEY,
-                                TabularDataGraphServlet.WELL_ROW_COLUMN);
+                                TabularDataGraphServlet.WELL_COLUMN_COLUMN);
                 CodeAndLabel zAxis = getCodeAndLabel(props, COLUMN_KEY);
                 if (xAxis.equals(yAxis))
                 {
