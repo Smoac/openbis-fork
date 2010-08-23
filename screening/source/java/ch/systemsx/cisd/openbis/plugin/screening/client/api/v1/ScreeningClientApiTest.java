@@ -112,10 +112,10 @@ public class ScreeningClientApiTest
         System.out.println("Feature vector datasets: " + featureVectorDatasets);
         loadImages(facade, getFirstFive(facade, featureVectorDatasets));
         loadImages(facade, getFirstFive(facade, imageDatasets));
-        List<String> featureNames = facade.listAvailableFeatureNames(featureVectorDatasets);
-        System.out.println("Feature names: " + featureNames);
+        List<String> featureCodes = facade.listAvailableFeatureCodes(featureVectorDatasets);
+        System.out.println("Feature codes: " + featureCodes);
         List<FeatureVectorDataset> features =
-                facade.loadFeatures(featureVectorDatasets, featureNames);
+                facade.loadFeatures(featureVectorDatasets, featureCodes);
         System.out.println("Features: " + features);
 
         Map<String, List<ImageDatasetReference>> imageDataSetReferencesPerDss =
