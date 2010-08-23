@@ -132,7 +132,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     public static final String CHANNEL_CODES = "channel-codes";
 
     // comma separated list of channel labels, order matters
-    public static final String CHANNEL_LABELS = "channel-lables";
+    public static final String CHANNEL_LABELS = "channel-labels";
 
     // -----------
 
