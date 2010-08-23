@@ -115,7 +115,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected final List<AcquiredPlateImage> getImages(String channelToken, Location plateLocation,
+    protected final List<AcquiredPlateImage> getImages(String channelCode, Location plateLocation,
             Location wellLocation, Float timepointOrNull, String imageRelativePath)
     {
         List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
@@ -132,7 +132,6 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
             }
         } else
         {
-            String channelCode = channelToken.toUpperCase();
             ensureChannelExist(channelDescriptions, channelCode);
             images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelCode,
                     timepointOrNull, null));

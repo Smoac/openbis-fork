@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
@@ -242,20 +243,20 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
             }
             Location plateLocation = tryGetPlateLocation(imageInfo.getPlateLocationToken());
             Location wellLocation = tryGetWellLocation(imageInfo.getWellLocationToken());
-            String channelToken = imageInfo.getChannelToken();
+            String channelCode = CodeAndLabel.normalize(imageInfo.getChannelToken());
 
-            if (wellLocation != null && plateLocation != null && channelToken != null)
+            if (wellLocation != null && plateLocation != null && channelCode != null)
             {
                 String imageRelativePath =
                         getRelativeImagePath(incomingDataSetDirectory, imageFile);
                 Float timepointOrNull = tryGetTimepoint(imageInfo.getTimepointToken());
                 List<AcquiredPlateImage> newImages =
-                        getImages(channelToken, plateLocation, wellLocation, timepointOrNull,
+                        getImages(channelCode, plateLocation, wellLocation, timepointOrNull,
                                 imageRelativePath);
                 acquiredImages.addAll(newImages);
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug(String.format(IMAGE_FILE_ACCEPTED, imageFile, channelToken,
+                    operationLog.debug(String.format(IMAGE_FILE_ACCEPTED, imageFile, channelCode,
                             plateLocation, wellLocation));
                 }
             } else

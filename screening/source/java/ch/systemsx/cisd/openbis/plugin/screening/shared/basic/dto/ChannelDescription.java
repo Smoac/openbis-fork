@@ -62,4 +62,10 @@ public class ChannelDescription implements IsSerializable
     {
         return label;
     }
+
+    @Override
+    public String toString()
+    {
+        return getCode();
+    }
 }
