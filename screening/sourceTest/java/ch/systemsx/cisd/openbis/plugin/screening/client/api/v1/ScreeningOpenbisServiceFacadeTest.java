@@ -152,10 +152,10 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dssService1).listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(f1id));
+                    one(dssService1).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(f1id));
                     will(returnValue(Arrays.asList("f1", "f2")));
 
-                    one(dssService2).listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(f2id));
+                    one(dssService2).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(f2id));
                     will(returnValue(Arrays.asList("f2", "f3")));
                 }
             });
