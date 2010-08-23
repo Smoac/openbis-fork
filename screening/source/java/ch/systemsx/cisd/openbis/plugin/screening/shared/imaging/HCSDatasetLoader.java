@@ -129,7 +129,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
             channelsLabels.add(StringEscapeUtils.escapeCsv(channel.getLabel()));
         }
         params.setChannelsCodes(channelsCodes);
-        params.setChannelsCodes(channelsLabels);
+        params.setChannelsLabels(channelsLabels);
         return params;
     }
 }
