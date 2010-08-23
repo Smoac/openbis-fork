@@ -21,7 +21,7 @@ psql -U postgres -c "create database $OPENBIS_DB with owner $USER template = tem
 psql -U $USER -d $OPENBIS_DB -f $ROOT_DIR/empty-screening-database.sql
 
 echo Installing openBIS Datastore Server
-unzip $ROOT_DIR/datastore*.zip
+unzip $ROOT_DIR/datastore*.zip -d $ROOT_DIR
 
 echo Installing openBIS Application Server
 unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
