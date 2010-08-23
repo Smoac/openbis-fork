@@ -205,16 +205,24 @@ public class ImageChannelsUtils
         return newImage;
     }
 
-    // NOTE: we handle only 3 channels until we know that more channels can be used and
-    // what kind of color manipulation makes sense
     private static int mergeRGBColor(List<BufferedImage> images, int x, int y)
     {
         int color[] = new int[]
             { 0, 0, 0 };
+        // standard merge of first 3 channels
         for (int channel = 1; channel <= Math.min(3, images.size()); channel++)
         {
             int rgb = images.get(channel - 1).getRGB(x, y);
             color[getRGBColorIndex(channel)] = extractChannelColorIngredient(rgb, channel);
+        }
+        // 4th=RG, 5th=RB, 6th=GB
+        for (int channel = 4; channel <= images.size(); channel++)
+        {
+            int rgb = images.get(channel - 1).getRGB(x, y);
+            for (int i : getRGBColorIndexes(channel))
+            {
+                color[i] = Math.max(color[i], extractMaxColorIngredient(rgb));
+            }
         }
         int mergedRGB = asRGB(color);
         return mergedRGB;
@@ -292,6 +300,24 @@ public class ImageChannelsUtils
         return 3 - channel;
     }
 
+    private static int[] getRGBColorIndexes(int channel)
+    {
+        assert channel <= 6 : "to many channels: " + channel;
+        if (channel == 4)
+        {
+            return new int[]
+                { 1, 2 };
+        } else if (channel == 5)
+        {
+            return new int[]
+                { 1, 3 };
+        } else
+        {
+            return new int[]
+                { 2, 3 };
+        }
+    }
+
     // we assume that the color was in a grayscale
     // we reset all ingredients besides the one which should be shown
     private static int getGrayscaleAsChannel(int rgb, ColorComponent colorComponent)
@@ -306,6 +332,14 @@ public class ImageChannelsUtils
         int channelColors[] = new int[]
             { c.getBlue(), c.getGreen(), c.getRed() };
         return channelColors[channelNumber - 1];
+    }
+
+    // returns the max ingredient for the color
+    private static int extractMaxColorIngredient(int rgb)
+    {
+        Color c = new Color(rgb);
+        int maxIngredient = Math.max(Math.max(c.getBlue(), c.getGreen()), c.getRed());
+        return maxIngredient;
     }
 
     private static int asRGB(int[] rgb)
