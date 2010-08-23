@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -188,12 +189,27 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         this.currentTransaction = null;
     }
 
+    private final static List<String> tryGetListOfLabels(Properties properties, String propertyKey)
+    {
+        String itemsList = PropertyUtils.getProperty(properties, propertyKey);
+        if (itemsList == null)
+        {
+            return null;
+        }
+        String[] items = itemsList.split(",");
+        for (int i = 0; i < items.length; i++)
+        {
+            items[i] = items[i].trim();
+        }
+        return Arrays.asList(items);
+    }
+
     public final static List<ChannelDescription> extractChannelDescriptions(
             final Properties properties)
     {
         List<String> names = PropertyUtils.tryGetList(properties, CHANNEL_NAMES);
         List<String> codes = PropertyUtils.tryGetList(properties, CHANNEL_CODES);
-        List<String> labels = PropertyUtils.tryGetList(properties, CHANNEL_LABELS);
+        List<String> labels = tryGetListOfLabels(properties, CHANNEL_LABELS);
         if (names != null && (codes != null || labels != null))
         {
             throw new ConfigurationFailureException(String.format(
