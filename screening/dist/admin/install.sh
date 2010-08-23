@@ -10,13 +10,15 @@ fi
 source $BASE/env
 
 ROOT_DIR=$BASE/../servers
-CONFIG=$BASE/../config
-BACKUP_DIR=$BASE/../old
+BACKUP_DIR=$BASE/../backup
+
+mkdir -p $ROOT_DIR
+mkdir -p $BACKUP_DIR
 
 echo Restoring empty screening database
 USER=`whoami`
 psql -U postgres -c "create database $OPENBIS_DB with owner $USER template = template0 encoding = 'UNICODE'"
-psql -U $USER -d $OPENBIS_DB -f $CONFIG/empty-screening-database.sql
+psql -U $USER -d $OPENBIS_DB -f $ROOT_DIR/empty-screening-database.sql
 
 echo Installing openBIS Datastore Server
 unzip $ROOT_DIR/datastore*.zip
@@ -24,8 +26,6 @@ unzip $ROOT_DIR/datastore*.zip
 echo Installing openBIS Application Server
 unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
 $ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
-
-$BASE/restore-config-from-backup.sh $CONFIG
 
 mv $ROOT_DIR/*.zip $BACKUP_DIR/
 $BASE/bisup.sh

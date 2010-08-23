@@ -7,7 +7,7 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-source $BASE/env
+alias rm='rm'
 
 SVN=svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin
 cd $BASE
