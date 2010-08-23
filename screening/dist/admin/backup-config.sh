@@ -2,6 +2,7 @@
 # makes a backup of all configuration files to the specified directory
 
 CONF=$1
+mkdir -p $CONF
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
