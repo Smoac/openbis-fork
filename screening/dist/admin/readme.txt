@@ -5,6 +5,9 @@ How to install 'openbis for Screening' from scratch:
   mkdir bin
   cd bin
   wget svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin/svn-update.sh
+  wget svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin/env
+  wget svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin/empty-screening-database.sql
   . ./svn-update.sh
+- adapt the 'bin/env' file 
 - run install script
 	bin/install.sh
