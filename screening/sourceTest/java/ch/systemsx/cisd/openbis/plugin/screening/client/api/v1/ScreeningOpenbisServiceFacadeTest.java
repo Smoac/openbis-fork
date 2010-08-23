@@ -174,9 +174,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
                 new FeatureVectorDatasetReference(DATA_SET1, URL1, null, null, null, null, i1id);
         final FeatureVectorDatasetReference r2 =
                 new FeatureVectorDatasetReference(DATA_SET2, URL2, null, null, null, null, i2id);
-        final FeatureVectorDataset ds1 = new FeatureVectorDataset(r1, null, null);
-        final FeatureVectorDataset ds2 = new FeatureVectorDataset(r2, null, null);
-        final FeatureVectorDataset ds3 = new FeatureVectorDataset(r2, null, null);
+        final FeatureVectorDataset ds1 = new FeatureVectorDataset(r1, null, null, null);
+        final FeatureVectorDataset ds2 = new FeatureVectorDataset(r2, null, null, null);
+        final FeatureVectorDataset ds3 = new FeatureVectorDataset(r2, null, null, null);
         context.checking(new Expectations()
             {
                 {

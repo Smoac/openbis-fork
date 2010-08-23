@@ -22,12 +22,6 @@ public class FeatureVectorDataset implements Serializable
     
     private final List<FeatureVector> featureVectors;
 
-    public FeatureVectorDataset(FeatureVectorDatasetReference dataset, List<String> featureNames,
-            List<FeatureVector> featureVectors)
-    {
-        this(dataset, featureNames, featureNames, featureVectors);
-    }
-
     public FeatureVectorDataset(FeatureVectorDatasetReference dataset, List<String> featureCodes,
             List<String> featureLabels, List<FeatureVector> featureVectors)
     {
