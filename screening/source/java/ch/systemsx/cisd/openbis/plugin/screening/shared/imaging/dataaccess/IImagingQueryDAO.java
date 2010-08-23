@@ -108,8 +108,9 @@ public interface IImagingQueryDAO extends TransactionQuery
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select("select code from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by CODE")
-    public String[] getChannelCodesByDatasetIdOrExperimentId(long datasetId, long experimentId);
+    @Select("select * from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by CODE")
+    public List<ImgChannelDTO> getChannelsByDatasetIdOrExperimentId(long datasetId,
+            long experimentId);
 
     @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by LABEL", fetchSize = FETCH_SIZE)
     public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);

@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -26,6 +25,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImagePara
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -47,7 +47,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     protected Integer channelCount;
 
-    protected List<String> channelCodes;
+    protected List<ImgChannelDTO> channels;
 
     public HCSDatasetLoader(IImagingQueryDAO query, String datasetPermId)
     {
@@ -57,10 +57,9 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         {
             throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
         }
-        String[] codesAsArray =
-                query.getChannelCodesByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
+        this.channels =
+                query.getChannelsByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
                         .getExperimentId());
-        this.channelCodes = new ArrayList<String>(Arrays.asList(codesAsArray));
     }
 
     /** has to be called at the end */
@@ -85,7 +84,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     public int getChannelCount()
     {
-        return channelCodes.size();
+        return channels.size();
     }
 
     public List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocation)
@@ -122,12 +121,15 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         params.setTileRowsNum(getDataset().getFieldNumberOfRows());
         params.setTileColsNum(getDataset().getFieldNumberOfColumns());
         params.setIsMultidimensional(dataset.getIsMultidimensional());
-        List<String> escapedChannelCodes = new ArrayList<String>();
-        for (String name : channelCodes)
+        List<String> channelsCodes = new ArrayList<String>();
+        List<String> channelsLabels = new ArrayList<String>();
+        for (ImgChannelDTO channel : channels)
         {
-            escapedChannelCodes.add(StringEscapeUtils.escapeCsv(name));
+            channelsCodes.add(StringEscapeUtils.escapeCsv(channel.getCode()));
+            channelsLabels.add(StringEscapeUtils.escapeCsv(channel.getLabel()));
         }
-        params.setChannelsCodes(escapedChannelCodes);
+        params.setChannelsCodes(channelsCodes);
+        params.setChannelsCodes(channelsLabels);
         return params;
     }
 }

@@ -163,10 +163,12 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         // test countChannelByDatasetIdOrExperimentId
         assertEquals(2, dao.countChannelByDatasetIdOrExperimentId(datasetId, experimentId));
-        String[] channelNames =
-                dao.getChannelCodesByDatasetIdOrExperimentId(datasetId, experimentId);
-        assertEquals("DSCHANNEL", channelNames[0]);
-        assertEquals("EXPCHANNEL", channelNames[1]);
+        List<ImgChannelDTO> channelDTOS =
+                dao.getChannelsByDatasetIdOrExperimentId(datasetId, experimentId);
+        assertEquals("DSCHANNEL", channelDTOS.get(0).getCode());
+        assertEquals(CHANNEL_LABEL, channelDTOS.get(0).getLabel());
+        assertEquals("EXPCHANNEL", channelDTOS.get(1).getCode());
+        assertEquals(CHANNEL_LABEL, channelDTOS.get(1).getLabel());
 
         // test getChannelIdsByDatasetIdOrExperimentId
         long[] channels = dao.getChannelIdsByDatasetIdOrExperimentId(datasetId, experimentId);

@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
+ * Describes channel by code and label.
+ * 
  * @author Izabela Adamczyk
  */
-public class ChannelDescription
+public class ChannelDescription implements IsSerializable
 {
 
     private final String code;

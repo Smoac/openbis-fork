@@ -205,9 +205,9 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         final String geneCode = "MYGENE";
         final MaterialIdentifier materialIdentifier =
                 new MaterialIdentifier(MaterialTypeIdentifier.GENE, geneCode);
-        final PlateWellReferenceWithDatasets pwRef = new PlateWellReferenceWithDatasets(new Plate(
-                null, null, null, ExperimentIdentifier.createFromPermId(null)),
-                new WellPosition(1, 2));
+        final PlateWellReferenceWithDatasets pwRef =
+                new PlateWellReferenceWithDatasets(new Plate(null, null, null, ExperimentIdentifier
+                        .createFromPermId(null)), new WellPosition(1, 2));
         context.checking(new Expectations()
             {
                 {
@@ -216,7 +216,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
                 }
             });
 
-        final List<PlateWellReferenceWithDatasets> ref = facade.listPlateWells(materialIdentifier, false);
+        final List<PlateWellReferenceWithDatasets> ref =
+                facade.listPlateWells(materialIdentifier, false);
         assertEquals(1, ref.size());
         assertEquals(pwRef, ref.get(0));
 
@@ -265,10 +266,14 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
     @Test
     public void testListImageMetaData()
     {
-        List<String> channelNames = Arrays.asList("channel1");
-        final ImageDatasetMetadata m1 = new ImageDatasetMetadata(i1id, channelNames, 1, 1, 1);
-        final ImageDatasetMetadata m2 = new ImageDatasetMetadata(i1id, channelNames, 1, 1, 1);
-        final ImageDatasetMetadata m3 = new ImageDatasetMetadata(i2id, channelNames, 1, 1, 1);
+        List<String> channelCodes = Arrays.asList("channel1");
+        List<String> channelLabels = Arrays.asList("Channel 1");
+        final ImageDatasetMetadata m1 =
+                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1);
+        final ImageDatasetMetadata m2 =
+                new ImageDatasetMetadata(i1id, channelCodes, channelLabels, 1, 1, 1);
+        final ImageDatasetMetadata m3 =
+                new ImageDatasetMetadata(i2id, channelCodes, channelLabels, 1, 1, 1);
         context.checking(new Expectations()
             {
                 {

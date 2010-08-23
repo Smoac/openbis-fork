@@ -172,8 +172,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         PlateImageParameters params = imageAccessor.getImageParameters();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
         BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
-        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), tilesNumber, image
-                .getWidth(), image.getHeight());
+        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
+                .getChannelsLabels(), tilesNumber, image.getWidth(), image.getHeight());
     }
 
     private static IContent getAnyImagePath(IHCSImageDatasetLoader imageAccessor,
@@ -232,7 +232,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         List<String> labels = getLabels(builder);
         return new FeatureVectorDataset(dataset, codes, labels, featureVectors);
     }
-    
+
     private List<String> normalize(List<String> names)
     {
         ArrayList<String> codes = new ArrayList<String>(names.size());
@@ -288,7 +288,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         }
         return labels;
     }
-    
+
     private FeatureVectorWithDescription createFeatureVector(FeatureTableRow featureTableRow,
             final List<String> featureCodes)
     {

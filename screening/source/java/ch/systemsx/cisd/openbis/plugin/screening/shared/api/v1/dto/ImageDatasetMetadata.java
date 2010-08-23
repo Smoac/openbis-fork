@@ -18,17 +18,23 @@ public class ImageDatasetMetadata implements Serializable
 
     private final List<String> channelNames;
 
+    private final List<String> channelCodes;
+
+    private final List<String> channelLabels;
+
     private final int tilesNumber;
 
     private final int width;
 
     private final int height;
 
-    public ImageDatasetMetadata(IImageDatasetIdentifier dataset, List<String> channelNames,
-            int tilesNumber, int width, int height)
+    public ImageDatasetMetadata(IImageDatasetIdentifier dataset, List<String> channelCodes,
+            List<String> channelLabels, int tilesNumber, int width, int height)
     {
         this.imageDataset = dataset;
-        this.channelNames = channelNames;
+        this.channelNames = channelCodes;
+        this.channelCodes = channelCodes;
+        this.channelLabels = channelLabels;
         this.channelsNumber = channelNames.size();
         this.tilesNumber = tilesNumber;
         this.width = width;
@@ -50,11 +56,30 @@ public class ImageDatasetMetadata implements Serializable
     }
 
     /**
-     * codes of channels in which images have been acquired for the described dataset
+     * names of channels in which images have been acquired for the described dataset
      */
+    @Deprecated
     public List<String> getChannelNames()
     {
         return channelNames;
+    }
+
+    /**
+     * Returns channel codes. If channel codes are unspecified channel names are returned. This will
+     * be the case if a serialized instance of a previous of this class will be deserialized.
+     */
+    public List<String> getChannelCodes()
+    {
+        return channelCodes == null ? channelNames : channelCodes;
+    }
+
+    /**
+     * Returns channel labels. If channel labels are unspecified channel names are returned. This
+     * will be the case if a serialized instance of a previous of this class will be deserialized.
+     */
+    public List<String> getChannelLabels()
+    {
+        return channelLabels == null ? channelNames : channelLabels;
     }
 
     /**
@@ -80,7 +105,7 @@ public class ImageDatasetMetadata implements Serializable
     @Override
     public String toString()
     {
-        return "Dataset " + imageDataset + " has [" + channelNames + "] channels, " + tilesNumber
-                + " tiles. Images resolution: " + width + "x" + height;
+        return "Dataset " + imageDataset + " has [" + getChannelCodes() + "] channels, "
+                + tilesNumber + " tiles. Images resolution: " + width + "x" + height;
     }
 }
