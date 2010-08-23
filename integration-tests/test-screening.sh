@@ -143,6 +143,8 @@ function integration_tests_screening {
     assert_equals "Wrong number of registered datasets" 5 $datasets
     
     assertSpotSizes "24x16,24x16,24x16" 
+    assertFeatureVectorDef HITRATE "Hit Rate"
+    assertFeatureVectorDef CELLNUMBER cellNumber
     # TODO: add a check if the results are correct
     test_screening_api
     
@@ -156,6 +158,14 @@ function assertSpotSizes {
             -c "select spots_width,spots_height from containers order by spots_width"`
     
     assert_equals "spot sizes" "$1" $answer 
+}
+
+function assertFeatureVectorDef {
+    local psql=`run_psql`
+    local result=`$psql -t -U postgres -d $IMAGING_DB \
+       -c "select label from feature_defs where code = '$1'"  \
+       | awk '{gsub(/\|/,";");print}'`
+    assert_equals "Feature code and label" " $2" "$result"
 }
 
 # can be called after integration tests are done just to check the API results
