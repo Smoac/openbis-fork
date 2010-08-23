@@ -31,8 +31,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -176,7 +177,7 @@ public class DataStoreServer
     private static void initializeServer(final ConfigParameters configParameters, final int port,
             final Server thisServer)
     {
-        final SocketConnector socketConnector = createSocketConnector(configParameters);
+        final Connector socketConnector = createSocketConnector(configParameters);
         socketConnector.setPort(port);
         socketConnector.setMaxIdleTime(30000);
         thisServer.addConnector(socketConnector);
@@ -276,7 +277,7 @@ public class DataStoreServer
         }
     }
 
-    private static SocketConnector createSocketConnector(ConfigParameters configParameters)
+    private static Connector createSocketConnector(ConfigParameters configParameters)
     {
         if (configParameters.isUseSSL())
         {
@@ -288,7 +289,7 @@ public class DataStoreServer
         } else
         {
             operationLog.warn("creating connector to openBIS without SSL");
-            return new SocketConnector();
+            return new SelectChannelConnector();
         }
     }
 
