@@ -7,4 +7,4 @@ if [ ${BASE#/} == ${BASE} ]; then
 fi
 
 echo Shutting openBIS down...
-$BASE/../openBIS-server/jetty/bin/shutdown.sh
+$BASE/../servers/openBIS-server/jetty/bin/shutdown.sh

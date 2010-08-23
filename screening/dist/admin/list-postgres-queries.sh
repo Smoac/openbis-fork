@@ -1,4 +1,11 @@
 #!/bin/bash
 # lists all queries which are currently executed by the database engine
 
-psql -U openbis -c "select datname,procpid,usename,current_query,waiting,xact_start FROM pg_catalog.pg_stat_activity" 
+BASE=`dirname "$0"`
+if [ ${BASE#/} == ${BASE} ]; then
+    BASE="`pwd`/${BASE}"
+fi
+
+source $BASE/env
+
+psql -U $DB_USER_NAME -c "select datname,procpid,usename,current_query,waiting,xact_start FROM pg_catalog.pg_stat_activity" 

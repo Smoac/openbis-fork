@@ -9,9 +9,9 @@ fi
 
 source $BASE/env
 
-ROOT_DIR=$BASE/..
-CONFIG=$ROOT_DIR/config
-BACKUP_DIR=$ROOT_DIR/old
+ROOT_DIR=$BASE/../servers
+CONFIG=$BASE/../config
+BACKUP_DIR=$BASE/../old
 
 echo Restoring empty screening database
 USER=`whoami`

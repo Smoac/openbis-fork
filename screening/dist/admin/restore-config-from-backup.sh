@@ -9,7 +9,7 @@ if [ ${BASE#/} == ${BASE} ]; then
     BASE="`pwd`/${BASE}"
 fi
 
-ROOT=$BASE/..
+ROOT=$BASE/../servers
 
 cp $CONF/service.properties $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties
 cp $CONF/datastore_servere-service.properties $ROOT/datastore_server/etc/service.properties

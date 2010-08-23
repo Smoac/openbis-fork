@@ -9,8 +9,8 @@ fi
 
 source $BASE/env
 
-ROOT_DIR=$BASE/..
-BACKUP_DIR=$ROOT_DIR/old
+ROOT_DIR=$BASE/../servers
+BACKUP_DIR=$BASE/../old
 
 $BASE/alldown.sh
 
