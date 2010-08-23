@@ -24,7 +24,6 @@ import java.util.List;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
@@ -47,6 +46,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
  */
 public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeatmapConfiguration>
 {
+
+    private static final int PAINT_SCALE_NUM_STEPS = 11;
 
     /**
      * @param configuration
@@ -107,7 +108,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             throw new IllegalArgumentException("Null 'orientation' argument.");
         }
         NumberAxis xAxis = new NumberAxis(xAxisLabel);
-        xAxis.setTickUnit(new NumberTickUnit(1.0));
+        xAxis.setTickUnit(new SpreadsheetColumnTickUnit(1.0));
         xAxis.setInverted(true);
         NumberAxis yAxis = new NumberAxis(yAxisLabel);
 
@@ -130,6 +131,9 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
         NumberAxis scaleAxis = new NumberAxis("Scale");
         scaleAxis.setRange(dataset.getRange());
         scaleAxis.setStandardTickUnits(new TabularDataTickUnitSource());
+        scaleAxis.setTickUnit(new TabularDataTickUnit(dataset.getRange().getLength()
+                / PAINT_SCALE_NUM_STEPS));
+        scaleAxis.setAutoRange(true);
         PaintScaleLegend psl = new PaintScaleLegend(paintScale, scaleAxis);
         psl.setMargin(new RectangleInsets(5, 5, 5, 5));
         psl.setPosition(RectangleEdge.RIGHT);
@@ -160,7 +164,7 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
 
         LookupPaintScale paintScale = new LookupPaintScale(lowerBound, upperBound, Color.WHITE);
         double binMin = range.getLowerBound();
-        double binStep = range.getLength() / 11;
+        double binStep = range.getLength() / PAINT_SCALE_NUM_STEPS;
         // 1
         paintScale.add(binMin, new Color(5, 48, 97));
         // 2

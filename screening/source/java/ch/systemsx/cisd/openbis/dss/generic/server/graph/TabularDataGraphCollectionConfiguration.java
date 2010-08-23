@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.server.TabularDataGraphServlet;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
@@ -177,8 +178,14 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         switch (type)
         {
             case HEATMAP:
-                CodeAndLabel xAxis = getCodeAndLabel(props, X_AXIS_KEY);
-                CodeAndLabel yAxis = getCodeAndLabel(props, Y_AXIS_KEY);
+                // Default the Row and Column header names to the standard ones if no override is
+                // specified.
+                CodeAndLabel xAxis =
+                        getCodeAndLabelWithDefault(props, X_AXIS_KEY,
+                                TabularDataGraphServlet.WELL_ROW_COLUMN);
+                CodeAndLabel yAxis =
+                        getCodeAndLabelWithDefault(props, Y_AXIS_KEY,
+                                TabularDataGraphServlet.WELL_ROW_COLUMN);
                 CodeAndLabel zAxis = getCodeAndLabel(props, COLUMN_KEY);
                 if (xAxis.equals(yAxis))
                 {
@@ -203,7 +210,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         // should never get here
         return null;
     }
-    
+
     private CodeAndLabel getCodeAndLabel(Properties properties, String key)
     {
         String labelWithOptionalCode = properties.getProperty(key);
@@ -219,6 +226,30 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         {
             throw new IllegalArgumentException("Missing one of the following properties: " + key
                     + ", " + codeKey + ", " + labelKey);
+        }
+        if (code == null)
+        {
+            return new CodeAndLabel(label);
+        }
+        return new CodeAndLabel(code, label);
+    }
+
+    private CodeAndLabel getCodeAndLabelWithDefault(Properties properties, String key,
+            String defaultLabel)
+    {
+        String labelWithOptionalCode = properties.getProperty(key);
+        if (labelWithOptionalCode != null)
+        {
+            return new CodeAndLabel(labelWithOptionalCode);
+        }
+        String labelKey = key + LABEL_POSTFIX;
+        String label = properties.getProperty(labelKey);
+        String codeKey = key + CODE_POSTFIX;
+        String code = properties.getProperty(codeKey);
+        if (label == null && code == null)
+        {
+            label = defaultLabel;
+            code = CodeAndLabel.normalize(label);
         }
         if (code == null)
         {

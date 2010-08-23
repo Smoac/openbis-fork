@@ -47,6 +47,10 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
     private IEncapsulatedOpenBISService openBisService;
 
+    final public static String WELL_ROW_COLUMN = "Row";
+
+    final public static String WELL_COLUMN_COLUMN = "Column";
+
     /**
      * An CSV-file-like interface to feature data from the database.
      * 
@@ -56,10 +60,6 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
     {
         private static final String WELL_NAME_COLUMN = "WellName";
 
-        private static final String WELL_ROW_COLUMN = "Row";
-
-        private static final String WELL_COLUMN_COLUMN = "Column";
-
         private final IImagingQueryDAO dao;
 
         private final IEncapsulatedOpenBISService service;
@@ -67,7 +67,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
         private final String dataSetCode;
 
         private String[] headerCodes;
-        
+
         private String[] headerLabels;
 
         private ArrayList<String[]> lines;

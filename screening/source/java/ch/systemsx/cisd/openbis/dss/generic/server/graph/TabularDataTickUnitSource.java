@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
 
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.TickUnit;
 import org.jfree.chart.axis.TickUnitSource;
 
@@ -38,10 +36,6 @@ public class TabularDataTickUnitSource implements TickUnitSource, Serializable
 
     /** Constant for log(10.0). */
     final private static double LOG_10_VALUE = Math.log(10.0);
-
-    final private int largeScientificNotationTransition = 6;
-
-    final private int smallScientificNotationTransition = 3;
 
     /**
      * Returns a tick unit that is larger than the supplied unit.
@@ -75,75 +69,12 @@ public class TabularDataTickUnitSource implements TickUnitSource, Serializable
      */
     public TickUnit getCeilingTickUnit(double size)
     {
-        // Use number of decimal digits to determine what the tick size and display format should
-        // be.
         final double numberOfDigits = Math.log(size) / LOG_10_VALUE;
         final double higher = Math.ceil(numberOfDigits);
-        final DecimalFormat numberFormat = getNumberFormat(Math.abs(higher), size >= 1.0);
         final double fullTickIncrement = Math.pow(10, higher);
         final double halfTickIncrement = fullTickIncrement / 2;
         final double tickIncrement =
                 (size <= halfTickIncrement) ? halfTickIncrement : fullTickIncrement;
-        return new NumberTickUnit(tickIncrement, numberFormat);
-    }
-
-    /**
-     * Use the precision to determine if we should return standard or scientific notation.
-     * 
-     * @param precision The desired precision of the numbers to display.
-     * @param greaterThan1 True if the numbers to be shown are greater then 1
-     */
-    private DecimalFormat getNumberFormat(double precision, boolean greaterThan1)
-    {
-        DecimalFormat numberFormat;
-        if (greaterThan1)
-        {
-            if (precision > largeScientificNotationTransition)
-            {
-                numberFormat = new DecimalFormat("0.0##E0");
-            } else
-            {
-                numberFormat = getStandardNumberFormat((int) precision, greaterThan1);
-            }
-        } else
-        {
-            if (precision > smallScientificNotationTransition)
-            {
-                numberFormat = new DecimalFormat("0.0##E0");
-            } else
-            {
-                numberFormat = getStandardNumberFormat((int) precision, greaterThan1);
-            }
-        }
-        return numberFormat;
-    }
-
-    /**
-     * Return a DecimalFormat that uses standard notation (not scientific notation).
-     * 
-     * @param precision The desired precision of the numbers to display.
-     * @param greaterThan1 True if the numbers to be shown are greater then 1
-     */
-    private DecimalFormat getStandardNumberFormat(int precision, boolean greaterThan1)
-    {
-        StringBuilder sb = new StringBuilder();
-        if (greaterThan1)
-        {
-            for (int i = 1; i < precision; ++i)
-            {
-                sb.append("#");
-            }
-            sb.append("0");
-        } else
-        {
-            sb.append("0.0");
-            for (int i = 0; i < precision - 1; ++i)
-            {
-                sb.append("0");
-            }
-        }
-
-        return new DecimalFormat(sb.toString());
-
+        return new TabularDataTickUnit(tickIncrement);
     }
 }
