@@ -33,6 +33,7 @@ import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 
 /**
  * Abstract superclass for the different kinds of graphs.
@@ -139,15 +140,17 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     }
 
     /**
-     * Return the column number for the column header or -1 if none was found
+     * Return the column number for the column header or -1 if none was found. Argument will
+     * be first normalized.
      */
     protected int tryColumnNumberForHeader(String columnHeaderCode)
     {
+        String normalizedCode = CodeAndLabel.normalize(columnHeaderCode);
         String[] headers = fileLines.getHeaderCodes();
         int i = 0;
         for (String header : headers)
         {
-            if (columnHeaderCode.equals(header))
+            if (normalizedCode.equals(header))
             {
                 return i;
             }

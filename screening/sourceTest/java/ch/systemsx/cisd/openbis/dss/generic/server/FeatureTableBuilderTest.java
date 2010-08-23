@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
@@ -85,7 +85,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE1);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE2);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE3);
-        List<CodeAndTitle> codesAndLabels = builder.getCodesAndLabels();
+        List<CodeAndLabel> codesAndLabels = builder.getCodesAndLabels();
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
         
         assertEquals("[<A> a, <B> b, <B> beta, <C> c]", codesAndLabels.toString());
@@ -110,7 +110,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE1);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE2);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE3);
-        List<CodeAndTitle> codesAndLabels = builder.getCodesAndLabels();
+        List<CodeAndLabel> codesAndLabels = builder.getCodesAndLabels();
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
         
         assertEquals("[<B> b, <B> beta]", codesAndLabels.toString());
@@ -142,7 +142,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
                     for (int i = 0; i < featureCodesAndLabels.length; i++)
                     {
                         String codeAndLabels = featureCodesAndLabels[i];
-                        CodeAndTitle codeAndTitle = new CodeAndTitle(codeAndLabels);
+                        CodeAndLabel codeAndTitle = new CodeAndLabel(codeAndLabels);
                         String title = codeAndTitle.getTitle();
                         String code = codeAndTitle.getCode();
                         if (filteredCodeOrNull == null || filteredCodeOrNull.equals(code))

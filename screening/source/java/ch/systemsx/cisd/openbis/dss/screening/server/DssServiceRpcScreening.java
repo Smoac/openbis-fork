@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackRefer
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
@@ -250,9 +250,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     
     private List<String> getCodes(FeatureTableBuilder builder)
     {
-        List<CodeAndTitle> featureCodesAndLabels = builder.getCodesAndLabels();
+        List<CodeAndLabel> featureCodesAndLabels = builder.getCodesAndLabels();
         List<String> codes = new ArrayList<String>();
-        for (CodeAndTitle codeAndTitle : featureCodesAndLabels)
+        for (CodeAndLabel codeAndTitle : featureCodesAndLabels)
         {
             codes.add(codeAndTitle.getCode());
         }

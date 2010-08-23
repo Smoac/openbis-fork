@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPlugi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -85,14 +85,14 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
             String dataSetCode = datasetDescription.getDatasetCode();
             featureTableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
         }
-        List<CodeAndTitle> codeAndLabels = featureTableBuilder.getCodesAndLabels();
+        List<CodeAndLabel> codeAndLabels = featureTableBuilder.getCodesAndLabels();
         List<FeatureTableRow> rows = featureTableBuilder.createFeatureTableRows();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(DATA_SET_CODE_TITLE);
         builder.addHeader(PLATE_IDENTIFIER_TITLE);
         builder.addHeader(ROW_TITLE);
         builder.addHeader(COLUMN_TITLE);
-        for (CodeAndTitle codeAndLabel : codeAndLabels)
+        for (CodeAndLabel codeAndLabel : codeAndLabels)
         {
             builder.addHeader(codeAndLabel.getTitle(), codeAndLabel.getCode());
         }

@@ -29,7 +29,7 @@ import java.util.Map.Entry;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
@@ -64,7 +64,7 @@ public class FeatureTableBuilder
 
     private final List<Bundle> bundles;
 
-    private final Map<CodeAndTitle, Integer> featureCodeLabelToIndexMap;
+    private final Map<CodeAndLabel, Integer> featureCodeLabelToIndexMap;
 
     private final Set<String> featureCodes;
     
@@ -89,7 +89,7 @@ public class FeatureTableBuilder
         this.dao = dao;
         this.service = service;
         bundles = new ArrayList<Bundle>();
-        featureCodeLabelToIndexMap = new LinkedHashMap<CodeAndTitle, Integer>();
+        featureCodeLabelToIndexMap = new LinkedHashMap<CodeAndLabel, Integer>();
         this.featureCodes = new LinkedHashSet<String>(featureCodes);
         this.useAllFeatures = featureCodes.isEmpty();
     }
@@ -135,7 +135,7 @@ public class FeatureTableBuilder
             final ImgFeatureDefDTO featureDefinition = featureCodeToDefMap.get(featureCode);
             if (featureDefinition != null)
             {
-                CodeAndTitle codeAndLabel = getCodeAndLabel(featureDefinition);
+                CodeAndLabel codeAndLabel = getCodeAndLabel(featureDefinition);
                 if (featureCodeLabelToIndexMap.containsKey(codeAndLabel) == false)
                 {
                     featureCodeLabelToIndexMap.put(codeAndLabel,
@@ -158,9 +158,9 @@ public class FeatureTableBuilder
      * Returns all feature codes/labels found. If the feature code list in the constructor is not empty the
      * result will a list where the codes are a subset of this list.
      */
-    public List<CodeAndTitle> getCodesAndLabels()
+    public List<CodeAndLabel> getCodesAndLabels()
     {
-        return new ArrayList<CodeAndTitle>(featureCodeLabelToIndexMap.keySet());
+        return new ArrayList<CodeAndLabel>(featureCodeLabelToIndexMap.keySet());
     }
 
     /**
@@ -234,9 +234,9 @@ public class FeatureTableBuilder
         return row;
     }
     
-    private CodeAndTitle getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)
+    private CodeAndLabel getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)
     {
-        return new CodeAndTitle(featureDefinition.getCode(), featureDefinition.getLabel());
+        return new CodeAndLabel(featureDefinition.getCode(), featureDefinition.getLabel());
     }
 
 }

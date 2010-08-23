@@ -23,7 +23,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndTitle;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
@@ -86,19 +86,19 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             final FeatureTableBuilder tableBuilder = new FeatureTableBuilder(dao, service);
             tableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
 
-            List<CodeAndTitle> featureCodeAndLabels = tableBuilder.getCodesAndLabels();
+            List<CodeAndLabel> featureCodeAndLabels = tableBuilder.getCodesAndLabels();
             int headerTokensLength = featureCodeAndLabels.size() + 3;
             headerLabels = new String[headerTokensLength];
             headerLabels[0] = WELL_NAME_COLUMN;
             headerLabels[1] = WELL_ROW_COLUMN;
             headerLabels[2] = WELL_COLUMN_COLUMN;
             headerCodes = new String[headerTokensLength];
-            headerCodes[0] = CodeAndTitle.normalize(WELL_NAME_COLUMN);
-            headerCodes[1] = CodeAndTitle.normalize(WELL_NAME_COLUMN);
-            headerCodes[2] = CodeAndTitle.normalize(WELL_NAME_COLUMN);
+            headerCodes[0] = CodeAndLabel.normalize(WELL_NAME_COLUMN);
+            headerCodes[1] = CodeAndLabel.normalize(WELL_NAME_COLUMN);
+            headerCodes[2] = CodeAndLabel.normalize(WELL_NAME_COLUMN);
 
             int i = 1;
-            for (CodeAndTitle featureCodeAndLabel : featureCodeAndLabels)
+            for (CodeAndLabel featureCodeAndLabel : featureCodeAndLabels)
             {
                 headerCodes[i] = featureCodeAndLabel.getCode();
                 headerLabels[i++] = featureCodeAndLabel.getTitle();
