@@ -28,7 +28,5 @@ unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
 $ROOT_DIR/openBIS-server/install.sh $ROOT_DIR/openBIS-server
 
 mv $ROOT_DIR/*.zip $BACKUP_DIR/
-$BASE/bisup.sh
-sleep 20
-$BASE/dssup.sh
+
 
