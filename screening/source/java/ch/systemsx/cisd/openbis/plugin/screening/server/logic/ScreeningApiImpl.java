@@ -164,7 +164,12 @@ public class ScreeningApiImpl
         ISampleTypeDAO sampleTypeDAO = daoFactory.getSampleTypeDAO();
         SampleTypePE plateTypePE =
                 sampleTypeDAO.tryFindSampleTypeByCode(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
-        assert plateTypePE != null : "plate type not found";
+        if (plateTypePE == null)
+        {
+            throw new Error(
+                    "The database has not been initialized properly for screening, sample type '"
+                            + ScreeningConstants.PLATE_PLUGIN_TYPE_CODE + "' not found.");
+        }
         return SampleTypeTranslator.translate(plateTypePE, null);
     }
 
