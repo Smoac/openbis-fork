@@ -147,19 +147,19 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
     }
 
     @Test
-    public void testAvailableFeatureNames()
+    public void testAvailableFeatureCodes()
     {
         context.checking(new Expectations()
             {
                 {
-                    one(dssService1).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(f1id));
+                    one(dssService1).listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(f1id));
                     will(returnValue(Arrays.asList("f1", "f2")));
 
-                    one(dssService2).listAvailableFeatureNames(SESSION_TOKEN, Arrays.asList(f2id));
+                    one(dssService2).listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(f2id));
                     will(returnValue(Arrays.asList("f2", "f3")));
                 }
             });
-        List<String> names = facade.listAvailableFeatureNames(Arrays.asList(f1id, f2id));
+        List<String> names = facade.listAvailableFeatureCodes(Arrays.asList(f1id, f2id));
         Collections.sort(names);
 
         assertEquals("[f1, f2, f3]", names.toString());

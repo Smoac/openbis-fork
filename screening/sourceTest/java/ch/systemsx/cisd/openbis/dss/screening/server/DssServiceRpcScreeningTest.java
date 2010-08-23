@@ -119,20 +119,22 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareAssetDataSetsAreAccessible();
         FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference("ds1");
         FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference("ds2");
-        prepareCreateFeatureVectorDataSet(1, "f1", "f2");
-        prepareCreateFeatureVectorDataSet(2, "f2");
+        prepareCreateFeatureVectorDataSet(1, "F1", "F2");
+        prepareCreateFeatureVectorDataSet(2, "F2");
 
         List<FeatureVectorDataset> dataSets =
                 screeningService.loadFeatures(SESSION_TOKEN, Arrays.asList(r1, r2), Arrays.asList(
                         "f1", "f2"));
 
         assertSame(r1, dataSets.get(0).getDataset());
-        assertEquals("[F1, F2]", dataSets.get(0).getFeatureNames().toString());
+        assertEquals("[F1, F2]", dataSets.get(0).getFeatureCodes().toString());
+        assertEquals("[F1, F2]", dataSets.get(0).getFeatureLabels().toString());
         assertFeatureVector(1, 1, dataSets.get(0).getFeatureVectors().get(0), 244.5, 245.5);
         assertFeatureVector(1, 2, dataSets.get(0).getFeatureVectors().get(1), 242.25, 243.25);
         assertEquals(2, dataSets.get(0).getFeatureVectors().size());
         assertSame(r2, dataSets.get(1).getDataset());
-        assertEquals("[F2]", dataSets.get(1).getFeatureNames().toString());
+        assertEquals("[F2]", dataSets.get(1).getFeatureCodes().toString());
+        assertEquals("[F2]", dataSets.get(1).getFeatureLabels().toString());
         assertFeatureVector(1, 1, dataSets.get(1).getFeatureVectors().get(0), 249.0);
         assertFeatureVector(1, 2, dataSets.get(1).getFeatureVectors().get(1), 244.5);
         assertEquals(2, dataSets.get(1).getFeatureVectors().size());
@@ -160,9 +162,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     }
 
     private void prepareCreateFeatureVectorDataSet(final long dataSetID,
-            final String... featureNames)
+            final String... featureCodes)
     {
-        prepareGetFeatureDefinitions(dataSetID, featureNames);
+        prepareGetFeatureDefinitions(dataSetID, featureCodes);
         context.checking(new Expectations()
             {
                 {
@@ -172,10 +174,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     one(service).tryToGetSampleIdentifier("12-34");
                     will(returnValue(new SampleIdentifier(new SpaceIdentifier("1", "S"), "P1")));
 
-                    for (String name : featureNames)
+                    for (String code : featureCodes)
                     {
-                        one(dao).getFeatureValues(new ImgFeatureDefDTO(name, name, "", 0));
-                        int offset = Integer.parseInt(name, 16);
+                        one(dao).getFeatureValues(new ImgFeatureDefDTO(code, code, "", 0));
+                        int offset = Integer.parseInt(code, 16);
                         PlateFeatureValues array =
                                 new PlateFeatureValues(NativeTaggedArray
                                         .toByteArray(new MDFloatArray(new float[][]
@@ -189,7 +191,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             });
     }
 
-    private void prepareGetFeatureDefinitions(final long dataSetID, final String... featureNames)
+    private void prepareGetFeatureDefinitions(final long dataSetID, final String... featureCodes)
     {
         context.checking(new Expectations()
             {
@@ -203,9 +205,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
                     one(dao).listFeatureDefsByDataSetId(dataSetID);
                     List<ImgFeatureDefDTO> defs = new ArrayList<ImgFeatureDefDTO>();
-                    for (String name : featureNames)
+                    for (String code : featureCodes)
                     {
-                        defs.add(new ImgFeatureDefDTO(name, name, "", 0));
+                        defs.add(new ImgFeatureDefDTO(code, code, "", 0));
                     }
                     will(returnValue(defs));
                 }
