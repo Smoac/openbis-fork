@@ -39,7 +39,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMate
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 
 /**
- * A client side facade of openBIS and Datastore Server API.
+ * A client side facade of openBIS and Datastore Server API. Since version 1.2 of the API features
+ * are no longer identified by a name but by a code. Previous client code still works but all name
+ * will be normalized internally. Normalized means that the original code arguments turn to upper
+ * case and any symbol which isn't from A-Z or 0-9 is replaced by an underscore character.
+ * {@link FeatureVectorDataset} will provide feature codes and feature labels.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -119,38 +123,47 @@ public interface IScreeningOpenbisServiceFacade
      * is just the name of the feature. If for different data sets different sets of features are
      * available, provides the union of the feature names of all data sets.
      */
+    @Deprecated
     public List<String> listAvailableFeatureNames(
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
+    
+    /**
+     * For a given set of feature vector data sets provides the list of all available features. This
+     * is just the code of the feature. If for different data sets different sets of features are
+     * available, provides the union of the feature names of all data sets.
+     */
+    public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
-     * For a given set of plates and a set of features (given by their name), provide all the
+     * For a given set of plates and a set of features (given by their code), provide all the
      * feature vectors.
      * 
      * @param plates The plates to get the feature vectors for
-     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
      *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
-            final List<String> featureNamesOrNull);
+            final List<String> featureCodesOrNull);
 
     /**
-     * For a given set of data sets and a set of features (given by their name), provide all the
+     * For a given set of data sets and a set of features (given by their code), provide all the
      * feature vectors.
      * 
      * @param featureDatasets The data sets to get the feature vectors for
-     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
      *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeatures(
-            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNamesOrNull);
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodesOrNull);
 
     /**
      * Conceptually, for a given list of dataset well references (i.e. specified wells on specified
-     * feature vector data sets) and a set of features (given by their name) provide the feature
+     * feature vector data sets) and a set of features (given by their code) provide the feature
      * matrix. In this matrix, each column is one feature, each row is one well in one data set.
      * <p>
      * Physically, the result is delivered as a list of feature vectors. Each entry in this list
@@ -158,7 +171,7 @@ public interface IScreeningOpenbisServiceFacade
      * 
      * @param datasetWellReferences The references for datasets / wells to get the feature vectors
      *            for.
-     * @param featureNamesOrNull The names of the features to build the feature vectors from, or
+     * @param featureCodesOrNull The codes of the features to build the feature vectors from, or
      *            <code>null</code>, if all available features should be included. Note that for an
      *            empty list as well all features will be included.
      * @return The list of {@link FeatureVectorWithDescription}s, each element corresponds to one of
@@ -170,17 +183,17 @@ public interface IScreeningOpenbisServiceFacade
      */
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             List<FeatureVectorDatasetWellReference> datasetWellReferences,
-            List<String> featureNamesOrNull);
+            List<String> featureCodesOrNull);
 
     /**
      * For the given <var>experimentIdentifier</var> find all plate locations that are connected to
      * the specified <var>materialIdentifier</var> and load the feature vectors for the given
-     * <var>featureNamesOrNull</var> if not <code>null</code>, or all available features otherwise.
+     * feature code if not <code>null</code>, or all available features otherwise.
      * 
      * @param experimentIdentifer The identifier of the experiment to get the feature vectors for
      * @param materialIdentifier The identifier of the material contained in the wells to get the
      *            feature vectors for.
-     * @param featureNamesOrNull The names of the features to build the feature vectors from, or
+     * @param featureCodesOrNull The codes of the features to build the feature vectors from, or
      *            <code>null</code>, if all available features should be included. Note that for an
      *            empty list as well all features will be included.
      * @return The list of {@link FeatureVectorWithDescription}s found in the given
@@ -189,16 +202,16 @@ public interface IScreeningOpenbisServiceFacade
      */
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
-            List<String> featureNamesOrNull);
+            List<String> featureCodesOrNull);
 
     /**
      * For the given <var>materialIdentifier</var> find all plate locations that are connected to it
-     * and load the feature vectors for the given <var>featureNamesOrNull</var> if not
+     * and load the feature vectors for the given feature code if not
      * <code>null</code>, or all available features otherwise.
      * 
      * @param materialIdentifier The identifier of the material contained in the wells to get the
      *            feature vectors for.
-     * @param featureNamesOrNull The names of the features to build the feature vectors from, or
+     * @param featureCodesOrNull The codes of the features to build the feature vectors from, or
      *            <code>null</code>, if all available features should be included. Note that for an
      *            empty list as well all features will be included.
      * @return The list of {@link FeatureVectorWithDescription}s found in the given
@@ -206,7 +219,7 @@ public interface IScreeningOpenbisServiceFacade
      *         <var>materialIdentifier</var>.
      */
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
-            MaterialIdentifier materialIdentifier, List<String> featureNamesOrNull);
+            MaterialIdentifier materialIdentifier, List<String> featureCodesOrNull);
 
     /**
      * Saves images for a given list of image references (given by data set code, well position,

@@ -79,7 +79,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 1;
+    public static final int MINOR_VERSION = 2;
 
     private IImagingQueryDAO dao;
 
@@ -116,6 +116,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
+        return listAvailableFeatureCodes(sessionToken, featureDatasets);
+    }
+
+    public List<String> listAvailableFeatureCodes(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, featureDatasets);
         List<String> result = new ArrayList<String>(); // keep the order
         for (IFeatureVectorDatasetIdentifier identifier : featureDatasets)
@@ -124,10 +130,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             List<ImgFeatureDefDTO> featureDefinitions = getFeatureDefinitions(identifier);
             for (ImgFeatureDefDTO featureDefinition : featureDefinitions)
             {
-                String featureName = featureDefinition.getLabel();
-                if (result.contains(featureName) == false)
+                String featureCode = featureDefinition.getCode();
+                if (result.contains(featureCode) == false)
                 {
-                    result.add(featureName);
+                    result.add(featureCode);
                 }
             }
         }
@@ -199,29 +205,42 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames)
     {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, featureDatasets);
+        List<String> codes = normalize(featureNames);
         List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
         for (FeatureVectorDatasetReference dataset : featureDatasets)
         {
-            result.add(createFeatureVectorDataset(sessionToken, dataset, featureNames));
+            result.add(createFeatureVectorDataset(sessionToken, dataset, codes));
         }
         return result;
     }
 
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
-            FeatureVectorDatasetReference dataset, List<String> featureNames)
+            FeatureVectorDatasetReference dataset, List<String> featureCodes)
     {
         FeatureTableBuilder builder =
-                new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
+                new FeatureTableBuilder(featureCodes, getDAO(), getOpenBISService());
         builder.addFeatureVectorsOfDataSet(dataset.getDatasetCode());
-        List<String> existingFeatureNames = getCodes(builder);
         List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
         for (FeatureTableRow featureTableRow : featureTableRows)
         {
-            featureVectors.add(new FeatureVector(featureTableRow.getWellPosition(), featureTableRow
-                    .getFeatureValuesAsDouble()));
+            WellPosition wellPosition = featureTableRow.getWellPosition();
+            double[] values = featureTableRow.getFeatureValuesAsDouble();
+            featureVectors.add(new FeatureVector(wellPosition, values));
         }
-        return new FeatureVectorDataset(dataset, existingFeatureNames, featureVectors);
+        List<String> codes = getCodes(builder);
+        List<String> labels = getLabels(builder);
+        return new FeatureVectorDataset(dataset, codes, labels, featureVectors);
+    }
+    
+    private List<String> normalize(List<String> names)
+    {
+        ArrayList<String> codes = new ArrayList<String>(names.size());
+        for (String name : names)
+        {
+            codes.add(CodeAndLabel.normalize(name));
+        }
+        return codes;
     }
 
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
@@ -230,20 +249,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, datasetWellReferences);
         final FeatureTableBuilder builder =
-                createFeatureTableBuilder(datasetWellReferences, featureNames);
+                createFeatureTableBuilder(datasetWellReferences, normalize(featureNames));
         return createFeatureVectorList(builder);
     }
 
     private List<FeatureVectorWithDescription> createFeatureVectorList(
             final FeatureTableBuilder builder)
     {
-        final List<String> featureNames = getCodes(builder);
+        final List<String> featureCodes = getCodes(builder);
         final List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
         final List<FeatureVectorWithDescription> result =
                 new ArrayList<FeatureVectorWithDescription>(featureTableRows.size());
         for (FeatureTableRow featureTableRow : featureTableRows)
         {
-            result.add(createFeatureVector(featureTableRow, featureNames));
+            result.add(createFeatureVector(featureTableRow, featureCodes));
         }
         return result;
     }
@@ -259,18 +278,29 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return codes;
     }
 
-    private FeatureVectorWithDescription createFeatureVector(FeatureTableRow featureTableRow,
-            final List<String> featureNames)
+    private List<String> getLabels(FeatureTableBuilder builder)
     {
-        return new FeatureVectorWithDescription(featureTableRow.getReference(), featureNames,
+        List<CodeAndLabel> featureCodesAndLabels = builder.getCodesAndLabels();
+        List<String> labels = new ArrayList<String>();
+        for (CodeAndLabel codeAndTitle : featureCodesAndLabels)
+        {
+            labels.add(codeAndTitle.getLabel());
+        }
+        return labels;
+    }
+    
+    private FeatureVectorWithDescription createFeatureVector(FeatureTableRow featureTableRow,
+            final List<String> featureCodes)
+    {
+        return new FeatureVectorWithDescription(featureTableRow.getReference(), featureCodes,
                 featureTableRow.getFeatureValuesAsDouble());
     }
 
     private FeatureTableBuilder createFeatureTableBuilder(
-            List<FeatureVectorDatasetWellReference> plateWellReferences, List<String> featureNames)
+            List<FeatureVectorDatasetWellReference> plateWellReferences, List<String> featureCodes)
     {
         final FeatureTableBuilder builder =
-                new FeatureTableBuilder(featureNames, getDAO(), getOpenBISService());
+                new FeatureTableBuilder(featureCodes, getDAO(), getOpenBISService());
         for (FeatureVectorDatasetWellReference datasetWellReference : plateWellReferences)
         {
             builder.addFeatureVectorsOfDataSet(datasetWellReference);

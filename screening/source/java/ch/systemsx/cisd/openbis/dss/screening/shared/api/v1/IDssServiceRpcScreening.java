@@ -31,10 +31,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetM
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 
 /**
- * Public DSS API for screening. Non-compatible changes without consultation are forbidden.
+ * Public DSS API for screening. Since version 1.2 features are no longer identified by a name but
+ * by a code. Previous client code still works but all name will be normalized internally.
+ * Normalized means that the original code arguments turn to upper case and any symbol which isn't
+ * from A-Z or 0-9 is replaced by an underscore character. {@link FeatureVectorDataset} will provide
+ * feature codes and feature labels. 
  * 
  * @author Tomasz Pylak
  */
+// Non-compatible changes without consultation are forbidden.
 public interface IDssServiceRpcScreening extends IRpcService
 {
     /**
@@ -47,9 +52,19 @@ public interface IDssServiceRpcScreening extends IRpcService
      * is just the name of the feature. If for different data sets different sets of features are
      * available, provide the union of the features of all data sets.
      */
+    @Deprecated
     public List<String> listAvailableFeatureNames(String sessionToken,
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
+    /**
+     * For a given set of feature vector data sets provide the list of all available features. This
+     * is just the code of the feature. If for different data sets different sets of features are
+     * available, provide the union of the features of all data sets.
+     */
+    @MinimalMinorVersion(2)
+    public List<String> listAvailableFeatureCodes(String sessionToken,
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
+    
     /**
      * Conceptually, for a given list of data well references (i.e. specified wells on specified
      * feature vector data sets) and a set of features (given by their name) provide the feature
@@ -62,7 +77,7 @@ public interface IDssServiceRpcScreening extends IRpcService
      *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeatures(String sessionToken,
-            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureNames);
+            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes);
 
     /**
      * Conceptually, for a given list of dataset well references (i.e. specified wells on specified
@@ -73,7 +88,7 @@ public interface IDssServiceRpcScreening extends IRpcService
      * corresponds to one well in one dataset.
      * 
      * @return The list of {@link FeatureVectorWithDescription}s, each element corresponds to one of
-     *         the <var>datasetWellReferences</var>. <b>Note that the order of the returned ist is
+     *         the <var>datasetWellReferences</var>. <b>Note that the order of the returned is
      *         <i>not</i> guaranteed to be the same as the order of the list
      *         <var>datasetWellReferences</var>. Use
      *         {@link FeatureVectorWithDescription#getDatasetWellReference()} to find the
@@ -83,7 +98,7 @@ public interface IDssServiceRpcScreening extends IRpcService
     @MinimalMinorVersion(1)
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
-            List<String> featureNames);
+            List<String> featureCodes);
 
     /**
      * Provide images for a given list of image references (given by data set code, well position,

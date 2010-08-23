@@ -242,12 +242,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.getDatasetIdentifiers(sessionToken, datasetCodes);
     }
 
+    public List<String> listAvailableFeatureNames(
+            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
+    {
+        return listAvailableFeatureCodes(featureDatasets);
+    }
+
     /**
      * For a given set of feature vector data sets provides the list of all available features. This
-     * is just the name of the feature. If for different data sets different sets of features are
+     * is just the code of the feature. If for different data sets different sets of features are
      * available, provides the union of the feature names of all data sets.
      */
-    public List<String> listAvailableFeatureNames(
+    public List<String> listAvailableFeatureCodes(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
         final Set<String> result = new HashSet<String>();
@@ -257,9 +263,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
                         {
-                            checkDSSMinimalMinorVersion(dssService, "listAvailableFeatureNames",
+                            checkDSSMinimalMinorVersion(dssService, "listAvailableFeatureCodes",
                                     List.class);
-                            result.addAll(dssService.getService().listAvailableFeatureNames(
+                            result.addAll(dssService.getService().listAvailableFeatureCodes(
                                     sessionToken, references));
                         }
                     });
@@ -267,40 +273,40 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     /**
-     * For a given set of plates and a set of features (given by their name), provide all the
+     * For a given set of plates and a set of features (given by their code), provide all the
      * feature vectors.
      * 
      * @param plates The plates to get the feature vectors for
-     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
      *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeaturesForPlates(
             List<? extends PlateIdentifier> plates,
-            final List<String> featureNamesOrNull)
+            final List<String> featureCodesOrNull)
     {
         final List<FeatureVectorDatasetReference> datasets = listFeatureVectorDatasets(plates);
-        return loadFeatures(datasets, featureNamesOrNull);
+        return loadFeatures(datasets, featureCodesOrNull);
     }
     
     /**
-     * For a given set of data sets and a set of features (given by their name), provide all the
+     * For a given set of data sets and a set of features (given by their code), provide all the
      * feature vectors.
      * 
      * @param featureDatasets The data sets to get the feature vectors for
-     * @param featureNamesOrNull The names of the features to load, or <code>null</code>, if all
+     * @param featureCodesOrNull The codes of the features to load, or <code>null</code>, if all
      *            available features should be loaded.
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
     public List<FeatureVectorDataset> loadFeatures(
             List<FeatureVectorDatasetReference> featureDatasets,
-            final List<String> featureNamesOrNull)
+            final List<String> featureCodesOrNull)
     {
         final List<String> featureNames =
-                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNames(featureDatasets)
-                        : featureNamesOrNull;
+                (isEmpty(featureCodesOrNull)) ? listAvailableFeatureNames(featureDatasets)
+                        : featureCodesOrNull;
 
         final List<FeatureVectorDataset> result = new ArrayList<FeatureVectorDataset>();
         featureVectorDataSetReferenceMultiplexer.process(featureDatasets,
@@ -346,11 +352,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
             final List<FeatureVectorDatasetWellReference> datasetWellReferences,
-            final List<String> featureNamesOrNull)
+            final List<String> featureCodesOrNull)
     {
         final List<String> featureNames =
-                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNames(datasetWellReferences)
-                        : featureNamesOrNull;
+                (isEmpty(featureCodesOrNull)) ? listAvailableFeatureNames(datasetWellReferences)
+                        : featureCodesOrNull;
 
         final List<FeatureVectorWithDescription> result =
                 new ArrayList<FeatureVectorWithDescription>();
@@ -370,56 +376,53 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
-    private boolean isEmpty(final List<String> featureNamesOrNull)
+    private boolean isEmpty(final List<String> featureCodeOrNull)
     {
-        return featureNamesOrNull == null || featureNamesOrNull.isEmpty();
+        return featureCodeOrNull == null || featureCodeOrNull.isEmpty();
     }
 
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
             ExperimentIdentifier experimentIdentifer, MaterialIdentifier materialIdentifier,
-            List<String> featureNamesOrNull)
+            List<String> featureCodesOrNull)
     {
         final List<PlateWellReferenceWithDatasets> plateWellRefs =
                 listPlateWells(experimentIdentifer, materialIdentifier, true);
-        final List<String> featureNames =
-                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNamesForPlateWells(plateWellRefs)
-                        : featureNamesOrNull;
-        final List<FeatureVectorDatasetWellReference> datasetWellReferences =
-                convertToFeatureVectorDatasetWellIdentifier(plateWellRefs);
-        final List<FeatureVectorWithDescription> featureVectors =
-                loadFeaturesForDatasetWellReferences(datasetWellReferences, featureNames);
-        return featureVectors;
+        return loadFeatureVectors(featureCodesOrNull, plateWellRefs);
     }
 
     public List<FeatureVectorWithDescription> loadFeaturesForPlateWells(
-            MaterialIdentifier materialIdentifier, List<String> featureNamesOrNull)
+            MaterialIdentifier materialIdentifier, List<String> featureCodesOrNull)
     {
         final List<PlateWellReferenceWithDatasets> plateWellRefs =
                 listPlateWells(materialIdentifier, true);
-        final List<String> featureNames =
-                (isEmpty(featureNamesOrNull)) ? listAvailableFeatureNamesForPlateWells(plateWellRefs)
-                        : featureNamesOrNull;
+        return loadFeatureVectors(featureCodesOrNull, plateWellRefs);
+    }
+
+    private List<FeatureVectorWithDescription> loadFeatureVectors(List<String> featureCodesOrNull,
+            final List<PlateWellReferenceWithDatasets> plateWellRefs)
+    {
+        final List<String> featureCodes =
+                isEmpty(featureCodesOrNull) ? listAvailableFeatureCodesForPlateWells(plateWellRefs)
+                        : featureCodesOrNull;
         final List<FeatureVectorDatasetWellReference> datasetWellReferences =
                 convertToFeatureVectorDatasetWellIdentifier(plateWellRefs);
         final List<FeatureVectorWithDescription> featureVectors =
-                loadFeaturesForDatasetWellReferences(datasetWellReferences, featureNames);
+                loadFeaturesForDatasetWellReferences(datasetWellReferences, featureCodes);
         return featureVectors;
     }
 
-    private List<String> listAvailableFeatureNamesForPlateWells(
+    private List<String> listAvailableFeatureCodesForPlateWells(
             final List<PlateWellReferenceWithDatasets> plateWellRefs)
     {
-        final List<String> featureNames;
         final List<FeatureVectorDatasetReference> featureVectorDatasetReferences =
                 new ArrayList<FeatureVectorDatasetReference>(plateWellRefs.size());
         for (PlateWellReferenceWithDatasets plateWellRef : plateWellRefs)
         {
             featureVectorDatasetReferences.addAll(plateWellRef.getFeatureVectorDatasetReferences());
         }
-        final List<String> availableFeatureNames =
-                listAvailableFeatureNames(featureVectorDatasetReferences);
-        featureNames = availableFeatureNames;
-        return featureNames;
+        final List<String> availableFeatureCodes =
+                listAvailableFeatureCodes(featureVectorDatasetReferences);
+        return availableFeatureCodes;
     }
 
     /**
