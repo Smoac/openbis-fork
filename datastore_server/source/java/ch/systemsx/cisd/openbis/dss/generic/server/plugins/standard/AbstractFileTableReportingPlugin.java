@@ -157,7 +157,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         for (String title : lines.getHeaderLabels())
         {
             CodeAndLabel codeAndTitle = new CodeAndLabel(title);
-            tableBuilder.addHeader(codeAndTitle.getTitle(), codeAndTitle.getCode());
+            tableBuilder.addHeader(codeAndTitle.getLabel(), codeAndTitle.getCode());
         }
         for (String[] line : lines.getDataLines())
         {

@@ -50,6 +50,6 @@ public class CodeAndLabelTest extends AssertJUnit
             CodeAndLabel codeAndTitle)
     {
         assertEquals(expectedCode, codeAndTitle.getCode());
-        assertEquals(expectedTitle, codeAndTitle.getTitle());
+        assertEquals(expectedTitle, codeAndTitle.getLabel());
     }
 }

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 /**
- * Value object which has a title and a normalized code. Normalized means that the original code
+ * Value object which has a label and a normalized code. Normalized means that the original code
  * arguments turn to upper case and any symbol which isn't from A-Z or 0-9 is replaced by an
  * underscore character.
  * 
@@ -42,45 +42,45 @@ public class CodeAndLabel
         return builder.toString();
     }
     
-    private final String title;
+    private final String label;
     private final String code;
     
     /**
-     * Creates an instance for specified code and title. The code will be normalized.
+     * Creates an instance for specified code and label. The code will be normalized.
      */
-    public CodeAndLabel(String code, String title)
+    public CodeAndLabel(String code, String label)
     {
         this.code = normalize(code);
-        this.title = title;
+        this.label = label;
     }
 
     /**
-     * Creates an instance from specified title with optional code prefix in form of
+     * Creates an instance from specified label with optional code prefix in form of
      * <code>&lt;code&gt;</code>. The code will be normalized.
      */
-    public CodeAndLabel(String titleWithOptionalCode)
+    public CodeAndLabel(String labelWithOptionalCode)
     {
-        String t = titleWithOptionalCode;
-        String c = titleWithOptionalCode;
-        if (titleWithOptionalCode.startsWith("<"))
+        String t = labelWithOptionalCode;
+        String c = labelWithOptionalCode;
+        if (labelWithOptionalCode.startsWith("<"))
         {
-            int indexOfClosing = titleWithOptionalCode.indexOf('>');
+            int indexOfClosing = labelWithOptionalCode.indexOf('>');
             if (indexOfClosing > 0)
             {
-                c = titleWithOptionalCode.substring(1, indexOfClosing).trim();
-                t = titleWithOptionalCode.substring(indexOfClosing + 1).trim();
+                c = labelWithOptionalCode.substring(1, indexOfClosing).trim();
+                t = labelWithOptionalCode.substring(indexOfClosing + 1).trim();
             }
         }
         code = normalize(c);
-        title = t;
+        label = t;
     }
 
     /**
-     * Returns the title.
+     * Returns the label.
      */
-    public final String getTitle()
+    public final String getLabel()
     {
-        return title;
+        return label;
     }
 
     /**
@@ -103,18 +103,18 @@ public class CodeAndLabel
             return false;
         }
         CodeAndLabel codeAndTitle = (CodeAndLabel) obj;
-        return codeAndTitle.code.equals(code) && codeAndTitle.title.equals(title);
+        return codeAndTitle.code.equals(code) && codeAndTitle.label.equals(label);
     }
 
     @Override
     public int hashCode()
     {
-        return code.hashCode() * 37 + title.hashCode();
+        return code.hashCode() * 37 + label.hashCode();
     }
 
     @Override
     public String toString()
     {
-        return "<" + code + "> " + title;
+        return "<" + code + "> " + label;
     }
 }
