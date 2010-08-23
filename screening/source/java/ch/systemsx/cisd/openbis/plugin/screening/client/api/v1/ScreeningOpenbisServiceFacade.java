@@ -263,9 +263,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
                         {
-                            checkDSSMinimalMinorVersion(dssService, "listAvailableFeatureCodes",
+                            checkDSSMinimalMinorVersion(dssService, "listAvailableFeatureNames",
                                     List.class);
-                            result.addAll(dssService.getService().listAvailableFeatureCodes(
+                            // Use old method in order to allow accessing older servers.
+                            result.addAll(dssService.getService().listAvailableFeatureNames(
                                     sessionToken, references));
                         }
                     });
