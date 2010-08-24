@@ -285,7 +285,10 @@ public class PlateContentLoader
 
     private PlateImageParameters loadImageParams(ExternalData dataset)
     {
-        return createHCSDatasetLoader(dataset).getImageParameters();
+        IHCSDatasetLoader loader = createHCSDatasetLoader(dataset);
+        PlateImageParameters params = loader.getImageParameters();
+        loader.close();
+        return params;
     }
 
     private IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet)
@@ -329,6 +332,8 @@ public class PlateContentLoader
     {
         IHCSDatasetLoader datasetLoader =
                 businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
-        return datasetLoader.listImageChannelStacks(wellLocation);
+        List<WellImageChannelStack> stacks = datasetLoader.listImageChannelStacks(wellLocation);
+        datasetLoader.close();
+        return stacks;
     }
 }

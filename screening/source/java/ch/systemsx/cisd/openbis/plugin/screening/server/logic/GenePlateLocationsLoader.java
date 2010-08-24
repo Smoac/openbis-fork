@@ -209,6 +209,7 @@ public class GenePlateLocationsLoader
         {
             final IHCSDatasetLoader loader = createHCSDatasetLoader(dataSet);
             imageParameters.add(loader.getImageParameters());
+            loader.close();
         }
         return asDatasetToParamsMap(imageParameters);
     }

@@ -170,6 +170,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
         IContent imageFile = getAnyImagePath(imageAccessor, dataset);
         PlateImageParameters params = imageAccessor.getImageParameters();
+        imageAccessor.close();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
         BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
         return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
