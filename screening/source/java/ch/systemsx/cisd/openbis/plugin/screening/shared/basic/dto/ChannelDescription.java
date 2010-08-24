@@ -26,9 +26,15 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class ChannelDescription implements IsSerializable
 {
 
-    private final String code;
+    private String code;
 
-    private final String label;
+    private String label;
+
+    // for GWT
+    @SuppressWarnings("unused")
+    private ChannelDescription()
+    {
+    }
 
     public ChannelDescription(String name)
     {
