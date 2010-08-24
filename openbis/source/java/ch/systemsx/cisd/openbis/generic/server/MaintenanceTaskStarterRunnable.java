@@ -18,6 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskParameters;
 import ch.systemsx.cisd.common.maintenance.MaintenanceTaskUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
@@ -27,11 +31,16 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
  * 
  * @author Piotr Buczek
  */
-public class MaintenanceTaskStarterRunnable implements Runnable
+public class MaintenanceTaskStarterRunnable implements Runnable, ApplicationContextAware
 {
 
     @Resource(name = "propertyConfigurer")
     private ExposablePropertyPlaceholderConfigurer configurer;
+    
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+    {
+        CommonServiceProvider.setApplicationContext(applicationContext);
+    }
 
     public void run()
     {

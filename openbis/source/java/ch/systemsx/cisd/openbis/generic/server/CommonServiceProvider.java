@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.ApplicationContext;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -30,27 +29,31 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
  */
 public class CommonServiceProvider
 {
-    public static final BeanFactory APPLICATION_CONTEXT =
-            new ClassPathXmlApplicationContext(new String[]
-                { "applicationContext.xml" }, true);
+    private static ApplicationContext applicationContext;
 
+    public static void setApplicationContext(ApplicationContext context)
+    {
+        applicationContext = context;
+    }
+    
     public static ICommonServer getCommonServer()
     {
-        return (ICommonServer) APPLICATION_CONTEXT.getBean("common-server");
+        return (ICommonServer) applicationContext.getBean("common-server");
     }
 
     public static IDAOFactory getDAOFactory()
     {
-        return (IDAOFactory) APPLICATION_CONTEXT.getBean("dao-factory");
+        return (IDAOFactory) applicationContext.getBean("dao-factory");
     }
 
     public static ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
-        return (ICommonBusinessObjectFactory) APPLICATION_CONTEXT
+        return (ICommonBusinessObjectFactory) applicationContext
                 .getBean("common-business-object-factory");
     }
 
     private CommonServiceProvider()
     {
     }
+
 }
