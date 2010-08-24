@@ -58,7 +58,7 @@
     </copy>
   	<antcall target="datastore_server.create-distribution" />
   </target>
-
+	
   <!--
         // Task for continuous integration server.
         -->
@@ -126,6 +126,7 @@
       <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/dto/**" />
       <zipfileset dir="${sources}" includes="ch/systemsx/cisd/openbis/plugin/screening/client/api/v1/*Facade.java" />
     </zip>
+  	
   </target>
 
   <!-- 
@@ -186,9 +187,11 @@
 	<target name="screening-api" depends="screening-api-doc, screening-api-libs" >
      <zip destfile="${dist}/screening-api-${version.number}-r${revision.number}.zip">
       <zipfileset dir="${dist.screening-api}" includes="**" />
-    </zip>
+      <zipfileset dir="${original.dist}/doc" />
+     </zip>
     <delete dir="${dist.screening-api}" />
   </target>
+
   
   <!-- ++++++++++++++++++++++++++++++ END API ++++++++++++++++++++++++++++++ -->
   
