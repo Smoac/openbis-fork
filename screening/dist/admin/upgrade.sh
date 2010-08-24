@@ -29,7 +29,7 @@ pg_dump -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB-${NOW}.dmp
 pg_dump -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
 
 echo Installing openBIS Datastore Server
-unzip $ROOT_DIR/datastore*.zip
+unzip $ROOT_DIR/datastore*.zip -d $ROOT_DIR
 
 echo Installing openBIS Application Server
 unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR

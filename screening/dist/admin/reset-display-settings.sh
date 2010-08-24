@@ -3,7 +3,7 @@
 # Overrides all user display settings with the settings of the template user.
 
 echo Remove 'exit' after configuring existing user name, currently it is $TEMPLATE_USER
-exit
+exit 1
 TEMPLATE_USER=openbis-user-name
 
 BASE=`dirname "$0"`
