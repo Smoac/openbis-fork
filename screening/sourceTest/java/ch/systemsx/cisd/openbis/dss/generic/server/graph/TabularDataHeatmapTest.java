@@ -83,6 +83,26 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
     }
 
     @Test
+    public void testLotsOfBlanksHeatmap() throws IOException
+    {
+        // File outputFile = getImageOutputFile();
+        File outputFile = getTestImageOutputFile("blanks-heatmap.png");
+
+        TabularDataHeatmapConfiguration config =
+                new TabularDataHeatmapConfiguration("Test", new CodeAndLabel("Row"),
+                        new CodeAndLabel("Column"), new CodeAndLabel("Score"), 300, 200);
+        AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
+                new TabularDataHeatmap(config, getDatasetFileLines("H174-3C.csv"),
+                        getOutputStream(outputFile));
+        assertEquals(2, graph.tryXColumnNumber());
+        assertEquals(3, graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
     public void testIncorrectlyConfiguredHeatmap() throws IOException
     {
         File outputFile = getImageOutputFile();

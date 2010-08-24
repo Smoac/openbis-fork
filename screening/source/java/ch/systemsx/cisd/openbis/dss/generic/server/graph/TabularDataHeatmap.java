@@ -244,7 +244,13 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
                 element.x = loc.getY();
                 element.y = loc.getX();
             }
-            element.z = Double.parseDouble(line[zColumn]);
+            try
+            {
+                element.z = Double.parseDouble(line[zColumn]);
+            } catch (NumberFormatException ex)
+            {
+                element.z = 0.;
+            }
             if (false == areZBoundsInitialized)
             {
                 heatmapData.minZ = element.z;
