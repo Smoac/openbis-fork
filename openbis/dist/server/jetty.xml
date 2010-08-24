@@ -24,7 +24,7 @@
                   <Set name="Password">changeit</Set>
                   <Set name="KeyPassword">changeit</Set>
           </New>
-          <!-- Use this connector and remove the one above to switch of SSL
+          <!-- Use this connector and remove the one above to switch off SSL
           <New class="org.eclipse.jetty.server.nio.SelectChannelConnector">
              <Set name="Port">8080</Set>
              <Set name="maxIdleTime">30000</Set>
