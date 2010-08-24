@@ -65,7 +65,7 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
     }
 
     /**
-     * @param chosenChannelCode 
+     * @param chosenChannelCode
      * @return image (with absolute path, page and color)
      */
     public AbsoluteImageReference tryGetImage(String chosenChannelCode,
@@ -102,35 +102,23 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
                 imageDTO = tryGetImage(chosenChannelId, channelStackReference, datasetId);
                 if (imageDTO != null)
                 {
+                    // produce a thumbnail by resizing the original image
                     content =
-                            new ThumbnailContent(contentRepository.getContent(imageDTO
-                                    .getFilePath()), thumbnailSizeOrNull);
+                            new ThumbnailContent(getOriginalFileContent(imageDTO),
+                                    thumbnailSizeOrNull);
                 }
             } else
             {
-                content = contentRepository.getContent(imageDTO.getFilePath());
+                // get the thumbnail content
+                content = getOriginalFileContent(imageDTO);
             }
         } else
         {
+            // get the image content from the original image
             imageDTO = tryGetImage(chosenChannelId, channelStackReference, datasetId);
             if (imageDTO != null)
             {
-                content = contentRepository.getContent(imageDTO.getFilePath());
-                final InputStream is = content.getInputStream();
-                final String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(is);
-                if (DataTypeUtil.isTiff(fileType) == false || imageDTO.getColorComponent() != null
-                        || imageDTO.getPage() != null)
-                {
-                    final int page = (imageDTO.getPage() != null) ? imageDTO.getPage() : 0;
-                    BufferedImage image = ImageUtil.loadImage(is, fileType, page);
-                    if (imageDTO.getColorComponent() != null)
-                    {
-                        image =
-                                ImageChannelsUtils.transformToChannel(image, imageDTO
-                                        .getColorComponent());
-                    }
-                    content = asContent(image, fileType, content.getName(), content.getUniqueId());
-                }
+                content = getImageContent(imageDTO);
             }
         }
         if (content != null && imageDTO != null)
@@ -141,6 +129,30 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         {
             return null;
         }
+    }
+
+    private IContent getImageContent(ImgImageDTO imageDTO)
+    {
+        IContent content = getOriginalFileContent(imageDTO);
+        final InputStream is = content.getInputStream();
+        final String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(is);
+        if (DataTypeUtil.isTiff(fileType) == false || imageDTO.getColorComponent() != null
+                || imageDTO.getPage() != null)
+        {
+            final int page = (imageDTO.getPage() != null) ? imageDTO.getPage() : 0;
+            BufferedImage image = ImageUtil.loadImage(is, fileType, page);
+            if (imageDTO.getColorComponent() != null)
+            {
+                image = ImageChannelsUtils.transformToChannel(image, imageDTO.getColorComponent());
+            }
+            content = asContent(image, fileType, content.getName(), content.getUniqueId());
+        }
+        return content;
+    }
+
+    private IContent getOriginalFileContent(ImgImageDTO imageDTO)
+    {
+        return contentRepository.getContent(imageDTO.getFilePath());
     }
 
     private ImgImageDTO tryGetImage(long channelId,
