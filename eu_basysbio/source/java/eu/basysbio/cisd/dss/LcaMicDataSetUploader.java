@@ -18,16 +18,22 @@ package eu.basysbio.cisd.dss;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.etlserver.cifex.CifexExtractorHelper;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
@@ -42,6 +48,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 class LcaMicDataSetUploader extends AbstractDataSetUploader
 {
+    private static final Logger operationLog =
+        LogFactory.getLogger(LogCategory.OPERATION, LcaMicDataSetUploader.class);
+    
     static final IDataSetUploaderFactory FACTORY = new IDataSetUploaderFactory()
     {
         
@@ -76,6 +85,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
     protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation)
     {
         FileReader reader = null;
+        List<File> timeSeriesFiles = new ArrayList<File>();
         try
         {
             reader = new FileReader(tsvFile);
@@ -100,6 +110,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                 String header = column.getHeader();
                 File dataSet = new File(timeSeriesDropBox, DataSetHandler.LCA_MIC_TIME_SERIES + i);
                 dataSet.mkdir();
+                timeSeriesFiles.add(dataSet);
                 String[] items = header.split(DataColumnHeader.SEPARATOR);
                 if (items.length < 11)
                 {
@@ -139,13 +150,12 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                 builder.append(dataSetInformation.getDataSetCode()).append(",");
                 builder.append(DataSetHandler.LCA_MIC_TIME_SERIES).append(",TSV\n");
                 builder.append("user-email=").append(dataSetInformation.tryGetUploadingUserEmail());
-                FileUtilities.writeToFile(new File(dataSet, CifexExtractorHelper.REQUEST_PROPERTIES_FILE), builder.toString());
+                FileUtilities.writeToFile(new File(dataSet,
+                        CifexExtractorHelper.REQUEST_PROPERTIES_FILE), builder.toString());
             }
-        } catch (RuntimeException ex)
-        {
-            throw ex;
         } catch (Exception ex)
         {
+            deleteTimeSeriesFiles(timeSeriesFiles);
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
@@ -153,4 +163,13 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
         }
     }
     
+    private void deleteTimeSeriesFiles(List<File> timeSeriesFiles)
+    {
+        operationLog.info("Delete LCA MIC time series files: " + timeSeriesFiles);
+        IFileOperations fileOperations = FileOperations.getInstance();
+        for (File timeSeriesFile : timeSeriesFiles)
+        {
+            fileOperations.deleteRecursively(timeSeriesFile);
+        }
+    }
 }
