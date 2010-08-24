@@ -139,8 +139,6 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         for (GridRowModel<Sample> gridRowModel : list)
         {
             Sample sample = gridRowModel.getOriginalObject();
-            System.err.println(sample.getIdentifier() + " (" + sample.getCode() + "; "
-                    + sample.getSubCode() + ")");
             if (sample.getIdentifier().endsWith(sampleIdentifier.toUpperCase()))
             {
                 return sample;
