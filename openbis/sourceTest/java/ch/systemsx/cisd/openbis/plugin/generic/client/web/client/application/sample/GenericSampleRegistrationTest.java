@@ -20,17 +20,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ChooseTypeOfNewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
@@ -64,11 +60,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 
-    private static final String DILUTION_PLATE = "DILUTION_PLATE";
-
     private static final String CELL_PLATE = "CELL_PLATE";
-
-    private static final String WELL = "WELL";
 
     private static final String GROUP_CL = "GROUP_CL";
 
@@ -116,20 +108,6 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    public final void testRegisterGroupSampleWithParent()
-    {
-        final String sampleCode = "dp4";
-        final String sampleTypeCode = DILUTION_PLATE;
-        loginAndPreprareRegistration(sampleTypeCode);
-        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
-                .parents("MP1-MIXED"));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
-        remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
-        remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
-                .toUpperCase()).identifier("CISD", "CISD")));
-        launchTest();
-    }
-
     public final void testRegisterGroupSampleWithExperiment()
     {
         final String sampleCode = "cp-with-exp";
@@ -141,29 +119,6 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD").experiment("CISD", "NEMO", "EXP1")));
-        launchTest();
-    }
-
-    public final void testRegisterGroupSampleWithContainer()
-    {
-        final String sampleCode = "W12";
-        final String sampleTypeCode = WELL;
-        final String containerCode = "3VCP5";
-        final String containerId = "CISD:/CISD/" + containerCode;
-        loginAndPreprareRegistration(sampleTypeCode);
-        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
-                .container(containerCode));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
-        remoteConsole.prepare(new ListSamples("CISD", CELL_PLATE));
-        remoteConsole.prepare(new ShowSample(containerCode));
-        final CheckSample checkSample = new CheckSample();
-        checkSample.property("Sample").asString(containerId);
-        final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(1);
-        final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
-        final String sampleSubcodeFieldIdent = CommonSampleColDefKind.SUBCODE.id();
-        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
-                containerCode + ":" + sampleCode).withCell(sampleSubcodeFieldIdent, sampleCode));
-        remoteConsole.prepare(checkSample);
         launchTest();
     }
 

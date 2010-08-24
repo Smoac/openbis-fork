@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IdentifierExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -41,6 +42,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 @Test(groups = "system test")
 public class SampleRegistrationTest extends GenericSystemTestCase
 {
+    private static final String CELL_PLATE = "CELL_PLATE";
+
+    private static final String DILUTION_PLATE = "DILUTION_PLATE";
+
+    private static final String WELL = "WELL";
+
+    private static final String CISD_SHORT = "/CISD/";
+
+    private static final String CISD_LONG = "CISD:/CISD/";
+
     @Test
     public void testSimpleRegistration()
     {
@@ -50,7 +61,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         String identifier = "/cisd/" + commonClientService.generateCode("S-");
         sample.setIdentifier(identifier);
         SampleType sampleType = new SampleType();
-        sampleType.setCode("CELL_PLATE");
+        sampleType.setCode(CELL_PLATE);
         sample.setSampleType(sampleType);
         sample.setProperties(new IEntityProperty[]
             { property("COMMENT", "test sample") });
@@ -59,7 +70,8 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         sample.setParents(parents);
         genericClientService.registerSample("session", sample);
 
-        Sample s = getSample(identifier);
+        Sample s = getSpaceSample(identifier);
+        assertEquals(CELL_PLATE, s.getSampleType().getCode());
         List<IEntityProperty> properties = s.getProperties();
         assertEquals("COMMENT", properties.get(0).getPropertyType().getCode());
         assertEquals("test sample", properties.get(0).getValue());
@@ -69,17 +81,66 @@ public class SampleRegistrationTest extends GenericSystemTestCase
                 .toString(IdentifierExtractor.extract(s.getParents()).toArray()));
     }
 
-    private Sample getSample(String sampleIdentifier)
+    @Test
+    // translated broken test from GenericSampleRegistrationTest
+    public void testRegisterGroupSampleWithParent()
     {
-        ListSampleCriteria listCriteria = new ListSampleCriteria();
-        listCriteria.setIncludeSpace(true);
+        logIntoCommonClientService();
+
+        final NewSample sample = new NewSample();
+        final String sampleCode = "dp4";
+        final String identifier = CISD_SHORT + sampleCode;
+        sample.setIdentifier(identifier);
+        final String parent = "CISD:/CISD/C1";
+        sample.setParents(new String[]
+            { parent });
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(DILUTION_PLATE);
+        sample.setSampleType(sampleType);
+        genericClientService.registerSample("session", sample);
+
+        Sample s = getSpaceSample(identifier);
+        assertEquals(1, s.getParents().size());
+        assertEquals(parent, IdentifierExtractor.extract(s.getParents()).get(0));
+    }
+
+    @Test
+    // translated broken test from GenericSampleRegistrationTest
+    public void testRegisterGroupSampleWithContainer()
+    {
+        logIntoCommonClientService();
+
+        final NewSample sample = new NewSample();
+        final String sampleCode = "W12";
+        final String simpleIdentifier = CISD_SHORT + sampleCode;
+        final String containerCode = "3VCP5";
+        final String containerIdentifier = CISD_LONG + containerCode;
+        sample.setIdentifier(simpleIdentifier);
+        sample.setContainerIdentifier(containerIdentifier);
+        final SampleType sampleType = new SampleType();
+        sampleType.setCode(WELL);
+        sample.setSampleType(sampleType);
+        genericClientService.registerSample("session", sample);
+
+        final String fullIdentifier = containerIdentifier + ":" + sampleCode;
+        Sample s = getContainedSample(containerIdentifier, fullIdentifier);
+        assertEquals(0, s.getParents().size());
+        assertEquals(containerIdentifier, s.getContainer().getIdentifier());
+        assertEquals(sampleCode, s.getSubCode());
+        assertEquals(containerCode + ":" + sampleCode, s.getCode());
+        assertEquals(fullIdentifier, s.getIdentifier());
+    }
+
+    private Sample getSample(String sampleIdentifier, ListSampleCriteria listCriteria)
+    {
         ResultSetWithEntityTypes<Sample> samples =
                 commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
         GridRowModels<Sample> list = samples.getResultSet().getList();
         for (GridRowModel<Sample> gridRowModel : list)
         {
             Sample sample = gridRowModel.getOriginalObject();
-            System.out.println("SAMPLE:" + sample.getIdentifier());
+            System.err.println(sample.getIdentifier() + " (" + sample.getCode() + "; "
+                    + sample.getSubCode() + ")");
             if (sample.getIdentifier().endsWith(sampleIdentifier.toUpperCase()))
             {
                 return sample;
@@ -88,4 +149,20 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         fail("No sample of type found for identifier " + sampleIdentifier);
         return null; // satisfy compiler
     }
+
+    private Sample getSpaceSample(String sampleIdentifier)
+    {
+        ListSampleCriteria listCriteria = new ListSampleCriteria();
+        listCriteria.setIncludeSpace(true);
+        return getSample(sampleIdentifier, listCriteria);
+    }
+
+    private Sample getContainedSample(String containerIdentifier, String sampleIdentifier)
+    {
+        final Sample container = getSpaceSample(containerIdentifier);
+        ListSampleCriteria listCriteria =
+                ListSampleCriteria.createForContainer(TechId.create(container));
+        return getSample(sampleIdentifier, listCriteria);
+    }
+
 }
