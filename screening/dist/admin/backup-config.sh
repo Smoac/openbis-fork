@@ -21,3 +21,4 @@ cp $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/openbis.conf
 cp $ROOT/openBIS-server/jetty/etc/passwd $CONF/passwd
 cp $ROOT/openBIS-server/jetty/etc/jetty.xml $CONF/jetty.xml
 cp $ROOT/openBIS-server/jetty/etc/openBIS.keystore $CONF/.keystore 
+cp $ROOT/openBIS-server/jetty/bin/jetty.properties $CONF/jetty.properties
