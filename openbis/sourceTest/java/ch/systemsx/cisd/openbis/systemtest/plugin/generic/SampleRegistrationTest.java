@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 @Test(groups = "system test")
 public class SampleRegistrationTest extends GenericSystemTestCase
@@ -65,8 +66,12 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         sample.setSampleType(sampleType);
         sample.setProperties(new IEntityProperty[]
             { property("COMMENT", "test sample") });
+        // tested:
+        // - ignore case
+        // - support for both code and identifiers (with and without db instance)
+        // - dealing with the same parent stated more than once
         String[] parents = new String[]
-            { "c1", "C2", "CISD:/CISD/C3" };
+            { "c1", "C2", "/CISD/C3", "CISD:/CISD/C3" };
         sample.setParents(parents);
         genericClientService.registerSample("session", sample);
 
@@ -76,7 +81,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         assertEquals("COMMENT", properties.get(0).getPropertyType().getCode());
         assertEquals("test sample", properties.get(0).getValue());
         assertEquals(1, properties.size());
-        assertEquals(parents.length, s.getParents().size());
+        assertEquals(3, s.getParents().size());
         assertEquals("[CISD:/CISD/C1, CISD:/CISD/C2, CISD:/CISD/C3]", Arrays
                 .toString(IdentifierExtractor.extract(s.getParents()).toArray()));
     }
