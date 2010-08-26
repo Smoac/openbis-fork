@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
  * The expected format is the following:
  * 
  * <pre>
- * [&lt;database-instance-code&gt;:][/&lt;group-code&gt;/]
+ * [&lt;database-instance-code&gt;:][/&lt;space-code&gt;/]
  * </pre>
  * 
  * @author Basil Neff
