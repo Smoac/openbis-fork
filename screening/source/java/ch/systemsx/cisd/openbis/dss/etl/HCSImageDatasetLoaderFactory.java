@@ -39,6 +39,7 @@ public class HCSImageDatasetLoaderFactory
         return factories;
     }
 
+    /** the loader has to be closed when it is not used any more to free database resources! */
     public static final IHCSImageDatasetLoader create(File datasetRootDir, String datasetCode)
     {
         return createImageDBLoader(datasetRootDir, datasetCode);

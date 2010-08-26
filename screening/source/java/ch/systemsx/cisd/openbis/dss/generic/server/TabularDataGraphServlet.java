@@ -162,6 +162,12 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
         return imagingDbDao;
     }
 
+    @Override
+    protected void finalize()
+    {
+        DssScreeningUtils.closeQuietly(imagingDbDao);
+    }
+
     private IEncapsulatedOpenBISService getService()
     {
         synchronized (this)

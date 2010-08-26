@@ -123,11 +123,20 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
 
     private IImagingQueryDAO getDAO()
     {
-        if (dao == null)
+        synchronized (this)
         {
-            dao = DssScreeningUtils.createQuery();
+            if (dao == null)
+            {
+                dao = DssScreeningUtils.createQuery();
+            }
         }
         return dao;
+    }
+
+    @Override
+    protected void finalize()
+    {
+        DssScreeningUtils.closeQuietly(dao);
     }
 
     private IEncapsulatedOpenBISService getService()

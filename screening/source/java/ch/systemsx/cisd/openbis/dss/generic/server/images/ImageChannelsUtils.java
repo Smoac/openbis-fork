@@ -52,28 +52,32 @@ public class ImageChannelsUtils
     {
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
-        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
-
-        Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
-        if (params.isMergeAllChannels())
+        try
         {
-            for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
+            List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
+
+            Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
+            if (params.isMergeAllChannels())
+            {
+                for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
+                {
+                    AbsoluteImageReference image =
+                            getImage(imageAccessor, params.getChannelStack(), chosenChannel,
+                                    thumbnailSizeOrNull);
+                    images.add(image);
+                }
+            } else
             {
                 AbsoluteImageReference image =
-                        getImage(imageAccessor, params.getChannelStack(), chosenChannel,
+                        getImage(imageAccessor, params.getChannelStack(), params.getChannel(),
                                 thumbnailSizeOrNull);
                 images.add(image);
             }
-        } else
+            return images;
+        } finally
         {
-            AbsoluteImageReference image =
-                    getImage(imageAccessor, params.getChannelStack(), params.getChannel(),
-                            thumbnailSizeOrNull);
-            images.add(image);
+            imageAccessor.close();
         }
-        imageAccessor.close();
-
-        return images;
     }
 
     /**
@@ -251,8 +255,8 @@ public class ImageChannelsUtils
             Size thumbnailSizeOrNull)
     {
         AbsoluteImageReference image =
-                imageAccessor
-                        .tryGetImage(chosenChannelCode, channelStackReference, thumbnailSizeOrNull);
+                imageAccessor.tryGetImage(chosenChannelCode, channelStackReference,
+                        thumbnailSizeOrNull);
         if (image != null)
         {
             return image;

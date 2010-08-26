@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
 
 /**
  * Utility methods for DSS.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DssScreeningUtils
@@ -34,6 +34,10 @@ public class DssScreeningUtils
     /**
      * Creates a DAO based on imaging database specified in DSS service.properties by data source
      * {@link ScreeningConstants#IMAGING_DATA_SOURCE}.
+     * <p>
+     * Query has to be closed as soon as it is not used, otherwise we will run out of available
+     * connections quickly!
+     * </p>
      */
     public static IImagingQueryDAO createQuery()
     {
@@ -41,6 +45,20 @@ public class DssScreeningUtils
                 ServiceProvider.getDataSourceProvider().getDataSource(
                         ScreeningConstants.IMAGING_DATA_SOURCE);
         return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
+    }
+
+    /** Closes the query if it is not null, ignores the exceptions */
+    public static void closeQuietly(IImagingQueryDAO queryOrNull)
+    {
+        if (queryOrNull != null)
+        {
+            try
+            {
+                queryOrNull.close();
+            } catch (RuntimeException ex)
+            {
+            }
+        }
     }
 
 }

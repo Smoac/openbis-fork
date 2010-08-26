@@ -81,6 +81,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
      */
     public static final int MINOR_VERSION = 2;
 
+    // this dao will hold one connection to the database
     private IImagingQueryDAO dao;
 
     public DssServiceRpcScreening(String storeRootDir)
@@ -168,13 +169,18 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
-        IContent imageFile = getAnyImagePath(imageAccessor, dataset);
-        PlateImageParameters params = imageAccessor.getImageParameters();
-        imageAccessor.close();
-        int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
-        BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
-        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
-                .getChannelsLabels(), tilesNumber, image.getWidth(), image.getHeight());
+        try
+        {
+            IContent imageFile = getAnyImagePath(imageAccessor, dataset);
+            PlateImageParameters params = imageAccessor.getImageParameters();
+            int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
+            BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
+            return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
+                    .getChannelsLabels(), tilesNumber, image.getWidth(), image.getHeight());
+        } finally
+        {
+            imageAccessor.close();
+        }
     }
 
     private static IContent getAnyImagePath(IHCSImageDatasetLoader imageAccessor,
@@ -468,11 +474,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     private IImagingQueryDAO getDAO()
     {
-        if (dao == null)
+        synchronized (this)
         {
-            dao = DssScreeningUtils.createQuery();
+            if (dao == null)
+            {
+                dao = DssScreeningUtils.createQuery();
+            }
         }
         return dao;
+    }
+
+    @Override
+    protected void finalize()
+    {
+        DssScreeningUtils.closeQuietly(dao);
     }
 
     public int getMajorVersion()
