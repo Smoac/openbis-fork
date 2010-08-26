@@ -64,23 +64,28 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 public final class CachedResultSetManagerTest extends AssertJUnit
 {
     private static final IColumnDefinition<String> DEF1 = createColDef("col1", "-", 0);
+
     private static final IColumnDefinition<String> DEF2 = createColDef("col2", "-", 1);
+
     private static final List<IColumnDefinition<String>> COL_DEFS =
             createExampleColumnDefinitions();
 
     private static final Long KEY = new Long(42);
-    
+
     private static final String GRID_DISPLAY_ID = "example-grid";
 
     private static final String SESSION_TOKEN = "SESSION_TOKEN";
-    
+
     private static final Person REGISTRATOR = new Person();
 
     private static final class ResultSetConfigBuilder
     {
         private final Map<String, IColumnDefinition<String>> cols;
+
         private final DefaultResultSetConfig<Long, String> resultSetConfig;
+
         private final List<GridColumnFilterInfo<String>> columnFilters;
+
         private CustomFilterInfo<String> customFilter;
 
         public ResultSetConfigBuilder(List<IColumnDefinition<String>> columnDefinitions)
@@ -93,7 +98,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             resultSetConfig = new DefaultResultSetConfig<Long, String>();
             columnFilters = new ArrayList<GridColumnFilterInfo<String>>();
         }
-        
+
         IResultSetConfig<Long, String> get()
         {
             resultSetConfig.setAvailableColumns(new LinkedHashSet<IColumnDefinition<String>>(cols
@@ -109,64 +114,67 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             }
             return resultSetConfig;
         }
-        
+
         ResultSetConfigBuilder displayID(String displayID)
         {
             resultSetConfig.setGridDisplayId(displayID);
             return this;
         }
-        
+
         ResultSetConfigBuilder offset(int offset)
         {
             resultSetConfig.setOffset(offset);
             return this;
         }
-        
+
         ResultSetConfigBuilder limit(int limit)
         {
             resultSetConfig.setLimit(limit);
             return this;
         }
-        
+
         ResultSetConfigBuilder sortAsc(String columnDefinitionID)
         {
             resultSetConfig.setSortInfo(createSortInfo(columnDefinitionID, SortDir.ASC));
             return this;
         }
-        
+
         ResultSetConfigBuilder sortDesc(String columnDefinitionID)
         {
             resultSetConfig.setSortInfo(createSortInfo(columnDefinitionID, SortDir.DESC));
             return this;
         }
-        
+
         ResultSetConfigBuilder computeAndCache()
         {
-            resultSetConfig.setCacheConfig(ResultSetFetchConfig.<Long>createComputeAndCache());
+            resultSetConfig.setCacheConfig(ResultSetFetchConfig.<Long> createComputeAndCache());
             return this;
         }
-        
+
         ResultSetConfigBuilder clearComputeAndCache(Long key)
         {
-            resultSetConfig.setCacheConfig(ResultSetFetchConfig.<Long>createClearComputeAndCache(key));
+            resultSetConfig.setCacheConfig(ResultSetFetchConfig
+                    .<Long> createClearComputeAndCache(key));
             return this;
         }
-        
+
         ResultSetConfigBuilder fetchFromCache(Long key)
         {
-            resultSetConfig.setCacheConfig(ResultSetFetchConfig.<Long>createFetchFromCache(key));
+            resultSetConfig.setCacheConfig(ResultSetFetchConfig.<Long> createFetchFromCache(key));
             return this;
         }
-        
+
         ResultSetConfigBuilder fetchFromCacheAndRecompute(Long key)
         {
-            resultSetConfig.setCacheConfig(ResultSetFetchConfig.<Long>createFetchFromCacheAndRecompute(key));
+            resultSetConfig.setCacheConfig(ResultSetFetchConfig
+                    .<Long> createFetchFromCacheAndRecompute(key));
             return this;
         }
-        
+
         ResultSetConfigBuilder visibleColumns(String... ids)
         {
-            List<IColumnDefinition<String>> presentedColumns = new ArrayList<IColumnDefinition<String>>();
+            List<IColumnDefinition<String>> presentedColumns =
+                    new ArrayList<IColumnDefinition<String>>();
             for (String id : ids)
             {
                 presentedColumns.add(getDefinition(id));
@@ -174,14 +182,15 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             resultSetConfig.setPresentedColumns(presentedColumns);
             return this;
         }
-        
+
         ResultSetConfigBuilder columnFilter(String columnDefinitionID, String filterValue)
         {
             assertEquals(null, customFilter);
-            columnFilters.add(new GridColumnFilterInfo<String>(getDefinition(columnDefinitionID), filterValue));
+            columnFilters.add(new GridColumnFilterInfo<String>(getDefinition(columnDefinitionID),
+                    filterValue));
             return this;
         }
-        
+
         ResultSetConfigBuilder customFilter(String expression, String... bindings)
         {
             assertEquals(0, columnFilters.size());
@@ -198,13 +207,13 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             customFilter.setParameters(parameters);
             return this;
         }
-        
+
         ResultSetConfigBuilder longErrorMessage()
         {
             resultSetConfig.setCustomColumnErrorMessageLong(true);
             return this;
         }
-        
+
         private SortInfo<String> createSortInfo(String columnDefinitionID, SortDir sortingDirection)
         {
             SortInfo<String> sortInfo = new SortInfo<String>();
@@ -212,8 +221,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             sortInfo.setSortDir(sortingDirection);
             return sortInfo;
         }
-        
-        
+
         private IColumnDefinition<String> getDefinition(String id)
         {
             IColumnDefinition<String> def = cols.get(id);
@@ -225,7 +233,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             return def;
         }
     }
-    
+
     public static <T> GridRowModels<T> createGridRowModels(List<T> entities)
     {
         ArrayList<GridCustomColumnInfo> customColumnsMetadata =
@@ -237,20 +245,20 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                         columnDistinctValues);
         return rowModels;
     }
-    
+
     private static final class ColumnCalculatorProxy implements IColumnCalculator
     {
         private List<String> recordedColumnCodes = new ArrayList<String>();
-        
+
         public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
                 GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
                 boolean errorMessagesAreLong)
         {
             recordedColumnCodes.add(customColumn.getCode());
-            return GridExpressionUtils.evalCustomColumn(data, customColumn,
-                    availableColumns, errorMessagesAreLong);
+            return GridExpressionUtils.evalCustomColumn(data, customColumn, availableColumns,
+                    errorMessagesAreLong);
         }
-        
+
         @Override
         public String toString()
         {
@@ -279,7 +287,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         keyGenerator = context.mock(IResultSetKeyGenerator.class);
         customColumnsProvider = context.mock(ICustomColumnsProvider.class);
         columnCalculator = new ColumnCalculatorProxy();
-        resultSetManager = new CachedResultSetManager<Long>(keyGenerator, customColumnsProvider, columnCalculator);
+        resultSetManager =
+                new CachedResultSetManager<Long>(keyGenerator, customColumnsProvider,
+                        columnCalculator);
     }
 
     @AfterMethod
@@ -308,10 +318,11 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     public void testOffsetAndLimit()
     {
         prepareDataAndCustomColumnDefinitions(20);
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
 
         getAndCheckRows(10, 0, builder.offset(-1).limit(10));
-        
+
         builder.fetchFromCache(KEY);
         getAndCheckRows(10, 9, builder.offset(9).limit(10));
         getAndCheckRows(10, 10, builder.offset(10).limit(10));
@@ -324,15 +335,16 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         getAndCheckRows(1, 19, builder.offset(20).limit(-1));
         getAndCheckRows(1, 19, builder.offset(21).limit(-1));
         getAndCheckRows(20, 0, builder.offset(-1).limit(-1));
-        
+
         context.assertIsSatisfied();
     }
-    
-    private void getAndCheckRows(int expectedSize, int expectedOffset, ResultSetConfigBuilder builder)
+
+    private void getAndCheckRows(int expectedSize, int expectedOffset,
+            ResultSetConfigBuilder builder)
     {
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         GridRowModels<String> list = resultSet.getList();
         assertEquals("size", expectedSize, list.size());
         for (int i = 0; i < list.size(); i++)
@@ -346,10 +358,11 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     public final void testGetResultWithNull()
     {
         prepareDataAndCustomColumnDefinitions(0);
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         IResultSet<Long, String> resultSet =
                 resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+
         assertEquals(0, resultSet.getList().size());
         assertEquals(0, resultSet.getTotalLength());
         assertEquals(KEY, resultSet.getResultSetKey());
@@ -358,6 +371,23 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
     @Test
     public final void testRemoveResultSet()
+    {
+        prepareComputeDataExpectations();
+        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
+        resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+        builder.fetchFromCache(KEY);
+        resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
+        resultSetManager.removeResultSet(KEY);
+
+        // if data are not in the cache, we compute them again
+        prepareComputeDataExpectations();
+        resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
+        context.assertIsSatisfied();
+    }
+
+    private void prepareComputeDataExpectations()
     {
         context.checking(new Expectations()
             {
@@ -369,23 +399,8 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     will(returnValue(Arrays.asList()));
                 }
             });
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
-        resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        builder.fetchFromCache(KEY);
-        resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
-        resultSetManager.removeResultSet(KEY);
-
-        try
-        {
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-            assertEquals("Invalid result set key: " + KEY, ex.getMessage());
-        }
-        context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testRemoveResultSetFailedForNullArgument()
     {
@@ -399,42 +414,43 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         }
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSorting()
     {
         prepareDataAndCustomColumnDefinitions(3);
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         builder.sortAsc("col2");
         IResultSet<Long, String> data =
                 resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+
         assertEquals(3, data.getTotalLength());
         GridRowModels<String> list = data.getList();
         assertEquals(3, list.size());
         assertEquals("0-a0", list.get(0).getOriginalObject());
         assertEquals("2-a0", list.get(1).getOriginalObject());
         assertEquals("1-a1", list.get(2).getOriginalObject());
-        
+
         builder.fetchFromCache(KEY).sortDesc("col1");
         data = resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+
         assertEquals(3, data.getTotalLength());
         list = data.getList();
         assertEquals(3, list.size());
         assertEquals("2-a0", list.get(0).getOriginalObject());
         assertEquals("1-a1", list.get(1).getOriginalObject());
         assertEquals("0-a0", list.get(2).getOriginalObject());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testComputeAndCache()
     {
         prepareDataAndCustomColumnDefinitions(3);
         IResultSet<Long, String> data = getDataFirstTime();
-        
+
         assertEquals(KEY, data.getResultSetKey());
         assertEquals(3, data.getTotalLength());
         GridRowModels<String> list = data.getList();
@@ -444,10 +460,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals("2-a0", list.get(2).getOriginalObject());
         assertEquals(0, list.getColumnDistinctValues().size());
         assertEquals(0, list.getCustomColumnsMetadata().size());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testColumnFilters()
     {
@@ -458,7 +474,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
         IResultSet<Long, String> resultSet =
                 resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+
         assertEquals(KEY, resultSet.getResultSetKey());
         assertEquals(5, resultSet.getTotalLength());
         GridRowModels<String> list = resultSet.getList();
@@ -470,19 +486,20 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals("18-a0", list.get(4).getOriginalObject());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCustomFilter()
     {
         prepareDataAndCustomColumnDefinitions(40);
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         builder.customFilter(
                 "toInt(row.col('col1')) >= ${min} and toInt(row.col('col1')) <= ${max}", "min=10",
                 "max=12");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         assertEquals(KEY, resultSet.getResultSetKey());
         assertEquals(3, resultSet.getTotalLength());
         GridRowModels<String> list = resultSet.getList();
@@ -492,17 +509,18 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals("12-a0", list.get(2).getOriginalObject());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDistinctValues()
     {
         prepareDataAndCustomColumnDefinitions(CachedResultSetManager.MAX_DISTINCT_COLUMN_VALUES_SIZE + 1);
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         builder.columnFilter("col1", "").columnFilter("col2", "");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         List<ColumnDistinctValues> list = resultSet.getList().getColumnDistinctValues();
         assertEquals(1, list.size());
         ColumnDistinctValues distinctValues = list.get(0);
@@ -519,19 +537,19 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         prepareDataAndCustomColumnDefinitions(0, c1, c2);
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
         builder.displayID(GRID_DISPLAY_ID);
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
 
         GridRowModels<String> list = resultSet.getList();
         List<GridCustomColumnInfo> metaData = list.getCustomColumnsMetadata();
         assertEquals(2, metaData.size());
         assertEquals("$c1", metaData.get(0).getCode());
         assertEquals("$c2", metaData.get(1).getCode());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCustomColumn()
     {
@@ -539,10 +557,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         prepareDataAndCustomColumnDefinitions(3, c1);
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
         builder.displayID(GRID_DISPLAY_ID).visibleColumns("$c1");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         GridRowModels<String> list = resultSet.getList();
         assertEquals(3, list.size());
         assertEquals("0-a0 0", render(list.get(0)));
@@ -550,10 +568,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals("2-a0 4", render(list.get(2)));
         assertEquals(DataTypeCode.INTEGER, list.getCustomColumnsMetadata().get(0).getDataType());
         assertEquals("[$c1]", columnCalculator.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSortCustomColumn()
     {
@@ -561,10 +579,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         prepareDataAndCustomColumnDefinitions(3, c1);
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
         builder.displayID(GRID_DISPLAY_ID).visibleColumns("$c1").sortDesc("$c1");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         GridRowModels<String> list = resultSet.getList();
         assertEquals(3, list.size());
         assertEquals("2-a0 4", render(list.get(0)));
@@ -572,10 +590,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals("0-a0 0", render(list.get(2)));
         assertEquals(DataTypeCode.INTEGER, list.getCustomColumnsMetadata().get(0).getDataType());
         assertEquals("[$c1]", columnCalculator.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testColumnFilterBasedOnCustomColumn()
     {
@@ -583,47 +601,49 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         prepareDataAndCustomColumnDefinitions(3, c1);
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
         builder.displayID(GRID_DISPLAY_ID).columnFilter("$c1", "2");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         GridRowModels<String> list = resultSet.getList();
         assertEquals(1, list.size());
         assertEquals("1-a1 2", render(list.get(0)));
         assertEquals("[$c1]", columnCalculator.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCustomFilterBasedOnCustomColumn()
     {
         final GridCustomColumn c1 = customColumn("$c1", "toInt(row.col('col1')) * 2");
         prepareDataAndCustomColumnDefinitions(3, c1);
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         builder.visibleColumns("$c1").visibleColumns(); // creating an available column
         builder.customFilter("toInt(row.col('$c1')) < ${threshold}", "threshold=3");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         GridRowModels<String> list = resultSet.getList();
         assertEquals(2, list.size());
         assertEquals("0-a0 0", render(list.get(0)));
         assertEquals("1-a1 2", render(list.get(1)));
         assertEquals("[$c1]", columnCalculator.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCustomColumnCalculationAndCaching()
     {
         final GridCustomColumn c1 = customColumn("$c1", "toInt(row.col('col1')) * 2");
         final GridCustomColumn c2 = customColumn("$c2", "42");
         prepareDataAndCustomColumnDefinitions(3, c1, c2);
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
-        
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+
         builder.visibleColumns("$c1");
         resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
         builder.fetchFromCache(KEY);
@@ -634,12 +654,12 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         builder.visibleColumns("$c1");
         resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
         resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+
         assertEquals("[$c1, $c2, $c1]", columnCalculator.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCustomColumnCachingForChangedExpression()
     {
@@ -661,18 +681,19 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     will(returnValue(Arrays.asList(c1a)));
                 }
             });
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         builder.visibleColumns("$c1");
         resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
 
         builder.fetchFromCache(KEY);
         resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+
         assertEquals("[$c1, $c1]", columnCalculator.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCustomColumnError()
     {
@@ -681,14 +702,16 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         prepareDataAndCustomColumnDefinitions(2, c1, c2);
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
         builder.displayID(GRID_DISPLAY_ID).visibleColumns("$c1");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         GridRowModels<String> list = resultSet.getList();
         assertEquals(2, list.size());
-        assertEquals("0-a0 Error. Please contact 'null <null>', who defined this column.", render(list.get(0)));
-        assertEquals("1-a1 Error. Please contact 'null <null>', who defined this column.", render(list.get(1)));
+        assertEquals("0-a0 Error. Please contact 'null <null>', who defined this column.",
+                render(list.get(0)));
+        assertEquals("1-a1 Error. Please contact 'null <null>', who defined this column.",
+                render(list.get(1)));
         assertEquals(DataTypeCode.VARCHAR, list.getCustomColumnsMetadata().get(0).getDataType());
 
         builder.fetchFromCache(KEY).limit(1).visibleColumns("$c2").longErrorMessage();
@@ -704,7 +727,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSimpleCaching()
     {
@@ -725,7 +748,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                 resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
         assertEquals("alpha", resultSet.getList().get(0).getOriginalObject());
         assertEquals("beta", resultSet.getList().get(1).getOriginalObject());
-        
+
         builder.fetchFromCache(KEY).offset(1);
         resultSet =
                 resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
@@ -733,7 +756,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCachingSequenceSequenceComputeFetchClearComputeFetch()
     {
@@ -771,9 +794,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             });
         builder.clearComputeAndCache(KEY).sortDesc("col1");
         resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
         assertEquals("a", resultSet.getList().get(0).getOriginalObject());
-        
+
         builder.fetchFromCacheAndRecompute(KEY).offset(0);
         resultSet =
                 resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
@@ -799,12 +822,13 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     }
                     will(returnValue(Arrays.asList(rows)));
 
-                    allowing(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN, GRID_DISPLAY_ID);
+                    allowing(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN,
+                            GRID_DISPLAY_ID);
                     will(returnValue(Arrays.asList(columns)));
                 }
             });
     }
-    
+
     private String render(GridRowModel<String> model)
     {
         StringBuilder builder = new StringBuilder();
@@ -829,7 +853,8 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
     private IResultSet<Long, String> getDataFirstTime()
     {
-        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        ResultSetConfigBuilder builder =
+                new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         return resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
     }
 
@@ -838,7 +863,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     {
         return Arrays.asList(DEF1, DEF2);
     }
-    
+
     private static IColumnDefinition<String> createColDef(final String identifier,
             final String separator, final int tokenIndex)
     {
@@ -871,7 +896,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
             };
     }
-    
+
     private static IColumnDefinition<String> createCustomColDef(final String identifier,
             final int tokenIndex)
     {
