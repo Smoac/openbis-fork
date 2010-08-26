@@ -1725,14 +1725,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return new DeletionCallback(viewContext, invoker);
     }
 
-    /** Creates deletion callback that refreshes the grid with additional progress bar. */
-    protected final AsyncCallback<Void> createDeletionCallbackWithProgressBar(
-            IBrowserGridActionInvoker invoker, String progressMessage)
-    {
-        final AbstractAsyncCallback<Void> deletionCallback = createDeletionCallback(invoker);
-        return AsyncCallbackWithProgressBar.decorate(deletionCallback, progressMessage);
-    }
-
     /** Deletion callback that refreshes the grid. */
     private static final class DeletionCallback extends AbstractAsyncCallback<Void>
     {

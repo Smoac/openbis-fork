@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.DisplayedAndSelectedSamples;
@@ -70,16 +71,18 @@ public final class SampleListDeletionConfirmationDialog extends
     @Override
     protected void executeConfirmedAction()
     {
+        AsyncCallback<Void> callbackWithProgressBar =
+                AsyncCallbackWithProgressBar.decorate(callback, "Deleting samples...");
         if (selectedAndDisplayedItemsOrNull != null)
         {
             final DisplayedOrSelectedIdHolderCriteria<Sample> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteSamples(uploadCriteria, reason.getValue(),
-                    callback);
+                    callbackWithProgressBar);
         } else
         {
             viewContext.getCommonService().deleteSample(TechId.create(singleDataOrNull),
-                    reason.getValue(), callback);
+                    reason.getValue(), callbackWithProgressBar);
         }
     }
 
