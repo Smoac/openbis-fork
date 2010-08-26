@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
+ * TODO 2010-08-16, CR, This class is no longer used. It can be deleted.
+ * <p>
  * Package-visible helper class to extract information from the XML metadata file and register a new
  * sample using this data.
  * <p>

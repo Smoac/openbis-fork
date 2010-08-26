@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
+ * TODO 2010-08-16, CR, This class is no longer used. It can be deleted.
+ * <p>
  * The extractor expects that certain things have been set up in the database. In particular:
  * <ul>
  * <li>A data set type with code CINA_EXP_PREP &mdash; this is the data set for preparation

@@ -35,9 +35,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
+ * TODO 2010-08-16, CR, This class is no longer used. It can be deleted.
+ * <p>
  * CINA uses the data store server to register experiments and samples in addition to data sets. The
- * CinaBundleDataSetInfoExtractor follows the conventions agreed to by the CINA project to determine if
- * the file represents an experiment, sample, or data set and takes according action.
+ * CinaBundleDataSetInfoExtractor follows the conventions agreed to by the CINA project to determine
+ * if the file represents an experiment, sample, or data set and takes according action.
  * <p>
  * In the case of data representing experiments and samples, the extractor may need to register the
  * experiment/sample with openBIS before continuing to process the data set.

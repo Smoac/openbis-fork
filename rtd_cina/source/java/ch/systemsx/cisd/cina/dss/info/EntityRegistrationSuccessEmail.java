@@ -24,12 +24,14 @@ import ch.systemsx.cisd.cina.dss.info.FolderOracle.FolderType;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
+ * TODO 2010-08-16, CR, This class is no longer used. It can be deleted.
+ * 
  * Create the subject and content for an email that is sent when an experiment or sample is
  * registered.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class EntityRegistrationSuccessEmail
+class EntityRegistrationSuccessEmail
 {
     private static final String MARKER_FILE_MIME_TYPE = "application/octet-stream";
 

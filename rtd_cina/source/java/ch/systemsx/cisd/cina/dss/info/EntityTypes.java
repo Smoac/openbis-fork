@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.cina.dss.info;
 
 /**
+ * TODO 2010-08-16, CR, This class is no longer used. It can be deleted.
+ * <p>
  * A registry for the different entity types CINA uses
  * 
  * @author Chandrasekhar Ramakrishnan
