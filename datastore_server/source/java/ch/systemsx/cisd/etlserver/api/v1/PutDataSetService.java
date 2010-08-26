@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.etlserver.DataStrategyStore;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
@@ -65,7 +66,7 @@ public class PutDataSetService
 
     private boolean isInitialized = false;
 
-    private MailClient mailClient;
+    private IMailClient mailClient;
 
     private File incomingDir;
 
@@ -73,12 +74,55 @@ public class PutDataSetService
 
     private DatabaseInstance homeDatabaseInstance;
 
+    /**
+     * The designated constructor.
+     * 
+     * @param openBisService
+     * @param operationLog
+     */
     public PutDataSetService(IEncapsulatedOpenBISService openBisService, Logger operationLog)
     {
         this.openBisService = openBisService;
         this.operationLog = operationLog;
 
         this.registrationLock = new ReentrantLock();
+    }
+
+    /**
+     * A constructor for testing purposes. Not useful outside of testing.
+     * 
+     * @param openBisService
+     * @param operationLog
+     * @param store
+     * @param incoming
+     * @param map
+     * @param mail
+     * @param dsCode
+     */
+    public PutDataSetService(IEncapsulatedOpenBISService openBisService, Logger operationLog,
+            File store, File incoming, DataSetTypeToPluginMapper map, IMailClient mail,
+            String dsCode, IDataSetValidator validator)
+    {
+        this(openBisService, operationLog);
+
+        incomingDir = incoming;
+        incomingDir.mkdir();
+
+        pluginMap = map;
+        storeDirectory = store;
+        pluginMap.initializeStoreRootDirectory(storeDirectory);
+
+        mailClient = mail;
+        dataStrategyStore = new DataStrategyStore(openBisService, mailClient);
+
+        this.dataStoreCode = dsCode;
+
+        homeDatabaseInstance = openBisService.getHomeDatabaseInstance();
+
+        dataSetValidator = validator;
+
+        isInitialized = true;
+
     }
 
     public String putDataSet(String sessionToken, NewDataSetDTO newDataSet, InputStream inputStream)
@@ -118,7 +162,6 @@ public class PutDataSetService
     {
         PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
 
-        incomingDir = initializer.getIncomingDir();
         incomingDir.mkdir();
 
         pluginMap = initializer.getPluginMap();
@@ -144,7 +187,7 @@ public class PutDataSetService
         return openBisService;
     }
 
-    MailClient getMailClient()
+    IMailClient getMailClient()
     {
         return mailClient;
     }
@@ -152,6 +195,11 @@ public class PutDataSetService
     File getIncomingDir()
     {
         return incomingDir;
+    }
+
+    public void setIncomingDir(File aDir)
+    {
+        incomingDir = aDir;
     }
 
     Logger getOperationLog()
@@ -213,11 +261,6 @@ class PutDataSetServiceInitializer
     public DataSetTypeToPluginMapper getPluginMap()
     {
         return new DataSetTypeToPluginMapper(params);
-    }
-
-    File getIncomingDir()
-    {
-        return new File(System.getProperty("java.io.tmpdir"), "dss_rpc_incoming");
     }
 
     Properties getMailProperties()

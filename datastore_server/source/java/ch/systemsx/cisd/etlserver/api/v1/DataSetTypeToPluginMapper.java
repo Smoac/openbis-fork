@@ -26,7 +26,8 @@ import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.ThreadParameters;
 
 /**
- * Utility class the maps between data set types (strings) and IETLServerPlugin instances.
+ * Utility class the maps between data set types (strings) and IETLServerPlugin instances. Made
+ * public to aid tests, but is really package internal.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -43,6 +44,17 @@ class DataSetTypeToPluginMapper
     private static final String DEFAULT_THREAD_KEY = "put-default";
 
     private static final String PUT_SECTION_KEY = "put";
+
+    /**
+     * Constructor for testing purposes. Should not be used otherwise.
+     * 
+     * @param plugin
+     */
+    protected DataSetTypeToPluginMapper(IETLServerPlugin plugin)
+    {
+        defaultPlugin = plugin;
+        pluginMap = new HashMap<String, IETLServerPlugin>();
+    }
 
     DataSetTypeToPluginMapper(Parameters params)
     {

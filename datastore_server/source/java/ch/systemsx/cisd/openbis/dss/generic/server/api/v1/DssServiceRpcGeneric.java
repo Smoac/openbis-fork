@@ -41,10 +41,29 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
 {
     private final PutDataSetService putService;
 
+    /**
+     * The designated constructor.
+     * 
+     * @param openBISService
+     */
     public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService)
     {
         super(openBISService);
         putService = new PutDataSetService(openBISService, operationLog);
+        operationLog.info("[rpc] Started DSS API V1 service.");
+    }
+
+    /**
+     * A constructor for testing.
+     * 
+     * @param openBISService
+     * @param service
+     */
+    public DssServiceRpcGeneric(IEncapsulatedOpenBISService openBISService,
+            PutDataSetService service)
+    {
+        super(openBISService);
+        putService = service;
         operationLog.info("[rpc] Started DSS API V1 service.");
     }
 
@@ -146,4 +165,12 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
         super.setStoreDirectory(aFile);
         putService.setStoreDirectory(aFile);
     }
+
+    @Override
+    public void setIncomingDirectory(File aFile)
+    {
+        super.setIncomingDirectory(aFile);
+        putService.setIncomingDir(aFile);
+    }
+
 }

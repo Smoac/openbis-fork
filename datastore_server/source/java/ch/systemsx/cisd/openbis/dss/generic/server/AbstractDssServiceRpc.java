@@ -60,6 +60,15 @@ public abstract class AbstractDssServiceRpc
     }
 
     /**
+     * Configuration method to set the directory for incoming data sets. Should only be called by
+     * the object that configures the RPC services.
+     */
+    public void setIncomingDirectory(File aFile)
+    {
+        // For subclasses to override
+    }
+
+    /**
      * Constructor with required reference to the openBIS service.
      * 
      * @param openBISService

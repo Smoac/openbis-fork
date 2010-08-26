@@ -47,8 +47,10 @@ final class ConfigParameters
 
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
+    static final String RPC_INCOMING_DIR = "rpc-incoming-dir";
+
     static final String SESSION_TIMEOUT_KEY = "session-timeout";
-    
+
     static final String DOWNLOAD_URL = "download-url";
 
     private static final String KEYSTORE = "keystore.";
@@ -71,10 +73,12 @@ final class ConfigParameters
 
     private final File storePath;
 
+    private final File rpcIncomingDirectory;
+
     private final int port;
 
     private final String serverURL;
-    
+
     private final String downloadURL;
 
     private final int sessionTimeout;
@@ -137,6 +141,7 @@ final class ConfigParameters
     public ConfigParameters(final Properties properties)
     {
         storePath = new File(PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY));
+        rpcIncomingDirectory = getRpcIncomingDirectory(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
         downloadURL = PropertyUtils.getMandatoryProperty(properties, DOWNLOAD_URL);
@@ -154,6 +159,18 @@ final class ConfigParameters
             keystorePath = keystorePassword = keystoreKeyPassword = null;
         }
         pluginServlets = extractPluginServletsProperties(properties);
+    }
+
+    private static File getRpcIncomingDirectory(final Properties properties)
+    {
+        String incomingDirPath = PropertyUtils.getProperty(properties, RPC_INCOMING_DIR);
+        if (null != incomingDirPath)
+        {
+            return new File(incomingDirPath);
+        } else
+        {
+            return new File(System.getProperty("java.io.tmpdir"), "dss_rpc_incoming");
+        }
     }
 
     private static List<PluginServlet> extractPluginServletsProperties(Properties properties)
@@ -191,6 +208,11 @@ final class ConfigParameters
     public final File getStorePath()
     {
         return storePath;
+    }
+
+    public final File getRpcIncomingDirectory()
+    {
+        return rpcIncomingDirectory;
     }
 
     public final int getPort()
