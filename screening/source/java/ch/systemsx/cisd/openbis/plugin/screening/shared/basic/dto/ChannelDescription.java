@@ -43,6 +43,7 @@ public class ChannelDescription implements IsSerializable
         this.label = name;
     }
 
+    // TODO 2010-08-25, Tomasz Pylak: merge with {@link CodeAndLabel} 
     private String normalize(String name)
     {
         if (name == null)
