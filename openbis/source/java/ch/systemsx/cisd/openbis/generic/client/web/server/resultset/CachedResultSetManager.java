@@ -336,6 +336,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private final ICustomColumnsProvider customColumnsProvider;
 
+    // all cache access should be doen in a monitor (synchronized clause)
     private final Map<K, TableData<?>> cache = new HashMap<K, TableData<?>>();
 
     private final IColumnCalculator columnCalculator;
@@ -364,7 +365,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     @SuppressWarnings("unchecked")
-    private final <T> T cast(final Object object)
+    private static final <T> T cast(final Object object)
     {
         return (T) object;
     }
@@ -477,7 +478,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return true;
     }
 
-    private final <T> void sortData(final GridRowModels<T> data, final SortInfo<T> sortInfo)
+    private static <T> void sortData(final GridRowModels<T> data, final SortInfo<T> sortInfo)
     {
         assert data != null : "Unspecified data.";
         assert sortInfo != null : "Unspecified sort information.";
@@ -531,7 +532,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     // IDataManager
     //
 
-    public final synchronized <T> IResultSet<K, T> getResultSet(final String sessionToken,
+    public final <T> IResultSet<K, T> getResultSet(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
         assert resultConfig != null : "Unspecified result configuration";
@@ -547,42 +548,54 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             {
                 removeResultSet(cacheConfig.tryGetResultSetKey());
             }
-            return calculateResultSetAndSave(sessionToken, resultConfig, dataProvider);
+            return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
         }
         K dataKey = cacheConfig.tryGetResultSetKey();
-        return calculateSortAndFilterResult(sessionToken, resultConfig, dataKey);
+        TableData<T> tableData = tryGetCachedTableData(dataKey);
+        if (tableData != null)
+        {
+            return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);
+        } else
+        {
+            return fetchAndCacheResult(sessionToken, resultConfig, dataProvider);
+        }
     }
 
-    private <T> IResultSet<K, T> calculateResultSetAndSave(final String sessionToken,
+    private <T> IResultSet<K, T> fetchAndCacheResult(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
         K dataKey = resultSetKeyProvider.createKey();
         debug("retrieving the data with a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData();
-        cache.put(dataKey, new TableData<T>(rows, customColumnsProvider, columnCalculator));
-        return calculateSortAndFilterResult(sessionToken, resultConfig, dataKey);
+        TableData<T> tableData = new TableData<T>(rows, customColumnsProvider, columnCalculator);
+        addToCache(dataKey, tableData);
+        return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);
     }
 
-    private <T> IResultSet<K, T> calculateSortAndFilterResult(final String sessionToken,
-            final IResultSetConfig<K, T> resultConfig, K dataKey)
+    private synchronized <T> void addToCache(K dataKey, TableData<T> tableData)
     {
-        GridRowModels<T> data = calculateRowModels(sessionToken, resultConfig, dataKey);
+        cache.put(dataKey, tableData);
+    }
+
+    private static <K, T> IResultSet<K, T> calculateSortAndFilterResult(String sessionToken,
+            TableData<T> tableData, final IResultSetConfig<K, T> resultConfig, K dataKey)
+    {
+        GridRowModels<T> data = tableData.getRows(sessionToken, resultConfig);
         return filterLimitAndSort(resultConfig, data, dataKey);
     }
 
-    private <T> GridRowModels<T> calculateRowModels(final String sessionToken,
-            final IResultSetConfig<K, T> resultConfig, K dataKey)
+    private synchronized <T> TableData<T> tryGetCachedTableData(K dataKey)
     {
         TableData<T> tableData = cast(cache.get(dataKey));
         if (tableData == null)
         {
-            throw new IllegalArgumentException("Invalid result set key: " + dataKey);
+            operationLog.error("Reference to the stale cache key " + dataKey);
         }
-        return tableData.getRows(sessionToken, resultConfig);
+        return tableData;
     }
 
-    private <T> IResultSet<K, T> filterLimitAndSort(final IResultSetConfig<K, T> resultConfig,
-            GridRowModels<T> data, K dataKey)
+    private static <K, T> IResultSet<K, T> filterLimitAndSort(
+            final IResultSetConfig<K, T> resultConfig, GridRowModels<T> data, K dataKey)
     {
         GridRowModels<T> filteredData =
                 filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilters());
@@ -603,7 +616,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             debug(String.format("Result set for key '%s' has been removed.", resultSetKey));
         } else
         {
-            debug(String.format("No result set for key '%s' could be found.", resultSetKey));
+            operationLog.error(String.format("No result set for key '%s' could be found.",
+                    resultSetKey));
         }
     }
 
