@@ -111,6 +111,8 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
             {
                 // get the thumbnail content
                 content = getOriginalFileContent(imageDTO);
+                // resize to the requested size
+                content = new ThumbnailContent(content, thumbnailSizeOrNull);
             }
         } else
         {
