@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelStackDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDa
  */
 public class HCSDatasetLoader implements IHCSDatasetLoader
 {
-    protected final IImagingQueryDAO query;
+    protected final IImagingReadonlyQueryDAO query;
 
     protected final ImgDatasetDTO dataset;
 
@@ -49,7 +49,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     protected List<ImgChannelDTO> channels;
 
-    public HCSDatasetLoader(IImagingQueryDAO query, String datasetPermId)
+    public HCSDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId)
     {
         this.query = query;
         this.dataset = query.tryGetDatasetByPermId(datasetPermId);
@@ -60,12 +60,6 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         this.channels =
                 query.getChannelsByDatasetIdOrExperimentId(getDataset().getId(), getContainer()
                         .getExperimentId());
-    }
-
-    /** has to be called at the end */
-    public void close()
-    {
-        query.close();
     }
 
     protected final ImgContainerDTO getContainer()

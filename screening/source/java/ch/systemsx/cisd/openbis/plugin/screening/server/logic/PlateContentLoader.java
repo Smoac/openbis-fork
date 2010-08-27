@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -172,8 +173,8 @@ public class PlateContentLoader
                 ScreeningUtils.filterImageAnalysisDatasets(datasets);
         List<String> datasetCodes = Code.extractCodes(analysisDatasets);
         String dataStoreCode = extractDataStoreCode(analysisDatasets);
-        return DatasetReportsLoader.loadAnalysisResults(datasetCodes, dataStoreCode,
-                externalDataTable);
+        return externalDataTable.createReportFromDatasets(
+                ScreeningConstants.PLATE_IMAGE_ANALYSIS_REPORT_KEY, dataStoreCode, datasetCodes);
     }
 
     private String extractDataStoreCode(List<ExternalDataPE> imageDatasets)
@@ -278,24 +279,10 @@ public class PlateContentLoader
 
     private DatasetImagesReference loadImages(ExternalData dataset)
     {
-        PlateImageParameters imageParameters = loadImageParams(dataset);
+        PlateImageParameters imageParameters =
+                ScreeningUtils.loadImageParameters(dataset, businessObjectFactory);
         return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset),
                 imageParameters);
-    }
-
-    private PlateImageParameters loadImageParams(ExternalData dataset)
-    {
-        IHCSDatasetLoader loader = createHCSDatasetLoader(dataset);
-        PlateImageParameters params = loader.getImageParameters();
-        loader.close();
-        return params;
-    }
-
-    private IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet)
-    {
-        String datastoreCode = dataSet.getDataStore().getCode();
-        String datasetCode = dataSet.getCode();
-        return businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
@@ -333,7 +320,6 @@ public class PlateContentLoader
         IHCSDatasetLoader datasetLoader =
                 businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
         List<WellImageChannelStack> stacks = datasetLoader.listImageChannelStacks(wellLocation);
-        datasetLoader.close();
         return stacks;
     }
 }

@@ -22,7 +22,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
  * Utility methods for DSS.
@@ -31,34 +31,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  */
 public class DssScreeningUtils
 {
+    private static final IImagingReadonlyQueryDAO query = createQuery();
+
+    public static IImagingReadonlyQueryDAO getQuery()
+    {
+        return query;
+    }
+
     /**
      * Creates a DAO based on imaging database specified in DSS service.properties by data source
      * {@link ScreeningConstants#IMAGING_DATA_SOURCE}.
      * <p>
-     * Query has to be closed as soon as it is not used, otherwise we will run out of available
-     * connections quickly!
+     * Returned query is reused and should not be closed.
      * </p>
      */
-    public static IImagingQueryDAO createQuery()
+    private static IImagingReadonlyQueryDAO createQuery()
     {
         DataSource dataSource =
                 ServiceProvider.getDataSourceProvider().getDataSource(
                         ScreeningConstants.IMAGING_DATA_SOURCE);
-        return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
+        return QueryTool.getQuery(dataSource, IImagingReadonlyQueryDAO.class);
     }
-
-    /** Closes the query if it is not null, ignores the exceptions */
-    public static void closeQuietly(IImagingQueryDAO queryOrNull)
-    {
-        if (queryOrNull != null)
-        {
-            try
-            {
-                queryOrNull.close();
-            } catch (RuntimeException ex)
-            {
-            }
-        }
-    }
-
 }

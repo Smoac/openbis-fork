@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
@@ -55,7 +55,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
 
     private IEncapsulatedOpenBISService service;
 
-    private IImagingQueryDAO dao;
+    private IImagingReadonlyQueryDAO dao;
 
     private ImageAnalysisMergedRowsReportingPlugin plugin;
 
@@ -64,7 +64,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
     {
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
-        dao = context.mock(IImagingQueryDAO.class);
+        dao = context.mock(IImagingReadonlyQueryDAO.class);
         plugin =
                 new ImageAnalysisMergedRowsReportingPlugin(new Properties(), new File("."),
                         service, dao);

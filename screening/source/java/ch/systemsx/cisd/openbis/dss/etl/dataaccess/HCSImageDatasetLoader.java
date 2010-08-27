@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference.LocationImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 
 /**
@@ -57,7 +57,7 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
 {
     private final IContentRepository contentRepository;
 
-    public HCSImageDatasetLoader(IImagingQueryDAO query, String datasetPermId,
+    public HCSImageDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId,
             IContentRepository contentRepository)
     {
         super(query, datasetPermId);

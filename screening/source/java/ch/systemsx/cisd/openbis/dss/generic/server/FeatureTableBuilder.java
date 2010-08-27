@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
 /**
  * Builder for a table of feature vectors. After building a list of feature codes and a list of
  * {@link FeatureTableRow}s are available. Feature vectors are retrieved from
- * {@link IImagingQueryDAO}.
+ * {@link IImagingReadonlyQueryDAO}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -58,7 +58,7 @@ public class FeatureTableBuilder
         private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
     }
 
-    private final IImagingQueryDAO dao;
+    private final IImagingReadonlyQueryDAO dao;
 
     private final IEncapsulatedOpenBISService service;
 
@@ -73,7 +73,7 @@ public class FeatureTableBuilder
     /**
      * Creates an instance for specified DAO and openBIS service.
      */
-    public FeatureTableBuilder(IImagingQueryDAO dao, IEncapsulatedOpenBISService service)
+    public FeatureTableBuilder(IImagingReadonlyQueryDAO dao, IEncapsulatedOpenBISService service)
     {
         this(Collections.<String> emptyList(), dao, service);
     }
@@ -83,7 +83,7 @@ public class FeatureTableBuilder
      * 
      * @param featureCodes And empty list means no filtering.
      */
-    public FeatureTableBuilder(List<String> featureCodes, IImagingQueryDAO dao,
+    public FeatureTableBuilder(List<String> featureCodes, IImagingReadonlyQueryDAO dao,
             IEncapsulatedOpenBISService service)
     {
         this.dao = dao;

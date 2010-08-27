@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
  * Reporting plugin that concatenates rows of tabular files of all data sets (stripping the header
@@ -62,7 +62,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
 
     private IEncapsulatedOpenBISService service;
 
-    private IImagingQueryDAO dao;
+    private IImagingReadonlyQueryDAO dao;
 
     public ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot)
     {
@@ -70,7 +70,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
     }
 
     ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot,
-            IEncapsulatedOpenBISService service, IImagingQueryDAO dao)
+            IEncapsulatedOpenBISService service, IImagingReadonlyQueryDAO dao)
     {
         super(properties, storeRoot);
         this.service = service;
@@ -121,22 +121,16 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         return builder.getTableModel();
     }
 
-    private IImagingQueryDAO getDAO()
+    private IImagingReadonlyQueryDAO getDAO()
     {
         synchronized (this)
         {
             if (dao == null)
             {
-                dao = DssScreeningUtils.createQuery();
+                dao = DssScreeningUtils.getQuery();
             }
         }
         return dao;
-    }
-
-    @Override
-    protected void finalize()
-    {
-        DssScreeningUtils.closeQuietly(dao);
     }
 
     private IEncapsulatedOpenBISService getService()

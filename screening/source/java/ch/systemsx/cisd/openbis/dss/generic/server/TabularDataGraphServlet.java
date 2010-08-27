@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
  * Create a graph from the imaging database.
@@ -43,7 +43,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
     private static final long serialVersionUID = 1L;
 
-    private IImagingQueryDAO imagingDbDao;
+    private IImagingReadonlyQueryDAO imagingDbDao;
 
     private IEncapsulatedOpenBISService openBisService;
 
@@ -60,7 +60,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
     {
         private static final String WELL_NAME_COLUMN = "WellName";
 
-        private final IImagingQueryDAO dao;
+        private final IImagingReadonlyQueryDAO dao;
 
         private final IEncapsulatedOpenBISService service;
 
@@ -72,8 +72,8 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
         private ArrayList<String[]> lines;
 
-        private ImagingTabularData(IImagingQueryDAO dao, IEncapsulatedOpenBISService service,
-                String dataSetCode)
+        private ImagingTabularData(IImagingReadonlyQueryDAO dao,
+                IEncapsulatedOpenBISService service, String dataSetCode)
         {
             this.dao = dao;
             this.service = service;
@@ -150,22 +150,16 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
         return new ImagingTabularData(getDAO(), getService(), dataSetCode);
     }
 
-    private IImagingQueryDAO getDAO()
+    private IImagingReadonlyQueryDAO getDAO()
     {
         synchronized (this)
         {
             if (imagingDbDao == null)
             {
-                imagingDbDao = DssScreeningUtils.createQuery();
+                imagingDbDao = DssScreeningUtils.getQuery();
             }
         }
         return imagingDbDao;
-    }
-
-    @Override
-    protected void finalize()
-    {
-        DssScreeningUtils.closeQuietly(imagingDbDao);
     }
 
     private IEncapsulatedOpenBISService getService()

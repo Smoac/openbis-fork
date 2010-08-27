@@ -62,7 +62,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 
@@ -82,14 +82,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public static final int MINOR_VERSION = 2;
 
     // this dao will hold one connection to the database
-    private IImagingQueryDAO dao;
+    private IImagingReadonlyQueryDAO dao;
 
     public DssServiceRpcScreening(String storeRootDir)
     {
         this(storeRootDir, null, ServiceProvider.getOpenBISService(), true);
     }
 
-    DssServiceRpcScreening(String storeRootDir, IImagingQueryDAO dao,
+    DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
             IEncapsulatedOpenBISService service, boolean registerAtNameService)
     {
         super(service);
@@ -169,18 +169,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
-        try
-        {
-            IContent imageFile = getAnyImagePath(imageAccessor, dataset);
-            PlateImageParameters params = imageAccessor.getImageParameters();
-            int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
-            BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
-            return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
-                    .getChannelsLabels(), tilesNumber, image.getWidth(), image.getHeight());
-        } finally
-        {
-            imageAccessor.close();
-        }
+        IContent imageFile = getAnyImagePath(imageAccessor, dataset);
+        PlateImageParameters params = imageAccessor.getImageParameters();
+        int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
+        BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
+        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
+                .getChannelsLabels(), tilesNumber, image.getWidth(), image.getHeight());
     }
 
     private static IContent getAnyImagePath(IHCSImageDatasetLoader imageAccessor,
@@ -321,29 +315,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         final Map<String, IHCSImageDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
         final List<IContent> imageFiles = new ArrayList<IContent>();
-        try
+        for (PlateImageReference imageReference : imageReferences)
         {
-            for (PlateImageReference imageReference : imageReferences)
-            {
-                final IHCSImageDatasetLoader imageAccessor =
-                        imageLoadersMap.get(imageReference.getDatasetCode());
-                assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-                final AbsoluteImageReference imageRef = tryGetImage(imageAccessor, imageReference);
-                imageFiles.add((imageRef == null) ? null : imageRef.getContent());
-            }
-        } finally
-        {
-            closeDatasetLoaders(imageLoadersMap.values());
+            final IHCSImageDatasetLoader imageAccessor =
+                    imageLoadersMap.get(imageReference.getDatasetCode());
+            assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
+            final AbsoluteImageReference imageRef = tryGetImage(imageAccessor, imageReference);
+            imageFiles.add((imageRef == null) ? null : imageRef.getContent());
         }
         return new ConcatenatedContentInputStream(true, imageFiles);
-    }
-
-    private static void closeDatasetLoaders(Collection<IHCSImageDatasetLoader> loaders)
-    {
-        for (IHCSImageDatasetLoader loader : loaders)
-        {
-            loader.close();
-        }
     }
 
     // throws exception if some datasets cannot be found
@@ -472,22 +452,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         checkDatasetsAuthorization(sessionToken, dataSetCodes);
     }
 
-    private IImagingQueryDAO getDAO()
+    private IImagingReadonlyQueryDAO getDAO()
     {
         synchronized (this)
         {
             if (dao == null)
             {
-                dao = DssScreeningUtils.createQuery();
+                dao = DssScreeningUtils.getQuery();
             }
         }
         return dao;
-    }
-
-    @Override
-    protected void finalize()
-    {
-        DssScreeningUtils.closeQuietly(dao);
     }
 
     public int getMajorVersion()

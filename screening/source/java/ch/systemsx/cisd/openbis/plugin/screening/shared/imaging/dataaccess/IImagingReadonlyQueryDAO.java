@@ -18,17 +18,20 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
 import java.util.List;
 
+import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
-import net.lemnik.eodsql.TransactionQuery;
-import net.lemnik.eodsql.Update;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ByteArrayMapper;
 
 /**
+ * Operations on imaging database which are read-only.<br>
+ * It is recommended to create one instance of this interface, assign it to a static class field and
+ * used everywhere in the application. In this way there will be no problem with closing the
+ * database connection.
+ * 
  * @author Tomasz Pylak
  */
-public interface IImagingQueryDAO extends TransactionQuery
+public interface IImagingReadonlyQueryDAO extends BaseQuery
 {
     public static final int FETCH_SIZE = 1000;
 
@@ -126,66 +129,6 @@ public interface IImagingQueryDAO extends TransactionQuery
 
     @Select(sql = "select * from FEATURE_VALUES where FD_ID = ?{1.id} order by T_in_SEC, Z_in_M", resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
-
-    // generate ids
-
-    @Select("select nextval('images_id_seq')")
-    public long createImageId();
-
-    @Select("select nextval('channel_stacks_id_seq')")
-    public long createChannelStackId();
-
-    // batch updates
-
-    @Update(sql = "insert into CHANNEL_STACKS (ID, X, Y, Z_in_M, T_in_SEC, DS_ID, SPOT_ID) values "
-            + "(?{1.id}, ?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.datasetId}, ?{1.spotId})", batchUpdate = true)
-    public void addChannelStacks(List<ImgChannelStackDTO> channelStacks);
-
-    @Update(sql = "insert into IMAGES (ID, PATH, PAGE, COLOR) values "
-            + "(?{1.id}, ?{1.filePath}, ?{1.page}, ?{1.colorComponentAsString})", batchUpdate = true)
-    public void addImages(List<ImgImageDTO> images);
-
-    @Update(sql = "insert into ACQUIRED_IMAGES (IMG_ID, THUMBNAIL_ID, CHANNEL_STACK_ID, CHANNEL_ID) values "
-            + "(?{1.imageId}, ?{1.thumbnailId}, ?{1.channelStackId}, ?{1.channelId})", batchUpdate = true)
-    public void addAcquiredImages(List<ImgAcquiredImageDTO> acquiredImages);
-
-    // inserts
-
-    @Select("insert into EXPERIMENTS (PERM_ID) values (?{1}) returning ID")
-    public long addExperiment(String experimentPermId);
-
-    @Select("insert into CHANNELS (LABEL, CODE, DESCRIPTION, WAVELENGTH, DS_ID, EXP_ID) values "
-            + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.wavelength}, ?{1.datasetId}, ?{1.experimentId}) returning ID")
-    public long addChannel(ImgChannelDTO channel);
-
-    @Select("insert into CONTAINERS (PERM_ID, SPOTS_WIDTH, SPOTS_HEIGHT, EXPE_ID) values "
-            + "(?{1.permId}, ?{1.numberOfColumns}, ?{1.numberOfRows}, ?{1.experimentId}) returning ID")
-    public long addContainer(ImgContainerDTO container);
-
-    @Select("insert into DATA_SETS (PERM_ID, FIELDS_WIDTH, FIELDS_HEIGHT, CONT_ID, IS_MULTIDIMENSIONAL) values "
-            + "(?{1.permId}, ?{1.fieldNumberOfColumns}, "
-            + "?{1.fieldNumberOfRows}, ?{1.containerId}, ?{1.isMultidimensional}) returning ID")
-    public long addDataset(ImgDatasetDTO dataset);
-
-    @Select("insert into SPOTS (X, Y, CONT_ID) values "
-            + "(?{1.column}, ?{1.row}, ?{1.containerId}) returning ID")
-    public long addSpot(ImgSpotDTO spot);
-
-    @Select("insert into FEATURE_DEFS (LABEL, CODE, DESCRIPTION, DS_ID) values "
-            + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
-    public long addFeatureDef(ImgFeatureDefDTO featureDef);
-
-    @Select(sql = "insert into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
-            + "(?{1.byteArray}, ?{1.z}, ?{1.t}, ?{1.featureDefId}) RETURNING ID", parameterBindings =
-        { ByteArrayMapper.class })
-    public long addFeatureValues(ImgFeatureValuesDTO featureValues);
-
-    // updates
-
-    @Update("update CHANNELS "
-            + "set DESCRIPTION = ?{1.description}, WAVELENGTH = ?{1.wavelength} "
-            + "where ID = ?{1.id}")
-    public void updateChannel(ImgChannelDTO channel);
 
     @Select("select ID from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and CODE = upper(?{3})")
     public Long tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(long id, long experimentId,

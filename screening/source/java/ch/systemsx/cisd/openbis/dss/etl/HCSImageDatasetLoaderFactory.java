@@ -48,7 +48,7 @@ public class HCSImageDatasetLoaderFactory
     private static HCSImageDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
     {
         IContentRepository repository = new ContentRepository(datasetRootDir, repositoryFactories);
-        return new HCSImageDatasetLoader(DssScreeningUtils.createQuery(), datasetCode, repository);
+        return new HCSImageDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, repository);
     }
 
 }

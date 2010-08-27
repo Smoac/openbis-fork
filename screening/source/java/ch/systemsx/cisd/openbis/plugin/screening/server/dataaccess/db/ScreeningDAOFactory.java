@@ -29,7 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSourceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
  * @author Piotr Buczek
@@ -43,8 +43,8 @@ public class ScreeningDAOFactory implements IScreeningDAOFactory
 
     private final IDataSourceProvider dataSourceProvider;
 
-    private final Map<DataSource, IImagingQueryDAO> daos =
-            new HashMap<DataSource, IImagingQueryDAO>();
+    private final Map<DataSource, IImagingReadonlyQueryDAO> daos =
+            new HashMap<DataSource, IImagingReadonlyQueryDAO>();
 
     public ScreeningDAOFactory(IDataSourceProvider dataSourceProvider)
     {
@@ -56,14 +56,14 @@ public class ScreeningDAOFactory implements IScreeningDAOFactory
         }
     }
 
-    public IImagingQueryDAO getImagingQueryDAO(String dssCode)
+    public IImagingReadonlyQueryDAO getImagingQueryDAO(String dssCode)
     {
         DataSource dataSource =
                 dataSourceProvider.getDataSourceByDataStoreServerCode(dssCode, TECHNOLOGY);
-        IImagingQueryDAO dao = daos.get(dataSource);
+        IImagingReadonlyQueryDAO dao = daos.get(dataSource);
         if (dao == null)
         {
-            dao = QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
+            dao = QueryTool.getQuery(dataSource, IImagingReadonlyQueryDAO.class);
             daos.put(dataSource, dao);
         }
         return dao;

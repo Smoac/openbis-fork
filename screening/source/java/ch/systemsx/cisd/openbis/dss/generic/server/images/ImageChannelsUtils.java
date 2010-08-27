@@ -52,32 +52,26 @@ public class ImageChannelsUtils
     {
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
-        try
-        {
-            List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
+        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
-            Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
-            if (params.isMergeAllChannels())
-            {
-                for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
-                {
-                    AbsoluteImageReference image =
-                            getImage(imageAccessor, params.getChannelStack(), chosenChannel,
-                                    thumbnailSizeOrNull);
-                    images.add(image);
-                }
-            } else
+        Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
+        if (params.isMergeAllChannels())
+        {
+            for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
             {
                 AbsoluteImageReference image =
-                        getImage(imageAccessor, params.getChannelStack(), params.getChannel(),
+                        getImage(imageAccessor, params.getChannelStack(), chosenChannel,
                                 thumbnailSizeOrNull);
                 images.add(image);
             }
-            return images;
-        } finally
+        } else
         {
-            imageAccessor.close();
+            AbsoluteImageReference image =
+                    getImage(imageAccessor, params.getChannelStack(), params.getChannel(),
+                            thumbnailSizeOrNull);
+            images.add(image);
         }
+        return images;
     }
 
     /**

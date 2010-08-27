@@ -34,36 +34,37 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class FeatureTableBuilderTest extends AssertJUnit
 {
     private static final int EXPERIMENT_ID = 42;
+
     private static final String DATA_SET_CODE1 = "ds1";
+
     private static final String DATA_SET_CODE2 = "ds2";
+
     private static final String DATA_SET_CODE3 = "ds3";
 
     private Mockery context;
 
     private IEncapsulatedOpenBISService service;
 
-    private IImagingQueryDAO dao;
-    
+    private IImagingReadonlyQueryDAO dao;
+
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
-        dao = context.mock(IImagingQueryDAO.class);
+        dao = context.mock(IImagingReadonlyQueryDAO.class);
     }
 
     @AfterMethod
@@ -73,21 +74,21 @@ public class FeatureTableBuilderTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testNoFiltering()
     {
         prepareAddFeatureVectors(1, null, "<A>a", "<B>b");
         prepareAddFeatureVectors(2, null, "<B>beta", "c");
         prepareAddFeatureVectors(3, null, "<B>b");
-        
+
         FeatureTableBuilder builder = createBuilder();
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE1);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE2);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE3);
         List<CodeAndLabel> codesAndLabels = builder.getCodesAndLabels();
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
-        
+
         assertEquals("[<A> a, <B> b, <B> beta, <C> c]", codesAndLabels.toString());
         assertFeatureTableRow(DATA_SET_CODE1, "A1", "db:/s/S1", "1.5, 11.5, NaN, NaN", rows.get(0));
         assertFeatureTableRow(DATA_SET_CODE1, "A2", "db:/s/S1", "0.5, 10.5, NaN, NaN", rows.get(1));
@@ -98,21 +99,21 @@ public class FeatureTableBuilderTest extends AssertJUnit
         assertEquals(6, rows.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFiltering()
     {
         prepareAddFeatureVectors(1, "B", "<A>a", "b");
         prepareAddFeatureVectors(2, "B", "<B>beta", "c");
         prepareAddFeatureVectors(3, "B", "b");
-        
+
         FeatureTableBuilder builder = createBuilder("B");
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE1);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE2);
         builder.addFeatureVectorsOfDataSet(DATA_SET_CODE3);
         List<CodeAndLabel> codesAndLabels = builder.getCodesAndLabels();
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
-        
+
         assertEquals("[<B> b, <B> beta]", codesAndLabels.toString());
         assertFeatureTableRow(DATA_SET_CODE1, "A1", "db:/s/S1", "11.5, NaN", rows.get(0));
         assertFeatureTableRow(DATA_SET_CODE1, "A2", "db:/s/S1", "10.5, NaN", rows.get(1));
@@ -133,10 +134,11 @@ public class FeatureTableBuilderTest extends AssertJUnit
                     String dataSetCode = "ds" + dataSetID;
                     one(dao).tryGetDatasetByPermId(dataSetCode);
                     int containerId = dataSetID + 100;
-                    ImgDatasetDTO dataSet = new ImgDatasetDTO(dataSetCode, null, null, containerId, false);
+                    ImgDatasetDTO dataSet =
+                            new ImgDatasetDTO(dataSetCode, null, null, containerId, false);
                     dataSet.setId(dataSetID);
                     will(returnValue(dataSet));
-                    
+
                     List<ImgFeatureDefDTO> defs = new ArrayList<ImgFeatureDefDTO>();
                     Geometry geometry = Geometry.createFromCartesianDimensions(2, 1);
                     for (int i = 0; i < featureCodesAndLabels.length; i++)
@@ -147,26 +149,29 @@ public class FeatureTableBuilderTest extends AssertJUnit
                         String code = codeAndTitle.getCode();
                         if (filteredCodeOrNull == null || filteredCodeOrNull.equals(code))
                         {
-                            ImgFeatureDefDTO def = new ImgFeatureDefDTO(title, code, title, dataSetID);
+                            ImgFeatureDefDTO def =
+                                    new ImgFeatureDefDTO(title, code, title, dataSetID);
                             def.setId(2 * dataSetID);
                             defs.add(def);
                             one(dao).getFeatureValues(def);
                             PlateFeatureValues values = new PlateFeatureValues(geometry);
                             values.setForWellLocation(dataSetID + 10 * i + 0.5f, 1, 1);
                             values.setForWellLocation(dataSetID + 10 * i - 0.5f, 1, 2);
-                            will(returnValue(Arrays.asList(new ImgFeatureValuesDTO(0.0, 0.0, values, def.getId()))));
+                            will(returnValue(Arrays.asList(new ImgFeatureValuesDTO(0.0, 0.0,
+                                    values, def.getId()))));
                         }
                     }
                     one(dao).listFeatureDefsByDataSetId(dataSetID);
                     will(returnValue(defs));
-                    
+
                     one(dao).getContainerById(containerId);
                     String samplePermID = "s" + containerId;
                     will(returnValue(new ImgContainerDTO(samplePermID, geometry.getNumberOfRows(),
                             geometry.getNumberOfColumns(), EXPERIMENT_ID)));
-                    
+
                     one(service).tryToGetSampleIdentifier(samplePermID);
-                    will(returnValue(new SampleIdentifier(new SpaceIdentifier("db", "s"), "S" + dataSetID)));
+                    will(returnValue(new SampleIdentifier(new SpaceIdentifier("db", "s"), "S"
+                            + dataSetID)));
                 }
             });
     }
@@ -181,7 +186,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
         assertEquals(expectedPlate, row.getPlateIdentifier().toString());
         assertEquals(expectedValues, render(row.getFeatureValuesAsDouble()));
     }
-    
+
     private String render(double[] values)
     {
         StringBuilder builder = new StringBuilder();
@@ -195,7 +200,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
         }
         return builder.toString();
     }
-    
+
     private FeatureTableBuilder createBuilder(String... featureCodes)
     {
         return new FeatureTableBuilder(Arrays.asList(featureCodes), dao, service);

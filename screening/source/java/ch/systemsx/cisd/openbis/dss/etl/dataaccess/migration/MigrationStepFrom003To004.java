@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.java.IMigrationStep;
 import ch.systemsx.cisd.etlserver.plugins.ChainedDataSetMigrationTask;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
@@ -49,7 +50,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLine
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.DefaultCsvFileReaderConfiguration;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;

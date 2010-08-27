@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
  * @author Tomasz Pylak
@@ -207,18 +206,9 @@ public class GenePlateLocationsLoader
         List<PlateImageParameters> imageParameters = new ArrayList<PlateImageParameters>();
         for (ExternalData dataSet : imageDatasets)
         {
-            final IHCSDatasetLoader loader = createHCSDatasetLoader(dataSet);
-            imageParameters.add(loader.getImageParameters());
-            loader.close();
+            imageParameters.add(ScreeningUtils.loadImageParameters(dataSet, businessObjectFactory));
         }
         return asDatasetToParamsMap(imageParameters);
-    }
-
-    private IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet)
-    {
-        String datastoreCode = dataSet.getDataStore().getCode();
-        String datasetCode = dataSet.getCode();
-        return businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
     }
 
     private static Map<String/* dataset code */, PlateImageParameters> asDatasetToParamsMap(

@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+
 
 /**
  * A factory for Screening specific DAOs.
@@ -25,5 +26,5 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
  */
 public interface IScreeningDAOFactory
 {
-    public IImagingQueryDAO getImagingQueryDAO(String dssCode);
+    public IImagingReadonlyQueryDAO getImagingQueryDAO(String dssCode);
 }

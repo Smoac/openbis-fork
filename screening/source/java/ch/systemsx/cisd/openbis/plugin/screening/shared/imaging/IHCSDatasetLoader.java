@@ -27,10 +27,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public interface IHCSDatasetLoader
 {
-
-    /** Has to be called at the end. */
-    void close();
-
     /** Dataset metadata. */
     PlateImageParameters getImageParameters();
 
