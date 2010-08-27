@@ -332,7 +332,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
         private final int height;
 
-        Size(int width, int height)
+        public Size(int width, int height)
         {
             this.width = width;
             this.height = height;
