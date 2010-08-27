@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -169,12 +170,20 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
-        IContent imageFile = getAnyImagePath(imageAccessor, dataset);
+        Size imageSize = getImageSize(dataset, imageAccessor);
         PlateImageParameters params = imageAccessor.getImageParameters();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
-        BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
         return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
-                .getChannelsLabels(), tilesNumber, image.getWidth(), image.getHeight());
+                .getChannelsLabels(), tilesNumber, imageSize.getWidth(), imageSize.getHeight());
+    }
+
+    private static Size getImageSize(IImageDatasetIdentifier dataset,
+            IHCSImageDatasetLoader imageAccessor)
+    {
+        IContent imageFile = getAnyImagePath(imageAccessor, dataset);
+        BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
+        Size imageSize = new Size(image.getWidth(), image.getHeight());
+        return imageSize;
     }
 
     private static IContent getAnyImagePath(IHCSImageDatasetLoader imageAccessor,
@@ -185,16 +194,24 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             for (int col = 1; col <= params.getColsNum(); col++)
             {
-                AbsoluteImageReference image;
-                for (String channelCode : params.getChannelsCodes())
+                for (int tileRow = 1; tileRow <= params.getTileRowsNum(); tileRow++)
                 {
-                    ImageChannelStackReference channelStackReference =
-                            ImageChannelStackReference.createFromLocations(new Location(col, row),
-                                    new Location(1, 1));
-                    image = imageAccessor.tryGetImage(channelCode, channelStackReference, null);
-                    if (image != null)
+                    for (int tileCol = 1; tileCol <= params.getTileColsNum(); tileCol++)
                     {
-                        return image.getContent();
+                        for (String channelCode : params.getChannelsCodes())
+                        {
+                            ImageChannelStackReference channelStackReference =
+                                    ImageChannelStackReference.createFromLocations(new Location(
+                                            col, row), Location.tryCreateLocationFromRowAndColumn(
+                                            tileRow, tileCol));
+                            AbsoluteImageReference image =
+                                    imageAccessor.tryGetImage(channelCode, channelStackReference,
+                                            null);
+                            if (image != null)
+                            {
+                                return image.getContent();
+                            }
+                        }
                     }
                 }
             }
