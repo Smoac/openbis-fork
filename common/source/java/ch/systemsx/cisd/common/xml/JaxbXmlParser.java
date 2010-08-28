@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.xml;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import javax.xml.bind.JAXBContext;
@@ -26,6 +27,7 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.helpers.DefaultValidationEventHandler;
 import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -45,9 +47,6 @@ public class JaxbXmlParser<T>
     // Set to true to turn on debbuging help
     private static final boolean DEBUG = false;
 
-    // Set to true have the parser explicitly use the LVData class
-    private static final boolean EXPLICITLY_SET_DESTINATION = false;
-
     /**
      * NOTE: The implementation is creating an unmarshaller for every file that will be parsed. It
      * is very inefficient especially when parsing many small files with the same schema at once
@@ -63,13 +62,7 @@ public class JaxbXmlParser<T>
     public static <T> T parse(Class<T> beanClass, File dataSet, boolean validate)
     {
         JaxbXmlParser<T> parser = new JaxbXmlParser<T>(beanClass, validate);
-        if (EXPLICITLY_SET_DESTINATION)
-        {
-            return parser.doParse(dataSet);
-        } else
-        {
-            return parser.doParseSpecifyingDestinationClass(dataSet);
-        }
+        return parser.doParse(dataSet);
     }
 
     private final Unmarshaller unmarshaller;
@@ -148,23 +141,10 @@ public class JaxbXmlParser<T>
     {
         try
         {
-            Object object = unmarshaller.unmarshal(file);
-            if (beanClass.isAssignableFrom(object.getClass()) == false)
-            {
-                throw new IllegalArgumentException("Wrong type: " + object);
-            }
-            return beanClass.cast(object);
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    public T doParseSpecifyingDestinationClass(File file)
-    {
-        try
-        {
-            JAXBElement<T> object = unmarshaller.unmarshal(new StreamSource(file), beanClass);
+            // WORKAROUND to incorrect handling of files with '%' in the name.
+            // We cannot use StreamSource constructor with a file directly as an argument.
+            Source source = new StreamSource(new FileInputStream(file));
+            JAXBElement<T> object = unmarshaller.unmarshal(source, beanClass);
             return object.getValue();
         } catch (Exception ex)
         {
