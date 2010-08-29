@@ -96,7 +96,7 @@ cp -p "$installation_folder"/shutdown.sh "$JETTY_BIN_DIR"
 # Create a file called 'jetty.properties'.
 JETTY_PROPERTIES="$JETTY_BIN_DIR"/jetty.properties
 echo "JETTY_PORT=$JETTY_PORT" > "$JETTY_PROPERTIES"
-echo "JETTY_STOP_PORT=8079" >> "$JETTY_PROPERTIES"
+echo "JETTY_STOP_PORT=8078" >> "$JETTY_PROPERTIES"
 echo "JETTY_STOP_KEY=secret" >> "$JETTY_PROPERTIES"
 # Here goes the path of the JVM in case you need to set it hard
 echo "JVM=\"java\"" >> "$JETTY_PROPERTIES"
