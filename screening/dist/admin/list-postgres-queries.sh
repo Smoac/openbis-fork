@@ -8,4 +8,4 @@ fi
 
 source $BASE/env
 
-psql -U $DB_USER_NAME -c "select datname,procpid,usename,current_query,waiting,xact_start FROM pg_catalog.pg_stat_activity" 
+psql -U $DB_USER_NAME -d $OPENBIS_DB -c "select datname,procpid,usename,current_query,waiting,xact_start FROM pg_catalog.pg_stat_activity"
