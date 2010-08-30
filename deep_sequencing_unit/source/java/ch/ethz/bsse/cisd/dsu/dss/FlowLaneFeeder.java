@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * associated drop boxes.
  * 
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
@@ -394,7 +395,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             {
                 public boolean accept(File file)
                 {
-                    return file.isFile() && file.getName().startsWith(prefix);
+                    return file.getName().startsWith(prefix);
                 }
             };
     }

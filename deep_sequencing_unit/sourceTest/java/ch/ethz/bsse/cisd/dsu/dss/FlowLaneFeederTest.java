@@ -385,6 +385,12 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(originalFlowLane2Fasta, "fasta");
         FileUtilities.writeToFile(originalFlowLane2Pdf, "pdf");
         FileUtilities.writeToFile(originalFlowLane2Xxx, "xxx");
+        File originalFlowLane2Dir = new File(srfFolder, "2dir");
+        assertEquals(true, originalFlowLane2Dir.mkdir());
+        File internalDirFile1 = new File(originalFlowLane2Dir, "file1");
+        File internalDirFile2 = new File(originalFlowLane2Dir, "file2");
+        FileUtilities.writeToFile(internalDirFile1, "internal 1");
+        FileUtilities.writeToFile(internalDirFile2, "internal 2");
         File srf_info_file = new File(srfFolder, "srf_info.txt");
         FileUtilities.writeToFile(srf_info_file,
                 "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n"
@@ -404,17 +410,29 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         File[] transferedFiles = transferDropBox.listFiles();
         Arrays.sort(transferedFiles);
-        assertEquals(5, transferedFiles.length);
+        assertEquals(6, transferedFiles.length);
 
         assertEquals("2.fasta", transferedFiles[0].getName());
         assertEquals("2.srf", transferedFiles[1].getName());
         assertEquals("2_boxplot.pdf", transferedFiles[2].getName());
         assertEquals("2abc.xxx", transferedFiles[3].getName());
-        File metaFile = transferedFiles[4];
+        assertEquals("2dir", transferedFiles[4].getName());
+        File metaFile = transferedFiles[5];
         assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE,
                 metaFile.getName());
         assertHardLinkOnSameFile(originalFlowLane2Fasta, transferedFiles[0]);
         assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[1]);
+        assertHardLinkOnSameFile(originalFlowLane2Pdf, transferedFiles[2]);
+        assertHardLinkOnSameFile(originalFlowLane2Xxx, transferedFiles[3]);
+
+        File[] internalDirFiles = transferedFiles[4].listFiles();
+        Arrays.sort(internalDirFiles);
+        assertEquals(2, internalDirFiles.length);
+
+        assertEquals("file1", internalDirFiles[0].getName());
+        assertEquals("file2", internalDirFiles[1].getName());
+        assertHardLinkOnSameFile(internalDirFile1, internalDirFiles[0]);
+        assertHardLinkOnSameFile(internalDirFile2, internalDirFiles[1]);
 
         context.assertIsSatisfied();
     }
