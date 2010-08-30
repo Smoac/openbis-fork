@@ -23,25 +23,27 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * Utility methods about the type of (binary) data.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataTypeUtil
 {
     public static final String TIFF_FILE = "tif";
-    
+
     public static final String PNG_FILE = "png";
-    
+
     public static final String JPEG_FILE = "jpg";
-    
+
     public static final String GIF_FILE = "gif";
 
     private static final class MagicNumber
     {
         private final String fileType;
+
         private final String[] magicHexNumbers;
+
         private final int maxLength;
-        
+
         MagicNumber(String fileType, String... magicHexNumbers)
         {
             this.fileType = fileType;
@@ -53,17 +55,17 @@ public class DataTypeUtil
             }
             maxLength = length / 2;
         }
-        
+
         public String getFileType()
         {
             return fileType;
         }
-        
+
         int getMaxLength()
         {
             return maxLength;
         }
-        
+
         public boolean matches(byte[] bytes)
         {
             StringBuilder builder = new StringBuilder();
@@ -74,7 +76,7 @@ public class DataTypeUtil
                 builder.append(Integer.toHexString(b & 0xf));
             }
             String initialBytes = builder.toString().toLowerCase();
-            for (String  magicNumber : magicHexNumbers)
+            for (String magicNumber : magicHexNumbers)
             {
                 if (initialBytes.startsWith(magicNumber))
                 {
@@ -84,7 +86,7 @@ public class DataTypeUtil
             return false;
         }
     }
-    
+
     private static final class MagicNumbersManager
     {
         private final MagicNumber[] magicNumbers;
@@ -93,7 +95,7 @@ public class DataTypeUtil
         {
             this.magicNumbers = magicNumbers;
         }
-        
+
         int getMaxLength()
         {
             int max = 0;
@@ -103,7 +105,7 @@ public class DataTypeUtil
             }
             return max;
         }
-        
+
         String tryToFigureOutFileTypeOf(byte[] initialBytes)
         {
             for (MagicNumber magicNumber : magicNumbers)
@@ -116,16 +118,16 @@ public class DataTypeUtil
             return null;
         }
     }
-    
+
     private static final MagicNumbersManager MAGIC_NUMBERS_MANAGER =
             new MagicNumbersManager(new MagicNumber(GIF_FILE, "474946383961", "474946383761"),
-                    new MagicNumber(JPEG_FILE, "ffd8ff"), new MagicNumber(PNG_FILE, "89504e470d0a1a0a"),
-                    new MagicNumber(TIFF_FILE, "49492a00", "4d4d002a"));
+                    new MagicNumber(JPEG_FILE, "ffd8ff"), new MagicNumber(PNG_FILE,
+                            "89504e470d0a1a0a"), new MagicNumber(TIFF_FILE, "49492a00", "4d4d002a"));
 
     /**
      * Tries to figure out the file type of the specified binary content. It uses the first few
-     * bytes as a finger print (so-called 'magic numbers') as a heuristic to get the type of content.
-     * Currently only the following types are recognized: <code>gif, jpg, png, tif</code>.
+     * bytes as a finger print (so-called 'magic numbers') as a heuristic to get the type of
+     * content. Currently only the following types are recognized: <code>gif, jpg, png, tif</code>.
      * 
      * @param inputStream Input stream which supports {@link InputStream#mark(int)}.
      * @return <code>null</code> if file type couldn't be figured out.
@@ -135,7 +137,7 @@ public class DataTypeUtil
         if (inputStream.markSupported() == false)
         {
             throw new IllegalArgumentException("Input stream does not support marking. "
-                    + "Wrap input stream by a BufferedInputStream to solve the problem.");
+                    + "Wrap input stream with a BufferedInputStream to solve the problem.");
         }
         int maxLength = MAGIC_NUMBERS_MANAGER.getMaxLength();
         inputStream.mark(maxLength);
@@ -150,7 +152,7 @@ public class DataTypeUtil
         }
         return MAGIC_NUMBERS_MANAGER.tryToFigureOutFileTypeOf(initialBytes);
     }
-    
+
     /**
      * Returns <code>true</code> if the <var>fileTypeOrNull</var> is a tiff file.
      */
@@ -166,6 +168,7 @@ public class DataTypeUtil
     {
         return JPEG_FILE.equals(fileTypeOrNull);
     }
+
     /**
      * Returns <code>true</code> if the <var>fileTypeOrNull</var> is a png file.
      */
@@ -173,6 +176,7 @@ public class DataTypeUtil
     {
         return PNG_FILE.equals(fileTypeOrNull);
     }
+
     /**
      * Returns <code>true</code> if the <var>fileTypeOrNull</var> is a gif file.
      */
@@ -180,7 +184,7 @@ public class DataTypeUtil
     {
         return GIF_FILE.equals(fileTypeOrNull);
     }
-    
+
     private DataTypeUtil()
     {
     }
