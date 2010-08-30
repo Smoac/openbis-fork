@@ -141,11 +141,19 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             String sessionIdOrNull)
     {
         HttpSession session = request.getSession(false);
+
         if (session == null && sessionIdOrNull == null)
         {
             // a) The session is expired and b) we do not have openbis session id provided.
             // So a) metadata about datasets are not in the session and b) we cannot get them from
             // openbis.
+            // CR, 2010-08-30, LMS-1706, Logging
+            StringBuilder sb = new StringBuilder();
+            sb
+                    .append("Could not create a servlet session since no existing servlet session is available, and the openBIS session ID was not provided as a parameter:");
+            appendRequestParameters(request, sb);
+            appendServletSessionTimeout(sb);
+            notificationLog.error(sb.toString());
             return null;
         }
         if (session == null)
@@ -153,8 +161,36 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             session = request.getSession(true);
             ConfigParameters configParameters = applicationContext.getConfigParameters();
             session.setMaxInactiveInterval(configParameters.getSessionTimeout());
+
+            // CR, 2010-08-30, LMS-1706, Logging
+            StringBuilder sb = new StringBuilder();
+            sb.append("Creating a new session with the following parameters:");
+            appendRequestParameters(request, sb);
+            appendServletSessionTimeout(sb);
+            notificationLog.info(sb.toString());
         }
         return session;
+    }
+
+    private void appendServletSessionTimeout(StringBuilder sb)
+    {
+        sb.append("\nSession Timeout: ");
+        sb.append(applicationContext.getConfigParameters().getSessionTimeout());
+        sb.append(" sec");
+    }
+
+    @SuppressWarnings("unchecked")
+    private void appendRequestParameters(final HttpServletRequest request, StringBuilder sb)
+    {
+        Enumeration<String> e = request.getParameterNames();
+        while (e.hasMoreElements())
+        {
+            String name = e.nextElement();
+            sb.append("\n\t");
+            sb.append(name);
+            sb.append("=");
+            sb.append(request.getParameter(name));
+        }
     }
 
     protected final static void printSessionExpired(final HttpServletResponse response)
