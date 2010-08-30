@@ -72,8 +72,6 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
 {
     static final String META_DATA_FILE_TYPE = ".tsv";
 
-    static final String SRF_INFO_OUTPUT_FILE = "srf_info.txt";
-
     static final String META_DATA_FILE_PREFIX = "meta-data-file-prefix";
 
     static final String TRANSFER_PREFIX = "transfer.";
@@ -193,8 +191,6 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             createHartLink(file, flowLaneDataSet);
             createMetaDataFileAndHartLinkInTransferDropBox(flowLaneDataSet, flowLaneSample,
                     flowLane, srfInfo);
-            File srf_infoFile = new File(file.getParentFile(), SRF_INFO_OUTPUT_FILE);
-            FileUtilities.writeToFile(srf_infoFile, srfInfo.toString());
 
             File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
             addFileForUndo(markerFile);
