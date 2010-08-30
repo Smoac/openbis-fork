@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -100,7 +101,6 @@ public class DatasetDownloadServletTest
             new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
 
     private static final String EXAMPLE_SESSION_ID = "AV76CF";
-
 
     private static final String EXPERIMENT_CODE = "EPERIMENT-E";
 
@@ -195,9 +195,9 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR
                         + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR + "", writer.toString());
-        assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
-                + OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "For data set '1234-1' show directory <wd>/db-uuid/0a/28/59/1234-1",
+        assertEquals(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+                + "Data set '1234-1' obtained from openBIS server." + OSUtilities.LINE_SEPARATOR
+                + LOG_INFO + "For data set '1234-1' show directory <wd>/db-uuid/0a/28/59/1234-1",
                 getNormalizedLogContent());
 
         context.assertIsSatisfied();
@@ -288,11 +288,17 @@ public class DatasetDownloadServletTest
                 + "Unknown data set '1234-1'." + OSUtilities.LINE_SEPARATOR + "</body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = logRecorder.getLogContent();
-        assertEquals(LOG_INFO + "Data set '1234-1' not found in openBIS server."
-                + OSUtilities.LINE_SEPARATOR + LOG_INFO
-                + "User failure: Unknown data set '1234-1'.", logContent);
+        assertEquals(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+                + "Data set '1234-1' not found in openBIS server." + OSUtilities.LINE_SEPARATOR
+                + LOG_INFO + "User failure: Unknown data set '1234-1'.", logContent);
 
         context.assertIsSatisfied();
+    }
+
+    private String getSessionCreationLogMessage()
+    {
+        return LOG_INFO
+                + "Creating a new session with the following parameters: [sessionID=AV76CF] Session Timeout: 120 sec";
     }
 
     @Test
@@ -368,7 +374,8 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals("Hello world!", outputStream.toString());
-        assertEquals(LOG_INFO + "Check access to the data set '1234-1' at openBIS server."
+        assertEquals(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
+                + "Check access to the data set '1234-1' at openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_INFO + "For data set '1234-1' deliver file "
                 + "<wd>/db-uuid/0a/28/59/1234-1/read me @home.txt (12 bytes).",
                 getNormalizedLogContent());
@@ -415,7 +422,9 @@ public class DatasetDownloadServletTest
         assertEquals(25, thumbnail.getWidth());
         assertEquals(50, thumbnail.getHeight());
         assertEquals(
-                LOG_INFO
+                getSessionCreationLogMessage()
+                        + OSUtilities.LINE_SEPARATOR
+                        + LOG_INFO
                         + "Check access to the data set '1234-1' at openBIS server."
                         + OSUtilities.LINE_SEPARATOR
                         + LOG_INFO
@@ -455,6 +464,9 @@ public class DatasetDownloadServletTest
                 + "File 'blabla' does not exist." + OSUtilities.LINE_SEPARATOR + "</body></html>"
                 + OSUtilities.LINE_SEPARATOR, writer.toString());
         String logContent = getNormalizedLogContent();
+        String[] logContentLines = logContent.split("\n");
+        // Skip the first line which has information about session creation
+        logContent = logContentLines[1];
         assertEquals("The following string does not start as expected: " + logContent, true,
                 logContent.startsWith(LOG_ERROR
                         + "Request requestURL?queryString caused an exception:"));
@@ -485,7 +497,11 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(EXPIRATION_MESSAGE, writer.toString());
-        assertEquals("", getNormalizedLogContent());
+        assertEquals(
+                LOG_ERROR
+                        + "Could not create a servlet session since no existing servlet session is available, "
+                        + "and the openBIS session ID was not provided as a parameter: [mode=html] "
+                        + "Session Timeout: 120 sec", getNormalizedLogContent());
 
         context.assertIsSatisfied();
     }
@@ -559,7 +575,7 @@ public class DatasetDownloadServletTest
         exp.one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
         exp.will(Expectations.returnValue(null));
 
-        exp.one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
+        exp.allowing(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
         exp.will(Expectations.returnValue("html"));
 
         exp.one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
@@ -568,6 +584,12 @@ public class DatasetDownloadServletTest
         exp.will(Expectations.returnValue(null));
         exp.one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
         exp.will(Expectations.returnValue(null));
+
+        // For the logging of problem requests
+        Vector<String> parameterNames = new Vector<String>();
+        parameterNames.add(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
+        exp.allowing(request).getParameterNames();
+        exp.will(Expectations.returnValue(parameterNames.elements()));
     }
 
     private void prepareParseRequestURLForThumbnail(final int width, final int height)
@@ -611,6 +633,14 @@ public class DatasetDownloadServletTest
                     will(returnValue(httpSession));
 
                     one(httpSession).setMaxInactiveInterval(120);
+
+                    // For the logging of session-creating requests
+                    Vector<String> parameterNames = new Vector<String>();
+                    parameterNames.add(DatasetDownloadServlet.SESSION_ID_PARAM);
+                    one(request).getParameterNames();
+                    will(Expectations.returnValue(parameterNames.elements()));
+                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
+                    will(returnValue(EXAMPLE_SESSION_ID));
 
                     DatabaseInstance databaseInstance = new DatabaseInstance();
                     databaseInstance.setUuid(DATABASE_INSTANCE_UUID);

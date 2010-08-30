@@ -153,7 +153,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
                     .append("Could not create a servlet session since no existing servlet session is available, and the openBIS session ID was not provided as a parameter:");
             appendRequestParameters(request, sb);
             appendServletSessionTimeout(sb);
-            notificationLog.error(sb.toString());
+            operationLog.error(sb.toString());
             return null;
         }
         if (session == null)
@@ -167,14 +167,14 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             sb.append("Creating a new session with the following parameters:");
             appendRequestParameters(request, sb);
             appendServletSessionTimeout(sb);
-            notificationLog.info(sb.toString());
+            operationLog.info(sb.toString());
         }
         return session;
     }
 
     private void appendServletSessionTimeout(StringBuilder sb)
     {
-        sb.append("\nSession Timeout: ");
+        sb.append(" Session Timeout: ");
         sb.append(applicationContext.getConfigParameters().getSessionTimeout());
         sb.append(" sec");
     }
@@ -183,14 +183,19 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     private void appendRequestParameters(final HttpServletRequest request, StringBuilder sb)
     {
         Enumeration<String> e = request.getParameterNames();
+        sb.append(" [");
         while (e.hasMoreElements())
         {
             String name = e.nextElement();
-            sb.append("\n\t");
             sb.append(name);
             sb.append("=");
             sb.append(request.getParameter(name));
+            if (e.hasMoreElements())
+            {
+                sb.append(",");
+            }
         }
+        sb.append("]");
     }
 
     protected final static void printSessionExpired(final HttpServletResponse response)
