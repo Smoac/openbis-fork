@@ -265,6 +265,7 @@ final class ConfigParameters
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Store root directory: '%s'.", storePath));
+            operationLog.info(String.format("RPC incoming directory: '%s'.", rpcIncomingDirectory));
             operationLog.info(String.format("Port number: %d.", port));
             operationLog.info(String.format("URL of openBIS server: '%s'.", serverURL));
             operationLog.info(String.format("Session timeout (seconds): %d.", sessionTimeout));
