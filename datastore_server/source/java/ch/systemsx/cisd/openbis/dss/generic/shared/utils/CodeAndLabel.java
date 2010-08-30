@@ -31,7 +31,7 @@ public class CodeAndLabel
      */
     public static String normalize(String code)
     {
-        StringBuilder builder = new StringBuilder(code.toUpperCase());
+        StringBuilder builder = new StringBuilder(code.toUpperCase().trim());
         for (int i = 0, n = builder.length(); i < n; i++)
         {
             if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".indexOf(builder.charAt(i)) < 0)
@@ -41,17 +41,18 @@ public class CodeAndLabel
         }
         return builder.toString();
     }
-    
+
     private final String label;
+
     private final String code;
-    
+
     /**
      * Creates an instance for specified code and label. The code will be normalized.
      */
     public CodeAndLabel(String code, String label)
     {
         this.code = normalize(code);
-        this.label = label;
+        this.label = label.trim();
     }
 
     /**
@@ -72,7 +73,7 @@ public class CodeAndLabel
             }
         }
         code = normalize(c);
-        label = t;
+        label = t.trim();
     }
 
     /**
