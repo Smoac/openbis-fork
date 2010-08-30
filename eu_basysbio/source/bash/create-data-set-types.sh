@@ -30,7 +30,7 @@ types=`echo METABOLITE_LCMS_ABS \
             PHYS_RFR \
             TF_ACTIVITY \
             QUANTIFIED_PEPTIDES \
-            PROTEIN_LCMS \
+            PROTEIN_LCMS_RATIO \
             PROTEIN_2DE_COMBINED_LCMS \
             NIMBLEGEN_RNA_1_COLOR_BSUBT1 \
             NIMBLEGEN_RNA_1_COLOR_BSUBT1_MEDIAN_NORM \
