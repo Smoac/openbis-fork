@@ -227,7 +227,7 @@ public class ImageUtil
                 throw new IllegalArgumentException("Unable to load image of file type '" + fileType
                         + "'.");
             }
-            return imageLoader.load(inputStream);
+            return imageLoader.load(inputStream, page);
         } finally
         {
             IOUtils.closeQuietly(inputStream);
