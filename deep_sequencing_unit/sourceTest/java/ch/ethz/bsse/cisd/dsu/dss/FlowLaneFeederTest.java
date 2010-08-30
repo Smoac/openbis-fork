@@ -44,11 +44,11 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -235,7 +235,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFlowLaneTwice()
     {
@@ -255,7 +255,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         Sample fl2 = createFlowLaneSample(1);
         prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
         prepareGetProperties(Arrays.asList(fl1));
-        
+
         try
         {
             flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
@@ -264,7 +264,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         {
             assertEquals("Flow lane 1 already registered.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
 
@@ -283,11 +283,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         File originalFlowLane2 = new File(srfFolder, "2.srf");
         FileUtilities.writeToFile(originalFlowLane2, "hello flow lane 2");
         File srf_info_file = new File(srfFolder, "srf_info.txt");
-        FileUtilities.writeToFile(srf_info_file, "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n" + 
-        		"Reading srf null index block\n" + 
-        		"Reads: GOOD : 20712959\n" + 
-        		"Reads: BAD : 7270034\n" + 
-        		"Reads: TOTAL : 27982993");
+        FileUtilities.writeToFile(srf_info_file,
+                "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n"
+                        + "Reading srf null index block\n" + "Reads: GOOD : 20712959\n"
+                        + "Reads: BAD : 7270034\n" + "Reads: TOTAL : 27982993");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
 
         Sample fl1 = createFlowLaneSample(1);
@@ -305,7 +304,8 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(2, transferedFiles.length);
         assertEquals("2.srf", transferedFiles[0].getName());
         File metaFile = transferedFiles[1];
-        assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile.getName());
+        assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE,
+                metaFile.getName());
         assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[0]);
 
         context.assertIsSatisfied();
@@ -328,11 +328,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         File originalFlowLane2 = new File(srfFolder, "2.srf");
         FileUtilities.writeToFile(originalFlowLane2, "hello flow lane 2");
         File srf_info_file = new File(srfFolder, "srf_info.txt");
-        FileUtilities.writeToFile(srf_info_file, "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n" + 
-                "Reading srf null index block\n" + 
-                "Reads: GOOD : 20712959\n" + 
-                "Reads: BAD : 7270034\n" + 
-                "Reads: TOTAL : 27982993");
+        FileUtilities.writeToFile(srf_info_file,
+                "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n"
+                        + "Reading srf null index block\n" + "Reads: GOOD : 20712959\n"
+                        + "Reads: BAD : 7270034\n" + "Reads: TOTAL : 27982993");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
 
         Sample fl1 = createFlowLaneSample(1);
@@ -350,8 +349,8 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(2, transferedFiles.length);
         assertEquals("2.srf", transferedFiles[0].getName());
         File metaFile = transferedFiles[1];
-        assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile
-                .getName());
+        assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE,
+                metaFile.getName());
         List<String> metaData = FileUtilities.loadToStringList(metaFile);
         String lastLine = metaData.remove(metaData.size() - 1);
         assertEquals("[Parent\tnull, Code\tfc:2, Contact Person Email\tab@c.de, "
@@ -360,6 +359,62 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         AssertionUtil.assertContains("file: ", lastLine);
         assertEquals(8, metaData.size());
         assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[0]);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testHappyCaseWithAdditionalFiles()
+    {
+        File flowCell = new File(workingDirectory, SAMPLE_CODE);
+        assertEquals(true, flowCell.mkdir());
+        File logs = new File(flowCell, "logs");
+        assertEquals(true, logs.mkdir());
+        FileUtilities.writeToFile(new File(logs, "basic.log"), "hello log");
+        File srfFolder = new File(flowCell, "SRF");
+        assertEquals(true, srfFolder.mkdir());
+        File originalFlowLane1 = new File(srfFolder, "s_1.srf");
+        File originalFlowLane1Fastq = new File(srfFolder, "s_1.fastq");
+        FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
+        FileUtilities.writeToFile(originalFlowLane1Fastq, "fastq");
+        File originalFlowLane2 = new File(srfFolder, "2.srf");
+        File originalFlowLane2Fasta = new File(srfFolder, "2.fasta");
+        File originalFlowLane2Pdf = new File(srfFolder, "2_boxplot.pdf");
+        File originalFlowLane2Xxx = new File(srfFolder, "2abc.xxx");
+        FileUtilities.writeToFile(originalFlowLane2, "hello flow lane 2");
+        FileUtilities.writeToFile(originalFlowLane2Fasta, "fasta");
+        FileUtilities.writeToFile(originalFlowLane2Pdf, "pdf");
+        FileUtilities.writeToFile(originalFlowLane2Xxx, "xxx");
+        File srf_info_file = new File(srfFolder, "srf_info.txt");
+        FileUtilities.writeToFile(srf_info_file,
+                "Reading archive ETHZ_BSSE_100602_61VVHAAXX_1.srf.\n"
+                        + "Reading srf null index block\n" + "Reads: GOOD : 20712959\n"
+                        + "Reads: BAD : 7270034\n" + "Reads: TOTAL : 27982993");
+        prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
+
+        Sample fl1 = createFlowLaneSample(1);
+        Sample fl2 = createFlowLaneSample(2);
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
+        prepareGetProperties(Arrays.asList(fl1, fl2));
+
+        flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
+
+        checkFlowLaneDataSet(originalFlowLane1, "1");
+        checkFlowLaneDataSet(originalFlowLane2, "2");
+
+        File[] transferedFiles = transferDropBox.listFiles();
+        Arrays.sort(transferedFiles);
+        assertEquals(5, transferedFiles.length);
+
+        assertEquals("2.fasta", transferedFiles[0].getName());
+        assertEquals("2.srf", transferedFiles[1].getName());
+        assertEquals("2_boxplot.pdf", transferedFiles[2].getName());
+        assertEquals("2abc.xxx", transferedFiles[3].getName());
+        File metaFile = transferedFiles[4];
+        assertEquals(META_DATA_PREFIX + SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE,
+                metaFile.getName());
+        assertHardLinkOnSameFile(originalFlowLane2Fasta, transferedFiles[0]);
+        assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[1]);
 
         context.assertIsSatisfied();
     }
@@ -486,10 +541,14 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
     private void checkFlowLaneDataSet(File originalFlowLane, String flowLaneNumber)
     {
-        File dropBox = new File(workingDirectory, DROP_BOX_PREFIX + FlowLaneFeeder.escapeSampleCode(flowLaneNumber));
+        File dropBox =
+                new File(workingDirectory, DROP_BOX_PREFIX
+                        + FlowLaneFeeder.escapeSampleCode(flowLaneNumber));
         String fileName =
-                "G" + FlowLaneFeeder.escapeSampleCode(flowLaneNumber) + FlowLaneFeeder.DEFAULT_ENTITY_SEPARATOR + SAMPLE_CODE
-                        + FLOW_LANE_NUMBER_SEPARATOR + FlowLaneFeeder.escapeSampleCode(flowLaneNumber);
+                "G" + FlowLaneFeeder.escapeSampleCode(flowLaneNumber)
+                        + FlowLaneFeeder.DEFAULT_ENTITY_SEPARATOR + SAMPLE_CODE
+                        + FLOW_LANE_NUMBER_SEPARATOR
+                        + FlowLaneFeeder.escapeSampleCode(flowLaneNumber);
         File ds = new File(dropBox, FlowLaneFeeder.escapeSampleCode(fileName));
         assertEquals(true, ds.isDirectory());
 
@@ -498,10 +557,13 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(FileUtilities.loadToString(originalFlowLane), FileUtilities
                 .loadToString(flowLane));
         assertHardLinkOnSameFile(originalFlowLane, flowLane);
-        String metaDataFileName = META_DATA_PREFIX 
-                + (SAMPLE_CODE + "_" + FlowLaneFeeder.escapeSampleCode(flowLaneNumber)) + FlowLaneFeeder.META_DATA_FILE_TYPE;
+        String metaDataFileName =
+                META_DATA_PREFIX
+                        + (SAMPLE_CODE + "_" + FlowLaneFeeder.escapeSampleCode(flowLaneNumber))
+                        + FlowLaneFeeder.META_DATA_FILE_TYPE;
         assertEquals(true, new File(ds, FlowLaneFeeder.escapeSampleCode(metaDataFileName)).exists());
-        assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX + FlowLaneFeeder.escapeSampleCode(fileName)).exists());
+        assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX
+                + FlowLaneFeeder.escapeSampleCode(fileName)).exists());
     }
 
     private void assertHardLinkOnSameFile(File file1, File file2)
