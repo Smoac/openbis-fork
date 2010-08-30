@@ -90,7 +90,7 @@ public class DataTypeUtilTest extends AssertJUnit
         } catch (IllegalArgumentException ex)
         {
             assertEquals("Input stream does not support marking. "
-                    + "Wrap input stream by a BufferedInputStream to solve the problem.", ex
+                    + "Wrap input stream with a BufferedInputStream to solve the problem.", ex
                     .getMessage());
         }
     }
