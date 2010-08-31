@@ -1,6 +1,6 @@
 #!/bin/bash
-# Upgrades openbis for screening. 
-# Assumes that openbis is installed in the parent directory of the directory where this script is located. 
+# Upgrades openbis AS and DSS. 
+# Assumes that openbis is installed in the 'servers' directory on the same level as this script parent directory
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
@@ -10,22 +10,25 @@ fi
 source $BASE/env
 
 ROOT_DIR=$BASE/../servers
-BACKUP_DIR=$BASE/../backup
+
+NOW=`date +%y%m%d-%H%m`
+BACKUP_DIR=$BASE/../backup/$NOW
 
 $BASE/alldown.sh
 
-NOW=`date +%y%m%d-%H%m`
 
-CONFIG=$BACKUP_DIR/config-backup-$NOW
+CONFIG=$BACKUP_DIR/config-backup
 mkdir -p $CONFIG
 $BASE/backup-config.sh $CONFIG
 
-OLD_BIS=$BACKUP_DIR/openBIS-server-$NOW
+OLD_BIS=$BACKUP_DIR/openBIS-server
 mv $ROOT_DIR/openBIS-server $OLD_BIS 
-mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server-$NOW
+mv $ROOT_DIR/datastore_server $BACKUP_DIR/datastore_server
 
-# pg_restore -d db-name db-file.dmp 
+# Note: to restore the database afterwards one can use:
+#    pg_restore -d db-name db-file.dmp 
 pg_dump -U $DB_USER_NAME -Fc $OPENBIS_DB > $BACKUP_DIR/$OPENBIS_DB-${NOW}.dmp
+# screening-specific
 pg_dump -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
 
 echo Installing openBIS Datastore Server

@@ -1,6 +1,8 @@
 #!/bin/bash
-# Author: Tomasz Pylak
-# Updates all the screening admin scripts to the version found in SVN.
+# Updates all the admin scripts to the version found in SVN.
+
+# screening-specific
+SVN=svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
@@ -9,7 +11,6 @@ fi
 
 alias rm='rm'
 
-SVN=svncisd.ethz.ch/repos/cisd/screening/trunk/dist/admin
 cd $BASE
 wget -nv -r -l1 -A.sh http://$SVN/
 mv $SVN/* .

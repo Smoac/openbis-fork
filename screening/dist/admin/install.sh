@@ -1,6 +1,6 @@
 #!/bin/bash
-# Installs openbis for screening for the first time. 
-# openbis will be installed in the parent directory of the directory where this script is located. 
+# Installs openbis AS and DSS for the first time. 
+# openBIS will be installed in the 'servers' directory on the same level as this script parent directory.
 
 BASE=`dirname "$0"`
 if [ ${BASE#/} == ${BASE} ]; then
@@ -15,6 +15,7 @@ BACKUP_DIR=$BASE/../backup
 mkdir -p $ROOT_DIR
 mkdir -p $BACKUP_DIR
 
+# screening-specific
 echo Restoring empty screening database
 USER=`whoami`
 psql -U postgres -c "create database $OPENBIS_DB with owner $USER template = template0 encoding = 'UNICODE'"

@@ -1,5 +1,8 @@
-OPENBIS_DB=openbis_screening_mydb
-IMAGING_DB=imaging_mydb
+# name of the openbis core database
+OPENBIS_DB=openbis_screening_mylab_productive
+
+# screening-specific name of the imaging database
+IMAGING_DB=imaging_mylab_productive
 
 DB_USER_NAME=postgres
 
