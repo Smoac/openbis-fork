@@ -44,7 +44,7 @@ public class FileBasedContent implements IContent
     /**
      * Returns the name of the wrapped file.
      */
-    public String getName()
+    public String tryGetName()
     {
         return file.getName();
     }
@@ -78,10 +78,4 @@ public class FileBasedContent implements IContent
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-
-    public String getUniqueId()
-    {
-        return file.getAbsolutePath();
-    }
-
 }

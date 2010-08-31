@@ -19,13 +19,19 @@ package ch.systemsx.cisd.openbis.dss.generic.server.images;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
@@ -41,14 +47,37 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  */
 public class ImageChannelsUtils
 {
+    /**
+     * @return a TIFF image for the specified tile in the specified size and for the requested
+     *         channel or with all channels merged.
+     */
+    public static IContent getImage(File datasetRoot, String datasetCode, TileImageReference params)
+    {
+        List<AbsoluteImageReference> images = getImageReferences(datasetRoot, datasetCode, params);
+        return calculateImage(images);
+    }
+
+    /**
+     * @return a TIFF image for the specified tile in the specified size and for the requested
+     *         channel.
+     */
+    public static IContent getImage(IHCSImageDatasetLoader imageAccessor,
+            ImageChannelStackReference channelStackReference, String chosenChannelCode,
+            Size thumbnailSizeOrNull)
+    {
+        AbsoluteImageReference imageReference =
+                getImageReference(imageAccessor, channelStackReference, chosenChannelCode,
+                        thumbnailSizeOrNull);
+        return calculateSingleImageContent(imageReference);
+    }
 
     /**
      * @return file with the image for the chosen channel or images for all channels if they should
      *         be merged.
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    public static List<AbsoluteImageReference> getImagePaths(File datasetRoot, String datasetCode,
-            TileImageReference params)
+    private static List<AbsoluteImageReference> getImageReferences(File datasetRoot,
+            String datasetCode, TileImageReference params)
     {
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
@@ -60,130 +89,134 @@ public class ImageChannelsUtils
             for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
             {
                 AbsoluteImageReference image =
-                        getImage(imageAccessor, params.getChannelStack(), chosenChannel,
+                        getImageReference(imageAccessor, params.getChannelStack(), chosenChannel,
                                 thumbnailSizeOrNull);
                 images.add(image);
             }
         } else
         {
             AbsoluteImageReference image =
-                    getImage(imageAccessor, params.getChannelStack(), params.getChannel(),
+                    getImageReference(imageAccessor, params.getChannelStack(), params.getChannel(),
                             thumbnailSizeOrNull);
             images.add(image);
         }
         return images;
     }
 
-    /**
-     * Creates an images of the specified tile and with requested channels merged.<br>
-     */
-    public static BufferedImage mergeImageChannels(TileImageReference params,
-            List<AbsoluteImageReference> imageReferences)
+    private static IContent calculateImage(List<AbsoluteImageReference> images)
     {
-        return mergeImageChannels(imageReferences, params.isMergeAllChannels());
-    }
-
-    /**
-     * Creates an images of the specified tile and with requested channels merged.<br>
-     */
-    public static BufferedImage mergeImageChannels(List<AbsoluteImageReference> imageReferences,
-            boolean mergeChannels)
-    {
-        BufferedImage resultImage;
-        if (mergeChannels)
+        if (images.size() > 1)
         {
-            resultImage = mergeAllChannels(imageReferences);
+            return mergeAllChannels(images);
         } else
         {
-            assert imageReferences.size() == 1 : "single channel image can be generated only form one file, "
-                    + "but more have been specified: " + imageReferences;
-            AbsoluteImageReference imageReference = imageReferences.get(0);
-
-            resultImage = selectSingleChannel(imageReference);
+            return calculateSingleImageContent(images.get(0));
         }
-        return resultImage;
     }
 
-    /**
-     * Reads the given content and selects a single channel from it.
-     */
-    public static BufferedImage selectSingleChannel(AbsoluteImageReference imageReference)
+    private static IContent calculateSingleImageContent(AbsoluteImageReference imageReference)
     {
-        return selectSingleChannel(imageReference.getContent().getInputStream(), imageReference
-                .tryGetColorComponent());
-    }
+        IContent content = imageReference.getContent();
+        final String fileType = figureOutFileType(content);
+        boolean isTiff = DataTypeUtil.isTiff(fileType);
 
-    /**
-     * Reads the given content and selects a single channel from it.
-     */
-    public static BufferedImage selectSingleChannel(InputStream input, ColorComponent colorComponent)
-    {
-        BufferedImage image = ImageUtil.loadImage(input);
-        if (colorComponent == null)
+        // optimization - is the original image what we need?
+        if (isTiff && imageReference.tryGetSize() == null && imageReference.tryGetPage() == null
+                && imageReference.tryGetColorComponent() == null)
         {
-            // TODO 2010-06-15 Izabela Adamczyk: We have to select a single channel from the (most
-            // possibly) grayscale image.
-            // This image contains only one channel, but can have R, G, and B components set.
-            // We select just one to make the image colorful.
-            return image;
+            return content;
         }
-        return transformToChannel(image, colorComponent);
+
+        BufferedImage image = calculateSingleImage(imageReference);
+        return createTiffContent(image, fileType, imageReference.getContent().tryGetName());
     }
 
-    private static BufferedImage mergeAllChannels(List<AbsoluteImageReference> imageReferences)
+    private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
     {
-        IContent mergedChannelsImage = tryAsOneImageWithAllChannels(imageReferences);
-        if (mergedChannelsImage != null)
+        IContent content = imageReference.getContent();
+
+        InputStream inputStream = content.getInputStream();
+
+        // extracts the correct page if necessary
+        int page = (imageReference.tryGetPage() != null) ? imageReference.tryGetPage() : 0;
+        BufferedImage image = ImageUtil.loadImage(inputStream, page);
+
+        // resized the image if necessary
+        Size sizeOrNull = imageReference.tryGetSize();
+        if (sizeOrNull != null)
+        {
+            image = ImageUtil.createThumbnail(image, sizeOrNull.getWidth(), sizeOrNull.getHeight());
+        }
+
+        // choose color component if necessary
+        ColorComponent colorComponentOrNull = imageReference.tryGetColorComponent();
+        if (colorComponentOrNull != null)
+        {
+            image = transformToChannel(image, colorComponentOrNull);
+        }
+        return image;
+    }
+
+    private static IContent mergeAllChannels(List<AbsoluteImageReference> imageReferences)
+    {
+        AbsoluteImageReference allChannelsImageReference =
+                tryCreateAllChannelsImageReference(imageReferences);
+        if (allChannelsImageReference != null)
         {
             // all channels are on an image in one file, no pixel-level operations needed
-            return ImageUtil.loadImage(mergedChannelsImage.getInputStream());
+            return calculateSingleImageContent(allChannelsImageReference);
         } else
         {
-            List<IContent> plainImages = tryAsPlainImages(imageReferences);
-            if (plainImages == null)
-            {
-                throw EnvironmentFailureException.fromTemplate(
-                        "Merging channels in a list of different files is not supported:  %s",
-                        imageReferences);
-            }
-            List<BufferedImage> images = loadImages(plainImages);
-            return mergeChannels(images);
+            List<BufferedImage> images = calculateSingleImages(imageReferences);
+            BufferedImage mergedImage = mergeChannels(images);
+            return createTiffContent(mergedImage, DataTypeUtil.TIFF_FILE, null);
         }
     }
 
-    private static List<IContent> tryAsPlainImages(List<AbsoluteImageReference> images)
-    {
-        List<IContent> plainFiles = new ArrayList<IContent>();
-        for (AbsoluteImageReference image : images)
-        {
-            if (image.tryGetColorComponent() != null || image.tryGetPage() != null)
-            {
-                return null;
-            }
-            plainFiles.add(image.getContent());
-        }
-        return plainFiles;
-    }
-
-    private static IContent tryAsOneImageWithAllChannels(
+    private static List<BufferedImage> calculateSingleImages(
             List<AbsoluteImageReference> imageReferences)
     {
-        IContent mergedChannelsImage = null;
+        List<BufferedImage> images = new ArrayList<BufferedImage>();
+        for (AbsoluteImageReference imageRef : imageReferences)
+        {
+            images.add(calculateSingleImage(imageRef));
+        }
+        return images;
+    }
+
+    // Checks if all images differ only at the color component level and stem from the same page
+    // of the same file. If that's the case any image from the collection contains the merged
+    // channels image (if we erase the color component).
+    private static AbsoluteImageReference tryCreateAllChannelsImageReference(
+            List<AbsoluteImageReference> imageReferences)
+    {
+        AbsoluteImageReference lastFound = null;
         for (AbsoluteImageReference image : imageReferences)
         {
-            IContent imageFile = image.getContent();
-            if (mergedChannelsImage == null)
+            if (lastFound == null)
             {
-                mergedChannelsImage = imageFile;
+                lastFound = image;
             } else
             {
-                if (imageFile.getUniqueId().equals(mergedChannelsImage.getUniqueId()) == false)
+                if (equals(image.tryGetPage(), lastFound.tryGetPage()) == false
+                        || image.getUniqueId().equals(lastFound.getUniqueId()) == false)
                 {
                     return null;
                 }
             }
         }
-        return mergedChannelsImage;
+        if (lastFound != null)
+        {
+            return lastFound.createWithoutColorComponent();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static boolean equals(Integer i1OrNull, Integer i2OrNull)
+    {
+        return (i1OrNull == null) ? (i2OrNull == null) : i1OrNull.equals(i2OrNull);
     }
 
     private static BufferedImage mergeChannels(List<BufferedImage> images)
@@ -226,25 +259,13 @@ public class ImageChannelsUtils
         return mergedRGB;
     }
 
-    private static List<BufferedImage> loadImages(List<IContent> imageFiles)
-    {
-        List<BufferedImage> images = new ArrayList<BufferedImage>();
-        for (IContent imageFile : imageFiles)
-        {
-            BufferedImage image = ImageUtil.loadImage(imageFile.getInputStream());
-            assert image != null : "image is null";
-            images.add(image);
-        }
-        return images;
-    }
-
     // --------- common
 
     /**
      * @param chosenChannelCode starts from 1
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    public static AbsoluteImageReference getImage(IHCSImageDatasetLoader imageAccessor,
+    private static AbsoluteImageReference getImageReference(IHCSImageDatasetLoader imageAccessor,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
             Size thumbnailSizeOrNull)
     {
@@ -264,9 +285,9 @@ public class ImageChannelsUtils
     }
 
     /**
-     * Transforms the given <var>bufferedImage</var> as
+     * Transforms the given <var>bufferedImage</var> by selecting a single channel from it.
      */
-    public static BufferedImage transformToChannel(BufferedImage bufferedImage,
+    private static BufferedImage transformToChannel(BufferedImage bufferedImage,
             ColorComponent colorComponent)
     {
         BufferedImage newImage = createNewImage(bufferedImage);
@@ -344,4 +365,52 @@ public class ImageChannelsUtils
     {
         return new Color(rgb[0], rgb[1], rgb[2]).getRGB();
     }
+
+    private static String figureOutFileType(IContent content)
+    {
+        return DataTypeUtil.tryToFigureOutFileTypeOf(content.getInputStream());
+    }
+
+    private static IContent createTiffContent(BufferedImage image, String fileType,
+            String nameOrNull)
+    {
+        // TODO 2010-08-31, Tomasz Pylak: find out why tiffs do not work 
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try
+        {
+            ImageIO.write(image, "png", output);
+        } catch (IOException ex)
+        {
+            ex.printStackTrace();
+        }
+        return new ByteArrayBasedContent(output.toByteArray(), nameOrNull);
+		/*
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final TIFFEncodeParam param = createCompressionParams(fileType);
+        final ImageEncoder enc = ImageCodec.createImageEncoder("tiff", out, param);
+        try
+        {
+            enc.encode(image);
+        } catch (IOException ex)
+        {
+            throw EnvironmentFailureException.fromTemplate("Cannot encode image.", ex);
+        }
+        return new ByteArrayBasedContent(out.toByteArray(), nameOrNull);
+		*/
+    }
+
+//    private static TIFFEncodeParam createCompressionParams(String fileType)
+//    {
+//        final TIFFEncodeParam param = new TIFFEncodeParam();
+//        param.setLittleEndian(true);
+//        if (DataTypeUtil.isJpeg(fileType))
+//        {
+//            param.setCompression(TIFFEncodeParam.COMPRESSION_JPEG_TTN2);
+//        } else
+//        {
+//            // TODO 2010-08-30, Tomasz Pylak: check compressed file size
+//            param.setCompression(TIFFEncodeParam.COMPRESSION_DEFLATE);
+//        }
+//        return param;
+//    }
 }

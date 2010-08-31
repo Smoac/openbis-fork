@@ -27,7 +27,7 @@ public interface IHCSImageDatasetLoader extends IHCSDatasetLoader
 {
     /**
      * @param chosenChannelCode start from 1
-     * @return image (with absolute path, page and color)
+     * @return image (with original file content, page and color)
      */
     AbsoluteImageReference tryGetImage(String chosenChannelCode,
             ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull);

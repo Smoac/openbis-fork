@@ -238,7 +238,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
                     ConcatenatedContentInputStream s1 =
                             new ConcatenatedContentInputStream(true, Arrays
                                     .<IContent> asList(new ByteArrayBasedContent("hello 1"
-                                            .getBytes(), "h1", "1")));
+                                            .getBytes(), "h1")));
                     will(returnValue(s1));
 
                     one(outputStreamProvider).getOutputStream(r1);
@@ -248,7 +248,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
                     ConcatenatedContentInputStream s2 =
                             new ConcatenatedContentInputStream(true, Arrays
                                     .<IContent> asList(new ByteArrayBasedContent("hello 2"
-                                            .getBytes(), "h2", "2")));
+                                            .getBytes(), "h2")));
                     will(returnValue(s2));
 
                     one(outputStreamProvider).getOutputStream(r2);

@@ -157,7 +157,7 @@ public class ConcatenatedContentInputStreamTest extends AbstractFileSystemTestCa
 
     private IContent createContent(String content, String name)
     {
-        return new ByteArrayBasedContent(content.getBytes(), name, name);
+        return new ByteArrayBasedContent(content.getBytes(), name);
     }
 
     private static String createLongString(String text)

@@ -26,15 +26,9 @@ import java.io.InputStream;
 public interface IContent
 {
     /**
-     * Returns name of the content.
+     * Returns name of the content or null.
      */
-    public String getName();
-
-    /**
-     * Returns id of the content which uniquely identifies the source of it and distinguishes from
-     * other sources. Example: for a file-system-based content the absolute path is the correct id.
-     */
-    public String getUniqueId();
+    public String tryGetName();
 
     /**
      * Returns number of bytes of the content.

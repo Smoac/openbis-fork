@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
+import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
 
@@ -45,11 +43,11 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
     protected final ResponseContentStream createImageResponse(TileImageReference params,
             File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
     {
-        List<AbsoluteImageReference> images =
-                ImageChannelsUtils.getImagePaths(datasetRoot, datasetCode, params);
-        BufferedImage image = ImageChannelsUtils.mergeImageChannels(params, images);
-        String singleFileNameOrNull =
-                images.size() == 1 ? images.get(0).getContent().getName() : null;
-        return createResponseContentStream(image, singleFileNameOrNull);
+        IContent image = ImageChannelsUtils.getImage(datasetRoot, datasetCode, params);
+        // TODO 2010-08-31, Tomasz Pylak: uncomment, we want tiff files
+        // String contentType = CONTENT_TYPE_TIFF;
+        String contentType = CONTENT_TYPE_PNG;
+        return createResponseContentStream(image.getInputStream(), image.getSize(), contentType,
+                image.tryGetName());
     }
 }

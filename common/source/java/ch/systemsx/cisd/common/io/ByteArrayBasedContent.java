@@ -19,8 +19,6 @@ package ch.systemsx.cisd.common.io;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Content based on an array of bytes.
  * 
@@ -30,29 +28,22 @@ public class ByteArrayBasedContent implements IContent
 {
     private final byte[] byteArray;
 
-    private final String name;
-
-    private final String id;
+    private final String nameOrNull;
 
     /**
      * Creates an instance for the specified byte array.
      * 
-     * @param name Name of the content. Must be a non-blank string.
+     * @param nameOrNull Name of the content or null
      */
-    public ByteArrayBasedContent(byte[] byteArray, String name, String id)
+    public ByteArrayBasedContent(byte[] byteArray, String nameOrNull)
     {
-        if (StringUtils.isBlank(name))
-        {
-            throw new IllegalArgumentException("Missing name.");
-        }
         this.byteArray = byteArray;
-        this.name = name;
-        this.id = id;
+        this.nameOrNull = nameOrNull;
     }
 
-    public String getName()
+    public String tryGetName()
     {
-        return name;
+        return nameOrNull;
     }
 
     /**
@@ -78,10 +69,4 @@ public class ByteArrayBasedContent implements IContent
     {
         return new ByteArrayInputStream(byteArray);
     }
-
-    public String getUniqueId()
-    {
-        return id;
-    }
-
 }

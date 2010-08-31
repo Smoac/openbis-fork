@@ -50,8 +50,7 @@ public class Hdf5BasedContentRepository implements IContentRepository
         }
         byte[] content = reader.readAsByteArray(path);
         int index = path.lastIndexOf('/');
-        return new ByteArrayBasedContent(content, index < 0 ? path : path.substring(index + 1),
-                path);
+        return new ByteArrayBasedContent(content, index < 0 ? path : path.substring(index + 1));
     }
 
     public void close()

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -28,15 +29,46 @@ public class AbsoluteImageReference extends AbstractImageReference
 {
     private final IContent content;
 
-    public AbsoluteImageReference(IContent content, Integer pageOrNull,
-            ColorComponent colorComponentOrNull)
+    private final String uniqueId;
+
+    private final Size thumbnailSizeOrNull;
+
+    /**
+     * @param content the content before choosing the color component and the page
+     */
+    public AbsoluteImageReference(IContent content, String uniqueId, Integer pageOrNull,
+            ColorComponent colorComponentOrNull, Size thumbnailSizeOrNull)
     {
         super(pageOrNull, colorComponentOrNull);
         this.content = content;
+        this.uniqueId = uniqueId;
+        this.thumbnailSizeOrNull = thumbnailSizeOrNull;
+    }
+
+    /**
+     * Returns id of the content which uniquely identifies the source of it and distinguishes from
+     * other sources. Example: for a file-system-based content the absolute path is the correct id.
+     */
+    public String getUniqueId()
+    {
+        return uniqueId;
     }
 
     public IContent getContent()
     {
         return content;
+    }
+
+    public Size tryGetSize()
+    {
+        return thumbnailSizeOrNull;
+    }
+
+    public AbsoluteImageReference createWithoutColorComponent()
+    {
+        ColorComponent colorComponent = null;
+        return new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
+                thumbnailSizeOrNull);
+
     }
 }

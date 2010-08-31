@@ -331,16 +331,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageReferences);
         final Map<String, IHCSImageDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
-        final List<IContent> imageFiles = new ArrayList<IContent>();
+        final List<IContent> imageContents = new ArrayList<IContent>();
         for (PlateImageReference imageReference : imageReferences)
         {
             final IHCSImageDatasetLoader imageAccessor =
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-            final AbsoluteImageReference imageRef = tryGetImage(imageAccessor, imageReference);
-            imageFiles.add((imageRef == null) ? null : imageRef.getContent());
+            IContent content = tryGetImageContent(imageAccessor, imageReference);
+            imageContents.add(content);
         }
-        return new ConcatenatedContentInputStream(true, imageFiles);
+        return new ConcatenatedContentInputStream(true, imageContents);
     }
 
     // throws exception if some datasets cannot be found
@@ -370,7 +370,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return imageDatasetsMap;
     }
 
-    private AbsoluteImageReference tryGetImage(IHCSImageDatasetLoader imageAccessor,
+    private IContent tryGetImageContent(IHCSImageDatasetLoader imageAccessor,
             PlateImageReference imageRef)
     {
         Location wellLocation = asLocation(imageRef.getWellPosition());

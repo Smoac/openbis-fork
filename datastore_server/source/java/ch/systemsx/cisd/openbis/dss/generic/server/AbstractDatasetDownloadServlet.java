@@ -68,7 +68,9 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     private static final long serialVersionUID = 1L;
 
-    private static final String CONTENT_TYPE_PNG = "image/png";
+    protected static final String CONTENT_TYPE_PNG = "image/png";
+
+    protected static final String CONTENT_TYPE_TIFF = "image/tiff";
 
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(100, 60);
 
@@ -323,14 +325,23 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ImageIO.write(image, "png", output);
-
         InputStream inputStream = new ByteArrayInputStream(output.toByteArray());
+
+        long responseSize = output.size();
+        String contentType = CONTENT_TYPE_PNG;
+
+        return createResponseContentStream(inputStream, responseSize, contentType, fileNameOrNull);
+    }
+
+    protected static ResponseContentStream createResponseContentStream(InputStream inputStream,
+            long responseSize, String contentType, String fileNameOrNull)
+    {
         String headerContentDisposition = "inline;";
         if (fileNameOrNull != null)
         {
             headerContentDisposition += " filename=" + fileNameOrNull;
         }
-        return new ResponseContentStream(inputStream, output.size(), CONTENT_TYPE_PNG,
+        return new ResponseContentStream(inputStream, responseSize, contentType,
                 headerContentDisposition);
     }
 

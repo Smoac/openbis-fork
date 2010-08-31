@@ -16,33 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.imageio.ImageIO;
-
 import org.apache.commons.lang.StringUtils;
 
-import com.sun.media.jai.codec.ImageCodec;
-import com.sun.media.jai.codec.ImageEncoder;
-import com.sun.media.jai.codec.TIFFEncodeParam;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference.LocationImageChannelStackReference;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
@@ -91,70 +73,39 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
             return null;
         }
 
-        ImgImageDTO imageDTO;
-        IContent content = null;
         long datasetId = getDataset().getId();
-        if (thumbnailSizeOrNull != null)
+        boolean thumbnailPrefered = thumbnailSizeOrNull != null;
+        ImgImageDTO imageDTO =
+                tryGetImageDTO(channelStackReference, thumbnailPrefered, chosenChannelId, datasetId);
+        if (imageDTO == null)
         {
-            imageDTO = tryGetThumbnail(chosenChannelId, channelStackReference, datasetId);
-            if (imageDTO == null)
+            return null;
+        }
+        String path = imageDTO.getFilePath();
+        IContent content = contentRepository.getContent(path);
+        return new AbsoluteImageReference(content, path, imageDTO.getPage(), imageDTO
+                .getColorComponent(), thumbnailSizeOrNull);
+    }
+
+    private ImgImageDTO tryGetImageDTO(ImageChannelStackReference channelStackReference,
+            boolean thumbnailPrefered, Long chosenChannelId, long datasetId)
+    {
+        if (thumbnailPrefered)
+        {
+            ImgImageDTO thumbnailDTO =
+                    tryGetThumbnail(chosenChannelId, channelStackReference, datasetId);
+            if (thumbnailDTO != null)
             {
-                imageDTO = tryGetImage(chosenChannelId, channelStackReference, datasetId);
-                if (imageDTO != null)
-                {
-                    // produce a thumbnail by resizing the original image
-                    content =
-                            new ThumbnailContent(getOriginalFileContent(imageDTO),
-                                    thumbnailSizeOrNull);
-                }
+                return thumbnailDTO;
             } else
             {
-                // get the thumbnail content
-                content = getOriginalFileContent(imageDTO);
-                // resize to the requested size
-                content = new ThumbnailContent(content, thumbnailSizeOrNull);
+                return tryGetImage(chosenChannelId, channelStackReference, datasetId);
             }
         } else
         {
             // get the image content from the original image
-            imageDTO = tryGetImage(chosenChannelId, channelStackReference, datasetId);
-            if (imageDTO != null)
-            {
-                content = getImageContent(imageDTO);
-            }
+            return tryGetImage(chosenChannelId, channelStackReference, datasetId);
         }
-        if (content != null && imageDTO != null)
-        {
-            return new AbsoluteImageReference(content, imageDTO.getPage(), imageDTO
-                    .getColorComponent());
-        } else
-        {
-            return null;
-        }
-    }
-
-    private IContent getImageContent(ImgImageDTO imageDTO)
-    {
-        IContent content = getOriginalFileContent(imageDTO);
-        final InputStream is = content.getInputStream();
-        final String fileType = DataTypeUtil.tryToFigureOutFileTypeOf(is);
-        if (DataTypeUtil.isTiff(fileType) == false || imageDTO.getColorComponent() != null
-                || imageDTO.getPage() != null)
-        {
-            final int page = (imageDTO.getPage() != null) ? imageDTO.getPage() : 0;
-            BufferedImage image = ImageUtil.loadImage(is, fileType, page);
-            if (imageDTO.getColorComponent() != null)
-            {
-                image = ImageChannelsUtils.transformToChannel(image, imageDTO.getColorComponent());
-            }
-            content = asContent(image, fileType, content.getName(), content.getUniqueId());
-        }
-        return content;
-    }
-
-    private IContent getOriginalFileContent(ImgImageDTO imageDTO)
-    {
-        return contentRepository.getContent(imageDTO.getFilePath());
     }
 
     private ImgImageDTO tryGetImage(long channelId,
@@ -192,79 +143,4 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
             return query.tryGetThumbnail(channelId, channelStackId, datasetId);
         }
     }
-
-    private static IContent asContent(BufferedImage image, String fileType, String name, String id)
-    {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final TIFFEncodeParam param = new TIFFEncodeParam();
-        param.setLittleEndian(true);
-        if (DataTypeUtil.isJpeg(fileType))
-        {
-            param.setCompression(TIFFEncodeParam.COMPRESSION_JPEG_TTN2);
-        } else
-        {
-            param.setCompression(TIFFEncodeParam.COMPRESSION_DEFLATE);
-        }
-        final ImageEncoder enc = ImageCodec.createImageEncoder("tiff", out, param);
-        try
-        {
-            enc.encode(image);
-            return new ByteArrayBasedContent(out.toByteArray(), name, id);
-        } catch (IOException ex)
-        {
-            throw EnvironmentFailureException.fromTemplate("Cannot encode image.", ex);
-        }
-    }
-
-    private static final class ThumbnailContent implements IContent
-    {
-        private final IContent content;
-
-        private final byte[] thumbnailBytes;
-
-        ThumbnailContent(IContent content, Size size)
-        {
-            this.content = content;
-            InputStream inputStream = content.getInputStream();
-            BufferedImage image = ImageUtil.loadImage(inputStream);
-            BufferedImage thumbnail =
-                    ImageUtil.createThumbnail(image, size.getWidth(), size.getHeight());
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            try
-            {
-                ImageIO.write(thumbnail, "png", output);
-            } catch (IOException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-            thumbnailBytes = output.toByteArray();
-        }
-
-        public boolean exists()
-        {
-            return content.exists();
-        }
-
-        public InputStream getInputStream()
-        {
-            return new ByteArrayInputStream(thumbnailBytes);
-        }
-
-        public String getName()
-        {
-            return content.getName();
-        }
-
-        public long getSize()
-        {
-            return 0;
-        }
-
-        public String getUniqueId()
-        {
-            return content.getUniqueId();
-        }
-
-    }
-
 }
