@@ -21,7 +21,9 @@ import java.io.FileFilter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -33,6 +35,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
@@ -55,11 +58,18 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractPostRegistrationDataSetHandlerForFileBasedUndo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -68,7 +78,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * associated drop boxes.
  * 
  * @author Franz-Josef Elmer
- * @author Piotr Buczek
  */
 class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
@@ -79,6 +88,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     static final String TRANSFER_PREFIX = "transfer.";
 
     static final String AFFILIATION_KEY = "AFFILIATION";
+
+    static final String DATA_TRANSFERRED = "DATA_TRANSFERRED";
 
     static final String EXTERNAL_SAMPLE_NAME_KEY = "EXTERNAL_SAMPLE_NAME";
 
@@ -93,7 +104,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     static final String SRF_FILE_EXTENSION = "srf";
 
     private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FlowLaneFeeder.class);
+            LogFactory.getLogger(LogCategory.OPERATION, Copy_2_of_FlowLaneFeeder.class);
 
     private final IEncapsulatedOpenBISService service;
 
@@ -108,6 +119,8 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     private final Map<String, File> transferDropBoxes = new HashMap<String, File>();
 
     private final String srfInfoPathOrNull;
+
+    private boolean updateDataTransferredProperty = true;
 
     FlowLaneFeeder(Properties properties, IEncapsulatedOpenBISService service)
     {
@@ -144,6 +157,11 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             }
             transferDropBoxes.put(affiliation, dropBox);
         }
+    }
+
+    void setUpdateDataTransferredProperty(boolean updateDataTransferredProperty)
+    {
+        this.updateDataTransferredProperty = updateDataTransferredProperty;
     }
 
     public Status handle(File originalData, DataSetInformation dataSetInformation,
@@ -305,6 +323,64 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                 metaDataFilePrefix + escapeSampleCode(sampleCode) + META_DATA_FILE_TYPE;
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         copyToDropBox(dropBox, flowLaneDataSet);
+
+        if (updateDataTransferredProperty)
+        {
+            service.updateSample(createUpdates(flowLaneSample,
+                    createDataTransferredProperty(flowLaneSample)));
+        }
+    }
+
+    private IEntityProperty createDataTransferredProperty(Sample flowLaneSample)
+    {
+        final PropertyType propertyType = extractDataTransferredProperty(flowLaneSample);
+        final String currentDate =
+                DateFormatUtils.format(new Date(), BasicConstant.CANONICAL_DATE_FORMAT_PATTERN);
+
+        final IEntityProperty result = new EntityProperty();
+        result.setPropertyType(propertyType);
+        result.setValue(currentDate);
+        return result;
+    }
+
+    private PropertyType extractDataTransferredProperty(Sample flowLaneSample)
+    {
+        SampleType flowLaneType = service.getSampleType(flowLaneSample.getSampleType().getCode());
+        PropertyType propertyType = null;
+        for (EntityTypePropertyType<SampleType> entityTypePropertyType : flowLaneType
+                .getAssignedPropertyTypes())
+        {
+            if (entityTypePropertyType.getPropertyType().getCode().equals(DATA_TRANSFERRED))
+            {
+                propertyType = entityTypePropertyType.getPropertyType();
+            }
+        }
+        if (propertyType == null)
+        {
+            throw new UserFailureException(DATA_TRANSFERRED
+                    + " property type doesn't exist or is not assigned to Flow Lane samples");
+        }
+        return propertyType;
+    }
+
+    public static SampleUpdatesDTO createUpdates(Sample sample, IEntityProperty newEntityProperty)
+    {
+        final TechId sampleId = TechId.create(sample);
+        final List<IEntityProperty> properties =
+                new ArrayList<IEntityProperty>(sample.getProperties());
+        properties.add(newEntityProperty);
+        final ExperimentIdentifier experimentIdentifierOrNull =
+                (sample.getExperiment() != null) ? new ExperimentIdentifier(sample.getExperiment())
+                        : null;
+        final Collection<NewAttachment> attachments = new ArrayList<NewAttachment>();
+        final Date version = sample.getModificationDate();
+        final SampleIdentifier sampleIdentifier =
+                SampleIdentifierFactory.parse(sample.getIdentifier());
+        final String containerIdentifierOrNull =
+                (sample.getContainer() != null) ? sample.getContainer().getIdentifier() : null;
+        final String[] modifiedParentCodesOrNull = new String[0];
+        return new SampleUpdatesDTO(sampleId, properties, experimentIdentifierOrNull, attachments,
+                version, sampleIdentifier, containerIdentifierOrNull, modifiedParentCodesOrNull);
     }
 
     private void copyToDropBox(File dropBoxOrNull, File flowLaneDataSet)

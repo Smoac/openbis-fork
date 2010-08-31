@@ -44,11 +44,15 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
@@ -68,6 +72,8 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     private static final Sample EXAMPLE_FLOW_CELL_SAMPLE = createFlowCellSample();
 
     private static final DataSetInformation EXAMPLE_DATA_SET_INFO = createDataSetInfo();
+
+    private static final String FLOW_LANE = "ILLUMINA_FLOW_LANE";
 
     private static final String SAMPLE_CODE = "fc";
 
@@ -239,6 +245,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     @Test
     public void testFlowLaneTwice()
     {
+        flowLaneFeeder.setUpdateDataTransferredProperty(false);
         File flowCell = new File(workingDirectory, SAMPLE_CODE);
         assertEquals(true, flowCell.mkdir());
         File logs = new File(flowCell, "logs");
@@ -271,6 +278,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     @Test
     public void testHappyCase()
     {
+        flowLaneFeeder.setUpdateDataTransferredProperty(true);
         File flowCell = new File(workingDirectory, SAMPLE_CODE);
         assertEquals(true, flowCell.mkdir());
         File logs = new File(flowCell, "logs");
@@ -289,10 +297,23 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                         + "Reads: BAD : 7270034\n" + "Reads: TOTAL : 27982993");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
 
-        Sample fl1 = createFlowLaneSample(1);
-        Sample fl2 = createFlowLaneSample(2);
+        SampleTypePropertyType p1 = createPropertyType("P1");
+        SampleTypePropertyType p2 = createPropertyType("P2");
+        SampleTypePropertyType p3 = createPropertyType("DATA_TRANSFERRED");
+        IEntityProperty fl1p1v = new GenericValueEntityProperty();
+        fl1p1v.setPropertyType(p1.getPropertyType());
+        fl1p1v.setValue("v1");
+        IEntityProperty fl2p2v = new GenericValueEntityProperty();
+        fl2p2v.setPropertyType(p2.getPropertyType());
+        fl2p2v.setValue("v2");
+
+        Sample fl1 = createFlowLaneSample(1, fl1p1v);
+        Sample fl2 = createFlowLaneSample(2, fl2p2v);
         prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
         prepareGetProperties(Arrays.asList(fl1, fl2));
+
+        prepareGetSampleType(FLOW_LANE, p1, p2, p3);
+        prepareUpdateSamples(fl1, fl2);
 
         flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO, null);
 
@@ -311,10 +332,91 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    private void prepareUpdateSamples(final Sample... samples)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(service).updateSample(with(new BaseMatcher<SampleUpdatesDTO>()
+                        {
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof SampleUpdatesDTO)
+                                {
+                                    SampleUpdatesDTO sampleUpdate = (SampleUpdatesDTO) item;
+                                    Long updateId = sampleUpdate.getSampleIdOrNull().getId();
+                                    boolean found = false;
+                                    for (Sample s : samples)
+                                    {
+                                        if (s.getId().equals(updateId))
+                                        {
+                                            found = true;
+                                            assertEquals(s.getId(), sampleUpdate
+                                                    .getSampleIdOrNull().getId());
+                                            assertEquals(0, sampleUpdate.getAttachments().size());
+                                            assertEquals(null, sampleUpdate
+                                                    .getContainerIdentifierOrNull());
+                                            assertEquals(null, sampleUpdate
+                                                    .getExperimentIdentifierOrNull());
+                                            assertEquals(s.getIdentifier(), sampleUpdate
+                                                    .getSampleIdentifier().toString());
+                                            List<IEntityProperty> properties =
+                                                    sampleUpdate.getProperties();
+                                            assertEquals(s.getProperties().size() + 1, properties
+                                                    .size());
+                                            assertEquals("DATA_TRANSFERRED", properties.get(
+                                                    properties.size() - 1).getPropertyType()
+                                                    .getCode());
+                                            break;
+                                        }
+                                    }
+                                    if (found == false)
+                                    {
+                                        fail("Didn't expect update of sample with id " + updateId);
+                                    }
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                            public void describeTo(Description description)
+                            {
+                            }
+                        }));
+                }
+            });
+    }
+
+    private void prepareGetSampleType(final String sampleTypeCode,
+            final SampleTypePropertyType... sampleTypePropertyTypes)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(service).getSampleType(sampleTypeCode);
+                    SampleType sampleType = new SampleType();
+                    sampleType.setCode(sampleTypeCode);
+                    sampleType.setSampleTypePropertyTypes(Arrays.asList(sampleTypePropertyTypes));
+                    will(returnValue(sampleType));
+                }
+            });
+    }
+
+    private static SampleTypePropertyType createPropertyType(String key)
+    {
+        SampleTypePropertyType stpt = new SampleTypePropertyType();
+        stpt.setMandatory(false);
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(key);
+        stpt.setPropertyType(propertyType);
+        return stpt;
+    }
+
     @Test
     public void testHappyCaseWithSRFInfo()
     {
         flowLaneFeeder = createFeeder("echo option: $1\necho file: $2");
+        flowLaneFeeder.setUpdateDataTransferredProperty(false);
 
         File flowCell = new File(workingDirectory, SAMPLE_CODE);
         assertEquals(true, flowCell.mkdir());
@@ -366,6 +468,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     @Test
     public void testHappyCaseWithAdditionalFiles()
     {
+        flowLaneFeeder.setUpdateDataTransferredProperty(false);
         File flowCell = new File(workingDirectory, SAMPLE_CODE);
         assertEquals(true, flowCell.mkdir());
         File logs = new File(flowCell, "logs");
@@ -441,6 +544,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     public void testInvalidSRFFile()
     {
         flowLaneFeeder = createFeeder("exit 1");
+        flowLaneFeeder.setUpdateDataTransferredProperty(false);
         File flowCell = new File(workingDirectory, SAMPLE_CODE);
         assertEquals(true, flowCell.mkdir());
         File originalFlowLane1 = new File(flowCell, "s_1.srf");
@@ -592,9 +696,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(4711000, file2.lastModified());
     }
 
-    private Sample createFlowLaneSample(int flowLaneNumber)
+    private Sample createFlowLaneSample(int flowLaneNumber, IEntityProperty... properties)
     {
         Sample sample = new Sample();
+        sample.setId((long) flowLaneNumber);
         sample.setCode(SAMPLE_CODE + ":" + flowLaneNumber);
         Space space = new Space();
         space.setCode("G" + flowLaneNumber);
@@ -605,6 +710,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         registrator.setEmail("ab@c.de");
         sample.setRegistrator(registrator);
         sample.setIdentifier(SAMPLE_CODE + ":" + flowLaneNumber);
+        SampleType type = new SampleType();
+        type.setCode(FLOW_LANE);
+        sample.setSampleType(type);
+        sample.setProperties(Arrays.asList(properties));
         return sample;
     }
 
