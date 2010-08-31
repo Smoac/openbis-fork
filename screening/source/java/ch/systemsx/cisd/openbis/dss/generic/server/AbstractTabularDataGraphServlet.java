@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
@@ -180,6 +181,10 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
             // Generate an image into the stream
             ITabularDataGraph generator =
                     configuration.getGraph(params.graphName, fileLines, response.getOutputStream());
+
+            response.setContentType(CONTENT_TYPE_PNG);
+            String headerContentDisposition = "inline; filename=plot_" + (new Date().getTime());
+            response.setHeader("Content-Disposition", headerContentDisposition);
 
             if (params.height > 0 && params.width > 0)
             {
