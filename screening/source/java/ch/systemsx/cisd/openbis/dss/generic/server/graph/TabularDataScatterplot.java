@@ -56,8 +56,8 @@ public class TabularDataScatterplot extends
             {
                 public void processLine(String xString, String yString, int index)
                 {
-                    double x = Double.parseDouble(xString);
-                    double y = Double.parseDouble(yString);
+                    double x = parseDouble(xString);
+                    double y = parseDouble(yString);
                     series.add(x, y);
                 }
             });

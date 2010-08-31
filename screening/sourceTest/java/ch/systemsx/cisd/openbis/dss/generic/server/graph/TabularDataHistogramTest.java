@@ -34,9 +34,29 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Test", new CodeAndLabel("InfectedCells"), 300, 200, 6);
+                new TabularDataHistogramConfiguration("Infected Cells", new CodeAndLabel(
+                        "InfectedCells"), 300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
-                new TabularDataHistogram(config, getDatasetFileLines(), getOutputStream(outputFile));
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSmallNumberHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Small Numbers", new CodeAndLabel(
+                        "SmallNumbers"), 300, 200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
         assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
         graph.generateImage();
 
@@ -50,9 +70,117 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Test", new CodeAndLabel("BigNumber"), 300, 200, 6);
+                new TabularDataHistogramConfiguration("Big Number", new CodeAndLabel("BigNumber"),
+                        300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
-                new TabularDataHistogram(config, getBigNumberDatasetFileLines(),
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testLotsOf0sHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Zero", new CodeAndLabel("Zero"), 300, 200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testJustNaNHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Just NaN", new CodeAndLabel("JustNaN"), 300,
+                        200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSomeNaNHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Some NaN", new CodeAndLabel("SomeNaN"), 300,
+                        200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testJustInfHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Just Inf", new CodeAndLabel("JustInf"), 300,
+                        200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSomeInfHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Some Inf", new CodeAndLabel("SomeInf"), 300,
+                        200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testLotsOfBlanksHistogram() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHistogramConfiguration config =
+                new TabularDataHistogramConfiguration("Blanks", new CodeAndLabel("Blanks"), 300,
+                        200, 6);
+        AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
         assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
         graph.generateImage();
@@ -67,9 +195,11 @@ public class TabularDataHistogramTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHistogramConfiguration config =
-                new TabularDataHistogramConfiguration("Test", new CodeAndLabel("Non-Existant"), 300, 200, 6);
+                new TabularDataHistogramConfiguration("Test", new CodeAndLabel("Non-Existant"),
+                        300, 200, 6);
         AbstractTabularDataGraph<TabularDataHistogramConfiguration> graph =
-                new TabularDataHistogram(config, getDatasetFileLines(), getOutputStream(outputFile));
+                new TabularDataHistogram(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
 
         assertTrue(graph.tryXColumnNumber() < 0);
 

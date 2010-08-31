@@ -58,6 +58,34 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
 
     protected final OutputStream out;
 
+    /**
+     * Parse the string as a double.
+     * 
+     * @return A finite value or NaN if the string could not be parsed.
+     */
+    protected final static double parseDouble(String string)
+    {
+        double value;
+        try
+        {
+            value = Double.parseDouble(string);
+        } catch (NumberFormatException e)
+        {
+            value = Double.NaN;
+        }
+        return value;
+    }
+
+    /**
+     * Check if the double is a finite value (not <i>inf</i> and not <i>NaN</i>).
+     * 
+     * @return True if the double is finite
+     */
+    protected final static boolean isFinite(double v)
+    {
+        return false == Double.isInfinite(v) && false == Double.isNaN(v);
+    }
+
     protected AbstractTabularDataGraph(T configuration, ITabularData fileLines, OutputStream out)
     {
         this.configuration = configuration;
@@ -315,5 +343,4 @@ abstract class AbstractTabularDataGraph<T extends TabularDataGraphConfiguration>
     {
         return new Font(font.getName(), font.getStyle(), newSize);
     }
-
 }

@@ -244,21 +244,11 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
                 element.x = loc.getY();
                 element.y = loc.getX();
             }
-            try
-            {
-                element.z = Double.parseDouble(line[zColumn]);
-            } catch (NumberFormatException ex)
-            {
-                element.z = 0.;
-            }
-            if (false == areZBoundsInitialized)
-            {
-                heatmapData.minZ = element.z;
-                heatmapData.maxZ = element.z;
-                areZBoundsInitialized = true;
-            }
-            heatmapData.elements.add(element);
 
+            element.z = parseDouble(line[zColumn]);
+
+            // Update the x/y bounds of the heatmap.
+            // We can assume that x and y are finite integers
             if (element.x > heatmapData.maxX)
             {
                 heatmapData.maxX = element.x;
@@ -267,17 +257,53 @@ public class TabularDataHeatmap extends AbstractTabularDataGraph<TabularDataHeat
             {
                 heatmapData.maxY = element.y;
             }
-            if (element.z < heatmapData.minZ)
+
+            double zValue = element.z;
+            // If the zValue is not finite
+            if (false == isFinite(zValue))
             {
-                heatmapData.minZ = element.z;
-            }
-            if (element.z > heatmapData.maxZ)
+
+            } else
             {
-                heatmapData.maxZ = element.z;
+                areZBoundsInitialized =
+                        updateZMinMaxBounds(heatmapData, areZBoundsInitialized, zValue);
+                heatmapData.elements.add(element);
             }
         }
 
         return heatmapData;
+    }
+
+    /**
+     * Update the bounds of the heatmap data.
+     * 
+     * @param heatmapData The heatmap data to update
+     * @param areZBoundsInitialized Have the Z-bounds been initialized yet? If not, they are
+     *            initialized to finiteDouble
+     * @param finiteDouble A double value which is not NaN and not +/- inf
+     * @return Return the new value of areZBoundsInitialized
+     */
+    private boolean updateZMinMaxBounds(HeatmapData heatmapData, boolean areZBoundsInitialized,
+            double finiteDouble)
+    {
+        // If bounds haven't been initialized yet, do it now
+        if (false == areZBoundsInitialized)
+        {
+            heatmapData.minZ = finiteDouble;
+            heatmapData.maxZ = finiteDouble;
+            return true;
+        }
+
+        // Update the bounds
+        if (finiteDouble < heatmapData.minZ)
+        {
+            heatmapData.minZ = finiteDouble;
+        }
+        if (finiteDouble > heatmapData.maxZ)
+        {
+            heatmapData.maxZ = finiteDouble;
+        }
+        return areZBoundsInitialized;
     }
 
     private double[][] convertHeatmapDataToArray(HeatmapData data)

@@ -36,10 +36,10 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         CodeAndLabel xAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         CodeAndLabel yAxisColumn = new CodeAndLabel("<INFECTEDCELLS> Infected Cells");
         TabularDataScatterplotConfiguration config =
-                new TabularDataScatterplotConfiguration("Test", xAxisColumn, yAxisColumn, 300,
-                        200);
+                new TabularDataScatterplotConfiguration("Total Cells vs. Infected Cells",
+                        xAxisColumn, yAxisColumn, 300, 200);
         TabularDataScatterplot graph =
-                new TabularDataScatterplot(config, getDatasetFileLines(),
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
         assertEquals(1, graph.tryXColumnNumber());
         assertEquals("Total Cells", graph.getXAxisLabel());
@@ -59,14 +59,155 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         CodeAndLabel xAxisColumn = new CodeAndLabel("BIGNumber", null);
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
-                new TabularDataScatterplotConfiguration("Test", xAxisColumn, yAxisColumn, 300, 200);
+                new TabularDataScatterplotConfiguration("Big Number vs Total Cells", xAxisColumn,
+                        yAxisColumn, 300, 200);
         TabularDataScatterplot graph =
-                new TabularDataScatterplot(config, getBigNumberDatasetFileLines(),
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
-        assertEquals(21, graph.tryXColumnNumber());
+        assertEquals(18, graph.tryXColumnNumber());
         assertEquals("BigNumber", graph.getXAxisLabel());
         assertEquals(1, graph.tryYColumnNumber());
         assertEquals("Total Cells", graph.getYAxisLabel());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSmallNumberScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        CodeAndLabel xAxisColumn = new CodeAndLabel("SmallNumbers", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Small Numbers vs Total Cells",
+                        xAxisColumn, yAxisColumn, 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testLotsOf0sScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        CodeAndLabel xAxisColumn = new CodeAndLabel("Zero", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Zero vs Total Cells", xAxisColumn,
+                        yAxisColumn, 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testJustNaNScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        CodeAndLabel xAxisColumn = new CodeAndLabel("JustNaN", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Just NaN vs Total Cells", xAxisColumn,
+                        yAxisColumn, 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSomeNaNScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        CodeAndLabel xAxisColumn = new CodeAndLabel("SomeNaN", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Some NaN vs Total Cells", xAxisColumn,
+                        yAxisColumn, 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testJustInfScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        CodeAndLabel xAxisColumn = new CodeAndLabel("JustInf", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Just Inf vs Total Cells", xAxisColumn,
+                        yAxisColumn, 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSomeInfScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        CodeAndLabel xAxisColumn = new CodeAndLabel("SomeInf", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Some Inf vs Total Cells", xAxisColumn,
+                        yAxisColumn, 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testLotsOfBlanksScatterplot() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        CodeAndLabel xAxisColumn = new CodeAndLabel("Blanks", null);
+        CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
+        TabularDataScatterplotConfiguration config =
+                new TabularDataScatterplotConfiguration("Blanks vs Total Cells", xAxisColumn,
+                        yAxisColumn, 300, 200);
+        TabularDataScatterplot graph =
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+
         graph.generateImage();
 
         assertTrue(outputFile.exists());
@@ -79,10 +220,10 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataScatterplotConfiguration config =
-                new TabularDataScatterplotConfiguration("Test", new CodeAndLabel("TotalCells"), new CodeAndLabel("Non-existant"), 300,
-                        200);
+                new TabularDataScatterplotConfiguration("Test", new CodeAndLabel("TotalCells"),
+                        new CodeAndLabel("Non-existant"), 300, 200);
         TabularDataScatterplot graph =
-                new TabularDataScatterplot(config, getDatasetFileLines(),
+                new TabularDataScatterplot(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
         assertTrue(graph.tryYColumnNumber() < 0);
 

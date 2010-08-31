@@ -50,6 +50,8 @@ public class TabularDataHistogram extends
     protected HistogramDataset tryCreateChartDataset()
     {
         final double[] series = new double[fileLines.getDataLines().size()];
+        final int[] finiteValueCount = new int[1];
+        finiteValueCount[0] = 0;
 
         boolean success = tryIterateOverFileLinesUsing(new ILineProcessor()
             {
@@ -57,7 +59,12 @@ public class TabularDataHistogram extends
                 {
                     // The x and y should have the same value, since a histogram requires only one
                     // dimension, so it doesn't matter which one we take.
-                    series[index] = Double.parseDouble(xString);
+                    double v = parseDouble(xString);
+                    series[index] = v;
+                    if (isFinite(v))
+                    {
+                        finiteValueCount[0]++;
+                    }
                 }
             });
 
@@ -67,7 +74,10 @@ public class TabularDataHistogram extends
         }
 
         HistogramDataset dataset = new HistogramDataset();
-        dataset.addSeries(getTitle(), series, configuration.getNumberOfBins());
+        if (finiteValueCount[0] > 0)
+        {
+            dataset.addSeries(getTitle(), series, configuration.getNumberOfBins());
+        }
         return dataset;
     }
 

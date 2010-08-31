@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.csvreader.CsvReader;
@@ -52,23 +54,15 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
             lines.add(reader.getValues());
         }
 
-        return new DatasetFileLines(file, "test", lines);
+        return new DatasetFileLines(file, fileName, lines);
     }
 
     /**
      * Return the tabular data as a DatasetFileLines.
      */
-    protected DatasetFileLines getDatasetFileLines() throws IOException
+    protected DatasetFileLines getTestDatasetFileLines() throws IOException
     {
-        return getDatasetFileLines("CP037-1df.csv");
-    }
-
-    /**
-     * Return the tabular data as a DatasetFileLines.
-     */
-    protected DatasetFileLines getBigNumberDatasetFileLines() throws IOException
-    {
-        return getDatasetFileLines("BigNumbers.csv");
+        return getDatasetFileLines("TestFeatureVectors.csv");
     }
 
     /**
@@ -109,21 +103,49 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     }
 
     /**
+     * Set to true if you want to be able to view the graphs output by the tests.
+     */
+    private static final boolean SAVE_RESULTS = false;
+
+    /**
+     * Return a file for writing an image to. Depending on the value of the SAVE_RESULTS constant,
+     * the image output file will be deleted at the end of the test or saved at the end of the test.
+     */
+    protected File getImageOutputFile()
+    {
+        if (SAVE_RESULTS)
+            return getImageOutputFileSavedAfterTest();
+        else
+            return getImageOutputFileDeletedAfterTest();
+
+    }
+
+    /**
      * Return a file for writing an image to. The file will be deleted when the test completes. Use
      * this for normal testing.
      */
-    protected File getImageOutputFile()
+    protected File getImageOutputFileDeletedAfterTest()
     {
         return new File(workingDirectory, "test.png");
     }
 
     /**
-     * Return a file for writing an image to. The file will <b>not</b> be deleted when the test
-     * completes. Use this to view the result of the graph; useful for tweaking appearance.
+     * Return a file for writing an image to. The file will be <b>not</b> be deleted when the test
+     * completes. Use this for looking at the result of generating the images.
      */
-    protected File getTestImageOutputFile()
+    protected File getImageOutputFileSavedAfterTest()
     {
-        return getTestImageOutputFile("test.png");
+        GregorianCalendar calendar = new GregorianCalendar();
+        String className = getClass().toString();
+        String[] classTokens = className.split("\\.");
+        className = classTokens[classTokens.length - 1];
+        String fileName =
+                String.format("%s-%d-%d-%d--%02d-%02d-%02d-%03d.png", className, calendar
+                        .get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar
+                        .get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR), calendar
+                        .get(Calendar.MINUTE), calendar.get(Calendar.SECOND), calendar
+                        .get(Calendar.MILLISECOND));
+        return getImageOutputFileSavedAfterTest(fileName);
     }
 
     /**
@@ -132,7 +154,7 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
      * 
      * @param fileName The name for the output file
      */
-    protected File getTestImageOutputFile(String fileName)
+    protected File getImageOutputFileSavedAfterTest(String fileName)
     {
         // For Testing, put it on the Desktop
         return new File(new File(TARGETS_DIRECTORY + "/" + UNIT_TEST_WORKING_DIRECTORY), fileName);

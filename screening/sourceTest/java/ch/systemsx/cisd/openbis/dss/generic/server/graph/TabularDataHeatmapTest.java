@@ -34,10 +34,29 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Test", new CodeAndLabel("WellName"),
-                        new CodeAndLabel("InfectionIndex"), 300, 200);
+                new TabularDataHeatmapConfiguration("Infection Index",
+                        new CodeAndLabel("WellName"), new CodeAndLabel("InfectionIndex"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
-                new TabularDataHeatmap(config, getDatasetFileLines(), getOutputStream(outputFile));
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSmallNumberHeatmap() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHeatmapConfiguration config =
+                new TabularDataHeatmapConfiguration("Small Numbers", new CodeAndLabel("WellName"),
+                        new CodeAndLabel("SmallNumbers"), 300, 200);
+        AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
         assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
         graph.generateImage();
 
@@ -51,10 +70,10 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Test", new CodeAndLabel("WellName"),
+                new TabularDataHeatmapConfiguration("Big Number", new CodeAndLabel("WellName"),
                         new CodeAndLabel("BigNumber"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
-                new TabularDataHeatmap(config, getBigNumberDatasetFileLines(),
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
         assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
         graph.generateImage();
@@ -69,10 +88,10 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Test", new CodeAndLabel("WellName"),
+                new TabularDataHeatmapConfiguration("Zero", new CodeAndLabel("WellName"),
                         new CodeAndLabel("Zero"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
-                new TabularDataHeatmap(config, getBigNumberDatasetFileLines(),
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
         assertEquals(0, graph.tryXColumnNumber());
         assertEquals(0, graph.tryYColumnNumber());
@@ -83,19 +102,90 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
     }
 
     @Test
-    public void testLotsOfBlanksHeatmap() throws IOException
+    public void testJustNaNHeatmap() throws IOException
     {
-        // File outputFile = getImageOutputFile();
-        File outputFile = getTestImageOutputFile("blanks-heatmap.png");
+        File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Test", new CodeAndLabel("Row"),
-                        new CodeAndLabel("Column"), new CodeAndLabel("Score"), 300, 200);
+                new TabularDataHeatmapConfiguration("Just NaN", new CodeAndLabel("WellName"),
+                        new CodeAndLabel("JustNaN"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
-                new TabularDataHeatmap(config, getDatasetFileLines("H174-3C.csv"),
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
                         getOutputStream(outputFile));
-        assertEquals(2, graph.tryXColumnNumber());
-        assertEquals(3, graph.tryYColumnNumber());
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSomeNaNHeatmap() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHeatmapConfiguration config =
+                new TabularDataHeatmapConfiguration("Some NaN", new CodeAndLabel("WellName"),
+                        new CodeAndLabel("SomeNaN"), 300, 200);
+        AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testJustInfHeatmap() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHeatmapConfiguration config =
+                new TabularDataHeatmapConfiguration("Just Inf", new CodeAndLabel("WellName"),
+                        new CodeAndLabel("JustInf"), 300, 200);
+        AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testSomeInfHeatmap() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHeatmapConfiguration config =
+                new TabularDataHeatmapConfiguration("Some Inf", new CodeAndLabel("WellName"),
+                        new CodeAndLabel("SomeInf"), 300, 200);
+        AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertSame(graph.tryXColumnNumber(), graph.tryYColumnNumber());
+        graph.generateImage();
+
+        assertTrue(outputFile.exists());
+        assertTrue(outputFile.length() > 0);
+    }
+
+    @Test
+    public void testLotsOfBlanksHeatmap() throws IOException
+    {
+        File outputFile = getImageOutputFile();
+
+        TabularDataHeatmapConfiguration config =
+                new TabularDataHeatmapConfiguration("Blanks", new CodeAndLabel("WellRow"),
+                        new CodeAndLabel("WellCol"), new CodeAndLabel("Blanks"), 300, 200);
+        AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
+        assertEquals(15, graph.tryXColumnNumber());
+        assertEquals(16, graph.tryYColumnNumber());
         graph.generateImage();
 
         assertTrue(outputFile.exists());
@@ -108,10 +198,11 @@ public class TabularDataHeatmapTest extends AbstractTabularDataGraphTest
         File outputFile = getImageOutputFile();
 
         TabularDataHeatmapConfiguration config =
-                new TabularDataHeatmapConfiguration("Test", new CodeAndLabel("WellName"),
+                new TabularDataHeatmapConfiguration("Non-Existant", new CodeAndLabel("WellName"),
                         new CodeAndLabel("Non-Existant"), 300, 200);
         AbstractTabularDataGraph<TabularDataHeatmapConfiguration> graph =
-                new TabularDataHeatmap(config, getDatasetFileLines(), getOutputStream(outputFile));
+                new TabularDataHeatmap(config, getTestDatasetFileLines(),
+                        getOutputStream(outputFile));
 
         assertTrue(graph.tryColumnNumberForHeader(config.getZAxisColumn()) < 0);
 
