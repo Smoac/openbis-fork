@@ -21,6 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+
+import eu.basysbio.cisd.dss.DataColumnHeader;
+import eu.basysbio.cisd.dss.ValueGroupDescriptor;
 
 /**
  * Descriptor of a column in a time series data set file.
@@ -29,7 +35,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class TimeSeriesColumnDescriptor
 {
-    private final Pattern DATA_SET_TYPE_PATTERN =
+    private static final Pattern DATA_SET_TYPE_PATTERN =
             Pattern.compile("([a-zA-Z0-9]+)\\[([a-zA-Z0-9%]*)\\]");
 
     private final ValueGroupDescriptor valueGroupDescriptor;
@@ -39,6 +45,14 @@ public class TimeSeriesColumnDescriptor
     private final String unit;
 
     private final String scale;
+    
+    public TimeSeriesColumnDescriptor(ValueGroupDescriptor descriptor, DataColumnHeader dataColumnHeader)
+    {
+        valueGroupDescriptor = descriptor;
+        valueType = dataColumnHeader.getValueType();
+        unit = dataColumnHeader.getUnit();
+        scale = dataColumnHeader.getScale();
+    }
 
     public TimeSeriesColumnDescriptor(TimeSeriesColumnDescriptor descr, String replacementBiId,
             int replacementTimePoint)
@@ -142,8 +156,25 @@ public class TimeSeriesColumnDescriptor
         return valueGroupDescriptor.getControlledGene();
     }
 
+    public final String getGenotype()
+    {
+        return valueGroupDescriptor.getGenotype();
+    }
+
+    public final String getGrowthPhase()
+    {
+        return valueGroupDescriptor.getGrowthPhase();
+    }
+
     public ValueGroupDescriptor getValueGroupDescriptor()
     {
         return valueGroupDescriptor;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
     }
 }

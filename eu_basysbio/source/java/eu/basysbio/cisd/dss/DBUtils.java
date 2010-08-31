@@ -32,7 +32,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 public class DBUtils
 {
     /** Current version of the database. */
-    public static final String DATABASE_VERSION = "005";
+    public static final String DATABASE_VERSION = "006";
 
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
     

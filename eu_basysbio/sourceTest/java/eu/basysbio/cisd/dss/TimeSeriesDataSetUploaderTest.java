@@ -19,10 +19,13 @@ package eu.basysbio.cisd.dss;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -37,6 +40,8 @@ import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -47,16 +52,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 @Friend(toClasses=TimeSeriesDataSetUploader.class)
 public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
 {
+    private static final String E_MAIL_ADDRESS = "e-mail";
+
     private static final String DATA_SET_CODE = "DS1";
 
     private static final long DATA_SET_SPECIAL_ID = 4711;
-
-    private static final long EXP_SPECIAL_ID = 2 * EXP_ID;
-
-    private static final long ROW1_ID = 1;
-
-    private static final long ROW2_ID = 2;
     
+    private static final long VALUE_GROUP_ID1 = 42;
+    private static final long VALUE_GROUP_ID2 = 43;
+
+
     private Mockery context;
     private ITimeSeriesDAO dao;
     private IEncapsulatedOpenBISService service;
@@ -131,18 +136,16 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
     public void testDataSetAlreadyExists()
     {
         File file = createDataExample();
-        prepareGetOrCreateDataSet(true);
-        prepareCreateRows();
-        prepareCreateColumn("ID", "CHEBI:15721", "CHEBI:18211");
-        prepareCreateColumn("HumanReadable", "sedoheptulose 7-phosphate", "citrulline");
+        final Experiment experiment = createExperiment("GM_BR_B1");
+        prepareGetOrCreateDataSet(experiment, true);
         context.checking(new Expectations()
             {
                 {
                     one(service).tryToGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
-                    will(returnValue(createExperiment("GM_BR_B1")));
+                    will(returnValue(experiment));
 
-                    one(dao).listDataSetsByDataColumnHeader(
+                    one(dao).listDataSetsByTimeSeriesDataColumnHeader(
                             new DataColumnHeader("GM::BR::B1::200::EX::T1::CE::"
                                     + "MetaboliteLCMS::Value[mM]::Log10::NB::NC"));
                     MockDataSet<String> dataSets = new MockDataSet<String>();
@@ -175,21 +178,91 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
     public void test()
     {
         File file = createDataExample();
-        prepareGetOrCreateDataSet(false);
-        prepareCreateRows();
-        prepareCreateColumn("ID", "CHEBI:15721", "CHEBI:18211");
-        prepareCreateColumn("HumanReadable", "sedoheptulose 7-phosphate", "citrulline");
-        prepareCreateDataColumn("GM::BR::B1::200::EX::T1::CE::"
-                + "MetaboliteLCMS::Value[mM]::Log10::NB::NC", 0.34, 0.87);
-        prepareCreateDataColumn("GM::BR::B1::+7200::EX::T2::CE::" + "b::Value[mM]::LIN::NB::NC",
-                0.799920281, 1.203723714);
+        final Experiment experiment = createExperiment("GM_BR_B1");
+        prepareGetOrCreateDataSet(experiment, true);
+        final String v1 =
+                "TimeSeriesValue{identifier=CHEBI:15721,humanReadable=sedoheptulose 7-phosphate,"
+                        + "bsbId=<null>,confidenceLevel=<null>,controlledGene=<null>,numberOfReplicates=<null>,"
+                        + "value=0.125,rowIndex=0,columnIndex=2,valueGroupId=42,"
+                        + "descriptor=TimeSeriesColumnDescriptor{"
+                        + "valueGroupDescriptor=ValueGroupDescriptor{experimentType=GM,cultivationMethod=BR,"
+                        + "biologicalReplicates=B1,timePoint=200,timePointType=EX,technicalReplicates=T1,"
+                        + "cellLocation=CE,dataSetType=MetaboliteLCMS,biId=NB,controlledGene=NC,"
+                        + "growthPhase=<null>,genotype=<null>},"
+                        + "valueType=Value,unit=mM,scale=Log10}}";
+        final String v2 =
+                "TimeSeriesValue{identifier=CHEBI:18211,humanReadable=citrulline,"
+                        + "bsbId=<null>,confidenceLevel=<null>,controlledGene=<null>,numberOfReplicates=<null>,"
+                        + "value=0.625,rowIndex=1,columnIndex=2,valueGroupId=42,"
+                        + "descriptor=TimeSeriesColumnDescriptor{"
+                        + "valueGroupDescriptor=ValueGroupDescriptor{experimentType=GM,cultivationMethod=BR,"
+                        + "biologicalReplicates=B1,timePoint=200,timePointType=EX,technicalReplicates=T1,"
+                        + "cellLocation=CE,dataSetType=MetaboliteLCMS,biId=NB,controlledGene=NC,"
+                        + "growthPhase=<null>,genotype=<null>},"
+                        + "valueType=Value,unit=mM,scale=Log10}}";
+        final String v3 =
+                "TimeSeriesValue{identifier=CHEBI:15721,humanReadable=sedoheptulose 7-phosphate,"
+                        + "bsbId=<null>,confidenceLevel=<null>,controlledGene=<null>,numberOfReplicates=<null>,"
+                        + "value=0.75,rowIndex=0,columnIndex=3,valueGroupId=43,"
+                        + "descriptor=TimeSeriesColumnDescriptor{"
+                        + "valueGroupDescriptor=ValueGroupDescriptor{experimentType=GM,cultivationMethod=BR,"
+                        + "biologicalReplicates=B1,timePoint=7200,timePointType=EX,technicalReplicates=T2,"
+                        + "cellLocation=CE,dataSetType=b,biId=NB,controlledGene=NC,"
+                        + "growthPhase=<null>,genotype=<null>},"
+                        + "valueType=Value,unit=mM,scale=LIN}}";
+        final String v4 =
+                "TimeSeriesValue{identifier=CHEBI:18211,humanReadable=citrulline,"
+                        + "bsbId=<null>,confidenceLevel=<null>,controlledGene=<null>,numberOfReplicates=<null>,"
+                        + "value=1.25,rowIndex=1,columnIndex=3,valueGroupId=43,"
+                        + "descriptor=TimeSeriesColumnDescriptor{"
+                        + "valueGroupDescriptor=ValueGroupDescriptor{experimentType=GM,cultivationMethod=BR,"
+                        + "biologicalReplicates=B1,timePoint=7200,timePointType=EX,technicalReplicates=T2,"
+                        + "cellLocation=CE,dataSetType=b,biId=NB,controlledGene=NC,"
+                        + "growthPhase=<null>,genotype=<null>},"
+                        + "valueType=Value,unit=mM,scale=LIN}}";
         context.checking(new Expectations()
             {
                 {
                     one(service).tryToGetExperiment(
                             new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
-                    will(returnValue(createExperiment("GM_BR_B1")));
+                    will(returnValue(experiment));
 
+                    one(dao).listDataSetsByTimeSeriesDataColumnHeader(
+                            new DataColumnHeader("GM::BR::B1::200::EX::T1::CE::"
+                                    + "MetaboliteLCMS::Value[mM]::Log10::NB::NC"));
+                    MockDataSet<String> dataSets = new MockDataSet<String>();
+                    will(returnValue(dataSets));
+                    
+                    one(dao).listDataSetsByTimeSeriesDataColumnHeader(
+                            new DataColumnHeader("GM::BR::B1::+7200::EX::T2::CE::"
+                                    + "b::Value[mM]::LIN::NB::NC"));
+                    will(returnValue(dataSets));
+                    
+                    one(dao).getNextValueGroupId();
+                    will(returnValue(VALUE_GROUP_ID1));
+                    
+                    one(dao).getNextValueGroupId();
+                    will(returnValue(VALUE_GROUP_ID2));
+
+                    one(dao).insertTimeSeriesValues(with(DATA_SET_SPECIAL_ID), with("ID"),
+                            with(new BaseMatcher<List<TimeSeriesValue>>()
+                                {
+                                    @SuppressWarnings("unchecked")
+                                    public boolean matches(Object item)
+                                    {
+                                        List<TimeSeriesValue> values = (List<TimeSeriesValue>) item;
+                                        assertEquals(v1, values.get(0).toString());
+                                        assertEquals(v2, values.get(1).toString());
+                                        assertEquals(v3, values.get(2).toString());
+                                        assertEquals(v4, values.get(3).toString());
+                                        assertEquals(4, values.size());
+                                        return true;
+                                    }
+
+                                    public void describeTo(Description description)
+                                    {
+                                    }
+                                }));
                 }
             });
 
@@ -203,36 +276,11 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
         context.assertIsSatisfied();
     }
 
-    private void prepareCreateRows()
+    private void prepareGetOrCreateDataSet(final Experiment experiment, final boolean get)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(dao).createRow();
-                    will(returnValue(ROW1_ID));
-                    one(dao).createRow();
-                    will(returnValue(ROW2_ID));
-                }
-            });
-    }
-    
-    private void prepareGetOrCreateDataSet(final boolean get)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(dao).tryToGetExperimentIDByPermID(EXP_PERM_ID);
-                    if (get)
-                    {
-                        will(returnValue(EXP_SPECIAL_ID));
-                    } else
-                    {
-                        will(returnValue(null));
-    
-                        one(dao).createExperiment(EXP_PERM_ID);
-                        will(returnValue(EXP_SPECIAL_ID));
-                    }
-    
                     one(dao).tryToGetDataSetIDByPermID(DATA_SET_CODE);
                     if (get)
                     {
@@ -241,46 +289,9 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                     {
                         will(returnValue(null));
     
-                        one(dao).createDataSet(DATA_SET_CODE, EXP_SPECIAL_ID);
+                        one(dao).createDataSet(DATA_SET_CODE, E_MAIL_ADDRESS, experiment);
                         will(returnValue(DATA_SET_SPECIAL_ID));
                     }
-                }
-            });
-    }
-    
-    private void prepareCreateColumn(final String columnHeader, final String dataOfRow1,
-            final String dataOfRow2)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(dao).createColumn(columnHeader, DATA_SET_SPECIAL_ID);
-                    long id = columnHeader.hashCode();
-                    will(returnValue(id));
-    
-                    one(dao).createValue(id, ROW1_ID, dataOfRow1);
-                    one(dao).createValue(id, ROW2_ID, dataOfRow2);
-                }
-            });
-    }
-    
-    private void prepareCreateDataColumn(final String columnHeader, final Double dataOfRow1,
-            final Double dataOfRow2)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    DataColumnHeader dataColumnHeader = new DataColumnHeader(columnHeader);
-                    one(dao).listDataSetsByDataColumnHeader(dataColumnHeader);
-                    will(returnValue(new MockDataSet<String>()));
-                    
-                    one(dao).createDataColumn(dataColumnHeader,
-                            DATA_SET_SPECIAL_ID, null);
-                    long id = columnHeader.hashCode();
-                    will(returnValue(id));
-    
-                    one(dao).createDataValue(id, ROW1_ID, dataOfRow1);
-                    one(dao).createDataValue(id, ROW2_ID, dataOfRow2);
                 }
             });
     }
@@ -292,6 +303,8 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
         dataSetType.setCode(dataSetTypeCode);
         dataSetInformation.setDataSetType(dataSetType);
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
+        dataSetInformation.setDataSetProperties(Arrays.asList(new NewProperty(
+                DatabaseFeeder.UPLOADER_EMAIL_KEY, E_MAIL_ADDRESS)));
         return dataSetInformation;
     }
 
@@ -302,8 +315,8 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
                 new TableBuilder("ID", "HumanReadable",
                         "GM::BR::B1::200::EX::T1::CE::MetaboliteLCMS::Value[mM]::Log10::NB::NC",
                         "GM::BR::B1::+7200::EX::T2::CE::b::Value[mM]::LIN::NB::NC");
-        builder.addRow("CHEBI:15721", "sedoheptulose 7-phosphate", "0.34", "0.799920281");
-        builder.addRow("CHEBI:18211", "citrulline", "0.87", "1.203723714");
+        builder.addRow("CHEBI:15721", "sedoheptulose 7-phosphate", "0.125", "0.75");
+        builder.addRow("CHEBI:18211", "citrulline", "0.625", "1.25");
         File file = new File(workingDirectory, "data.txt");
         write(builder, file);
         return file;

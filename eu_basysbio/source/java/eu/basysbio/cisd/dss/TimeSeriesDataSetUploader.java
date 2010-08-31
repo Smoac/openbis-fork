@@ -88,20 +88,7 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
                     new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(),
                             true, false);
             List<Column> columns = table.getColumns();
-            List<Column> commonColumns = new ArrayList<Column>();
-            List<Column> dataColumns = new ArrayList<Column>();
-            for (Column column : columns)
-            {
-                String header = column.getHeader();
-                if (HeaderUtils.isDataColumnHeader(header))
-                {
-                    dataColumns.add(column);
-                } else
-                {
-                    commonColumns.add(column);
-                }
-            }
-            databaseFeeder.feedDatabase(dataSetInformation, commonColumns, dataColumns);
+            databaseFeeder.feedDatabase(dataSetInformation, columns);
         } catch (RuntimeException ex)
         {
             throw ex;

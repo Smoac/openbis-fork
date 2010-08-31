@@ -80,7 +80,7 @@ public enum DataHeaderProperty
         @Override
         String getValue(DataColumnHeader header)
         {
-            return header.getValueType();
+            return header.getValueTypeAndUnit();
         }
     },
     Scale

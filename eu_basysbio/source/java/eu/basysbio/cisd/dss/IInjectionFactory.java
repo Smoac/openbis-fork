@@ -16,30 +16,11 @@
 
 package eu.basysbio.cisd.dss;
 
-import java.util.ArrayList;
 import java.util.List;
 
-final class RowIDManager
-{
-    private final List<Long> rowIDs = new ArrayList<Long>();
-    private final ITimeSeriesDAO timeSeriesDAO;
+import ch.systemsx.cisd.etlserver.utils.Column;
 
-    RowIDManager(ITimeSeriesDAO timeSeriesDAO)
-    {
-        this.timeSeriesDAO = timeSeriesDAO;
-    }
-    
-    long getOrCreateRow(int rowIndex)
-    {
-        long rowID;
-        if (rowIndex < rowIDs.size())
-        {
-            rowID = rowIDs.get(rowIndex);
-        } else
-        {
-            rowID = timeSeriesDAO.createRow();
-            rowIDs.add(rowID);
-        }
-        return rowID;
-    }
+interface IInjectionFactory<T extends AbstractDataValue>
+{
+    IColumnInjection<T> tryToCreate(List<Column> columns);
 }

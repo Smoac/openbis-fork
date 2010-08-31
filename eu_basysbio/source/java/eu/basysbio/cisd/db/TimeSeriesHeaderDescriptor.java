@@ -22,6 +22,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import eu.basysbio.cisd.dss.ValueGroupDescriptor;
+
 /**
  * A descriptor for a header line in a time series data set file.
  * 

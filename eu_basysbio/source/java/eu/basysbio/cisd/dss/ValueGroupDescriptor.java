@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package eu.basysbio.cisd.db;
+package eu.basysbio.cisd.dss;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 
 /**
  * A value group groups all value types of one data set file together.
@@ -42,6 +46,26 @@ public class ValueGroupDescriptor
     private final String biId;
 
     private final String controlledGene;
+    
+    private final String growthPhase;
+    
+    private final String genotype;
+    
+    public ValueGroupDescriptor(DataColumnHeader dataColumnHeader)
+    {
+        experimentType = dataColumnHeader.getExperimentCode();
+        cultivationMethod = dataColumnHeader.getCultivationMethod();
+        biologicalReplicates = dataColumnHeader.getBiologicalReplicateCode();
+        timePoint = dataColumnHeader.getTimePoint();
+        timePointType = dataColumnHeader.getTimePointType();
+        technicalReplicates = dataColumnHeader.getTechnicalReplicateCode();
+        cellLocation = dataColumnHeader.getCelLoc();
+        dataSetType = dataColumnHeader.getTimeSeriesDataSetType();
+        biId = dataColumnHeader.getBiID();
+        controlledGene = dataColumnHeader.getControlledGene();
+        growthPhase = dataColumnHeader.getGrowthPhase();
+        genotype = dataColumnHeader.getGenotype();
+    }
 
     public ValueGroupDescriptor(ValueGroupDescriptor descr, String replacementBiId, int replacementTimePoint)
     {
@@ -55,6 +79,8 @@ public class ValueGroupDescriptor
         dataSetType = descr.dataSetType;
         biId = replacementBiId;
         controlledGene = descr.controlledGene;
+        growthPhase = descr.growthPhase;
+        genotype = descr.genotype;
     }
     
     public ValueGroupDescriptor(String[] headerFields)
@@ -77,6 +103,8 @@ public class ValueGroupDescriptor
         dataSetType = headerFields[7];
         biId = headerFields[10];
         controlledGene = headerFields[11];
+        growthPhase = headerFields[12];
+        genotype = headerFields[13];
     }
 
     public String getExperimentType()
@@ -129,6 +157,16 @@ public class ValueGroupDescriptor
         return controlledGene;
     }
 
+    public final String getGrowthPhase()
+    {
+        return growthPhase;
+    }
+
+    public final String getGenotype()
+    {
+        return genotype;
+    }
+
     @Override
     public int hashCode()
     {
@@ -143,6 +181,8 @@ public class ValueGroupDescriptor
         result = prime * result + ((cultivationMethod == null) ? 0 : cultivationMethod.hashCode());
         result = prime * result + ((dataSetType == null) ? 0 : dataSetType.hashCode());
         result = prime * result + ((experimentType == null) ? 0 : experimentType.hashCode());
+        result = prime * result + ((genotype == null) ? 0 : genotype.hashCode());
+        result = prime * result + ((growthPhase == null) ? 0 : growthPhase.hashCode());
         result =
                 prime * result
                         + ((technicalReplicates == null) ? 0 : technicalReplicates.hashCode());
@@ -150,7 +190,7 @@ public class ValueGroupDescriptor
         result = prime * result + ((timePointType == null) ? 0 : timePointType.hashCode());
         return result;
     }
-
+    
     @Override
     public boolean equals(Object obj)
     {
@@ -167,101 +207,27 @@ public class ValueGroupDescriptor
             return false;
         }
         final ValueGroupDescriptor other = (ValueGroupDescriptor) obj;
-        if (biId == null)
-        {
-            if (other.biId != null)
-            {
-                return false;
-            }
-        } else if (false == biId.equals(other.biId))
-        {
-            return false;
-        }
-        if (biologicalReplicates == null)
-        {
-            if (other.biologicalReplicates != null)
-            {
-                return false;
-            }
-        } else if (false == biologicalReplicates.equals(other.biologicalReplicates))
-        {
-            return false;
-        }
-        if (cellLocation == null)
-        {
-            if (other.cellLocation != null)
-            {
-                return false;
-            }
-        } else if (false == cellLocation.equals(other.cellLocation))
-        {
-            return false;
-        }
-        if (controlledGene == null)
-        {
-            if (other.controlledGene != null)
-            {
-                return false;
-            }
-        } else if (false == controlledGene.equals(other.controlledGene))
-        {
-            return false;
-        }
-        if (cultivationMethod == null)
-        {
-            if (other.cultivationMethod != null)
-            {
-                return false;
-            }
-        } else if (false == cultivationMethod.equals(other.cultivationMethod))
-        {
-            return false;
-        }
-        if (dataSetType == null)
-        {
-            if (other.dataSetType != null)
-            {
-                return false;
-            }
-        } else if (false == dataSetType.equals(other.dataSetType))
-        {
-            return false;
-        }
-        if (experimentType == null)
-        {
-            if (other.experimentType != null)
-            {
-                return false;
-            }
-        } else if (false == experimentType.equals(other.experimentType))
-        {
-            return false;
-        }
-        if (technicalReplicates == null)
-        {
-            if (other.technicalReplicates != null)
-            {
-                return false;
-            }
-        } else if (false == technicalReplicates.equals(other.technicalReplicates))
-        {
-            return false;
-        }
-        if (timePoint != other.timePoint)
-        {
-            return false;
-        }
-        if (timePointType == null)
-        {
-            if (other.timePointType != null)
-            {
-                return false;
-            }
-        } else if (false == timePointType.equals(other.timePointType))
-        {
-            return false;
-        }
-        return true;
+        return equals(biId, other.biId) && equals(biologicalReplicates, other.biologicalReplicates)
+                && equals(cellLocation, other.cellLocation)
+                && equals(controlledGene, other.controlledGene)
+                && equals(cultivationMethod, other.cultivationMethod)
+                && equals(dataSetType, other.dataSetType)
+                && equals(experimentType, other.experimentType) && equals(genotype, other.genotype)
+                && equals(growthPhase, other.growthPhase)
+                && equals(technicalReplicates, other.technicalReplicates)
+                && timePoint == other.timePoint && equals(timePointType, other.timePointType);
     }
 
+    private boolean equals(Object obj1, Object obj2)
+    {
+        return obj1 == null ? obj1 == obj2 : obj1.equals(obj2);
+    }
+    
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+    }
 }

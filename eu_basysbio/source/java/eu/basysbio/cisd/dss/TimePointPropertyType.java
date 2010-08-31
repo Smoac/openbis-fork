@@ -84,7 +84,7 @@ enum TimePointPropertyType
         @Override
         public String getElementPlain(DataColumnHeader header)
         {
-            return header.getValueType();
+            return header.getValueTypeAndUnit();
         }
     };
 

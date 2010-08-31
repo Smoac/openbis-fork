@@ -20,6 +20,8 @@ package eu.basysbio.cisd.dss;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -68,6 +70,8 @@ public final class DataColumnHeader
     
     private static final int TIME_POINT_INDEX = 3;
     private static final int TIME_POINT_TYPE_INDEX = 4;
+    private final Pattern VALUE_TYPE_PATTERN =
+            Pattern.compile("([a-zA-Z0-9]+)\\[([a-zA-Z0-9%]*)\\]");
     
     private final String experimentCode;
     private final String cultivationMethod;
@@ -77,7 +81,7 @@ public final class DataColumnHeader
     private final String technicalReplicateCode;
     private final String celLoc;
     private final String timeSeriesDataSetType;
-    private final String valueType;
+    private final String valueTypeAndUnit;
     private final String scale;
     private final String biID;
     private final String controlledGene;
@@ -97,7 +101,7 @@ public final class DataColumnHeader
         technicalReplicateCode = propertyManager.getProperty(TimePointPropertyType.TECHNICAL_REPLICATE_CODE);
         celLoc = propertyManager.getProperty(TimePointPropertyType.CEL_LOC);
         timeSeriesDataSetType = propertyManager.getProperty(TimePointPropertyType.TIME_SERIES_DATA_SET_TYPE);
-        valueType = propertyManager.getProperty(TimePointPropertyType.VALUE_TYPE);
+        valueTypeAndUnit = propertyManager.getProperty(TimePointPropertyType.VALUE_TYPE);
         scale = propertyManager.getProperty(TimePointPropertyType.SCALE);
         biID = propertyManager.getProperty(TimePointPropertyType.BI_ID);
         controlledGene = propertyManager.getProperty(TimePointPropertyType.CG);
@@ -125,7 +129,7 @@ public final class DataColumnHeader
         technicalReplicateCode = parts[5];
         celLoc = parts[6];
         timeSeriesDataSetType = parts[7];
-        valueType = parts[8];
+        valueTypeAndUnit = parts[8];
         scale = parts[9];
         biID = parts[10];
         controlledGene = parts[11];
@@ -204,11 +208,23 @@ public final class DataColumnHeader
         return timeSeriesDataSetType;
     }
 
+    public String getValueTypeAndUnit()
+    {
+        return valueTypeAndUnit;
+    }
+    
     public String getValueType()
     {
-        return valueType;
+        Matcher matcher = VALUE_TYPE_PATTERN.matcher(valueTypeAndUnit);
+        return matcher.matches() ? matcher.group(1) : valueTypeAndUnit;
     }
 
+    public String getUnit()
+    {
+        Matcher matcher = VALUE_TYPE_PATTERN.matcher(valueTypeAndUnit);
+        return matcher.matches() ? matcher.group(2) : "?";
+    }
+    
     public String getScale()
     {
         return scale;

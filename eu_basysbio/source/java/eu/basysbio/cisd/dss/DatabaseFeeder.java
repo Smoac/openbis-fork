@@ -31,7 +31,10 @@ import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+
+import eu.basysbio.cisd.db.TimeSeriesColumnDescriptor;
 
 /**
  * 
@@ -40,6 +43,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 class DatabaseFeeder
 {
+    static final String UPLOADER_EMAIL_KEY = "UPLOADER_EMAIL";
+    private static final int POSITION_COLUMN_INDEX = 5;
+    private static final int HEIGHT_COLUMN_INDEX = 6;
+    private static final int SCORE_COLUMN_INDEX = 7;
+    
+    private static interface IDataSetProvider
+    {
+        DataSet<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader);
+    }
+    
+    private final class DataSetProviderForTimeSeriesData implements IDataSetProvider
+    {
+        public DataSet<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
+        {
+            return dao.listDataSetsByTimeSeriesDataColumnHeader(dataColumnHeader);
+        }
+    }
+    
+    private final class DataSetProviderForChipChipData implements IDataSetProvider
+    {
+        public DataSet<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
+        {
+            return dao.listDataSetsByChipChipDataColumnHeader(dataColumnHeader);
+        }
+    }
+    
     private final ITimeSeriesDAO dao;
     private final IEncapsulatedOpenBISService service;
     private final TimeSeriesDataSetUploaderParameters parameters;
@@ -55,33 +84,153 @@ class DatabaseFeeder
         this.parameters = parameters;
     }
     
-    void feedDatabase(DataSetInformation dataSetInformation, List<Column> commonColumns,
-            List<Column> dataColumns)
+    void feedDatabase(DataSetInformation dataSetInformation, List<Column> columns)
     {
-        assertExperiment(dataSetInformation, dataColumns);
+        assertExperiment(dataSetInformation, columns);
         long dataSetID = getOrCreateDataSet(dataSetInformation);
-        RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
-        Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
-        for (Column dataColumn : dataColumns)
+        String dataSetType = dataSetInformation.getDataSetType().getCode();
+        if (dataSetType.equals("CHIP_CHIP"))
         {
-            createDataColumn(commonColumns, dataColumn, dataSetInformation, headers, dataSetID,
-                    rowIDManager);
+            feedDatabaseWithChipChipData(columns, dataSetID);
+        } else
+        {
+            feedDatabaseWithTimeSeriesData(columns, dataSetID);
         }
     }
+
+    private void feedDatabaseWithTimeSeriesData(List<Column> columns, long dataSetID)
+    {
+        List<IColumnInjection<TimeSeriesValue>> columnInjections =
+                createInjections(columns, TimeSeriesInjectionFactory.values());
+        List<TimeSeriesValue> dataValues = new ArrayList<TimeSeriesValue>();
+        Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
+        ValueGroupIdGenerator valueGroupIdGenerator = new ValueGroupIdGenerator(dao);
+        for (int colIndex = 0; colIndex < columns.size(); colIndex++)
+        {
+            Column column = columns.get(colIndex);
+            String header = column.getHeader();
+            if (HeaderUtils.isDataColumnHeader(header))
+            {
+                TimeSeriesValue timeSeriesValue = new TimeSeriesValue();
+                timeSeriesValue.setColumnIndex(colIndex);
+                DataColumnHeader dataColumnHeader = new DataColumnHeader(header);
+                assertUniqueDataColumnHeader(dataColumnHeader, headers,
+                        new DataSetProviderForTimeSeriesData());
+                ValueGroupDescriptor valueGroupDescriptor =
+                        new ValueGroupDescriptor(dataColumnHeader);
+                timeSeriesValue.setValueGroupId(valueGroupIdGenerator
+                        .getValueGroupIdFor(valueGroupDescriptor));
+                timeSeriesValue.setDescriptor(new TimeSeriesColumnDescriptor(valueGroupDescriptor,
+                        dataColumnHeader));
+                for (int i = 0, n = column.getValues().size(); i < n; i++)
+                {
+                    Double value = Util.parseDouble(column, i);
+                    dataValues.add(timeSeriesValue.createFor(i, value, columnInjections));
+                }
+            }
+        }
+        String identifierType = columns.get(0).getHeader();
+        dao.insertTimeSeriesValues(dataSetID, identifierType, dataValues);
+    }
+
+    private void feedDatabaseWithChipChipData(List<Column> columns, long dataSetID)
+    {
+        List<IColumnInjection<ChipChipData>> columnInjections =
+                createInjections(columns, ChipChipInjectionFactory.values());
+        List<ChipChipData> dataValues = new ArrayList<ChipChipData>();
+        ChipChipData chipChipData = new ChipChipData();
+        TimeSeriesColumnDescriptor peakColumnDescriptor =
+                createDataColumnDescriptor(columns, POSITION_COLUMN_INDEX);
+        chipChipData.setDescriptor(peakColumnDescriptor);
+        chipChipData.setChipPeakPositionScale(peakColumnDescriptor.getScale());
+        chipChipData.setChipLocalHeightScale(createDataColumnDescriptor(columns,
+                HEIGHT_COLUMN_INDEX).getScale());
+        chipChipData.setChipScoreScale(createDataColumnDescriptor(columns, SCORE_COLUMN_INDEX)
+                .getScale());
+        Column positions = columns.get(POSITION_COLUMN_INDEX);
+        Column heights = columns.get(HEIGHT_COLUMN_INDEX);
+        Column scores = columns.get(SCORE_COLUMN_INDEX);
+        for (int rowIndex = 0, n = positions.getValues().size(); rowIndex < n; rowIndex++)
+        {
+            Integer position = Util.parseInteger(positions, rowIndex);
+            Double height = Util.parseDouble(heights, rowIndex);
+            Double score = Util.parseDouble(scores, rowIndex);
+            dataValues.add(chipChipData.createFor(rowIndex, position, height, score,
+                    columnInjections));
+        }
+        dao.insertChipChipValues(dataSetID, dataValues);
+    }
+
+    private TimeSeriesColumnDescriptor createDataColumnDescriptor(List<Column> columns,
+            int columnIndex)
+    {
+        Column column = columns.get(columnIndex);
+        DataColumnHeader dataColumnHeader = new DataColumnHeader(column.getHeader());
+        assertUniqueDataColumnHeader(dataColumnHeader, new HashSet<DataColumnHeader>(),
+                new DataSetProviderForChipChipData());
+        ValueGroupDescriptor valueGroupDescriptor = new ValueGroupDescriptor(dataColumnHeader);
+        return new TimeSeriesColumnDescriptor(valueGroupDescriptor, dataColumnHeader);
+    }
+
+    private <T extends AbstractDataValue> List<IColumnInjection<T>> createInjections(List<Column> columns,
+            IInjectionFactory<T>[] enums)
+    {
+        List<IColumnInjection<T>> columnInjections = new ArrayList<IColumnInjection<T>>();
+        for (IInjectionFactory<T> factory : enums)
+        {
+            IColumnInjection<T> injection = factory.tryToCreate(columns);
+            if (injection != null)
+            {
+                columnInjections.add(injection);
+            }
+        }
+        return columnInjections;
+    }
     
-    private void assertExperiment(DataSetInformation dataSetInformation, List<Column> dataColumns)
+    private void assertUniqueDataColumnHeader(DataColumnHeader dataColumnHeader,
+            Set<DataColumnHeader> headers, IDataSetProvider dataSetProvider)
+    {
+    if (headers.contains(dataColumnHeader))
+        {
+            throw new UserFailureException("Data column '" + dataColumnHeader + "' appears twice.");
+        }
+        DataSet<String> permIDs = dataSetProvider.getDataSetsByDataColumnHeader(dataColumnHeader);
+        List<String> dataSets = new ArrayList<String>();
+        try
+        {
+            for (String id : permIDs)
+            {
+                dataSets.add(id);
+            }
+        } finally
+        {
+            permIDs.close();
+        }
+        if (dataSets.isEmpty() == false)
+        {
+            throw new UserFailureException("For data column '" + dataColumnHeader
+                    + "' following data sets have already been registered: " + dataSets);
+        }
+        headers.add(dataColumnHeader);
+    }
+
+    private void assertExperiment(DataSetInformation dataSetInformation, List<Column> columns)
     {
         String code = dataSetInformation.getExperimentIdentifier().getExperimentCode();
         Set<String> invalidExperimentCodes = new LinkedHashSet<String>();
         Set<String> experimentCodes = new LinkedHashSet<String>();
-        for (Column dataColumn : dataColumns)
+        for (Column column : columns)
         {
-            DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
-            String experimentCode = createExperimentCode(dataColumnHeader);
-            experimentCodes.add(experimentCode);
-            if (code.equalsIgnoreCase(experimentCode) == false)
+            String header = column.getHeader();
+            if (HeaderUtils.isDataColumnHeader(header))
             {
-                invalidExperimentCodes.add(experimentCode);
+                DataColumnHeader dataColumnHeader = new DataColumnHeader(header);
+                String experimentCode = createExperimentCode(dataColumnHeader);
+                experimentCodes.add(experimentCode);
+                if (code.equalsIgnoreCase(experimentCode) == false)
+                {
+                    invalidExperimentCodes.add(experimentCode);
+                }
             }
         }
         if (invalidExperimentCodes.isEmpty() == false)
@@ -107,89 +256,27 @@ class DatabaseFeeder
         {
             throw new UserFailureException("Unknown experiment: " + experimentIdentifier);
         }
-        String experimentPermID = experiment.getPermId();
-        Long experimentID = dao.tryToGetExperimentIDByPermID(experimentPermID);
-        if (experimentID == null)
-        {
-            experimentID = dao.createExperiment(experimentPermID);
-        }
         String dataSetCode = dataSetInformation.getDataSetCode();
         Long dataSetID = dao.tryToGetDataSetIDByPermID(dataSetCode);
         if (dataSetID == null)
         {
-            dataSetID = dao.createDataSet(dataSetCode, experimentID);
+            String eMailAddress = getUploaderEMailAddress(dataSetInformation);
+            dataSetID = dao.createDataSet(dataSetCode, eMailAddress, experiment);
         }
         return dataSetID;
     }
-
-    private void createDataColumn(List<Column> commonColumns, Column dataColumn,
-            DataSetInformation dataSetInformation, Set<DataColumnHeader> headers, long dataSetID,
-            RowIDManager rowIDManager)
+    
+    private String getUploaderEMailAddress(DataSetInformation dataSetInformation)
     {
-        DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
-        if (headers.contains(dataColumnHeader))
+        List<NewProperty> properties = dataSetInformation.getDataSetProperties();
+        for (NewProperty property : properties)
         {
-            throw new UserFailureException("Data column '" + dataColumnHeader + "' appears twice.");
-        }
-        assertUniqueDataColumnHeader(dataColumnHeader);
-        headers.add(dataColumnHeader);
-
-        long columnID = dao.createDataColumn(dataColumnHeader, dataSetID, null);
-        createDataValues(dataColumn, rowIDManager, columnID);
-    }
-
-    private void createDataValues(Column dataColumn, RowIDManager rowIDManager, long columnID)
-    {
-        List<String> values = dataColumn.getValues();
-        for (int i = 0; i < values.size(); i++)
-        {
-            Double value;
-            try
+            if (property.getPropertyCode().equals(UPLOADER_EMAIL_KEY))
             {
-                value = Double.parseDouble(values.get(i));
-            } catch (NumberFormatException ex)
-            {
-                value = null;
-            }
-            dao.createDataValue(columnID, rowIDManager.getOrCreateRow(i), value);
-        }
-    }
-
-    private RowIDManager createRowsAndCommonColumns(long dataSetID, List<Column> commonColumns)
-    {
-        RowIDManager rowIDManager = new RowIDManager(dao);
-        for (Column column : commonColumns)
-        {
-            column.getHeader();
-            long columnID = dao.createColumn(column.getHeader(), dataSetID);
-            List<String> values = column.getValues();
-            for (int i = 0; i < values.size(); i++)
-            {
-                dao.createValue(columnID, rowIDManager.getOrCreateRow(i), values.get(i));
+                return property.getValue();
             }
         }
-        return rowIDManager;
-    }
-
-    private void assertUniqueDataColumnHeader(DataColumnHeader dataColumnHeader)
-    {
-        DataSet<String> permIDs = dao.listDataSetsByDataColumnHeader(dataColumnHeader);
-        List<String> dataSets = new ArrayList<String>();
-        try
-        {
-            for (String id : permIDs)
-            {
-                dataSets.add(id);
-            }
-        } finally
-        {
-            permIDs.close();
-        }
-        if (dataSets.isEmpty() == false)
-        {
-            throw new UserFailureException("For data column '" + dataColumnHeader
-                    + "' following data sets have already been registered: " + dataSets);
-        }
+        throw new IllegalArgumentException("No uploader email address specified: " + dataSetInformation);
     }
 
     private String createExperimentCode(DataColumnHeader dataColumnHeader)
