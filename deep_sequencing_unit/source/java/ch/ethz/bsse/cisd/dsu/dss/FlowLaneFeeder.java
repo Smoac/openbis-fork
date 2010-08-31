@@ -104,7 +104,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     static final String SRF_FILE_EXTENSION = "srf";
 
     private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, Copy_2_of_FlowLaneFeeder.class);
+            LogFactory.getLogger(LogCategory.OPERATION, FlowLaneFeeder.class);
 
     private final IEncapsulatedOpenBISService service;
 
