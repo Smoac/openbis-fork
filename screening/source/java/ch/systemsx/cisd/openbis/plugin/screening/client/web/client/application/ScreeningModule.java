@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IMo
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentPlateLocationsSection;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ExperimentWellMaterialsSection;
 
 /**
  * Screening extensions: reviewing panel section for the experiment (batch search for gene
@@ -70,6 +71,7 @@ public class ScreeningModule implements IModule
         if (entity.getEntityKind() == EntityKind.EXPERIMENT)
         {
             sections.add(new ExperimentPlateLocationsSection(viewContext, entity));
+            sections.add(new ExperimentWellMaterialsSection(viewContext, entity));
         }
         return sections;
     }

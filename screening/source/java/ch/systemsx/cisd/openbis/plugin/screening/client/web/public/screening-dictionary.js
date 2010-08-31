@@ -48,6 +48,7 @@ var screening = {
     PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of material codes contained in the wells (e.g. gene symbols, control names or compound names) separated by commas (\",\") or one code per line.",
 
     EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Reviewing Panel",
+    EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Well Materials",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

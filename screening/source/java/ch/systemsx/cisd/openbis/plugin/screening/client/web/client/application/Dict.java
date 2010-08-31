@@ -31,7 +31,7 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String WELL_COLUMN = "WELL_COLUMN";
 
     public static final String WELL_CONTENT_MATERIAL = "WELL_CONTENT_MATERIAL";
- 
+
     public static final String WELL_CONTENT_MATERIAL_TYPE = "WELL_CONTENT_MATERIAL_TYPE";
 
     public static final String PLATE = "PLATE";
@@ -50,6 +50,9 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION =
             "EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION";
+
+    public static final String EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION =
+            "EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION";
 
     public static final String SCREENING_MODULE_TITLE = "SCREENING_MODULE_TITLE";
 

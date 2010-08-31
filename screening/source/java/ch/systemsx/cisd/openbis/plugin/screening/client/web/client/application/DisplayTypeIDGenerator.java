@@ -25,6 +25,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
     PLATE_MATERIAL_REVIEWER("plate-material-reviewer"),
 
+    PLATE_MATERIAL_BROWSER("plate-material-browser")
+
     ;
 
     private final String genericNameOrPrefix;
