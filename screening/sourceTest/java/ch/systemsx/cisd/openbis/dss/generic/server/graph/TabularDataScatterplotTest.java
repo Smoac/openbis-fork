@@ -56,7 +56,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("BIGNumber", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("BigNumber");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Big Number vs Total Cells", xAxisColumn,
@@ -79,7 +79,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("SmallNumbers", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("SmallNumbers");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Small Numbers vs Total Cells",
@@ -99,7 +99,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("Zero", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("Zero");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Zero vs Total Cells", xAxisColumn,
@@ -119,7 +119,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("JustNaN", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("JustNaN");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Just NaN vs Total Cells", xAxisColumn,
@@ -139,7 +139,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("SomeNaN", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("SomeNaN");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Some NaN vs Total Cells", xAxisColumn,
@@ -159,7 +159,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("JustInf", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("JustInf");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Just Inf vs Total Cells", xAxisColumn,
@@ -179,7 +179,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("SomeInf", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("SomeInf");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Some Inf vs Total Cells", xAxisColumn,
@@ -199,7 +199,7 @@ public class TabularDataScatterplotTest extends AbstractTabularDataGraphTest
     {
         File outputFile = getImageOutputFile();
 
-        CodeAndLabel xAxisColumn = new CodeAndLabel("Blanks", null);
+        CodeAndLabel xAxisColumn = new CodeAndLabel("Blanks");
         CodeAndLabel yAxisColumn = new CodeAndLabel("TotalCells", "Total Cells");
         TabularDataScatterplotConfiguration config =
                 new TabularDataScatterplotConfiguration("Blanks vs Total Cells", xAxisColumn,
