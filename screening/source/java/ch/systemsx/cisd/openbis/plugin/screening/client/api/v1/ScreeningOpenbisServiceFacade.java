@@ -260,6 +260,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         featureVectorDataSetIdentifierMultiplexer.process(featureDatasets,
                 new IReferenceHandler<IFeatureVectorDatasetIdentifier>()
                     {
+                        @SuppressWarnings("deprecation")
                         public void handle(DssServiceRpcScreeningHolder dssService,
                                 List<IFeatureVectorDatasetIdentifier> references)
                         {
