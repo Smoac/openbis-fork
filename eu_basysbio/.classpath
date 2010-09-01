@@ -16,5 +16,10 @@
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictionchecker.jar"/>
 	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-user.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gwt2.0/gwt-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

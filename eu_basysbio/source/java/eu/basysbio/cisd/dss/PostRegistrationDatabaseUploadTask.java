@@ -36,7 +36,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.Parameters;
 import ch.systemsx.cisd.etlserver.plugins.HierarchicalStorageUpdater;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -58,9 +60,9 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
 
     private final File storeRoot;
 
-    private TimeSeriesDataSetUploaderParameters parameters;
-
     private DataSource dataSource;
+
+    private DataSetHandler dataSetHandler;
 
     public PostRegistrationDatabaseUploadTask()
     {
@@ -74,8 +76,11 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
 
     public void setUp(String pluginName, Properties properties)
     {
-        parameters = new TimeSeriesDataSetUploaderParameters(properties);
         dataSource = DBUtils.createDBContext(properties).getDataSource();
+        Properties allProperties = Parameters.createParametersForApiUse().getProperties();
+        dataSetHandler =
+                new DataSetHandler(ExtendedProperties.getSubset(allProperties,
+                        "main-thread.storage-processor.processor.", true), dataSource, service);
     }
 
     public void execute()
@@ -84,9 +89,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
-            String dataSetType = dataSet.getDataSetType();
-            if (DataSetHandler.TIME_SERIES.equals(dataSetType)
-                    && knownDataSets.contains(dataSet.getDataSetCode()) == false)
+            if (knownDataSets.contains(dataSet.getDataSetCode()) == false)
             {
                 File pathToDataSet = new File(storeRoot, dataSet.getDataSetLocation());
                 File[] dataSetFiles = new File(pathToDataSet, "original").listFiles();
@@ -94,13 +97,11 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                 {
                     for (File dataSetFile : dataSetFiles)
                     {
-                        TimeSeriesDataSetUploader uploader =
-                                new TimeSeriesDataSetUploader(dataSource, service, parameters);
                         DataSetInformation dataSetInformation = createDataSetInformation(dataSet);
                         try
                         {
-                            uploader.upload(dataSetFile, dataSetInformation);
-                            uploader.commit();
+                            dataSetHandler.upload(dataSetFile, dataSetInformation);
+                            dataSetHandler.commit();
                             if (operationLog.isInfoEnabled())
                             {
                                 operationLog.info("Data set " + dataSet.getDataSetCode()
@@ -108,7 +109,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                             }
                         } catch (Exception ex)
                         {
-                            uploader.rollback();
+                            dataSetHandler.rollback();
                             operationLog.error("Uploading of data set " + dataSet.getDataSetCode()
                                     + " failed: ", ex);
                         }
