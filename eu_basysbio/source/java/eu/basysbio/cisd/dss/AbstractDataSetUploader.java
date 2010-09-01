@@ -44,6 +44,8 @@ abstract class AbstractDataSetUploader implements IDataSetUploader
 
     protected final TimeSeriesDataSetUploaderParameters parameters;
 
+    protected final IDatabaseFeeder databaseFeeder;
+
     private Connection connection;
 
     AbstractDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,
@@ -56,6 +58,7 @@ abstract class AbstractDataSetUploader implements IDataSetUploader
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
             dao = QueryTool.getQuery(connection, ITimeSeriesDAO.class);
+            databaseFeeder = new DatabaseFeeder(dao, service, parameters);
         } catch (SQLException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -65,11 +68,18 @@ abstract class AbstractDataSetUploader implements IDataSetUploader
     AbstractDataSetUploader(ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
             TimeSeriesDataSetUploaderParameters parameters)
     {
+        this(dao, new DatabaseFeeder(dao, service, parameters), service, parameters);
+    }
+
+    AbstractDataSetUploader(ITimeSeriesDAO dao, IDatabaseFeeder databaseFeeder,
+            IEncapsulatedOpenBISService service, TimeSeriesDataSetUploaderParameters parameters)
+    {
         this.dao = dao;
         this.service = service;
         this.parameters = parameters;
+        this.databaseFeeder = databaseFeeder;
     }
-
+    
     /** the uploader should not be used after calling this method */
     public void commit()
     {

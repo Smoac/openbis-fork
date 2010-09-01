@@ -16,12 +16,10 @@
 
 package eu.basysbio.cisd.dss;
 
-import java.io.File;
 import java.text.MessageFormat;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
@@ -43,37 +41,19 @@ class TimeSeriesDataSetUploaderParameters
 
     private final boolean ignoreEmptyLines;
 
-    private final File timeSeriesDropBox;
-
     private final Pattern patternForDefaultHandling;
 
     TimeSeriesDataSetUploaderParameters(Properties properties)
     {
-        String timeSeriesDataSetDropBoxPath =
-                PropertyUtils.getMandatoryProperty(properties, TIME_SERIES_DATA_SET_DROP_BOX_PATH);
-        patternForDefaultHandling = Pattern.compile(PropertyUtils.getMandatoryProperty(properties, DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING));
-        timeSeriesDropBox = new File(timeSeriesDataSetDropBoxPath);
-        if (timeSeriesDropBox.exists() == false)
-        {
-            throw new ConfigurationFailureException(
-                    "Time series data set drop box does not exist: " + timeSeriesDropBox);
-        }
-        if (timeSeriesDropBox.isDirectory() == false)
-        {
-            throw new ConfigurationFailureException(
-                    "Time series data set drop box is not a folder: " + timeSeriesDropBox);
-        }
+        patternForDefaultHandling =
+                Pattern.compile(PropertyUtils.getMandatoryProperty(properties,
+                        DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING));
         ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
         experimentCodeFormat =
                 new MessageFormat(properties.getProperty(EXPERIMENT_CODE_TEMPLATE_KEY,
                         DEFAULT_EXPERIMENT_CODE_TEMPLATE));
     }
     
-    File getTimeSeriesDropBox()
-    {
-        return timeSeriesDropBox;
-    }
-
     MessageFormat getExperimentCodeFormat()
     {
         return experimentCodeFormat;

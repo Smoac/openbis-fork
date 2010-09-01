@@ -29,6 +29,11 @@ class ValueGroupIdGenerator
         this.dao = dao;
     }
     
+    void clear()
+    {
+        valueGroupIDs.clear();
+    }
+    
     long getValueGroupIdFor(ValueGroupDescriptor descriptor)
     {
        Long id = valueGroupIDs.get(descriptor);

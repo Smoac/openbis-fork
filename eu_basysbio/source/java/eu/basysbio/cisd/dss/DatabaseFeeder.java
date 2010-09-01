@@ -16,6 +16,7 @@
 
 package eu.basysbio.cisd.dss;
 
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import net.lemnik.eodsql.DataSet;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.utils.Column;
+import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -41,7 +43,7 @@ import eu.basysbio.cisd.db.TimeSeriesColumnDescriptor;
  *
  * @author Franz-Josef Elmer
  */
-class DatabaseFeeder
+class DatabaseFeeder implements IDatabaseFeeder
 {
     static final String UPLOADER_EMAIL_KEY = "UPLOADER_EMAIL";
     private static final int POSITION_COLUMN_INDEX = 5;
@@ -72,6 +74,7 @@ class DatabaseFeeder
     private final ITimeSeriesDAO dao;
     private final IEncapsulatedOpenBISService service;
     private final TimeSeriesDataSetUploaderParameters parameters;
+    private final ValueGroupIdGenerator valueGroupIdGenerator;
 
     private final Map<ExperimentIdentifier, Experiment> experimentCache =
         new HashMap<ExperimentIdentifier, Experiment>();
@@ -82,9 +85,24 @@ class DatabaseFeeder
         this.dao = dao;
         this.service = service;
         this.parameters = parameters;
+        valueGroupIdGenerator = new ValueGroupIdGenerator(dao);
     }
     
-    void feedDatabase(DataSetInformation dataSetInformation, List<Column> columns)
+    public void resetValueGroupIDGenerator()
+    {
+        valueGroupIdGenerator.clear();
+    }
+    
+    public void feedDatabase(DataSetInformation dataSetInformation, Reader reader, String nameOfReaderSource)
+    {
+        TabSeparatedValueTable table =
+                new TabSeparatedValueTable(reader, nameOfReaderSource, parameters.isIgnoreEmptyLines(),
+                        true, false);
+        List<Column> columns = table.getColumns();
+        feedDatabase(dataSetInformation, columns);
+    }
+    
+    public void feedDatabase(DataSetInformation dataSetInformation, List<Column> columns)
     {
         assertExperiment(dataSetInformation, columns);
         long dataSetID = getOrCreateDataSet(dataSetInformation);
@@ -104,7 +122,6 @@ class DatabaseFeeder
                 createInjections(columns, TimeSeriesInjectionFactory.values());
         List<TimeSeriesValue> dataValues = new ArrayList<TimeSeriesValue>();
         Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
-        ValueGroupIdGenerator valueGroupIdGenerator = new ValueGroupIdGenerator(dao);
         for (int colIndex = 0; colIndex < columns.size(); colIndex++)
         {
             Column column = columns.get(colIndex);

@@ -18,16 +18,12 @@ package eu.basysbio.cisd.dss;
 
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.etlserver.utils.Column;
-import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -54,41 +50,28 @@ class TimeSeriesDataSetUploader extends AbstractDataSetUploader
             }
         };
         
-    private final DatabaseFeeder databaseFeeder;
-
     TimeSeriesDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,
             TimeSeriesDataSetUploaderParameters parameters)
     {
         super(dataSource, service, parameters);
-        databaseFeeder = new DatabaseFeeder(dao, service, parameters);
     }
 
     TimeSeriesDataSetUploader(ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
             TimeSeriesDataSetUploaderParameters parameters)
     {
         super(dao, service, parameters);
-        databaseFeeder = new DatabaseFeeder(dao, service, parameters);
     }
 
     @Override
     protected void handleTSVFile(File tsvFile, DataSetInformation dataSetInformation)
     {
-        // TODO 2010-08-08, IA: Workaround enabling upload of LCA_MIC data
-        // ("dataset for header ... already registered"). Remove after problem is fixed.
-        if (dataSetInformation.getDataSetType().getCode().startsWith("LCA_MIC"))
-        {
-//            return;
-        }
         FileReader reader = null;
         try
         {
             reader = new FileReader(tsvFile);
             String fileName = tsvFile.toString();
-            TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, fileName, parameters.isIgnoreEmptyLines(),
-                            true, false);
-            List<Column> columns = table.getColumns();
-            databaseFeeder.feedDatabase(dataSetInformation, columns);
+            databaseFeeder.resetValueGroupIDGenerator();
+            databaseFeeder.feedDatabase(dataSetInformation, reader, fileName);
         } catch (RuntimeException ex)
         {
             throw ex;

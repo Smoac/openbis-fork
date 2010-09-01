@@ -16,21 +16,29 @@
 
 package eu.basysbio.cisd.dss;
 
+import static eu.basysbio.cisd.dss.LcaMicDataSetUploader.LCA_MIC_TIME_SERIES;
+
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.List;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.etlserver.cifex.CifexExtractorHelper;
+import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -40,27 +48,40 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public class LcaMicDataSetUploaderTest extends UploaderTestCase
 {
-    private static FilenameFilter TXT_FILTER = new FilenameFilter()
+    private final class ReaderMatcher extends BaseMatcher<Reader>
+    {
+        private final String content;
+        
+        private ReaderMatcher(String content)
         {
-            public boolean accept(File dir, String name)
-            {
-                return name.endsWith(".txt");
-            }
-        };
+            this.content = content;
+        }
 
-    private static FilenameFilter PROPERTIES_FILTER = new FilenameFilter()
+        public boolean matches(Object item)
         {
-            public boolean accept(File dir, String name)
+            try
             {
-                return name.equals(CifexExtractorHelper.REQUEST_PROPERTIES_FILE);
+                String actualContent = IOUtils.toString((Reader) item);
+                assertEquals(content, actualContent);
+            } catch (IOException ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
-        };
+            return true;
+        }
+
+        public void describeTo(Description description)
+        {
+            description.appendText(content);
+        }
+    }
 
     private Mockery context;
     private ITimeSeriesDAO dao;
     private IEncapsulatedOpenBISService service;
+    private IDatabaseFeeder databaseFeeder;
+    private IDataSetValidator validator;
     private LcaMicDataSetUploader uploader;
-    private File dropBox;
 
     @BeforeMethod
     public void beforeMethod()
@@ -68,16 +89,13 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
         context = new Mockery();
         dao = context.mock(ITimeSeriesDAO.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
-        dropBox = new File(workingDirectory, "drop-box");
-        dropBox.mkdirs();
+        databaseFeeder = context.mock(IDatabaseFeeder.class);
+        validator = context.mock(IDataSetValidator.class);
         Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .toString());
         properties.setProperty(TimeSeriesDataSetUploaderParameters.DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING, ".*");
         uploader =
-                new LcaMicDataSetUploader(dao, service, new TimeSeriesDataSetUploaderParameters(
-                        properties));
+                new LcaMicDataSetUploader(dao, databaseFeeder, service, validator,
+                        new TimeSeriesDataSetUploaderParameters(properties));
     }
     
     @AfterMethod
@@ -106,6 +124,12 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier("p1", "e1"));
         dataSetInformation.setDataSetCode("abc-1");
         dataSetInformation.setUploadingUserEmail("ab@c.de");
+        prepareResetDatabaseFeeder();
+        prepareValidatorAndFeeder(dataSetInformation,
+                "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t"
+                        + "Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\n"
+                        + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1);
+        
         try
         {
             uploader.handleTSVFile(tsvFile, dataSetInformation);
@@ -126,49 +150,52 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
         File tsvFile = new File(workingDirectory, "data.tsv");
         FileUtilities.writeToFile(tsvFile, LcaMicDataSetPropertiesExtractorTest.EXAMPLE 
                 + "12\t2.5\t5.5\tN/A\n42\t42.5\t45.5\t3.25\n");
-        
         DataSetInformation dataSetInformation = new DataSetInformation();
-        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier("p1", "e1"));
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier("p1", "MA_MS_B1"));
         dataSetInformation.setDataSetCode("abc-1");
         dataSetInformation.setUploadingUserEmail("ab@c.de");
+        prepareResetDatabaseFeeder();
+        prepareValidatorAndFeeder(dataSetInformation,
+                "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t"
+                        + "Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\n"
+                        + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1);
+        prepareValidatorAndFeeder(dataSetInformation,
+                "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\t"
+                + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\n"
+                + "BBA9001#A_S20090325-2\t5.5\t45.5\n", 2);
+        prepareValidatorAndFeeder(dataSetInformation,
+                "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\t"
+                + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\n"
+                + "BBA9001#A_S20090325-2\tN/A\t3.25\n", 3);
+        
         uploader.handleTSVFile(tsvFile, dataSetInformation);
         
-        List<String> data = getData(1);
-        assertEquals("BBA ID\t" +
-                "Ma::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t" +
-                "Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC", data.get(0));
-        assertEquals("BBA9001#A_S20090325-2\t2.5\t42.5", data.get(1));
-        checkProperties(1);
-        data = getData(2);
-        assertEquals("BBA ID\t" +
-                "Ma::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\t" +
-                "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC", data.get(0));
-        assertEquals("BBA9001#A_S20090325-2\t5.5\t45.5", data.get(1));
-        checkProperties(2);
-        data = getData(3);
-        assertEquals("BBA ID\t" +
-                "Ma::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\t" +
-                "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC", data.get(0));
-        assertEquals("BBA9001#A_S20090325-2\tN/A\t3.25", data.get(1));
-        checkProperties(3);
         context.assertIsSatisfied();
     }
-
-    private List<String> getData(int number)
+    
+    private void prepareResetDatabaseFeeder()
     {
-        File ds = new File(dropBox, DataSetHandler.LCA_MIC_TIME_SERIES + number);
-        List<String> data = FileUtilities.loadToStringList(ds.listFiles(TXT_FILTER)[0]);
-        assertEquals(2, data.size());
-        return data;
-    }
-
-    private void checkProperties(int number)
-    {
-        File ds = new File(dropBox, DataSetHandler.LCA_MIC_TIME_SERIES + number);
-        List<String> data = FileUtilities.loadToStringList(ds.listFiles(PROPERTIES_FILTER)[0]);
-        assertEquals(2, data.size());
-        assertEquals("comment=null,p1/e1,abc-1,LCA_MIC_TIME_SERIES,TSV", data.get(0));
-        assertEquals("user-email=ab@c.de", data.get(1));
+        context.checking(new Expectations()
+            {
+                {
+                    one(databaseFeeder).resetValueGroupIDGenerator();
+                }
+            });
     }
     
+    private void prepareValidatorAndFeeder(final DataSetInformation dataSetInformation, final String content, final int numberOfDataSet)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    ReaderMatcher matcher = new ReaderMatcher(content);
+                    String sourceName = LCA_MIC_TIME_SERIES + numberOfDataSet;
+                    one(validator).assertValidDataSet(with(new DataSetType(LCA_MIC_TIME_SERIES)),
+                            with(matcher), with(sourceName));
+                    one(databaseFeeder).feedDatabase(with(dataSetInformation), with(matcher),
+                            with(sourceName));
+                }
+            });
+    }
+
 }
