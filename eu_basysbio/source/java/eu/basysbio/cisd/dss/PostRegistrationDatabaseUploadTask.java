@@ -109,9 +109,16 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                             }
                         } catch (Exception ex)
                         {
-                            dataSetHandler.rollback();
-                            operationLog.error("Uploading of data set " + dataSet.getDataSetCode()
-                                    + " failed: ", ex);
+                            try
+                            {
+                                dataSetHandler.rollback();
+                                operationLog.error("Uploading of data set " + dataSet.getDataSetCode()
+                                        + " failed: ", ex);
+                            } catch (Exception ex1)
+                            {
+                                operationLog.error("Rollback of uploading data set "
+                                        + dataSet.getDataSetCode() + " failed: ", ex1);
+                            }
                         }
                     }
                 }
