@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package eu.basysbio.cisd.db;
+package eu.basysbio.cisd.dss;
 
-import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 
-import eu.basysbio.cisd.dss.DataColumnHeader;
-import eu.basysbio.cisd.dss.ValueGroupDescriptor;
 
 /**
  * Descriptor of a column in a time series data set file.
@@ -35,9 +28,6 @@ import eu.basysbio.cisd.dss.ValueGroupDescriptor;
  */
 public class TimeSeriesColumnDescriptor
 {
-    private static final Pattern DATA_SET_TYPE_PATTERN =
-            Pattern.compile("([a-zA-Z0-9]+)\\[([a-zA-Z0-9%]*)\\]");
-
     private final ValueGroupDescriptor valueGroupDescriptor;
 
     private final String valueType;
@@ -45,50 +35,14 @@ public class TimeSeriesColumnDescriptor
     private final String unit;
 
     private final String scale;
-    
-    public TimeSeriesColumnDescriptor(ValueGroupDescriptor descriptor, DataColumnHeader dataColumnHeader)
+
+    public TimeSeriesColumnDescriptor(ValueGroupDescriptor descriptor,
+            DataColumnHeader dataColumnHeader)
     {
         valueGroupDescriptor = descriptor;
         valueType = dataColumnHeader.getValueType();
         unit = dataColumnHeader.getUnit();
         scale = dataColumnHeader.getScale();
-    }
-
-    public TimeSeriesColumnDescriptor(TimeSeriesColumnDescriptor descr, String replacementBiId,
-            int replacementTimePoint)
-    {
-        valueGroupDescriptor =
-                new ValueGroupDescriptor(descr.getValueGroupDescriptor(), replacementBiId,
-                        replacementTimePoint);
-        valueType = descr.valueType;
-        unit = descr.unit;
-        scale = descr.scale;
-    }
-
-    public TimeSeriesColumnDescriptor(File file, String columnHeader)
-    {
-        final String[] headerFields = StringUtils.split(columnHeader, "::");
-        if (headerFields.length != 12)
-        {
-            throw new ParsingException(file, "Header is supposed to have 12 elements, has "
-                    + headerFields.length + ": " + columnHeader);
-        }
-        valueGroupDescriptor = new ValueGroupDescriptor(headerFields);
-        final Matcher dataSetTypeColumnMatcher = DATA_SET_TYPE_PATTERN.matcher(headerFields[8]);
-        if (dataSetTypeColumnMatcher.matches() == false)
-        {
-            System.err
-                    .printf(
-                            "Warning: Data Set Type field does not match expected format: '%s' [File: %s]\n",
-                            headerFields[8], file);
-            valueType = headerFields[8];
-            unit = "???";
-        } else
-        {
-            valueType = dataSetTypeColumnMatcher.group(1);
-            unit = dataSetTypeColumnMatcher.group(2);
-        }
-        scale = headerFields[9];
     }
 
     public String getExperimentType()

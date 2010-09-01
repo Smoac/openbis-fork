@@ -16,7 +16,6 @@
 
 package eu.basysbio.cisd.dss;
 
-import eu.basysbio.cisd.db.TimeSeriesColumnDescriptor;
 
 /**
  * @author Franz-Josef Elmer
