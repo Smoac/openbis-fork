@@ -20,6 +20,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -91,6 +93,13 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
     {
         Set<String> knownDataSets = getKnownDataSets();
         List<SimpleDataSetInformationDTO> dataSets = service.listDataSets();
+        Collections.sort(dataSets, new Comparator<SimpleDataSetInformationDTO>()
+            {
+                public int compare(SimpleDataSetInformationDTO o1, SimpleDataSetInformationDTO o2)
+                {
+                    return o1.getDataSetCode().compareTo(o2.getDataSetCode());
+                }
+            });
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
             if (knownDataSets.contains(dataSet.getDataSetCode()) == false)
@@ -101,6 +110,7 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                 {
                     for (File dataSetFile : dataSetFiles)
                     {
+                        printMemoryUsage();
                         DataSetInformation dataSetInformation = createDataSetInformation(dataSet);
                         try
                         {
@@ -128,6 +138,17 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                 }
             }
         }
+    }
+    
+    private void printMemoryUsage()
+    {
+        long mb = 1024 * 1024;
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory() / mb;
+        long freeMemory = runtime.freeMemory() / mb;
+        long maxMemory = runtime.maxMemory() / mb;
+        operationLog.info("MEMORY: used=" + (totalMemory - freeMemory) + ", total=" + totalMemory
+                + " max=" + maxMemory);
     }
 
     private DataSetInformation createDataSetInformation(SimpleDataSetInformationDTO dataSet)
