@@ -179,6 +179,24 @@ COPY sample_type_property_types (id, saty_id, prty_id, is_mandatory, is_managed_
 --
 
 --------------------------------------------------
+-- update sequences values
+--------------------------------------------------
+
+select setval('controlled_vocabulary_id_seq', 100);
+select setval('cvte_id_seq', 100);
+select setval('property_type_id_seq', 100);
+select setval('file_format_type_id_seq', 100);
+select setval('filter_id_seq', 100);
+select setval('experiment_type_id_seq', 100);
+select setval('sample_type_id_seq', 100);
+select setval('data_set_type_id_seq', 100);
+select setval('material_type_id_seq', 100);
+select setval('etpt_id_seq', 100);
+select setval('stpt_id_seq', 100);
+select setval('mtpt_id_seq', 100);
+
+
+--------------------------------------------------
 -- create a gene property and assign it to oligo well
 --------------------------------------------------
 
@@ -215,20 +233,44 @@ insert into sample_type_property_types(
 			where saty_id = (select id from sample_types where code = 'OLIGO_WELL'))
 	);
 
+
 --------------------------------------------------
--- update sequences values
+-- Create gene property: gene_symbols
 --------------------------------------------------
 
-select setval('controlled_vocabulary_id_seq', 100);
-select setval('cvte_id_seq', 100);
-select setval('property_type_id_seq', 100);
-select setval('file_format_type_id_seq', 100);
-select setval('filter_id_seq', 100);
-select setval('experiment_type_id_seq', 100);
-select setval('sample_type_id_seq', 100);
-select setval('data_set_type_id_seq', 100);
-select setval('material_type_id_seq', 100);
-select setval('etpt_id_seq', 100);
-select setval('stpt_id_seq', 100);
-select setval('mtpt_id_seq', 100);
+
+	insert into property_types
+		(id
+		,code
+		,description
+		,label
+		,daty_id
+		,pers_id_registerer
+		,dbin_id)
+	values 
+		(nextval('PROPERTY_TYPE_ID_SEQ')
+		,'GENE_SYMBOLS'
+		,'Gene symbols'
+		,'Gene symbols'
+		,(select id from data_types where code ='VARCHAR')
+		,(select id from persons where user_id ='system')
+		,(select id from database_instances where is_original_source = 'T')
+	);
+		
+	insert into material_type_property_types( 
+	  id,
+	  maty_id,
+	  prty_id,
+	  is_mandatory,
+	  pers_id_registerer,
+	  ordinal
+	) values(
+			nextval('mtpt_id_seq'), 
+			(select id from material_types where code = 'GENE'),
+			(select id from property_types where code = 'GENE_SYMBOLS'),
+			false,
+			(select id from persons where user_id ='system'),
+			(select max(ordinal)+1 from material_type_property_types 
+				where maty_id = (select id from material_types where code = 'GENE'))
+		);
 
