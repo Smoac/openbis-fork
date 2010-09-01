@@ -177,6 +177,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
         ensureDatasetAccessible(params.getDatasetCode(), session, params.getSessionId());
         File datasetRoot = createDataSetRootDirectory(params.getDatasetCode(), session);
 
+        long start = System.currentTimeMillis();
         ResponseContentStream responseStream;
         try
         {
@@ -187,17 +188,17 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
             printErrorResponse(response, e.getMessage());
             return;
         }
-        logImageDelivery(params, responseStream);
+        logImageDelivery(params, responseStream, (System.currentTimeMillis() - start));
         writeResponseContent(responseStream, response);
     }
 
     protected final static void logImageDelivery(TileImageReference params,
-            ResponseContentStream responseStream)
+            ResponseContentStream responseStream, long timeTaken)
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("For data set '" + params.getDatasetCode() + "' deliver image ("
-                    + responseStream.getSize() + " bytes)");
+            operationLog.info("For data set '" + params.getDatasetCode() + "' delivering image ("
+                    + responseStream.getSize() + " bytes) took " + timeTaken + " msec");
         }
     }
 }

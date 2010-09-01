@@ -28,9 +28,13 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
@@ -46,6 +50,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  */
 public class ImageChannelsUtils
 {
+    static protected final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ImageChannelsUtils.class);
+
     // MIME type of the images which are produced by thsi class
     public static final String IMAGES_CONTENT_TYPE = "image/png";
 
@@ -118,7 +125,12 @@ public class ImageChannelsUtils
     private static IContent calculateSingleImageContent(AbsoluteImageReference imageReference)
     {
         BufferedImage image = calculateSingleImage(imageReference);
-        return createContent(image, imageReference.getContent().tryGetName());
+
+        long start = System.currentTimeMillis();
+        IContent content = createContent(image, imageReference.getContent().tryGetName());
+        operationLog.debug("save as png: " + (System.currentTimeMillis() - start));
+
+        return content;
     }
 
     private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
@@ -129,20 +141,27 @@ public class ImageChannelsUtils
 
         // extracts the correct page if necessary
         int page = (imageReference.tryGetPage() != null) ? imageReference.tryGetPage() : 0;
+
+        long start = System.currentTimeMillis();
         BufferedImage image = ImageUtil.loadImage(inputStream, page);
+        operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
 
         // resized the image if necessary
         Size sizeOrNull = imageReference.tryGetSize();
         if (sizeOrNull != null)
         {
+            start = System.currentTimeMillis();
             image = ImageUtil.createThumbnail(image, sizeOrNull.getWidth(), sizeOrNull.getHeight());
+            operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));
         }
 
         // choose color component if necessary
         ColorComponent colorComponentOrNull = imageReference.tryGetColorComponent();
         if (colorComponentOrNull != null)
         {
+            start = System.currentTimeMillis();
             image = transformToChannel(image, colorComponentOrNull);
+            operationLog.debug("Select single channel: " + (System.currentTimeMillis() - start));
         }
         return image;
     }
@@ -370,7 +389,7 @@ public class ImageChannelsUtils
             ImageIO.write(image, "png", output);
         } catch (IOException ex)
         {
-            throw EnvironmentFailureException.fromTemplate("Cannot encode PNG image.", ex);
+            throw EnvironmentFailureException.fromTemplate("Cannot encode image.", ex);
         }
         return output;
     }
