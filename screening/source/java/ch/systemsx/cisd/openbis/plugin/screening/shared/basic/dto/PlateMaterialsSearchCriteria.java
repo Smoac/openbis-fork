@@ -132,7 +132,7 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-        private String[] materialCodes;
+        private String[] materialCodesOrProperties;
 
         private String[] materialTypeCodes;
 
@@ -142,19 +142,20 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         {
         }
 
-        public MaterialSearchCodesCriteria(String[] materialCodes, String[] materialTypeCodes)
+        public MaterialSearchCodesCriteria(String[] materialCodesOrProperties,
+                String[] materialTypeCodes)
         {
-            for (int i = 0; i < materialCodes.length; i++)
+            for (int i = 0; i < materialCodesOrProperties.length; i++)
             {
-                materialCodes[i] = materialCodes[i].toUpperCase();
+                materialCodesOrProperties[i] = materialCodesOrProperties[i].toUpperCase();
             }
-            this.materialCodes = materialCodes;
+            this.materialCodesOrProperties = materialCodesOrProperties;
             this.materialTypeCodes = materialTypeCodes;
         }
 
-        public String[] getMaterialCodes()
+        public String[] getMaterialCodesOrProperties()
         {
-            return materialCodes;
+            return materialCodesOrProperties;
         }
 
         public String[] getMaterialTypeCodes()
@@ -165,8 +166,8 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         @Override
         public String toString()
         {
-            return "Material codes = " + Arrays.toString(materialCodes) + ", types = "
-                    + Arrays.toString(materialTypeCodes);
+            return "Material codes (or properties) = " + Arrays.toString(materialCodesOrProperties)
+                    + ", types = " + Arrays.toString(materialTypeCodes);
         }
     }
 
@@ -176,8 +177,8 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
 
         // Only one criteria is present
 
-        // -- code criteria
-        private MaterialSearchCodesCriteria codesCriteriaOrNull;
+        // -- code or property criteria
+        private MaterialSearchCodesCriteria codesOrPropertiesCriteriaOrNull;
 
         // -- technical id criteria
         private TechId materialIdOrNull;
@@ -205,16 +206,16 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         {
         }
 
-        private MaterialSearchCriteria(MaterialSearchCodesCriteria codesCriteriaOrNull,
+        private MaterialSearchCriteria(MaterialSearchCodesCriteria codesOrPropertiesCriteriaOrNull,
                 TechId materialIdOrNull)
         {
-            this.codesCriteriaOrNull = codesCriteriaOrNull;
+            this.codesOrPropertiesCriteriaOrNull = codesOrPropertiesCriteriaOrNull;
             this.materialIdOrNull = materialIdOrNull;
         }
 
-        public MaterialSearchCodesCriteria tryGetMaterialCodes()
+        public MaterialSearchCodesCriteria tryGetMaterialCodesOrProperties()
         {
-            return codesCriteriaOrNull;
+            return codesOrPropertiesCriteriaOrNull;
         }
 
         public TechId tryGetMaterialId()
@@ -228,9 +229,9 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
             if (materialIdOrNull != null)
             {
                 return "Material with id = " + materialIdOrNull;
-            } else if (codesCriteriaOrNull != null)
+            } else if (codesOrPropertiesCriteriaOrNull != null)
             {
-                return codesCriteriaOrNull.toString();
+                return codesOrPropertiesCriteriaOrNull.toString();
             } else
             {
                 throw new IllegalStateException("unexpected material search criteria");

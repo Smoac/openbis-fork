@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -29,17 +30,26 @@ import java.util.Set;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
@@ -251,22 +261,23 @@ public class GenePlateLocationsLoader
                 materialCriteria.getMaterialSearchCriteria();
         ExperimentSearchCriteria experiment = materialCriteria.getExperimentCriteria();
         IScreeningQuery dao = createDAO(daoFactory);
-        if (materialSearchCriteria.tryGetMaterialCodes() != null)
+        if (materialSearchCriteria.tryGetMaterialCodesOrProperties() != null)
         {
             MaterialSearchCodesCriteria codesCriteria =
-                    materialSearchCriteria.tryGetMaterialCodes();
+                    materialSearchCriteria.tryGetMaterialCodesOrProperties();
 
             Long expId = tryGetExperimentId(experiment);
+            long[] ids = findMaterialIds(codesCriteria);
             if (expId == null)
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(codesCriteria.getMaterialCodes(),
-                                codesCriteria.getMaterialTypeCodes());
+                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
+                                .getMaterialTypeCodes());
             } else
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(codesCriteria.getMaterialCodes(),
-                                codesCriteria.getMaterialTypeCodes(), expId);
+                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
+                                .getMaterialTypeCodes(), expId);
             }
 
         } else if (materialSearchCriteria.tryGetMaterialId() != null)
@@ -287,6 +298,59 @@ public class GenePlateLocationsLoader
         }
 
         return convert(locations);
+    }
+
+    private long[] findMaterialIds(MaterialSearchCodesCriteria codesCriteria)
+    {
+        List<String> materialTypeCodes = Arrays.asList(codesCriteria.getMaterialTypeCodes());
+        List<MaterialTypePE> types =
+                daoFactory.getEntityTypeDAO(
+                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
+                        .listEntityTypes();
+        Set<String> propertyCodes = new HashSet<String>();
+        for (MaterialTypePE mt : types)
+        {
+            if (materialTypeCodes.contains(mt.getCode()))
+            {
+                for (MaterialTypePropertyTypePE mtpt : mt.getMaterialTypePropertyTypes())
+                {
+                    propertyCodes.add(mtpt.getPropertyType().getCode());
+                }
+            }
+        }
+        DetailedSearchCriteria criteria = new DetailedSearchCriteria();
+        ArrayList<DetailedSearchCriterion> listOfCriteria =
+                new ArrayList<DetailedSearchCriterion>();
+        for (String value : codesCriteria.getMaterialCodesOrProperties())
+        {
+            listOfCriteria.add(createCodeCriterion(value));
+            listOfCriteria.add(createPropertyCriterion(value, propertyCodes));
+        }
+        criteria.setCriteria(listOfCriteria);
+        criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
+        return ArrayUtils.toPrimitive(daoFactory.getHibernateSearchDAO().searchForEntityIds(
+                criteria,
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
+                .toArray(new Long[0]));
+    }
+
+    private DetailedSearchCriterion createPropertyCriterion(String value,
+            Set<String> allEntityPropertyCodes)
+    {
+        DetailedSearchCriterion criterion = new DetailedSearchCriterion();
+        criterion.setField(DetailedSearchField.createAnyPropertyField(new ArrayList<String>(
+                allEntityPropertyCodes)));
+        criterion.setValue(value);
+        return criterion;
+    }
+
+    private DetailedSearchCriterion createCodeCriterion(String code)
+    {
+        DetailedSearchCriterion criterion = new DetailedSearchCriterion();
+        criterion.setField(DetailedSearchField
+                .createAttributeField(MaterialAttributeSearchFieldKind.CODE));
+        criterion.setValue(code);
+        return criterion;
     }
 
     private Long tryGetExperimentId(ExperimentSearchCriteria experiment)

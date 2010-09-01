@@ -23,6 +23,7 @@ import net.lemnik.eodsql.TypeMapper;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongArrayMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
@@ -88,10 +89,10 @@ public interface IScreeningQuery extends BaseQuery
      *         Each well will have a material property (e.g. gene) with one of the specified codes.
      *         The connected material will have one of the specified types.
      */
-    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.code = any(?{1}) and "
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
             + "well_material_type.code = any(?{2}) and exp.id = ?{3}", parameterBindings =
-        { StringArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
-    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(String[] materialCodes,
+        { LongArrayMapper.class, StringArrayMapper.class, TypeMapper.class /* default mapper */}, fetchSize = FETCH_SIZE)
+    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(long[] materialIds,
             String[] materialTypeCodes, long experimentId);
 
     /**
@@ -99,10 +100,10 @@ public interface IScreeningQuery extends BaseQuery
      *         a material property (e.g. gene) with one of the specified codes. The connected
      *         material will have one of the specified types.
      */
-    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.code = any(?{1}) and "
+    @Select(sql = WELLS_FOR_MATERIAL_ID_SELECT + " where well_material.id = any(?{1}) and "
             + "well_material_type.code = any(?{2})", parameterBindings =
-        { StringArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(String[] materialCodes,
+        { LongArrayMapper.class, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<WellContent> getPlateLocationsForMaterialCodes(long[] materialIds,
             String[] materialTypeCodes);
 
     /**
