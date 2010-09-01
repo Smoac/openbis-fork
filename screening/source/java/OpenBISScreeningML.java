@@ -374,13 +374,19 @@ public class OpenBISScreeningML
         {
             return new Object[0][];
         }
-        final List<String> channels = meta.get(0).getChannelNames();
+        final List<String> channels = getChannelCodes(meta);
         Object[][] result = new Object[channels.size()][1];
         for (int i = 0; i < result.length; ++i)
         {
             result[i][0] = channels.get(i);
         }
         return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static List<String> getChannelCodes(final List<ImageDatasetMetadata> meta)
+    {
+        return meta.get(0).getChannelNames();
     }
 
     /**
@@ -419,14 +425,20 @@ public class OpenBISScreeningML
         {
             return new Object[0][];
         }
-        final List<String> features =
-                openbis.listAvailableFeatureNames(Arrays.asList(featureDatasets.get(0)));
+        final List<String> features = listAvailableFeatureCodes(featureDatasets);
         Object[][] result = new Object[features.size()][1];
         for (int i = 0; i < result.length; ++i)
         {
             result[i][0] = features.get(i);
         }
         return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static List<String> listAvailableFeatureCodes(
+            final List<FeatureVectorDatasetReference> featureDatasets)
+    {
+        return openbis.listAvailableFeatureNames(Arrays.asList(featureDatasets.get(0)));
     }
 
     //
@@ -518,7 +530,7 @@ public class OpenBISScreeningML
                 return new Object[][][]
                     { new Object[0][], new Object[0][] };
             }
-            imageChannels = meta.get(0).getChannelNames();
+            imageChannels = getChannelCodes(meta);
         } else
         {
             imageChannels = Arrays.asList(channels);
@@ -998,8 +1010,8 @@ public class OpenBISScreeningML
                 openbis.loadFeaturesForPlates(Arrays.asList(PlateIdentifier
                         .createFromAugmentedCode(plate)), (features == null) ? null : Arrays
                         .asList(features));
-        final List<String> featureNameList =
-                featureVectors.get(featureVectors.size() - 1).getFeatureNames();
+        FeatureVectorDataset last = featureVectors.get(featureVectors.size() - 1);
+        final List<String> featureCodeList = getFeatureCodes(last);
         final Object[][][] result = new Object[3][][];
         if (featureVectors.isEmpty())
         {
@@ -1010,7 +1022,7 @@ public class OpenBISScreeningML
         {
             numberOfRows += fvds.getFeatureVectors().size();
         }
-        result[0] = new Object[numberOfRows][featureNameList.size()];
+        result[0] = new Object[numberOfRows][featureCodeList.size()];
         result[1] = new Object[numberOfRows][13];
         int resultIdx = 0;
         for (FeatureVectorDataset fvds : featureVectors)
@@ -1038,12 +1050,18 @@ public class OpenBISScreeningML
                 resultIdx++;
             }
         }
-        result[2] = new Object[featureNameList.size()][1];
-        for (int i = 0; i < featureNameList.size(); ++i)
+        result[2] = new Object[featureCodeList.size()][1];
+        for (int i = 0; i < featureCodeList.size(); ++i)
         {
-            result[2][i][0] = featureNameList.get(i);
+            result[2][i][0] = featureCodeList.get(i);
         }
         return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static List<String> getFeatureCodes(FeatureVectorDataset last)
+    {
+        return last.getFeatureNames();
     }
 
     /**
