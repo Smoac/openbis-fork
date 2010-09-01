@@ -38,7 +38,7 @@ public class HCSImageFileExtractorTest extends AssertJUnit
             { "left", "dia", "pos100", "t20100227", "152439" };
         long secondsFromFirstMeasurement =
                 HCSImageFileExtractor.getSecondsFromFirstMeasurement(tokensThisMeasurement,
-                        tokensFirstMeasurement);
+                        HCSImageFileExtractor.parseDate(tokensFirstMeasurement));
         assertEquals(3 + 60 + 3600, secondsFromFirstMeasurement);
     }
 }
