@@ -146,6 +146,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testAvailableFeatureCodes()
     {
