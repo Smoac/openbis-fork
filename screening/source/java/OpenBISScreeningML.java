@@ -664,8 +664,8 @@ public class OpenBISScreeningML
             final File f =
                     File.createTempFile("img_", "_" + plate.getPlateCode() + "_"
                             + image.getDatasetCode() + "_row" + well.getWellRow() + "_col"
-                            + well.getWellColumn() + "_channel" + image.getChannel() + "_tile"
-                            + image.getTile() + ".tiff");
+                            + well.getWellColumn() + "_" + image.getChannel() + "_tile"
+                            + image.getTile() + ".png");
             f.deleteOnExit();
             return f;
         } catch (IOException ex)

@@ -44,10 +44,7 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
             File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
     {
         IContent image = ImageChannelsUtils.getImage(datasetRoot, datasetCode, params);
-        // TODO 2010-08-31, Tomasz Pylak: uncomment, we want tiff files
-        // String contentType = CONTENT_TYPE_TIFF;
-        String contentType = CONTENT_TYPE_PNG;
-        return createResponseContentStream(image.getInputStream(), image.getSize(), contentType,
-                image.tryGetName());
+        return createResponseContentStream(image.getInputStream(), image.getSize(),
+                ImageChannelsUtils.IMAGES_CONTENT_TYPE, image.tryGetName());
     }
 }

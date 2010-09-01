@@ -31,7 +31,6 @@ import javax.imageio.ImageIO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.common.utilities.DataTypeUtil;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
@@ -47,9 +46,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  */
 public class ImageChannelsUtils
 {
+    // MIME type of the images which are produced by thsi class
+    public static final String IMAGES_CONTENT_TYPE = "image/png";
+
     /**
-     * @return a TIFF image for the specified tile in the specified size and for the requested
-     *         channel or with all channels merged.
+     * @return an image for the specified tile in the specified size and for the requested channel
+     *         or with all channels merged.
      */
     public static IContent getImage(File datasetRoot, String datasetCode, TileImageReference params)
     {
@@ -58,8 +60,7 @@ public class ImageChannelsUtils
     }
 
     /**
-     * @return a TIFF image for the specified tile in the specified size and for the requested
-     *         channel.
+     * @return an image for the specified tile in the specified size and for the requested channel.
      */
     public static IContent getImage(IHCSImageDatasetLoader imageAccessor,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
@@ -116,19 +117,8 @@ public class ImageChannelsUtils
 
     private static IContent calculateSingleImageContent(AbsoluteImageReference imageReference)
     {
-        IContent content = imageReference.getContent();
-        final String fileType = figureOutFileType(content);
-        boolean isTiff = DataTypeUtil.isTiff(fileType);
-
-        // optimization - is the original image what we need?
-        if (isTiff && imageReference.tryGetSize() == null && imageReference.tryGetPage() == null
-                && imageReference.tryGetColorComponent() == null)
-        {
-            return content;
-        }
-
         BufferedImage image = calculateSingleImage(imageReference);
-        return createTiffContent(image, fileType, imageReference.getContent().tryGetName());
+        return createContent(image, imageReference.getContent().tryGetName());
     }
 
     private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
@@ -169,7 +159,7 @@ public class ImageChannelsUtils
         {
             List<BufferedImage> images = calculateSingleImages(imageReferences);
             BufferedImage mergedImage = mergeChannels(images);
-            return createTiffContent(mergedImage, DataTypeUtil.TIFF_FILE, null);
+            return createContent(mergedImage, null);
         }
     }
 
@@ -366,51 +356,22 @@ public class ImageChannelsUtils
         return new Color(rgb[0], rgb[1], rgb[2]).getRGB();
     }
 
-    private static String figureOutFileType(IContent content)
+    private static IContent createContent(BufferedImage image, String nameOrNull)
     {
-        return DataTypeUtil.tryToFigureOutFileTypeOf(content.getInputStream());
+        ByteArrayOutputStream output = writeBufferImage(image);
+        return new ByteArrayBasedContent(output.toByteArray(), nameOrNull);
     }
 
-    private static IContent createTiffContent(BufferedImage image, String fileType,
-            String nameOrNull)
+    private static ByteArrayOutputStream writeBufferImage(BufferedImage image)
     {
-        // TODO 2010-08-31, Tomasz Pylak: find out why tiffs do not work 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try
         {
             ImageIO.write(image, "png", output);
         } catch (IOException ex)
         {
-            ex.printStackTrace();
+            throw EnvironmentFailureException.fromTemplate("Cannot encode PNG image.", ex);
         }
-        return new ByteArrayBasedContent(output.toByteArray(), nameOrNull);
-		/*
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final TIFFEncodeParam param = createCompressionParams(fileType);
-        final ImageEncoder enc = ImageCodec.createImageEncoder("tiff", out, param);
-        try
-        {
-            enc.encode(image);
-        } catch (IOException ex)
-        {
-            throw EnvironmentFailureException.fromTemplate("Cannot encode image.", ex);
-        }
-        return new ByteArrayBasedContent(out.toByteArray(), nameOrNull);
-		*/
+        return output;
     }
-
-//    private static TIFFEncodeParam createCompressionParams(String fileType)
-//    {
-//        final TIFFEncodeParam param = new TIFFEncodeParam();
-//        param.setLittleEndian(true);
-//        if (DataTypeUtil.isJpeg(fileType))
-//        {
-//            param.setCompression(TIFFEncodeParam.COMPRESSION_JPEG_TTN2);
-//        } else
-//        {
-//            // TODO 2010-08-30, Tomasz Pylak: check compressed file size
-//            param.setCompression(TIFFEncodeParam.COMPRESSION_DEFLATE);
-//        }
-//        return param;
-//    }
 }

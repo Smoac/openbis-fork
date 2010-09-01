@@ -70,8 +70,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     protected static final String CONTENT_TYPE_PNG = "image/png";
 
-    protected static final String CONTENT_TYPE_TIFF = "image/tiff";
-
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(100, 60);
 
     private static final String THUMBNAIL_MODE_DISPLAY = "thumbnail";
