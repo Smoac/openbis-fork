@@ -57,11 +57,15 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
     private final Map<File/* mapping file */, Map<DynamixWellPosition, WellLocation>> wellLocationMapCache;
 
+    // date when the first timepoint image has been acquired
+    private final Map<File/* well images dir */, Date> firstMeasurementDateCache;
+
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
         this.channelDescriptions = tryExtractChannelDescriptions(properties);
         this.wellLocationMapCache = new HashMap<File, Map<DynamixWellPosition, WellLocation>>();
+        this.firstMeasurementDateCache = new HashMap<File, Date>();
     }
 
     @Override
@@ -136,7 +140,25 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         return info;
     }
 
-    private static long getSecondsFromFirstMeasurement(File imageFile, String[] tokens)
+    private long getSecondsFromFirstMeasurement(File imageFile, String[] tokens)
+    {
+        Date firstMeasurementDate = getFirstMeasurementDate(imageFile);
+        return getSecondsFromFirstMeasurement(tokens, firstMeasurementDate);
+    }
+
+    private Date getFirstMeasurementDate(File imageFile)
+    {
+        File wellImagesDir = imageFile.getParentFile();
+        Date date = firstMeasurementDateCache.get(wellImagesDir);
+        if (date == null)
+        {
+            date = calculateFirstMeasurementDate(imageFile);
+            firstMeasurementDateCache.put(wellImagesDir, date);
+        }
+        return date;
+    }
+
+    private static Date calculateFirstMeasurementDate(File imageFile)
     {
         File[] images = imageFile.getParentFile().listFiles();
         Arrays.sort(images);
@@ -145,19 +167,18 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         String firstMeasurementFileBaseName = FilenameUtils.getBaseName(firstMeasurementFilePath);
         String[] firstMeasurementTokens =
                 StringUtils.split(firstMeasurementFileBaseName, DYNAMIX_TOKEN_SEPARATOR);
-
-        return getSecondsFromFirstMeasurement(tokens, firstMeasurementTokens);
+        return parseDate(firstMeasurementTokens);
     }
 
     @Private
-    static long getSecondsFromFirstMeasurement(String[] tokens, String[] firstMeasurementTokens)
+    static long getSecondsFromFirstMeasurement(String[] tokens, Date firstMeasurementDate)
     {
-        Date firstMeasurementDate = parseDate(firstMeasurementTokens);
         Date thisMeasurementDate = parseDate(tokens);
         return (thisMeasurementDate.getTime() - firstMeasurementDate.getTime()) / 1000;
     }
 
-    private static Date parseDate(String[] tokens)
+    @Private
+    static Date parseDate(String[] tokens)
     {
         // t20100227_152439 -> 20100227152439
         String dateToken = tokens[3].substring(1) + tokens[4];
@@ -193,6 +214,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
     private static File getMappingFile(File imageFile)
     {
+        // mappingDir/pos/channel/image
         File mappingDir = imageFile.getParentFile().getParentFile().getParentFile();
         return new File(mappingDir, POSITION_MAPPING_FILE_NAME);
     }
