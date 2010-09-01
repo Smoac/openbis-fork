@@ -73,4 +73,6 @@ public class ScreeningConstants
 
     public static final String MERGED_CHANNELS = "Merged Channels";
 
+    public static final String GENE_SYMBOLS = "GENE_SYMBOLS";
+
 }

@@ -74,7 +74,7 @@ BEGIN
 		(nextval('PROPERTY_TYPE_ID_SEQ')
 		,'GENE_SYMBOLS'
 		,'Gene symbols'
-		,'Abbreviations of gene names'
+		,'Gene symbols'
 		,(select id from data_types where code ='VARCHAR')
 		,(select id from persons where user_id ='system')
 		,(select id from database_instances where is_original_source = 'T')

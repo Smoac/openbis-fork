@@ -34,6 +34,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -448,8 +449,33 @@ public class WellContentDialog extends Dialog
 
     private Widget createEntityExternalLink(Material gene)
     {
-        String url = viewContext.getMessage(Dict.GENE_LIBRARY_URL, gene.getCode());
-        return new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", url, true));
+        String value = null;
+        for (IEntityProperty prop : gene.getProperties())
+        {
+            if (prop.getPropertyType().getCode().equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
+            {
+                value = prop.getValue();
+            }
+        }
+        if (value != null && StringUtils.isBlank(value) == false)
+        {
+            String[] symbols = value.split(" ");
+            StringBuilder sb = new StringBuilder();
+            for (String s : symbols)
+            {
+                if (sb.length() != 0)
+                {
+                    sb.append(", ");
+                }
+                sb.append(LinkRenderer.renderAsLinkWithAnchor(s, viewContext.getMessage(
+                        Dict.GENE_LIBRARY_URL, s), true));
+            }
+            return new Html(sb.toString());
+        } else
+        {
+            return new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", viewContext
+                    .getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true));
+        }
     }
 
     private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)

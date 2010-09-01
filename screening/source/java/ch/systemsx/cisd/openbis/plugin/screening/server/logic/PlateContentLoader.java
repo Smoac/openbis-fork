@@ -23,12 +23,15 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -258,10 +261,30 @@ public class PlateContentLoader
     private List<WellMetadata> loadWells(TechId plateId)
     {
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-
-        ListOrSearchSampleCriteria criteria = createSamplesForContainerCriteria(plateId);
-        List<Sample> wells = sampleLister.list(criteria);
+        List<Sample> wells = sampleLister.list(createSamplesForContainerCriteria(plateId));
+        List<Material> containedMaterials = getReferencedMaterials(wells);
+        IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
+        materialLister.enrichWithProperties(containedMaterials);
         return createWells(wells);
+    }
+
+    private static List<Material> getReferencedMaterials(
+            List<? extends IEntityPropertiesHolder> entities)
+    {
+        List<Material> materials = new ArrayList<Material>();
+        for (IEntityPropertiesHolder entity : entities)
+        {
+            List<IEntityProperty> properties = entity.getProperties();
+            for (IEntityProperty prop : properties)
+            {
+                Material material = prop.getMaterial();
+                if (material != null)
+                {
+                    materials.add(material);
+                }
+            }
+        }
+        return materials;
     }
 
     protected static List<ExternalDataPE> loadDatasets(TechId plateId,
