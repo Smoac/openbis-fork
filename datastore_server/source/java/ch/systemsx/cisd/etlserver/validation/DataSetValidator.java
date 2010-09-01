@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.validation;
 
 import java.io.File;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -113,6 +114,27 @@ public class DataSetValidator implements IDataSetValidator
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Data set [" + incomingDataSetFileOrFolder + "] of type '"
+                        + dataSetType.getCode() + "' successfully validated.");
+            }
+        }
+    }
+
+    public void assertValidDataSet(DataSetType dataSetType, Reader reader, String dataSourceName)
+    {
+        IDataSetValidator validator = validators.get(dataSetType.getCode());
+        if (validator != null)
+        {
+            try
+            {
+                validator.assertValidDataSet(dataSetType, reader, dataSourceName);
+            } catch (Exception ex)
+            {
+                throw new UserFailureException("Data set of type '" + dataSetType.getCode()
+                        + "' is invalid: " + ex.getMessage(), ex);
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Data set [" + dataSourceName + "] of type '"
                         + dataSetType.getCode() + "' successfully validated.");
             }
         }

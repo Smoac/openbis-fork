@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver.validation;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  * 
  * @author Franz-Josef Elmer
  */
-class DataSetValidatorForTSV implements IDataSetValidator
+public class DataSetValidatorForTSV implements IDataSetValidator
 {
     static final String PATH_PATTERNS_KEY = "path-patterns";
 
@@ -77,7 +78,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
 
     private final boolean strictRowSize;
 
-    DataSetValidatorForTSV(Properties properties)
+    public DataSetValidatorForTSV(Properties properties)
     {
         fileScanners = new ArrayList<FileScanner>();
         ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
@@ -148,61 +149,24 @@ class DataSetValidatorForTSV implements IDataSetValidator
             {
                 if (excludedFiles.contains(file) == false)
                 {
-                    assertValidFile(file);
+                    assertValidFile(dataSetType, file);
                 }
             }
         }
     }
 
-    private void assertValidFile(File file)
+    private void assertValidFile(DataSetType dataSetType, File file)
     {
         if (file.isFile() == false)
         {
             return;
         }
-        FileReader reader = null;
+        Reader reader = null;
         try
         {
             reader = new FileReader(file);
-            TabSeparatedValueTable table =
-                    new TabSeparatedValueTable(reader, file.toString(), ignoreEmptyLines, strictRowSize, false);
-            List<String> headers = table.getHeaders();
-            assertUniqueHeaders(headers);
-            ColumnDefinition[] definitions = findColumnDefinitions(headers);
-            IValidator[] validators = new IValidator[definitions.length];
-            for (int i = 0; i < validators.length; i++)
-            {
-                validators[i] = definitions[i].createValidator(headers.get(i));
-            }
-            int lineNumber = 1;
-            while (table.hasMoreRows())
-            {
-                lineNumber++;
-                List<String> row = table.tryToGetNextRow();
-                if (row.size() > definitions.length)
-                {
-                    for (int i = definitions.length; i < row.size(); i++)
-                    {
-                        if (StringUtils.isNotBlank(row.get(i)))
-                        {
-                            throw new UserFailureException("The row in line " + lineNumber
-                                    + " has " + row.size() + " cells instead of "
-                                    + definitions.length);
-                        }
-                    }
-                }
-                for (int i = 0, n = Math.min(row.size(), validators.length); i < n; i++)
-                {
-                    try
-                    {
-                        validators[i].assertValid(row.get(i));
-                    } catch (RuntimeException ex)
-                    {
-                        throw new UserFailureException("Error in file '" + file + "': " + (i + 1)
-                                + ". cell in line " + lineNumber + ": " + ex.getMessage(), ex);
-                    }
-                }
-            }
+            String dataSourceName = file.toString();
+            assertValidDataSet(dataSetType, reader, dataSourceName);
         } catch (RuntimeException ex)
         {
             throw ex;
@@ -212,6 +176,50 @@ class DataSetValidatorForTSV implements IDataSetValidator
         } finally
         {
             IOUtils.closeQuietly(reader);
+        }
+    }
+
+    public void assertValidDataSet(DataSetType dataSetType, Reader reader, String dataSourceName)
+    {
+        TabSeparatedValueTable table =
+                new TabSeparatedValueTable(reader, dataSourceName, ignoreEmptyLines, strictRowSize,
+                        false);
+        List<String> headers = table.getHeaders();
+        assertUniqueHeaders(headers);
+        ColumnDefinition[] definitions = findColumnDefinitions(headers);
+        IValidator[] validators = new IValidator[definitions.length];
+        for (int i = 0; i < validators.length; i++)
+        {
+            validators[i] = definitions[i].createValidator(headers.get(i));
+        }
+        int lineNumber = 1;
+        while (table.hasMoreRows())
+        {
+            lineNumber++;
+            List<String> row = table.tryToGetNextRow();
+            if (row.size() > definitions.length)
+            {
+                for (int i = definitions.length; i < row.size(); i++)
+                {
+                    if (StringUtils.isNotBlank(row.get(i)))
+                    {
+                        throw new UserFailureException("The row in line " + lineNumber
+                                + " has " + row.size() + " cells instead of "
+                                + definitions.length);
+                    }
+                }
+            }
+            for (int i = 0, n = Math.min(row.size(), validators.length); i < n; i++)
+            {
+                try
+                {
+                    validators[i].assertValid(row.get(i));
+                } catch (RuntimeException ex)
+                {
+                    throw new UserFailureException("Error in file '" + dataSourceName + "': "
+                            + (i + 1) + ". cell in line " + lineNumber + ": " + ex.getMessage(), ex);
+                }
+            }
         }
     }
 

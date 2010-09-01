@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.validation;
 
 import java.io.File;
+import java.io.Reader;
 import java.util.Properties;
 
 import org.testng.annotations.Test;
@@ -53,6 +54,10 @@ public class DataSetValidatorTest extends AbstractFileSystemTestCase
         {
             assertEquals(expectedDataSetType, dataSetType.getCode());
             assertEquals(expectedFile, incomingDataSetFileOrFolder.toString());
+        }
+
+        public void assertValidDataSet(DataSetType dataSetType, Reader reader, String dataSourceName)
+        {
         }
     }
     

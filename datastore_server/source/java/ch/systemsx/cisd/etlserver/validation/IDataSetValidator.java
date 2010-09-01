@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.validation;
 
 import java.io.File;
+import java.io.Reader;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -38,4 +39,11 @@ public interface IDataSetValidator
     public abstract void assertValidDataSet(DataSetType dataSetType,
             File incomingDataSetFileOrFolder);
 
+    /**
+     * Validates data with specified name from the specified reader.
+     * 
+     * @throws UserFailureException if validation failed.
+     */
+    public abstract void assertValidDataSet(DataSetType dataSetType, Reader reader, String dataSourceName);
+    
 }
