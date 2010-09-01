@@ -111,9 +111,9 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
                         {
                             try
                             {
-                                dataSetHandler.rollback();
                                 operationLog.error("Uploading of data set " + dataSet.getDataSetCode()
                                         + " failed: ", ex);
+                                dataSetHandler.rollback();
                             } catch (Exception ex1)
                             {
                                 operationLog.error("Rollback of uploading data set "
