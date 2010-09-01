@@ -104,10 +104,10 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
 
     public String getGeneId(String[] row)
     {
-        return getValue(row, GENE_ID);
+        return getCodeValue(row, GENE_ID);
     }
 
-    public String getGeneCode(String[] row)
+    public String getGeneSymbol(String[] row)
     {
         return getCodeValue(row, GENE_SYMBOL);
     }
@@ -129,7 +129,7 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
 
     public GeneDetails getGeneDetails(String[] row)
     {
-        return new GeneDetails(getGeneCode(row), getGeneDescription(row));
+        return new GeneDetails(getGeneId(row), getGeneDescription(row));
     }
 
     public static class GeneDetails

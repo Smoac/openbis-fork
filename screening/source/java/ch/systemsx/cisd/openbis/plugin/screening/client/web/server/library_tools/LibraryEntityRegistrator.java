@@ -202,7 +202,8 @@ public class LibraryEntityRegistrator
 
     private static class GeneRegistrator extends AbstractMetadataRegistrator
     {
-        private static final String HEADER = join("CODE", "DESCRIPTION", "LIBRARY_ID");
+        private static final String HEADER =
+                join("CODE", "DESCRIPTION", ScreeningConstants.GENE_SYMBOLS);
 
         private final Set<String/* gene code */> registeredGenes;
 
@@ -217,19 +218,19 @@ public class LibraryEntityRegistrator
         public String tryRegister(QiagenScreeningLibraryColumnExtractor extractor, String[] row)
                 throws IOException
         {
-            String geneSymbol = extractor.getGeneCode(row);
-            if (StringUtils.isBlank(geneSymbol))
+            String geneCode = extractor.getGeneId(row);
+            if (StringUtils.isBlank(geneCode))
             {
                 return null;
             }
-            if (registeredGenes.contains(geneSymbol) == false)
+            if (registeredGenes.contains(geneCode) == false)
             {
+                String geneSymbol = extractor.getGeneSymbol(row);
                 String desc = extractor.getGeneDescription(row);
-                String libraryId = extractor.getGeneId(row);
-                writeLine(geneSymbol, desc, libraryId);
+                writeLine(geneCode, desc, geneSymbol);
                 registeredGenes.add(geneSymbol);
             }
-            return geneSymbol;
+            return geneCode;
         }
     }
 
@@ -264,9 +265,9 @@ public class LibraryEntityRegistrator
         public String register(QiagenScreeningLibraryColumnExtractor extractor, String[] row,
                 String inhibitedGeneCode) throws IOException
         {
-            String geneSymbol = extractor.getGeneCode(row);
+            String geneId = extractor.getGeneId(row);
             String oligoId = extractor.getOligoId(row);
-            String openbisOligoId = geneSymbol + "_" + oligoId;
+            String openbisOligoId = geneId + "_" + oligoId;
             if (containsCaseInsensitive(registeredOligos, openbisOligoId) == false)
             {
                 String seq = extractor.getRNASequence(row);
