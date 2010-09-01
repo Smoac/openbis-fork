@@ -19,6 +19,7 @@ package eu.basysbio.cisd.dss;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -45,6 +46,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
@@ -129,7 +133,8 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
     private DataSetInformation createDataSetInformation(SimpleDataSetInformationDTO dataSet)
     {
         DataSetInformation dataSetInformation = new DataSetInformation();
-        dataSetInformation.setDataSetCode(dataSet.getDataSetCode());
+        String dataSetCode = dataSet.getDataSetCode();
+        dataSetInformation.setDataSetCode(dataSetCode);
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(dataSet.getDataSetType());
         dataSetInformation.setDataSetType(dataSetType);
@@ -140,6 +145,16 @@ public class PostRegistrationDatabaseUploadTask implements IMaintenanceTask
         String experimentCode = dataSet.getExperimentCode();
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(databaseInstanceCode,
                 groupCode, projectCode, experimentCode));
+        ExternalData fullDataSet = service.tryGetDataSetForServer(dataSetCode);
+        List<IEntityProperty> properties = fullDataSet.getProperties();
+        List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
+        for (IEntityProperty property : properties)
+        {
+            String name = property.getPropertyType().getCode();
+            String value = property.tryGetAsString();
+            dataSetProperties.add(new NewProperty(name, value));
+        }
+        dataSetInformation.setDataSetProperties(dataSetProperties);
         return dataSetInformation;
     }
 
