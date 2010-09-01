@@ -639,6 +639,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.loadByCode(dataSetCode);
         externalDataBO.enrichWithParentsAndExperiment();
+        externalDataBO.enrichWithProperties();
         ExternalDataPE externalDataPE = externalDataBO.tryExternalData();
         if (null == externalDataPE)
             return null;
