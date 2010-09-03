@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -548,13 +549,13 @@ public interface ICommonServer extends IServer
     public List<MaterialType> listMaterialTypes(String sessionToken);
 
     /**
-     * Lists materials.
+     * Lists materials using given criteria.
      * 
      * @return a sorted list of {@link Material}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<Material> listMaterials(String sessionToken, MaterialType materialType,
+    public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties);
 
     /**

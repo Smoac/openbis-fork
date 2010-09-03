@@ -36,6 +36,7 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
@@ -826,12 +827,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         }
     }
 
-    public List<Material> listMaterials(String sessionToken, MaterialType materialType,
+    public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
         final Session session = getSession(sessionToken);
         final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
-        return materialLister.list(materialType, withProperties);
+        return materialLister.list(criteria, withProperties);
     }
 
     public void registerSampleType(String sessionToken, SampleType entityType)

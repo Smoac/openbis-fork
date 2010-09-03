@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.util.Collection;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -31,6 +33,8 @@ public final class ListMaterialCriteria extends DefaultResultSetConfig<String, M
 {
     private MaterialType materialType;
 
+    private Collection<Long> materialIdsOrNull;
+
     // GWT only
     public ListMaterialCriteria()
     {
@@ -38,11 +42,23 @@ public final class ListMaterialCriteria extends DefaultResultSetConfig<String, M
 
     public ListMaterialCriteria(MaterialType materialType)
     {
+        this(materialType, null);
+    }
+
+    public ListMaterialCriteria(MaterialType materialType, Collection<Long> materialIdsOrNull)
+    {
         this.materialType = materialType;
+        this.materialIdsOrNull = materialIdsOrNull;
     }
 
     public MaterialType getMaterialType()
     {
         return materialType;
     }
+
+    public Collection<Long> getMaterialIdsOrNull()
+    {
+        return materialIdsOrNull;
+    }
+
 }

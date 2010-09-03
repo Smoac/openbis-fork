@@ -19,13 +19,16 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
@@ -110,16 +113,37 @@ public class MaterialLister implements IMaterialLister
     // Listing
     //
 
-    public List<Material> list(MaterialType materialType, boolean withProperties)
+    public List<Material> list(ListMaterialCriteria criteria, boolean withProperties)
     {
+        MaterialType materialType = criteria.getMaterialType();
+        Collection<Long> materialIdsOrNull = criteria.getMaterialIdsOrNull();
         DataIterator<MaterialRecord> materials =
-                query.getMaterialsForMaterialType(databaseInstanceId, materialType.getId());
+                materialIdsOrNull != null ? getIteratorByTypeAndIds(materialType, materialIdsOrNull)
+                        : getIteratorByType(materialType);
+        return convertAndEnrich(materials, materialType, withProperties);
+    }
+
+    private List<Material> convertAndEnrich(DataIterator<MaterialRecord> materials,
+            MaterialType materialType, boolean withProperties)
+    {
         final Long2ObjectMap<Material> materialMap = asMaterials(materials, materialType);
         if (withProperties)
         {
             enrichWithProperties(materialMap);
         }
         return asList(materialMap);
+    }
+
+    private DataIterator<MaterialRecord> getIteratorByType(MaterialType materialType)
+    {
+        return query.getMaterialsForMaterialType(databaseInstanceId, materialType.getId());
+    }
+
+    private DataIterator<MaterialRecord> getIteratorByTypeAndIds(MaterialType materialType,
+            Collection<Long> materialIds)
+    {
+        return query.getMaterialsForMaterialTypeWithIds(databaseInstanceId, materialType.getId(),
+                new LongOpenHashSet(materialIds));
     }
 
     //
@@ -159,7 +183,7 @@ public class MaterialLister implements IMaterialLister
         material.setRegistrator(getOrCreateRegistrator(record));
         material.setRegistrationDate(record.registration_timestamp);
         material.setModificationDate(record.modification_timestamp);
-        
+
         material.setProperties(new ArrayList<IEntityProperty>());
 
         return material;
@@ -207,30 +231,6 @@ public class MaterialLister implements IMaterialLister
                     return resultMap.get(id);
                 }
             });
-    }
-
-    private static Long2ObjectMap<Material> asMap(Iterable<Material> materials)
-    {
-        Long2ObjectMap<Material> map = new Long2ObjectOpenHashMap<Material>();
-        for (Material material : materials)
-        {
-            map.put(material.getId(), material);
-        }
-        return map;
-    }
-
-    public void enrichWithProperties(List<Material> materials)
-    {
-        setEmptyProperties(materials);
-        enrichWithProperties(asMap(materials));
-    }
-
-    private void setEmptyProperties(List<Material> materials)
-    {
-        for (Material material : materials)
-        {
-            material.setProperties(new ArrayList<IEntityProperty>());
-        }
     }
 
 }

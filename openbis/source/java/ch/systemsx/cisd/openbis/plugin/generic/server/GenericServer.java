@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
@@ -758,7 +759,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL).tryToFindEntityTypeByCode(
                         materialTypeCode);
         MaterialType materialType = MaterialTypeTranslator.translateSimple(entityTypePE);
-        List<Material> materials = commonServer.listMaterials(sessionToken, materialType, false);
+        List<Material> materials =
+                commonServer.listMaterials(sessionToken, new ListMaterialCriteria(materialType),
+                        false);
         return asCodeToMaterialMap(materials);
     }
 

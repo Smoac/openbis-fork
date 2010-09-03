@@ -17,16 +17,18 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -61,11 +63,44 @@ public class MaterialListerTest extends AbstractDAOTest
     }
 
     @Test
-    public void testListByMaterialTypeId()
+    public void testListByMaterialTypeWithProperties()
     {
         MaterialType materialType = createMaterialType();
-        List<Material> materials = lister.list(materialType, true);
+        boolean withProperties = true;
+        List<Material> materials =
+                lister.list(new ListMaterialCriteria(materialType), withProperties);
         assertEqualsOrGreater(4, materials.size());
+        assertMaterialsProperlyFetched(materials, materialType, withProperties == false);
+
+    }
+
+    @Test
+    public void testListByMaterialTypeWithoutProperties()
+    {
+        MaterialType materialType = createMaterialType();
+        boolean withProperties = false;
+        List<Material> materials =
+                lister.list(new ListMaterialCriteria(materialType), withProperties);
+        assertEqualsOrGreater(4, materials.size());
+        assertMaterialsProperlyFetched(materials, materialType, withProperties == false);
+    }
+
+    @Test
+    public void testListByMaterialTypeAndMaterialIds()
+    {
+        MaterialType materialType = createMaterialType();
+        Collection<Long> materialIds = Arrays.asList(new Long[]
+            { 22L, 34L });
+        boolean withProperties = true;
+        List<Material> materials =
+                lister.list(new ListMaterialCriteria(materialType, materialIds), withProperties);
+        assertEqualsOrGreater(2, materials.size());
+        assertMaterialsProperlyFetched(materials, materialType, withProperties == false);
+    }
+
+    private void assertMaterialsProperlyFetched(List<Material> materials,
+            MaterialType expectedType, boolean emptyProperties)
+    {
         for (Material material : materials)
         {
             assertNotNull(material.getId());
@@ -74,8 +109,8 @@ public class MaterialListerTest extends AbstractDAOTest
             assertNotNull(material.getRegistrationDate());
             assertNotNull(material.getModificationDate());
             assertEquals(databaseInstance, material.getDatabaseInstance());
-            assertEquals(materialType, material.getMaterialType());
-            assertFalse(material.getProperties().isEmpty());
+            assertEquals(expectedType, material.getMaterialType());
+            assertEquals(emptyProperties, material.getProperties().isEmpty());
         }
     }
 

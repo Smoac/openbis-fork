@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -1209,17 +1210,18 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final MaterialType materialType =
                 MaterialTypeTranslator.translate(CommonTestUtils.createMaterialType(), null);
+        final ListMaterialCriteria criteria = new ListMaterialCriteria(materialType);
         context.checking(new Expectations()
             {
                 {
                     one(commonBusinessObjectFactory).createMaterialLister(SESSION);
                     will(returnValue(materialLister));
 
-                    one(materialLister).list(materialType, true);
+                    one(materialLister).list(criteria, true);
                     will(returnValue(new ArrayList<MaterialTypePE>()));
                 }
             });
-        createServer().listMaterials(SESSION_TOKEN, materialType, true);
+        createServer().listMaterials(SESSION_TOKEN, criteria, true);
         context.assertIsSatisfied();
     }
 

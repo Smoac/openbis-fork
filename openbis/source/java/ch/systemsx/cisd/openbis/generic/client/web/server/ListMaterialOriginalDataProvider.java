@@ -46,7 +46,7 @@ final class ListMaterialOriginalDataProvider extends AbstractOriginalDataProvide
     public final List<Material> getOriginalData()
     {
         final List<Material> materials =
-                commonServer.listMaterials(sessionToken, listCriteria.getMaterialType(), true);
+                commonServer.listMaterials(sessionToken, listCriteria, true);
         return materials;
     }
 }

@@ -25,6 +25,7 @@ import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -443,6 +444,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "list_materials", "TYPE(%s) withProperties(%s)", materialType,
                 withProperties);
+        return null;
+    }
+
+    public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
+            boolean withProperties)
+    {
+        logAccess(sessionToken, "list_materials", "TYPE(%s) IDS(%s) withProperties(%s)", criteria
+                .getMaterialType(), criteria.getMaterialIdsOrNull() == null ? "-"
+                : abbreviate(criteria.getMaterialIdsOrNull()), withProperties);
         return null;
     }
 

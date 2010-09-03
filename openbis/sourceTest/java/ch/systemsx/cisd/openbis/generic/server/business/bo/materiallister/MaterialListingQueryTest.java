@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityL
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findExactlyOneProperty;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findProperties;
 import static org.testng.AssertJUnit.assertEquals;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
@@ -145,7 +146,7 @@ public class MaterialListingQueryTest extends AbstractDAOTest
     }
 
     @Test
-    public void testMaterials()
+    public void testListMaterialsByType()
     {
         Iterable<MaterialRecord> materials =
                 query.getMaterialsForMaterialType(dbInstanceId, BACTERIUM_MATERIAL_TYPE);
@@ -163,4 +164,24 @@ public class MaterialListingQueryTest extends AbstractDAOTest
         assertEquals(0, remainingBacteriumCodes.size());
     }
 
+    public void testListMaterialsByTypeAndId()
+    {
+        LongSet materialIds = new LongOpenHashSet(new long[]
+            { 34L, 22L });
+        Iterable<MaterialRecord> materials =
+                query.getMaterialsForMaterialTypeWithIds(dbInstanceId, BACTERIUM_MATERIAL_TYPE,
+                        materialIds);
+        Set<String> remainingBacteriumCodes = new HashSet<String>(Arrays.asList(new String[]
+            { "BACTERIUM-X", "BACTERIUM1" }));
+        for (MaterialRecord materialRecord : materials)
+        {
+            assertEquals(dbInstanceId, materialRecord.dbin_id);
+            assertEquals(BACTERIUM_MATERIAL_TYPE, materialRecord.maty_id);
+            if (false == remainingBacteriumCodes.remove(materialRecord.code))
+            {
+                AssertJUnit.fail("Unexpected material code: '" + materialRecord.code + "'");
+            }
+        }
+        assertEquals(0, remainingBacteriumCodes.size());
+    }
 }

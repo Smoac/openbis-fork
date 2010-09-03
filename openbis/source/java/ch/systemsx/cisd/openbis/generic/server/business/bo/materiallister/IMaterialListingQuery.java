@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
+import net.lemnik.eodsql.TypeMapper;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -51,6 +52,17 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
             + "  order by m.code", fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialType(long dbInstanceId,
             long materialTypeId);
+
+    /**
+     * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
+     */
+    @Select(sql = "select m.id, m.code, m.dbin_id, m.maty_id, "
+            + "           m.registration_timestamp, m.modification_timestamp, m.pers_id_registerer "
+            + "      from materials m where m.dbin_id=?{1} and m.maty_id=?{2} and m.id = any(?{3})"
+            + "  order by m.code", parameterBindings =
+        { TypeMapper.class/* default */, TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialRecord> getMaterialsForMaterialTypeWithIds(long dbInstanceId,
+            long materialTypeId, LongSet materialIds);
 
     //
     // Entity Properties
