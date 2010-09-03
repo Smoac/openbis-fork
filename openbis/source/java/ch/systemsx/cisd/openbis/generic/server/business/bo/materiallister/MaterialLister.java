@@ -233,4 +233,28 @@ public class MaterialLister implements IMaterialLister
             });
     }
 
+    private static Long2ObjectMap<Material> asMap(Iterable<Material> materials)
+    {
+        Long2ObjectMap<Material> map = new Long2ObjectOpenHashMap<Material>();
+        for (Material material : materials)
+        {
+            map.put(material.getId(), material);
+        }
+        return map;
+    }
+
+    public void enrichWithProperties(List<Material> materials)
+    {
+        setEmptyProperties(materials);
+        enrichWithProperties(asMap(materials));
+    }
+
+    private void setEmptyProperties(List<Material> materials)
+    {
+        for (Material material : materials)
+        {
+            material.setProperties(new ArrayList<IEntityProperty>());
+        }
+    }
+
 }

@@ -28,6 +28,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
  */
 public interface IMaterialLister
 {
+    /** fetches and sets all properties of specified materials */
+    void enrichWithProperties(List<Material> materials);
+
     /**
      * Returns a sorted list of {@link Material}s matching given criteria.
      * 
