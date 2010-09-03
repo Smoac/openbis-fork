@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -30,13 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
  */
 final class ListMaterialOriginalDataProvider extends AbstractOriginalDataProvider<Material>
 {
-    private final ListMaterialCriteria listCriteria;
+    private final ListMaterialDisplayCriteria displayCriteria;
 
     ListMaterialOriginalDataProvider(final ICommonServer commonServer, final String sessionToken,
-            final ListMaterialCriteria listCriteria)
+            final ListMaterialDisplayCriteria listCriteria)
     {
         super(commonServer, sessionToken);
-        this.listCriteria = listCriteria;
+        this.displayCriteria = listCriteria;
     }
 
     //
@@ -46,7 +46,7 @@ final class ListMaterialOriginalDataProvider extends AbstractOriginalDataProvide
     public final List<Material> getOriginalData()
     {
         final List<Material> materials =
-                commonServer.listMaterials(sessionToken, listCriteria, true);
+                commonServer.listMaterials(sessionToken, displayCriteria.getListCriteria(), true);
         return materials;
     }
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -39,9 +40,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar.BasicMaterialCriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar.FilterByIdMaterialCriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar.IMaterialCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -59,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  */
 public class MaterialBrowserGrid extends
-        AbstractEntityBrowserGrid<Material, BaseEntityModel<Material>, ListMaterialCriteria>
+        AbstractEntityBrowserGrid<Material, BaseEntityModel<Material>, ListMaterialDisplayCriteria>
 {
     private static final String PREFIX = "material-browser";
 
@@ -77,17 +81,38 @@ public class MaterialBrowserGrid extends
         return createWithTypeChooser(viewContext, true);
     }
 
-    private static DisposableEntityChooser<Material> createWithTypeChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable)
+    /**
+     * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
+     * edit material details. Only materials with given ids will be shown.
+     */
+    public static DisposableEntityChooser<Material> createWithTypeChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final Collection<Long> allowedMaterialIdsOrNull)
     {
-        final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext, null);
-        final ICriteriaProvider<ListMaterialCriteria> criteriaProvider = toolbar;
+        return createWithTypeChooser(viewContext, true, allowedMaterialIdsOrNull);
+    }
+
+    private static DisposableEntityChooser<Material> createWithTypeChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable,
+            final Collection<Long> allowedMaterialIdsOrNull)
+    {
+        IMaterialCriteriaProvider materialCriteriaProvider =
+                allowedMaterialIdsOrNull == null ? new BasicMaterialCriteriaProvider()
+                        : new FilterByIdMaterialCriteriaProvider(allowedMaterialIdsOrNull);
+        final MaterialBrowserToolbar toolbar =
+                new MaterialBrowserToolbar(viewContext, null, materialCriteriaProvider);
+        final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider = toolbar;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar(detailsAvailable);
         return browserGrid.asDisposableWithToolbar(toolbar);
+    }
 
+    private static DisposableEntityChooser<Material> createWithTypeChooser(
+            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable)
+    {
+        return createWithTypeChooser(viewContext, detailsAvailable, null);
     }
 
     /**
@@ -111,8 +136,9 @@ public class MaterialBrowserGrid extends
     private static DisposableEntityChooser<Material> createWithoutTypeChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final MaterialType initValue)
     {
-        final ICriteriaProvider<ListMaterialCriteria> criteriaProvider =
-                createUnrefreshableCriteriaProvider(new ListMaterialCriteria(initValue));
+        final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider =
+                createUnrefreshableCriteriaProvider(ListMaterialDisplayCriteria
+                        .createForMaterialType(initValue));
         boolean detailsAvailable = false;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
@@ -121,7 +147,8 @@ public class MaterialBrowserGrid extends
 
     private static MaterialBrowserGrid createBrowserGrid(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ICriteriaProvider<ListMaterialCriteria> criteriaProvider, boolean detailsAvailable)
+            final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider,
+            boolean detailsAvailable)
     {
         if (detailsAvailable)
         {
@@ -141,10 +168,11 @@ public class MaterialBrowserGrid extends
 
     }
 
-    private final ICriteriaProvider<ListMaterialCriteria> criteriaProvider;
+    private final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider;
 
     private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            boolean refreshAutomatically, ICriteriaProvider<ListMaterialCriteria> criteriaProvider)
+            boolean refreshAutomatically,
+            ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider)
     {
         super(viewContext, GRID_ID, refreshAutomatically,
                 DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
@@ -153,7 +181,7 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected ICriteriaProvider<ListMaterialCriteria> getCriteriaProvider()
+    protected ICriteriaProvider<ListMaterialDisplayCriteria> getCriteriaProvider()
     {
         return criteriaProvider;
     }
@@ -221,7 +249,8 @@ public class MaterialBrowserGrid extends
     protected ColumnDefsAndConfigs<Material> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<Material> schema =
-                getColumnsFactory().createColumnsSchema(viewContext, criteria.getMaterialType());
+                getColumnsFactory().createColumnsSchema(viewContext,
+                        criteria.getListCriteria().getMaterialType());
         schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(), LinkRenderer
                 .createLinkRenderer());
         return schema;
@@ -242,14 +271,15 @@ public class MaterialBrowserGrid extends
     @Override
     protected EntityType tryToGetEntityType()
     {
-        return criteria == null ? null : criteria.getMaterialType();
+        return criteria == null ? null : criteria.getListCriteria().getMaterialType();
     }
 
     @Override
-    protected boolean hasColumnsDefinitionChanged(ListMaterialCriteria newCriteria)
+    protected boolean hasColumnsDefinitionChanged(ListMaterialDisplayCriteria newCriteria)
     {
-        EntityType newEntityType = newCriteria.getMaterialType();
-        EntityType prevEntityType = (criteria == null ? null : criteria.getMaterialType());
+        EntityType newEntityType = newCriteria.getListCriteria().getMaterialType();
+        EntityType prevEntityType =
+                (criteria == null ? null : criteria.getListCriteria().getMaterialType());
         return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
     }
 
@@ -305,4 +335,5 @@ public class MaterialBrowserGrid extends
                 }
             };
     }
+
 }

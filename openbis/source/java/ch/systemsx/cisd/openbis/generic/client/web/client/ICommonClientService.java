@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
@@ -216,7 +216,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of materials.
      */
-    public ResultSet<Material> listMaterials(final ListMaterialCriteria criteria)
+    public ResultSet<Material> listMaterials(final ListMaterialDisplayCriteria criteria)
             throws UserFailureException;
 
     /**

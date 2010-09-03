@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
@@ -444,9 +444,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listMaterialTypes(AsyncCallback<List<MaterialType>> callback);
 
     /**
-     * @see ICommonClientService#listMaterials(ListMaterialCriteria)
+     * @see ICommonClientService#listMaterials(ListMaterialDisplayCriteria)
      */
-    public void listMaterials(ListMaterialCriteria criteria,
+    public void listMaterials(ListMaterialDisplayCriteria criteria,
             AsyncCallback<ResultSet<Material>> callback);
 
     /** @see ICommonClientService#prepareExportMaterials(TableExportCriteria) */

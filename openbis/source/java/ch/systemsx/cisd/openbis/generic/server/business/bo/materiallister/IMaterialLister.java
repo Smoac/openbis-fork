@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 
 /**

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.materi
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.Collection;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mate
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -45,7 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMaterialCriteria>
+class MaterialBrowserToolbar extends ToolBar implements
+        ICriteriaProvider<ListMaterialDisplayCriteria>
 {
     public static final String ID = "material-browser-toolbar";
 
@@ -53,13 +55,16 @@ class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMa
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private final IMaterialCriteriaProvider materialCriteriaProvider;
+
     public MaterialBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
-            MaterialType initValueOrNull)
+            MaterialType initValueOrNull, IMaterialCriteriaProvider materialCriteriaProvider)
     {
         this.viewContext = viewContext;
         this.selectMaterialTypeCombo =
                 MaterialTypeSelectionWidget
                         .createWithInitialValue(viewContext, initValueOrNull, ID);
+        this.materialCriteriaProvider = materialCriteriaProvider;
         display();
     }
 
@@ -85,14 +90,14 @@ class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMa
         add(selectMaterialTypeCombo);
     }
 
-    public final ListMaterialCriteria tryGetCriteria()
+    public final ListMaterialDisplayCriteria tryGetCriteria()
     {
         final MaterialType selectedType = selectMaterialTypeCombo.tryGetSelectedMaterialType();
         if (selectedType == null)
         {
             return null;
         }
-        return new ListMaterialCriteria(selectedType);
+        return materialCriteriaProvider.getMaterialCriteria(selectedType);
     }
 
     @Override
@@ -121,6 +126,36 @@ class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMa
         } else
         {
             entityTypeRefreshCallback.postRefresh(true);
+        }
+    }
+
+    public interface IMaterialCriteriaProvider
+    {
+        public ListMaterialDisplayCriteria getMaterialCriteria(MaterialType type);
+    }
+
+    public static class BasicMaterialCriteriaProvider implements IMaterialCriteriaProvider
+    {
+
+        public ListMaterialDisplayCriteria getMaterialCriteria(MaterialType type)
+        {
+            return ListMaterialDisplayCriteria.createForMaterialType(type);
+        }
+    }
+
+    public static class FilterByIdMaterialCriteriaProvider implements IMaterialCriteriaProvider
+    {
+        private final Collection<Long> allowedMaterialIds;
+
+        public FilterByIdMaterialCriteriaProvider(Collection<Long> allowedMaterialIds)
+        {
+            this.allowedMaterialIds = allowedMaterialIds;
+        }
+
+        public ListMaterialDisplayCriteria getMaterialCriteria(MaterialType type)
+        {
+            return ListMaterialDisplayCriteria.createForMaterialTypeAndMaterialIds(type,
+                    allowedMaterialIds);
         }
     }
 

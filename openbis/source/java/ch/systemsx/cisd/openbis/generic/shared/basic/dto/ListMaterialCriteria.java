@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
  * Criteria for listing <i>materials</i>.
  * 
  * @author Izabela Adamczyk
  */
-public final class ListMaterialCriteria extends DefaultResultSetConfig<String, Material> implements
-        IsSerializable
+public final class ListMaterialCriteria implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private MaterialType materialType;
 
     private Collection<Long> materialIdsOrNull;
