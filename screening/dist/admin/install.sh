@@ -18,7 +18,7 @@ mkdir -p $BACKUP_DIR
 # screening-specific
 echo Restoring empty screening database
 USER=`whoami`
-psql -U postgres -c "create database $OPENBIS_DB with owner $USER template = template0 encoding = 'UNICODE'"
+psql -U $DB_USER_NAME -c "create database $OPENBIS_DB with owner $USER template = template0 encoding = 'UNICODE'"
 psql -U $USER -d $OPENBIS_DB -f $BASE/empty-screening-database.sql
 
 echo Installing openBIS Datastore Server

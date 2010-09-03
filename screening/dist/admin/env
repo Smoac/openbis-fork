@@ -1,9 +1,10 @@
 # name of the openbis core database
-OPENBIS_DB=openbis_screening_mylab_productive
+OPENBIS_DB=openbis_screening
 
 # screening-specific name of the imaging database
-IMAGING_DB=imaging_mylab_productive
+IMAGING_DB=imaging_productive
 
+# postgres user name with admin rights
 DB_USER_NAME=postgres
 
 # Unalias rm and cp commands
