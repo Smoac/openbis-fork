@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 
 /**
  * Describes the well and its location on the plate. Contains pointers to well and plate samples, a
@@ -37,7 +38,7 @@ public class WellContent implements IsSerializable
     private ExperimentReference experiment;
 
     // a pointer to a material which was being searched for inside a well
-    private EntityReference materialContent;
+    private Material materialContent;
 
     // contains only images for this well, null if no images have been acquired
     private DatasetImagesReference imagesOrNull;
@@ -49,7 +50,7 @@ public class WellContent implements IsSerializable
     }
 
     public WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
-            ExperimentReference experiment, EntityReference materialContent)
+            ExperimentReference experiment, Material materialContent)
     {
         this.locationOrNull = locationOrNull;
         this.well = well;
@@ -73,7 +74,7 @@ public class WellContent implements IsSerializable
         return plate;
     }
 
-    public EntityReference getMaterialContent()
+    public Material getMaterialContent()
     {
         return materialContent;
     }

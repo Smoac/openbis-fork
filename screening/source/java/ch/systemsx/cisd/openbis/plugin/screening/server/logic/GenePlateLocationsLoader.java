@@ -36,6 +36,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -44,7 +45,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -386,7 +389,20 @@ public class GenePlateLocationsLoader
             wellLocations.add(convert(location));
         }
         sortByMaterialName(wellLocations);
+        IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
+        List<Material> containedMaterials = getMaterials(wellLocations);
+        materialLister.enrichWithProperties(containedMaterials);
         return wellLocations;
+    }
+
+    private List<Material> getMaterials(List<WellContent> wellLocations)
+    {
+        List<Material> materials = new ArrayList<Material>();
+        for (WellContent wc : wellLocations)
+        {
+            materials.add(wc.getMaterialContent());
+        }
+        return materials;
     }
 
     private static void sortByMaterialName(List<? extends WellContent> wellLocations)
@@ -395,8 +411,8 @@ public class GenePlateLocationsLoader
             {
                 public int compare(WellContent o1, WellContent o2)
                 {
-                    EntityReference m1 = o1.getMaterialContent();
-                    EntityReference m2 = o2.getMaterialContent();
+                    Material m1 = o1.getMaterialContent();
+                    Material m2 = o2.getMaterialContent();
                     return m1.getCode().compareTo(m2.getCode());
                 }
             });
@@ -412,9 +428,12 @@ public class GenePlateLocationsLoader
         EntityReference plate =
                 new EntityReference(loc.plate_id, loc.plate_code, loc.plate_type_code,
                         EntityKind.SAMPLE, loc.plate_perm_id);
-        EntityReference materialContent =
-                new EntityReference(loc.material_content_id, loc.material_content_code,
-                        loc.material_content_type_code, EntityKind.MATERIAL, null);
+        Material materialContent = new Material();
+        materialContent.setCode(loc.material_content_code);
+        materialContent.setId(loc.material_content_id);
+        MaterialType type = new MaterialType();
+        type.setCode(loc.material_content_type_code);
+        materialContent.setMaterialType(type);
         return new WellContent(location, well, plate, convertExperiment(loc), materialContent);
     }
 

@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -54,6 +56,30 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             public String tryGetValue(WellContent entity)
             {
                 return entity.getMaterialContent().getEntityType().getCode();
+            }
+        }),
+
+    WELL_CONTENT_PROPERTIES(new AbstractColumnDefinitionKind<WellContent>(
+            Dict.WELL_CONTENT_PROPERTIES, true)
+        {
+            @Override
+            public String tryGetValue(WellContent entity)
+            {
+
+                Material material = entity.getMaterialContent();
+                String separator = " <br/> ";
+                StringBuilder sb = new StringBuilder();
+                for (IEntityProperty p : material.getProperties())
+                {
+                    if (sb.length() != 0)
+                    {
+                        sb.append(separator);
+                    }
+                    sb.append(p.getPropertyType().getCode());
+                    sb.append(": ");
+                    sb.append(p.tryGetAsString());
+                }
+                return sb.toString();
             }
         }),
 

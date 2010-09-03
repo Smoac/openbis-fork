@@ -56,8 +56,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
@@ -289,7 +289,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
-                            EntityReference contentMaterial = wellContent.getMaterialContent();
+                            Material contentMaterial = wellContent.getMaterialContent();
                             ExperimentReference experiment = wellContent.getExperiment();
                             ExperimentSearchCriteria experimentCriteria =
                                     ExperimentSearchCriteria.createExperiment(experiment.getId(),
@@ -353,6 +353,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
         ColumnDefsAndConfigs<WellContent> schema = super.createColumnsDefinition();
         setLinksRenderer(schema, new PlateMaterialReviewerColDefKind[]
             { PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
+                    PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
                     PlateMaterialReviewerColDefKind.PLATE, PlateMaterialReviewerColDefKind.WELL,
                     PlateMaterialReviewerColDefKind.DATASET });
         setImageRenderer(schema);

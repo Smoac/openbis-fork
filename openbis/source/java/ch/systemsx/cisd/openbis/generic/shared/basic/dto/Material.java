@@ -126,4 +126,11 @@ public class Material extends CodeWithRegistration<Material> implements
     {
         return getIdentifier();
     }
+
+    @Override
+    public String toString()
+    {
+        return getIdentifier();
+    }
+
 }
