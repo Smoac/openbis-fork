@@ -36,6 +36,8 @@ public class SampleRecord extends CodeRecord
 
     public Date registration_timestamp;
 
+    public Date modification_timestamp;
+
     public long pers_id_registerer;
 
     public Long inva_id;

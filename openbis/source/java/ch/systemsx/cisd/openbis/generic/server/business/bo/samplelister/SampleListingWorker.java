@@ -586,6 +586,7 @@ final class SampleListingWorker
             sample.setSearchlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
                     EntityKind.SAMPLE, row.code));
             sample.setRegistrationDate(row.registration_timestamp);
+            sample.setModificationDate(row.modification_timestamp);
             if (row.inva_id != null)
             {
                 final Invalidation invalidation = new Invalidation();

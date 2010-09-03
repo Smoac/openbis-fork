@@ -225,6 +225,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             assertEquals(msg, samplePE.getRegistrator().getId().longValue(),
                     sample.pers_id_registerer);
             assertEquals(msg, samplePE.getRegistrationDate(), sample.registration_timestamp);
+            assertEquals(msg, samplePE.getModificationDate(), sample.modification_timestamp);
             assertEquals(msg, samplePE.getSampleType().getId().longValue(), sample.saty_id);
             if (samplePE.getExperiment() == null)
             {
