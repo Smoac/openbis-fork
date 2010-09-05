@@ -16,9 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
@@ -28,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -44,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
+import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.GenePlateLocationsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
@@ -59,11 +67,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -236,6 +244,25 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return createScreeningApiImpl(sessionToken).listPlateMaterialMapping(plates,
                 materialTypeIdentifierOrNull);
+    }
+
+    public Collection<Long> listExperimentMaterials(String sessionToken, TechId experimentId)
+    {
+        // TODO 2010-09-01, Piotr Buczek: move it to some BO when we have more queries like that
+        IScreeningQuery dao = createDAO(getDAOFactory());
+        DataIterator<Long> iterator = dao.getMaterialsForExperimentWells(experimentId.getId());
+        Collection<Long> result = new ArrayList<Long>();
+        for (Long l : iterator)
+        {
+            result.add(l);
+        }
+        return result;
+    }
+
+    private static IScreeningQuery createDAO(IDAOFactory daoFactory)
+    {
+        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        return QueryTool.getQuery(connection, IScreeningQuery.class);
     }
 
     private ScreeningApiImpl createScreeningApiImpl(String sessionToken)

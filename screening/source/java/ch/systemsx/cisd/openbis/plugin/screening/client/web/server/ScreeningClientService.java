@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,13 +58,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -167,6 +168,25 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     public ResultSet<WellContent> listPlateWells(
+            DefaultResultSetConfig<String, WellContent> gridCriteria,
+            final PlateMaterialsSearchCriteria materialCriteria)
+    {
+        try
+        {
+            return listEntities(gridCriteria, new IOriginalDataProvider<WellContent>()
+                {
+                    public List<WellContent> getOriginalData() throws UserFailureException
+                    {
+                        return server.listPlateWells(getSessionToken(), materialCriteria);
+                    }
+                });
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ResultSet<WellContent> listExperimentMaterials(
             DefaultResultSetConfig<String, WellContent> gridCriteria,
             final PlateMaterialsSearchCriteria materialCriteria)
     {
@@ -289,5 +309,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
         final String sessionToken = getSessionToken();
         return server
                 .listImageChannelStacks(sessionToken, datasetCode, datastoreCode, wellLocation);
+    }
+
+    public Collection<Long> listExperimentMaterials(TechId experimentId)
+    {
+        final String sessionToken = getSessionToken();
+        return server.listExperimentMaterials(sessionToken, experimentId);
     }
 }

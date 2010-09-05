@@ -210,4 +210,27 @@ public interface IScreeningQuery extends BaseQuery
             + "         and pt.is_internal_namespace = true and space.code = ?{1} and pl.code = ?{2}")
     public PlateGeometryContainer tryGetPlateGeometry(String spaceCode, String plateCode);
 
+    /**
+     * Returns the ids of all materials used in specified experiment.
+     */
+    @Select(sql = "SELECT distinct well_material.id            "
+            + "      FROM samples pl                           "
+            + "      JOIN samples well ON well.samp_id_part_of = pl.id"
+            + "      JOIN sample_properties well_props ON well_props.samp_id = well.id"
+            + "      JOIN materials well_material ON well_material.id = well_props.mate_prop_id"
+            + "     WHERE pl.expe_id = ?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getMaterialsForExperimentWells(long experimentId);
+
+    /**
+     * Returns the ids of materials of specified type and used in specified experiment.
+     */
+    @Select(sql = "SELECT distinct well_material.id            "
+            + "      FROM samples pl                           "
+            + "      JOIN samples well ON well.samp_id_part_of = pl.id"
+            + "      JOIN sample_properties well_props ON well_props.samp_id = well.id"
+            + "      JOIN materials well_material ON well_material.id = well_props.mate_prop_id"
+            + "     WHERE pl.expe_id = ?{1}                   "
+            + "       AND well_material.maty_id = {2}", fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getMaterialsForExperimentWells(long experimentId, long materialTypeId);
+
 }
