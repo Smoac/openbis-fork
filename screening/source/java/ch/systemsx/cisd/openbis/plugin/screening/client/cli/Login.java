@@ -118,6 +118,7 @@ public class Login
             }
         }
 
+        @SuppressWarnings("unused")
         public List<String> getArgs()
         {
             return Collections.unmodifiableList(args);
