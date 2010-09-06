@@ -57,31 +57,32 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         super(sessionFactory, databaseInstance, ExperimentPE.class);
     }
 
-    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project)
+    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
             throws DataAccessException
     {
-        return listExperimentsWithProperties(null, project);
+        return listExperimentsWithProperties(null, projectOrNull);
     }
 
     public List<ExperimentPE> listExperimentsWithProperties(
-            final ExperimentTypePE experimentTypeOrNull, final ProjectPE project)
+            final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull)
             throws DataAccessException
     {
-        assert project != null : "Unspecified project.";
-
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         if (experimentTypeOrNull != null)
         {
             criteria.add(Restrictions.eq("experimentType", experimentTypeOrNull));
         }
-        criteria.add(Restrictions.eq("projectInternal", project));
+        if (projectOrNull != null)
+        {
+            criteria.add(Restrictions.eq("projectInternal", projectOrNull));
+        }
         criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
         criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d experiments have been found for project '%s'%s.",
-                    list.size(), project, (experimentTypeOrNull == null) ? ""
+                    list.size(), projectOrNull, (experimentTypeOrNull == null) ? ""
                             : " and experiment type '" + experimentTypeOrNull + "'"));
         }
         return list;

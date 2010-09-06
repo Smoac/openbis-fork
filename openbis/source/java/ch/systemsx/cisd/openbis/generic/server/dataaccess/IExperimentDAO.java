@@ -33,17 +33,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
 {
     /**
-     * Lists all belonging to given <code>project</code>. Fetches also properties.
+     * Lists experiments of the specified project. Fetches also properties.
+     * 
+     * @param projectOrNull If <code>null</code> all experiments are returned.
      */
-    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE project)
+    public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
             throws DataAccessException;
 
     /**
-     * Lists all of given <code>type</code> belonging to given <code>project</code>. Fetches also
-     * properties.
+     * Lists experiments of specified type and specified project. Fetches also properties.
+     * 
+     * @param projectOrNull If <code>null</code> all experiments of specified type are returned.
      */
     public List<ExperimentPE> listExperimentsWithProperties(final ExperimentTypePE experimentType,
-            final ProjectPE project) throws DataAccessException;
+            final ProjectPE projectOrNull) throws DataAccessException;
 
     /**
      * Lists all registered experiments. Doesn't fetch properties.
