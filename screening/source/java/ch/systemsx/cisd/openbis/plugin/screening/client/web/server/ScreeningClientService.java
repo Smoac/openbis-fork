@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -311,9 +312,22 @@ public final class ScreeningClientService extends AbstractClientService implemen
                 .listImageChannelStacks(sessionToken, datasetCode, datastoreCode, wellLocation);
     }
 
-    public Collection<Long> listExperimentMaterials(TechId experimentId)
+    public ResultSet<Material> listExperimentMaterials(final TechId experimentId,
+            final ListMaterialDisplayCriteria displayCriteria)
     {
-        final String sessionToken = getSessionToken();
-        return server.listExperimentMaterials(sessionToken, experimentId);
+        try
+        {
+            return listEntities(displayCriteria, new IOriginalDataProvider<Material>()
+                {
+                    public List<Material> getOriginalData() throws UserFailureException
+                    {
+                        return server.listExperimentMaterials(getSessionToken(), experimentId,
+                                displayCriteria.getListCriteria().getMaterialType());
+                    }
+                });
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 }

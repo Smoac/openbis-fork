@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -40,9 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar.BasicMaterialCriteriaProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar.FilterByIdMaterialCriteriaProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar.IMaterialCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -81,38 +77,16 @@ public class MaterialBrowserGrid extends
         return createWithTypeChooser(viewContext, true);
     }
 
-    /**
-     * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
-     * edit material details. Only materials with given ids will be shown.
-     */
-    public static DisposableEntityChooser<Material> createWithTypeChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
-            final Collection<Long> allowedMaterialIdsOrNull)
-    {
-        return createWithTypeChooser(viewContext, true, allowedMaterialIdsOrNull);
-    }
-
     private static DisposableEntityChooser<Material> createWithTypeChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable,
-            final Collection<Long> allowedMaterialIdsOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable)
     {
-        IMaterialCriteriaProvider materialCriteriaProvider =
-                allowedMaterialIdsOrNull == null ? new BasicMaterialCriteriaProvider()
-                        : new FilterByIdMaterialCriteriaProvider(allowedMaterialIdsOrNull);
-        final MaterialBrowserToolbar toolbar =
-                new MaterialBrowserToolbar(viewContext, null, materialCriteriaProvider);
+        final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext, null);
         final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider = toolbar;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar(detailsAvailable);
         return browserGrid.asDisposableWithToolbar(toolbar);
-    }
-
-    private static DisposableEntityChooser<Material> createWithTypeChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable)
-    {
-        return createWithTypeChooser(viewContext, detailsAvailable, null);
     }
 
     /**
@@ -168,9 +142,9 @@ public class MaterialBrowserGrid extends
 
     }
 
-    private final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider;
+    protected final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider;
 
-    private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+    protected MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             boolean refreshAutomatically,
             ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider)
     {
@@ -186,7 +160,7 @@ public class MaterialBrowserGrid extends
         return criteriaProvider;
     }
 
-    private void extendBottomToolbar(boolean detailsAvailable)
+    protected void extendBottomToolbar(boolean detailsAvailable)
     {
         if (detailsAvailable && viewContext.isSimpleMode() == false)
         {
@@ -225,7 +199,7 @@ public class MaterialBrowserGrid extends
         allowMultipleSelection(); // we allow deletion of multiple materials
     }
 
-    private void addGridRefreshListener(MaterialBrowserToolbar toolbar)
+    protected void addGridRefreshListener(MaterialBrowserToolbar toolbar)
     {
         toolbar.setCriteriaChangedListeners(createGridRefreshDelegatedAction());
     }

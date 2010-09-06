@@ -42,6 +42,9 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -246,17 +249,20 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialTypeIdentifierOrNull);
     }
 
-    public Collection<Long> listExperimentMaterials(String sessionToken, TechId experimentId)
+    public List<Material> listExperimentMaterials(String sessionToken, TechId experimentId,
+            MaterialType materialType)
     {
         // TODO 2010-09-01, Piotr Buczek: move it to some BO when we have more queries like that
         IScreeningQuery dao = createDAO(getDAOFactory());
-        DataIterator<Long> iterator = dao.getMaterialsForExperimentWells(experimentId.getId());
-        Collection<Long> result = new ArrayList<Long>();
-        for (Long l : iterator)
+        DataIterator<Long> materialIdsIterator =
+                dao.getMaterialsForExperimentWells(experimentId.getId(), materialType.getId());
+        Collection<Long> materialIds = new ArrayList<Long>();
+        for (Long id : materialIdsIterator)
         {
-            result.add(l);
+            materialIds.add(id);
         }
-        return result;
+        return commonServer.listMaterials(sessionToken, new ListMaterialCriteria(materialType,
+                materialIds), true);
     }
 
     private static IScreeningQuery createDAO(IDAOFactory daoFactory)
@@ -297,4 +303,5 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
+
 }

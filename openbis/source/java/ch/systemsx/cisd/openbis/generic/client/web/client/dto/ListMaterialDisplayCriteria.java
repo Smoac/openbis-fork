@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.Collection;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -34,22 +32,15 @@ public class ListMaterialDisplayCriteria extends DefaultResultSetConfig<String, 
 {
     public static ListMaterialDisplayCriteria createForMaterialType(final MaterialType materialType)
     {
-        return new ListMaterialDisplayCriteria(materialType, null);
-    }
-
-    public static ListMaterialDisplayCriteria createForMaterialTypeAndMaterialIds(
-            final MaterialType materialType, final Collection<Long> materialIds)
-    {
-        return new ListMaterialDisplayCriteria(materialType, materialIds);
+        return new ListMaterialDisplayCriteria(materialType);
     }
 
     private ListMaterialCriteria listCriteria;
 
-    private ListMaterialDisplayCriteria(final MaterialType materialType,
-            final Collection<Long> materialIdsOrNull)
+    private ListMaterialDisplayCriteria(final MaterialType materialType)
     {
         assert materialType != null : "material type not set";
-        this.listCriteria = new ListMaterialCriteria(materialType, materialIdsOrNull);
+        this.listCriteria = new ListMaterialCriteria(materialType);
     }
 
     public ListMaterialCriteria getListCriteria()

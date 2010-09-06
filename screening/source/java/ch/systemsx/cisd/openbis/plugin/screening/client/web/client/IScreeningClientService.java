@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
-import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
@@ -24,12 +23,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -76,11 +77,6 @@ public interface IScreeningClientService extends IClientService
     public PlateImages getPlateContentForDataset(TechId datasetId);
 
     /**
-     * @return ids of materials in experiment with specified id.
-     */
-    public Collection<Long> listExperimentMaterials(TechId experimentTechId);
-
-    /**
      * @return well locations which belong to a parent plate connected to a specified experiment(s)
      *         and have specified material(s) inside.
      */
@@ -102,6 +98,12 @@ public interface IScreeningClientService extends IClientService
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /**
+     * Lists {@link Material}s of specified type in experiment with specified id.
+     */
+    public ResultSet<Material> listExperimentMaterials(TechId experimentId,
+            ListMaterialDisplayCriteria criteria);
+
+    /**
      * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
      * GenericTableRow.
      */
@@ -121,4 +123,5 @@ public interface IScreeningClientService extends IClientService
      * Returns plate geometry vocabulary.
      */
     public Vocabulary getPlateGeometryVocabulary() throws UserFailureException;
+
 }

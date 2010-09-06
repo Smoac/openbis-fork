@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
-import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -25,11 +24,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -61,12 +62,6 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
 
     /** @see IScreeningClientService#getDataSetInfo(TechId) */
     public void getDataSetInfo(TechId datasetTechId, AsyncCallback<ExternalData> callback);
-
-    /**
-     * @see IScreeningClientService#listExperimentMaterials(TechId)
-     */
-    public void listExperimentMaterials(TechId experimentId,
-            AsyncCallback<Collection<Long>> callback);
 
     /**
      * @see IScreeningClientService#listPlateWells(DefaultResultSetConfig,
@@ -111,4 +106,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      * @see IScreeningClientService#getPlateGeometryVocabulary()
      */
     public void getPlateGeometryVocabulary(AsyncCallback<Vocabulary> callback);
+
+    /**
+     * @see IScreeningClientService#listExperimentMaterials(TechId, ListMaterialDisplayCriteria)
+     */
+    public void listExperimentMaterials(TechId experimentId, ListMaterialDisplayCriteria criteria,
+            AsyncCallback<ResultSet<Material>> callback);
 }
