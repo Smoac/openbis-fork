@@ -47,30 +47,30 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.PropertyKey;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
- * Implementation of {@link IRawDataService}.
+ * Implementation of {@link IProteomicsDataService}.
  * 
  * @author Franz-Josef Elmer
  */
-@Component(Constants.PHOSPHONETX_RAW_DATA_SERVICE)
-public class RawDataService extends AbstractServer<IRawDataService> implements IRawDataService
+@Component(Constants.PROTEOMICS_DATA_SERVICE)
+public class ProteomicsDataService extends AbstractServer<IProteomicsDataService> implements IProteomicsDataService
 {
-    @Resource(name = Constants.PHOSPHONETX_RAW_DATA_SERVICE_INTERNAL)
-    private IRawDataServiceInternal service;
+    @Resource(name = Constants.PROTEOMICS_DATA_SERVICE_INTERNAL)
+    private IProteomicsDataServiceInternal service;
 
-    public RawDataService()
+    public ProteomicsDataService()
     {
     }
 
-    public RawDataService(final ISessionManager<Session> sessionManager,
-            final IDAOFactory daoFactory, IRawDataServiceInternal service)
+    public ProteomicsDataService(final ISessionManager<Session> sessionManager,
+            final IDAOFactory daoFactory, IProteomicsDataServiceInternal service)
     {
         super(sessionManager, daoFactory);
         this.service = service;
@@ -82,9 +82,9 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         return session == null ? null : session.getSessionToken();
     }
 
-    public IRawDataService createLogger(IInvocationLoggerContext context)
+    public IProteomicsDataService createLogger(IInvocationLoggerContext context)
     {
-        return new RawDataServiceLogger(getSessionManager(), context);
+        return new ProteomicsDataServiceLogger(getSessionManager(), context);
     }
 
     public List<MsInjectionDataInfo> listRawDataSamples(String sessionToken, String userID)
@@ -131,19 +131,6 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         }
         info.setLatestDataSetRegistrationDates(latestDataSetRegistrationDates);
         return info;
-    }
-
-    private Map<PropertyKey, Serializable> translate(List<IEntityProperty> properties)
-    {
-        HashMap<PropertyKey, Serializable> map = new HashMap<PropertyKey, Serializable>();
-        for (IEntityProperty property : properties)
-        {
-            PropertyType propertyType = property.getPropertyType();
-            PropertyKey key = new PropertyKey(propertyType.getCode(), propertyType.getLabel());
-            DataTypeCode dataTypeCode = propertyType.getDataType().getCode();
-            map.put(key, DataTypeUtils.convertValueTo(dataTypeCode, property.tryGetAsString()));
-        }
-        return map;
     }
 
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
@@ -195,6 +182,67 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         }
     }
 
+    public List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> listSearchExperiments(
+            String sessionToken, String userID)
+    {
+        checkSession(sessionToken);
+        SessionContextDTO session = login(userID);
+        try
+        {
+            List<Experiment> experiments = service.listSearchExperiments(session.getSessionToken());
+            List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> result =
+                    new ArrayList<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment>();
+            for (Experiment experiment : experiments)
+            {
+                ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment e =
+                        new ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment();
+                e.setId(experiment.getId());
+                e.setCode(experiment.getCode());
+                e.setProjectCode(experiment.getProject().getCode());
+                e.setSpaceCode(experiment.getProject().getSpace().getCode());
+                e.setRegistrationDate(experiment.getRegistrationDate());
+                e.setProperties(translate(experiment.getProperties()));
+                result.add(e);
+            }
+            return result;
+        } finally
+        {
+            service.logout(session.getSessionToken());
+        }
+    }
+
+    public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
+            long[] searchExperimentIDs)
+    {
+        checkSession(sessionToken);
+        SessionContextDTO session = login(userID);
+        try
+        {
+            service.processSearchData(session.getSessionToken(), dataSetProcessingKey,
+                    searchExperimentIDs);
+        } finally
+        {
+            service.logout(session.getSessionToken());
+        }
+    }
+
+    private Map<PropertyKey, Serializable> translate(List<IEntityProperty> properties)
+    {
+        if (properties == null)
+        {
+            return null;
+        }
+        HashMap<PropertyKey, Serializable> map = new HashMap<PropertyKey, Serializable>();
+        for (IEntityProperty property : properties)
+        {
+            PropertyType propertyType = property.getPropertyType();
+            PropertyKey key = new PropertyKey(propertyType.getCode(), propertyType.getLabel());
+            DataTypeCode dataTypeCode = propertyType.getDataType().getCode();
+            map.put(key, DataTypeUtils.convertValueTo(dataTypeCode, property.tryGetAsString()));
+        }
+        return map;
+    }
+
     private SessionContextDTO login(String userID)
     {
         SessionContextDTO session = service.tryToAuthenticate(userID, "dummy-password");
@@ -212,7 +260,7 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
 
     public int getMinorVersion()
     {
-        return 1;
+        return 2;
     }
 
 }

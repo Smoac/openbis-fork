@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
@@ -43,22 +43,22 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjection
  *
  * @author Franz-Josef Elmer
  */
-public class RawDataApiFacadeTest extends AssertJUnit
+public class ProteomicsDataApiFacadeTest extends AssertJUnit
 {
     private static final String SESSION_TOKEN = "Session-42";
     
     private Mockery context;
-    private IRawDataService rawDataService;
+    private IProteomicsDataService proteomicsDataService;
     private IGeneralInformationService generalInfoService;
-    private IRawDataApiFacade facade;
+    private IProteomicsDataApiFacade facade;
 
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
-        rawDataService = context.mock(IRawDataService.class);
+        proteomicsDataService = context.mock(IProteomicsDataService.class);
         generalInfoService = context.mock(IGeneralInformationService.class);
-        facade = new RawDataApiFacade(rawDataService, generalInfoService, SESSION_TOKEN);
+        facade = new ProteomicsDataApiFacade(proteomicsDataService, generalInfoService, SESSION_TOKEN);
     }
     
     @AfterMethod
@@ -98,7 +98,7 @@ public class RawDataApiFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(rawDataService).listDataStoreServerProcessingPluginInfos(SESSION_TOKEN);
+                    one(proteomicsDataService).listDataStoreServerProcessingPluginInfos(SESSION_TOKEN);
                     will(returnValue(result));
                 }
             });
@@ -114,7 +114,7 @@ public class RawDataApiFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(rawDataService).listRawDataSamples(SESSION_TOKEN, "user1");
+                    one(proteomicsDataService).listRawDataSamples(SESSION_TOKEN, "user1");
                     will(returnValue(result));
                 }
             });
@@ -129,7 +129,7 @@ public class RawDataApiFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(rawDataService).processingRawData(SESSION_TOKEN, "user1", "key",
+                    one(proteomicsDataService).processingRawData(SESSION_TOKEN, "user1", "key",
                             new long[42], "type");
                 }
             });

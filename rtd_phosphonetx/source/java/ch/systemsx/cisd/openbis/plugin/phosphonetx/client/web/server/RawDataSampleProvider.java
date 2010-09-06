@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
@@ -52,11 +52,11 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
     @Private
     static final String CODE = "CODE";
 
-    private final IRawDataServiceInternal service;
+    private final IProteomicsDataServiceInternal service;
 
     private final String sessionToken;
 
-    RawDataSampleProvider(IRawDataServiceInternal service, String sessionToken)
+    RawDataSampleProvider(IProteomicsDataServiceInternal service, String sessionToken)
     {
         this.service = service;
         this.sessionToken = sessionToken;

@@ -21,8 +21,9 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
@@ -30,10 +31,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
  *
  * @author Franz-Josef Elmer
  */
-class RawDataServiceInternalLogger extends AbstractServerLogger implements IRawDataServiceInternal
+class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implements
+        IProteomicsDataServiceInternal
 {
 
-    RawDataServiceInternalLogger(ISessionManager<Session> sessionManager,
+    ProteomicsDataServiceInternalLogger(ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
     {
         super(sessionManager, context);
@@ -51,6 +53,19 @@ class RawDataServiceInternalLogger extends AbstractServerLogger implements IRawD
         int numberOfDataSets = rawDataSampleIDs == null ? 0 : rawDataSampleIDs.length;
         logAccess(sessionToken, "copy_raw_data", "NUMBER_OF_DATA_SETS(%s), DATA_SET_TYPE(%s)",
                 numberOfDataSets, dataSetType);
+    }
+
+    public List<Experiment> listSearchExperiments(String sessionToken)
+    {
+        logAccess(sessionToken, "list_search_experiments");
+        return null;
+    }
+
+    public void processSearchData(String sessionToken, String dataSetProcessingKey,
+            long[] searchExperimentIDs)
+    {
+        int numberOfDataSets = searchExperimentIDs == null ? 0 : searchExperimentIDs.length;
+        logAccess(sessionToken, "copy_search_data", "NUMBER_OF_DATA_SETS(%s)", numberOfDataSets);
     }
 
 }

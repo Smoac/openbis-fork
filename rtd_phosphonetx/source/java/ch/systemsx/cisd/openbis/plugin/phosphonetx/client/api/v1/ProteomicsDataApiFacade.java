@@ -25,8 +25,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
@@ -34,14 +35,14 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjection
  *
  * @author Franz-Josef Elmer
  */
-class RawDataApiFacade implements IRawDataApiFacade
+class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
 {
     private static final String USER_ROLE_SET = "SPACE_USER";
-    private final IRawDataService service;
+    private final IProteomicsDataService service;
     private final IGeneralInformationService generalInfoService;
     private final String sessionToken;
 
-    RawDataApiFacade(IRawDataService service, IGeneralInformationService generalInfoService, String sessionToken)
+    ProteomicsDataApiFacade(IProteomicsDataService service, IGeneralInformationService generalInfoService, String sessionToken)
     {
         this.service = service;
         this.generalInfoService = generalInfoService;
@@ -96,6 +97,17 @@ class RawDataApiFacade implements IRawDataApiFacade
             }
         }
         return projects;
+    }
+
+    public List<Experiment> listSearchExperiments(String userID)
+    {
+        return service.listSearchExperiments(sessionToken, userID);
+    }
+
+    public void processSearchData(String userID, String dataSetProcessingKey,
+            long[] searchExperimentIDs)
+    {
+        service.processSearchData(sessionToken, userID, dataSetProcessingKey, searchExperimentIDs);
     }
 
     public void logout()

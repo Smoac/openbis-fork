@@ -24,19 +24,20 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
- * Service for querying raw data.
  * 
+ *
  * @author Franz-Josef Elmer
  */
-public interface IRawDataService extends IRpcService
+public interface IProteomicsDataService extends IRpcService
 {
     /**
      * Name of this service for which it is registered at the RPC name server.
      */
-    public static final String SERVICE_NAME = "phosphonetx-raw-data";
+    public static final String SERVICE_NAME = "proteomics-data";
 
     /**
      * Service part of the URL to access this service remotely.
@@ -59,7 +60,7 @@ public interface IRawDataService extends IRpcService
 
     /**
      * Returns all samples of type MS_INJECTION in space MS_DATA which have a parent sample which
-     * the specified user is allow to read.
+     * the specified user is allowed to read.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
@@ -82,4 +83,23 @@ public interface IRawDataService extends IRpcService
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
+
+    /**
+     * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
+     * read.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<Experiment> listSearchExperiments(String sessionToken, String userID);
+    
+    /**
+     * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
+     * processing plug-in of specified key for the specified user. It will be checked if the
+     * experiments are of search experiments and if the user is allowed to read them.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
+            long[] searchExperimentIDs);
+
 }

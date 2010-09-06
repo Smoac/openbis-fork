@@ -22,14 +22,15 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
- * Example of usage of Raw Data API.
+ * Example of usage of Proteomics Data API.
  *
  * @author Franz-Josef Elmer
  */
-public class RawDataApiTest
+public class ProteomicsDataApiTest
 {
     public static void main(String[] args)
     {
@@ -43,7 +44,7 @@ public class RawDataApiTest
         String loginID = args[1];
         String password = args[2];
         String userID = args[3];
-        IRawDataApiFacade facade = FacadeFactory.create(serverURL, loginID, password);
+        IProteomicsDataApiFacade facade = FacadeFactory.create(serverURL, loginID, password);
         
         System.out.println("MS_INJECTION samples:");
         List<MsInjectionDataInfo> rawDataSamples = facade.listRawDataSamples(userID);
@@ -61,10 +62,15 @@ public class RawDataApiTest
         
         System.out.println("DSS processing plugins:");
         List<DataStoreServerProcessingPluginInfo> infos = facade.listDataStoreServerProcessingPluginInfos();
+        String dataSetProcessingKey = null;
         for (DataStoreServerProcessingPluginInfo info : infos)
         {
             System.out.println("   key:" + info.getKey() + ", label:'" + info.getLabel()
                     + "', data set types:" + info.getDatasetTypeCodes());
+            if (info.getDatasetTypeCodes().contains("PROT_RESULT"))
+            {
+                dataSetProcessingKey = info.getKey();
+            }
         }
         
         System.out.println("Projects:");
@@ -73,6 +79,25 @@ public class RawDataApiTest
         {
             System.out.println(project);
         }
+        
+        System.out.println("Search Experiments:");
+        List<Experiment> experiments = facade.listSearchExperiments(userID);
+        long[] ids = new long[experiments.size()];
+        for (int i = 0; i < experiments.size(); i++)
+        {
+            Experiment experiment = experiments.get(i);
+            System.out.println(experiment.getSpaceCode() + "/" + experiment.getProjectCode() + "/"
+                    + experiment.getCode() + " [" + experiment.getId() + ", "
+                    + experiment.getRegistrationDate() + "] " + experiment.getProperties());
+            ids[i] = experiment.getId();
+        }
+        
+        if (dataSetProcessingKey != null)
+        {
+            System.out.println("Process search data of " + ids.length + " experiments");
+            facade.processSearchData(userID, dataSetProcessingKey , ids);
+        }
+        
         facade.logout();
     }
 }

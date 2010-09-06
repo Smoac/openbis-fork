@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
@@ -32,7 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
  *
  * @author Franz-Josef Elmer
  */
-public interface IRawDataServiceInternal extends IServer
+public interface IProteomicsDataServiceInternal extends IServer
 {
     /**
      * Returns all samples of type MS_INJECTION in group MS_DATA which have a parent sample which
@@ -47,4 +49,15 @@ public interface IRawDataServiceInternal extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
+    
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @ReturnValueFilter(validatorClass = ExperimentValidator.class)
+    public List<Experiment> listSearchExperiments(String sessionToken);
+    
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void processSearchData(String sessionToken, String dataSetProcessingKey,
+            long[] searchExperimentIDs);
+    
 }

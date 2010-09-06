@@ -20,16 +20,16 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 
 /**
- * Facade for openBIS PhosphoNetX raw data (aka MS_INJECTION data) service. 
+ * Facade for openBIS proteomics data service. 
  *
  * @author Franz-Josef Elmer
  */
-@Deprecated
-public interface IRawDataApiFacade
+public interface IProteomicsDataApiFacade extends IRawDataApiFacade
 {
     /**
      * Return the session token for the logged-in user.
@@ -58,6 +58,20 @@ public interface IRawDataApiFacade
      * Returns all projects where the specified user has USER access rights.
      */
     public List<Project> listProjects(String userID);
+    
+    /**
+     * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
+     * read.
+     */
+    public List<Experiment> listSearchExperiments(String userID);
+    
+    /**
+     * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
+     * processing plug-in of specified key for the specified user. It will be checked if the
+     * experiments are of search experiments and if the user has USER access rights.
+     */
+    public void processSearchData(String userID, String dataSetProcessingKey,
+            long[] searchExperimentIDs);
 
     /**
      * Logs current user out.

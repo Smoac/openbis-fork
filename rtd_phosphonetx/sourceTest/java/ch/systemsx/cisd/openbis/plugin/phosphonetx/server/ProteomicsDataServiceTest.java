@@ -43,9 +43,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.RawDataService;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.ProteomicsDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.PropertyKey;
@@ -56,13 +56,13 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
  *
  * @author Franz-Josef Elmer
  */
-public class RawDataServiceTest extends AbstractServerTestCase
+public class ProteomicsDataServiceTest extends AbstractServerTestCase
 {
     private static final String RAW_DATA = "RAW_DATA";
     private static final String MZXML_DATA = "MZXML_DATA";
     
-    private IRawDataServiceInternal internalService;
-    private IRawDataService service;
+    private IProteomicsDataServiceInternal internalService;
+    private IProteomicsDataService service;
     private SessionContextDTO session2;
 
     @Override
@@ -70,8 +70,8 @@ public class RawDataServiceTest extends AbstractServerTestCase
     public final void setUp()
     {
         super.setUp();
-        internalService = context.mock(IRawDataServiceInternal.class);
-        service = new RawDataService(sessionManager, daoFactory, internalService);
+        internalService = context.mock(IProteomicsDataServiceInternal.class);
+        service = new ProteomicsDataService(sessionManager, daoFactory, internalService);
         session2 = new SessionContextDTO();
         session2.setSessionToken(SESSION_TOKEN + "2");
     }

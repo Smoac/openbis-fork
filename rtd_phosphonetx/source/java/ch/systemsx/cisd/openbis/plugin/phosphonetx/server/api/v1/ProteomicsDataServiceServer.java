@@ -22,26 +22,26 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.common.api.server.AbstractApiServiceExporter;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 
 /**
- * Server wrapping {@link IRawDataService}.
+ * Server wrapping {@link IProteomicsDataService}.
  * 
  * @author Franz-Josef Elmer
  */
 @Controller
 @RequestMapping(
-    { IRawDataService.SERVER_URL, "/openbis" + IRawDataService.SERVER_URL })
-public class RawDataServiceServer extends AbstractApiServiceExporter
+    { IProteomicsDataService.SERVER_URL, "/openbis" + IProteomicsDataService.SERVER_URL })
+public class ProteomicsDataServiceServer extends AbstractApiServiceExporter
 {
-    @Resource(name = Constants.PHOSPHONETX_RAW_DATA_SERVICE)
-    private IRawDataService service;
+    @Resource(name = Constants.PROTEOMICS_DATA_SERVICE)
+    private IProteomicsDataService service;
 
     @Override
     public void afterPropertiesSet()
     {
-        establishService(IRawDataService.class, service, IRawDataService.SERVICE_NAME,
-                IRawDataService.SERVER_URL);
+        establishService(IProteomicsDataService.class, service, IProteomicsDataService.SERVICE_NAME,
+                IProteomicsDataService.SERVER_URL);
         super.afterPropertiesSet();
     }
 }

@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.SPACE_CODE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.SPACE_CODE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,18 +49,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = RawDataServiceInternal.class)
-public class RawDataServiceInternalTest extends AbstractServerTestCase
+@Friend(toClasses = ProteomicsDataServiceInternal.class)
+public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 {
     private static final String COPY_PROCESSING_KEY = "copy-data-sets";
 
-    private IRawDataServiceInternal service;
+    private IProteomicsDataServiceInternal service;
 
     private ICommonBusinessObjectFactory boFactory;
 
@@ -70,7 +70,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
     {
         super.setUp();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
-        service = new RawDataServiceInternal(sessionManager, daoFactory, boFactory);
+        service = new ProteomicsDataServiceInternal(sessionManager, daoFactory, boFactory);
     }
 
     @Test

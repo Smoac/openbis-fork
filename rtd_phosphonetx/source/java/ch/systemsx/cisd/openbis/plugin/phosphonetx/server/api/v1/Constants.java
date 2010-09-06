@@ -24,7 +24,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
 public class Constants
 {
     // Spring bean IDs
-    public final static String PHOSPHONETX_RAW_DATA_SERVICE = "phosphonetx-raw-data-service";
-    public final static String PHOSPHONETX_RAW_DATA_SERVICE_INTERNAL = "phosphonetx-raw-data-service-internal";
+    public final static String PROTEOMICS_DATA_SERVICE = "proteomics-data-service";
+    public final static String PROTEOMICS_DATA_SERVICE_INTERNAL = "proteomics-data-service-internal";
 
 }

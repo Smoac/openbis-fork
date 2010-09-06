@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityPrope
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 @Friend(toClasses=RawDataSampleProvider.class)
 public class RawDataSampleProviderTest extends AbstractServerTestCase
 {
-    private IRawDataServiceInternal service;
+    private IProteomicsDataServiceInternal service;
     private RawDataSampleProvider provider;
     
     @Override
@@ -58,7 +58,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     public final void setUp()
     {
         super.setUp();
-        service = context.mock(IRawDataServiceInternal.class);
+        service = context.mock(IProteomicsDataServiceInternal.class);
         provider = new RawDataSampleProvider(service, SESSION_TOKEN);
     }
     

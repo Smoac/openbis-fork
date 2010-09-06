@@ -18,17 +18,17 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1;
 
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 
 /**
- * Factory of {@link IRawDataApiFacade}.
+ * Factory of {@link IProteomicsDataApiFacade}.
  * 
  * @author Franz-Josef Elmer
  */
 public class FacadeFactory
 {
     private static final ServiceFinder SERVICE_FINDER =
-            new ServiceFinder("openbis", IRawDataService.SERVER_URL);
+            new ServiceFinder("openbis", IProteomicsDataService.SERVER_URL);
 
     private static final ServiceFinder GENERIC_INFO_SERVICE_FINDER =
             new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
@@ -36,31 +36,31 @@ public class FacadeFactory
     /**
      * Creates a facade for specified server URL, user Id, and password.
      */
-    public static IRawDataApiFacade create(String serverURL, String userID, String password)
+    public static IProteomicsDataApiFacade create(String serverURL, String userID, String password)
     {
         IGeneralInformationService infoService = createGenericInfoService(serverURL);
-        IRawDataService service = createService(serverURL);
+        IProteomicsDataService service = createService(serverURL);
         String sessionToken = infoService.tryToAuthenticateForAllServices(userID, password);
         if (sessionToken == null)
         {
             throw new IllegalArgumentException("User " + userID + " couldn't be authenticated");
         }
-        return new RawDataApiFacade(service, infoService, sessionToken);
+        return new ProteomicsDataApiFacade(service, infoService, sessionToken);
     }
 
     /**
      * Creates a facade for specified url and sessionToken.
      */
-    public static IRawDataApiFacade create(String serverURL, String sessionToken)
+    public static IProteomicsDataApiFacade create(String serverURL, String sessionToken)
     {
-        IRawDataService service = createService(serverURL);
+        IProteomicsDataService service = createService(serverURL);
         IGeneralInformationService infoService = createGenericInfoService(serverURL);
-        return new RawDataApiFacade(service, infoService, sessionToken);
+        return new ProteomicsDataApiFacade(service, infoService, sessionToken);
     }
 
-    private static IRawDataService createService(String serverURL)
+    private static IProteomicsDataService createService(String serverURL)
     {
-        return SERVICE_FINDER.createService(IRawDataService.class, serverURL);
+        return SERVICE_FINDER.createService(IProteomicsDataService.class, serverURL);
     }
 
     private static IGeneralInformationService createGenericInfoService(String serverURL)

@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
@@ -65,7 +65,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     private IPhosphoNetXServer server;
     
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
-    private IRawDataServiceInternal rawDataService;
+    private IProteomicsDataServiceInternal proteomicsDataService;
 
     public PhosphoNetXClientService()
     {
@@ -224,7 +224,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        RawDataSampleProvider rawDataSampleProvider = new RawDataSampleProvider(rawDataService, sessionToken);
+        RawDataSampleProvider rawDataSampleProvider = new RawDataSampleProvider(proteomicsDataService, sessionToken);
         ResultSet<GenericTableRow> resultSet = listEntities(criteria, rawDataSampleProvider);
         return new GenericTableResultSet(resultSet, rawDataSampleProvider.getHeaders());
     }
@@ -238,7 +238,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs, String dataSetType)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        rawDataService.processRawData(getSessionToken(), dataSetProcessingKey, rawDataSampleIDs, dataSetType);
+        proteomicsDataService.processRawData(getSessionToken(), dataSetProcessingKey, rawDataSampleIDs, dataSetType);
     }
     
 }

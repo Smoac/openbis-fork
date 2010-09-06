@@ -41,31 +41,11 @@
     </bean>      
     
     <!-- 
-        // Raw Data Server 
+        // Proteomics Data Server 
     -->
     
-    <!--bean id="phosphonetx-raw-data-service" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="proxyInterfaces">
-            <list>
-                <value>ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService</value>
-            </list>
-        </property>
-        <property name="target">
-            <bean class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.RawDataService">
-                <constructor-arg ref="session-manager" />
-                <constructor-arg ref="dao-factory" />
-                <constructor-arg ref="phosphonetx-raw-data-service-internal" />
-            </bean>
-        </property>
-        <property name="interceptorNames">
-            <list>
-                <value>exception-translator</value>
-            </list>
-        </property>
-    </bean-->
-    
-    <bean id="phosphonetx-raw-data-service-internal" 
-          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal" 
+    <bean id="proteomics-data-service-internal" 
+          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal" 
           init-method="replaceAutoWiredSesseionManagerByConstructorSessionManager">
         <constructor-arg>
             <bean class="ch.systemsx.cisd.authentication.DefaultSessionManager">
@@ -88,8 +68,8 @@
         <constructor-arg ref="common-business-object-factory" />
     </bean>
     
-    <bean id="phosphonetx-raw-data-service-web" 
-          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal">
+    <bean id="proteomics-data-service-web" 
+          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal">
         <constructor-arg ref="session-manager" />
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="common-business-object-factory" />

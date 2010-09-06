@@ -22,17 +22,18 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
  * @author Franz-Josef Elmer
  */
-class RawDataServiceLogger extends AbstractServerLogger implements IRawDataService
+class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProteomicsDataService
 {
 
-    RawDataServiceLogger(ISessionManager<Session> sessionManager, IInvocationLoggerContext context)
+    ProteomicsDataServiceLogger(ISessionManager<Session> sessionManager, IInvocationLoggerContext context)
     {
         super(sessionManager, context);
     }
@@ -62,6 +63,19 @@ class RawDataServiceLogger extends AbstractServerLogger implements IRawDataServi
         logAccess(sessionToken, "copy_raw_data",
                 "USER_ID(%s) DSS_PROCESSING_PLUGIN(%s) NUMBER_OF_DATA_SETS(%s) DATA_SET_TYPE(%s)",
                 userID, dataSetProcessingKey, numberOfDataSets, dataSetType);
+    }
+
+    public List<Experiment> listSearchExperiments(String sessionToken, String userID)
+    {
+        logAccess(sessionToken, "list_search_experiments");
+        return null;
+    }
+
+    public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
+            long[] searchExperimentIDs)
+    {
+        int numberOfDataSets = searchExperimentIDs == null ? 0 : searchExperimentIDs.length;
+        logAccess(sessionToken, "copy_search_data", "NUMBER_OF_DATA_SETS(%s)", numberOfDataSets);
     }
 
     public int getMajorVersion()

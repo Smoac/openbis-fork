@@ -31,7 +31,7 @@ public class ResourceNames
 
     public final static String PHOSPHONETX_PLUGIN_SERVER = "phosphonetx-plugin-server";
     
-    public final static String PHOSPHONETX_RAW_DATA_SERVICE_WEB = "phosphonetx-raw-data-service-web";
+    public final static String PHOSPHONETX_RAW_DATA_SERVICE_WEB = "proteomics-data-service-web";
     
     public final static String PHOSPHONETX_DAO_FACTORY = "phosphonetx-dao-factory";
     
