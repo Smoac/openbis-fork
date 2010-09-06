@@ -284,9 +284,9 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 dataSetCodes.size(), newStatus);
     }
 
-    public String getDefaultDataStoreBaseURL(String sessionToken)
+    public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
-        logAccess(sessionToken, "getDefaultDataStoreBaseURL");
+        logAccess(sessionToken, "getDefaultPutDataStoreBaseURL");
         return null;
     }
 

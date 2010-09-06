@@ -420,7 +420,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public String getDefaultDataStoreBaseURL(String sessionToken);
+    public String getDefaultPutDataStoreBaseURL(String sessionToken);
 
     /**
      * Check if the user has USER access on the space

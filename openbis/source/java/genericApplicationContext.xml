@@ -127,7 +127,6 @@
                 <constructor-arg ref="dao-factory" />
                 <constructor-arg ref="common-business-object-factory" />
                 <constructor-arg ref="dss-factory" />
-                <property name="defaultDataStoreBaseURL" value="${data-store-server-base-url}"/>                
             </bean>
         </property>
         <property name="interceptorNames">

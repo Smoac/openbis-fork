@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_APPLICATION_PATH;
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -119,8 +116,6 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     private final IDAOFactory daoFactory;
 
     private final IDataStoreServiceFactory dssFactory;
-
-    private String defaultDataStoreBaseURL;
 
     public ETLService(IAuthenticationService authenticationService,
             ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
@@ -714,37 +709,20 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
-    public void setDefaultDataStoreBaseURL(String defaultDataStoreBaseURL)
+    public String getDefaultPutDataStoreBaseURL(String sessionToken)
     {
-        String url = defaultDataStoreBaseURL;
-        // Strip the web application name from the URL
-        if (url.endsWith("/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME))
+        checkSession(sessionToken);
+        IDataStoreDAO dataStoreDAO = daoFactory.getDataStoreDAO();
+        List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
+        if (dataStores.size() != 1)
         {
-            url =
-                    url.substring(0, url.length()
-                            - (DATA_STORE_SERVER_WEB_APPLICATION_NAME.length() + 1));
+            throw new UserFailureException(
+                    String
+                            .format(
+                                    "Expected exactly one Data Store Server to be registered for openBIS but found %s",
+                                    dataStores.size()));
         }
-        if (url.endsWith(DATA_STORE_SERVER_APPLICATION_PATH))
-        {
-            url = url.substring(0, url.length() - DATA_STORE_SERVER_APPLICATION_PATH.length());
-        }
-
-        if (url.endsWith("/"))
-        {
-            url = url.substring(0, url.length() - 1);
-        }
-
-        this.defaultDataStoreBaseURL = url;
-
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Set default DSS baseURL to '" + this.defaultDataStoreBaseURL + "'.");
-        }
-    }
-
-    public String getDefaultDataStoreBaseURL(String sessionToken)
-    {
-        return defaultDataStoreBaseURL;
+        return dataStores.get(0).getRemoteUrl();
     }
 
     public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
@@ -752,7 +730,5 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         return tryGetDataSet(sessionToken, dataSetCode);
     }
-
-    
 
 }
