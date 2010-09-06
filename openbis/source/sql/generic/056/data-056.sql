@@ -13,26 +13,6 @@ INSERT INTO database_instances(
             , 'T');
 
 ----------------------------------------------------------------------
---  Purpose:  Insert an initial data set into the table DATA_STORES
-----------------------------------------------------------------------
-
-insert into data_stores
-(id
-,code
-,download_url
-,remote_url
-,session_token
-,dbin_id)
-values
-(nextval('DATA_STORE_ID_SEQ')
-,'STANDARD'
-,''
-,''
-,''
-,(select id from database_instances where code = 'SYSTEM_DEFAULT')
-);
-
-----------------------------------------------------------------------
 --  Purpose:  Insert an initial data set into the table PERSONS
 -----------------------------------------------------------------------
 
