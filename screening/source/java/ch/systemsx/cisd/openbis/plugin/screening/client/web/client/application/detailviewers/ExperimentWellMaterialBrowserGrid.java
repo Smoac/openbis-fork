@@ -24,10 +24,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.materia
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * A {@link MaterialBrowserGrid} extension for showing materials used in wells of an experiment.
@@ -42,20 +44,13 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
      */
     public static DisposableEntityChooser<Material> createForExperiment(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            TechId experimentId)
-    {
-        return createWithTypeChooser(screeningViewContext, experimentId);
-    }
-
-    private static DisposableEntityChooser<Material> createWithTypeChooser(
-            final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
-            final TechId experimentId)
+            final IEntityInformationHolderWithIdentifier experiment)
     {
         final MaterialBrowserToolbar toolbar =
                 new MaterialBrowserToolbar(screeningViewContext.getCommonViewContext(), null);
         final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider = toolbar;
         final ExperimentWellMaterialBrowserGrid browserGrid =
-                createBrowserGrid(screeningViewContext, criteriaProvider, experimentId);
+                createBrowserGrid(screeningViewContext, criteriaProvider, experiment);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar(true);
         return browserGrid.asDisposableWithToolbar(toolbar);
@@ -64,24 +59,25 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
     private static ExperimentWellMaterialBrowserGrid createBrowserGrid(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider,
-            final TechId experimentId)
+            final IEntityInformationHolderWithIdentifier experiment)
     {
         return new ExperimentWellMaterialBrowserGrid(screeningViewContext, true, criteriaProvider,
-                experimentId);
+                experiment);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    private final TechId experimentId;
+    private final IEntityInformationHolderWithIdentifier experiment;
 
     protected ExperimentWellMaterialBrowserGrid(
             final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
             boolean refreshAutomatically,
-            ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider, TechId experimentId)
+            ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider,
+            IEntityInformationHolderWithIdentifier experiment)
     {
         super(screeningViewContext.getCommonViewContext(), refreshAutomatically, criteriaProvider);
         this.screeningViewContext = screeningViewContext;
-        this.experimentId = experimentId;
+        this.experiment = experiment;
     }
 
     @Override
@@ -95,22 +91,24 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
             AbstractAsyncCallback<ResultSet<Material>> callback)
     {
         criteria.copyPagingConfig(resultSetConfig);
-        screeningViewContext.getService().listExperimentMaterials(experimentId, criteria, callback);
+        screeningViewContext.getService().listExperimentMaterials(TechId.create(experiment),
+                criteria, callback);
     }
 
-    // TODO 2010-09-06, Piotr Buczek: check
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Material> exportCriteria,
-            AbstractAsyncCallback<String> callback)
+    protected void showEntityViewer(Material material, boolean editMode, boolean active)
     {
-        viewContext.getService().prepareExportMaterials(exportCriteria, callback);
+        if (editMode == false)
+        {
+            ExperimentSearchCriteria experimentCriteria =
+                    ExperimentSearchCriteria.createExperiment(experiment.getId(), experiment
+                            .getIdentifier());
+            ClientPluginFactory.openPlateLocationsMaterialViewer(material, experimentCriteria,
+                    screeningViewContext);
+        } else
+        {
+            super.showEntityViewer(material, editMode, active);
+        }
     }
-
-    // TODO 2010-09-06, Piotr Buczek: set experiment
-    // @Override
-    // protected void showEntityViewer(Material material, boolean editMode, boolean active)
-    // {
-    // showEntityInformationHolderViewer(material, editMode, active);
-    // }
 
 }

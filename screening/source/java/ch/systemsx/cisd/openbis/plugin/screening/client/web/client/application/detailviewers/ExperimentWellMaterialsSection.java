@@ -4,7 +4,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Disposable
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
@@ -36,8 +35,8 @@ public class ExperimentWellMaterialsSection extends DisposableSectionPanel
     @Override
     protected IDisposableComponent createDisposableContent()
     {
-        return ExperimentWellMaterialBrowserGrid.createForExperiment(screeningViewContext, TechId
-                .create(experiment));
+        return ExperimentWellMaterialBrowserGrid.createForExperiment(screeningViewContext,
+                experiment);
     }
 
 }
