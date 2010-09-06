@@ -353,7 +353,7 @@ class AuthenticatedState extends AbstractDssComponentState
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
             throws IllegalStateException, EnvironmentFailureException
     {
-        String url = service.getDefaultDataStoreBaseURL(sessionToken);
+        String url = service.getDefaultPutDataStoreBaseURL(sessionToken);
         url = DataStoreApiUrlUtilities.getDataStoreUrlFromServerUrl(url);
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         ConcatenatedContentInputStream fileInputStream =
