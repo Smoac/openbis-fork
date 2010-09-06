@@ -21,12 +21,16 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -49,6 +53,8 @@ public final class MaterialTypeSelectionWidget extends
 
     private final String additionalOptionLabelOrNull;
 
+    private final String initialCodeOrNull;
+
     /**
      * Creates a material type chooser with one additional option. It's useful when you want to have
      * one special value on the list.
@@ -57,37 +63,57 @@ public final class MaterialTypeSelectionWidget extends
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final String additionalOptionLabel, final String idSuffix)
     {
-        return new MaterialTypeSelectionWidget(viewContext, additionalOptionLabel, idSuffix);
+        return new MaterialTypeSelectionWidget(viewContext, additionalOptionLabel, idSuffix, null);
     }
 
-    public static MaterialTypeSelectionWidget createWithInitialValue(
+    public static MaterialTypeSelectionWidget create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final MaterialType initValueOrNull, final String idSuffix)
+            final String displayTypeIdOrNull, final String idSuffix)
     {
-        MaterialTypeSelectionWidget chooser =
-                new MaterialTypeSelectionWidget(viewContext, null, idSuffix);
-        if (initValueOrNull != null)
-        {
-            chooser.setValue(new MaterialTypeModel(initValueOrNull));
-        }
-        return chooser;
+        return new MaterialTypeSelectionWidget(viewContext, null, idSuffix, displayTypeIdOrNull);
     }
 
     public MaterialTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
             final String idSuffix)
     {
-        this(viewContext, null, idSuffix);
+        this(viewContext, null, idSuffix, null);
     }
 
     private MaterialTypeSelectionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
-            String additionalOptionLabelOrNull, String idSuffix)
+            String additionalOptionLabelOrNull, String idSuffix, final String displayTypeIdOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.MATERIAL_TYPE, ModelDataPropertyNames.CODE,
                 "material type", "material types");
         this.viewContext = viewContext;
         this.additionalOptionLabelOrNull = additionalOptionLabelOrNull;
+        this.initialCodeOrNull =
+                tryGetInitialValue(displayTypeIdOrNull, viewContext.getDisplaySettingsManager());
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
+        if (displayTypeIdOrNull != null)
+        {
+            final DisplaySettingsManager displaySettingsManager =
+                    viewContext.getDisplaySettingsManager();
+            addSelectionChangedListener(new SelectionChangedListener<MaterialTypeModel>()
+                {
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<MaterialTypeModel> se)
+                    {
+                        saveSelectedValueAsDisplaySetting(displaySettingsManager,
+                                displayTypeIdOrNull);
+                    }
+                });
+        }
+    }
+
+    private void saveSelectedValueAsDisplaySetting(
+            final DisplaySettingsManager displaySettingsManager, final String dropDownId)
+    {
+        MaterialType selectedOrNull = tryGetSelected();
+        if (selectedOrNull != null)
+        {
+            displaySettingsManager.storeDropDownSettings(dropDownId, selectedOrNull.getCode());
+        }
     }
 
     /**
@@ -128,7 +154,9 @@ public final class MaterialTypeSelectionWidget extends
     @Override
     protected void loadData(AbstractAsyncCallback<List<MaterialType>> callback)
     {
-        viewContext.getService().listMaterialTypes(callback);
+        viewContext.getService().listMaterialTypes(new ListMaterialTypesCallback(viewContext));
+        callback.ignore();
+
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -137,5 +165,57 @@ public final class MaterialTypeSelectionWidget extends
             { createOrDelete(ObjectKind.MATERIAL_TYPE), edit(ObjectKind.MATERIAL_TYPE),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+    }
+
+    // 
+    // initial value support
+    //
+
+    private void selectInitialValue()
+    {
+        if (initialCodeOrNull != null)
+        {
+            trySelectByCode(initialCodeOrNull);
+            updateOriginalValue();
+        }
+    }
+
+    private void trySelectByCode(String code)
+    {
+        try
+        {
+            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, code);
+        } catch (IllegalArgumentException ex)
+        {
+            MessageBox.alert("Error", "Material Type '" + code + "' doesn't exist.", null);
+        }
+    }
+
+    private class ListMaterialTypesCallback extends MaterialTypeSelectionWidget.ListItemsCallback
+    {
+
+        protected ListMaterialTypesCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<MaterialType> result)
+        {
+            super.process(result);
+            selectInitialValue();
+        }
+    }
+
+    private static String tryGetInitialValue(final String displayTypeIdOrNull,
+            DisplaySettingsManager displaySettingsManager)
+    {
+        if (displayTypeIdOrNull != null)
+        {
+            return displaySettingsManager.getDropDownSettings(displayTypeIdOrNull);
+        } else
+        {
+            return null;
+        }
     }
 }

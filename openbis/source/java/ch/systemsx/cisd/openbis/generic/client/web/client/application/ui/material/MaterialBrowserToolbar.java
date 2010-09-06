@@ -55,12 +55,11 @@ public class MaterialBrowserToolbar extends ToolBar implements
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public MaterialBrowserToolbar(final IViewContext<ICommonClientServiceAsync> viewContext,
-            MaterialType initValueOrNull)
+            String displayTypeIdOrNull)
     {
         this.viewContext = viewContext;
         this.selectMaterialTypeCombo =
-                MaterialTypeSelectionWidget
-                        .createWithInitialValue(viewContext, initValueOrNull, ID);
+                MaterialTypeSelectionWidget.create(viewContext, displayTypeIdOrNull, ID);
         display();
     }
 

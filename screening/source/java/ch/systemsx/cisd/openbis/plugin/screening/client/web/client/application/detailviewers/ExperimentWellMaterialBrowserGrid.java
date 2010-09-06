@@ -47,7 +47,8 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
             final IEntityInformationHolderWithIdentifier experiment)
     {
         final MaterialBrowserToolbar toolbar =
-                new MaterialBrowserToolbar(screeningViewContext.getCommonViewContext(), null);
+                new MaterialBrowserToolbar(screeningViewContext.getCommonViewContext(),
+                        "experiment-well-material-browser-toolbar");
         final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider = toolbar;
         final ExperimentWellMaterialBrowserGrid browserGrid =
                 createBrowserGrid(screeningViewContext, criteriaProvider, experiment);
