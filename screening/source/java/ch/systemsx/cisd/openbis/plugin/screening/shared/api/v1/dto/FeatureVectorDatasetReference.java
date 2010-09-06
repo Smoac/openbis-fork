@@ -28,7 +28,7 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
 {
     private static final long serialVersionUID = 1L;
 
-    private final IImageDatasetIdentifier imageDatasetIdentifier;
+    private final IImageDatasetIdentifier imageDatasetIdentifierOrNull;
 
     @Deprecated
     public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
@@ -36,17 +36,17 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
             IImageDatasetIdentifier imageDatasetIdentifier)
     {
         super(datasetCode, datastoreServerUrl, plate, plateGeometry, registrationDate);
-        this.imageDatasetIdentifier = imageDatasetIdentifier;
+        this.imageDatasetIdentifierOrNull = imageDatasetIdentifier;
     }
 
     public FeatureVectorDatasetReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGeometry, Date registrationDate,
-            IImageDatasetIdentifier imageDatasetIdentifier)
+            IImageDatasetIdentifier imageDatasetIdentifierOrNull)
     {
         super(datasetCode, datastoreServerUrl, plate, experimentIdentifier, plateGeometry,
                 registrationDate);
-        this.imageDatasetIdentifier = imageDatasetIdentifier;
+        this.imageDatasetIdentifierOrNull = imageDatasetIdentifierOrNull;
     }
 
     /**
@@ -55,19 +55,19 @@ public class FeatureVectorDatasetReference extends DatasetReference implements
      */
     public IImageDatasetIdentifier getParentImageDataset()
     {
-        return imageDatasetIdentifier;
+        return imageDatasetIdentifierOrNull;
     }
 
     @Override
     public String toString()
     {
-        if (imageDatasetIdentifier == null)
+        if (imageDatasetIdentifierOrNull == null)
         {
             return super.toString() + " (no image data set)";
         } else
         {
             return super.toString() + " from image dataset "
-                    + imageDatasetIdentifier.getDatasetCode();
+                    + imageDatasetIdentifierOrNull.getDatasetCode();
         }
     }
 }
