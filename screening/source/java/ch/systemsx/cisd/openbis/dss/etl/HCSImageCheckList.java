@@ -21,7 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 
@@ -36,6 +40,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
  */
 public final class HCSImageCheckList
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            HCSImageCheckList.class);
 
     private final Map<FullLocation, Check> imageMap;
 
@@ -79,7 +85,8 @@ public final class HCSImageCheckList
     public final void checkOff(AcquiredPlateImage image)
     {
         assert image != null : "Unspecified image.";
-        final Check check = imageMap.get(createLocation(image));
+        FullLocation location = createLocation(image);
+        final Check check = imageMap.get(location);
         if (check == null)
         {
             throw new IllegalArgumentException("Invalid channel/well/tile: " + image);
@@ -88,6 +95,11 @@ public final class HCSImageCheckList
         if (check.isCheckedOff(timepointOrNull))
         {
             throw new IllegalArgumentException("Image already handled: " + image);
+        }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Checking location " + location
+                    + (timepointOrNull == null ? "" : " timepoint " + timepointOrNull));
         }
         check.checkOff(timepointOrNull);
     }
