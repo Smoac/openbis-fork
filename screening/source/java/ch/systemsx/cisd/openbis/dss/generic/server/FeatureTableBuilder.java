@@ -114,6 +114,7 @@ public class FeatureTableBuilder
         return new WellFeatureCollection(features, builder.getCodesAndLabels());
     }
 
+    /** stores feature vectors for a set of wells */
     public static class WellFeatureCollection
     {
         private final List<FeatureTableRow> features;
@@ -131,6 +132,7 @@ public class FeatureTableBuilder
             return features;
         }
 
+        /** codes and labels of all features in this collection */
         public List<CodeAndLabel> getFeatureCodesAndLabels()
         {
             return featureNames;
@@ -185,7 +187,7 @@ public class FeatureTableBuilder
     }
 
     /**
-     * Adds feature vectors for specified data set.
+     * Adds feature vectors for specified feature vector data set code.
      */
     DatasetFeaturesBundle addFeatureVectorsOfDataSet(String dataSetCode)
     {
