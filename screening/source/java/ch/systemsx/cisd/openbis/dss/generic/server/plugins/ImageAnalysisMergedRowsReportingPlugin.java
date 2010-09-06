@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
@@ -79,14 +80,14 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
 
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        FeatureTableBuilder featureTableBuilder = new FeatureTableBuilder(getDAO(), getService());
-        for (DatasetDescription datasetDescription : datasets)
-        {
-            String dataSetCode = datasetDescription.getDatasetCode();
-            featureTableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
-        }
-        List<CodeAndLabel> codeAndLabels = featureTableBuilder.getCodesAndLabels();
-        List<FeatureTableRow> rows = featureTableBuilder.createFeatureTableRows();
+        List<String> datasetCodes = extractDatasetCodes(datasets);
+        ArrayList<String> featureCodes = new ArrayList<String>(); // fetch all
+        WellFeatureCollection featuresCollection =
+                FeatureTableBuilder.fetchDatasetFeatures(datasetCodes, featureCodes, getDAO(),
+                        getService());
+
+        List<CodeAndLabel> codeAndLabels = featuresCollection.getFeatureCodesAndLabels();
+        List<FeatureTableRow> rows = featuresCollection.getFeatures();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(DATA_SET_CODE_TITLE);
         builder.addHeader(PLATE_IDENTIFIER_TITLE);
@@ -119,6 +120,16 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
             builder.addRow(values);
         }
         return builder.getTableModel();
+    }
+
+    private static List<String> extractDatasetCodes(List<DatasetDescription> datasets)
+    {
+        List<String> datasetCodes = new ArrayList<String>();
+        for (DatasetDescription datasetDescription : datasets)
+        {
+            datasetCodes.add(datasetDescription.getDatasetCode());
+        }
+        return datasetCodes;
     }
 
     private IImagingReadonlyQueryDAO getDAO()

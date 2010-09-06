@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -37,10 +38,11 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
-import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -173,8 +175,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         Size imageSize = getImageSize(dataset, imageAccessor);
         PlateImageParameters params = imageAccessor.getImageParameters();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
-        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(), params
-                .getChannelsLabels(), tilesNumber, imageSize.getWidth(), imageSize.getHeight());
+        return new ImageDatasetMetadata(dataset, params.getChannelsCodes(),
+                params.getChannelsLabels(), tilesNumber, imageSize.getWidth(),
+                imageSize.getHeight());
     }
 
     private static Size getImageSize(IImageDatasetIdentifier dataset,
@@ -235,20 +238,18 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
             FeatureVectorDatasetReference dataset, List<String> featureCodes)
     {
-        FeatureTableBuilder builder =
-                new FeatureTableBuilder(featureCodes, getDAO(), getOpenBISService());
-        builder.addFeatureVectorsOfDataSet(dataset.getDatasetCode());
-        List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
+        WellFeatureCollection datasetFeatures =
+                FeatureTableBuilder.fetchDatasetFeatures(Arrays.asList(dataset.getDatasetCode()),
+                        featureCodes, getDAO(), getOpenBISService());
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
-        for (FeatureTableRow featureTableRow : featureTableRows)
+        for (FeatureTableRow featureTableRow : datasetFeatures.getFeatures())
         {
             WellPosition wellPosition = featureTableRow.getWellPosition();
             double[] values = featureTableRow.getFeatureValuesAsDouble();
             featureVectors.add(new FeatureVector(wellPosition, values));
         }
-        List<String> codes = getCodes(builder);
-        List<String> labels = getLabels(builder);
-        return new FeatureVectorDataset(dataset, codes, labels, featureVectors);
+        return new FeatureVectorDataset(dataset, datasetFeatures.getFeatureCodes(),
+                datasetFeatures.getFeatureLabels(), featureVectors);
     }
 
     private List<String> normalize(List<String> names)
@@ -266,16 +267,17 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             List<String> featureNames)
     {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, datasetWellReferences);
-        final FeatureTableBuilder builder =
-                createFeatureTableBuilder(datasetWellReferences, normalize(featureNames));
-        return createFeatureVectorList(builder);
+        WellFeatureCollection features =
+                FeatureTableBuilder.fetchWellFeatures(datasetWellReferences, featureNames, dao,
+                        getOpenBISService());
+        return createFeatureVectorList(features);
     }
 
     private List<FeatureVectorWithDescription> createFeatureVectorList(
-            final FeatureTableBuilder builder)
+            final WellFeatureCollection features)
     {
-        final List<String> featureCodes = getCodes(builder);
-        final List<FeatureTableRow> featureTableRows = builder.createFeatureTableRows();
+        final List<String> featureCodes = features.getFeatureCodes();
+        final List<FeatureTableRow> featureTableRows = features.getFeatures();
         final List<FeatureVectorWithDescription> result =
                 new ArrayList<FeatureVectorWithDescription>(featureTableRows.size());
         for (FeatureTableRow featureTableRow : featureTableRows)
@@ -285,45 +287,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return result;
     }
 
-    private List<String> getCodes(FeatureTableBuilder builder)
-    {
-        List<CodeAndLabel> featureCodesAndLabels = builder.getCodesAndLabels();
-        List<String> codes = new ArrayList<String>();
-        for (CodeAndLabel codeAndTitle : featureCodesAndLabels)
-        {
-            codes.add(codeAndTitle.getCode());
-        }
-        return codes;
-    }
-
-    private List<String> getLabels(FeatureTableBuilder builder)
-    {
-        List<CodeAndLabel> featureCodesAndLabels = builder.getCodesAndLabels();
-        List<String> labels = new ArrayList<String>();
-        for (CodeAndLabel codeAndTitle : featureCodesAndLabels)
-        {
-            labels.add(codeAndTitle.getLabel());
-        }
-        return labels;
-    }
-
     private FeatureVectorWithDescription createFeatureVector(FeatureTableRow featureTableRow,
             final List<String> featureCodes)
     {
         return new FeatureVectorWithDescription(featureTableRow.getReference(), featureCodes,
                 featureTableRow.getFeatureValuesAsDouble());
-    }
-
-    private FeatureTableBuilder createFeatureTableBuilder(
-            List<FeatureVectorDatasetWellReference> plateWellReferences, List<String> featureCodes)
-    {
-        final FeatureTableBuilder builder =
-                new FeatureTableBuilder(featureCodes, getDAO(), getOpenBISService());
-        for (FeatureVectorDatasetWellReference datasetWellReference : plateWellReferences)
-        {
-            builder.addFeatureVectorsOfDataSet(datasetWellReference);
-        }
-        return builder;
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
@@ -381,8 +349,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         {
             ImageChannelStackReference channelStackReference =
                     ImageChannelStackReference.createFromLocations(wellLocation, tileLocation);
-            return ImageChannelsUtils.getImage(imageAccessor, channelStackReference, imageRef
-                    .getChannel(), null);
+            return ImageChannelsUtils.getImage(imageAccessor, channelStackReference,
+                    imageRef.getChannel(), null);
         } catch (EnvironmentFailureException e)
         {
             operationLog.error("Error reading image.", e);

@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -83,10 +85,11 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
         private void initialize()
         {
-            final FeatureTableBuilder tableBuilder = new FeatureTableBuilder(dao, service);
-            tableBuilder.addFeatureVectorsOfDataSet(dataSetCode);
+            WellFeatureCollection featureCollection =
+                    FeatureTableBuilder.fetchDatasetFeatures(Arrays.asList(dataSetCode),
+                            new ArrayList<String>(), dao, service);
 
-            List<CodeAndLabel> featureCodeAndLabels = tableBuilder.getCodesAndLabels();
+            List<CodeAndLabel> featureCodeAndLabels = featureCollection.getFeatureCodesAndLabels();
             int headerTokensLength = featureCodeAndLabels.size() + 3;
             headerLabels = new String[headerTokensLength];
             headerLabels[0] = WELL_NAME_COLUMN;
@@ -106,7 +109,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
             lines = new ArrayList<String[]>();
 
-            final List<FeatureTableRow> rows = tableBuilder.createFeatureTableRows();
+            final List<FeatureTableRow> rows = featureCollection.getFeatures();
             for (FeatureTableRow row : rows)
             {
                 String[] line = new String[headerTokensLength];
