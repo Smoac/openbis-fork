@@ -70,33 +70,40 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
+ * Loades selected wells content: metadata and (if available) image dataset and feature vectors.
+ * 
  * @author Tomasz Pylak
  */
 @Friend(toClasses = IScreeningQuery.class)
-public class GenePlateLocationsLoader
+public class PlateMaterialLocationsLoader
 {
+    /**
+     * Finds wells containing the specified material and belonging to the specified experiment.
+     * Loads wells content: metadata and (if available) image dataset and feature vectors.
+     */
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId, String experimentPermId, boolean enrichWithImages)
     {
-        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
+        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
                 .getPlateLocations(geneMaterialId, experimentPermId, enrichWithImages);
-    }
-
-    public static List<WellContent> load(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId geneMaterialId)
-    {
-        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(geneMaterialId);
     }
 
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             PlateMaterialsSearchCriteria materialCriteria, boolean enrichWithImages)
     {
-        return new GenePlateLocationsLoader(session, businessObjectFactory, daoFactory)
+        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
                 .getPlateLocations(materialCriteria, enrichWithImages);
+    }
+
+    /** loads wells metadata, but no information about image or image analysis datasets */
+    public static List<WellContent> loadOnlyMetadata(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            TechId geneMaterialId)
+    {
+        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
+                .getPlateLocations(geneMaterialId);
     }
 
     private final Session session;
@@ -105,7 +112,7 @@ public class GenePlateLocationsLoader
 
     private final IDAOFactory daoFactory;
 
-    private GenePlateLocationsLoader(Session session,
+    private PlateMaterialLocationsLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
     {
         this.session = session;
@@ -119,7 +126,7 @@ public class GenePlateLocationsLoader
         List<WellContent> locations = loadLocations(materialCriteria);
         if (enrichWithImages)
         {
-            return enrichWithImages(locations);
+            return enrichWithDatasets(locations);
         } else
         {
             return locations;
@@ -132,7 +139,7 @@ public class GenePlateLocationsLoader
         List<WellContent> locations = loadLocations(geneMaterialId, experimentPermId);
         if (enrichWithImages)
         {
-            return enrichWithImages(locations);
+            return enrichWithDatasets(locations);
         } else
         {
             return locations;
@@ -144,7 +151,7 @@ public class GenePlateLocationsLoader
         return loadLocations(geneMaterialId);
     }
 
-    private List<WellContent> enrichWithImages(List<WellContent> locations)
+    private List<WellContent> enrichWithDatasets(List<WellContent> locations)
     {
         List<ExternalData> imageDatasets = loadImageDatasets(locations);
         Map<Long/* plate id */, List<ExternalData>> plateToDatasetMap =
@@ -274,13 +281,13 @@ public class GenePlateLocationsLoader
             if (expId == null)
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
-                                .getMaterialTypeCodes());
+                        dao.getPlateLocationsForMaterialCodes(ids,
+                                codesCriteria.getMaterialTypeCodes());
             } else
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
-                                .getMaterialTypeCodes(), expId);
+                        dao.getPlateLocationsForMaterialCodes(ids,
+                                codesCriteria.getMaterialTypeCodes(), expId);
             }
 
         } else if (materialSearchCriteria.tryGetMaterialId() != null)
@@ -331,9 +338,10 @@ public class GenePlateLocationsLoader
         }
         criteria.setCriteria(listOfCriteria);
         criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
-        return ArrayUtils.toPrimitive(daoFactory.getHibernateSearchDAO().searchForEntityIds(
-                criteria,
-                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
+        return ArrayUtils.toPrimitive(daoFactory
+                .getHibernateSearchDAO()
+                .searchForEntityIds(criteria,
+                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
                 .toArray(new Long[0]));
     }
 

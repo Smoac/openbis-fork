@@ -254,7 +254,7 @@ public class ScreeningApiImpl
         final ExperimentIdentifier fullExperimentIdentifier =
                 getExperimentIdentifierFromDB(experimentIdentifier);
         wellContent =
-                GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
+                PlateMaterialLocationsLoader.load(session, businessObjectFactory, daoFactory,
                         new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId(),
                         false);
         if (findDatasets)
@@ -294,7 +294,7 @@ public class ScreeningApiImpl
                     materialIdentifier.getAugmentedCode());
         }
         final List<WellContent> wellContent =
-                GenePlateLocationsLoader.load(session, businessObjectFactory, daoFactory,
+                PlateMaterialLocationsLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
                         new TechId(materialOrNull.getId()));
 
         if (findDatasets)

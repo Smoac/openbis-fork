@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.GenePlateLocationsLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateMaterialLocationsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
@@ -155,7 +155,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             PlateMaterialsSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
-        return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
+        return PlateMaterialLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
                 materialCriteria, true);
     }
 
