@@ -60,7 +60,6 @@ public class ListMaterialDisplayCriteria extends DefaultResultSetConfig<String, 
     //
     // GWT only
     //
-    @SuppressWarnings("unused")
     private ListMaterialDisplayCriteria()
     {
     }
