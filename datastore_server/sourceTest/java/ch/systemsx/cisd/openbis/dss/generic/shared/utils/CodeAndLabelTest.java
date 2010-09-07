@@ -44,6 +44,7 @@ public class CodeAndLabelTest extends AssertJUnit
     {
         assertCodeAndTitle("ABC_1_2_3_4", "abc", new CodeAndLabel("<abc?1=2-3+4> abc"));
         assertCodeAndTitle("ABC_123_", "abc<123>", new CodeAndLabel("abc<123>"));
+        assertCodeAndTitle("ABC", "ABC", new CodeAndLabel("<abc> "));
     }
 
     private void assertCodeAndTitle(String expectedCode, String expectedTitle,

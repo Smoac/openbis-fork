@@ -73,7 +73,8 @@ public class CodeAndLabel
             }
         }
         code = normalize(c);
-        label = t.trim();
+        String rest = t.trim();
+        label = rest.length() == 0 ? code : rest;
     }
 
     /**
