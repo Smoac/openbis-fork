@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -172,12 +173,28 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         return sampleProperties.toArray(new IEntityProperty[sampleProperties.size()]);
     }
 
+    private static IEntityProperty[] createDescriptionProperty(String description)
+    {
+        List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
+        GenericValueEntityProperty property = new GenericValueEntityProperty();
+        property.setValue(description);
+        PropertyType propertyType = new PropertyType();
+        DataType dataType = new DataType();
+        dataType.setCode(DataTypeCode.VARCHAR);
+        propertyType.setDataType(dataType);
+        propertyType.setCode(ScreeningConstants.DESCRIPTION);
+        property.setPropertyType(propertyType);
+        properties.add(property);
+        return properties.toArray(new IEntityProperty[properties.size()]);
+    }
+
     private static void registerExperiment(IEncapsulatedOpenBISService openbisService,
             ExperimentIdentifier experimentIdentifier)
     {
         NewExperiment experiment = new NewExperiment();
         experiment.setExperimentTypeCode(ScreeningConstants.SIRNA_HCS);
         experiment.setIdentifier(experimentIdentifier.toString());
+        experiment.setProperties(createDescriptionProperty("-"));
         openbisService.registerExperiment(experiment);
     }
 

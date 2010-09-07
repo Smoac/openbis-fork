@@ -64,6 +64,8 @@ public class ScreeningConstants
     // code of plate geometry vocabulary
     public static final String PLATE_GEOMETRY = "$PLATE_GEOMETRY";
 
+    public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String IMAGE_DATASET_PLUGIN_TYPE_CODE = IMAGE_DATASET_TYPE;
 
     // ---- required DSS servlets
