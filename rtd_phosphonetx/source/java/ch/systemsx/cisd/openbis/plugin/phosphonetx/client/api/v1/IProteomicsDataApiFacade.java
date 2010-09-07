@@ -23,12 +23,14 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreSe
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
-
 /**
- * Facade for openBIS proteomics data service. 
- *
+ * Facade for openBIS proteomics data service.
+ * 
  * @author Franz-Josef Elmer
  */
+
+// This interfaces replaces the IRawDataApiFacade.
+@SuppressWarnings("deprecation")
 public interface IProteomicsDataApiFacade extends IRawDataApiFacade
 {
     /**
@@ -46,25 +48,25 @@ public interface IProteomicsDataApiFacade extends IRawDataApiFacade
      * Lists all processing plugins on DSS.
      */
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos();
-    
+
     /**
      * Processes the data sets of specified samples by the DSS processing plug-in of specified key
      * for the specified user. Only the most recent data sets of specified type are processed.
      */
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
-    
+
     /**
      * Returns all projects where the specified user has USER access rights.
      */
     public List<Project> listProjects(String userID);
-    
+
     /**
      * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
      * read.
      */
     public List<Experiment> listSearchExperiments(String userID);
-    
+
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
      * processing plug-in of specified key for the specified user. It will be checked if the
