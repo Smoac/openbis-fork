@@ -158,6 +158,7 @@ public class CommonTestUtils
     {
         final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode(code);
+        databaseInstance.setUuid("UUID-" + code);
         return databaseInstance;
     }
 
