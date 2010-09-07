@@ -89,13 +89,13 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         List<CodeAndLabel> codeAndLabels = featuresCollection.getFeatureCodesAndLabels();
         List<FeatureTableRow> rows = featuresCollection.getFeatures();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-        builder.addHeader(DATA_SET_CODE_TITLE);
-        builder.addHeader(PLATE_IDENTIFIER_TITLE);
-        builder.addHeader(ROW_TITLE);
-        builder.addHeader(COLUMN_TITLE);
+        builder.addHeader(DATA_SET_CODE_TITLE, CodeAndLabel.normalize(DATA_SET_CODE_TITLE));
+        builder.addHeader(PLATE_IDENTIFIER_TITLE, CodeAndLabel.normalize(PLATE_IDENTIFIER_TITLE));
+        builder.addHeader(ROW_TITLE, CodeAndLabel.normalize(ROW_TITLE));
+        builder.addHeader(COLUMN_TITLE, CodeAndLabel.normalize(COLUMN_TITLE));
         for (CodeAndLabel codeAndLabel : codeAndLabels)
         {
-            builder.addHeader(codeAndLabel.getLabel(), codeAndLabel.getCode());
+            builder.addHeader(codeAndLabel.getLabel(), "feature-" + codeAndLabel.getCode());
         }
         for (FeatureTableRow row : rows)
         {
