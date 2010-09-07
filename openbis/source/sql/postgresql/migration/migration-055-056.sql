@@ -171,10 +171,10 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
--- select REPLACE_GENE_SYMBOL_BY_GENE_ID();
---drop function REPLACE_GENE_SYMBOL_BY_GENE_ID();
---DROP AGGREGATE merge_words(text);
---drop function merge_words(text,text);
+select REPLACE_GENE_SYMBOL_BY_GENE_ID();
+drop function REPLACE_GENE_SYMBOL_BY_GENE_ID();
+DROP AGGREGATE merge_words(text);
+drop function merge_words(text,text);
 
 
 --------------------------------------------------------------------------------------
