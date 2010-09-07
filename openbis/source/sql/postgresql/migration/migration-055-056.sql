@@ -171,15 +171,18 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
-select REPLACE_GENE_SYMBOL_BY_GENE_ID();
-drop function REPLACE_GENE_SYMBOL_BY_GENE_ID();
-DROP AGGREGATE merge_words(text);
-drop function merge_words(text,text);
+-- select REPLACE_GENE_SYMBOL_BY_GENE_ID();
+--drop function REPLACE_GENE_SYMBOL_BY_GENE_ID();
+--DROP AGGREGATE merge_words(text);
+--drop function merge_words(text,text);
 
 
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 
+UPDATE sample_types SET code = 'SIRNA_WELL' WHERE code = 'OLIGO_WELL';
+UPDATE material_types SET code = 'SIRNA' WHERE code = 'OLIGO';
+UPDATE property_types SET code = 'SIRNA', label = 'siRNA' WHERE code = 'OLIGO';
 
 
 

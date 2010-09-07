@@ -50,9 +50,9 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
 
     private static final String PLATES = "Plates";
 
-    private static final String OLIGOS_PLATES = "Oligos + Plates";
+    private static final String SIRNAS_PLATES = "siRNAs + Plates";
 
-    private static final String GENES_OLIGOS_PLATES = "Genes + Oligos + Plates";
+    private static final String GENES_SIRNAS_PLATES = "Genes + siRNAs + Plates";
 
     private static final String SESSION_KEY = "qiagen-library-sample-batch-registration";
 
@@ -102,8 +102,8 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
     private SimpleComboBox<String> createScope()
     {
         SimpleComboBox<String> options = new SimpleComboBox<String>();
-        options.add(GENES_OLIGOS_PLATES);
-        options.add(OLIGOS_PLATES);
+        options.add(GENES_SIRNAS_PLATES);
+        options.add(SIRNAS_PLATES);
         options.add(PLATES);
         options
                 .setFieldLabel(viewContext
@@ -112,7 +112,7 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         options.setForceSelection(true);
         options.setEditable(false);
         options.setAllowBlank(false);
-        options.setSimpleValue(GENES_OLIGOS_PLATES);
+        options.setSimpleValue(GENES_SIRNAS_PLATES);
         FieldUtil.markAsMandatory(options);
         return options;
     }
@@ -137,12 +137,12 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
     private RegistrationScope extractRegistrationScope()
     {
         String value = scopeField.getValue().getValue();
-        if (value.equals(GENES_OLIGOS_PLATES))
+        if (value.equals(GENES_SIRNAS_PLATES))
         {
-            return RegistrationScope.GENES_OLIGOS_PLATES;
-        } else if (value.equals(OLIGOS_PLATES))
+            return RegistrationScope.GENES_SIRNAS_PLATES;
+        } else if (value.equals(SIRNAS_PLATES))
         {
-            return RegistrationScope.OLIGOS_PLATES;
+            return RegistrationScope.SIRNAS_PLATES;
         } else if (value.equals(PLATES))
         {
             return RegistrationScope.PLATES;

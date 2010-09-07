@@ -31,21 +31,21 @@ public class LibraryRegistrationInfo implements IsSerializable, Serializable
 {
     public enum RegistrationScope implements IsSerializable
     {
-        PLATES, OLIGOS_PLATES, GENES_OLIGOS_PLATES;
+        PLATES, SIRNAS_PLATES, GENES_SIRNAS_PLATES;
 
         public boolean isPlates()
         {
             return true;
         }
 
-        public boolean isOligos()
+        public boolean isSiRNAs()
         {
-            return this.equals(OLIGOS_PLATES) || this.equals(GENES_OLIGOS_PLATES);
+            return this.equals(SIRNAS_PLATES) || this.equals(GENES_SIRNAS_PLATES);
         }
 
         public boolean isGenes()
         {
-            return this.equals(GENES_OLIGOS_PLATES);
+            return this.equals(GENES_SIRNAS_PLATES);
         }
 
     }

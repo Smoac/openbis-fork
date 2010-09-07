@@ -48,10 +48,10 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
 
     private final static String RNA_SEQUENCE = "sirna";
 
-    private final static String OLIGO_ID = "productId";
+    private final static String SIRNA_ID = "productId";
 
     private final static String[] EXPECTED_COLUMNS = new String[]
-        { PLATE_NAME, WELL_ROW, WELL_COL, RNA_SEQUENCE, GENE_ID, GENE_SYMBOL, GENE_DESC, OLIGO_ID };
+        { PLATE_NAME, WELL_ROW, WELL_COL, RNA_SEQUENCE, GENE_ID, GENE_SYMBOL, GENE_DESC, SIRNA_ID };
 
     // -------------
 
@@ -97,9 +97,9 @@ public class QiagenScreeningLibraryColumnExtractor extends AbstractColumnExtract
         return getValue(row, RNA_SEQUENCE);
     }
 
-    public String getOligoId(String[] row)
+    public String getSiRNAId(String[] row)
     {
-        return getValue(row, OLIGO_ID);
+        return getValue(row, SIRNA_ID);
     }
 
     public String getGeneId(String[] row)

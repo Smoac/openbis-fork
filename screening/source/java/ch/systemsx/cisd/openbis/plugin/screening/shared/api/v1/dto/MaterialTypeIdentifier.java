@@ -36,9 +36,9 @@ public class MaterialTypeIdentifier implements Serializable
     public static final MaterialTypeIdentifier GENE = new MaterialTypeIdentifier("GENE");
 
     /**
-     * Material identifier for an oligo-nucleotide
+     * Material identifier for an siRNA-nucleotide
      */
-    public static final MaterialTypeIdentifier OLIGO = new MaterialTypeIdentifier("OLIGO");
+    public static final MaterialTypeIdentifier OLIGO = new MaterialTypeIdentifier("SIRNA");
 
     /**
      * Material identifier for a compound.

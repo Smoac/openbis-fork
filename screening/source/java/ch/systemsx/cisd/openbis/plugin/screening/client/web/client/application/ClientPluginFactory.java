@@ -94,7 +94,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
-            types.add(ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME);
+            types.add(ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME);
             // NOTE: it would be better to fetch all the material types from the db, but we cannot
             // do this - this code is executed before the user logs in.
             // Another way not to hardcode material types would be to allow the plugin to be used

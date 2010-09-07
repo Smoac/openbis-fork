@@ -30,7 +30,7 @@ public final class MaterialTypeCode
 
     public static final String GENE = "GENE";
 
-    public static final String OLIGO = "OLIGO";
+    public static final String SIRNA = "SIRNA";
 
     public static final String VIRUS = "VIRUS";
 

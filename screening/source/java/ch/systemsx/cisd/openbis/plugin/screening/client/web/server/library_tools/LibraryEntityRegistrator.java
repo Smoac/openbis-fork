@@ -128,8 +128,9 @@ public class LibraryEntityRegistrator
         private static final String HEADER_PLATES =
                 "[PLATE]\n" + join("identifier", "experiment", "$PLATE_GEOMETRY");
 
-        private static final String HEADER_OLIGOS =
-                "[OLIGO_WELL]\n" + join("identifier", "container", "OLIGO", "GENE");
+        private static final String HEADER_SIRNAS =
+                "[" + ScreeningConstants.SIRNA_WELL_TYPE_CODE + "]\n"
+                        + join("identifier", "container", "SIRNA", "GENE");
 
         private final Set<String/* plate code */> registeredPlates;
 
@@ -178,7 +179,7 @@ public class LibraryEntityRegistrator
             String wellCode = extractor.getWellCode(row);
             String wellIdentifier = plateId + ":" + wellCode;
             String oligoMaterialProperty =
-                    oligoId + " (" + ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME + ")";
+                    oligoId + " (" + ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME + ")";
             String geneMaterialProperty =
                     geneId + " (" + ScreeningConstants.GENE_PLUGIN_TYPE_CODE + ")";
             saveWell(wellIdentifier, plateId, oligoMaterialProperty, geneMaterialProperty);
@@ -192,7 +193,7 @@ public class LibraryEntityRegistrator
         // saves all the wells to the file
         public void saveResults() throws IOException
         {
-            writeLine(HEADER_OLIGOS);
+            writeLine(HEADER_SIRNAS);
             for (String[] wellLine : wellRegistrationBuffer)
             {
                 writeLine(wellLine);
@@ -266,7 +267,7 @@ public class LibraryEntityRegistrator
                 String inhibitedGeneCode) throws IOException
         {
             String geneId = extractor.getGeneId(row);
-            String oligoId = extractor.getOligoId(row);
+            String oligoId = extractor.getSiRNAId(row);
             String openbisOligoId = geneId + "_" + oligoId;
             if (containsCaseInsensitive(registeredOligos, openbisOligoId) == false)
             {

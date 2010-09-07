@@ -85,7 +85,7 @@ class LibraryExtractor
                 throw new UserFailureException(status.tryGetErrorMessage());
             }
             newGenes = registrationScope.isGenes() ? extractMaterials(genesFile) : null;
-            newOligos = registrationScope.isOligos() ? extractMaterials(oligosFile) : null;
+            newOligos = registrationScope.isSiRNAs() ? extractMaterials(oligosFile) : null;
             newSamplesWithType = extractSamples(platesFile);
         } catch (FileNotFoundException ex)
         {

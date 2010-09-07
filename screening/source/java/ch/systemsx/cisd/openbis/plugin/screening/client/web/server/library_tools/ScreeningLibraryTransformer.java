@@ -40,7 +40,7 @@ public class ScreeningLibraryTransformer
 
     private static final String GENES_FILE_NAME = "genes.txt";
 
-    private static final String OLIGOS_FILE_NAME = "oligos.txt";
+    private static final String SIRNAS_FILE_NAME = "oligos.txt";
 
     private static final String PLATES_FILE_NAME = "plates.txt";
 
@@ -65,7 +65,7 @@ public class ScreeningLibraryTransformer
         }
         Status status =
                 readLibrary(new FileInputStream(input), experimentIdentifier, plateGeometry,
-                        groupCode, GENES_FILE_NAME, OLIGOS_FILE_NAME, PLATES_FILE_NAME);
+                        groupCode, GENES_FILE_NAME, SIRNAS_FILE_NAME, PLATES_FILE_NAME);
         if (status.isError())
         {
             System.err.println(status.tryGetErrorMessage());

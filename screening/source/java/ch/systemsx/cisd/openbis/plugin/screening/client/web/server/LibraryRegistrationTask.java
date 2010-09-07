@@ -78,12 +78,12 @@ class LibraryRegistrationTask implements Runnable
             if (newOligosOrNull != null)
             {
                 genericServer.registerOrUpdateMaterials(sessionToken,
-                        ScreeningConstants.OLIGO_PLUGIN_TYPE_NAME, newOligosOrNull);
-                message.append("Successfuly saved " + newOligosOrNull.size() + " oligos.\n");
+                        ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME, newOligosOrNull);
+                message.append("Successfuly saved " + newOligosOrNull.size() + " siRNAs.\n");
             }
         } catch (Exception ex)
         {
-            message.append("ERROR: Oligos could not be saved!\n");
+            message.append("ERROR: siRNAs could not be saved!\n");
             message.append(ex.getMessage());
             sendErrorEmail(message, startDate, email);
             return;

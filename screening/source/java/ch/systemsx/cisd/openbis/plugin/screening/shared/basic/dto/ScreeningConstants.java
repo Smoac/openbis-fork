@@ -47,7 +47,7 @@ public class ScreeningConstants
     // type of the dataset which stores image analysis data, there should be at most one
     public static final String IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
 
-    public static final String OLIGO_WELL_TYPE_CODE = "OLIGO_WELL";
+    public static final String SIRNA_WELL_TYPE_CODE = "SIRNA_WELL";
 
     public static final String CONTROL_WELL_TYPE_CODE = "CONTROL_WELL";
 
@@ -58,8 +58,8 @@ public class ScreeningConstants
     // code of the gene material type
     public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
 
-    // code of the oligo material type
-    public static final String OLIGO_PLUGIN_TYPE_NAME = "OLIGO";
+    // code of the siRNA material type
+    public static final String SIRNA_PLUGIN_TYPE_NAME = "SIRNA";
 
     // code of plate geometry vocabulary
     public static final String PLATE_GEOMETRY = "$PLATE_GEOMETRY";

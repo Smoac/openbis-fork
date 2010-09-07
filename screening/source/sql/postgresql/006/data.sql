@@ -59,7 +59,7 @@ COPY material_types (id, code, description, dbin_id, modification_timestamp) FRO
 1	VIRUS	Virus	1	2009-11-27 16:02:26.451046+01
 2	CELL_LINE	Cell Line or Cell Culture. The growing of cells under controlled conditions.	1	2009-11-27 16:02:26.451046+01
 3	GENE	Gene	1	2009-11-27 16:02:26.451046+01
-4	OLIGO	Oligo nucleotide	1	2009-11-27 16:02:26.451046+01
+4	SIRNA	siRNA nucleotide	1	2009-11-27 16:02:26.451046+01
 5	CONTROL	Control of a control layout	1	2009-11-27 16:02:26.451046+01
 6	BACTERIUM	Bacterium	1	2009-11-27 16:02:26.451046+01
 7	COMPOUND	Compound	1	2009-11-27 16:02:26.451046+01
@@ -75,7 +75,7 @@ COPY property_types (id, code, description, label, daty_id, registration_timesta
 4	REFSEQ	NCBI Reference Sequence code, applicable to sequences of type: DNA, RNA, protein	RefSeq	1	2008-02-28 13:03:03.358532+01	1	\N	f	f	1	\N
 13	MICROSCOPE	 	Microscope	7	2009-11-29 23:57:05.85618+01	1	3	f	f	1	\N
 7	INHIBITOR_OF	Inhibitor Of	Inhibitor Of	8	2009-11-27 16:02:45.060699+01	1	\N	f	f	1	3
-11	OLIGO	Oligo	Oligo	8	2009-11-29 23:56:19.39967+01	1	\N	f	f	1	4
+11	SIRNA	siRNA	siRNA	8	2009-11-29 23:56:19.39967+01	1	\N	f	f	1	4
 12	CONTROL	Control	Control	8	2009-11-29 23:56:37.355313+01	1	\N	f	f	1	5
 6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	7	2008-06-17 16:38:30.723292+02	1	2	t	t	1	\N
 15	NUMBER_OF_CHANNEL	 	Channels	3	2009-12-17 10:56:17.239319+01	1	\N	f	f	1	\N
@@ -158,7 +158,7 @@ COPY material_type_property_types (id, maty_id, prty_id, is_mandatory, registrat
 
 COPY sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix) FROM stdin;
 3	PLATE	Cell Plate	1	t	2	0	2009-11-27 16:02:26.451046+01	f	S
-7	OLIGO_WELL	\N	1	f	0	1	2009-11-27 19:42:03.483115+01	f	O
+7	SIRNA_WELL	\N	1	f	0	1	2009-11-27 19:42:03.483115+01	f	O
 8	CONTROL_WELL	\N	1	f	0	1	2009-11-27 19:42:25.791288+01	f	C
 9	LIBRARY	\N	1	f	0	0	2009-11-27 19:42:25.791288+01	f	L
 \.
@@ -197,7 +197,7 @@ select setval('mtpt_id_seq', 100);
 
 
 --------------------------------------------------
--- create a gene property and assign it to oligo well
+-- create a gene property and assign it to sirna well
 --------------------------------------------------
 
 insert into property_types(
@@ -225,12 +225,12 @@ insert into sample_type_property_types(
   ordinal
 ) values(
 		nextval('stpt_id_seq'), 
-		(select id from sample_types where code = 'OLIGO_WELL'),
+		(select id from sample_types where code = 'SIRNA_WELL'),
 		(select id from property_types where code = 'GENE'),
 		false,
 		(select id from persons where user_id ='system'),
 		(select max(ordinal)+1 from sample_type_property_types 
-			where saty_id = (select id from sample_types where code = 'OLIGO_WELL'))
+			where saty_id = (select id from sample_types where code = 'SIRNA_WELL'))
 	);
 
 
