@@ -75,4 +75,6 @@ public class ScreeningConstants
 
     public static final String GENE_SYMBOLS = "GENE_SYMBOLS";
 
+    public static final String SIRNA_HCS = "SIRNA_HCS";
+
 }
