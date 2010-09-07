@@ -49,13 +49,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A dialog which shows the content of the well (static or a timepoints movie).
@@ -274,15 +274,12 @@ public class WellContentDialog extends Dialog
 
     private static int getDialogWidth(WellImages images)
     {
-        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor) * images.getTileColsNum() + 30;
+        return getImageWidth(images) * images.getTileColsNum() + 30;
     }
 
     private static int getDialogHeight(WellImages images)
     {
-        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return Math.max((int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor)
-                * images.getTileRowsNum() + 300, 300);
+        return Math.max(getImageHeight(images) * images.getTileRowsNum() + 300, 300);
     }
 
     private static int getImageHeight(WellImages images)
