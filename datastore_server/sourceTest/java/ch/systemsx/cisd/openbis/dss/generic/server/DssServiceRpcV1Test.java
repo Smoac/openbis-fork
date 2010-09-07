@@ -485,6 +485,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                         .getPath(), fileInfos));
 
         rpcService.putDataSet(SESSION_TOKEN, newDataSet, fileInputStream);
+
+        context.assertIsSatisfied();
     }
 
     private List<IContent> getContentForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)

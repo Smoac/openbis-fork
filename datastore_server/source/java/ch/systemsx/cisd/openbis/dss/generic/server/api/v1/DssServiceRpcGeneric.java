@@ -169,7 +169,6 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssS
     @Override
     public void setIncomingDirectory(File aFile)
     {
-        super.setIncomingDirectory(aFile);
         putService.setIncomingDir(aFile);
     }
 

@@ -162,7 +162,7 @@ public class PutDataSetService
     {
         PutDataSetServiceInitializer initializer = new PutDataSetServiceInitializer();
 
-        incomingDir.mkdir();
+        incomingDir.mkdirs();
 
         pluginMap = initializer.getPluginMap();
         pluginMap.initializeStoreRootDirectory(storeDirectory);
