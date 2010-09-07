@@ -81,7 +81,7 @@ public final class PropertyTypeTranslator
         result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
                 propertyType.getMaterialTypePropertyTypes(), result, cacheOrNull));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
-                propertyType.getExperimentTypePropertyTypes(), result));
+                propertyType.getExperimentTypePropertyTypes(), result, cacheOrNull));
         result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(propertyType
                 .getDataSetTypePropertyTypes(), result, cacheOrNull));
         return result;

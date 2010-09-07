@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -65,7 +66,7 @@ public final class ExperimentTranslator
         result.setPermId(StringEscapeUtils.escapeHtml(experiment.getPermId()));
         result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.EXPERIMENT,
                 experiment.getPermId()));
-        result.setExperimentType(translate(experiment.getExperimentType()));
+        result.setExperimentType(translate(experiment.getExperimentType(), new HashMap<PropertyTypePE, PropertyType>()));
         result.setIdentifier(StringEscapeUtils.escapeHtml(experiment.getIdentifier()));
         result.setProject(ProjectTranslator.translate(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
@@ -112,7 +113,8 @@ public final class ExperimentTranslator
         }
     }
 
-    public final static ExperimentType translate(final ExperimentTypePE experimentType)
+    public final static ExperimentType translate(final ExperimentTypePE experimentType,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final ExperimentType result = new ExperimentType();
         result.setCode(StringEscapeUtils.escapeHtml(experimentType.getCode()));
@@ -120,7 +122,7 @@ public final class ExperimentTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
-                experimentType.getExperimentTypePropertyTypes(), result));
+                experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));
         return result;
     }
 
@@ -139,7 +141,7 @@ public final class ExperimentTranslator
         final List<ExperimentType> result = new ArrayList<ExperimentType>(experimentTypes.size());
         for (final ExperimentTypePE experimentType : experimentTypes)
         {
-            result.add(translate(experimentType));
+            result.add(translate(experimentType, new HashMap<PropertyTypePE, PropertyType>()));
         }
         return result;
     }

@@ -48,7 +48,7 @@ public final class ExperimentTypePropertyTypeTranslator
         ExperimentType translate(EntityTypePE entityTypePE,
                 Map<PropertyTypePE, PropertyType> cacheOrNull)
         {
-            return ExperimentTranslator.translate((ExperimentTypePE) entityTypePE);
+            return ExperimentTranslator.translate((ExperimentTypePE) entityTypePE, cacheOrNull);
         }
 
         @Override
@@ -59,17 +59,18 @@ public final class ExperimentTypePropertyTypeTranslator
     }
 
     public static List<ExperimentTypePropertyType> translate(
-            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, ExperimentType result)
+            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, ExperimentType result,
+            Map<PropertyTypePE, PropertyType> cachedOrNull)
     {
         return new ExperimentTypePropertyTypeTranslatorHelper().translate(
-                experimentTypePropertyTypes, result, null);
+                experimentTypePropertyTypes, result, cachedOrNull);
     }
 
     public static List<ExperimentTypePropertyType> translate(
-            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, PropertyType result)
+            Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, PropertyType result, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        return new ExperimentTypePropertyTypeTranslatorHelper().translate(
-                experimentTypePropertyTypes, result, null);
+        ExperimentTypePropertyTypeTranslatorHelper helper = new ExperimentTypePropertyTypeTranslatorHelper();
+        return helper.translate(experimentTypePropertyTypes, result, cacheOrNull);
     }
 
     public static ExperimentTypePropertyType translate(

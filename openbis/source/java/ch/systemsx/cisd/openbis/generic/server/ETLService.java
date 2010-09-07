@@ -391,7 +391,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert entityType instanceof ExperimentTypePE : "Not an ExperimentTypePE: " + entityType;
         ExperimentTypePE experimentType = (ExperimentTypePE) entityType;
         HibernateUtils.initialize(experimentType.getExperimentTypePropertyTypes());
-        return ExperimentTypeTranslator.translate(experimentType);
+        return ExperimentTypeTranslator.translate(experimentType, null);
     }
 
     public SampleType getSampleType(String sessionToken, String sampleTypeCode)

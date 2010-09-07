@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -568,7 +569,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final ProjectIdentifier projectIdentifier = CommonTestUtils.createProjectIdentifier();
         final ExperimentType experimentType =
-                ExperimentTranslator.translate(CommonTestUtils.createExperimentType());
+                ExperimentTranslator.translate(CommonTestUtils.createExperimentType(),
+                        new HashMap<PropertyTypePE, PropertyType>());
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -592,7 +594,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         final ExperimentTypePE experimentTypePE = CommonTestUtils.createExperimentType();
-        final ExperimentType experimentType = ExperimentTranslator.translate(experimentTypePE);
+        final ExperimentType experimentType = ExperimentTranslator.translate(experimentTypePE, new HashMap<PropertyTypePE, PropertyType>());
         types.add(experimentTypePE);
         context.checking(new Expectations()
             {
