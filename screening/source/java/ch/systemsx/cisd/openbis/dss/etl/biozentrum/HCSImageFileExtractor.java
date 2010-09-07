@@ -22,7 +22,6 @@ import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -44,7 +43,6 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
         return extractFileInfo(FilenameUtils.getBaseName(imageFile.getPath()));
     }
 
-    @Private
     static ImageFileInfo extractFileInfo(String text)
     {
         String[] namedParts = StringUtils.split(text, "_");

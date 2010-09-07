@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -346,6 +348,20 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             authenticate();
             return service.getExperimentType(sessionToken, experimentTypeCode);
+        }
+    }
+
+    synchronized public Collection<VocabularyTerm> listVocabularyTerms(String vocabularyCode)
+            throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return service.listVocabularyTerms(sessionToken, vocabularyCode);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return service.listVocabularyTerms(sessionToken, vocabularyCode);
         }
     }
 

@@ -35,7 +35,6 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.hcs.WellGeometry;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -147,16 +146,6 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         }
     }
 
-    public static final String[] IMAGE_EXTENSIONS = new String[]
-        { "tif", "tiff", "jpg", "jpeg", "gif", "png" };
-
-    protected List<File> listImageFiles(final File directory)
-    {
-        return FileOperations.getInstance().listFiles(directory, IMAGE_EXTENSIONS, true);
-    }
-
-    // -------------------------------
-
     protected static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractHCSImageFileExtractor.class);
 
@@ -226,7 +215,7 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
     {
         List<File> invalidFiles = new LinkedList<File>();
         List<AcquiredPlateImage> acquiredImages = new ArrayList<AcquiredPlateImage>();
-        List<File> imageFiles = listImageFiles(incomingDataSetDirectory);
+        List<File> imageFiles = ImageFileExtractorUtils.listImageFiles(incomingDataSetDirectory);
         for (final File imageFile : imageFiles)
         {
             InterruptedExceptionUnchecked.check();

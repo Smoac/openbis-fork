@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -101,6 +103,12 @@ public interface IEncapsulatedOpenBISService
      * @return <code>null</code> if nothing found.
      */
     public SampleIdentifier tryToGetSampleIdentifier(String samplePermID)
+            throws UserFailureException;
+
+    /**
+     * Lists vocabulary terms.
+     */
+    public Collection<VocabularyTerm> listVocabularyTerms(String vocabularyCode)
             throws UserFailureException;
 
     /**

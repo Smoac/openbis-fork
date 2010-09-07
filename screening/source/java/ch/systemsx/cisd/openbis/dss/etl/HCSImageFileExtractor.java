@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 
 /**
  * Generic image extractor implementation. The images names should have an extension present in
- * {@link #IMAGE_EXTENSIONS} constant. Each image name should adhere to the schema:<br>
+ * {@link ImageFileExtractorUtils#IMAGE_EXTENSIONS} constant. Each image name should adhere to the schema:<br>
  * 
  * <pre>
  * &lt;any-text&gt;_&lt;plate-code&gt;_&lt;well-code&gt;_&lt;tile-code&gt;_&lt;channel-name&gt;.&lt;allowed-image-extension&gt;

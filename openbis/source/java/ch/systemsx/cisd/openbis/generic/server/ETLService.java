@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabul
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -729,6 +731,20 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throws UserFailureException
     {
         return tryGetDataSet(sessionToken, dataSetCode);
+    }
+
+    public Collection<VocabularyTerm> listVocabularyTerms(String sessionToken, String vocabularyCode)
+            throws UserFailureException
+    {
+        checkSession(sessionToken);
+        VocabularyPE vocabularyOrNull =
+                getDAOFactory().getVocabularyDAO().tryFindVocabularyByCode(vocabularyCode);
+        if (vocabularyOrNull == null)
+        {
+            throw new UserFailureException(String.format("Vocabulary '%s' not found",
+                    vocabularyCode));
+        }
+        return VocabularyTermTranslator.translateTerms(vocabularyOrNull.getTerms());
     }
 
 }

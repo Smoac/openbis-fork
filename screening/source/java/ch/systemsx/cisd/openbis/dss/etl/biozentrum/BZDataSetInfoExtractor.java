@@ -18,16 +18,19 @@ package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
+import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractorUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -49,7 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 
 /**
  * Data set info extractor dealing with BZ data. Creates experiments and plates if needed.
- *
+ * 
  * @author Izabela Adamczyk
  */
 public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
@@ -58,8 +61,6 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
     static final String SPACE_CODE = "space-code";
 
     static final String PROJECT_CODE = "project-code";
-
-    static final String PLATE_GEOMETRY = "plate-geometry";
 
     private final Properties properties;
 
@@ -76,7 +77,6 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         DirectoryDatasetInfoExtractor tokens =
                 new DirectoryDatasetInfoExtractor(FilenameUtils.getBaseName(incomingDataSetPath
                         .getPath()));
-        String plateGeometry = PropertyUtils.getMandatoryProperty(properties, PLATE_GEOMETRY);
         String spaceCode = PropertyUtils.getMandatoryProperty(properties, SPACE_CODE);
         String projectCode = PropertyUtils.getMandatoryProperty(properties, PROJECT_CODE);
         String sampleCode = getSampleCode(tokens);
@@ -89,6 +89,25 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         Sample sampleOrNull = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
         if (sampleOrNull == null)
         {
+            Collection<VocabularyTerm> terms =
+                    openbisService.listVocabularyTerms(ScreeningConstants.PLATE_GEOMETRY);
+            List<String> plateGeometries = new ArrayList<String>();
+            for (VocabularyTerm v : terms)
+            {
+                plateGeometries.add(v.getCode());
+            }
+            List<File> imageFiles = ImageFileExtractorUtils.listImageFiles(incomingDataSetPath);
+            List<Location> plateLocations = new ArrayList<Location>();
+            for (File imageFile : imageFiles)
+            {
+                String baseName = FilenameUtils.getBaseName(imageFile.getPath());
+                String plateLocationToken =
+                        HCSImageFileExtractor.extractFileInfo(baseName).getPlateLocationToken();
+                plateLocations.add(Location
+                        .tryCreateLocationFromTransposedMatrixCoordinate(plateLocationToken));
+            }
+            String plateGeometry =
+                    PlateGeometryOracle.figureGeometry(plateLocations, plateGeometries);
             registerSampleWithExperiment(openbisService, sampleIdentifier, experimentIdentifier,
                     plateGeometry);
             sampleOrNull = openbisService.tryGetSampleWithExperiment(sampleIdentifier);

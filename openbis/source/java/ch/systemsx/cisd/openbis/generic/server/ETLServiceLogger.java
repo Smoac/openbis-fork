@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -298,5 +300,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public Collection<VocabularyTerm> listVocabularyTerms(String sessionToken, String vocabulary)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "listVocabularyTerms", "VOCABULARY(%s)", vocabulary);
+        return null;
+    }
 
 }
