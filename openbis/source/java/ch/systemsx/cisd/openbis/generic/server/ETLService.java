@@ -719,7 +719,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throw new UserFailureException(
                     String
                             .format(
-                                    "Expected exactly one Data Store Server to be registered for openBIS but found %s",
+                                    "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
                                     dataStores.size()));
         }
         return dataStores.get(0).getRemoteUrl();
