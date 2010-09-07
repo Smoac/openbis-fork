@@ -136,6 +136,8 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
 
         private String[] materialTypeCodes;
 
+        private boolean exactMatchOnly;
+
         // GWT only
         @SuppressWarnings("unused")
         private MaterialSearchCodesCriteria()
@@ -143,8 +145,9 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         }
 
         public MaterialSearchCodesCriteria(String[] materialCodesOrProperties,
-                String[] materialTypeCodes)
+                String[] materialTypeCodes, boolean exactMatchOnly)
         {
+            this.exactMatchOnly = exactMatchOnly;
             for (int i = 0; i < materialCodesOrProperties.length; i++)
             {
                 materialCodesOrProperties[i] = materialCodesOrProperties[i].toUpperCase();
@@ -156,6 +159,11 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         public String[] getMaterialCodesOrProperties()
         {
             return materialCodesOrProperties;
+        }
+
+        public boolean isExactMatchOnly()
+        {
+            return exactMatchOnly;
         }
 
         public String[] getMaterialTypeCodes()
@@ -188,10 +196,10 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
          * of codes and type contained in the specified list of types.
          */
         public static final MaterialSearchCriteria createCodesCriteria(String[] materialCodes,
-                String[] materialTypeCodes)
+                String[] materialTypeCodes, boolean exactMatchOnly)
         {
             return new MaterialSearchCriteria(new MaterialSearchCodesCriteria(materialCodes,
-                    materialTypeCodes), null);
+                    materialTypeCodes, exactMatchOnly), null);
         }
 
         public static final MaterialSearchCriteria createIdCriteria(TechId materialId)

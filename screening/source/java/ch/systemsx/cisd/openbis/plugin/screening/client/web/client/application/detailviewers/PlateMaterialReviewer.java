@@ -95,13 +95,14 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             IEntityInformationHolderWithIdentifier experiment, String[] materialItemList,
-            String[] materialTypeCodes)
+            String[] materialTypeCodes, boolean exactMatchOnly)
     {
         ExperimentSearchCriteria experimentCriteria =
                 ExperimentSearchCriteria.createExperiment(experiment.getId(), experiment
                         .getIdentifier());
         MaterialSearchCriteria materialCriteria =
-                MaterialSearchCriteria.createCodesCriteria(materialItemList, materialTypeCodes);
+                MaterialSearchCriteria.createCodesCriteria(materialItemList, materialTypeCodes,
+                        exactMatchOnly);
         return create(viewContext, experimentCriteria, materialCriteria);
     }
 

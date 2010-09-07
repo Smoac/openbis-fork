@@ -51,6 +51,8 @@ var screening = {
 
     EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Reviewing Panel",
     EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Well Materials",
+		EXACT_MATCH_ONLY: "Only Exactly Matching",
+	
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

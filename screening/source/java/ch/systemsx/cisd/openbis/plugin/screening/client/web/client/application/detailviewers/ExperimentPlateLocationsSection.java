@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineItemsField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -48,6 +49,8 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
 
     private final MultilineItemsField materialListField;
 
+    private final CheckBoxField exactMatchOnly;
+
     private List<MaterialType> materialTypesOrNull;
 
     public ExperimentPlateLocationsSection(
@@ -59,6 +62,9 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         this.screeningViewContext = screeningViewContext;
         this.experiment = experiment;
         this.materialListField = createMaterialListArea();
+        this.exactMatchOnly =
+                new CheckBoxField(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY), false);
+        exactMatchOnly.setBoxLabel(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY));
         setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER, ID_SUFFIX);
         screeningViewContext.getCommonService().listMaterialTypes(
                 new AbstractAsyncCallback<List<MaterialType>>(screeningViewContext)
@@ -99,6 +105,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
             });
 
         container.add(new Label(viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_HELP_INFO)));
+        container.add(exactMatchOnly);
         container.add(materialListField);
         container.add(searchButton);
         container.setScrollMode(Scroll.AUTO);
@@ -154,7 +161,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         }
         String[] materialTypeCodes = Code.extractCodesToArray(materialTypesOrNull);
         return PlateMaterialReviewer.create(screeningViewContext, experiment, materialItemList,
-                materialTypeCodes);
+                materialTypeCodes, exactMatchOnly.getValue());
     }
 
 }

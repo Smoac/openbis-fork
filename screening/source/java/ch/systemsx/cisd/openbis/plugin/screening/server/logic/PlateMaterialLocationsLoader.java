@@ -281,13 +281,13 @@ public class PlateMaterialLocationsLoader
             if (expId == null)
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids,
-                                codesCriteria.getMaterialTypeCodes());
+                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
+                                .getMaterialTypeCodes());
             } else
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids,
-                                codesCriteria.getMaterialTypeCodes(), expId);
+                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
+                                .getMaterialTypeCodes(), expId);
             }
 
         } else if (materialSearchCriteria.tryGetMaterialId() != null)
@@ -338,10 +338,10 @@ public class PlateMaterialLocationsLoader
         }
         criteria.setCriteria(listOfCriteria);
         criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
-        return ArrayUtils.toPrimitive(daoFactory
-                .getHibernateSearchDAO()
-                .searchForEntityIds(criteria,
-                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
+        criteria.setUseWildcardSearchMode(codesCriteria.isExactMatchOnly());// FIXME
+        return ArrayUtils.toPrimitive(daoFactory.getHibernateSearchDAO().searchForEntityIds(
+                criteria,
+                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
                 .toArray(new Long[0]));
     }
 

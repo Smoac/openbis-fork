@@ -68,6 +68,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS =
             "PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS";
 
+    public static final String EXACT_MATCH_ONLY = "EXACT_MATCH_ONLY";
+
     private Dict()
     {
         // Can not be instantiated.
