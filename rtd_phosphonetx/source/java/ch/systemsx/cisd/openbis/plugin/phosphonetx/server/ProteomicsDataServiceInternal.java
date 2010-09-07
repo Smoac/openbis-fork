@@ -66,6 +66,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDataServiceInternal> implements
         IProteomicsDataServiceInternal
 {
+    @Private static final String SEARCH_EXPERIMENT_TYPE = "MS_SEARCH";
+
     @Private
     static final String SPACE_CODE = "MS_DATA";
 
@@ -177,7 +179,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         IDAOFactory daoFactory = getDAOFactory();
         IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT);
         ExperimentTypePE type =
-                (ExperimentTypePE) entityTypeDAO.tryToFindEntityTypeByCode("MS_SEARCH");
+                (ExperimentTypePE) entityTypeDAO.tryToFindEntityTypeByCode(SEARCH_EXPERIMENT_TYPE);
         List<ExperimentPE> experiments =
                 daoFactory.getExperimentDAO().listExperimentsWithProperties(type, null);
         return ExperimentTranslator.translate(experiments, "",

@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -35,10 +38,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -205,11 +211,81 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).processRawData(session2.getSessionToken(), null, ids, "my-type");
+                    one(internalService).processRawData(session2.getSessionToken(), "dsp1", ids, "my-type");
                 }
             });
 
-        service.processingRawData(SESSION_TOKEN, "abc", null, ids, "my-type");
+        service.processingRawData(SESSION_TOKEN, "abc", "dsp1", ids, "my-type");
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testListSearchExperiments()
+    {
+        prepareGetSession();
+        prepareLoginLogout(session2);
+        final Experiment e = new Experiment();
+        e.setId(42L);
+        e.setCode("E42");
+        Project project = new Project();
+        project.setCode("p");
+        Space space = new Space();
+        space.setCode("s");
+        project.setSpace(space);
+        e.setProject(project);
+        e.setRegistrationDate(new Date(4711));
+        EntityProperty p1 = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode("ANSWER");
+        propertyType.setLabel("answer");
+        propertyType.setDataType(new DataType(DataTypeCode.INTEGER));
+        p1.setPropertyType(propertyType);
+        p1.setValue("42");
+        e.setProperties(Arrays.<IEntityProperty>asList(p1));
+        context.checking(new Expectations()
+            {
+                {
+                    one(internalService).listSearchExperiments(session2.getSessionToken());
+                    will(returnValue(Arrays.asList(e)));
+                }
+            });
+        
+        List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> experiments =
+                service.listSearchExperiments(SESSION_TOKEN, "abc");
+        
+        assertEquals(e.getId().longValue(), experiments.get(0).getId());
+        assertEquals(e.getCode(), experiments.get(0).getCode());
+        assertEquals(e.getProject().getCode(), experiments.get(0).getProjectCode());
+        assertEquals(e.getProject().getSpace().getCode(), experiments.get(0).getSpaceCode());
+        assertEquals(e.getRegistrationDate(), experiments.get(0).getRegistrationDate());
+        Map<PropertyKey, Serializable> properties = experiments.get(0).getProperties();
+        Set<Entry<PropertyKey, Serializable>> entrySet = properties.entrySet();
+        List<Entry<PropertyKey, Serializable>> list = new ArrayList<Entry<PropertyKey, Serializable>>(entrySet);
+        assertEquals(e.getProperties().get(0).getPropertyType().getCode(), list.get(0).getKey().getId());
+        assertEquals(e.getProperties().get(0).getPropertyType().getLabel(), list.get(0).getKey().getLabel());
+        Serializable value = list.get(0).getValue();
+        assertEquals(Long.class, value.getClass());
+        assertEquals(e.getProperties().get(0).getValue(), value.toString());
+        assertEquals(1, properties.size());
+        assertEquals(1, experiments.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProcessSearchData()
+    {
+        prepareGetSession();
+        prepareLoginLogout(session2);
+        final long[] ids = new long[] {42};
+        context.checking(new Expectations()
+            {
+                {
+                    one(internalService).processSearchData(session2.getSessionToken(), "dsp1", ids);
+                }
+            });
+
+        service.processSearchData(SESSION_TOKEN, "abc", "dsp1", ids);
 
         context.assertIsSatisfied();
     }

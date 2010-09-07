@@ -19,14 +19,18 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.SEARCH_EXPERIMENT_TYPE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.SPACE_CODE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hamcrest.BaseMatcher;
@@ -38,9 +42,11 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
@@ -48,7 +54,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
@@ -58,11 +74,15 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 @Friend(toClasses = ProteomicsDataServiceInternal.class)
 public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 {
+    private static final String GROUP_CODE = "g";
+
     private static final String COPY_PROCESSING_KEY = "copy-data-sets";
 
     private IProteomicsDataServiceInternal service;
 
     private ICommonBusinessObjectFactory boFactory;
+
+    private ExperimentTypePE experimentType;
 
     @Override
     @BeforeMethod
@@ -71,6 +91,9 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         super.setUp();
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         service = new ProteomicsDataServiceInternal(sessionManager, daoFactory, boFactory);
+        experimentType = new ExperimentTypePE();
+        experimentType.setCode(SEARCH_EXPERIMENT_TYPE);
+        experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
     }
 
     @Test
@@ -93,6 +116,154 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         prepareListRawDataSamples(1L, 2L, 3L, 42L);
         final long[] ids = new long[]
             { 2 };
+        HashMap<String, String> parameterBindings = new HashMap<String, String>();
+        parameterBindings.put("ds-2", "s-2");
+        prepareProcessDataSets(SESSION, parameterBindings, "ds-2");
+
+        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids, "dt-0");
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListSearchExperiments()
+    {
+        prepareGetSession();
+        final ExperimentPE e1 = experiment(1);
+        final ExperimentPE e2 = experiment(2, "a");
+        prepareListSearchExperiments(e1, e2);
+        
+        List<Experiment> list = service.listSearchExperiments(SESSION_TOKEN);
+        
+        assertEquals("HOME_DATABASE:/G/P/e1", list.get(0).getIdentifier());
+        assertEquals(1, list.get(0).getRegistrationDate().getTime());
+        assertEquals(0, list.get(0).getProperties().size());
+        assertEquals("HOME_DATABASE:/G/P/e2", list.get(1).getIdentifier());
+        assertEquals(4, list.get(1).getRegistrationDate().getTime());
+        assertEquals("A", list.get(1).getProperties().get(0).getPropertyType().getCode());
+        assertEquals("a-value", list.get(1).getProperties().get(0).getValue());
+        assertEquals(1, list.get(1).getProperties().size());
+        assertEquals(2, list.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProcessSearchData()
+    {
+        final Session session = createSessionAndPrepareGetSession(GROUP_CODE);
+        final ExperimentPE e1 = experiment(1);
+        final ExperimentPE e2 = experiment(2, "a");
+        prepareListSearchExperiments(e1, e2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).tryGetByTechId(new TechId(e1.getId()));
+                    will(returnValue(e1));
+
+                    one(externalDataDAO).listExternalData(e1);
+                    ExternalDataPE ds1 = new ExternalDataPE();
+                    ds1.setCode("ds1");
+                    will(returnValue(Arrays.asList(ds1)));
+
+                    one(experimentDAO).tryGetByTechId(new TechId(e2.getId()));
+                    will(returnValue(e2));
+
+                    one(externalDataDAO).listExternalData(e2);
+                    ExternalDataPE ds2 = new ExternalDataPE();
+                    ds2.setCode("ds2");
+                    will(returnValue(Arrays.asList(ds2)));
+                }
+            });
+        prepareProcessDataSets(session, new HashMap<String, String>(), "ds1", "ds2");
+        
+        service.processSearchData(SESSION_TOKEN, COPY_PROCESSING_KEY, new long[] {e1.getId(), e2.getId()});
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProcessSearchDataFilteredByValidator()
+    {
+        Session session = createSessionAndPrepareGetSession(GROUP_CODE + 2);
+        final ExperimentPE e1 = experiment(1);
+        final ExperimentPE e2 = experiment(2, "a");
+        prepareListSearchExperiments(e1, e2);
+        prepareProcessDataSets(session, new HashMap<String, String>());
+        
+        service.processSearchData(SESSION_TOKEN, COPY_PROCESSING_KEY, new long[] {e1.getId(), e2.getId()});
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testProcessSearchDataFilteredByIds()
+    {
+        Session session = createSessionAndPrepareGetSession(GROUP_CODE);
+        final ExperimentPE e1 = experiment(1);
+        final ExperimentPE e2 = experiment(2, "a");
+        prepareListSearchExperiments(e1, e2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).tryGetByTechId(new TechId(e1.getId()));
+                    will(returnValue(e1));
+
+                    one(externalDataDAO).listExternalData(e1);
+                    ExternalDataPE ds1 = new ExternalDataPE();
+                    ds1.setCode("ds1");
+                    will(returnValue(Arrays.asList(ds1)));
+                }
+            });
+        prepareProcessDataSets(session, new HashMap<String, String>(), "ds1");
+
+        service.processSearchData(SESSION_TOKEN, COPY_PROCESSING_KEY, new long[] {e1.getId()});
+        
+        context.assertIsSatisfied();
+    }
+    
+
+    private Session createSessionAndPrepareGetSession(String spaceCode)
+    {
+        final Session session =
+                new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
+        PersonPE person = new PersonPE();
+        RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
+        GroupPE group = new GroupPE();
+        group.setCode(spaceCode);
+        group.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
+        roleAssignmentPE.setGroup(group);
+        person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignmentPE)));
+        session.setPerson(person);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(sessionManager).getSession(SESSION_TOKEN);
+                    will(returnValue(session));
+                }
+            });
+        return session;
+    }
+    
+    private void prepareListSearchExperiments(final ExperimentPE... experiments)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(SEARCH_EXPERIMENT_TYPE);
+                    will(returnValue(experimentType));
+
+                    one(experimentDAO).listExperimentsWithProperties(experimentType, null);
+                    will(returnValue(Arrays.asList(experiments)));
+                }
+            });
+    }
+    
+    private void prepareProcessDataSets(final Session session,
+            final Map<String, String> parameterBindings, final String... dataSetCodes)
+    {
         context.checking(new Expectations()
             {
                 {
@@ -103,23 +274,16 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     DataStorePE s2 = store("s2", service(COPY_PROCESSING_KEY, PROCESSING));
                     will(returnValue(Arrays.asList(s1, s2)));
 
-                    one(boFactory).createExternalDataTable(SESSION);
+                    one(boFactory).createExternalDataTable(session);
                     will(returnValue(externalDataTable));
 
-                    List<String> dataSetCodes = Arrays.asList("ds-2");
-                    HashMap<String, String> parameterBindings = new HashMap<String, String>();
-                    parameterBindings.put("ds-2", "s-2");
-                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2", dataSetCodes,
-                            parameterBindings);
+                    one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2",
+                            Arrays.asList(dataSetCodes), parameterBindings);
                 }
 
             });
-
-        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids, "dt-0");
-
-        context.assertIsSatisfied();
     }
-
+    
     private void prepareListRawDataSamples(final Long... sampleIDs)
     {
         final List<Sample> samples = new ArrayList<Sample>();
@@ -199,6 +363,32 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     will(returnValue(Collections.<Long, Set<Long>> emptyMap()));
                 }
             });
+    }
+    
+    private ExperimentPE experiment(long id, String... properties)
+    {
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setExperimentType(experimentType);
+        experiment.setId(id);
+        experiment.setCode("e" + id);
+        ProjectPE project = new ProjectPE();
+        project.setCode("p");
+        GroupPE group = CommonTestUtils.createGroup(GROUP_CODE, CommonTestUtils.createHomeDatabaseInstance());
+        project.setGroup(group);
+        experiment.setProject(project);
+        experiment.setRegistrationDate(new Date(id * id));
+        if (properties.length > 0)
+        {
+            LinkedHashSet<EntityPropertyPE> props = new LinkedHashSet<EntityPropertyPE>();
+            for (String property : properties)
+            {
+                props.add(CommonTestUtils.createExperimentPropertyPE(property,
+                        ProteomicsDataServiceInternal.SEARCH_EXPERIMENT_TYPE, DataTypeCode.VARCHAR,
+                        property + "-value"));
+            }
+            experiment.setProperties(props);
+        }
+        return experiment;
     }
 
     private DataStorePE store(String code, DataStoreServicePE... services)
