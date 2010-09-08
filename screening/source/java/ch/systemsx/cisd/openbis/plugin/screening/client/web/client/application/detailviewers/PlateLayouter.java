@@ -286,37 +286,27 @@ public class PlateLayouter
         for (IEntityProperty property : properties)
         {
             PropertyType propertyType = property.getPropertyType();
-            tooltip += "<br>" + propertyType.getLabel() + ": ";
+            tooltip += "<br>" + propertyType.getLabel() + ": " + property.tryGetAsString();
             Material material = property.getMaterial();
             if (material != null
                     && material.getMaterialType().getCode().equalsIgnoreCase(
                             ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
                 List<IEntityProperty> geneProperties = material.getProperties();
-                String geneSymbols = tryToGetGeneSymbols(geneProperties);
-                tooltip += geneSymbols == null ? property.tryGetAsString() : geneSymbols;
-            } else
-            {
-                tooltip += property.tryGetAsString();
+                for (IEntityProperty geneProperty : geneProperties)
+                {
+                    if (geneProperty.getPropertyType().getCode().equalsIgnoreCase(
+                            ScreeningConstants.GENE_SYMBOLS))
+                    {
+                        tooltip += " [" + geneProperty.tryGetAsString() + "]";
+                    }
+                }
             }
         }
         GWTUtils.setToolTip(widget, tooltip);
 
     }
     
-    private static String tryToGetGeneSymbols(List<IEntityProperty> geneProperties)
-    {
-        for (IEntityProperty geneProperty : geneProperties)
-        {
-            if (geneProperty.getPropertyType().getCode().equalsIgnoreCase(
-                    ScreeningConstants.GENE_SYMBOLS))
-            {
-                return geneProperty.tryGetAsString();
-            }
-        }
-        return null;
-    }
-
     // Elements will not contain null even if well is empty.
     // Numbering starts with 1 so row and column with index 0 are left empty.
     private static WellData[][] createMatrix(PlateImages plateContent)

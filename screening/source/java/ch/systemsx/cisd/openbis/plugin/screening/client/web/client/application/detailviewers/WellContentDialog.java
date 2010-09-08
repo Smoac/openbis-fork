@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
@@ -49,13 +50,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A dialog which shows the content of the well (static or a timepoints movie).
@@ -429,13 +430,14 @@ public class WellContentDialog extends Dialog
         Material material = property.getMaterial();
         if (material != null)
         {
-            container.add(createPlateLocationsMaterialViewerLink(material));
 
             if (material.getMaterialType().getCode().equalsIgnoreCase(
                     ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
-                container.add(new Text("Gene details: "), cellLayout);
                 container.add(createEntityExternalLink(material));
+            } else
+            {
+                container.add(createPlateLocationsMaterialViewerLink(material));
             }
         } else
         {
@@ -454,25 +456,36 @@ public class WellContentDialog extends Dialog
                 value = prop.getValue();
             }
         }
+        LayoutContainer container = new LayoutContainer();
+        HBoxLayout layout = new HBoxLayout();
+        container.setLayout(layout);
+        container.add(createPlateLocationsMaterialViewerLink(gene));
+        LayoutContainer spacer = new LayoutContainer();
+        spacer.setWidth(10);
+        container.add(spacer);
+        container.add(new Text("["));
         if (value != null && StringUtils.isBlank(value) == false)
         {
             String[] symbols = value.split(" ");
-            StringBuilder sb = new StringBuilder();
-            for (String s : symbols)
+            for (int i = 0; i < symbols.length; i++)
             {
-                if (sb.length() != 0)
+                String symbol = symbols[i];
+                if (i > 0)
                 {
-                    sb.append(", ");
+                    container.add(new Text(","));
                 }
-                sb.append(LinkRenderer.renderAsLinkWithAnchor(s, viewContext.getMessage(
-                        Dict.GENE_LIBRARY_URL, s), true));
+                String message = viewContext.getMessage(Dict.GENE_LIBRARY_URL, symbol);
+                String link = LinkRenderer.renderAsLinkWithAnchor(symbol, message, true);
+                container.add(new Html(link));
             }
-            return new Html(sb.toString());
         } else
         {
-            return new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", viewContext
-                    .getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true));
+            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", viewContext
+                    .getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
         }
+        container.add(new Text("]"));
+        container.setWidth(200);
+        return container;
     }
 
     private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)
