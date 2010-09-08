@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIde
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
@@ -71,8 +71,7 @@ public class ScreeningClientApiTest
         String userPassword = args[1];
         String serverUrl = args[2];
 
-        System.out.println(String.format("Connecting to the server '%s' as a user '%s.", serverUrl,
-                userId));
+        print(String.format("Connecting to the server '%s' as a user '%s.", serverUrl, userId));
         IScreeningOpenbisServiceFacade facade =
                 ScreeningOpenbisServiceFacadeFactory.tryCreate(userId, userPassword, serverUrl);
         if (facade == null)
@@ -81,22 +80,22 @@ public class ScreeningClientApiTest
             return;
         }
         List<ExperimentIdentifier> experiments = facade.listExperiments();
-        System.out.println("Experiments: " + experiments);
+        print("Experiments: " + experiments);
 
-        MaterialIdentifier gene = new MaterialIdentifier(MaterialTypeIdentifier.GENE, "OPRS1");
+        MaterialIdentifier gene = new MaterialIdentifier(MaterialTypeIdentifier.GENE, "1111");
         ExperimentIdentifier experimentIdentifer = experiments.get(0);
         List<PlateWellReferenceWithDatasets> plateWells =
                 facade.listPlateWells(experimentIdentifer, gene, true);
-        System.out.println(String.format("Wells with gene '%s' in experiment '%s': %s", gene,
+        print(String.format("Wells with gene '%s' in experiment '%s': %s", gene,
                 experimentIdentifer, plateWells));
 
         List<FeatureVectorWithDescription> featuresForPlateWells =
                 facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null);
-        System.out.println("Features for wells: " + featuresForPlateWells);
+        print("Features for wells: " + featuresForPlateWells);
 
         List<FeatureVectorWithDescription> featuresForPlateWellsCheck =
-                facade.loadFeaturesForDatasetWellReferences(facade
-                        .convertToFeatureVectorDatasetWellIdentifier(plateWells), null);
+                facade.loadFeaturesForDatasetWellReferences(
+                        facade.convertToFeatureVectorDatasetWellIdentifier(plateWells), null);
 
         if (featuresForPlateWellsCheck.equals(featuresForPlateWells) == false)
         {
@@ -106,19 +105,23 @@ public class ScreeningClientApiTest
         }
 
         List<Plate> plates = facade.listPlates();
-        System.out.println("Plates: " + plates);
+        print("Plates: " + plates);
         List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
-        System.out.println("Image datasets: " + imageDatasets);
+        print("Image datasets: " + imageDatasets);
+
         List<FeatureVectorDatasetReference> featureVectorDatasets =
                 facade.listFeatureVectorDatasets(plates);
-        System.out.println("Feature vector datasets: " + featureVectorDatasets);
-        loadImages(facade, getFirstFive(facade, imageDatasets));
+        print("Feature vector datasets: " + featureVectorDatasets);
+
         List<String> featureCodes = facade.listAvailableFeatureCodes(featureVectorDatasets);
-        System.out.println("Feature codes: " + featureCodes);
+        print("Feature codes: " + featureCodes);
         List<FeatureVectorDataset> features =
                 facade.loadFeatures(featureVectorDatasets, featureCodes);
-        System.out.println("Features: " + features);
-
+        print("Loaded feature datasets: " + features.size());
+        if (features.size() > 0)
+        {
+            print("Features of the first dataset: " + features.get(0));
+        }
         Map<String, List<ImageDatasetReference>> imageDataSetReferencesPerDss =
                 new HashMap<String, List<ImageDatasetReference>>();
         for (ImageDatasetReference imageDataset : imageDatasets)
@@ -136,18 +139,20 @@ public class ScreeningClientApiTest
         for (List<ImageDatasetReference> imageDataSets : bundle)
         {
             List<ImageDatasetMetadata> imageMetadata = facade.listImageMetadata(imageDataSets);
-            System.out.println("Image metadata: " + imageMetadata);
+            print("Image metadata: " + imageMetadata);
         }
-        loadImagesFromFeatureVectors(facade, getFirstFive(facade, featureVectorDatasets));
+
+        loadImages(facade, getFirstTwo(facade, imageDatasets));
+        // loadImagesFromFeatureVectors(facade, getFirstTwo(facade, featureVectorDatasets));
 
         facade.logout();
     }
 
-    private static <T extends DatasetIdentifier> List<T> getFirstFive(
+    private static <T extends DatasetIdentifier> List<T> getFirstTwo(
             IScreeningOpenbisServiceFacade facade, List<T> identfiers)
     {
         List<T> result = new ArrayList<T>();
-        for (int i = 0; i < Math.min(5, identfiers.size()); i++)
+        for (int i = 0; i < Math.min(2, identfiers.size()); i++)
         {
             T ident = identfiers.get(i);
             result.add(ident);
@@ -190,7 +195,7 @@ public class ScreeningClientApiTest
         {
             ImageDatasetMetadata metadata = metadataMap.get(datasetIdentifier);
             List<PlateImageReference> datasetImageRefs =
-                    createWholePlateImageReferences(metadata, datasetIdentifier);
+                    createOneWellImageReferences(metadata, datasetIdentifier);
             imageRefs.addAll(datasetImageRefs);
         }
         return imageRefs;
@@ -208,25 +213,19 @@ public class ScreeningClientApiTest
         return imageFiles;
     }
 
-    private static List<PlateImageReference> createWholePlateImageReferences(
+    private static List<PlateImageReference> createOneWellImageReferences(
             ImageDatasetMetadata metadata, ImageDatasetReference datasetIdentifier)
     {
         List<PlateImageReference> imageRefs = new ArrayList<PlateImageReference>();
-        Geometry plateGeometry = datasetIdentifier.getPlateGeometry();
-        for (int wellRow = 1; wellRow <= plateGeometry.getNumberOfRows(); wellRow++)
+        int wellRow = 1;
+        int wellCol = 3;
+        for (String channel : metadata.getChannelCodes())
         {
-            for (int wellCol = 1; wellCol <= plateGeometry.getNumberOfColumns(); wellCol++)
+            for (int tile = 0; tile < metadata.getNumberOfTiles(); tile++)
             {
-                for (String channel : metadata.getChannelCodes())
-                {
-                    for (int tile = 0; tile < metadata.getNumberOfTiles(); tile++)
-                    {
-                        PlateImageReference imageRef =
-                                new PlateImageReference(wellRow, wellCol, tile, channel,
-                                        datasetIdentifier);
-                        imageRefs.add(imageRef);
-                    }
-                }
+                PlateImageReference imageRef =
+                        new PlateImageReference(wellRow, wellCol, tile, channel, datasetIdentifier);
+                imageRefs.add(imageRef);
             }
         }
         return imageRefs;
@@ -245,6 +244,7 @@ public class ScreeningClientApiTest
         return map;
     }
 
+    @SuppressWarnings("unused")
     private static void loadImagesFromFeatureVectors(IScreeningOpenbisServiceFacade facade,
             List<FeatureVectorDatasetReference> datasetIdentifiers) throws FileNotFoundException,
             IOException
@@ -275,6 +275,7 @@ public class ScreeningClientApiTest
             List<PlateImageReference> imageReferences, List<File> imageOutputFiles)
             throws IOException
     {
+        print("Load " + imageReferences.size() + " images");
         final Map<PlateImageReference, OutputStream> imageRefToFileMap =
                 createImageToFileMap(imageReferences, imageOutputFiles);
         try
@@ -291,6 +292,11 @@ public class ScreeningClientApiTest
         {
             closeOutputStreams(imageRefToFileMap.values());
         }
+    }
+
+    private static void print(String msg)
+    {
+        System.out.println(new Date() + "\t" + msg);
     }
 
     private static void closeOutputStreams(Collection<OutputStream> streams) throws IOException
