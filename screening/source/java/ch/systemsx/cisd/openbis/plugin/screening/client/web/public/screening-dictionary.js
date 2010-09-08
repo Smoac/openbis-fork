@@ -29,7 +29,7 @@ var screening = {
 	//
 	// Sample import
 	//
-  import_scheduled: "Import started successfully. Notification will be sent to '{0}' upon completion.",
+  import_scheduled: "Import has started successfully. Notification will be sent to '{0}' upon completion.",
 	register: "Register",
 	
 	//
@@ -46,12 +46,12 @@ var screening = {
     WELL_CONTENT_MATERIAL_TYPE: "Content Type",
     WELL_CONTENT_PROPERTIES: "Content Properties",
     PLATE_MATERIAL_REVIEWER_TITLE: "Wells Reviewing Panel",
-    PLATE_MATERIAL_REVIEWER_HELP_INFO: "Specify a list of material codes contained in the wells (e.g. gene symbols, control names or compound names). Press the search button. The content of all wells in this experiment will be checked and wells containing specified materials will be shown.",
-    PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of material codes contained in the wells (e.g. gene symbols, control names or compound names) separated by commas (\",\") or one code per line.",
+    PLATE_MATERIAL_REVIEWER_HELP_INFO: "Specify a list of materials contained in the wells. You can use material codes or properties. The content of all wells in this experiment will be checked and wells containing specified materials will be shown.",
+    PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of material codes or properties (e.g. gene ids, gene symbols, gene descriptions, control names, compound names) separated by commas (\",\") or one item per line.",
 
     EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Reviewing Panel",
     EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Well Materials",
-		EXACT_MATCH_ONLY: "Only Exactly Matching",
+		EXACT_MATCH_ONLY: "Exact Matches Only",
 	
   
   // LAST LINE: KEEP IT AT THE END
