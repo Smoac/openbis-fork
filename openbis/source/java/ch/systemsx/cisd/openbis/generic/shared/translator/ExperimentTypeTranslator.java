@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
