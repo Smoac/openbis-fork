@@ -171,7 +171,7 @@ BEGIN
 	delete from material_type_property_types where id = 
 		(select mtpt.id from material_type_property_types mtpt, material_types mt, property_types pt 
 			where pt.id = mtpt.prty_id and mtpt.maty_id = mt.id 
-			and pt.code = 'LIBRARY_ID' and mt.code = 'GENE')
+			and pt.code = 'LIBRARY_ID' and mt.code = 'GENE');
 	
 END;
 $$ LANGUAGE 'plpgsql';
