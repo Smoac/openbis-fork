@@ -49,23 +49,41 @@ class ImageDatasetLoader extends PlateDatasetLoader
     /**
      * Return the image datasets for the specified plates.
      */
-    public List<ImageDatasetReference> getImageDatasets()
+    public List<ExternalData> getImageDatasets()
     {
         load();
         return filterImageDatasets();
     }
 
-    private List<ImageDatasetReference> filterImageDatasets()
+    /**
+     * Return the image datasets references for the specified plates.
+     */
+    public List<ImageDatasetReference> getImageDatasetReferences()
     {
-        List<ImageDatasetReference> result = new ArrayList<ImageDatasetReference>();
+        return asImageDatasetReferences(getImageDatasets());
+    }
+
+    private List<ExternalData> filterImageDatasets()
+    {
+        List<ExternalData> result = new ArrayList<ExternalData>();
         for (ExternalData externalData : getDatasets())
         {
             if (ScreeningUtils.isTypeEqual(externalData, ScreeningConstants.IMAGE_DATASET_TYPE))
             {
-                result.add(asImageDataset(externalData));
+                result.add(externalData);
             }
         }
         return result;
+    }
+
+    private List<ImageDatasetReference> asImageDatasetReferences(List<ExternalData> imageDatasets)
+    {
+        List<ImageDatasetReference> references = new ArrayList<ImageDatasetReference>();
+        for (ExternalData imageDataset : imageDatasets)
+        {
+            references.add(asImageDataset(imageDataset));
+        }
+        return references;
     }
 
     protected ImageDatasetReference asImageDataset(ExternalData externalData)

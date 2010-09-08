@@ -14,39 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.openbis.dss.generic.server.featurevectors;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * Bean for a row in a table of feature vectors. Each row is specified by data set code, plate
- * identifier, well position and and array of feature values. Double.NaN is used for unknown
- * feature value in this array.
+ * identifier, well position and and array of feature values.
  * 
  * @author Franz-Josef Elmer
  */
-public class FeatureTableRow
+public class FeatureTableRow extends FeatureVectorValues
 {
-    private String dataSetCode;
-    
     private FeatureVectorDatasetWellReference reference;
 
     private SampleIdentifier plateIdentifier;
 
-    private WellPosition wellPosition;
-    
-    private float[] featureValues;
-
-    public final String getDataSetCode()
+    public FeatureTableRow(FeatureVectorValues featureVector)
     {
-        return dataSetCode;
-    }
-
-    public final void setDataSetCode(String dataSetCode)
-    {
-        this.dataSetCode = dataSetCode;
+        setDataSetCode(featureVector.getDataSetCode());
+        setFeatureValues(featureVector.getFeatureValues());
+        setWellPosition(featureVector.getWellPosition());
     }
 
     public FeatureVectorDatasetWellReference getReference()
@@ -67,35 +56,5 @@ public class FeatureTableRow
     public final void setPlateIdentifier(SampleIdentifier plateIdentifier)
     {
         this.plateIdentifier = plateIdentifier;
-    }
-
-    public void setWellPosition(WellPosition wellPosition)
-    {
-        this.wellPosition = wellPosition;
-    }
-    
-    public final WellPosition getWellPosition()
-    {
-        return wellPosition;
-    }
-
-    public final float[] getFeatureValues()
-    {
-        return featureValues;
-    }
-
-    public final double[] getFeatureValuesAsDouble()
-    {
-        final double[] doubleValues = new double[featureValues.length];
-        for (int i = 0; i < featureValues.length; ++i)
-        {
-            doubleValues[i] = featureValues[i];
-        }
-        return doubleValues;
-    }
-
-    public final void setFeatureValues(float[] featureValues)
-    {
-        this.featureValues = featureValues;
     }
 }

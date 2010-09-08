@@ -190,7 +190,7 @@ class PlateDatasetLoader
         return new PlateIdentifier(plateCode, spaceCodeOrNull, sample.getPermId());
     }
 
-    protected ExperimentIdentifier createExperimentIdentifier(ExternalData parentDataset)
+    protected static ExperimentIdentifier createExperimentIdentifier(ExternalData parentDataset)
     {
         return asExperimentIdentifier(parentDataset.getExperiment());
     }
@@ -282,7 +282,7 @@ class PlateDatasetLoader
         return sampleIds;
     }
 
-    protected String getDataStoreUrlFromDataStore(DataStore dataStore)
+    protected static String getDataStoreUrlFromDataStore(DataStore dataStore)
     {
         String datastoreUrl = dataStore.getDownloadUrl();
         // The url objained form a DataStore object is the *download* url. Convert this to the

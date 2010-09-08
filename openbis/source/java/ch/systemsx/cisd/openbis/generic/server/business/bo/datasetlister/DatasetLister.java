@@ -30,8 +30,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 
@@ -210,9 +210,10 @@ public class DatasetLister implements IDatasetLister
         return enrichDatasets(query.getParentDatasetsForChild(childDatasetId.getId()));
     }
 
-    public List<ExternalData> listByParentTechId(TechId parentDatasetId)
+    public List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
     {
-        return enrichDatasets(query.getChildDatasetsForParent(parentDatasetId.getId()));
+        return enrichDatasets(query
+                .getChildDatasetsForParents(new LongOpenHashSet(parentDatasetIds)));
     }
 
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
@@ -225,8 +226,8 @@ public class DatasetLister implements IDatasetLister
         Long sampleTypeId =
                 referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria
                         .getConnectedSampleTypeCode());
-        return enrichDatasets(query.getNewDataSetsForSampleType(sampleTypeId, criteria
-                .getLastSeenDataSetId()));
+        return enrichDatasets(query.getNewDataSetsForSampleType(sampleTypeId,
+                criteria.getLastSeenDataSetId()));
     }
 
     public List<ExternalData> listByArchiverCriteria(String dataStoreCode,

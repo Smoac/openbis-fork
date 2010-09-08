@@ -102,9 +102,9 @@ public class ScreeningApiImpl
             List<? extends PlateIdentifier> plates)
     {
         FeatureVectorDatasetLoader datasetRetriever =
-                new FeatureVectorDatasetLoader(session, businessObjectFactory, session
-                        .tryGetHomeGroupCode(), plates);
-        List<FeatureVectorDatasetReference> result = datasetRetriever.getFeatureVectorDatasets();
+                new FeatureVectorDatasetLoader(session, businessObjectFactory,
+                        session.tryGetHomeGroupCode(), plates);
+        List<FeatureVectorDatasetReference> result = datasetRetriever.getFeatureVectorDatasetReferences();
 
         return result;
     }
@@ -112,7 +112,7 @@ public class ScreeningApiImpl
     public List<ImageDatasetReference> listImageDatasets(List<? extends PlateIdentifier> plates)
     {
         return new ImageDatasetLoader(session, businessObjectFactory,
-                session.tryGetHomeGroupCode(), plates).getImageDatasets();
+                session.tryGetHomeGroupCode(), plates).getImageDatasetReferences();
     }
 
     public List<Plate> listPlates()
@@ -154,8 +154,8 @@ public class ScreeningApiImpl
         final String sampleSpaceCode = (sampleSpace != null) ? sampleSpace.getCode() : null;
         final Space experimentSpace = project.getSpace();
         final ExperimentIdentifier experimentId =
-                new ExperimentIdentifier(experiment.getCode(), project.getCode(), experimentSpace
-                        .getCode(), experiment.getPermId());
+                new ExperimentIdentifier(experiment.getCode(), project.getCode(),
+                        experimentSpace.getCode(), experiment.getPermId());
         return new Plate(sample.getCode(), sampleSpaceCode, sample.getPermId(), experimentId);
     }
 
@@ -250,34 +250,41 @@ public class ScreeningApiImpl
             throw UserFailureException.fromTemplate("Material '%s' does not exist",
                     materialIdentifier.getAugmentedCode());
         }
-        final List<WellContent> wellContent;
+        final List<WellContent> wellContents;
         final ExperimentIdentifier fullExperimentIdentifier =
                 getExperimentIdentifierFromDB(experimentIdentifier);
-        wellContent =
+        wellContents =
                 PlateMaterialLocationsLoader.load(session, businessObjectFactory, daoFactory,
                         new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId(),
                         false);
         if (findDatasets)
         {
-            final Set<Plate> plates = new HashSet<Plate>(wellContent.size());
-            for (WellContent w : wellContent)
-            {
-                plates.add(asPlate(fullExperimentIdentifier, w));
-            }
+            final Set<Plate> plates = extractPlates(wellContents, fullExperimentIdentifier);
             final FeatureVectorDatasetLoader datasetRetriever =
-                    new FeatureVectorDatasetLoader(session, businessObjectFactory, session
-                            .tryGetHomeGroupCode(), plates);
-            final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasets();
+                    new FeatureVectorDatasetLoader(session, businessObjectFactory,
+                            session.tryGetHomeGroupCode(), plates);
+            final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasetReferences();
             final List<FeatureVectorDatasetReference> featureVectorDatasets =
-                    datasetRetriever.getFeatureVectorDatasets();
+                    datasetRetriever.getFeatureVectorDatasetReferences();
 
-            return asPlateWellReferences(fullExperimentIdentifier, wellContent,
+            return asPlateWellReferences(fullExperimentIdentifier, wellContents,
                     createPlateToDatasetsMap(imageDatasets, featureVectorDatasets));
         } else
         {
-            return asPlateWellReferences(fullExperimentIdentifier, wellContent, Collections
-                    .<String, DatasetReferenceHolder> emptyMap());
+            return asPlateWellReferences(fullExperimentIdentifier, wellContents,
+                    Collections.<String, DatasetReferenceHolder> emptyMap());
         }
+    }
+
+    private static Set<Plate> extractPlates(final List<WellContent> wellContents,
+            final ExperimentIdentifier fullExperimentIdentifier)
+    {
+        final Set<Plate> plates = new HashSet<Plate>(wellContents.size());
+        for (WellContent wellContent : wellContents)
+        {
+            plates.add(asPlate(fullExperimentIdentifier, wellContent));
+        }
+        return plates;
     }
 
     public List<PlateWellReferenceWithDatasets> listPlateWells(
@@ -294,8 +301,8 @@ public class ScreeningApiImpl
                     materialIdentifier.getAugmentedCode());
         }
         final List<WellContent> wellContent =
-                PlateMaterialLocationsLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
-                        new TechId(materialOrNull.getId()));
+                PlateMaterialLocationsLoader.loadOnlyMetadata(session, businessObjectFactory,
+                        daoFactory, new TechId(materialOrNull.getId()));
 
         if (findDatasets)
         {
@@ -305,18 +312,18 @@ public class ScreeningApiImpl
                 plates.add(asPlate(w));
             }
             final FeatureVectorDatasetLoader datasetRetriever =
-                    new FeatureVectorDatasetLoader(session, businessObjectFactory, session
-                            .tryGetHomeGroupCode(), plates);
-            final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasets();
+                    new FeatureVectorDatasetLoader(session, businessObjectFactory,
+                            session.tryGetHomeGroupCode(), plates);
+            final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasetReferences();
             final List<FeatureVectorDatasetReference> featureVectorDatasets =
-                    datasetRetriever.getFeatureVectorDatasets();
+                    datasetRetriever.getFeatureVectorDatasetReferences();
 
-            return asPlateWellReferences(wellContent, createPlateToDatasetsMap(imageDatasets,
-                    featureVectorDatasets));
+            return asPlateWellReferences(wellContent,
+                    createPlateToDatasetsMap(imageDatasets, featureVectorDatasets));
         } else
         {
-            return asPlateWellReferences(wellContent, Collections
-                    .<String, DatasetReferenceHolder> emptyMap());
+            return asPlateWellReferences(wellContent,
+                    Collections.<String, DatasetReferenceHolder> emptyMap());
         }
     }
 
@@ -330,8 +337,8 @@ public class ScreeningApiImpl
         for (PlateIdentifier plate : plates)
         {
             result.add(toPlateWellMaterialMapping(plate, materialTypeIdentifierOrNull,
-                    getPlateGeometry(query, plate), getPlateMapping(query, plate,
-                            materialTypeIdentifierOrNull)));
+                    getPlateGeometry(query, plate),
+                    getPlateMapping(query, plate, materialTypeIdentifierOrNull)));
         }
         return result;
     }
@@ -416,8 +423,8 @@ public class ScreeningApiImpl
         {
             if (plate.getPermId() == null)
             {
-                return query.getPlateMappingForMaterialType(plate.tryGetSpaceCode(), plate
-                        .getPlateCode(), materialTypeIdentifierOrNull.getMaterialTypeCode());
+                return query.getPlateMappingForMaterialType(plate.tryGetSpaceCode(),
+                        plate.getPlateCode(), materialTypeIdentifierOrNull.getMaterialTypeCode());
             } else
             {
                 return query.getPlateMappingForMaterialType(plate.getPermId(),
@@ -575,8 +582,7 @@ public class ScreeningApiImpl
                 {
                     return (o1.getExperimentPlateIdentifier().getAugmentedCode() + ":" + o1
                             .getWellPosition()).compareTo(o2.getExperimentPlateIdentifier()
-                            .getAugmentedCode()
-                            + ":" + o2.getWellPosition());
+                            .getAugmentedCode() + ":" + o2.getWellPosition());
                 }
             });
         return plateWellReferences;
@@ -599,8 +605,7 @@ public class ScreeningApiImpl
                 {
                     return (o1.getExperimentPlateIdentifier().getAugmentedCode() + ":" + o1
                             .getWellPosition()).compareTo(o2.getExperimentPlateIdentifier()
-                            .getAugmentedCode()
-                            + ":" + o2.getWellPosition());
+                            .getAugmentedCode() + ":" + o2.getWellPosition());
                 }
             });
         return plateWellReferences;

@@ -19,7 +19,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -27,7 +31,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -81,8 +84,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     one(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
                     one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
-                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), imageAnalysisDataSet(
-                            p1, "2", 2))));
+                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1),
+                            imageAnalysisDataSet(p1, "2", 2))));
                 }
             });
 
@@ -129,8 +132,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Sample '/p1' has no property " + ScreeningConstants.PLATE_GEOMETRY, ex
-                    .getMessage());
+            assertEquals("Sample '/p1' has no property " + ScreeningConstants.PLATE_GEOMETRY,
+                    ex.getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -178,12 +181,22 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
 
                     exactly(2).of(screeningBOFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-                    one(datasetLister).listBySampleIds(with(Arrays.asList((long) 1)));
-                    will(returnValue(Arrays.asList(imageDataSet(p1, "1", 1), imageAnalysisDataSet(
-                            p1, "2", 2))));
+                    long imageDatasetId = 1;
+                    one(datasetLister).listBySampleIds(with(Arrays.asList(imageDatasetId)));
+                    will(returnValue(Arrays.asList(
+                            imageDataSet(p1, "" + imageDatasetId, imageDatasetId),
+                            imageAnalysisDataSet(p1, "2", 2))));
 
-                    one(datasetLister).listByParentTechId(new TechId(1));
-                    will(returnValue(Arrays.asList(imageAnalysisDataSet(null, "3", 3))));
+                    one(datasetLister).listByParentTechIds(Arrays.asList(imageDatasetId));
+                    long analysisDatasetId = 3;
+                    will(returnValue(Arrays.asList(imageAnalysisDataSet(null, ""
+                            + analysisDatasetId, analysisDatasetId))));
+
+                    one(datasetLister).listParentIds(Arrays.asList(analysisDatasetId));
+                    Map<Long, Set<Long>> parentToChildrenMap = new HashMap<Long, Set<Long>>();
+                    parentToChildrenMap.put(analysisDatasetId,
+                            new HashSet<Long>(Arrays.asList(imageDatasetId)));
+                    will(returnValue(parentToChildrenMap));
                 }
             });
 

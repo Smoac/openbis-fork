@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -28,6 +29,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
+import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -70,7 +74,7 @@ public class FeatureTableBuilder
     private final boolean useAllFeatures;
 
     /** fetches all features of specified wells */
-    public static WellFeatureCollection fetchWellFeatures(
+    public static WellFeatureCollection<FeatureTableRow> fetchWellFeatures(
             List<FeatureVectorDatasetWellReference> references, IImagingReadonlyQueryDAO dao,
             IEncapsulatedOpenBISService service)
     {
@@ -82,18 +86,30 @@ public class FeatureTableBuilder
      * 
      * @param featureCodes empty list means no filtering.
      */
-    public static WellFeatureCollection fetchWellFeatures(
+    public static WellFeatureCollection<FeatureTableRow> fetchWellFeatures(
             List<FeatureVectorDatasetWellReference> references, List<String> featureCodes,
             IImagingReadonlyQueryDAO dao, IEncapsulatedOpenBISService service)
     {
         FeatureTableBuilder builder = new FeatureTableBuilder(featureCodes, dao, service);
         Set<String> datasetCodes = extractDatasetCodes(references);
-        for (String datasetCode : datasetCodes)
-        {
-            builder.addFeatureVectorsOfDataSet(datasetCode);
-        }
+        addFeatureVectorsOfDataSets(builder, datasetCodes);
         List<FeatureTableRow> features = builder.createFeatureTableRows(references);
-        return new WellFeatureCollection(features, builder.getCodesAndLabels());
+        return new WellFeatureCollection<FeatureTableRow>(features, builder.getCodesAndLabels());
+    }
+
+    /**
+     * fetches all features of specified wells, used basic data types
+     */
+    public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValues(
+            List<WellFeatureVectorReference> references, IImagingReadonlyQueryDAO dao,
+            IEncapsulatedOpenBISService service)
+    {
+        FeatureTableBuilder builder =
+                new FeatureTableBuilder(new ArrayList<String>(), dao, service);
+        Set<String> datasetCodes = extractDatasetCodesFromSimpleReferences(references);
+        addFeatureVectorsOfDataSets(builder, datasetCodes);
+        List<FeatureVectorValues> features = builder.createFeatureVectorValues(references);
+        return new WellFeatureCollection<FeatureVectorValues>(features, builder.getCodesAndLabels());
     }
 
     /**
@@ -101,33 +117,30 @@ public class FeatureTableBuilder
      * 
      * @param featureCodes empty list means no filtering.
      */
-    public static WellFeatureCollection fetchDatasetFeatures(List<String> datasetCodes,
-            List<String> featureCodes, IImagingReadonlyQueryDAO dao,
+    public static WellFeatureCollection<FeatureTableRow> fetchDatasetFeatures(
+            List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao,
             IEncapsulatedOpenBISService service)
     {
         FeatureTableBuilder builder = new FeatureTableBuilder(featureCodes, dao, service);
-        for (String datasetCode : datasetCodes)
-        {
-            builder.addFeatureVectorsOfDataSet(datasetCode);
-        }
+        addFeatureVectorsOfDataSets(builder, datasetCodes);
         List<FeatureTableRow> features = builder.createFeatureTableRows();
-        return new WellFeatureCollection(features, builder.getCodesAndLabels());
+        return new WellFeatureCollection<FeatureTableRow>(features, builder.getCodesAndLabels());
     }
 
     /** stores feature vectors for a set of wells */
-    public static class WellFeatureCollection
+    public static class WellFeatureCollection<T extends FeatureVectorValues>
     {
-        private final List<FeatureTableRow> features;
+        private final List<T> features;
 
         private final List<CodeAndLabel> featureNames;
 
-        public WellFeatureCollection(List<FeatureTableRow> features, List<CodeAndLabel> featureNames)
+        public WellFeatureCollection(List<T> features, List<CodeAndLabel> featureNames)
         {
             this.features = features;
             this.featureNames = featureNames;
         }
 
-        public List<FeatureTableRow> getFeatures()
+        public List<T> getFeatures()
         {
             return features;
         }
@@ -157,6 +170,26 @@ public class FeatureTableBuilder
             }
             return labels;
         }
+    }
+
+    private static void addFeatureVectorsOfDataSets(FeatureTableBuilder builder,
+            Collection<String> datasetCodes)
+    {
+        for (String datasetCode : datasetCodes)
+        {
+            builder.addFeatureVectorsOfDataSet(datasetCode);
+        }
+    }
+
+    private static Set<String> extractDatasetCodesFromSimpleReferences(
+            List<WellFeatureVectorReference> references)
+    {
+        Set<String> datasetCodes = new HashSet<String>();
+        for (WellFeatureVectorReference ref : references)
+        {
+            datasetCodes.add(ref.getDatasetCode());
+        }
+        return datasetCodes;
     }
 
     private static Set<String> extractDatasetCodes(
@@ -262,7 +295,6 @@ public class FeatureTableBuilder
         List<FeatureTableRow> rows = new ArrayList<FeatureTableRow>();
         for (DatasetFeaturesBundle bundle : bundles)
         {
-            String dataSetCode = bundle.dataSet.getPermId();
             ImgContainerDTO container = dao.getContainerById(bundle.dataSet.getContainerId());
             SampleIdentifier identifier = service.tryToGetSampleIdentifier(container.getPermId());
             for (int rowIndex = 1; rowIndex <= container.getNumberOfRows(); rowIndex++)
@@ -270,13 +302,33 @@ public class FeatureTableBuilder
                 for (int colIndex = 1; colIndex <= container.getNumberOfColumns(); colIndex++)
                 {
                     final FeatureTableRow row =
-                            createFeatureTableRow(bundle.featureDefToValuesMap, dataSetCode,
-                                    identifier, null, new WellPosition(rowIndex, colIndex));
+                            createFeatureTableRow(bundle, identifier, null, new WellPosition(
+                                    rowIndex, colIndex));
                     rows.add(row);
                 }
             }
         }
         return rows;
+    }
+
+    /**
+     * Returns all features for the specified wells in previously loaded datasets. Operates on very
+     * basic data types.
+     */
+    private List<FeatureVectorValues> createFeatureVectorValues(
+            List<WellFeatureVectorReference> references)
+    {
+        Map<String/* dataset code */, DatasetFeaturesBundle> bundleMap = createBundleMap(bundles);
+        List<FeatureVectorValues> featureVectors = new ArrayList<FeatureVectorValues>();
+        for (WellFeatureVectorReference reference : references)
+        {
+            String dataSetCode = reference.getDatasetCode();
+            DatasetFeaturesBundle bundle = getDatasetFeaturesBundleOrDie(bundleMap, dataSetCode);
+            FeatureVectorValues featureVector =
+                    createFeatureVector(bundle, reference.getWellPosition());
+            featureVectors.add(featureVector);
+        }
+        return featureVectors;
     }
 
     /**
@@ -290,19 +342,26 @@ public class FeatureTableBuilder
         for (FeatureVectorDatasetWellReference reference : references)
         {
             String dataSetCode = reference.getDatasetCode();
-            DatasetFeaturesBundle bundle = bundleMap.get(dataSetCode);
-            if (bundle == null)
-            {
-                throw new IllegalStateException("Dataset has not been loaded: " + dataSetCode);
-            }
+            DatasetFeaturesBundle bundle = getDatasetFeaturesBundleOrDie(bundleMap, dataSetCode);
             ImgContainerDTO container = dao.getContainerById(bundle.dataSet.getContainerId());
             SampleIdentifier identifier = service.tryToGetSampleIdentifier(container.getPermId());
             final FeatureTableRow row =
-                    createFeatureTableRow(bundle.featureDefToValuesMap, dataSetCode, identifier,
-                            reference, reference.getWellPosition());
+                    createFeatureTableRow(bundle, identifier, reference,
+                            reference.getWellPosition());
             rows.add(row);
         }
         return rows;
+    }
+
+    private DatasetFeaturesBundle getDatasetFeaturesBundleOrDie(
+            Map<String, DatasetFeaturesBundle> bundleMap, String dataSetCode)
+    {
+        DatasetFeaturesBundle bundle = bundleMap.get(dataSetCode);
+        if (bundle == null)
+        {
+            throw new IllegalStateException("Dataset has not been loaded: " + dataSetCode);
+        }
+        return bundle;
     }
 
     private static HashMap<String, DatasetFeaturesBundle> createBundleMap(
@@ -316,16 +375,32 @@ public class FeatureTableBuilder
         return map;
     }
 
-    private FeatureTableRow createFeatureTableRow(
-            Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap,
-            String dataSetCode, SampleIdentifier identifier,
-            FeatureVectorDatasetWellReference reference, WellPosition wellPosition)
+    private FeatureTableRow createFeatureTableRow(DatasetFeaturesBundle bundle,
+            SampleIdentifier identifier, FeatureVectorDatasetWellReference reference,
+            WellPosition wellPosition)
     {
-        FeatureTableRow row = new FeatureTableRow();
-        row.setDataSetCode(dataSetCode);
+        FeatureVectorValues featureVector = createFeatureVector(bundle, wellPosition);
+        FeatureTableRow row = new FeatureTableRow(featureVector);
         row.setPlateIdentifier(identifier);
         row.setReference(reference);
-        row.setWellPosition(wellPosition);
+        return row;
+    }
+
+    private FeatureVectorValues createFeatureVector(DatasetFeaturesBundle bundle,
+            WellPosition wellPosition)
+    {
+        FeatureVectorValues fv = new FeatureVectorValues();
+        fv.setDataSetCode(bundle.dataSet.getPermId());
+        fv.setWellPosition(wellPosition);
+        float[] valueArray = createFeatureValueArray(bundle.featureDefToValuesMap, wellPosition);
+        fv.setFeatureValues(valueArray);
+        return fv;
+    }
+
+    private float[] createFeatureValueArray(
+            Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap,
+            WellPosition wellPosition)
+    {
         float[] valueArray = new float[featureCodeLabelToIndexMap.size()];
         Arrays.fill(valueArray, Float.NaN);
         for (Entry<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> entry : featureDefToValuesMap
@@ -348,8 +423,7 @@ public class FeatureTableBuilder
                     featureValues.getForWellLocation(wellPosition.getWellRow(),
                             wellPosition.getWellColumn());
         }
-        row.setFeatureValues(valueArray);
-        return row;
+        return valueArray;
     }
 
     private CodeAndLabel getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)

@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
+import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
@@ -82,7 +82,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
     {
         List<String> datasetCodes = extractDatasetCodes(datasets);
         ArrayList<String> featureCodes = new ArrayList<String>(); // fetch all
-        WellFeatureCollection featuresCollection =
+        WellFeatureCollection<FeatureTableRow> featuresCollection =
                 FeatureTableBuilder.fetchDatasetFeatures(datasetCodes, featureCodes, getDAO(),
                         getService());
 

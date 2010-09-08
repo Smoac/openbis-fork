@@ -46,8 +46,8 @@ public interface IDatasetLister
     /** @return datasets that are parents of a dataset with the specified id */
     List<ExternalData> listByChildTechId(TechId childDatasetId);
 
-    /** @return datasets that are children of a dataset with the specified id */
-    List<ExternalData> listByParentTechId(TechId parentDatasetId);
+    /** @return all datasets that are children of any specified dataset id */
+    List<ExternalData> listByParentTechIds(Collection<Long> parentDatasetIds);
 
     /**
      * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map are

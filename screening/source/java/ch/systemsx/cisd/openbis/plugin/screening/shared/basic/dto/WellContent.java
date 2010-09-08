@@ -37,11 +37,20 @@ public class WellContent implements IsSerializable
 
     private ExperimentReference experiment;
 
-    // a pointer to a material which was being searched for inside a well
+    // Material which was being searched for inside a well. Enriched with properties.
     private Material materialContent;
 
-    // contains only images for this well, null if no images have been acquired
-    private DatasetImagesReference imagesOrNull;
+    // dataset which contains images for this well, null if no images have been acquired
+    private DatasetImagesReference imagesDatasetOrNull;
+
+    // dataset which contains feature vectors for this well, null if images have not been analyzed
+    private DatasetReference featureVectorDatasetOrNull;
+
+    // Feature vector values, null if images have not been analyzed.
+    // Some features may not be available, then the value is Float.NaN.
+    // External data structure should be used to figure out which value corresponds to which
+    // feature.
+    private float[] featureVectorValuesOrNull;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -81,7 +90,17 @@ public class WellContent implements IsSerializable
 
     public DatasetImagesReference tryGetImageDataset()
     {
-        return imagesOrNull;
+        return imagesDatasetOrNull;
+    }
+
+    public DatasetReference tryGetFeatureVectorDataset()
+    {
+        return featureVectorDatasetOrNull;
+    }
+
+    public float[] tryGetFeatureVectorValues()
+    {
+        return featureVectorValuesOrNull;
     }
 
     public ExperimentReference getExperiment()
@@ -89,11 +108,23 @@ public class WellContent implements IsSerializable
         return experiment;
     }
 
-    public WellContent cloneWithImages(DatasetImagesReference images)
+    public WellContent cloneWithDatasets(DatasetImagesReference imagesOrNull,
+            DatasetReference featureVectorOrNull)
     {
         WellContent clone =
                 new WellContent(locationOrNull, well, plate, experiment, materialContent);
-        clone.imagesOrNull = images;
+        clone.imagesDatasetOrNull = imagesOrNull;
+        clone.featureVectorDatasetOrNull = featureVectorOrNull;
+        return clone;
+    }
+
+    public WellContent cloneWithDatasets(float[] values)
+    {
+        WellContent clone =
+                new WellContent(locationOrNull, well, plate, experiment, materialContent);
+        clone.imagesDatasetOrNull = imagesDatasetOrNull;
+        clone.featureVectorDatasetOrNull = featureVectorDatasetOrNull;
+        clone.featureVectorValuesOrNull = values;
         return clone;
     }
 

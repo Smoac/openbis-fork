@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServle
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableRow;
+import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -238,7 +238,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private FeatureVectorDataset createFeatureVectorDataset(String sessionToken,
             FeatureVectorDatasetReference dataset, List<String> featureCodes)
     {
-        WellFeatureCollection datasetFeatures =
+        WellFeatureCollection<FeatureTableRow> datasetFeatures =
                 FeatureTableBuilder.fetchDatasetFeatures(Arrays.asList(dataset.getDatasetCode()),
                         featureCodes, getDAO(), getOpenBISService());
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
@@ -267,14 +267,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             List<String> featureNames)
     {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, datasetWellReferences);
-        WellFeatureCollection features =
+        WellFeatureCollection<FeatureTableRow> features =
                 FeatureTableBuilder.fetchWellFeatures(datasetWellReferences, featureNames, dao,
                         getOpenBISService());
         return createFeatureVectorList(features);
     }
 
     private List<FeatureVectorWithDescription> createFeatureVectorList(
-            final WellFeatureCollection features)
+            final WellFeatureCollection<FeatureTableRow> features)
     {
         final List<String> featureCodes = features.getFeatureCodes();
         final List<FeatureTableRow> featureTableRows = features.getFeatures();

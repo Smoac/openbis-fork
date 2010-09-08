@@ -110,11 +110,12 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids);
 
     /**
-     * Returns the datasets that are children of a dataset with given id.
+     * Returns all datasets that are children of any specified dataset id.
      */
     @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
-            + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent=?{1})", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getChildDatasetsForParent(long parentDatasetId);
+            + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent = any(?{1}))", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getChildDatasetsForParents(LongSet parentDatasetIds);
 
     /**
      * Returns the datasets that are parents of a dataset with given id.

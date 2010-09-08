@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,11 +32,13 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -56,18 +59,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Loades selected wells content: metadata and (if available) image dataset and feature vectors.
@@ -77,6 +80,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
 @Friend(toClasses = IScreeningQuery.class)
 public class PlateMaterialLocationsLoader
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PlateMaterialLocationsLoader.class);
+
     /**
      * Finds wells containing the specified material and belonging to the specified experiment.
      * Loads wells content: metadata and (if available) image dataset and feature vectors.
@@ -91,10 +97,10 @@ public class PlateMaterialLocationsLoader
 
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            PlateMaterialsSearchCriteria materialCriteria, boolean enrichWithImages)
+            PlateMaterialsSearchCriteria materialCriteria)
     {
         return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(materialCriteria, enrichWithImages);
+                .getPlateLocations(materialCriteria, true);
     }
 
     /** loads wells metadata, but no information about image or image analysis datasets */
@@ -153,52 +159,186 @@ public class PlateMaterialLocationsLoader
 
     private List<WellContent> enrichWithDatasets(List<WellContent> locations)
     {
-        List<ExternalData> imageDatasets = loadImageDatasets(locations);
-        Map<Long/* plate id */, List<ExternalData>> plateToDatasetMap =
-                createPlateToDatasetMap(imageDatasets);
+        Collection<PlateIdentifier> plates = extractPlates(locations);
+        FeatureVectorDatasetLoader datasetsRetriever =
+                new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates);
+        Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
         Map<String, PlateImageParameters> imageParams = loadImagesReport(imageDatasets);
-        return enrichWithImages(locations, plateToDatasetMap, imageParams);
+
+        // TODO 2010-09-07, Tomasz Pylak: uncomment this when showing fetures in Reviewing Panel is
+        // implemented
+        // Collection<ExternalData> featureVectorDatasets =
+        // datasetsRetriever.getFeatureVectorDatasets();
+        // Collection<ExternalData> childlessImageDatasets =
+        // selectChildlessImageDatasets(imageDatasets, featureVectorDatasets);
+        //
+        // Map<Long/* plate id */, List<ExternalData>> plateToChildlessImageDatasetMap =
+        // createPlateToDatasetMap(childlessImageDatasets);
+        // Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap =
+        // createPlateToDatasetMap(featureVectorDatasets);
+        //
+        // return enrichWithDatasets(locations, plateToChildlessImageDatasetMap,
+        // plateToFeatureVectoreDatasetMap, imageParams);
+
+        return enrichWithDatasets(locations, createPlateToDatasetMap(imageDatasets),
+                new HashMap<Long, List<ExternalData>>(), imageParams);
     }
 
-    private static List<WellContent> enrichWithImages(List<WellContent> wellContents,
-            Map<Long/* plate id */, List<ExternalData>> plateToDatasetMap,
-            Map<String, PlateImageParameters> imageParams)
+    @SuppressWarnings("unused")
+    private static Collection<ExternalData> selectChildlessImageDatasets(
+            Collection<ExternalData> imageDatasets, Collection<ExternalData> featureVectorDatasets)
     {
-        List<WellContent> wellsWithImages = new ArrayList<WellContent>();
-        for (WellContent wellContent : wellContents)
+        Collection<ExternalData> childlessImageDatasets = new ArrayList<ExternalData>();
+        Set<String> parentImageDatasetCodes = extractParentDatasetCodes(featureVectorDatasets);
+        for (ExternalData imageDataset : imageDatasets)
         {
-            List<ExternalData> datasets = plateToDatasetMap.get(wellContent.getPlate().getId());
-            boolean imagesExist = false;
-            // there can be more than one dataset with images for each well - in such a case we will
-            // have one well content duplicated for each dataset
-            if (datasets != null)
+            if (parentImageDatasetCodes.contains(imageDataset.getCode()) == false)
             {
-                for (ExternalData dataset : datasets)
-                {
-                    PlateImageParameters imageParameters = imageParams.get(dataset.getCode());
-                    if (imageParameters != null)
-                    {
-                        DatasetReference datasetReference =
-                                ScreeningUtils.createDatasetReference(dataset);
-                        DatasetImagesReference wellImages =
-                                DatasetImagesReference.create(datasetReference, imageParameters);
-                        WellContent wellWithImages = wellContent.cloneWithImages(wellImages);
-                        wellsWithImages.add(wellWithImages);
-                        imagesExist = true;
-                    }
-                }
-            }
-            // if there are no datasets for the well content, we add it without images
-            if (imagesExist == false)
-            {
-                wellsWithImages.add(wellContent);
+                childlessImageDatasets.add(imageDataset);
             }
         }
-        return wellsWithImages;
+        return childlessImageDatasets;
+    }
+
+    private static Set<String> extractParentDatasetCodes(Collection<ExternalData> datasets)
+    {
+        Set<String> codes = new HashSet<String>();
+        for (ExternalData dataset : datasets)
+        {
+            Collection<ExternalData> parents = dataset.getParents();
+            if (parents != null)
+            {
+                for (ExternalData parent : parents)
+                {
+                    codes.add(parent.getCode());
+                }
+            }
+        }
+        return codes;
+    }
+
+    private static Collection<PlateIdentifier> extractPlates(List<WellContent> locations)
+    {
+        Collection<PlateIdentifier> plates = new ArrayList<PlateIdentifier>();
+        for (WellContent location : locations)
+        {
+            plates.add(PlateIdentifier.createFromPermId(location.getPlate().getPermId()));
+        }
+        return plates;
+    }
+
+    /**
+     * Connects wells with datasets.
+     */
+    private static List<WellContent> enrichWithDatasets(List<WellContent> wellContents,
+            Map<Long/* plate id */, List<ExternalData>> plateToChildlessImageDatasetMap,
+            Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap,
+            Map<String, PlateImageParameters> imageParams)
+    {
+        List<WellContent> wellsWithDatasets = new ArrayList<WellContent>();
+        for (WellContent wellContent : wellContents)
+        {
+            List<WellContent> clonedWellContents =
+                    enrichWithDatasetReferences(wellContent, plateToChildlessImageDatasetMap,
+                            plateToFeatureVectoreDatasetMap, imageParams);
+            // if there are no datasets for the well content, we add it without images
+            if (clonedWellContents.isEmpty())
+            {
+                wellsWithDatasets.add(wellContent);
+            } else
+            {
+                wellsWithDatasets.addAll(clonedWellContents);
+            }
+        }
+        wellsWithDatasets = enrichWithFeatureVectors(wellsWithDatasets);
+        return wellsWithDatasets;
+    }
+
+    private static List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets)
+    {
+        // TODO 2010-09-07, Tomasz Pylak: Enrich each WellContent with feature values.
+        // WellFeatureCollection<FeatureVectorValues> featureVectors =
+        // FeatureTableBuilder.fetchWellFeatureValues(references, dao, service);
+        // return enrichWithFeatureVectors(wellsWithDatasets, featureVectors);
+        return wellsWithDatasets;
+    }
+
+    /**
+     * Connects one WellContent with dataset references.<br>
+     * We want to present all the data to the user, so if a well has several feature vector
+     * datasets, it will be cloned several times. By connecting to feature vector datasets we are
+     * possibly connecting to image datasets as well.<br>
+     * Additionally a join with childless image datasets has to be performed.
+     */
+    private static List<WellContent> enrichWithDatasetReferences(WellContent wellContent,
+            Map<Long, List<ExternalData>> plateToChildlessImageDatasetMap,
+            Map<Long, List<ExternalData>> plateToFeatureVectoreDatasetMap,
+            Map<String, PlateImageParameters> imageParams)
+    {
+        Long plateId = wellContent.getPlate().getId();
+        List<WellContent> clonedWellContents = new ArrayList<WellContent>();
+
+        List<ExternalData> featureVectoreDatasets = plateToFeatureVectoreDatasetMap.get(plateId);
+        if (featureVectoreDatasets != null)
+        {
+            for (ExternalData featureVectoreDataset : featureVectoreDatasets)
+            {
+                DatasetReference featureVectoreDatasetReference =
+                        ScreeningUtils.createDatasetReference(featureVectoreDataset);
+                DatasetImagesReference imagesDatasetReference =
+                        tryGetImageDatasetReference(featureVectoreDataset, imageParams);
+                clonedWellContents.add(wellContent.cloneWithDatasets(imagesDatasetReference,
+                        featureVectoreDatasetReference));
+            }
+        }
+
+        // there can be more than one dataset with images for each well - in such a case we will
+        // have one well content duplicated for each dataset
+        List<ExternalData> childlessImageDatasets = plateToChildlessImageDatasetMap.get(plateId);
+        if (childlessImageDatasets != null)
+        {
+            for (ExternalData childlessImageDataset : childlessImageDatasets)
+            {
+                DatasetImagesReference imagesDatasetReference =
+                        createDatasetImagesReference(childlessImageDataset, imageParams);
+                clonedWellContents.add(wellContent.cloneWithDatasets(imagesDatasetReference, null));
+            }
+        }
+        return clonedWellContents;
+    }
+
+    private static DatasetImagesReference tryGetImageDatasetReference(
+            ExternalData featureVectoreDataset, Map<String, PlateImageParameters> imageParams)
+    {
+        Collection<ExternalData> parents = featureVectoreDataset.getParents();
+        if (parents != null && parents.size() == 1)
+        {
+            ExternalData imageDataset = parents.iterator().next();
+            return createDatasetImagesReference(imageDataset, imageParams);
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static DatasetImagesReference createDatasetImagesReference(ExternalData imageDataset,
+            Map<String, PlateImageParameters> imageParams)
+    {
+        PlateImageParameters imageParameters = imageParams.get(imageDataset.getCode());
+        if (imageParameters != null)
+        {
+            return DatasetImagesReference.create(
+                    ScreeningUtils.createDatasetReference(imageDataset), imageParameters);
+        } else
+        {
+            operationLog.error("Cannot find image parameters for dataset: "
+                    + imageDataset.getCode() + ". It will not be displayed");
+            return null;
+        }
     }
 
     private static Map<Long/* sample id */, List<ExternalData>> createPlateToDatasetMap(
-            List<ExternalData> datasets)
+            Collection<ExternalData> datasets)
     {
         Map<Long, List<ExternalData>> map = new HashMap<Long, List<ExternalData>>();
         for (ExternalData dataset : datasets)
@@ -221,7 +361,7 @@ public class PlateMaterialLocationsLoader
     }
 
     private Map<String/* dataset code */, PlateImageParameters> loadImagesReport(
-            List<ExternalData> imageDatasets)
+            Collection<ExternalData> imageDatasets)
     {
         List<PlateImageParameters> imageParameters = new ArrayList<PlateImageParameters>();
         for (ExternalData dataSet : imageDatasets)
@@ -240,28 +380,6 @@ public class PlateMaterialLocationsLoader
             map.put(params.getDatasetCode(), params);
         }
         return map;
-    }
-
-    private List<ExternalData> loadImageDatasets(List<WellContent> locations)
-    {
-        Set<Long> plateIds = extractPlateIds(locations);
-
-        IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        List<ExternalData> imageDatasets = datasetLister.listBySampleIds(plateIds);
-        imageDatasets =
-                ScreeningUtils.filterExternalDataByType(imageDatasets,
-                        ScreeningConstants.IMAGE_DATASET_TYPE);
-        return imageDatasets;
-    }
-
-    private static Set<Long> extractPlateIds(List<WellContent> locations)
-    {
-        Set<Long> ids = new HashSet<Long>();
-        for (WellContent loc : locations)
-        {
-            ids.add(loc.getPlate().getId());
-        }
-        return ids;
     }
 
     private List<WellContent> loadLocations(PlateMaterialsSearchCriteria materialCriteria)
@@ -403,7 +521,7 @@ public class PlateMaterialLocationsLoader
         return wellLocations;
     }
 
-    private List<Material> getMaterials(List<WellContent> wellLocations)
+    private static List<Material> getMaterials(List<WellContent> wellLocations)
     {
         List<Material> materials = new ArrayList<Material>();
         for (WellContent wc : wellLocations)

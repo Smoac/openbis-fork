@@ -39,6 +39,14 @@ public class FeatureVectorDatasetWellReference extends FeatureVectorDatasetRefer
         this.wellPosition = wellPosition;
     }
 
+    public FeatureVectorDatasetWellReference(FeatureVectorDatasetReference fvdr,
+            WellPosition wellPosition)
+    {
+        this(fvdr.getDatasetCode(), fvdr.getDatastoreServerUrl(), fvdr.getPlate(), fvdr
+                .getExperimentIdentifier(), fvdr.getPlateGeometry(), fvdr.getRegistrationDate(),
+                fvdr.getParentImageDataset(), wellPosition);
+    }
+
     public FeatureVectorDatasetWellReference(String datasetCode, String datastoreServerUrl,
             PlateIdentifier plate, ExperimentIdentifier experimentIdentifier,
             Geometry plateGeometry, Date registrationDate,

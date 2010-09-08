@@ -156,7 +156,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return PlateMaterialLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
-                materialCriteria, true);
+                materialCriteria);
     }
 
     public List<WellImageChannelStack> listImageChannelStacks(String sessionToken,

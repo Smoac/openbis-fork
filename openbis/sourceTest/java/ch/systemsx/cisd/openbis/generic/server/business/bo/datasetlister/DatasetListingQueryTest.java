@@ -22,6 +22,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -132,7 +134,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         ExperimentPE experiment1 =
                 getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
         ExperimentPE experiment2 =
-            getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-2", daoFactory);
+                getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-2", daoFactory);
         experimentIds.add((long) experiment1.getId());
         experimentIds.add((long) experiment2.getId());
         List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(experimentIds));
@@ -144,7 +146,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
             assertEqualWithFetchedById(record);
             counters.count(record.expe_id);
         }
-        
+
         assertEquals(1, counters.getCountOf(experiment1.getId()));
         assertEquals(1, counters.getCountOf(experiment2.getId()));
         assertEquals(2, counters.getNumberOfDifferentObjectsCounted());
@@ -210,8 +212,9 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testChildDatasetsForParent()
     {
-        long datasetId = 2;
-        List<DatasetRecord> children = asList(query.getChildDatasetsForParent(datasetId));
+        LongSet datasetIds = new LongOpenHashSet(new long[]
+            { 2 });
+        List<DatasetRecord> children = asList(query.getChildDatasetsForParents(datasetIds));
         assertEquals(2, children.size());
     }
 
