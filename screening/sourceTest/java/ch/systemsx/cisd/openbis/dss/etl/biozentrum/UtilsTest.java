@@ -23,19 +23,18 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor.ImageFileInfo;
 
 /**
- * Test cases for {@link HCSImageFileExtractor}.
+ * Test cases for {@link Utils}.
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = HCSImageFileExtractor.class)
-public class HCSImageFileExtractorTest extends AssertJUnit
+@Friend(toClasses = Utils.class)
+public class UtilsTest extends AssertJUnit
 {
     @Test
     public void testExtractFileInfoCorrectFileName() throws Exception
     {
         ImageFileInfo info =
-                HCSImageFileExtractor
-                        .extractFileInfo("SM100719invasomes_plt-1_bc-UNK_wp-A01_s-10_t-1_wl-Cy3_001");
+                Utils.extractBZImageFileInfo("SM100719invasomes_plt-1_bc-UNK_wp-A01_s-10_t-1_wl-Cy3_001");
         assertEquals("plate location token", "A01", info.getPlateLocationToken());
         assertEquals("channel token", "Cy3", info.getChannelToken());
         assertEquals("time point token", "1", info.getTimepointToken());

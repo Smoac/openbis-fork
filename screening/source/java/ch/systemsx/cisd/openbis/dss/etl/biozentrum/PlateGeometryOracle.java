@@ -92,6 +92,10 @@ public class PlateGeometryOracle
 
     static private boolean isEnough(Geometry geometry, Location location)
     {
-        return geometry.getDimX() >= location.getX() && geometry.getDimY() >= location.getY();
+        int dimX = geometry.getDimX();
+        int x = location.getX();
+        int dimY = geometry.getDimY();
+        int y = location.getY();
+        return dimX >= x && dimY >= y;
     }
 }

@@ -19,13 +19,10 @@ package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 import java.io.File;
 import java.util.Properties;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>BioZentrum</i>.
+ * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>iBrain</i>.
  * 
  * @author Izabela Adamczyk
  */
@@ -40,22 +37,7 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
     @Override
     protected final ImageFileInfo tryExtractImageInfo(File imageFile, SampleIdentifier datasetSample)
     {
-        return extractFileInfo(FilenameUtils.getBaseName(imageFile.getPath()));
-    }
-
-    static ImageFileInfo extractFileInfo(String text)
-    {
-        String[] namedParts = StringUtils.split(text, "_");
-        final String plateLocationToken = StringUtils.split(namedParts[3], "-")[1];
-        final String wellLocationToken = StringUtils.split(namedParts[4], "-")[1];
-        final String timepointToken = StringUtils.split(namedParts[5], "-")[1];
-        final String channelToken = StringUtils.split(namedParts[6], "-")[1];
-        ImageFileInfo info = new ImageFileInfo();
-        info.setPlateLocationToken(plateLocationToken);
-        info.setWellLocationToken(wellLocationToken);
-        info.setChannelToken(channelToken);
-        info.setTimepointToken(timepointToken);
-        return info;
+        return Utils.extractImageFileInfo(imageFile);
     }
 
 }
