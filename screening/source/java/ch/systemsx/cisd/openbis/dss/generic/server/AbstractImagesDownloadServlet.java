@@ -165,7 +165,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
             }
         } catch (Exception e)
         {
-            e.printStackTrace();
+            //e.printStackTrace();
             printErrorResponse(response, "Error: " + e.getMessage());
         }
 
