@@ -48,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
@@ -283,12 +285,36 @@ public class PlateLayouter
 
         for (IEntityProperty property : properties)
         {
-            tooltip +=
-                    "<br>" + property.getPropertyType().getLabel() + ": "
-                            + property.tryGetAsString();
+            PropertyType propertyType = property.getPropertyType();
+            tooltip += "<br>" + propertyType.getLabel() + ": ";
+            Material material = property.getMaterial();
+            if (material != null
+                    && material.getMaterialType().getCode().equalsIgnoreCase(
+                            ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+            {
+                List<IEntityProperty> geneProperties = material.getProperties();
+                String geneSymbols = tryToGetGeneSymbols(geneProperties);
+                tooltip += geneSymbols == null ? property.tryGetAsString() : geneSymbols;
+            } else
+            {
+                tooltip += property.tryGetAsString();
+            }
         }
         GWTUtils.setToolTip(widget, tooltip);
 
+    }
+    
+    private static String tryToGetGeneSymbols(List<IEntityProperty> geneProperties)
+    {
+        for (IEntityProperty geneProperty : geneProperties)
+        {
+            if (geneProperty.getPropertyType().getCode().equalsIgnoreCase(
+                    ScreeningConstants.GENE_SYMBOLS))
+            {
+                return geneProperty.tryGetAsString();
+            }
+        }
+        return null;
     }
 
     // Elements will not contain null even if well is empty.
