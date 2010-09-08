@@ -65,6 +65,7 @@ public class ExperimentPlateLocationsSection extends SingleSectionPanel
         this.exactMatchOnly =
                 new CheckBoxField(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY), false);
         exactMatchOnly.setBoxLabel(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY));
+        exactMatchOnly.setValue(true);
         setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER, ID_SUFFIX);
         screeningViewContext.getCommonService().listMaterialTypes(
                 new AbstractAsyncCallback<List<MaterialType>>(screeningViewContext)
