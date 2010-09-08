@@ -52,14 +52,19 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
 
     static final String PROJECT_CODE = "project-code";
 
+    static final String PLATE_GEOMETRY = "plate-geometry";
+
     private final String spaceCode;
 
     private final String projectCode;
+
+    private final String defaultPlateGeometryOrNull;
 
     public BZDataSetInfoExtractor(final Properties properties)
     {
         spaceCode = PropertyUtils.getMandatoryProperty(properties, SPACE_CODE);
         projectCode = PropertyUtils.getMandatoryProperty(properties, PROJECT_CODE);
+        defaultPlateGeometryOrNull = properties.getProperty(PLATE_GEOMETRY);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -81,10 +86,13 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         Sample sampleOrNull = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
         if (sampleOrNull == null)
         {
-            List<String> plateGeometries = loadPlateGeometries(openbisService);
-            List<Location> plateLocations = Utils.extractPlateLocations(incomingDataSetPath);
-            String plateGeometry =
-                    PlateGeometryOracle.figureGeometry(plateLocations, plateGeometries);
+            String plateGeometry = defaultPlateGeometryOrNull;
+            if (plateGeometry == null)
+            {
+                List<String> plateGeometries = loadPlateGeometries(openbisService);
+                List<Location> plateLocations = Utils.extractPlateLocations(incomingDataSetPath);
+                plateGeometry = PlateGeometryOracle.figureGeometry(plateLocations, plateGeometries);
+            }
             registerSampleWithExperiment(openbisService, sampleIdentifier, experimentIdentifier,
                     plateGeometry);
             sampleOrNull = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
