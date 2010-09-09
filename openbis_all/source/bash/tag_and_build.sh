@@ -75,7 +75,7 @@ function copy_to_cisd_server {
 	state_start "Copying new openBIS components to '$CISD_SERVER'..."
 	
 	if [ $EXECUTE_COMMANDS ]; then
-		OPENBIS_PATH=/localhome/cisd/sprint_builds/openBIS
+		OPENBIS_PATH=cisd/sprint_builds/openBIS
 		SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
 		echo "mkdir -p $SPRINT_DIR"  | ssh -T $CISD_SERVER
 		scp *.zip $CISD_SERVER:$SPRINT_DIR
