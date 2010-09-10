@@ -68,7 +68,7 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
         // properties
         checkDataSet.property("Comment").asProperty("no comment");
         checkDataSet.property("Gender").asProperty("FEMALE");
-        checkDataSet.property("any_material").asProperty("1000_C (OLIGO)");
+        checkDataSet.property("any_material").asProperty("1000_C (SIRNA)");
         checkDataSet.property("bacterium").asProperty("BACTERIUM1 (BACTERIUM)");
         // high level entity relationships
         checkDataSet.property("Experiment").asString(EXP_TEST_1);
