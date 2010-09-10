@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * Text field allowing to specify reason.
@@ -40,11 +39,6 @@ public class ReasonField extends MultilineVarcharField
     {
         this(messageProvider, mandatory);
         setId(parentId + ID_SUFFIX);
-    }
-
-    public void setValueAndUnescape(String unescapedValue)
-    {
-        setValue(StringEscapeUtils.unescapeHtml(unescapedValue));
     }
 
 }

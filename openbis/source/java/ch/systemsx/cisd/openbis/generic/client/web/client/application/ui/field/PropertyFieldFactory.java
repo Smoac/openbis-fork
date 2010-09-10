@@ -49,7 +49,8 @@ public class PropertyFieldFactory
         String description = pt.getDescription();
         if (StringUtils.isBlank(description) == false)
         {
-            AbstractImagePrototype infoIcon = AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+            AbstractImagePrototype infoIcon =
+                    AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
             FieldUtil.addInfoIcon(field, description, infoIcon.createImage());
         }
         return fieldHolder;
@@ -84,6 +85,8 @@ public class PropertyFieldFactory
             case MULTILINE_VARCHAR:
                 return wrapUnaware(setValue(new MultilineVarcharField(label, isMandatory),
                         originalRawValue));
+            case XML:
+                return wrapUnaware(setValue(new XmlField(label, isMandatory), originalRawValue));
         }
         throw new IllegalStateException("unknown enum " + dataType);
     }

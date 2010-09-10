@@ -99,6 +99,7 @@ public final class PropertyValidator implements IPropertyValueValidator
         map.put(DataTypeCode.MATERIAL, new MaterialValidator());
         map.put(DataTypeCode.HYPERLINK, new HyperlinkValidator());
         map.put(DataTypeCode.MULTILINE_VARCHAR, new VarcharValidator());
+        map.put(DataTypeCode.XML, new XmlValidator());
         return map;
     }
 
@@ -379,6 +380,37 @@ public final class PropertyValidator implements IPropertyValueValidator
             {
                 throw UserFailureException.fromTemplate(
                         "Hyperlink value '%s' has improper format.", value);
+            }
+
+            // validated value is valid
+            return value;
+        }
+    }
+
+    private final static class XmlValidator implements IDataTypeValidator
+    {
+
+        private String xmlSchema;
+
+        public void setXmlSchema(String xmlSchema)
+        {
+            this.xmlSchema = xmlSchema;
+        }
+
+        //
+        // IDataTypeValidator
+        //
+
+        public final String validate(final String value) throws UserFailureException
+        {
+            assert value != null : "Unspecified value.";
+
+            if (xmlSchema != null)
+            {
+                // TODO 2010-09-10, Piotr Buczek: perform schema validation
+            } else
+            {
+                // TODO 2010-09-10, Piotr Buczek: check if XML is well-formed
             }
 
             // validated value is valid
