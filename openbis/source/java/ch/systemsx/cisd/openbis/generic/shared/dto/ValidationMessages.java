@@ -195,8 +195,6 @@ public final class ValidationMessages
 
     public static final String UUID_NOT_NULL_MESSAGE = "UUID" + CAN_NOT_BE_NULL;
 
-    public static final String VALUE_LENGTH_MESSAGE = LENGTH_PREFIX + "value" + LENGTH_SUFFIX;
-
     public static final String VALUE_NOT_NULL_MESSAGE = "Value" + CAN_NOT_BE_NULL;
 
     public static final String VERSION_NOT_NULL_MESSAGE = "Version" + CAN_NOT_BE_NULL;

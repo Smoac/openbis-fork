@@ -138,6 +138,10 @@ public final class ColumnNames
 
     public static final String LABEL_COLUMN = "label";
 
+    public static final String SCHEMA_COLUMN = "schema";
+
+    public static final String TRANSFORMATION_COLUMN = "transformation";
+
     public static final String PARENT_LABEL_COLUMN = "parent_label";
 
     public static final String CHILD_LABEL_COLUMN = "child_label";

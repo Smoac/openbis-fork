@@ -29,4 +29,10 @@ public interface IPropertyTypeUpdates extends IIdHolder, ICodeHolder
     String getDescription();
 
     String getLabel();
+
+    // XML data type specific
+
+    String getSchema();
+
+    String getTransformation();
 }

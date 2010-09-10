@@ -256,6 +256,9 @@ var common = {
   default_value: "Initial Value",
   default_value_tooltip: "The value of the assigned property for all currently existing entities.",
   entity_type_assignments: "{0} Type Assignment{1}",
+  xml_schema: "XML Schema",
+  xslt: "XSLT",
+  
   
   //
   // Property Type Assignments Browser

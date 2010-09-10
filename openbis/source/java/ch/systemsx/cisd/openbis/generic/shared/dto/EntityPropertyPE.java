@@ -36,7 +36,6 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
-import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
@@ -137,7 +136,6 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     }
 
     @Column(name = ColumnNames.VALUE_COLUMN)
-    @Length(max = 1024, message = ValidationMessages.VALUE_LENGTH_MESSAGE)
     public String getValue()
     {
         return value;

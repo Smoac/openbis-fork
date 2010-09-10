@@ -87,6 +87,10 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
             VocabularyPE vocabularyPE = getVocabulary();
             propertyTypePE.setVocabulary(vocabularyPE);
         }
+        // XML data type specific
+        propertyTypePE.setSchema(propertyType.getSchema());
+        propertyTypePE.setTransformation(propertyType.getTransformation());
+        // TODO 2010-09-10, Piotr Buczek: validation
     }
 
     private MaterialTypePE tryGetMaterialType(MaterialType materialType)
@@ -136,6 +140,8 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 
         propertyTypePE.setDescription(updates.getDescription());
         propertyTypePE.setLabel(updates.getLabel());
+        propertyTypePE.setSchema(updates.getSchema());
+        propertyTypePE.setTransformation(updates.getTransformation());
 
         validateAndSave();
     }

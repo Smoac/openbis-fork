@@ -64,6 +64,12 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
 
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
+    // xml type specifig
+
+    private String schema;
+
+    private String transformation;
+
     public Long getId()
     {
         return id;
@@ -198,4 +204,23 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
         this.materialType = materialType;
     }
 
+    public String getSchema()
+    {
+        return schema;
+    }
+
+    public void setSchema(String schema)
+    {
+        this.schema = schema;
+    }
+
+    public String getTransformation()
+    {
+        return transformation;
+    }
+
+    public void setTransformation(String transformation)
+    {
+        this.transformation = transformation;
+    }
 }

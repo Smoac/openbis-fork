@@ -104,6 +104,17 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     private Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes =
             new HashSet<DataSetTypePropertyTypePE>();
 
+    // for now these attributes are xml specific
+
+    /** (optional) schema used for validation of property values (e.g. XMLSchema document for XML) */
+    private String schema;
+
+    /**
+     * (optional) transformation that should be performed on property values before they are passed
+     * to client (e.g. XSLT document for XML)
+     */
+    private String transformation;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.CONTROLLED_VOCABULARY_COLUMN, updatable = false)
     public VocabularyPE getVocabulary()
@@ -210,6 +221,30 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     public final void setLabel(final String label)
     {
         this.label = label;
+    }
+
+    @Column(name = ColumnNames.SCHEMA_COLUMN)
+    public final String getSchema()
+    {
+        return schema;
+    }
+
+    // private?
+    public final void setSchema(final String schema)
+    {
+        this.schema = schema;
+    }
+
+    @Column(name = ColumnNames.TRANSFORMATION_COLUMN)
+    public final String getTransformation()
+    {
+        return transformation;
+    }
+
+    // private?
+    public final void setTransformation(final String transformation)
+    {
+        this.transformation = transformation;
     }
 
     @NotNull

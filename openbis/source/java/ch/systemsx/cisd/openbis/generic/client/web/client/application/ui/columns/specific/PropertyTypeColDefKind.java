@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -88,6 +89,24 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
             }
         }),
 
+    SCHEMA(new AbstractColumnDefinitionKind<PropertyType>(Dict.XML_SCHEMA, true)
+        {
+            @Override
+            public String tryGetValue(PropertyType entity)
+            {
+                return renderXML(entity.getSchema());
+            }
+        }),
+
+    TRANSFORMATION(new AbstractColumnDefinitionKind<PropertyType>(Dict.XSLT, true)
+        {
+            @Override
+            public String tryGetValue(PropertyType entity)
+            {
+                return renderXML(entity.getTransformation());
+            }
+        }),
+
     DESCRIPTION(new AbstractColumnDefinitionKind<PropertyType>(Dict.DESCRIPTION)
         {
             @Override
@@ -148,6 +167,11 @@ public enum PropertyTypeColDefKind implements IColumnDefinitionKind<PropertyType
     public AbstractColumnDefinitionKind<PropertyType> getDescriptor()
     {
         return columnDefinitionKind;
+    }
+
+    private static String renderXML(String xmlDocumentOrNull)
+    {
+        return xmlDocumentOrNull == null ? null : new MultilineHTML(xmlDocumentOrNull).toString();
     }
 
     private static String render(List<? extends EntityTypePropertyType<?>> list)

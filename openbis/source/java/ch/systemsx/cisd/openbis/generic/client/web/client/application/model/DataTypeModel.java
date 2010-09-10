@@ -39,6 +39,11 @@ public final class DataTypeModel extends NonHierarchicalBaseModelData
         set(ModelDataPropertyNames.OBJECT, dataType);
     }
 
+    public DataType getDataType()
+    {
+        return get(ModelDataPropertyNames.OBJECT);
+    }
+
     public final static List<DataTypeModel> convert(final List<DataType> dataTypes)
     {
         assert dataTypes != null : "Unspecified data types.";

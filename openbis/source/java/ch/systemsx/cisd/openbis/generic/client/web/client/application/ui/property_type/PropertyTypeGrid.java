@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Prop
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.XmlField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -161,12 +163,17 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
         final String description = propertyType.getDescription();
         final String label = propertyType.getLabel();
         final String title = viewContext.getMessage(Dict.EDIT_TITLE, "Property Type", code);
+        final DataTypeCode dataTypeCode = propertyType.getDataType().getCode();
 
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
                 private final DescriptionField descriptionField;
 
                 private final TextField<String> labelField;
+
+                private XmlField xmlSchemaField;
+
+                private XmlField xslTransformationsField;
 
                 {
                     boolean mandatory = true;
@@ -179,6 +186,18 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                     descriptionField = createDescriptionField(viewContext, mandatory);
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
                     addField(descriptionField);
+
+                    if (dataTypeCode == DataTypeCode.XML)
+                    {
+                        xmlSchemaField = createXmlSchemaField();
+                        xmlSchemaField.setValueAndUnescape(propertyType.getSchema());
+                        addField(xmlSchemaField);
+
+                        xslTransformationsField = createXslTransformationsField();
+                        xslTransformationsField.setValueAndUnescape(propertyType
+                                .getTransformation());
+                        addField(xslTransformationsField);
+                    }
                 }
 
                 @Override
@@ -186,8 +205,25 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
                 {
                     propertyType.setDescription(descriptionField.getValue());
                     propertyType.setLabel(labelField.getValue());
+                    if (dataTypeCode == DataTypeCode.XML)
+                    {
+                        propertyType.setSchema(xmlSchemaField.getValue());
+                        propertyType.setTransformation(xslTransformationsField.getValue());
+                    }
 
                     viewContext.getService().updatePropertyType(propertyType, registrationCallback);
+                }
+
+                // XML data type specific
+
+                private final XmlField createXmlSchemaField()
+                {
+                    return new XmlField(viewContext.getMessage(Dict.XML_SCHEMA), false);
+                }
+
+                private final XmlField createXslTransformationsField()
+                {
+                    return new XmlField(viewContext.getMessage(Dict.XSLT), false);
                 }
             };
     }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * A {@link TextArea} extension for registering multiline text with adjustable height.
@@ -59,6 +60,11 @@ public class MultilineVarcharField extends TextArea
     public static int linesToPixelHeight(int lines)
     {
         return (int) (lines * DEFAULT_LINE_HEIGHT * EM_TO_PIXEL);
+    }
+
+    public void setValueAndUnescape(String escapedValue)
+    {
+        setValue(StringEscapeUtils.unescapeHtml(escapedValue));
     }
 
 }

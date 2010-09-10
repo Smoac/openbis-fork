@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Field;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -29,12 +29,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.XmlField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -67,6 +67,10 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final MaterialTypeSelectionWidget materialTypeSelectionWidget;
 
+    private final XmlField xmlSchemaField;
+
+    private final XmlField xslTransformationsField;
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static DatabaseModificationAwareComponent create(
@@ -87,10 +91,14 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         this.propertyTypeDescriptionField = createPropertyTypeDescriptionField();
         this.dataTypeSelectionWidget = createDataTypeSelectionWidget();
         this.vocabularySelectionWidget = createVocabularySelectionWidget();
-        this.materialTypeSelectionWidget = createMaterialTypeSelectionField(viewContext);
+        this.materialTypeSelectionWidget = createMaterialTypeSelectionField();
+        this.xmlSchemaField = createXmlSchemaField();
+        this.xslTransformationsField = createXslTransformationsField();
 
         vocabularySelectionWidget.setVisible(false);
         materialTypeSelectionWidget.setVisible(false);
+        xmlSchemaField.setVisible(false);
+        xslTransformationsField.setVisible(false);
 
         formPanel.add(propertyTypeCodeField);
         formPanel.add(propertyTypeLabelField);
@@ -98,10 +106,11 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         formPanel.add(dataTypeSelectionWidget);
         formPanel.add(vocabularySelectionWidget);
         formPanel.add(materialTypeSelectionWidget);
+        formPanel.add(xmlSchemaField);
+        formPanel.add(xslTransformationsField);
     }
 
-    private static MaterialTypeSelectionWidget createMaterialTypeSelectionField(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+    private MaterialTypeSelectionWidget createMaterialTypeSelectionField()
     {
         String label = viewContext.getMessage(Dict.ALLOW_ANY_TYPE);
         MaterialTypeSelectionWidget chooser =
@@ -129,6 +138,16 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     private final MultilineVarcharField createPropertyTypeDescriptionField()
     {
         return new DescriptionField(viewContext, true, getId());
+    }
+
+    private final XmlField createXmlSchemaField()
+    {
+        return new XmlField(viewContext.getMessage(Dict.XML_SCHEMA), false);
+    }
+
+    private final XmlField createXslTransformationsField()
+    {
+        return new XmlField(viewContext.getMessage(Dict.XSLT), false);
     }
 
     private final DataTypeSelectionWidget createDataTypeSelectionWidget()
@@ -159,31 +178,42 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         propertyType.setDescription(propertyTypeDescriptionField.getValue());
         final DataType selectedDataType = dataTypeSelectionWidget.tryGetSelectedDataType();
         propertyType.setDataType(selectedDataType);
-        propertyType.setVocabulary(tryGetSelectedVocabulary(selectedDataType));
-        propertyType.setMaterialType(tryGetSelectedMaterialTypeProperty(selectedDataType));
+        switch (selectedDataType.getCode())
+        {
+            case MATERIAL:
+                propertyType.setMaterialType(tryGetSelectedMaterialTypeProperty());
+                break;
+            case CONTROLLEDVOCABULARY:
+                propertyType.setVocabulary(tryGetSelectedVocabulary());
+                break;
+            case XML:
+                propertyType.setSchema(tryGetXmlSchema());
+                propertyType.setTransformation(tryGetXslTransformation());
+                break;
+            default:
+                break;
+        }
         return propertyType;
     }
 
-    private MaterialType tryGetSelectedMaterialTypeProperty(DataType selectedDataType)
+    private MaterialType tryGetSelectedMaterialTypeProperty()
     {
-        if (DataTypeCode.MATERIAL.equals(selectedDataType.getCode()))
-        {
-            return materialTypeSelectionWidget.tryGetSelected();
-        } else
-        {
-            return null;
-        }
+        return materialTypeSelectionWidget.tryGetSelected();
     }
 
-    private Vocabulary tryGetSelectedVocabulary(DataType selectedDataType)
+    private Vocabulary tryGetSelectedVocabulary()
     {
-        if (DataTypeCode.CONTROLLEDVOCABULARY.equals(selectedDataType.getCode()))
-        {
-            return (Vocabulary) GWTUtils.tryGetSingleSelected(vocabularySelectionWidget);
-        } else
-        {
-            return null;
-        }
+        return (Vocabulary) GWTUtils.tryGetSingleSelected(vocabularySelectionWidget);
+    }
+
+    private String tryGetXmlSchema()
+    {
+        return xmlSchemaField.getValue();
+    }
+
+    private String tryGetXslTransformation()
+    {
+        return xslTransformationsField.getValue();
     }
 
     //
@@ -213,30 +243,40 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         @Override
         public final void selectionChanged(final SelectionChangedEvent<DataTypeModel> se)
         {
+            hideDataTypeRelatedFields();
+
             DataTypeModel selectedItem = se.getSelectedItem();
+            if (selectedItem != null)
+            {
+                DataTypeCode dataTypeCode = selectedItem.getDataType().getCode();
+                switch (dataTypeCode)
+                {
+                    case CONTROLLEDVOCABULARY:
+                        showFields(vocabularySelectionWidget);
+                        break;
+                    case MATERIAL:
+                        showFields(materialTypeSelectionWidget);
+                        break;
+                    case XML:
+                        showFields(xmlSchemaField, xslTransformationsField);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            boolean isVocabularySelected =
-                    isDataTypeCodeSelected(selectedItem, DataTypeCode.CONTROLLEDVOCABULARY);
-            changeDataTypeSelectorVisibility(vocabularySelectionWidget, isVocabularySelected);
-
-            boolean isMaterialTypeSelected =
-                    isDataTypeCodeSelected(selectedItem, DataTypeCode.MATERIAL);
-            changeDataTypeSelectorVisibility(materialTypeSelectionWidget, isMaterialTypeSelected);
         }
 
-        private void changeDataTypeSelectorVisibility(TextField<?> field, final boolean isVisible)
+        private void showFields(Field<?>... fields)
         {
-            field.reset();
-            field.setVisible(isVisible);
-            field.setAllowBlank(!isVisible);
+            FieldUtil.setVisibility(true, fields);
         }
-    }
 
-    private static boolean isDataTypeCodeSelected(final DataTypeModel selectedItemOrNull,
-            DataTypeCode dataTypeCode)
-    {
-        return selectedItemOrNull != null
-                && selectedItemOrNull.get(ModelDataPropertyNames.CODE).equals(dataTypeCode.name());
+        private void hideDataTypeRelatedFields()
+        {
+            FieldUtil.setVisibility(false, vocabularySelectionWidget, materialTypeSelectionWidget,
+                    xmlSchemaField, xslTransformationsField);
+        }
     }
 
     private final class PropertyTypeRegistrationCallback extends

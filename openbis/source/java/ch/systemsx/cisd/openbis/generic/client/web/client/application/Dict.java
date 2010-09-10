@@ -365,6 +365,10 @@ public abstract class Dict
 
     public static final String DEFAULT_UPDATE_VALUE_TOOLTIP = "default_update_value_tooltip";
 
+    public static final String XML_SCHEMA = "xml_schema";
+
+    public static final String XSLT = "xslt";
+
     //
     // Property Type Assignment Browser
     //
