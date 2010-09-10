@@ -247,6 +247,8 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     {
         PropertyTypeModel model = new PropertyTypeModel(entity, getStaticColumnsDefinition());
         model.renderAsMultilineStringWithTooltip(PropertyTypeColDefKind.DESCRIPTION.id());
+        model.renderAsMultilineStringWithTooltip(PropertyTypeColDefKind.SCHEMA.id());
+        model.renderAsMultilineStringWithTooltip(PropertyTypeColDefKind.TRANSFORMATION.id());
         return model;
     }
 
