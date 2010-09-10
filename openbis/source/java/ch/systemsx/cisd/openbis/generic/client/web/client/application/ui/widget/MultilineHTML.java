@@ -20,6 +20,8 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+
 /**
  * A {@link HTML} widget extension that preserves newlines in multiline text and provides a tooltip.
  * 
@@ -57,7 +59,7 @@ public final class MultilineHTML extends HTML
     {
         final Element div = DOM.createDiv();
         div.setInnerHTML(text);
-        div.setTitle(tooltip);
+        div.setTitle(StringEscapeUtils.unescapeHtml(tooltip));
         return DOM.toString(div);
     }
 
