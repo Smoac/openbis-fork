@@ -20,6 +20,8 @@ import com.extjs.gxt.ui.client.event.MvcEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.mvc.DispatcherListener;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
@@ -65,6 +67,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     private static final String INDIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159188-3";
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowMasterPlateView()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
@@ -95,6 +98,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowCellPlateView()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
