@@ -10,6 +10,7 @@ assign-to DATA_SET:${time-series-type} EXPERIMENT_CODE
 assign-to DATA_SET:${time-series-type} SCALE_LIST
 assign-to DATA_SET:${time-series-type} TECHNICAL_REPLICATE_CODE_LIST
 assign-to DATA_SET:${time-series-type} TIME_POINT_LIST
+assign-to DATA_SET:${time-series-type} TIME_SERIES_DATA_SET_TYPE
 assign-to DATA_SET:${time-series-type} UPLOADER_EMAIL
 assign-to DATA_SET:${time-series-type} VALUE_TYPE_LIST
 assign-to DATA_SET:${time-series-type} TIME_POINT_TYPE

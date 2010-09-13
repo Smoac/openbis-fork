@@ -43,8 +43,8 @@ class DataSetPropertiesExtractor implements IDataSetPropertiesExtractor
 
     public List<NewProperty> extractDataSetProperties(File incomingDataSetPath)
     {
-        return HeaderUtils.extractHeaderPropertiesIgnoringTimeSeriesDataSetType(
-                incomingDataSetPath, ignoreEmptyLines, false, allowMultipleValues);
+        return HeaderUtils.extractHeaderProps(incomingDataSetPath, ignoreEmptyLines, false,
+                allowMultipleValues);
     }
 
 }
