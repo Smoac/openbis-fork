@@ -159,6 +159,22 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     }
     
     @Test
+    public void testParsingTrailingEmptyHeaders()
+    {
+        StringReader source = new StringReader("alpha\tbeta\t\t");
+        try
+        {
+            new TabSeparatedValueTable(source, "", true, true, true);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("2 trailing tab characters detected in headers line: 'alpha\tbeta\t\t'.",
+                    ex.getMessage());
+        }
+        
+    }
+    
+    @Test
     public void testParsingTooLongRows()
     {
         StringReader source = new StringReader("alpha\tbeta\n1\t2\t\t\t4\n");

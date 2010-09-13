@@ -138,7 +138,22 @@ public class TabSeparatedValueTable
         {
             throw new IllegalArgumentException("Empty file '" + nameOfReadingSource + "'.");
         }
-        headers = getRowCells(rowLineIterator.next().trim());
+        String headerLine = rowLineIterator.next();
+        int countTrailingTabs = 0;
+        for (int i = headerLine.length() - 1; i >= 0; i--)
+        {
+            if (headerLine.charAt(i) != '\t')
+            {
+                break;
+            }
+            countTrailingTabs++;
+        }
+        if (countTrailingTabs > 0)
+        {
+            throw new UserFailureException(countTrailingTabs
+                    + " trailing tab characters detected in headers line: '" + headerLine + "'.");
+        }
+        headers = getRowCells(headerLine);
     }
     
     /**
