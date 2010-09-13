@@ -40,6 +40,11 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
     public String tryToOpenSession(final String user, final String password);
 
     /**
+     * Opens a new session for specified user and principal provider. 
+     */
+    public String tryToOpenSession(String userID, IPrincipalProvider principalProvider);
+    
+    /**
      * Closes session by removing given <code>sessionToken</code> from active sessions.
      */
     public void closeSession(final String sessionToken) throws InvalidSessionException;
@@ -56,6 +61,5 @@ public interface ISessionManager<T extends BasicSession> extends IRemoteHostProv
      * </p>
      */
     public T getSession(final String sessionToken) throws InvalidSessionException;
-
 
 }

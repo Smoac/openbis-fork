@@ -338,20 +338,30 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
 
     public String tryToOpenSession(final String user, final String password)
     {
-        checkIfNotBlank(user, "user");
         checkIfNotBlank(password, "password");
+        return tryToOpenSession(user, new IPrincipalProvider()
+            {
+                public Principal tryToGetPrincipal(String userID)
+                {
+                    return authenticationService.tryGetAndAuthenticateUser(null, user, password);
+                }
+            });
+    }
+    
+    public String tryToOpenSession(String userID, IPrincipalProvider principalProvider)
+    {
+        checkIfNotBlank(userID, "user");
         try
         {
             String sessionToken = null;
             final long now = System.currentTimeMillis();
-            final Principal principalOrNull =
-                    authenticationService.tryGetAndAuthenticateUser(null, user, password);
+            final Principal principalOrNull = principalProvider.tryToGetPrincipal(userID);
             final boolean isAuthenticated = Principal.isAuthenticated(principalOrNull);
             if (isAuthenticated)
             {
                 try
                 {
-                    final T session = createAndStoreSession(user, principalOrNull, now);
+                    final T session = createAndStoreSession(userID, principalOrNull, now);
                     sessionToken = session.getSessionToken();
                     logAuthenticed(session);
                 } catch (final IllegalArgumentException ex)
@@ -362,14 +372,15 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
                 }
             } else
             {
-                logFailedAuthentication(user);
+                logFailedAuthentication(userID);
             }
             return sessionToken;
         } catch (final RuntimeException ex)
         {
-            logSessionFailure(user, ex);
+            logSessionFailure(userID, ex);
             throw ex;
         }
+        
     }
 
     public void closeSession(final String sessionToken) throws InvalidSessionException
