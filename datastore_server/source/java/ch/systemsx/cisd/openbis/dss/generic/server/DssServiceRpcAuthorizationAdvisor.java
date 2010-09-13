@@ -21,7 +21,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
 
 /**
  * The advisor for authorization in the DSS RPC interfaces.

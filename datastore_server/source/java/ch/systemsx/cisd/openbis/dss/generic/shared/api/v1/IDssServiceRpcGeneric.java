@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.api.IRpcService;
-import ch.systemsx.cisd.openbis.dss.generic.server.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
 
 /**
  * Generic functionality for interacting with the DSS.

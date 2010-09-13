@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
