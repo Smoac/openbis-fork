@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -38,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
 {
-    protected ICommonServer commonServer;
+    protected ICommonServerForInternalUse commonServer;
     protected ICommonClientService commonClientService;
     protected MockHttpServletRequest request;
     
@@ -65,7 +66,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
      * </p>
      */
     @Autowired
-    public final void setCommonServer(final ICommonServer commonServer)
+    public final void setCommonServer(final ICommonServerForInternalUse commonServer)
     {
         this.commonServer = commonServer;
     }

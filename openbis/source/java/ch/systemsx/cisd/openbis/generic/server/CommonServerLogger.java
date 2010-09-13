@@ -25,7 +25,6 @@ import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
@@ -85,6 +84,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -97,7 +97,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-final class CommonServerLogger extends AbstractServerLogger implements ICommonServer
+final class CommonServerLogger extends AbstractServerLogger implements ICommonServerForInternalUse
 {
     /**
      * Creates an instance for the specified session manager, invocation status and elapsed time.
@@ -114,6 +114,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     // IGenericServer
     //
 
+    public SessionContextDTO tryToAuthenticateAsSystem()
+    {
+        return null;
+    }
+    
     public List<Space> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {

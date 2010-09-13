@@ -173,6 +173,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         return person;
     }
+    
+    protected final PersonPE getSystemUser()
+    {
+        return getSystemUser(daoFactory.getPersonDAO().listPersons());
+    }
 
     private final static PersonPE getSystemUser(final List<PersonPE> persons)
     {

@@ -25,8 +25,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -46,8 +46,8 @@ public class DemoMaintenanceTask implements IMaintenanceTask
         IProjectDAO projectDAO = CommonServiceProvider.getDAOFactory().getProjectDAO();
         List<ProjectPE> projects = projectDAO.listProjects();
         operationLog.info(projects.size() + " project(s) found");
-        ICommonServer server = CommonServiceProvider.getCommonServer();
-        SessionContextDTO contextOrNull = server.tryToAuthenticate("test", "x");
+        ICommonServerForInternalUse server = CommonServiceProvider.getCommonServer();
+        SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
         if (contextOrNull != null)
         {
             final String sessionToken = contextOrNull.getSessionToken();

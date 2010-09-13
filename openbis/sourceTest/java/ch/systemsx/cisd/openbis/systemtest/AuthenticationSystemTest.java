@@ -22,6 +22,10 @@ import static org.testng.AssertJUnit.fail;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * 
@@ -42,5 +46,16 @@ public class AuthenticationSystemTest extends SystemTestCase
         {
             assertEquals("No 'password' specified.", ex.getMessage());
         }
+    }
+    
+    @Test
+    public void testTryToAuthenticateAsSystem()
+    {
+        SessionContextDTO systemUser = commonServer.tryToAuthenticateAsSystem();
+        String sessionToken = systemUser.getSessionToken();
+        PersonPE person = commonServer.getAuthSession(sessionToken).tryGetPerson();
+        RoleAssignmentPE role = person.getAllPersonRoles().iterator().next();
+        assertEquals(null, role.getGroup());
+        assertEquals(RoleCode.ADMIN, role.getRole());
     }
 }
