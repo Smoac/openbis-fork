@@ -27,8 +27,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.springframework.aop.framework.ProxyFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -487,6 +490,33 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         rpcService.putDataSet(SESSION_TOKEN, newDataSet, fileInputStream);
 
         context.assertIsSatisfied();
+    }
+
+    // Used for the authorization test
+    private static class TestMethodInterceptor implements MethodInterceptor
+    {
+        boolean methodInvoked = false;
+
+        public Object invoke(MethodInvocation methodInvocation) throws Throwable
+        {
+            methodInvoked = true;
+            return methodInvocation.proceed();
+        }
+
+    }
+
+    @Test
+    public void testAuthorization()
+    {
+        ProxyFactory pf = new ProxyFactory();
+        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
+        pf.addAdvisor(new DssServiceRpcAuthorizationAdvisor(testMethodInterceptor));
+        pf.setTarget(rpcService);
+        pf.addInterface(IDssServiceRpcGenericInternal.class);
+
+        IDssServiceRpcGenericInternal service = (IDssServiceRpcGenericInternal) pf.getProxy();
+        service.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
+        assertTrue("Advice should have been invoked.", testMethodInterceptor.methodInvoked);
     }
 
     private List<IContent> getContentForFileInfos(String filePath, List<FileInfoDssDTO> fileInfos)

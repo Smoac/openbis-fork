@@ -60,8 +60,22 @@
      <bean id="data-store-rpc-service-generic"
         class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
         <property name="service">
-            <bean class="ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric">
-                <constructor-arg ref="openBIS-service" />
+            <bean class="org.springframework.aop.framework.ProxyFactoryBean">
+                <property name="proxyInterfaces">
+                    <list>
+                        <value>ch.systemsx.cisd.openbis.dss.generic.server.IDssServiceRpcGenericInternal</value>
+                    </list>
+                </property>
+                <property name="interceptorNames">
+                    <list>
+                        <value>rpc-authorization-advisor</value>
+                    </list>
+                </property>
+                <property name="target"> 
+                    <bean class="ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric">
+                        <constructor-arg ref="openBIS-service" />
+                    </bean>
+                </property>
             </bean>
         </property>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric" />
@@ -84,6 +98,12 @@
     -->
     <bean id="bean-post-processor"
         class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+        
+    <!-- 
+        // Authorization
+    -->
+
+    <bean id="rpc-authorization-advisor" class="ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor" />
 
     <!-- 
         // Logging

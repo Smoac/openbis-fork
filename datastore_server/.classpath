@@ -18,7 +18,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/openbis"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
 	<classpathentry kind="lib" path="/libraries/cifex/cifex.jar" sourcepath="/cifex/source/java"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
@@ -49,5 +49,6 @@
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jai/jai_codec.jar"/>
 	<classpathentry kind="lib" path="/libraries/jai/jai_core.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

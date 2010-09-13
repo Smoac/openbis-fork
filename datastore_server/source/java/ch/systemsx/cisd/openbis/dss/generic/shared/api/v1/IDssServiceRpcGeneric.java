@@ -20,6 +20,7 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.openbis.dss.generic.server.authorization.DataSetAccessGuard;
 
 /**
  * Generic functionality for interacting with the DSS.
@@ -38,6 +39,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
+    @DataSetAccessGuard
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
@@ -49,6 +51,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
+    @DataSetAccessGuard
     public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
@@ -62,6 +65,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
+    @DataSetAccessGuard
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
             String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException;
 
@@ -74,6 +78,7 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
+    @DataSetAccessGuard
     public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
