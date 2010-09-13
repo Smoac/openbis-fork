@@ -18,12 +18,14 @@ package ch.systemsx.cisd.common.utilities;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -41,9 +43,9 @@ import com.sun.org.apache.xerces.internal.jaxp.JAXPConstants;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
- * Helper class providing convenient methods for parsing XML document with and without 
- * schema validation.
- *
+ * Helper class providing convenient methods for parsing XML document with and without schema
+ * validation.
+ * 
  * @author Franz-Josef Elmer
  */
 public class XMLInfraStructure
@@ -73,14 +75,42 @@ public class XMLInfraStructure
         }
     }
 
+    /**
+     * Creates a Schema by a URL
+     */
+    public static Schema createSchema(URL schemaURL)
+    {
+        try
+        {
+            return SCHEMA_FACTORY.newSchema(schemaURL);
+        } catch (SAXException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    /**
+     * Creates a Schema from a source
+     */
+    public static Schema createSchema(Source schemaAsSource)
+    {
+        try
+        {
+            return SCHEMA_FACTORY.newSchema(schemaAsSource);
+        } catch (SAXException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
     private final SAXParserFactory parserFactory;
-    
+
     private EntityResolver entityResolver;
 
     /**
-     * Creates a new instance. 
-     *
-     * @param validating If <code>true</code> Schema validation is enabled. 
+     * Creates a new instance.
+     * 
+     * @param validating If <code>true</code> Schema validation is enabled.
      */
     public XMLInfraStructure(boolean validating)
     {
@@ -88,7 +118,7 @@ public class XMLInfraStructure
         parserFactory.setNamespaceAware(true);
         parserFactory.setValidating(validating);
     }
-    
+
     /**
      * Replaces the default entity resolver by the specified one.
      */
@@ -96,11 +126,11 @@ public class XMLInfraStructure
     {
         this.entityResolver = entityResolver;
     }
-    
+
     /**
-     * Parses the specified XML document and deliver all content event to the specified
-     * content handler. An exception with detailed error messages is thrown in case
-     * of enabled Schema validation. 
+     * Parses the specified XML document and deliver all content event to the specified content
+     * handler. An exception with detailed error messages is thrown in case of enabled Schema
+     * validation.
      */
     public void parse(Reader xmlDocument, ContentHandler contentHandler)
     {
@@ -158,5 +188,5 @@ public class XMLInfraStructure
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
 }

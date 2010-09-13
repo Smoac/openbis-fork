@@ -28,6 +28,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.w3c.dom.Document;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
@@ -136,10 +137,18 @@ public final class PropertyValidator implements IPropertyValueValidator
         final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
         assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
                 + "specified for '%s'.", entityDataType);
-        if (entityDataType == DataTypeCode.CONTROLLEDVOCABULARY)
+        switch (entityDataType)
         {
-            ((ControlledVocabularyValidator) dataTypeValidator).setVocabulary(propertyType
-                    .getVocabulary());
+            case CONTROLLEDVOCABULARY:
+                ((ControlledVocabularyValidator) dataTypeValidator).setVocabulary(propertyType
+                        .getVocabulary());
+                break;
+            case XML:
+                ((XmlValidator) dataTypeValidator).setXmlSchema(propertyType.getSchema());
+                ((XmlValidator) dataTypeValidator).setPropertyTypeLabel(propertyType.getLabel());
+                break;
+            default:
+                break;
         }
         return dataTypeValidator.validate(value);
     }
@@ -390,11 +399,26 @@ public final class PropertyValidator implements IPropertyValueValidator
     private final static class XmlValidator implements IDataTypeValidator
     {
 
+        static final String JAXP_SCHEMA_LANGUAGE =
+                "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+
+        static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
+
+        static final String JAXP_SCHEMA_SOURCE =
+                "http://java.sun.com/xml/jaxp/properties/schemaSource";
+
         private String xmlSchema;
+
+        private String propertyTypeLabel;
 
         public void setXmlSchema(String xmlSchema)
         {
             this.xmlSchema = xmlSchema;
+        }
+
+        public void setPropertyTypeLabel(String label)
+        {
+            this.propertyTypeLabel = label;
         }
 
         //
@@ -405,12 +429,22 @@ public final class PropertyValidator implements IPropertyValueValidator
         {
             assert value != null : "Unspecified value.";
 
+            // parsing checks if the value is a well-formed XML document
+            Document document = XmlUtils.parseXmlDocument(value);
             if (xmlSchema != null)
             {
-                // TODO 2010-09-10, Piotr Buczek: perform schema validation
-            } else
-            {
-                // TODO 2010-09-10, Piotr Buczek: check if XML is well-formed
+                // validate against schema
+                try
+                {
+                    XmlUtils.validate(document, xmlSchema);
+                } catch (Exception e)
+                {
+                    // instance document is invalid!
+                    throw UserFailureException.fromTemplate(
+                            "Provided value:\n\n%s\n\ndoesn't validate against schema "
+                                    + "of '%s' property type. %s", value, propertyTypeLabel, e
+                                    .getMessage());
+                }
             }
 
             // validated value is valid

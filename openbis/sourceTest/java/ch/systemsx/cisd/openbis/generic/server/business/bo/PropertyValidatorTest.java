@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 @Friend(toClasses = PropertyValidator.class)
 public final class PropertyValidatorTest extends AbstractBOTest
 {
+    // TODO extend
 
     private final PropertyValidator createPropertyValidator()
     {

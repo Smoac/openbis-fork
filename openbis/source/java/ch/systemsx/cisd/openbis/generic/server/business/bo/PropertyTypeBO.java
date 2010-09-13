@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.net.URL;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.w3c.dom.Document;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.util.XmlUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -89,8 +93,22 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         }
         // XML data type specific
         propertyTypePE.setSchema(propertyType.getSchema());
+        validateXML(propertyType.getSchema(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_URL);
         propertyTypePE.setTransformation(propertyType.getTransformation());
-        // TODO 2010-09-10, Piotr Buczek: validation
+        validateXML(propertyType.getTransformation(), "XSLT", XmlUtils.XSLT_XSD_URL);
+    }
+
+    private static void validateXML(String xmlValue, String xmlName, String schemaURL)
+    {
+        Document document = XmlUtils.parseXmlDocument(xmlValue);
+        try
+        {
+            XmlUtils.validate(document, new URL(schemaURL));
+        } catch (Exception e)
+        {
+            throw UserFailureException.fromTemplate("Provided %s isn't valid. %s", xmlName, e
+                    .getMessage());
+        }
     }
 
     private MaterialTypePE tryGetMaterialType(MaterialType materialType)
