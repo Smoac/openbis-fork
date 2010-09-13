@@ -73,7 +73,7 @@ public final class Project implements Serializable
     {
         if (obj == this)
         {
-            return false;
+            return true;
         }
         if (obj instanceof Project == false)
         {
