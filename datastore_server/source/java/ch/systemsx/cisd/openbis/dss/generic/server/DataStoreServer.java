@@ -214,7 +214,8 @@ public class DataStoreServer
         // Get the spring bean and do some additional configuration
         StreamSupportingHttpInvokerServiceExporter v1ServiceExporter =
                 ServiceProvider.getDssServiceRpcGeneric();
-        AbstractDssServiceRpc service = (AbstractDssServiceRpc) v1ServiceExporter.getService();
+        IDssServiceRpcGenericInternal service =
+                (IDssServiceRpcGenericInternal) v1ServiceExporter.getService();
         service.setStoreDirectory(applicationContext.getConfigParameters().getStorePath());
         service.setIncomingDirectory(applicationContext.getConfigParameters()
                 .getRpcIncomingDirectory());

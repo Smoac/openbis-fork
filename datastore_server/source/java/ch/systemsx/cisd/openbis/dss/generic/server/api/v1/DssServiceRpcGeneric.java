@@ -25,11 +25,11 @@ import java.util.ArrayList;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 
 /**
@@ -37,7 +37,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements IDssServiceRpcGeneric
+public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
+        IDssServiceRpcGenericInternal
 {
     private final PutDataSetService putService;
 
