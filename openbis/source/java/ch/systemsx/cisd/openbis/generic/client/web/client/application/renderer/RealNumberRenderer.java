@@ -1,10 +1,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.google.gwt.i18n.client.NumberFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
@@ -18,9 +20,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
 public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
     private static final String EXPONENT_FORMAT = "E000";
+
     private static final String ZEROS = "00000000000000000000";
+
     private static final int MAX_PRECISION = ZEROS.length();
-    
+
     public static String render(String value,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
@@ -28,7 +32,8 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         {
             return value;
         }
-        int precision = Math.max(0, Math.min(MAX_PRECISION, realNumberFormatingParameters.getPrecision()));
+        int precision =
+                Math.max(0, Math.min(MAX_PRECISION, realNumberFormatingParameters.getPrecision()));
         String format = "0." + ZEROS.substring(0, precision);
         boolean scientific = realNumberFormatingParameters.isScientific();
         if (scientific)
@@ -37,11 +42,13 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         }
         try
         {
-            double doubleValue = Double.parseDouble(value);
-            String formattedValue = NumberFormat.getFormat(format).format(doubleValue);
-            if (scientific == false && doubleValue != 0 && Double.parseDouble(formattedValue) == 0)
+            BigDecimal preciseValue = new BigDecimal(value);
+            String formattedValue = new DecimalFormat(format).format(preciseValue);
+            boolean valueIsZero = preciseValue.doubleValue() == 0;
+            boolean formattedValueIsZero = new BigDecimal(formattedValue).doubleValue() == 0;
+            if ((scientific == false) && (valueIsZero == false) && formattedValueIsZero)
             {
-                formattedValue = NumberFormat.getFormat(format + EXPONENT_FORMAT).format(doubleValue);
+                formattedValue = new DecimalFormat(format + EXPONENT_FORMAT).format(preciseValue);
             }
             return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
         } catch (NumberFormatException ex)
@@ -51,7 +58,7 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
     }
 
     private final RealNumberFormatingParameters realNumberFormatingParameters;
-    
+
     public RealNumberRenderer(RealNumberFormatingParameters realNumberFormatingParameters)
     {
         this.realNumberFormatingParameters = realNumberFormatingParameters;
@@ -68,5 +75,5 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         }
         return render(value, realNumberFormatingParameters);
     }
-    
+
 }
