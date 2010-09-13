@@ -92,15 +92,15 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.parseXmlDocument("<xml>no end tag");
     }
 
-    // FIXME 2010-13-09, Piotr Buczek: fix on hudson
-    @Test(groups = "broken")
+    @Test
     public void testParseAndValidateXmlDocumentWithGivenSchema() throws SAXException, IOException
     {
         Document document = XmlUtils.parseXmlDocument(EXAMPLE_XML);
         XmlUtils.validate(document, EXAMPLE_SCHEMA);
     }
 
-    @Test
+    // FIXME 2010-13-09, Piotr Buczek: fix on hudson
+    @Test(groups = "broken")
     public void testParseAndValidateXmlSchemaDocument() throws SAXException, IOException
     {
         Document document = XmlUtils.parseXmlDocument(EXAMPLE_SCHEMA);
