@@ -65,6 +65,8 @@ public class DefaultSessionManagerTest
 
     private BufferedAppender logRecorder;
 
+    private IPrincipalProvider principalProvider;
+
     private void assertExceptionMessageForInvalidSessionToken(final UserFailureException ex)
     {
         final String message = ex.getMessage();
@@ -80,6 +82,7 @@ public class DefaultSessionManagerTest
         prefixGenerator = context.mock(ILogMessagePrefixGenerator.class);
         authenticationService = context.mock(IAuthenticationService.class);
         remoteHostProvider = context.mock(IRemoteHostProvider.class);
+        principalProvider = context.mock(IPrincipalProvider.class);
         context.checking(new Expectations()
             {
                 {
@@ -122,7 +125,7 @@ public class DefaultSessionManagerTest
                     will(returnValue(session));
 
                     atLeast(1).of(prefixGenerator).createPrefix(session);
-                    will(returnValue("[USER:'bla', HOST:'remote-host']"));
+                    will(returnValue("[USER:'" + user + "', HOST:'remote-host']"));
                 }
             });
     }
@@ -283,4 +286,30 @@ public class DefaultSessionManagerTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testTryToOpenSessionWithPrincipalProvider()
+    {
+        final String user = "u1";
+        prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
+        context.checking(new Expectations()
+            {
+                {
+                    one(principalProvider).tryToGetPrincipal(user);
+                    will(returnValue(principal));
+                }
+            });
+        
+        String token = sessionManager.tryToOpenSession(user, principalProvider);
+        
+        assertEquals(user + "-1", token);
+        assertEquals(
+                "INFO  OPERATION.DefaultSessionManager - "
+                        + "LOGIN: User 'u1' has been successfully authenticated from host 'remote-host'. Session token: '"
+                        + token
+                        + "'."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  AUTH.DefaultSessionManager - [USER:'u1', HOST:'remote-host']: login",
+                logRecorder.getLogContent());
+        context.assertIsSatisfied();
+    }
 }
