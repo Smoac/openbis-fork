@@ -24,6 +24,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import org.w3c.dom.Document;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.XmlUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -93,13 +94,23 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         }
         // XML data type specific
         propertyTypePE.setSchema(propertyType.getSchema());
-        validateXML(propertyType.getSchema(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_URL);
         propertyTypePE.setTransformation(propertyType.getTransformation());
-        validateXML(propertyType.getTransformation(), "XSLT", XmlUtils.XSLT_XSD_URL);
+        validateXmlDocumentValues();
+    }
+
+    private void validateXmlDocumentValues()
+    {
+        validateXML(propertyTypePE.getSchema(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_URL);
+        validateXML(propertyTypePE.getTransformation(), "XSLT", XmlUtils.XSLT_XSD_URL);
     }
 
     private static void validateXML(String xmlValue, String xmlName, String schemaURL)
     {
+        if (StringUtils.isBlank(xmlValue))
+        {
+            return;
+        }
+
         Document document = XmlUtils.parseXmlDocument(xmlValue);
         try
         {
@@ -166,6 +177,7 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 
     private void validateAndSave()
     {
+        validateXmlDocumentValues();
         getPropertyTypeDAO().validateAndSaveUpdatedEntity(propertyTypePE);
     }
 
