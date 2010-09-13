@@ -493,14 +493,19 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     @SuppressWarnings("unchecked")
     protected final Map<String, ExternalData> getDataSets(HttpSession session)
     {
-        Map<String, ExternalData> map =
-                (Map<String, ExternalData>) session.getAttribute(DATA_SET_SESSION_KEY);
-        if (map == null)
+        // Need to synchronize on the class, since there could be multiple instances trying to
+        // access this attribute.
+        synchronized (AbstractDatasetDownloadServlet.class)
         {
-            map = new HashMap<String, ExternalData>();
-            session.setAttribute(DATA_SET_SESSION_KEY, map);
+            Map<String, ExternalData> map =
+                    (Map<String, ExternalData>) session.getAttribute(DATA_SET_SESSION_KEY);
+            if (map == null)
+            {
+                map = new HashMap<String, ExternalData>();
+                session.setAttribute(DATA_SET_SESSION_KEY, map);
+            }
+            return map;
         }
-        return map;
     }
 
     protected final void ensureSessionIdSpecified(String sessionIdOrNull)
