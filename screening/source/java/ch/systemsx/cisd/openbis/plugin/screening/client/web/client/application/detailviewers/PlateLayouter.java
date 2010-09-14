@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -279,24 +280,24 @@ public class PlateLayouter
         {
             return;
         }
-        List<IEntityProperty> properties = metadata.getWellSample().getProperties();
-
         String tooltip = "Well: " + wellData.getWellDescription();
 
+        List<IEntityProperty> properties = metadata.getWellSample().getProperties();
+        Collections.sort(properties);
         for (IEntityProperty property : properties)
         {
             PropertyType propertyType = property.getPropertyType();
             tooltip += "<br>" + propertyType.getLabel() + ": " + property.tryGetAsString();
             Material material = property.getMaterial();
             if (material != null
-                    && material.getMaterialType().getCode().equalsIgnoreCase(
-                            ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+                    && material.getMaterialType().getCode()
+                            .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
                 List<IEntityProperty> geneProperties = material.getProperties();
                 for (IEntityProperty geneProperty : geneProperties)
                 {
-                    if (geneProperty.getPropertyType().getCode().equalsIgnoreCase(
-                            ScreeningConstants.GENE_SYMBOLS))
+                    if (geneProperty.getPropertyType().getCode()
+                            .equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
                     {
                         tooltip += " [" + geneProperty.tryGetAsString() + "]";
                     }
@@ -306,7 +307,7 @@ public class PlateLayouter
         GWTUtils.setToolTip(widget, tooltip);
 
     }
-    
+
     // Elements will not contain null even if well is empty.
     // Numbering starts with 1 so row and column with index 0 are left empty.
     private static WellData[][] createMatrix(PlateImages plateContent)
@@ -360,9 +361,10 @@ public class PlateLayouter
                             @Override
                             public ITabItem create()
                             {
-                                return DefaultTabItem.create("Plate Report: " + plate.getCode(),
-                                        PlateMetadataBrowser.create(viewContext, new TechId(plate
-                                                .getId())), viewContext);
+                                return DefaultTabItem.create(
+                                        "Plate Report: " + plate.getCode(),
+                                        PlateMetadataBrowser.create(viewContext,
+                                                new TechId(plate.getId())), viewContext);
                             }
 
                             @Override
