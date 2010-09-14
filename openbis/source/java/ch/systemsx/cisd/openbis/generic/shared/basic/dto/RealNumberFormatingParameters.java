@@ -22,42 +22,48 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Parameters for formating real numbers in grids. It is part of {@link DisplaySettings}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class RealNumberFormatingParameters implements Serializable, IsSerializable
 {
     private static final long serialVersionUID = 1L;
 
+    // WORKAROUND 2010-09-13, IA: Used to avoid problems with GWT NumberFormat (should go away after
+    // upgrade to GWT 2.1)
+    public static int MAX_PRECISION = 6;
+
     private boolean formatingEnabled = true;
+
     private int precision = 4;
+
     private boolean scientific;
-    
+
     public boolean isFormatingEnabled()
     {
         return formatingEnabled;
     }
-    
+
     public void setFormatingEnabled(boolean formatingEnabled)
     {
         this.formatingEnabled = formatingEnabled;
     }
-    
+
     public int getPrecision()
     {
-        return precision;
+        return precision > MAX_PRECISION ? MAX_PRECISION : precision;
     }
 
     public void setPrecision(int precision)
     {
         this.precision = precision;
     }
-    
+
     public boolean isScientific()
     {
         return scientific;
     }
-    
+
     public void setScientific(boolean scientific)
     {
         this.scientific = scientific;

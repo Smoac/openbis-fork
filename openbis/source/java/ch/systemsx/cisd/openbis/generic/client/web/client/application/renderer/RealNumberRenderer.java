@@ -18,9 +18,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
 public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
     private static final String EXPONENT_FORMAT = "E000";
-    private static final String ZEROS = "00000000000000000000";
+
+    private static final String ZEROS = "000000";
+
     private static final int MAX_PRECISION = ZEROS.length();
-    
+
     public static String render(String value,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
@@ -28,7 +30,8 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         {
             return value;
         }
-        int precision = Math.max(0, Math.min(MAX_PRECISION, realNumberFormatingParameters.getPrecision()));
+        int precision =
+                Math.max(0, Math.min(MAX_PRECISION, realNumberFormatingParameters.getPrecision()));
         String format = "0." + ZEROS.substring(0, precision);
         boolean scientific = realNumberFormatingParameters.isScientific();
         if (scientific)
@@ -41,7 +44,8 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
             String formattedValue = NumberFormat.getFormat(format).format(doubleValue);
             if (scientific == false && doubleValue != 0 && Double.parseDouble(formattedValue) == 0)
             {
-                formattedValue = NumberFormat.getFormat(format + EXPONENT_FORMAT).format(doubleValue);
+                formattedValue =
+                        NumberFormat.getFormat(format + EXPONENT_FORMAT).format(doubleValue);
             }
             return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
         } catch (NumberFormatException ex)
@@ -51,7 +55,7 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
     }
 
     private final RealNumberFormatingParameters realNumberFormatingParameters;
-    
+
     public RealNumberRenderer(RealNumberFormatingParameters realNumberFormatingParameters)
     {
         this.realNumberFormatingParameters = realNumberFormatingParameters;
@@ -68,5 +72,5 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         }
         return render(value, realNumberFormatingParameters);
     }
-    
+
 }

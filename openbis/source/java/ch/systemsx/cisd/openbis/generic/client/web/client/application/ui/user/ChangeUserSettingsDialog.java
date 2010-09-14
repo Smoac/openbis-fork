@@ -110,7 +110,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final GroupSelectionWidget createHomeGroupField()
     {
-        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, GROUP_FIELD_ID, false, false);
+        GroupSelectionWidget field =
+                new GroupSelectionWidget(viewContext, GROUP_FIELD_ID, false, false);
         FieldUtil.setMandatoryFlag(field, false);
         field.setFieldLabel(viewContext.getMessage(Dict.HOME_GROUP_LABEL));
         return field;
@@ -178,6 +179,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
                 new IntegerField(viewContext.getMessage(Dict.REAL_NUMBER_FORMATING_PRECISION),
                         false);
         field.setValue(getRealNumberFormatingParameters().getPrecision());
+        field.setMaxValue(RealNumberFormatingParameters.MAX_PRECISION);
         return field;
     }
 
@@ -193,7 +195,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     {
         CheckBoxField field =
                 new CheckBoxField(viewContext.getMessage(Dict.ERROR_MESSAGE_FORMATING), false);
-        field.setValue(viewContext.getDisplaySettingsManager().isDisplayCustomColumnDebuggingErrorMessages());
+        field.setValue(viewContext.getDisplaySettingsManager()
+                .isDisplayCustomColumnDebuggingErrorMessages());
         return field;
     }
 
