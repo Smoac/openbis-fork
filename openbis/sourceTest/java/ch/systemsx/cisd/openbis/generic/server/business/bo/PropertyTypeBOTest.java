@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.util.XmlUtilsTest;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -237,6 +238,33 @@ public final class PropertyTypeBOTest extends AbstractBOTest
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testDefineWithXmlPropertyWithSchemaAndXslt()
+    {
+        final DataTypePE dataTypePE = new DataTypePE();
+        dataTypePE.setCode(DataTypeCode.XML);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    one(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
+
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
+                    will(returnValue(dataTypePE));
+                }
+            });
+        final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
+        final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
+
+        propertyType.setSchema(XmlUtilsTest.EXAMPLE_SCHEMA);
+        propertyType.setTransformation(XmlUtilsTest.EXAMPLE_XSLT);
+        propertyTypeBO.define(propertyType);
         context.assertIsSatisfied();
     }
 }

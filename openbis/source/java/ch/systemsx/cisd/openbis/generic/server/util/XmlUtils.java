@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -45,6 +46,10 @@ public class XmlUtils
 
     public static String XSLT_XSD_URL = "http://www.w3.org/2007/schema-for-xslt20.xsd";
 
+    public static String XML_SCHEMA_XSD_FILE_RESOURCE = "/XMLSchema.xsd";
+
+    public static String XSLT_XSD_FILE_RESOURCE = "/schema-for-xslt20.xsd";
+
     /**
      * Parse given string as XML {@link Document}.
      * 
@@ -53,6 +58,7 @@ public class XmlUtils
     public static Document parseXmlDocument(String value)
     {
         DocumentBuilderFactory dBF = DocumentBuilderFactory.newInstance();
+        dBF.setNamespaceAware(false);
         InputSource is = new InputSource(new StringReader(value));
         try
         {
@@ -86,6 +92,13 @@ public class XmlUtils
         Validator validator = schema.newValidator();
         // validate the DOM tree
         validator.validate(new DOMSource(document));
+    }
+
+    /** validate given document against the schema specified in File */
+    public static void validate(Document document, File schemaFile) throws SAXException,
+            IOException
+    {
+        validate(document, XMLInfraStructure.createSchema(schemaFile));
     }
 
 }

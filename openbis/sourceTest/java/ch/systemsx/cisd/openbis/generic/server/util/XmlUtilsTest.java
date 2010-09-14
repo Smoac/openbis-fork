@@ -19,15 +19,20 @@ package ch.systemsx.cisd.openbis.generic.server.util;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.xml.validation.Schema;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 
 /**
  * Tests of {@link XmlUtils}.
+ * <p>
+ * NOTE: some tests in this class fail if they are run offline as online namespaces are used
  * 
  * @author Piotr Buczek
  */
@@ -35,17 +40,19 @@ public class XmlUtilsTest extends AssertJUnit
 {
     private static String EXAMPLE_XML =
             "<?xml version='1.0'?>\n                                            "
-                    + "<note>\n                                                 "
+                    + "<note xmlns='http://www.w3schools.com'>\n                "
                     + "  <to>Tove</to>\n                                        "
                     + "  <from>Jani</from>\n                                    "
                     + "  <heading>Reminder</heading>\n                          "
                     + "  <body>Don't forget me this weekend!</body>\n           "
                     + "</note>                                                  ";
 
-    private static String EXAMPLE_SCHEMA =
+    public static String EXAMPLE_SCHEMA =
             "<?xml version='1.0'?>\n                                            "
                     + "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'   "
-                    + "           elementFormDefault='qualified'>\n             "
+                    + "targetNamespace='http://www.w3schools.com'               "
+                    + "xmlns='http://www.w3schools.com'                         "
+                    + "elementFormDefault='qualified'>\n                        "
                     + "<xs:element name='note'>\n                               "
                     + "  <xs:complexType>\n                                     "
                     + "    <xs:sequence>\n                                      "
@@ -58,7 +65,7 @@ public class XmlUtilsTest extends AssertJUnit
                     + "</xs:element>\n                                          "
                     + "</xs:schema>                                             ";
 
-    private static String EXAMPLE_XSLT =
+    public static String EXAMPLE_XSLT =
             "<?xml version='1.0'?>\n"
                     + "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
                     + "<xsl:output method='html'/>\n                            "
@@ -95,6 +102,7 @@ public class XmlUtilsTest extends AssertJUnit
     @Test
     public void testParseAndValidateXmlDocumentWithGivenSchema() throws SAXException, IOException
     {
+        // this test doesn't work offline! online namespaces are needed
         Document document = XmlUtils.parseXmlDocument(EXAMPLE_XML);
         XmlUtils.validate(document, EXAMPLE_SCHEMA);
     }
@@ -103,15 +111,24 @@ public class XmlUtilsTest extends AssertJUnit
     @Test(groups = "broken")
     public void testParseAndValidateXmlSchemaDocument() throws SAXException, IOException
     {
+        // this test doesn't work offline! online namespaces are needed
         Document document = XmlUtils.parseXmlDocument(EXAMPLE_SCHEMA);
+        // get schema from a URL resource
         XmlUtils.validate(document, new URL(XmlUtils.XML_SCHEMA_XSD_URL));
+        // get schema from a file resource
+        Schema schema = XMLInfraStructure.createSchema(XmlUtils.XML_SCHEMA_XSD_FILE_RESOURCE);
+        XmlUtils.validate(document, schema);
     }
 
     @Test
     public void testParseAndValidateXsltXmlDocument() throws SAXException, IOException
     {
+        // this test doesn't work offline! online namespaces are needed
         Document document = XmlUtils.parseXmlDocument(EXAMPLE_XSLT);
+        // get schema from a URL resource
         XmlUtils.validate(document, new URL(XmlUtils.XSLT_XSD_URL));
+        // get schema from a file resource
+        Schema schema = XMLInfraStructure.createSchema(XmlUtils.XSLT_XSD_FILE_RESOURCE);
+        XmlUtils.validate(document, schema);
     }
-
 }
