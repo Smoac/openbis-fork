@@ -27,11 +27,11 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.InputSource;
 
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * Set of standard functions used in jython expressions. 
@@ -63,7 +63,7 @@ final class StandardFunctions
         try
         {
             XPathExpression expression = XPATH.compile(xPath);
-            String str = StringEscapeUtils.unescapeHtml(xmlString);
+            String str = StringEscapeUtils.unescapeXml(xmlString);
             String result = expression.evaluate(new InputSource(new StringReader(str)));
             return result;
         } catch (XPathExpressionException ex)
