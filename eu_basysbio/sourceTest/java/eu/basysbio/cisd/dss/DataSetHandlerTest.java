@@ -299,9 +299,6 @@ public class DataSetHandlerTest extends AbstractFileSystemTestCase
     private DataSetHandler createHandler()
     {
         final Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox
-                        .getAbsolutePath());
         properties.setProperty(TimeSeriesDataSetUploaderParameters.DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING, ".*");
         return new DataSetHandler(properties, dataSource, service)
             {

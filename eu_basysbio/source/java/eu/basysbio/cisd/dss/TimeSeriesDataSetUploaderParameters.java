@@ -27,8 +27,6 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 class TimeSeriesDataSetUploaderParameters
 {
-    static final String TIME_SERIES_DATA_SET_DROP_BOX_PATH = "time-series-data-set-drop-box-path";
-    
     static final String DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING = "data-set-type-pattern-for-default-handling";
 
     static final String EXPERIMENT_CODE_TEMPLATE_KEY = "experiment-code-template";
@@ -48,7 +46,7 @@ class TimeSeriesDataSetUploaderParameters
         patternForDefaultHandling =
                 Pattern.compile(PropertyUtils.getMandatoryProperty(properties,
                         DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING));
-        ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
+        ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, false);
         experimentCodeFormat =
                 new MessageFormat(properties.getProperty(EXPERIMENT_CODE_TEMPLATE_KEY,
                         DEFAULT_EXPERIMENT_CODE_TEMPLATE));

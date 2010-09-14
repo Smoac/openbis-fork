@@ -77,8 +77,6 @@ public class TimeSeriesDataSetUploaderTest extends UploaderTestCase
         dropBox = new File(workingDirectory, "drop-box");
         dropBox.mkdirs();
         Properties properties = new Properties();
-        properties.setProperty(
-                TimeSeriesDataSetUploaderParameters.TIME_SERIES_DATA_SET_DROP_BOX_PATH, dropBox.toString());
         properties.setProperty(TimeSeriesDataSetUploaderParameters.DATA_SET_TYPE_PATTERN_FOR_DEFAULT_HANDLING, ".*");
         uploader =
                 new TimeSeriesDataSetUploader(dao, service,
