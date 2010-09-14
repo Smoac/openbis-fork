@@ -105,7 +105,7 @@ public abstract class AbstractTabularDataGraphTest extends AbstractFileSystemTes
     /**
      * Set to true if you want to be able to view the graphs output by the tests.
      */
-    private static final boolean SAVE_RESULTS = true;
+    private static final boolean SAVE_RESULTS = false;
 
     /**
      * Return a file for writing an image to. Depending on the value of the SAVE_RESULTS constant,
