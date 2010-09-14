@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -78,5 +80,14 @@ public interface IGeneralInformationService extends IRpcService
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull);
+
+    /**
+     * Return all samples that match the search criteria.
+     * 
+     * @param searchCriteria The sample metadata values to be matched against.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
 }

@@ -25,6 +25,8 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -66,6 +68,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public int getMinorVersion()
     {
         return 0;
+    }
+
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
+    {
+        logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s)", searchCriteria);
+        return null;
     }
 
 }

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -32,10 +34,14 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -53,14 +59,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    private ICommonServer commonServer;
+
     // Default constructor needed by Spring
     public GeneralInformationService()
     {
     }
 
-    GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory)
+    GeneralInformationService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+            ICommonServer commonServer)
     {
         super(sessionManager, daoFactory);
+        this.commonServer = commonServer;
     }
 
     public IGeneralInformationService createLogger(IInvocationLoggerContext context)
@@ -193,5 +204,24 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 fullSpace.add(person.getUserId(), role);
             }
         }
+    }
+
+    public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
+    {
+        checkSession(sessionToken);
+        DetailedSearchCriteria detailedSearchCriteria =
+                new SearchCriteriaToDetailedSearchCriteriaTranslator(
+                        searchCriteria,
+                        new SearchCriteriaToDetailedSearchCriteriaTranslator.SampleAttributeTranslator())
+                        .convertToDetailedSearchCriteria();
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> privateSamples =
+                commonServer.searchForSamples(sessionToken, detailedSearchCriteria);
+        ArrayList<Sample> samples = new ArrayList<Sample>();
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample : privateSamples)
+        {
+            samples.add(Translator.translate(privateSample));
+        }
+
+        return samples;
     }
 }

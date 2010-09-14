@@ -31,9 +31,15 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -44,18 +50,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  * @author Franz-Josef Elmer
  */
 // PLEASE, if you add here a new test add also a system test to
-// ch.systemsx.cisd.openbis.systemtest.api.v1.GeneralInformationService
+// ch.systemsx.cisd.openbis.systemtest.api.v1.GeneralInformationServiceTest
 @Friend(toClasses = RoleAssignmentPE.class)
 public class GeneralInformationServiceTest extends AbstractServerTestCase
 {
     private GeneralInformationService service;
+
+    private ICommonServer commonServer;
 
     @Override
     @BeforeMethod
     public final void setUp()
     {
         super.setUp();
-        service = new GeneralInformationService(sessionManager, daoFactory);
+        commonServer = context.mock(ICommonServer.class);
+        service = new GeneralInformationService(sessionManager, daoFactory, commonServer);
     }
 
     @Test
@@ -165,6 +174,36 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
         assertEquals(3, spaces.size());
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSearchForSamples()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonServer).searchForSamples(with(SESSION_TOKEN),
+                            with(any(DetailedSearchCriteria.class)));
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample returnSample =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+                    returnSample.setIdentifier("/space/code");
+                    will(returnValue(Collections.singletonList(returnSample)));
+                }
+            });
+        List<Sample> result = service.searchForSamples(SESSION_TOKEN, createSearchCriteria());
+        assertEquals(1, result.size());
+        Sample resultSample = result.get(0);
+        assertEquals("/space/code", resultSample.getIdentifier());
+        context.assertIsSatisfied();
+    }
+
+    private SearchCriteria createSearchCriteria()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "a code"));
+        sc.addMatchClause(MatchClause.createPropertyMatch("MY_PROPERTY2", "a property value"));
+        return sc;
     }
 
     private void assertSpaceAndProjects(String expectedSpaceCode, String expectedProjects,

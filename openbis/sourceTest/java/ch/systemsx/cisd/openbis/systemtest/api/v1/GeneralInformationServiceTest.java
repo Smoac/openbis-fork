@@ -33,12 +33,14 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
@@ -46,36 +48,37 @@ public class GeneralInformationServiceTest extends SystemTestCase
 {
     @Autowired
     private IGeneralInformationService generalInformationService;
-    
+
     private String sessionToken;
-    
+
     @BeforeMethod
     public void beforeMethod()
     {
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "a");
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
         generalInformationService.logout(sessionToken);
     }
-    
+
     @Test
     public void testListNamedRoleSets()
     {
-        Map<String, Set<Role>> namedRoleSets = generalInformationService.listNamedRoleSets(sessionToken);
-        
+        Map<String, Set<Role>> namedRoleSets =
+                generalInformationService.listNamedRoleSets(sessionToken);
+
         assertEquals("[ADMIN(instance), ADMIN(space)]", namedRoleSets.get("SPACE_ADMIN").toString());
     }
-    
+
     @Test
     public void testListSpacesWithProjectsAndRoleAssignments()
     {
         List<SpaceWithProjectsAndRoleAssignments> spaces =
                 generalInformationService.listSpacesWithProjectsAndRoleAssignments(sessionToken,
                         null);
-        
+
         Collections.sort(spaces, new Comparator<SpaceWithProjectsAndRoleAssignments>()
             {
                 public int compare(SpaceWithProjectsAndRoleAssignments s1,
@@ -91,7 +94,18 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance)]", spaces.get(1));
         assertEquals(2, spaces.size());
     }
-    
+
+    @Test
+    public void testSearchForSamples()
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(true, result.size() > 0);
+        Sample resultSample = result.get(0);
+        assertEquals("CISD:/CISD/CL1", resultSample.getIdentifier());
+    }
+
     private void checkSpace(String expectedCode, String expectedProjects, String expectedRoles,
             SpaceWithProjectsAndRoleAssignments space)
     {

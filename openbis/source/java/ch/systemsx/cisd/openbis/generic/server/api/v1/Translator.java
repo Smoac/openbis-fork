@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 
@@ -33,6 +35,13 @@ class Translator
     static Role translate(RoleCode roleCode, boolean spaceLevel)
     {
         return new Role(roleCode.name(), spaceLevel);
+    }
+
+    static Sample translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample)
+    {
+        SampleInitializer initializer = new SampleInitializer();
+        initializer.setIdentifier(privateSample.getIdentifier());
+        return new Sample(initializer);
     }
 
     private Translator()
