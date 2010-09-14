@@ -112,6 +112,13 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         }
 
         Document document = XmlUtils.parseXmlDocument(xmlValue);
+        // FIXME 2010-09-14, Piotr Buczek: turn validation on
+        // - fix dependency on java version
+        // - make it work offline
+        if (true)
+        {
+            return;
+        }
         try
         {
             XmlUtils.validate(document, new URL(schemaURL));
