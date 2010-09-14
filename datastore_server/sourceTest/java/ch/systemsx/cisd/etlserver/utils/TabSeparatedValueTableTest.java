@@ -121,12 +121,12 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     }
     
     @Test
-    public void testParsingIgnoringEmptyLinesAndHashedLines()
+    public void testParsingIgnoringEmptyLinesTrailingEmptyCellsAndHashedLines()
     {
         StringReader source = new StringReader("alpha\tbeta\n" +
         		"\n" +
         		"# hello world\n" +
-        		"11\t12\n" +
+        		"11\t12\t\n" +
         		"\t22\n" +
         		"31\n" +
         		"\n");
@@ -143,19 +143,18 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     }
     
     @Test
-    public void testParsingTrailingEmptyCells()
+    public void testParsingTrailingEmptyCellsForStrictRowSize()
     {
         StringReader source = new StringReader("alpha\tbeta\n1\t2\t\n");
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true, true, true);
-        List<Column> columns = table.getColumns();
-        
-        assertEquals(2, columns.size());
-        assertEquals("alpha", columns.get(0).getHeader());
-        assertEquals("[1]", columns.get(0).getValues().toString());
-        assertEquals("beta", columns.get(1).getHeader());
-        assertEquals("[2]", columns.get(1).getValues().toString());
-        assertEquals(false, table.hasMoreRows());
-        assertEquals(null, table.tryToGetNextRow());
+        try
+        {
+            table.getColumns();
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("1. data row has 3 instead of 2 cells.", ex.getMessage());
+        }
     }
     
     @Test

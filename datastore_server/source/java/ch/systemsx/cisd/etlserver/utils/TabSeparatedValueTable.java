@@ -117,7 +117,7 @@ public class TabSeparatedValueTable
     {
         this(reader, nameOfReadingSource, ignoreEmptyLines, false, false);
     }
-    
+
     /**
      * Creates an instance for the specified reader. The constructor already reads the header line.
      * It will be immediately available via {@link #getHeaders()}.
@@ -126,7 +126,8 @@ public class TabSeparatedValueTable
      * @param nameOfReadingSource Source (usually file name) from which the table will be read. This
      *            is used for error messages only.
      * @param ignoreEmptyLines If <code>true</code> lines with only white spaces will be ignored.
-     * @param strictRowSize If <code>true</code> the number of row cells have to be equal the number of headers.
+     * @param strictRowSize If <code>true</code> the number of row cells have to be equal the number
+     *            of headers and trailing tabs in the header and rows are not allowed.
      * @param ignoreHashedLines If <code>true</code> lines starting with '#' will be ignored.
      */
     public TabSeparatedValueTable(Reader reader, String nameOfReadingSource,
@@ -139,21 +140,24 @@ public class TabSeparatedValueTable
             throw new IllegalArgumentException("Empty file '" + nameOfReadingSource + "'.");
         }
         String headerLine = rowLineIterator.next();
-        int countTrailingTabs = 0;
-        for (int i = headerLine.length() - 1; i >= 0; i--)
+        if (strictRowSize)
         {
-            if (headerLine.charAt(i) != '\t')
+            int countTrailingTabs = 0;
+            for (int i = headerLine.length() - 1; i >= 0; i--)
             {
-                break;
+                if (headerLine.charAt(i) != '\t')
+                {
+                    break;
+                }
+                countTrailingTabs++;
             }
-            countTrailingTabs++;
+            if (countTrailingTabs > 0)
+            {
+                throw new UserFailureException(countTrailingTabs
+                        + " trailing tab characters detected in headers line: '" + headerLine + "'.");
+            }
         }
-        if (countTrailingTabs > 0)
-        {
-            throw new UserFailureException(countTrailingTabs
-                    + " trailing tab characters detected in headers line: '" + headerLine + "'.");
-        }
-        headers = getRowCells(headerLine);
+        headers = getRowCells(headerLine.trim());
     }
     
     /**
@@ -202,11 +206,6 @@ public class TabSeparatedValueTable
             return null;
         }
         List<String> row = getRowCells(line);
-        // remove trailing empty cells beyond number of headers
-        while (row.size() > headers.size() && row.get(row.size() - 1).length() == 0)
-        {
-            row.remove(row.size() - 1);
-        }
         if (strictRowSize && row.size() != headers.size())
         {
             throw new UserFailureException(rowLineIterator.getCurrentLineNumber() - 1
