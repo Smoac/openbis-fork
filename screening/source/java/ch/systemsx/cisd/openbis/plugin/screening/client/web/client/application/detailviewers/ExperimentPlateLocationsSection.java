@@ -16,7 +16,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentPlateLocationsSection extends SingleSectionPanel
+public class ExperimentPlateLocationsSection extends TabContent
 {
     public static final String ID_SUFFIX = "ExperimentPlateLocationsSection";
 

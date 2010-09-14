@@ -1,7 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -15,7 +15,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
-class PlateLocationsMaterialSection extends SingleSectionPanel
+class PlateLocationsMaterialSection extends TabContent
 {
     private static final String ID_SUFFIX = "LocationsSection";
 

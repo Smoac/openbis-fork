@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -111,9 +111,9 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
      * To be subclassed. Creates additional panels of the viewer in the right side section besides
      * components, datasets and attachments
      */
-    protected List<SingleSectionPanel> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels()
     {
-        return new ArrayList<SingleSectionPanel>();
+        return new ArrayList<TabContent>();
     }
 
     private void extendToolBar()
@@ -171,28 +171,28 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
         displayIdSuffix = getDisplayIdSuffix(dataset.getDataSetType().getCode());
 
-        List<SingleSectionPanel> additionalPanels = createAdditionalSectionPanels();
-        for (SingleSectionPanel panel : additionalPanels)
+        List<TabContent> additionalPanels = createAdditionalSectionPanels();
+        for (TabContent panel : additionalPanels)
         {
             container.addPanel(panel);
         }
         // parents
-        final SingleSectionPanel parentsSection = new DataSetParentsSection(viewContext, dataset);
+        final TabContent parentsSection = new DataSetParentsSection(viewContext, dataset);
         parentsSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION,
                 displayIdSuffix);
-        container.addPanel(parentsSection, false);
+        container.addPanel(parentsSection);
 
         // children
-        final SingleSectionPanel childrenSection = new DataSetChildrenSection(viewContext, dataset);
+        final TabContent childrenSection = new DataSetChildrenSection(viewContext, dataset);
         childrenSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION,
                 displayIdSuffix);
-        container.addPanel(childrenSection, false);
+        container.addPanel(childrenSection);
 
         // data
-        final SingleSectionPanel dataSection = new DataViewSection(viewContext, dataset);
+        final TabContent dataSection = new DataViewSection(viewContext, dataset);
         dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_DATA_SECTION, displayIdSuffix);
         container.addPanel(dataSection);
-        container.layout();
+        // container.layout();
         moduleSectionManager.initialize(container, displayIdSuffix, dataset);
         return container;
     }

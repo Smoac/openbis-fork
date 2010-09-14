@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -64,10 +64,10 @@ public class ScreeningModule implements IModule
         callback.onSuccess(null);
     }
 
-    public Collection<? extends SingleSectionPanel> getSections(
+    public Collection<? extends TabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
-        ArrayList<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
+        ArrayList<TabContent> sections = new ArrayList<TabContent>();
         if (entity.getEntityKind() == EntityKind.EXPERIMENT)
         {
             sections.add(new ExperimentPlateLocationsSection(viewContext, entity));

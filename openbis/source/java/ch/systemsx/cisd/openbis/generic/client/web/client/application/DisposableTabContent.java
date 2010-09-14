@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
  * 
  * @author Franz-Josef Elmer
  */
-abstract public class DisposableSectionPanel extends SingleSectionPanel
+abstract public class DisposableTabContent extends TabContent
 {
     abstract protected IDisposableComponent createDisposableContent();
 
@@ -35,7 +35,7 @@ abstract public class DisposableSectionPanel extends SingleSectionPanel
     /**
      * Creates section with specified header.
      */
-    public DisposableSectionPanel(String header, IViewContext<?> viewContext)
+    public DisposableTabContent(String header, IViewContext<?> viewContext)
     {
         super(header, viewContext);
     }

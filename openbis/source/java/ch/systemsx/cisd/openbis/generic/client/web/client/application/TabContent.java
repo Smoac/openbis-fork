@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
  * 
  * @author Izabela Adamczyk
  */
-abstract public class SingleSectionPanel extends ContentPanel
+abstract public class TabContent extends ContentPanel
 {
     /** creates a section content, called when the section is shown for the first time */
     abstract protected void showContent();
@@ -49,12 +49,12 @@ abstract public class SingleSectionPanel extends ContentPanel
      */
     private boolean autoDisposeComponents = true;
 
-    public SingleSectionPanel(final String header, IViewContext<?> viewContext)
+    public TabContent(final String header, IViewContext<?> viewContext)
     {
         this.viewContext = viewContext;
         setHeaderVisible(true);
         setHeading(header);
-        setCollapsible(true);
+        setCollapsible(false);
         setAnimCollapse(false);
         setBodyBorder(true);
         setLayout(new FitLayout());

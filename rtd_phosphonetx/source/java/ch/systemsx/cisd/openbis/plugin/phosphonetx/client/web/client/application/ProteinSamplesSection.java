@@ -16,21 +16,21 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * {@link SingleSectionPanel} containing specified protein samples.
+ * {@link TabContent} containing specified protein samples.
  * 
  * @author Piotr Buczek
  */
-public class ProteinSamplesSection extends DisposableSectionPanel
+public class ProteinSamplesSection extends DisposableTabContent
 {
     private static final String PREFIX = "protein-samples-section_";
 

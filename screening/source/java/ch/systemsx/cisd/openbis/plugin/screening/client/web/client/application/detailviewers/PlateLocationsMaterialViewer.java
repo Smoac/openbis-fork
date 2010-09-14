@@ -22,7 +22,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -75,10 +75,10 @@ public class PlateLocationsMaterialViewer extends GenericMaterialViewer
     }
 
     @Override
-    protected List<SingleSectionPanel> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels()
     {
 
-        List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
+        List<TabContent> sections = new ArrayList<TabContent>();
         sections.add(new PlateLocationsMaterialSection(screeningViewContext, materialId,
                 experimentCriteriaOrNull));
         return sections;

@@ -4,54 +4,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.button.ToggleButton;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 
 /**
- * Content panel which allows to choose which contained panels should be visible and uses the whole
- * space available to show them.
+ * {@link LayoutContainer} which allows to choose which contained panels should be visible and uses
+ * the whole space available to show them.
  * 
  * @author Izabela Adamczyk
  */
-public class SectionsPanel extends ContentPanel
+public class SectionsPanel extends LayoutContainer
 {
-    public static final String POSTFIX_BUTTON_ID = "_button";
+    public static final String POSTFIX_SECTION_TAB_ID = "_sections_tab";
 
-    private List<SectionElement> elements = new ArrayList<SectionElement>();
+    private final List<SectionElement> elements = new ArrayList<SectionElement>();
 
-    private final ToolBar toolbar;
-
-    private final boolean withShowHide;
+    private final TabPanel toolbar;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public SectionsPanel(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this(true, viewContext);
-    }
-
-    private SectionsPanel(boolean withShowHide, IViewContext<ICommonClientServiceAsync> viewContext)
-    {
-        this.withShowHide = withShowHide;
         this.viewContext = viewContext;
         setLayout(new FillLayout());
-        toolbar = new ToolBar();
-        setHeaderVisible(false);
-        setTopComponent(toolbar);
-
+        toolbar = new TabPanel();
+        super.add(toolbar);
         addRefreshDisplaySettingsListener();
     }
 
@@ -71,7 +60,6 @@ public class SectionsPanel extends ContentPanel
                         // loop
                         lastRefreshCheckTime = System.currentTimeMillis();
                         updateSettings();
-                        refreshLayout();
                     }
                     lastRefreshCheckTime = System.currentTimeMillis();
                 }
@@ -120,7 +108,7 @@ public class SectionsPanel extends ContentPanel
                                         sectionID);
                         if (newSettings != null)
                         {
-                            sectionElement.getButton().toggle(newSettings);
+                            // sectionElement.getButton().toggle(newSettings);
                         }
                     }
                 }
@@ -128,29 +116,15 @@ public class SectionsPanel extends ContentPanel
             });
     }
 
-    public void addPanel(final SingleSectionPanel panel)
+    public void addPanel(final TabContent panel)
     {
-        addPanel(panel, true);
-    }
-
-    public void addPanel(final SingleSectionPanel panel, boolean pressByDeafult)
-    {
-        final SectionElement element =
-                new SectionElement(panel, withShowHide, viewContext, pressByDeafult);
-        element.getButton().addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    refreshLayout();
-                }
-            });
+        final SectionElement element = new SectionElement(panel, viewContext);
         // sections will be disposed when section panel is removed, not when they are hidden
         // (see onDetach())
         panel.disableAutoDisposeComponents();
         elements.add(element);
-        addToToolbar(element.getButton());
-        updateElementVisibility(element);
+        addToToolbar(element);
+        // panel.setContentVisible(true);
     }
 
     @Override
@@ -163,41 +137,13 @@ public class SectionsPanel extends ContentPanel
         super.onDetach();
     }
 
-    /** removes all sections and adds them once again with with refreshed state */
-    private void refreshLayout()
+    private void addToToolbar(SectionElement element)
     {
-        // NOTE: changing visibility of only those sections that changed state doesn't improve
-        // performance but makes code more complex
-        removeAll();
-        for (SectionElement el : elements)
-        {
-            updateElementVisibility(el);
-        }
-        layout();
-    }
-
-    private void updateElementVisibility(SectionElement element)
-    {
-        boolean visible = element.getButton().isPressed();
-        element.getPanel().setContentVisible(visible);
-        if (visible)
-        {
-            internalAdd(element);
-        }
-    }
-
-    private void addToToolbar(ToggleButton bb)
-    {
-        toolbar.add(bb);
-    }
-
-    private void internalAdd(final SectionElement element)
-    {
-        super.add(element.getPanel());
+        toolbar.add(element);
     }
 
     /**
-     * Use {@link #addPanel(SingleSectionPanel)}
+     * Use {@link #addPanel(TabContent)}
      */
     @Deprecated
     @Override
@@ -206,80 +152,38 @@ public class SectionsPanel extends ContentPanel
         return super.add(item);
     }
 
-    private class SectionElement
+    private class SectionElement extends TabItem
     {
 
-        private final ToggleButton button;
+        private TabContent panel;
 
-        private SingleSectionPanel panel;
-
-        public SectionElement(SingleSectionPanel panel, boolean withShowHide,
-                IViewContext<ICommonClientServiceAsync> viewContext, boolean defaultPressedValue)
+        public SectionElement(final TabContent panel,
+                IViewContext<ICommonClientServiceAsync> viewContext)
         {
-            panel.setCollapsible(false);
+            setClosable(false);
+            setLayout(new FitLayout());
             this.setPanel(panel);
-            String heading = panel.getHeading();
-            Boolean sectionSettings =
-                    viewContext.getDisplaySettingsManager()
-                            .getSectionSettings(panel.getDisplayID());
-            boolean pressed = sectionSettings != null ? sectionSettings : defaultPressedValue;
-            button = createButton(heading, pressed, panel.getDisplayID());
+            setText(panel.getHeading());
+            panel.setHeaderVisible(false);
+            add(panel);
+            addListener(Events.Select, new Listener<TabPanelEvent>()
+                {
+                    public void handleEvent(TabPanelEvent be)
+                    {
+                        panel.setContentVisible(true);
+                        layout();
+                    }
+                });
         }
 
-        public ToggleButton getButton()
-        {
-            return button;
-        }
-
-        void setPanel(SingleSectionPanel panel)
+        void setPanel(TabContent panel)
         {
             this.panel = panel;
         }
 
-        SingleSectionPanel getPanel()
+        TabContent getPanel()
         {
             return panel;
-        }
-
-        private String getHeading(String heading, boolean pressed)
-        {
-            final String showHeading = withShowHide ? ("Show " + heading) : heading;
-            final String hideHeading = withShowHide ? ("Hide " + heading) : heading;
-            return pressed ? hideHeading : showHeading;
-        }
-
-        private ToggleButton createButton(final String heading, boolean pressed,
-                final String displayId)
-        {
-            final ToggleButton result = new ToggleButton(getHeading(heading, pressed));
-            result.setId(GenericConstants.ID_PREFIX + displayId + POSTFIX_BUTTON_ID);
-            initializePressedState(result, pressed);
-
-            // when user clicks toggle button we store changed settings
-            result.addSelectionListener(new SelectionListener<ButtonEvent>()
-                {
-                    @Override
-                    public void componentSelected(ButtonEvent ce)
-                    {
-                        viewContext.getDisplaySettingsManager().storeSectionSettings(displayId,
-                                result.isPressed(), SectionsPanel.this);
-                    }
-                });
-            // heading needs to be updated also when we refresh settings using toggle
-            result.addListener(Events.Toggle, new Listener<BaseEvent>()
-                {
-                    public void handleEvent(BaseEvent be)
-                    {
-                        result.setText(getHeading(heading, result.isPressed()));
-                    }
-                });
-
-            return result;
-        }
-
-        private void initializePressedState(ToggleButton result, boolean pressed)
-        {
-            result.toggle(pressed);
         }
     }
 

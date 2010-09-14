@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -129,8 +129,8 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
         displayIdSuffix = getDisplayIdSuffix(material.getMaterialType().getCode());
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
-        List<SingleSectionPanel> additionalPanels = createAdditionalSectionPanels();
-        for (SingleSectionPanel panel : additionalPanels)
+        List<TabContent> additionalPanels = createAdditionalSectionPanels();
+        for (TabContent panel : additionalPanels)
         {
             container.addPanel(panel);
         }
@@ -161,9 +161,9 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
      * To be subclassed. Creates additional panels of the viewer in the right side section besides
      * components, datasets and attachments
      */
-    protected List<SingleSectionPanel> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels()
     {
-        return new ArrayList<SingleSectionPanel>();
+        return new ArrayList<TabContent>();
     }
 
     private final Component createLeftPanel(final Material material)

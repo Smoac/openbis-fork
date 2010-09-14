@@ -36,10 +36,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
@@ -104,15 +104,15 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
 
     protected final TechId sampleId;
 
-    private DisposableSectionPanel attachmentsSection;
+    private DisposableTabContent attachmentsSection;
 
-    private DisposableSectionPanel containerSamplesSection;
+    private DisposableTabContent containerSamplesSection;
 
-    private DisposableSectionPanel derivedSamplesSection;
+    private DisposableTabContent derivedSamplesSection;
 
-    private DisposableSectionPanel parentSamplesSection;
+    private DisposableTabContent parentSamplesSection;
 
-    private DisposableSectionPanel dataSetBrowser;
+    private DisposableTabContent dataSetBrowser;
 
     private PropertyGrid propertyGrid;
 
@@ -193,8 +193,8 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         displayIdSuffix = getDisplayIdSuffix(generator.getSampleType().getCode());
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
-        List<SingleSectionPanel> additionalPanels = createAdditionalSectionPanels();
-        for (SingleSectionPanel panel : additionalPanels)
+        List<TabContent> additionalPanels = createAdditionalSectionPanels();
+        for (TabContent panel : additionalPanels)
         {
             container.addPanel(panel);
         }
@@ -202,17 +202,17 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
         containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(containerSamplesSection, false);
+        container.addPanel(containerSamplesSection);
         // Derived samples
         derivedSamplesSection = new DerivedSamplesSection(viewContext, generator);
         derivedSamplesSection.setDisplayID(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(derivedSamplesSection, false);
+        container.addPanel(derivedSamplesSection);
         // Parent samples
         parentSamplesSection = new ParentSamplesSection(viewContext, generator);
         parentSamplesSection.setDisplayID(DisplayTypeIDGenerator.PARENT_SAMPLES_SECTION,
                 displayIdSuffix);
-        container.addPanel(parentSamplesSection, false);
+        container.addPanel(parentSamplesSection);
         // Data Sets
         CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
         dataSetBrowser =
@@ -235,9 +235,9 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
      * To be subclassed. Creates additional panels of the viewer in the right side section besides
      * components, datasets and attachments
      */
-    protected List<SingleSectionPanel> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels()
     {
-        return new ArrayList<SingleSectionPanel>();
+        return new ArrayList<TabContent>();
     }
 
     private CheckBox createShowOnlyDirectlyConnectedCheckBox()

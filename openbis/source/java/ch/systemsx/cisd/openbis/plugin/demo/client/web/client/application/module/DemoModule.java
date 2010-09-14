@@ -24,7 +24,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -68,9 +68,9 @@ public class DemoModule implements IModule
         callback.onSuccess(null);
     }
 
-    public Collection<? extends DisposableSectionPanel> getSections(
+    public Collection<? extends DisposableTabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
-        return new ArrayList<DisposableSectionPanel>();
+        return new ArrayList<DisposableTabContent>();
     }
 }

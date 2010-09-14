@@ -21,7 +21,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.modul
  * 
  * @author Izabela Adamczyk
  */
-final class QuerySectionPanel extends DisposableSectionPanel
+final class QuerySectionPanel extends DisposableTabContent
 {
     private static final String PARAMETER_PREFIX = "_";
 

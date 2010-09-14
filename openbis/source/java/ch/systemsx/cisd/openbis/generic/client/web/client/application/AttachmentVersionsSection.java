@@ -23,11 +23,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 
 /**
- * {@link SingleSectionPanel} containing a list of {@link AttachmentVersions}.
+ * {@link TabContent} containing a list of {@link AttachmentVersions}.
  * 
  * @author Piotr Buczek
  */
-public class AttachmentVersionsSection extends DisposableSectionPanel
+public class AttachmentVersionsSection extends DisposableTabContent
 {
     private final IAttachmentHolder attachmentHolder;
 

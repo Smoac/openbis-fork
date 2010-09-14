@@ -36,7 +36,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -230,8 +230,8 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         BorderLayoutData layoutData = createBorderLayoutData(LayoutRegion.WEST);
         layoutData.setSize(400);
         add(propertyPanel, layoutData);
-        DisposableSectionPanel sequencesSection =
-                new DisposableSectionPanel(viewContext.getMessage(Dict.SEQUENCES), viewContext)
+        DisposableTabContent sequencesSection =
+                new DisposableTabContent(viewContext.getMessage(Dict.SEQUENCES), viewContext)
                     {
                         @Override
                         protected IDisposableComponent createDisposableContent()
@@ -241,8 +241,8 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                         }
                     };
         add(sequencesSection, createRightBorderLayoutData());
-        DisposableSectionPanel proteinsSection =
-                new DisposableSectionPanel(viewContext.getMessage(Dict.DATA_SET_PROTEINS),
+        DisposableTabContent proteinsSection =
+                new DisposableTabContent(viewContext.getMessage(Dict.DATA_SET_PROTEINS),
                         viewContext)
                     {
                         @Override

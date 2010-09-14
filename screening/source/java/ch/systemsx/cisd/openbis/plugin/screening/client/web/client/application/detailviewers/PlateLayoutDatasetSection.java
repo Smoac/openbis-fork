@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
  * 
  * @author Tomasz Pylak
  */
-public class PlateLayoutDatasetSection extends SingleSectionPanel
+public class PlateLayoutDatasetSection extends TabContent
 {
     public static final String ID_SUFFIX = "PlateLayoutDatasetSection";
 

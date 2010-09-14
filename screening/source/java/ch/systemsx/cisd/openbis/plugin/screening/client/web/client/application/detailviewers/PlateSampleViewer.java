@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -61,9 +61,9 @@ public final class PlateSampleViewer extends GenericSampleViewer
     }
 
     @Override
-    protected List<SingleSectionPanel> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels()
     {
-        List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
+        List<TabContent> sections = new ArrayList<TabContent>();
         sections.add(new PlateLayoutSampleSection(screeningViewContext, sampleId));
         return sections;
     }

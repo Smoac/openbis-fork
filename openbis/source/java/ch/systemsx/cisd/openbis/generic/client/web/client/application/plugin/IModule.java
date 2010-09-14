@@ -22,8 +22,8 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 
 /**
@@ -54,9 +54,9 @@ public interface IModule
     List<? extends MenuItem> getMenuItems();
 
     /**
-     * Returns a collection of {@link DisposableSectionPanel}s that will be added to entity details
+     * Returns a collection of {@link DisposableTabContent}s that will be added to entity details
      * view.
      */
-    Collection<? extends SingleSectionPanel> getSections(
+    Collection<? extends TabContent> getSections(
             IEntityInformationHolderWithIdentifier entity);
 }

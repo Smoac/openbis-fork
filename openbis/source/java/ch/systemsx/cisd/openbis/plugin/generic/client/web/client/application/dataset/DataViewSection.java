@@ -33,7 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public class DataViewSection extends SingleSectionPanel
+public class DataViewSection extends TabContent
 {
     private static String DEFAULT_SERVICE_KEY_PREFIX = "default-";
 

@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
@@ -102,7 +102,7 @@ public class QueryModule implements IModule
 
     }
 
-    public Collection<? extends DisposableSectionPanel> getSections(
+    public Collection<? extends DisposableTabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
         if (databases == 0)

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import java.util.Collections;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -56,11 +56,11 @@ public class ExperimentViewer extends GenericExperimentViewer
     }
 
     @Override
-    protected List<DisposableSectionPanel> createAdditionalBrowserSectionPanels(
+    protected List<DisposableTabContent> createAdditionalBrowserSectionPanels(
             String displyIdSuffix)
     {
-        DisposableSectionPanel section =
-                new DisposableSectionPanel(specificViewContext.getMessage(Dict.PROTEINS_SECTION),
+        DisposableTabContent section =
+                new DisposableTabContent(specificViewContext.getMessage(Dict.PROTEINS_SECTION),
                         specificViewContext)
                     {
                         @Override
@@ -71,7 +71,7 @@ public class ExperimentViewer extends GenericExperimentViewer
                         }
                     };
         section.setDisplayID(DisplayTypeIDGenerator.PROTEIN_SECTION, displyIdSuffix);
-        return Collections.<DisposableSectionPanel> singletonList(section);
+        return Collections.<DisposableTabContent> singletonList(section);
     }
 
 }

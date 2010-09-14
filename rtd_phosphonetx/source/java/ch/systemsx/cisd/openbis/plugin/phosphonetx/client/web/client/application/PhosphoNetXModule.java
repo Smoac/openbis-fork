@@ -24,7 +24,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
@@ -82,10 +82,10 @@ public class PhosphoNetXModule implements IModule
         callback.onSuccess(null);
     }
 
-    public Collection<? extends DisposableSectionPanel> getSections(
+    public Collection<? extends DisposableTabContent> getSections(
             IEntityInformationHolderWithIdentifier entity)
     {
-        return new ArrayList<DisposableSectionPanel>();
+        return new ArrayList<DisposableTabContent>();
     }
 
 }

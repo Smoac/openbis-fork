@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 /**
  * @author Piotr Buczek
  */
-class DataSetChildrenSection extends DisposableSectionPanel
+class DataSetChildrenSection extends DisposableTabContent
 {
     private final ExternalData dataset;
 

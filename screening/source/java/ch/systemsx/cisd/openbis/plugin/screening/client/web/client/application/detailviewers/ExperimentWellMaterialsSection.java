@@ -1,6 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -13,7 +13,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
  * 
  * @author Piotr Buczek
  */
-public class ExperimentWellMaterialsSection extends DisposableSectionPanel
+public class ExperimentWellMaterialsSection extends DisposableTabContent
 {
     public static final String ID_SUFFIX = "ExperimentWellMaterialsSection";
 

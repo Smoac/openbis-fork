@@ -27,7 +27,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
@@ -74,7 +74,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     private ExperimentPropertiesPanel propertiesPanelOrNull;
 
-    private List<DisposableSectionPanel> rightPanelSectionsOrNull;
+    private List<DisposableTabContent> rightPanelSectionsOrNull;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -235,10 +235,10 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
     }
 
-    private List<DisposableSectionPanel> createRightPanel(final String displayIdSuffix)
+    private List<DisposableTabContent> createRightPanel(final String displayIdSuffix)
     {
 
-        List<DisposableSectionPanel> allPanels = new ArrayList<DisposableSectionPanel>();
+        List<DisposableTabContent> allPanels = new ArrayList<DisposableTabContent>();
 
         allPanels.addAll(createAdditionalBrowserSectionPanels(displayIdSuffix));
 
@@ -248,7 +248,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                 displayIdSuffix);
         allPanels.add(sampleSection);
 
-        final DisposableSectionPanel dataSection = createExperimentDataSetSection();
+        final DisposableTabContent dataSection = createExperimentDataSetSection();
         dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
         allPanels.add(dataSection);
 
@@ -259,9 +259,9 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return allPanels;
     }
 
-    private DisposableSectionPanel createExperimentDataSetSection()
+    private DisposableTabContent createExperimentDataSetSection()
     {
-        return new DisposableSectionPanel("Data Sets", viewContext)
+        return new DisposableTabContent("Data Sets", viewContext)
             {
                 @Override
                 protected IDisposableComponent createDisposableContent()
@@ -272,10 +272,10 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
             };
     }
 
-    private SectionsPanel layoutSections(List<DisposableSectionPanel> allPanels)
+    private SectionsPanel layoutSections(List<DisposableTabContent> allPanels)
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
-        for (DisposableSectionPanel panel : allPanels)
+        for (DisposableTabContent panel : allPanels)
         {
             container.addPanel(panel);
         }
@@ -283,8 +283,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return container;
     }
 
-    protected List<DisposableSectionPanel> createAdditionalBrowserSectionPanels(
-            String displyIdSuffix)
+    protected List<DisposableTabContent> createAdditionalBrowserSectionPanels(String displyIdSuffix)
     {
         return Collections.emptyList();
     }
@@ -298,7 +297,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
             CompositeDatabaseModificationObserverWithMainObserver modificationObserver =
                     new CompositeDatabaseModificationObserverWithMainObserver(propertiesPanelOrNull
                             .getDatabaseModificationObserver());
-            for (DisposableSectionPanel panel : rightPanelSectionsOrNull)
+            for (DisposableTabContent panel : rightPanelSectionsOrNull)
             {
                 modificationObserver.addObserver(panel.tryGetDatabaseModificationObserver());
             }
