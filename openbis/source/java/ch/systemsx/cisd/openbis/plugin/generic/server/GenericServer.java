@@ -118,8 +118,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 public final class GenericServer extends AbstractServer<IGenericServer> implements
         ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, GenericServer.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            GenericServer.class);
 
     private static final int REGISTRATION_BATCH_SIZE = 10000;
 
@@ -462,9 +462,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                         new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
                                 .createIdentifier();
                 newSampleIdentifier =
-                        new SampleIdentifier(new GroupIdentifier(experimentIdentifierOrNull
-                                .getDatabaseInstanceCode(), experimentIdentifierOrNull
-                                .getSpaceCode()), oldSampleIdentifier.getSampleCode());
+                        new SampleIdentifier(new GroupIdentifier(
+                                experimentIdentifierOrNull.getDatabaseInstanceCode(),
+                                experimentIdentifierOrNull.getSpaceCode()),
+                                oldSampleIdentifier.getSampleCode());
             } else
             {
                 // no experiment - leave sample identifier unchanged
@@ -598,13 +599,27 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     private <T> void prevalidate(List<T> entities, String entityName)
     {
-        final HashSet<T> set = new HashSet<T>(entities);
-        if (set.size() != entities.size())
+        Collection<T> duplicated = extractDuplicatedElements(entities);
+        if (duplicated.size() > 0)
         {
-            entities.removeAll(set);
             throw UserFailureException.fromTemplate("Following %s(s) '%s' are duplicated.",
-                    entityName, CollectionUtils.abbreviate(entities, 20));
+                    entityName, CollectionUtils.abbreviate(duplicated, 20));
         }
+    }
+
+    private static <T> Collection<T> extractDuplicatedElements(List<T> entities)
+    {
+        Set<T> entitiesSet = new HashSet<T>(entities);
+        Collection<T> duplicated = new ArrayList<T>();
+        for (T entity : entities)
+        {
+            // this element must have been duplicated
+            if (entitiesSet.remove(entity) == false)
+            {
+                duplicated.add(entity);
+            }
+        }
+        return duplicated;
     }
 
     private MaterialTypePE findMaterialType(String materialTypeCode)
@@ -727,8 +742,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         registerMaterials(sessionToken, materialTypeCode, materialsToRegister);
         updateMaterials(sessionToken, materialUpdates);
         operationLog.info(String.format("Number of newly registered materials: %d, "
-                + "number of existing materials which have been updated: %d", materialsToRegister
-                .size(), materialUpdates.size()));
+                + "number of existing materials which have been updated: %d",
+                materialsToRegister.size(), materialUpdates.size()));
 
     }
 

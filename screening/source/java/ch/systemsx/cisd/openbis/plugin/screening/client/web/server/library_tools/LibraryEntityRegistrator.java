@@ -57,8 +57,8 @@ public class LibraryEntityRegistrator
     {
         this.geneRegistrator = new GeneRegistrator(new File(genesFile));
         this.oligoRegistrator =
-                new OligoRegistrator(new File(oligosFile), extractor
-                        .getAdditionalOligoPropertyNames());
+                new OligoRegistrator(new File(oligosFile),
+                        extractor.getAdditionalOligoPropertyNames());
         this.plateRegistrator =
                 new PlateRegistrator(new File(platesFile), experimentIdentifier, plateGeometry,
                         groupCode);
@@ -125,12 +125,11 @@ public class LibraryEntityRegistrator
 
     private static class PlateRegistrator extends AbstractMetadataRegistrator
     {
-        private static final String HEADER_PLATES =
-                "[PLATE]\n" + join("identifier", "experiment", "$PLATE_GEOMETRY");
+        private static final String HEADER_PLATES = "[PLATE]\n"
+                + join("identifier", "experiment", "$PLATE_GEOMETRY");
 
-        private static final String HEADER_SIRNAS =
-                "[" + ScreeningConstants.SIRNA_WELL_TYPE_CODE + "]\n"
-                        + join("identifier", "container", "SIRNA", "GENE");
+        private static final String HEADER_SIRNAS = "[" + ScreeningConstants.SIRNA_WELL_TYPE_CODE
+                + "]\n" + join("identifier", "container", "SIRNA", "GENE");
 
         private final Set<String/* plate code */> registeredPlates;
 
@@ -203,8 +202,8 @@ public class LibraryEntityRegistrator
 
     private static class GeneRegistrator extends AbstractMetadataRegistrator
     {
-        private static final String HEADER =
-                join("CODE", "DESCRIPTION", ScreeningConstants.GENE_SYMBOLS);
+        private static final String HEADER = join("CODE", "DESCRIPTION",
+                ScreeningConstants.GENE_SYMBOLS);
 
         private final Set<String/* gene code */> registeredGenes;
 
@@ -229,7 +228,7 @@ public class LibraryEntityRegistrator
                 String geneSymbol = extractor.getGeneSymbol(row);
                 String desc = extractor.getGeneDescription(row);
                 writeLine(geneCode, desc, geneSymbol);
-                registeredGenes.add(geneSymbol);
+                registeredGenes.add(geneCode);
             }
             return geneCode;
         }
@@ -237,8 +236,8 @@ public class LibraryEntityRegistrator
 
     private static class OligoRegistrator extends AbstractMetadataRegistrator
     {
-        private static final String HEADER =
-                join("CODE", "NUCLEOTIDE_SEQUENCE", "INHIBITOR_OF", "LIBRARY_ID");
+        private static final String HEADER = join("CODE", "NUCLEOTIDE_SEQUENCE", "INHIBITOR_OF",
+                "LIBRARY_ID");
 
         private final Set<String/* code */> registeredOligos;
 
