@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -50,13 +51,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A dialog which shows the content of the well (static or a timepoints movie).
@@ -164,8 +165,8 @@ public class WellContentDialog extends Dialog
             WellContent wellContent, WellImages wellImages)
     {
         WellContentDialog contentDialog =
-                new WellContentDialog(wellContent.getWell(), null, getExperiment(wellContent
-                        .getExperiment()), viewContext);
+                new WellContentDialog(wellContent.getWell(), null,
+                        getExperiment(wellContent.getExperiment()), viewContext);
 
         // NOTE: channel chooser state will be not reused among different dialogs
         DefaultChannelState channelState = new DefaultChannelState();
@@ -198,8 +199,8 @@ public class WellContentDialog extends Dialog
                     return createTilesGrid(images, channel, sessionId);
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsCodes());
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
+                images.getChannelsCodes());
     }
 
     private static LayoutContainer createTilesGrid(final WellImages images, String channel,
@@ -267,8 +268,8 @@ public class WellContentDialog extends Dialog
                             getImageHeight(images));
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsCodes());
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
+                images.getChannelsCodes());
     }
 
     // ---------------- STATIC METHODS -------------------
@@ -297,15 +298,15 @@ public class WellContentDialog extends Dialog
 
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
     {
-        return new SingleExperimentSearchCriteria(wellData.getExperimentId().getId(), wellData
-                .getExperimentDisplayIdentifier());
+        return new SingleExperimentSearchCriteria(wellData.getExperimentId().getId(),
+                wellData.getExperimentDisplayIdentifier());
     }
 
     private static SingleExperimentSearchCriteria getExperiment(
             ExperimentReference experimentReference)
     {
-        return new SingleExperimentSearchCriteria(experimentReference.getId(), experimentReference
-                .getExperimentIdentifier());
+        return new SingleExperimentSearchCriteria(experimentReference.getId(),
+                experimentReference.getExperimentIdentifier());
     }
 
     private static float getImageSizeMultiplyFactor(WellImages images)
@@ -338,6 +339,10 @@ public class WellContentDialog extends Dialog
     {
         this.wellOrNull = wellOrNull;
         this.wellPropertiesOrNull = wellPropertiesOrNull;
+        if (wellPropertiesOrNull != null)
+        {
+            Collections.sort(wellPropertiesOrNull);
+        }
         this.experiment = experiment;
         this.viewContext = viewContext;
 
@@ -431,8 +436,8 @@ public class WellContentDialog extends Dialog
         if (material != null)
         {
 
-            if (material.getMaterialType().getCode().equalsIgnoreCase(
-                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+            if (material.getMaterialType().getCode()
+                    .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
                 container.add(createEntityExternalLink(material));
             } else
@@ -480,8 +485,8 @@ public class WellContentDialog extends Dialog
             }
         } else
         {
-            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", viewContext
-                    .getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
+            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database",
+                    viewContext.getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
         }
         container.add(new Text("]"));
         container.setWidth(200);
@@ -496,8 +501,9 @@ public class WellContentDialog extends Dialog
                 {
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
-                            .openPlateLocationsMaterialViewer(material, ExperimentSearchCriteria
-                                    .createExperiment(experiment), viewContext);
+                            .openPlateLocationsMaterialViewer(material,
+                                    ExperimentSearchCriteria.createExperiment(experiment),
+                                    viewContext);
                 }
             });
     }
