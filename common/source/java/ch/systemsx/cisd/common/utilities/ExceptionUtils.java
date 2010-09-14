@@ -151,4 +151,13 @@ public final class ExceptionUtils
         }
         return null;
     }
+    
+    /**
+     * Returns the last {@link Throwable} of a chain of throwables.
+     */
+    public static Throwable getEndOfChain(Throwable throwable)
+    {
+        Throwable cause = throwable.getCause();
+        return cause == null ? throwable : getEndOfChain(cause);
+    }
 }
