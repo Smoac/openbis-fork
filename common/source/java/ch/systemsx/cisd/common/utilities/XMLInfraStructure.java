@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
@@ -69,6 +70,20 @@ public class XMLInfraStructure
         try
         {
             return SCHEMA_FACTORY.newSchema(new StreamSource(schemaAsInputStream));
+        } catch (SAXException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    /**
+     * Creates a Schema from a file
+     */
+    public static Schema createSchema(File schemaFile)
+    {
+        try
+        {
+            return SCHEMA_FACTORY.newSchema(new StreamSource(schemaFile));
         } catch (SAXException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
