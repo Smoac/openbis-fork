@@ -16,12 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.commons.lang.StringUtils;
+import org.xml.sax.InputSource;
+
+import ch.systemsx.cisd.common.utilities.ExceptionUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * Set of standard functions used in jython expressions. 
@@ -35,12 +45,31 @@ final class StandardFunctions
     static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
     static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);
     
+    private static final XPath XPATH = XPathFactory.newInstance().newXPath();
+    
     /**
      * Returns <code>true</code> if the specified string matches the specified regular expression.
      */
     public static boolean matches(String regex, String string)
     {
         return Pattern.matches(regex, string);
+    }
+    
+    /**
+     * Evaluates the specified XPath expression onto the specified XML string.
+     */
+    public static String evalXPath(String xPath, String xmlString)
+    {
+        try
+        {
+            XPathExpression expression = XPATH.compile(xPath);
+            String str = StringEscapeUtils.unescapeHtml(xmlString);
+            String result = expression.evaluate(new InputSource(new StringReader(str)));
+            return result;
+        } catch (XPathExpressionException ex)
+        {
+            return "ERROR " + ExceptionUtils.getEndOfChain(ex).toString();
+        }
     }
 
     /**

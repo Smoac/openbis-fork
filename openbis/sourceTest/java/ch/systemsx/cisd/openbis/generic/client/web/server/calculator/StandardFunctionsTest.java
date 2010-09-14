@@ -45,6 +45,33 @@ import org.testng.annotations.Test;
 public class StandardFunctionsTest extends AssertJUnit
 {
     @Test
+    public void testEvalXPath()
+    {
+        String xPath = "//property[@name='greetings']";
+        String xmlString = "<root><property name='greetings'>hello</property></root>";
+        assertEquals("hello", StandardFunctions.evalXPath(xPath, xmlString));
+    }
+
+    @Test
+    public void testEvalXPathWithInvalidXPath()
+    {
+        String xPath = "//property[@name='greetings')";
+        String xmlString = "<root><property name='greetings'>hello</property></root>";
+        assertEquals("ERROR javax.xml.transform.TransformerException: Expected ], but found: )",
+                StandardFunctions.evalXPath(xPath, xmlString));
+    }
+
+    @Test
+    public void testEvalXPathWithNotWellFormedXML()
+    {
+        String xPath = "//property[@name='greetings']";
+        String xmlString = "<root><property name='greetings'>hello</property><root>";
+        assertEquals("ERROR org.xml.sax.SAXParseException: "
+                + "XML document structures must start and end within the same entity.",
+                StandardFunctions.evalXPath(xPath, xmlString));
+    }
+    
+    @Test
     public void testToIntegerWithNullArgument()
     {
         assertEquals(INTEGER_DEFAULT_VALUE, toInt(null));
