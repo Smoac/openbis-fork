@@ -139,9 +139,6 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         if (inBackground == false)
         {
             setSelection(tab);
-        } else
-        {
-            // TODO 2010-03-18, IA: Shall we somehow inform the user?
         }
     }
 
