@@ -69,6 +69,11 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         }
     }
 
+    public String tryGetOriginalValue()
+    {
+        return tryGetAsString();
+    }
+
     public String getValue()
     {
         return null;

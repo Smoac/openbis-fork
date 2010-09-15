@@ -75,8 +75,8 @@ public class TSVRenderer
             {
                 isFirst = false;
             }
-            String value = column.getValue(entity);
-            sb.append(cleanWhitespaces(value));
+            Comparable<?> value = column.tryGetComparableValue(entity);
+            sb.append(cleanWhitespaces(value == null ? "" : value.toString()));
         }
         sb.append(lineSeparator);
     }

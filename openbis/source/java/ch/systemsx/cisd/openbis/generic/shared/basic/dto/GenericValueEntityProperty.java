@@ -27,6 +27,7 @@ public class GenericValueEntityProperty extends AbstractEntityProperty
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private String originalValue;
     private String value;
 
     @Override
@@ -39,6 +40,26 @@ public class GenericValueEntityProperty extends AbstractEntityProperty
     public void setValue(String value)
     {
         this.value = value;
+    }
+
+    @Override
+    public String tryGetOriginalValue()
+    {
+        if (getOriginalValue() != null)
+        {
+            return getOriginalValue();
+        }
+        return super.tryGetAsString();
+    }
+
+    public void setOriginalValue(String originalValue)
+    {
+        this.originalValue = originalValue;
+    }
+
+    public String getOriginalValue()
+    {
+        return originalValue;
     }
 
 }

@@ -34,7 +34,9 @@ public interface IEntityProperty extends Serializable, IsSerializable, Comparabl
      * will be represented as their CODE, material values will be represented as "CODE (TYPE_CODE)".
      */
     public String tryGetAsString();
-
+    
+    public String tryGetOriginalValue();
+    
     public Material getMaterial();
 
     public void setMaterial(Material material);

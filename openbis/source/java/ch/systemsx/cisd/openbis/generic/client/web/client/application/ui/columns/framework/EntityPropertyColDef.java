@@ -110,7 +110,8 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     @Override
     public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
-        String valueAsString = tryGetValue(rowModel.getOriginalObject());
+        IEntityProperty property = tryGetProperty(rowModel.getOriginalObject());
+        String valueAsString = property == null ? null : property.tryGetOriginalValue();
         DataTypeCode dataType = getDataTypeCode();
         switch (dataType)
         {
@@ -118,6 +119,8 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
                 return valueAsString == null ? null : new Integer(valueAsString);
             case REAL:
                 return valueAsString == null ? null : new Double(valueAsString);
+            case XML:
+                return valueAsString;
             default:
                 return super.tryGetComparableValue(rowModel);
         }
