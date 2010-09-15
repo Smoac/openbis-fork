@@ -23,13 +23,12 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.Rectangle;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -48,16 +47,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A dialog which shows the content of the well (static or a timepoints movie).
@@ -69,10 +69,6 @@ public class WellContentDialog extends Dialog
     private static final int ONE_IMAGE_WIDTH_PX = 200;
 
     private static final int ONE_IMAGE_HEIGHT_PX = 120;
-
-    private static final int NO_IMAGES_DIALOG_WIDTH_PX = 300;
-
-    private static final int NO_IMAGES_DIALOG_HEIGHT_PX = 160;
 
     /**
      * A dialog which shows the content of the well (static or a timepoints movie).
@@ -185,7 +181,7 @@ public class WellContentDialog extends Dialog
                     createStaticImageViewer(imagesOrNull, channelState, viewContext);
             contentDialog.addComponent(imageViewer);
         }
-        contentDialog.setupContentAndShow(imagesOrNull);
+        contentDialog.show();
     }
 
     private static LayoutContainer createStaticImageViewer(final WellImages images,
@@ -248,7 +244,7 @@ public class WellContentDialog extends Dialog
                                         createTimepointImageViewer(channelStackImages, images,
                                                 channelState, viewContext);
                                 contentDialog.addComponent(imageViewer);
-                                contentDialog.setupContentAndShow(images);
+                                contentDialog.show();
                             }
                         }
                     });
@@ -273,16 +269,6 @@ public class WellContentDialog extends Dialog
     }
 
     // ---------------- STATIC METHODS -------------------
-
-    private static int getDialogWidth(WellImages images)
-    {
-        return getImageWidth(images) * images.getTileColsNum() + 30;
-    }
-
-    private static int getDialogHeight(WellImages images)
-    {
-        return Math.max(getImageHeight(images) * images.getTileRowsNum() + 300, 300);
-    }
 
     private static int getImageHeight(WellImages images)
     {
@@ -331,8 +317,6 @@ public class WellContentDialog extends Dialog
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private final LayoutContainer dialogContent;
-
     private WellContentDialog(IEntityInformationHolder wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, SingleExperimentSearchCriteria experiment,
             IViewContext<IScreeningClientServiceAsync> viewContext)
@@ -345,41 +329,24 @@ public class WellContentDialog extends Dialog
         }
         this.experiment = experiment;
         this.viewContext = viewContext;
-
-        this.dialogContent = new LayoutContainer();
-        dialogContent.setLayout(new RowLayout());
-        dialogContent.setScrollMode(Scroll.AUTO);
-
-        LayoutContainer descriptionContainer = createContentDescription();
-        dialogContent.add(descriptionContainer);
-
-    }
-
-    private void addComponent(LayoutContainer component)
-    {
-        dialogContent.add(component);
-    }
-
-    private void setupContentAndShow(WellImages imagesOrNull)
-    {
-        String title = "Well Content: " + getWellDescription();
-        setHeading(title);
-        setLayout(new FitLayout());
         setScrollMode(Scroll.AUTO);
         setHideOnButtonClick(true);
-        add(dialogContent);
-
-        if (imagesOrNull != null)
-        {
-            setWidth(getDialogWidth(imagesOrNull));
-            setHeight(getDialogHeight(imagesOrNull));
-        } else
-        {
-            setWidth(NO_IMAGES_DIALOG_WIDTH_PX);
-            setHeight(NO_IMAGES_DIALOG_HEIGHT_PX);
-        }
-
-        show();
+        setHeading("Well Content: " + getWellDescription());
+        setTopComponent(createContentDescription());
+        addListener(Events.Show, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    Rectangle bounds = GuiUtils.calculateBounds(getElement());
+                    setSize(bounds.width + getFrameWidth(), bounds.height);
+                    center();
+                }
+            });
+    }
+    
+    private void addComponent(LayoutContainer component)
+    {
+        add(component);
     }
 
     private String getWellDescription()
@@ -398,6 +365,7 @@ public class WellContentDialog extends Dialog
         LayoutContainer container = new LayoutContainer();
         TableLayout tableLayout = new TableLayout(2);
         tableLayout.setCellPadding(2);
+        tableLayout.setWidth("100%");
         container.setLayout(tableLayout);
         TableData cellLayout = new TableData();
         cellLayout.setMargin(2);
@@ -489,7 +457,7 @@ public class WellContentDialog extends Dialog
                     viewContext.getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
         }
         container.add(new Text("]"));
-        container.setWidth(200);
+        container.setWidth("100%");
         return container;
     }
 

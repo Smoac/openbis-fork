@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils;
 
+import com.extjs.gxt.ui.client.core.El;
+import com.extjs.gxt.ui.client.util.Rectangle;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -59,4 +62,45 @@ public class GuiUtils
         c.add(component);
         return c;
     }
+    
+    public static Rectangle calculateBounds(Element element)
+    {
+        Rectangle rectangle = null;
+        if (element != null)
+        {
+            El el = new El(element);
+            rectangle = el.getBounds(false, false);
+            for (int i = 0, n = element.getChildCount(); i < n; i++)
+            {
+                rectangle = merge(rectangle, calculateBounds(el.getChildElement(i)));
+            }
+        }
+        return rectangle;
+    }
+    
+    private static Rectangle merge(Rectangle r1OrNull, Rectangle r2OrNull)
+    {
+        if (r1OrNull == null)
+        {
+            return r2OrNull == null ? null : r2OrNull;
+        }
+        if (r2OrNull == null)
+        {
+            return r1OrNull;
+        }
+        int minX1 = r1OrNull.x;
+        int minY1 = r1OrNull.y;
+        int maxX1 = minX1 + r1OrNull.width;
+        int maxY1 = minY1 + r1OrNull.height;
+        int minX2 = r2OrNull.x;
+        int minY2 = r2OrNull.y;
+        int maxX2 = minX2 + r2OrNull.width;
+        int maxY2 = minY2 + r2OrNull.height;
+        int minX = Math.min(minX1, minX2);
+        int maxX = Math.max(maxX1, maxX2);
+        int minY = Math.min(minY1, minY2);
+        int maxY = Math.max(maxY1, maxY2);
+        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+    }
+
 }
