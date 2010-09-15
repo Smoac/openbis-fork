@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -104,6 +105,25 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(true, result.size() > 0);
         Sample resultSample = result.get(0);
         assertEquals("CISD:/CISD/CL1", resultSample.getIdentifier());
+    }
+
+    @Test
+    public void testListDataSets()
+    {
+        // Search for Samples first
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
+        List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
+        assertEquals(true, result.size() > 0);
+    }
+
+    @Test
+    public void testListDataSetsForEmptySampleList()
+    {
+        List<Sample> samples = new ArrayList<Sample>();
+        List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
+        assertEquals(true, result.size() == 0);
     }
 
     private void checkSpace(String expectedCode, String expectedProjects, String expectedRoles,
