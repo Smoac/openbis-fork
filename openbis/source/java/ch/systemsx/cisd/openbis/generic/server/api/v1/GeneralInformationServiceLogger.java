@@ -24,6 +24,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -73,6 +74,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria)
     {
         logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERIA(%s)", searchCriteria);
+        return null;
+    }
+
+    public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
+    {
+        logAccess(sessionToken, "list-data-sets", "SAMPLES(%s)", samples);
         return null;
     }
 

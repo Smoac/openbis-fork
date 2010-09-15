@@ -36,12 +36,15 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -223,5 +226,22 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
 
         return samples;
+    }
+
+    public List<DataSet> listDataSets(String sessionToken, List<Sample> samples)
+    {
+        checkSession(sessionToken);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes =
+                commonServer.listSampleTypes(sessionToken);
+        SampleToDataSetRelatedEntitiesTranslator translator =
+                new SampleToDataSetRelatedEntitiesTranslator(sampleTypes, samples);
+        DataSetRelatedEntities dsre = translator.convertToDataSetRelatedEntities();
+        List<ExternalData> externalData = commonServer.listRelatedDataSets(sessionToken, dsre);
+        ArrayList<DataSet> dataSets = new ArrayList<DataSet>(externalData.size());
+        for (ExternalData externalDatum : externalData)
+        {
+            dataSets.add(Translator.translate(externalDatum));
+        }
+        return dataSets;
     }
 }

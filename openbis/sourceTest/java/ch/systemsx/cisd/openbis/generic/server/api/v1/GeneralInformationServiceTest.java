@@ -32,14 +32,18 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -180,6 +184,16 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
     public void testSearchForSamples()
     {
         prepareGetSession();
+        prepareSearchForSamples();
+        List<Sample> result = service.searchForSamples(SESSION_TOKEN, createSearchCriteria());
+        assertEquals(1, result.size());
+        Sample resultSample = result.get(0);
+        assertEquals("/space/code", resultSample.getIdentifier());
+        context.assertIsSatisfied();
+    }
+
+    private void prepareSearchForSamples()
+    {
         context.checking(new Expectations()
             {
                 {
@@ -187,14 +201,76 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             with(any(DetailedSearchCriteria.class)));
                     ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample returnSample =
                             new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+                    SampleType returnSampleType = new SampleType();
+                    returnSample.setId(new Long(1));
+                    returnSample.setCode("code");
                     returnSample.setIdentifier("/space/code");
+                    returnSampleType.setId(new Long(1));
+                    returnSampleType.setCode("sample-type");
+                    returnSample.setSampleType(returnSampleType);
                     will(returnValue(Collections.singletonList(returnSample)));
                 }
             });
-        List<Sample> result = service.searchForSamples(SESSION_TOKEN, createSearchCriteria());
+    }
+
+    @Test
+    public void testListDataSets()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonServer).listSampleTypes(SESSION_TOKEN);
+                    SampleType returnSampleType = new SampleType();
+                    returnSampleType.setId(new Long(1));
+                    returnSampleType.setCode("sample-type");
+                    will(returnValue(Collections.singletonList(returnSampleType)));
+
+                    one(commonServer).listRelatedDataSets(with(SESSION_TOKEN),
+                            with(any(DataSetRelatedEntities.class)));
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData returnData =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData();
+                    returnData.setCode("ds-code");
+                    will(returnValue(Collections.singletonList(returnData)));
+                }
+            });
+
+        SampleInitializer initializer = new SampleInitializer();
+        initializer.setId(new Long(1));
+        initializer.setCode("code");
+        initializer.setIdentifier("/space/code");
+        initializer.setSampleTypeId(new Long(1));
+        initializer.setSampleTypeCode("sample-type");
+        Sample owner = new Sample(initializer);
+        List<DataSet> result =
+                service.listDataSets(SESSION_TOKEN, Collections.singletonList(owner));
         assertEquals(1, result.size());
-        Sample resultSample = result.get(0);
-        assertEquals("/space/code", resultSample.getIdentifier());
+        DataSet resultDataSet = result.get(0);
+        assertEquals("ds-code", resultDataSet.getCode());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListDataSetsWithEmptySampleList()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonServer).listSampleTypes(SESSION_TOKEN);
+                    SampleType returnSampleType = new SampleType();
+                    returnSampleType.setId(new Long(1));
+                    returnSampleType.setCode("sample-type");
+                    will(returnValue(Collections.singletonList(returnSampleType)));
+
+                    one(commonServer).listRelatedDataSets(with(SESSION_TOKEN),
+                            with(any(DataSetRelatedEntities.class)));
+                    will(returnValue(new ArrayList<ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData>()));
+                }
+            });
+        ArrayList<Sample> samples = new ArrayList<Sample>();
+        List<DataSet> result = service.listDataSets(SESSION_TOKEN, samples);
+        assertEquals(0, result.size());
         context.assertIsSatisfied();
     }
 

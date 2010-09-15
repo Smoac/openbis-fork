@@ -27,7 +27,15 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializ
  */
 public class SampleTest extends AssertJUnit
 {
+    private static final Long SAMPLE_ID = new Long(1);
+
+    private static final String SAMPLE_CODE = "sample-code";
+
     private static final String SAMPLE_IDENTIFIER = "/space/sample-code";
+
+    private static final Long SAMPLE_TYPE_ID = new Long(1);
+
+    private static final String SAMPLE_TYPE_CODE = "sample-type";
 
     private Sample sample;
 
@@ -35,25 +43,60 @@ public class SampleTest extends AssertJUnit
     public void setUp()
     {
         SampleInitializer initializer = new SampleInitializer();
+        initializer.setId(SAMPLE_ID);
+        initializer.setCode(SAMPLE_CODE);
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
+        initializer.setSampleTypeId(SAMPLE_TYPE_ID);
+        initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
         sample = new Sample(initializer);
+    }
+
+    @Test(expectedExceptions =
+        { IllegalArgumentException.class })
+    public void testInitialization()
+    {
+        SampleInitializer initializer = new SampleInitializer();
+        initializer.setIdentifier(SAMPLE_IDENTIFIER);
+        new Sample(initializer);
     }
 
     @Test
     public void testEquals()
     {
         SampleInitializer initializer = new SampleInitializer();
+        initializer.setId(SAMPLE_ID);
+        initializer.setCode(SAMPLE_CODE);
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
+        initializer.setSampleTypeId(SAMPLE_TYPE_ID);
+        initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
         Sample mySample = new Sample(initializer);
-
-        assertTrue(sample.equals(mySample));
+        assertTrue("Samples with the same id should be equal.", sample.equals(mySample));
         assertEquals(sample.hashCode(), mySample.hashCode());
+
+        initializer = new SampleInitializer();
+        initializer.setId(SAMPLE_ID);
+        initializer.setCode("different-code");
+        initializer.setIdentifier("/a/different-identifier");
+        initializer.setSampleTypeId(new Long(2));
+        initializer.setSampleTypeCode("new-code");
+        mySample = new Sample(initializer);
+        assertTrue("Samples with the same id should be equal.", sample.equals(mySample));
+        assertEquals(sample.hashCode(), mySample.hashCode());
+
+        initializer = new SampleInitializer();
+        initializer.setId(new Long(2));
+        initializer.setCode(SAMPLE_CODE);
+        initializer.setIdentifier(SAMPLE_IDENTIFIER);
+        initializer.setSampleTypeId(SAMPLE_TYPE_ID);
+        initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
+        mySample = new Sample(initializer);
+        assertFalse("Samples with the different ids should not be equal.", sample.equals(mySample));
     }
 
     @Test
     public void testToString()
     {
         String stringRepresentation = sample.toString();
-        assertEquals("Sample[/space/sample-code]", stringRepresentation);
+        assertEquals("Sample[/space/sample-code,sample-type]", stringRepresentation);
     }
 }
