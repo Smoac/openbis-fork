@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -32,8 +33,6 @@ public final class DataSet implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private final String code;
-
     /**
      * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet
      * are final.
@@ -44,6 +43,10 @@ public final class DataSet implements Serializable
     {
         private String code;
 
+        private String dataSetTypeCode;
+
+        private HashMap<String, String> properties = new HashMap<String, String>();
+
         public String getCode()
         {
             return code;
@@ -53,7 +56,33 @@ public final class DataSet implements Serializable
         {
             this.code = code;
         }
+
+        public void setDataSetTypeCode(String dataSetTypeCode)
+        {
+            this.dataSetTypeCode = dataSetTypeCode;
+        }
+
+        public String getDataSetTypeCode()
+        {
+            return dataSetTypeCode;
+        }
+
+        public HashMap<String, String> getProperties()
+        {
+            return properties;
+        }
+
+        public void putProperty(String propCode, String value)
+        {
+            properties.put(propCode, value);
+        }
     }
+
+    private final String code;
+
+    private final String dataSetTypeCode;
+
+    private final HashMap<String, String> properties;
 
     /**
      * Creates a new instance with the provided initializer
@@ -62,12 +91,21 @@ public final class DataSet implements Serializable
      */
     public DataSet(DataSetInitializer initializer)
     {
-        String id = initializer.getCode();
-        if (id == null || id.length() == 0)
+        checkValidString(initializer.getCode(), "Unspecified code.");
+        this.code = initializer.getCode();
+
+        checkValidString(initializer.getDataSetTypeCode(), "Unspecified data set type code.");
+        this.dataSetTypeCode = initializer.getDataSetTypeCode();
+
+        this.properties = initializer.getProperties();
+    }
+
+    private void checkValidString(String string, String message) throws IllegalArgumentException
+    {
+        if (string == null || string.length() == 0)
         {
-            throw new IllegalArgumentException("Unspecified code.");
+            throw new IllegalArgumentException(message);
         }
-        this.code = id;
     }
 
     /**
@@ -76,6 +114,16 @@ public final class DataSet implements Serializable
     public String getCode()
     {
         return code;
+    }
+
+    public String getDataSetTypeCode()
+    {
+        return dataSetTypeCode;
+    }
+
+    public HashMap<String, String> getProperties()
+    {
+        return properties;
     }
 
     @Override
@@ -109,6 +157,8 @@ public final class DataSet implements Serializable
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getCode());
+        builder.append(getDataSetTypeCode());
+        builder.append(getProperties());
         return builder.toString();
     }
 }

@@ -48,6 +48,7 @@ public class SampleTest extends AssertJUnit
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
         initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
+        initializer.putProperty("PROP1", "value1");
         sample = new Sample(initializer);
     }
 
@@ -69,6 +70,7 @@ public class SampleTest extends AssertJUnit
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
         initializer.setSampleTypeCode(SAMPLE_TYPE_CODE);
+        initializer.putProperty("PROP1", "value1");
         Sample mySample = new Sample(initializer);
         assertTrue("Samples with the same id should be equal.", sample.equals(mySample));
         assertEquals(sample.hashCode(), mySample.hashCode());
@@ -97,6 +99,6 @@ public class SampleTest extends AssertJUnit
     public void testToString()
     {
         String stringRepresentation = sample.toString();
-        assertEquals("Sample[/space/sample-code,sample-type]", stringRepresentation);
+        assertEquals("Sample[/space/sample-code,sample-type,{PROP1=value1}]", stringRepresentation);
     }
 }

@@ -42,7 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializ
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -208,6 +210,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     returnSampleType.setId(new Long(1));
                     returnSampleType.setCode("sample-type");
                     returnSample.setSampleType(returnSampleType);
+                    returnSample.setProperties(new ArrayList<IEntityProperty>());
                     will(returnValue(Collections.singletonList(returnSample)));
                 }
             });
@@ -230,7 +233,11 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             with(any(DataSetRelatedEntities.class)));
                     ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData returnData =
                             new ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData();
+                    DataSetType returnDataSetType = new DataSetType();
+                    returnDataSetType.setCode("ds-type");
                     returnData.setCode("ds-code");
+                    returnData.setDataSetType(returnDataSetType);
+                    returnData.setDataSetProperties(new ArrayList<IEntityProperty>());
                     will(returnValue(Collections.singletonList(returnData)));
                 }
             });

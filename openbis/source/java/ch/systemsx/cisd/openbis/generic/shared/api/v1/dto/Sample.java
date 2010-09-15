@@ -17,6 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -52,6 +55,8 @@ public final class Sample implements Serializable
         private Long sampleTypeId;
 
         private String sampleTypeCode;
+
+        private HashMap<String, String> properties = new HashMap<String, String>();
 
         public void setId(Long id)
         {
@@ -102,6 +107,16 @@ public final class Sample implements Serializable
         {
             return sampleTypeCode;
         }
+
+        public HashMap<String, String> getProperties()
+        {
+            return properties;
+        }
+
+        public void putProperty(String propCode, String value)
+        {
+            properties.put(propCode, value);
+        }
     }
 
     private final Long id;
@@ -113,6 +128,8 @@ public final class Sample implements Serializable
     private final Long sampleTypeId;
 
     private final String sampleTypeCode;
+
+    private final HashMap<String, String> properties;
 
     /**
      * Creates a new instance with the provided initializer
@@ -135,6 +152,8 @@ public final class Sample implements Serializable
 
         checkValidString(initializer.getSampleTypeCode(), "Unspecified sample type code.");
         this.sampleTypeCode = initializer.getSampleTypeCode();
+
+        this.properties = initializer.getProperties();
     }
 
     private void checkValidString(String string, String message) throws IllegalArgumentException
@@ -193,6 +212,11 @@ public final class Sample implements Serializable
         return sampleTypeCode;
     }
 
+    public Map<String, String> getProperties()
+    {
+        return Collections.unmodifiableMap(properties);
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -225,6 +249,7 @@ public final class Sample implements Serializable
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getIdentifier());
         builder.append(getSampleTypeCode());
+        builder.append(getProperties());
         return builder.toString();
     }
 }
