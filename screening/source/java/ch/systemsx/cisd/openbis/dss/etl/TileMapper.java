@@ -58,7 +58,7 @@ class TileMapper
         assert StringUtils.isNotBlank(mappingString);
         assert geometry != null;
 
-        int max = geometry.getColumns() * geometry.getRows() - 1;
+        int max = geometry.getColumns() * geometry.getRows();
         String[] rows = StringUtils.split(mappingString, ";");
         if (rows == null || rows.length != geometry.getRows())
         {
