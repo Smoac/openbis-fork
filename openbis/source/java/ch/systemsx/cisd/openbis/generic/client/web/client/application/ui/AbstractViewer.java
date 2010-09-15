@@ -266,7 +266,9 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     protected boolean isLeftPanelInitiallyCollapsed(final String displayIdSuffix)
     {
         final String panelId = LEFT_PANEL_PREFIX + displayIdSuffix;
-        return viewContext.getDisplaySettingsManager().getPanelCollapsedSetting(panelId);
+        Boolean collapsedOrNull =
+                viewContext.getDisplaySettingsManager().tryGetPanelCollapsedSetting(panelId);
+        return collapsedOrNull == null ? false : collapsedOrNull.booleanValue();
     }
 
     public void notify(List<IModule> modules)

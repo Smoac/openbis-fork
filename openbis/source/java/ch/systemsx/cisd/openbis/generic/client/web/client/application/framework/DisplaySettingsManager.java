@@ -466,17 +466,19 @@ public class DisplaySettingsManager
         return tabModifications.get(tabDisplayTypeID);
     }
 
-    // TODO work in progress, ignore for now.
     /**
      * @return True if the given section is collapsed
      */
-    public final Boolean getPanelCollapsedSetting(String panelId)
+    @SuppressWarnings("deprecation")
+    public final Boolean tryGetPanelCollapsedSetting(String panelId)
     {
-        return Boolean.FALSE;
+        return displaySettings.getPanelCollapsedSettings().get(panelId);
     }
 
+    @SuppressWarnings("deprecation")
     public final void updatePanelCollapsedSetting(String panelId, Boolean value)
     {
+        displaySettings.getPanelCollapsedSettings().put(panelId, value);
     }
 
     //
