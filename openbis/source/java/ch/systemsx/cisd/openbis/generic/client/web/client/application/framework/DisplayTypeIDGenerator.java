@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,6 +91,14 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     MODULE_SECTION("module-section"),
 
     SAMPLE_TYPE_BROWSER("sample-type-browser"),
+
+    GENERIC_DATASET_VIEWER("generic_dataset_viewer"),
+
+    GENERIC_EXPERIMENT_VIEWER("generic_experiment_viewer"),
+
+    GENERIC_SAMPLE_VIEWER("generic_sample_viewer"),
+
+    GENERIC_MATERIAL_VIEWER("generic_material_viewer"),
 
     ;
 

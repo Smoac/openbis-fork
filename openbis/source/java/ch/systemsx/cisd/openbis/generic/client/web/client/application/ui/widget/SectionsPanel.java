@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 
 /**
@@ -33,6 +34,8 @@ public class SectionsPanel extends LayoutContainer
 
     private final TabPanel toolbar;
 
+    private String displayId;
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public SectionsPanel(IViewContext<ICommonClientServiceAsync> viewContext)
@@ -40,6 +43,7 @@ public class SectionsPanel extends LayoutContainer
         this.viewContext = viewContext;
         setLayout(new FillLayout());
         toolbar = new TabPanel();
+        toolbar.setAutoSelect(false);
         super.add(toolbar);
         addRefreshDisplaySettingsListener();
     }
@@ -64,34 +68,25 @@ public class SectionsPanel extends LayoutContainer
                     lastRefreshCheckTime = System.currentTimeMillis();
                 }
 
-                /** checks if update of section settings and refresh of layout is needed */
+                /** checks if update of tab settings and refresh of layout is needed */
                 private boolean isRefreshNeeded()
                 {
-                    boolean result = false;
-                    for (SectionElement sectionElement : elements)
+                    if (lastRefreshCheckTime == null
+                            || isModificationDoneInAnotherViewSinceLastRefresh())
                     {
-                        if (lastRefreshCheckTime == null)
-                        {
-                            // No need to refresh when sections are displayed for the first time.
-                            return false;
-                        } else if (isModificationDoneInAnotherViewSinceLastRefresh(sectionElement))
-                        {
-                            // Section settings have been modified in another view of the
-                            // same type. Refresh of section settings is needed.
-                            return true;
-                        }
-                        // do nothing - other sections may have been modified
+                        // Refresh when panel is displayed for the first time or if
+                        // tab settings have been modified in another view of the
+                        // same type.
+                        return true;
                     }
-                    return result;
+                    return false;
                 }
 
-                private boolean isModificationDoneInAnotherViewSinceLastRefresh(
-                        SectionElement element)
+                private boolean isModificationDoneInAnotherViewSinceLastRefresh()
                 {
-                    final String sectionID = element.getPanel().getDisplayID();
                     final Modification lastModificationOrNull =
                             viewContext.getDisplaySettingsManager()
-                                    .tryGetLastSectionSettingsModification(sectionID);
+                                    .tryGetLastTabSettingsModification(getDisplayID());
                     return lastModificationOrNull != null
                             && lastModificationOrNull.getModifier().equals(SectionsPanel.this) == false
                             && lastModificationOrNull.getTime() > lastRefreshCheckTime;
@@ -102,14 +97,19 @@ public class SectionsPanel extends LayoutContainer
                 {
                     for (SectionElement sectionElement : elements)
                     {
-                        final String sectionID = sectionElement.getPanel().getDisplayID();
-                        Boolean newSettings =
-                                viewContext.getDisplaySettingsManager().getSectionSettings(
-                                        sectionID);
-                        if (newSettings != null)
+                        final String thisTabID = sectionElement.getPanel().getDisplayID();
+                        String tabToActivateID =
+                                viewContext.getDisplaySettingsManager().getTabSettings(
+                                        getDisplayID());
+                        if (tabToActivateID != null && tabToActivateID.equals(thisTabID))
                         {
-                            // sectionElement.getButton().toggle(newSettings);
+                            toolbar.setSelection(sectionElement);
+                            return;
                         }
+                    }
+                    if (elements.size() > 0)
+                    {
+                        toolbar.setSelection(elements.get(0));
                     }
                 }
 
@@ -118,13 +118,13 @@ public class SectionsPanel extends LayoutContainer
 
     public void addPanel(final TabContent panel)
     {
+
         final SectionElement element = new SectionElement(panel, viewContext);
         // sections will be disposed when section panel is removed, not when they are hidden
         // (see onDetach())
         panel.disableAutoDisposeComponents();
         elements.add(element);
         addToToolbar(element);
-        // panel.setContentVisible(true);
     }
 
     @Override
@@ -158,7 +158,7 @@ public class SectionsPanel extends LayoutContainer
         private TabContent panel;
 
         public SectionElement(final TabContent panel,
-                IViewContext<ICommonClientServiceAsync> viewContext)
+                final IViewContext<ICommonClientServiceAsync> viewContext)
         {
             setClosable(false);
             setLayout(new FitLayout());
@@ -166,12 +166,15 @@ public class SectionsPanel extends LayoutContainer
             setText(panel.getHeading());
             panel.setHeaderVisible(false);
             add(panel);
+
             addListener(Events.Select, new Listener<TabPanelEvent>()
                 {
                     public void handleEvent(TabPanelEvent be)
                     {
                         panel.setContentVisible(true);
                         layout();
+                        viewContext.getDisplaySettingsManager().storeTabSettings(getDisplayID(),
+                                panel.getDisplayID(), SectionsPanel.this);
                     }
                 });
         }
@@ -184,6 +187,28 @@ public class SectionsPanel extends LayoutContainer
         TabContent getPanel()
         {
             return panel;
+        }
+    }
+
+    public String getDisplayID()
+    {
+        if (displayId == null)
+        {
+            throw new IllegalStateException("Undefined display ID");
+        } else
+        {
+            return displayId;
+        }
+    }
+
+    public void setDisplayID(IDisplayTypeIDGenerator generator, String suffix)
+    {
+        if (suffix != null)
+        {
+            this.displayId = generator.createID(suffix);
+        } else
+        {
+            this.displayId = generator.createID();
         }
     }
 

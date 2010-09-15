@@ -17,7 +17,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
  */
 class PlateLocationsMaterialSection extends TabContent
 {
-    private static final String ID_SUFFIX = "LocationsSection";
 
     private final IDisposableComponent reviewer;
 
@@ -33,7 +32,7 @@ class PlateLocationsMaterialSection extends TabContent
         this.reviewer =
                 PlateMaterialReviewer.create(screeningViewContext, experimentCriteriaOrNull,
                         materialId);
-        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION, ID_SUFFIX);
+        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
     }
 
     @Override

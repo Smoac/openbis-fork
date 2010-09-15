@@ -62,7 +62,7 @@ public class DisplaySettingsManager
     {
         private final long time;
 
-        private final Object modifier; // grid or section panel
+        private final Object modifier; // grid or tab panel
 
         public static Modification create(Object modifier)
         {
@@ -90,9 +90,8 @@ public class DisplaySettingsManager
     private final Map<String, Modification> columnModifications =
             new HashMap<String, Modification>();
 
-    /** last display settings {@link Modification} for sections */
-    private final Map<String, Modification> sectionModifications =
-            new HashMap<String, Modification>();
+    /** last display settings {@link Modification} for tabs */
+    private final Map<String, Modification> tabModifications = new HashMap<String, Modification>();
 
     private final DisplaySettings displaySettings;
 
@@ -359,9 +358,9 @@ public class DisplaySettingsManager
                 .getModifier(), delayMs);
     }
 
-    public void storeSectionSettings(String displayTypeID, boolean display, Object modifier)
+    public void storeTabSettings(String tabGroupDisplayID, String tabDisplayID, Object modifier)
     {
-        updateSectionSettings(displayTypeID, display, modifier);
+        updateTabSettings(tabGroupDisplayID, tabDisplayID, modifier);
         updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
@@ -437,34 +436,34 @@ public class DisplaySettingsManager
     }
 
     /**
-     * @returns section settings for given display id - is the section visible or not<br>
+     * @returns tab settings for given panel - which tab should be selected<br>
      * <br>
      *          NOTE: Returned value should be used read only, or modification time should be set
      *          manually after a modification.
      */
     @SuppressWarnings("deprecation")
-    public final Boolean getSectionSettings(String sectionDisplayTypeID)
+    public final String getTabSettings(String tabGroupDisplayTypeID)
     {
-        return displaySettings.getSectionSettings().get(sectionDisplayTypeID);
+        return displaySettings.getTabSettings().get(tabGroupDisplayTypeID);
     }
 
     /**
      * update section settings for given display id (modification date is updated automatically)
      */
     @SuppressWarnings("deprecation")
-    private final void updateSectionSettings(String sectionDisplayTypeID, Boolean newSettings,
+    private final void updateTabSettings(String tabGroupDisplayID, String selectedTabDisplayID,
             Object modifier)
     {
-        displaySettings.getSectionSettings().put(sectionDisplayTypeID, newSettings);
-        sectionModifications.put(sectionDisplayTypeID, Modification.create(modifier));
+        displaySettings.getTabSettings().put(tabGroupDisplayID, selectedTabDisplayID);
+        tabModifications.put(tabGroupDisplayID, Modification.create(modifier));
     }
 
     /**
-     * @returns last section setting {@link Modification} or null if no modification was yet made
+     * @returns last tab setting {@link Modification} or null if no modification was yet made
      */
-    public final Modification tryGetLastSectionSettingsModification(String sectionDisplayTypeID)
+    public final Modification tryGetLastTabSettingsModification(String tabDisplayTypeID)
     {
-        return sectionModifications.get(sectionDisplayTypeID);
+        return tabModifications.get(tabDisplayTypeID);
     }
 
     // TODO work in progress, ignore for now.

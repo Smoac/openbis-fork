@@ -38,8 +38,6 @@ public class ModulesSectionsManager
 
     private IEntityInformationHolderWithIdentifier entity;
 
-    private String displayIdSuffix;
-
     private List<IModule> modules;
 
     /**
@@ -47,11 +45,10 @@ public class ModulesSectionsManager
      * {@link #initialize(List)}.
      */
     @SuppressWarnings("hiding")
-    public void initialize(final SectionsPanel container, final String displayIdSuffix,
+    public void initialize(final SectionsPanel container,
             final IEntityInformationHolderWithIdentifier entity)
     {
         this.container = container;
-        this.displayIdSuffix = displayIdSuffix;
         this.entity = entity;
         if (modules != null)
         {
@@ -61,7 +58,7 @@ public class ModulesSectionsManager
 
     /**
      * Sets the values of chosen fields. Adds module sections to given container if called after
-     * {@link #initialize(SectionsPanel, String, IEntityInformationHolderWithIdentifier)}.
+     * {@link #initialize(SectionsPanel, IEntityInformationHolderWithIdentifier)}.
      */
     @SuppressWarnings("hiding")
     public void initialize(final List<IModule> modules)
@@ -80,8 +77,7 @@ public class ModulesSectionsManager
             final Collection<? extends TabContent> sections = module.getSections(entity);
             for (final TabContent panel : sections)
             {
-                panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION, module.getName() + "-"
-                        + displayIdSuffix);
+                panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION);
                 container.addPanel(panel);
             }
         }

@@ -43,7 +43,10 @@ public class DisplaySettings implements Serializable, IsSerializable
     private Map<String, List<ColumnSetting>> columnSettings =
             new LinkedHashMap<String, List<ColumnSetting>>();
 
-    private Map<String, Boolean> sectionSettings = new HashMap<String, Boolean>();
+    @SuppressWarnings("unused")
+    private Map<String, Boolean> sectionSettings;
+
+    private Map<String, String> tabSettings = new HashMap<String, String>();
 
     private Map<String, String> dropDownSettings = new HashMap<String, String>();
 
@@ -65,13 +68,13 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
-    public Map<String, Boolean> getSectionSettings()
+    public Map<String, String> getTabSettings()
     {
-        if (sectionSettings == null)
+        if (tabSettings == null)
         {
-            sectionSettings = new HashMap<String, Boolean>();
+            tabSettings = new HashMap<String, String>();
         }
-        return sectionSettings;
+        return tabSettings;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
@@ -112,9 +115,9 @@ public class DisplaySettings implements Serializable, IsSerializable
     }
 
     @SuppressWarnings("unused")
-    private final void setSectionSettings(Map<String, Boolean> sectionSettings)
+    private final void setTabSettings(Map<String, String> tabSettings)
     {
-        this.sectionSettings = sectionSettings;
+        this.tabSettings = tabSettings;
     }
 
     @SuppressWarnings("unused")

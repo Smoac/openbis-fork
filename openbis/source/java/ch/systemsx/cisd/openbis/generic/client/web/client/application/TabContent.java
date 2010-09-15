@@ -60,15 +60,9 @@ abstract public class TabContent extends ContentPanel
         setLayout(new FitLayout());
     }
 
-    public void setDisplayID(IDisplayTypeIDGenerator generator, String suffix)
+    public void setDisplayID(IDisplayTypeIDGenerator generator)
     {
-        if (suffix != null)
-        {
-            this.displayId = generator.createID(suffix);
-        } else
-        {
-            this.displayId = generator.createID();
-        }
+        this.displayId = generator.createID();
     }
 
     public String getDisplayID()

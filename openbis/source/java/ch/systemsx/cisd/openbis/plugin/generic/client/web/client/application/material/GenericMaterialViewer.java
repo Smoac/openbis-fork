@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractDatabaseModificationObserverWithCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
@@ -129,13 +130,14 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
         displayIdSuffix = getDisplayIdSuffix(material.getMaterialType().getCode());
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        container.setDisplayID(DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER, displayIdSuffix);
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
         {
             container.addPanel(panel);
         }
         container.layout();
-        moduleSectionManager.initialize(container, displayIdSuffix, material);
+        moduleSectionManager.initialize(container, material);
         return container;
     }
 

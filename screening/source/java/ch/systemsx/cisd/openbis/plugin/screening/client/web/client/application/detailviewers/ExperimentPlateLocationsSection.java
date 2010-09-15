@@ -66,7 +66,7 @@ public class ExperimentPlateLocationsSection extends TabContent
                 new CheckBoxField(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY), false);
         exactMatchOnly.setBoxLabel(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY));
         exactMatchOnly.setValue(true);
-        setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER, ID_SUFFIX);
+        setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         screeningViewContext.getCommonService().listMaterialTypes(
                 new AbstractAsyncCallback<List<MaterialType>>(screeningViewContext)
                     {

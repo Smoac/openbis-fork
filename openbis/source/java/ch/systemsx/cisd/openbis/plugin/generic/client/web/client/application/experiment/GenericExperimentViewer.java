@@ -147,7 +147,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
         this.propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
         add(propertiesPanelOrNull, createLeftBorderLayoutData());
-        String displayIdSuffix = getDisplayIdSuffix(this.experimentType.getCode());
+        final String displayIdSuffix = getDisplayIdSuffix(this.experimentType.getCode());
 
         configureLeftPanel(displayIdSuffix);
 
@@ -161,11 +161,10 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                 public void execute()
                 {
                     remove(loadingLabel);
-                    String displayIdPrefix = getDisplayIdSuffix(experimentType.getCode());
-                    GenericExperimentViewer.this.rightPanelSectionsOrNull =
-                            createRightPanel(displayIdPrefix);
-                    SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
-                    moduleSectionManager.initialize(rightPanel, displayIdPrefix, experiment);
+                    GenericExperimentViewer.this.rightPanelSectionsOrNull = createRightPanel();
+                    SectionsPanel rightPanel =
+                            layoutSections(rightPanelSectionsOrNull, displayIdSuffix);
+                    moduleSectionManager.initialize(rightPanel, experiment);
                     add(rightPanel, createRightBorderLayoutData());
                     layout();
                 }
@@ -235,25 +234,24 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
     }
 
-    private List<DisposableTabContent> createRightPanel(final String displayIdSuffix)
+    private List<DisposableTabContent> createRightPanel()
     {
 
         List<DisposableTabContent> allPanels = new ArrayList<DisposableTabContent>();
 
-        allPanels.addAll(createAdditionalBrowserSectionPanels(displayIdSuffix));
+        allPanels.addAll(createAdditionalBrowserSectionPanels());
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, experimentType, experimentId);
-        sampleSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION,
-                displayIdSuffix);
+        sampleSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
         allPanels.add(sampleSection);
 
         final DisposableTabContent dataSection = createExperimentDataSetSection();
-        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
+        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION);
         allPanels.add(dataSection);
 
         final AttachmentVersionsSection attachmentsSection = createAttachmentsSection();
-        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION, displayIdSuffix);
+        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION);
         allPanels.add(attachmentsSection);
 
         return allPanels;
@@ -272,9 +270,11 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
             };
     }
 
-    private SectionsPanel layoutSections(List<DisposableTabContent> allPanels)
+    private SectionsPanel layoutSections(List<DisposableTabContent> allPanels,
+            String displayIdSuffix)
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        container.setDisplayID(DisplayTypeIDGenerator.GENERIC_EXPERIMENT_VIEWER, displayIdSuffix);
         for (DisposableTabContent panel : allPanels)
         {
             container.addPanel(panel);
@@ -283,7 +283,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         return container;
     }
 
-    protected List<DisposableTabContent> createAdditionalBrowserSectionPanels(String displyIdSuffix)
+    protected List<DisposableTabContent> createAdditionalBrowserSectionPanels()
     {
         return Collections.emptyList();
     }

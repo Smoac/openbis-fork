@@ -170,6 +170,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
         displayIdSuffix = getDisplayIdSuffix(dataset.getDataSetType().getCode());
+        container.setDisplayID(DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER, displayIdSuffix);
 
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
@@ -178,22 +179,20 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         }
         // parents
         final TabContent parentsSection = new DataSetParentsSection(viewContext, dataset);
-        parentsSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION,
-                displayIdSuffix);
+        parentsSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION);
         container.addPanel(parentsSection);
 
         // children
         final TabContent childrenSection = new DataSetChildrenSection(viewContext, dataset);
-        childrenSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION,
-                displayIdSuffix);
+        childrenSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION);
         container.addPanel(childrenSection);
 
         // data
         final TabContent dataSection = new DataViewSection(viewContext, dataset);
-        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_DATA_SECTION, displayIdSuffix);
+        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_DATA_SECTION);
         container.addPanel(dataSection);
         // container.layout();
-        moduleSectionManager.initialize(container, displayIdSuffix, dataset);
+        moduleSectionManager.initialize(container, dataset);
         return container;
     }
 

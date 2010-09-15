@@ -29,7 +29,7 @@ public class ExperimentWellMaterialsSection extends DisposableTabContent
                 screeningViewContext);
         this.screeningViewContext = screeningViewContext;
         this.experiment = experiment;
-        setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_BROWSER, ID_SUFFIX);
+        setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_BROWSER);
     }
 
     @Override

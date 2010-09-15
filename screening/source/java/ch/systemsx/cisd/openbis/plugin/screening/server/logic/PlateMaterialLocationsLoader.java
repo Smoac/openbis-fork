@@ -65,12 +65,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Loades selected wells content: metadata and (if available) image dataset and feature vectors.
@@ -80,8 +80,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 @Friend(toClasses = IScreeningQuery.class)
 public class PlateMaterialLocationsLoader
 {
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            PlateMaterialLocationsLoader.class);
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, PlateMaterialLocationsLoader.class);
 
     /**
      * Finds wells containing the specified material and belonging to the specified experiment.
@@ -327,8 +327,8 @@ public class PlateMaterialLocationsLoader
         PlateImageParameters imageParameters = imageParams.get(imageDataset.getCode());
         if (imageParameters != null)
         {
-            return DatasetImagesReference.create(
-                    ScreeningUtils.createDatasetReference(imageDataset), imageParameters);
+            return DatasetImagesReference.create(ScreeningUtils
+                    .createDatasetReference(imageDataset), imageParameters);
         } else
         {
             operationLog.error("Cannot find image parameters for dataset: "
@@ -456,7 +456,7 @@ public class PlateMaterialLocationsLoader
         }
         criteria.setCriteria(listOfCriteria);
         criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
-        criteria.setUseWildcardSearchMode(codesCriteria.isExactMatchOnly());// FIXME
+        criteria.setUseWildcardSearchMode(codesCriteria.isExactMatchOnly());
         return ArrayUtils.toPrimitive(daoFactory.getHibernateSearchDAO().searchForEntityIds(
                 criteria,
                 ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)

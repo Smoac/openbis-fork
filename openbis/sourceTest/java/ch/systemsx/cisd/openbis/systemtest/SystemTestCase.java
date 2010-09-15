@@ -28,27 +28,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
 {
     protected ICommonServerForInternalUse commonServer;
+
     protected ICommonClientService commonClientService;
+
     protected MockHttpServletRequest request;
-    
+
     @BeforeSuite
     public void beforeSuite()
     {
         TestInitializer.init();
     }
-    
+
     /**
      * Sets a {@link MockHttpServletRequest} for the specified context provider
      */
@@ -58,7 +57,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
         request = new MockHttpServletRequest();
         contextProvider.setRequest(request);
     }
-    
+
     /**
      * Sets <code>commonServer</code>.
      * <p>
@@ -70,7 +69,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     {
         this.commonServer = commonServer;
     }
-    
+
     /**
      * Sets <code>commonClientService</code>.
      * <p>
@@ -82,7 +81,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     {
         this.commonClientService = commonClientService;
     }
-    
+
     protected SessionContext logIntoCommonClientService()
     {
         SessionContext context = commonClientService.tryToLogin("test", "a");

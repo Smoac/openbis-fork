@@ -56,8 +56,7 @@ public class ExperimentViewer extends GenericExperimentViewer
     }
 
     @Override
-    protected List<DisposableTabContent> createAdditionalBrowserSectionPanels(
-            String displyIdSuffix)
+    protected List<DisposableTabContent> createAdditionalBrowserSectionPanels()
     {
         DisposableTabContent section =
                 new DisposableTabContent(specificViewContext.getMessage(Dict.PROTEINS_SECTION),
@@ -70,7 +69,7 @@ public class ExperimentViewer extends GenericExperimentViewer
                                     experimentType, experiment);
                         }
                     };
-        section.setDisplayID(DisplayTypeIDGenerator.PROTEIN_SECTION, displyIdSuffix);
+        section.setDisplayID(DisplayTypeIDGenerator.PROTEIN_SECTION);
         return Collections.<DisposableTabContent> singletonList(section);
     }
 

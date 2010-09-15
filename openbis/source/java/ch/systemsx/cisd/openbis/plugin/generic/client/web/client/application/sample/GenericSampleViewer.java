@@ -193,6 +193,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         displayIdSuffix = getDisplayIdSuffix(generator.getSampleType().getCode());
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        container.setDisplayID(DisplayTypeIDGenerator.GENERIC_SAMPLE_VIEWER, displayIdSuffix);
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
         {
@@ -200,34 +201,31 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         }
         // Contained samples
         containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
-        containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION,
-                displayIdSuffix);
+        containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
         container.addPanel(containerSamplesSection);
         // Derived samples
         derivedSamplesSection = new DerivedSamplesSection(viewContext, generator);
-        derivedSamplesSection.setDisplayID(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION,
-                displayIdSuffix);
+        derivedSamplesSection.setDisplayID(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION);
         container.addPanel(derivedSamplesSection);
         // Parent samples
         parentSamplesSection = new ParentSamplesSection(viewContext, generator);
-        parentSamplesSection.setDisplayID(DisplayTypeIDGenerator.PARENT_SAMPLES_SECTION,
-                displayIdSuffix);
+        parentSamplesSection.setDisplayID(DisplayTypeIDGenerator.PARENT_SAMPLES_SECTION);
         container.addPanel(parentSamplesSection);
         // Data Sets
         CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
         dataSetBrowser =
                 new SampleDataSetsSection(viewContext, showOnlyDirectlyConnectedCheckBox, sampleId,
                         generator.getSampleType());
-        dataSetBrowser.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
+        dataSetBrowser.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION);
         container.addPanel(dataSetBrowser);
 
         // Attachments
         attachmentsSection = createAttachmentsSection(generator);
-        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION, displayIdSuffix);
+        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION);
         container.addPanel(attachmentsSection);
 
         container.layout();
-        moduleSectionManager.initialize(container, displayIdSuffix, generator);
+        moduleSectionManager.initialize(container, generator);
         return container;
     }
 
