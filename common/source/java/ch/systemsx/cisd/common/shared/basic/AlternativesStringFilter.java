@@ -27,11 +27,14 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
  * A filter for <code>String</code> values. It supports:
  * <ul>
  * <li>Alternatives (by ' ')</li>
+ * <li>Conjunction (by ' & ')</li>
  * <li>Negation (by '!')</li>
  * <li>Binding to start of value (by '^')</li>
  * <li>Binding to end of value (by '$')</li>
  * <li>Quoting by single ("'") and double ('"') quotes</li>
  * <li>Escaping of special characters (by '\')</li>
+ * <li>Numerical comparisons (by '<', '>', '<=', '>=', '=')</li>
+ * 
  * </ul>
  * 
  * @author Bernd Rinn
