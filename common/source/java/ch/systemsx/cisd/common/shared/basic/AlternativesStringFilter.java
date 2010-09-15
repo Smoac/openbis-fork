@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.common.shared.basic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 
@@ -56,31 +58,28 @@ public class AlternativesStringFilter
         boolean matches(String value);
     }
 
-    static abstract class AbstractMatcher implements Matcher
+    static abstract class AbstractTextMatcher implements Matcher
     {
         protected final String filterText;
 
-        protected final boolean comparisonValue;
-
-        AbstractMatcher(String filterText, boolean comparisonValue)
+        AbstractTextMatcher(String filterText)
         {
             this.filterText = filterText.toLowerCase().replace(ESCAPE, StringUtils.EMPTY_STRING);
-            this.comparisonValue = comparisonValue;
         }
 
         abstract boolean doMatch(String value);
 
         public boolean matches(String value)
         {
-            return doMatch(value) == comparisonValue;
+            return doMatch(value);
         }
     }
 
-    static class ContainsMatcher extends AbstractMatcher
+    static class ContainsMatcher extends AbstractTextMatcher
     {
-        ContainsMatcher(String filterText, boolean comparisonValue)
+        ContainsMatcher(String filterText)
         {
-            super(filterText, comparisonValue);
+            super(filterText);
         }
 
         @Override
@@ -91,11 +90,11 @@ public class AlternativesStringFilter
 
     }
 
-    static class StartAnchorMatcher extends AbstractMatcher
+    static class StartAnchorMatcher extends AbstractTextMatcher
     {
-        StartAnchorMatcher(String filterText, boolean comparisonValue)
+        StartAnchorMatcher(String filterText)
         {
-            super(filterText, comparisonValue);
+            super(filterText);
         }
 
         @Override
@@ -106,11 +105,11 @@ public class AlternativesStringFilter
 
     }
 
-    static class EndAnchorMatcher extends AbstractMatcher
+    static class EndAnchorMatcher extends AbstractTextMatcher
     {
-        EndAnchorMatcher(String filterText, boolean comparisonValue)
+        EndAnchorMatcher(String filterText)
         {
-            super(filterText, comparisonValue);
+            super(filterText);
         }
 
         @Override
@@ -121,11 +120,11 @@ public class AlternativesStringFilter
 
     }
 
-    static class EqualsMatcher extends AbstractMatcher
+    static class EqualsMatcher extends AbstractTextMatcher
     {
-        EqualsMatcher(String filterText, boolean comparisonValue)
+        EqualsMatcher(String filterText)
         {
-            super(filterText, comparisonValue);
+            super(filterText);
         }
 
         @Override
@@ -136,6 +135,119 @@ public class AlternativesStringFilter
 
     }
 
+    interface NumericalComparison
+    {
+        boolean matches(double value, double filterValue);
+    }
+
+    enum ComparisonKind implements NumericalComparison
+    {
+        LT("<")
+        {
+            public boolean matches(double value, double filterValue)
+            {
+                return value < filterValue;
+            }
+        },
+        GT(">")
+        {
+            public boolean matches(double value, double filterValue)
+            {
+                return value > filterValue;
+            }
+        },
+        LE("<=")
+        {
+            public boolean matches(double value, double filterValue)
+            {
+                return value <= filterValue;
+            }
+        },
+        GE(">=")
+        {
+            public boolean matches(double value, double filterValue)
+            {
+                return value >= filterValue;
+            }
+        },
+        EQ("=")
+        {
+            public boolean matches(double value, double filterValue)
+            {
+                return value == filterValue;
+            }
+        };
+
+        private final String operator;
+
+        ComparisonKind(String operator)
+        {
+            this.operator = operator;
+        }
+
+        public String getOperator()
+        {
+            return operator;
+        }
+
+    }
+
+    private static Map<String, ComparisonKind> comparisonKindByOperator =
+            new HashMap<String, ComparisonKind>();
+
+    static
+    {
+        for (ComparisonKind comparisonKind : ComparisonKind.values())
+        {
+            comparisonKindByOperator.put(comparisonKind.operator, comparisonKind);
+        }
+    }
+
+    static class NumericMatcher implements Matcher
+    {
+        protected final double filterValue;
+
+        private NumericalComparison comparison;
+
+        NumericMatcher(NumericalComparison comparison, double filterValue)
+        {
+            this.filterValue = filterValue;
+            this.comparison = comparison;
+        }
+
+        private boolean doMatch(double value)
+        {
+            return comparison.matches(value, filterValue);
+        }
+
+        public boolean matches(String value)
+        {
+            try
+            {
+                Double d = Double.parseDouble(value);
+                return doMatch(d);
+            } catch (NumberFormatException ex)
+            {
+                return false;
+            }
+        }
+    }
+
+    static class NegationMatcher implements Matcher
+    {
+        private Matcher delegate;
+
+        NegationMatcher(Matcher delegate)
+        {
+            this.delegate = delegate;
+        }
+
+        public boolean matches(String value)
+        {
+            return delegate.matches(value) == false;
+        }
+    }
+
     /**
      * Sets a new filter <var>value</var>.
      */
@@ -144,29 +256,74 @@ public class AlternativesStringFilter
         alternatives.clear();
         for (String s : StringUtils.tokenize(value))
         {
-            final boolean comparisonValue = (s.startsWith(PREFIX_NOT) == false);
-            if (comparisonValue == false)
+            final boolean negateValue = s.startsWith(PREFIX_NOT);
+            if (negateValue)
             {
                 s = s.substring(1);
             }
-            if (isStartAnchored(s))
+            Matcher matcher = tryGetNumericMatcher(s);
+            if (matcher == null)
             {
-                if (isEndAnchored(s))
-                {
-                    alternatives.add(new EqualsMatcher(s.substring(1, s.length() - 1),
-                            comparisonValue));
-                } else
-                {
-                    alternatives.add(new StartAnchorMatcher(s.substring(1), comparisonValue));
-                }
-            } else if (isEndAnchored(s))
+                matcher = getStringMatcher(negateValue ? s.substring(1) : s);
+            }
+            if (negateValue)
             {
-                alternatives.add(new EndAnchorMatcher(s.substring(0, s.length() - 1),
-                        comparisonValue));
+                matcher = new NegationMatcher(matcher);
+            }
+            alternatives.add(matcher);
+        }
+    }
+
+    private Matcher tryGetNumericMatcher(String s)
+    {
+        if (s.length() < 2)
+        {
+            return null;
+        }
+        if ("<>=".indexOf(s.charAt(0)) > -1)
+        {
+            int operatorLength = (s.charAt(1) == '=') ? 2 : 1;
+            String operator = s.substring(0, operatorLength);
+            String filterValue = s.substring(operatorLength);
+            ComparisonKind comparisonKindOrNull = tryGetComparisonKind(operator);
+            if (comparisonKindOrNull == null)
+            {
+                return null;
+            }
+            try
+            {
+                double dobuleValue = Double.parseDouble(filterValue);
+                return new NumericMatcher(comparisonKindOrNull, dobuleValue);
+            } catch (NumberFormatException e)
+            {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private ComparisonKind tryGetComparisonKind(String operator)
+    {
+        return comparisonKindByOperator.get(operator);
+    }
+
+    private Matcher getStringMatcher(String s)
+    {
+        if (isStartAnchored(s))
+        {
+            if (isEndAnchored(s))
+            {
+                return new EqualsMatcher(s.substring(1, s.length() - 1));
             } else
             {
-                alternatives.add(new ContainsMatcher(s, comparisonValue));
+                return new StartAnchorMatcher(s.substring(1));
             }
+        } else if (isEndAnchored(s))
+        {
+            return new EndAnchorMatcher(s.substring(0, s.length() - 1));
+        } else
+        {
+            return new ContainsMatcher(s);
         }
     }
 
@@ -198,4 +355,5 @@ public class AlternativesStringFilter
         }
         return false;
     }
+
 }

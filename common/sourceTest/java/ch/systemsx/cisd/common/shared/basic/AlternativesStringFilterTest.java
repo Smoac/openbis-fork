@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 public class AlternativesStringFilterTest
 {
 
-    private final AlternativesStringFilter prepare(String value)
+    private static final AlternativesStringFilter prepare(String value)
     {
         final AlternativesStringFilter filter = new AlternativesStringFilter();
         filter.setFilterValue(value);
@@ -307,6 +307,150 @@ public class AlternativesStringFilterTest
     {
         final AlternativesStringFilter filter = prepare("'!^start !^middle$ end$'");
         assertFalse(filter.passes("start !^middle$ end"));
+    }
+
+    // numeric
+
+    @Test
+    public void testNumericMatch()
+    {
+        final AlternativesStringFilter integerFilter = prepare("<10");
+        assertTrue(integerFilter.passes("5"));
+        assertTrue(integerFilter.passes("9.9"));
+        assertFalse(integerFilter.passes("10"));
+        assertFalse(integerFilter.passes("10.0"));
+        assertFalse(integerFilter.passes("10.1"));
+        assertFalse(integerFilter.passes("11"));
+        final AlternativesStringFilter realFilter = prepare("<9.8");
+        assertTrue(realFilter.passes("5"));
+        assertTrue(realFilter.passes("9.7"));
+        assertFalse(realFilter.passes("9.8"));
+        assertFalse(realFilter.passes("9.9"));
+        assertFalse(realFilter.passes("10"));
+    }
+
+    @Test
+    public void testAlternativeNumericMatch()
+    {
+        final AlternativesStringFilter filter = prepare("<10 >15 abc");
+        assertTrue(filter.passes("5"));
+        assertTrue(filter.passes("20"));
+        assertTrue(filter.passes("abcd"));
+        assertFalse(filter.passes("ab"));
+        assertFalse(filter.passes("11"));
+    }
+
+    @Test
+    public void testNonNumericMatch()
+    {
+        AlternativesStringFilter filter = prepare("<1>0");
+        assertTrue(filter.passes("<1>0"));
+        assertFalse(filter.passes("0.5"));
+
+        filter = prepare("==10");
+        assertTrue(filter.passes("==10"));
+        assertFalse(filter.passes("10"));
+
+        filter = prepare("<1a0");
+        assertTrue(filter.passes("<1a0"));
+        assertFalse(filter.passes("1a0"));
+
+        filter = prepare("\\<10");
+        assertTrue(filter.passes("<10"));
+        assertFalse(filter.passes("10"));
+    }
+
+    @Test
+    public void testLowerThan()
+    {
+        final AlternativesStringFilter filter = prepare("<10");
+        assertTrue(filter.passes("5"));
+        assertTrue(filter.passes("9.9"));
+
+        assertFalse(filter.passes("10"));
+        assertFalse(filter.passes("10.1"));
+        assertFalse(filter.passes("11"));
+
+        assertFalse(filter.passes("1abc"));
+        assertFalse(filter.passes("<10"));
+    }
+
+    @Test
+    public void testLowerEqual()
+    {
+        final AlternativesStringFilter filter = prepare("<=10");
+        assertTrue(filter.passes("5"));
+        assertTrue(filter.passes("9.9"));
+        assertTrue(filter.passes("10"));
+
+        assertFalse(filter.passes("10.1"));
+        assertFalse(filter.passes("11"));
+
+        assertFalse(filter.passes("1abc"));
+        assertFalse(filter.passes("<=10"));
+    }
+
+    @Test
+    public void testGreaterThan()
+    {
+        AlternativesStringFilter filter = prepare(">10");
+        assertFalse(filter.passes("5"));
+        assertFalse(filter.passes("9.9"));
+        assertFalse(filter.passes("10"));
+
+        assertTrue(filter.passes("10.1"));
+        assertTrue(filter.passes("11"));
+
+        assertFalse(filter.passes("1abc"));
+        assertFalse(filter.passes(">10"));
+    }
+
+    @Test
+    public void testGreaterEqual()
+    {
+        AlternativesStringFilter filter = prepare(">=10");
+        assertFalse(filter.passes("5"));
+        assertFalse(filter.passes("9.9"));
+
+        assertTrue(filter.passes("10"));
+        assertTrue(filter.passes("10.1"));
+        assertTrue(filter.passes("11"));
+
+        assertFalse(filter.passes("1abc"));
+        assertFalse(filter.passes(">=10"));
+    }
+
+    @Test
+    public void testEqual()
+    {
+        AlternativesStringFilter filter = prepare("=10.3");
+        assertFalse(filter.passes("5"));
+        assertFalse(filter.passes("9.9"));
+
+        assertTrue(filter.passes("10.3"));
+
+        assertFalse(filter.passes("10.33"));
+        assertFalse(filter.passes("11"));
+
+        assertFalse(filter.passes("1abc"));
+        assertFalse(filter.passes("=10.3"));
+    }
+
+    @Test
+    public void testNotEqual()
+    {
+        AlternativesStringFilter filter = prepare("!=10.3");
+        assertTrue(filter.passes("5"));
+        assertTrue(filter.passes("9.9"));
+
+        assertFalse(filter.passes("10.3"));
+
+        assertTrue(filter.passes("10.33"));
+        assertTrue(filter.passes("11"));
+
+        assertTrue(filter.passes("1abc"));
+        assertTrue(filter.passes("=10.3"));
+        assertTrue(filter.passes("!=10.3"));
     }
 
 }
