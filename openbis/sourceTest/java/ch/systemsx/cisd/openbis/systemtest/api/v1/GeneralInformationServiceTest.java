@@ -108,7 +108,17 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testListDataSets()
+    public void testSearchForSamplesByProperty()
+    {
+        // Search for Samples first
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createPropertyMatch("ORGANISM", "HUMAN"));
+        List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(true, result.size() > 0);
+    }
+
+    @Test
+    public void testListDataSetsForAllSamples()
     {
         // Search for Samples first
         SearchCriteria sc = new SearchCriteria();
@@ -122,6 +132,21 @@ public class GeneralInformationServiceTest extends SystemTestCase
     public void testListDataSetsForEmptySampleList()
     {
         List<Sample> samples = new ArrayList<Sample>();
+        List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
+        assertEquals(true, result.size() == 0);
+    }
+
+    private static final String DEFAULT_PLATE_GEOMETRY_VALUE = "384_WELLS_16X24";
+
+    @Test
+    public void testSearchForDataSetsByProperty()
+    {
+        // Search for Samples first
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createPropertyMatch("$PLATE_GEOMETRY",
+                DEFAULT_PLATE_GEOMETRY_VALUE));
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
+        assertEquals(true, samples.size() > 0);
         List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
         assertEquals(true, result.size() == 0);
     }
