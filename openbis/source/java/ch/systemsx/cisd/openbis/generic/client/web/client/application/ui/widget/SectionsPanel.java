@@ -164,7 +164,6 @@ public class SectionsPanel extends LayoutContainer
             setLayout(new FitLayout());
             this.setPanel(panel);
             setText(panel.getHeading());
-            panel.setHeaderVisible(false);
             add(panel);
 
             addListener(Events.Select, new Listener<TabPanelEvent>()
