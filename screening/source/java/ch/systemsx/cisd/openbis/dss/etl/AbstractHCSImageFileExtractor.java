@@ -19,11 +19,9 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -70,7 +68,7 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
             Location plateLocation, Location wellLocation, Float timepointOrNull,
             String imageRelativePath);
 
-    abstract protected Set<Channel> getAllChannels();
+    abstract protected List<Channel> getAllChannels();
 
     /**
      * Extracts the plate location from argument. Returns <code>null</code> if the operation fails.
@@ -146,8 +144,8 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         }
     }
 
-    protected static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractHCSImageFileExtractor.class);
+    protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractHCSImageFileExtractor.class);
 
     protected static final String IMAGE_FILE_NOT_STANDARDIZABLE =
             "Image file '%s' could not be standardized given following tokens: %s.";
@@ -179,25 +177,25 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
      * @return <code>null</code> if the argument could not be splitted into tokens.
      */
     protected final static ImageFileInfo tryExtractDefaultImageInfo(File imageFile,
-            SampleIdentifier datasetSample)
+            SampleIdentifier datasetSample, boolean shouldValidatePlateName)
     {
         final String baseName = FilenameUtils.getBaseName(imageFile.getPath());
         final String[] tokens = StringUtils.split(baseName, TOKEN_SEPARATOR);
         if (tokens == null || tokens.length < 4)
         {
-            if (operationLog.isDebugEnabled())
+            if (operationLog.isInfoEnabled())
             {
-                operationLog.debug(String.format(IMAGE_FILE_NOT_ENOUGH_ENTITIES, imageFile));
+                operationLog.info(String.format(IMAGE_FILE_NOT_ENOUGH_ENTITIES, imageFile));
             }
             return null;
         }
         final String sampleCode = tokens[tokens.length - 4];
-        if (sampleCode != null
+        if (shouldValidatePlateName && sampleCode != null
                 && sampleCode.equalsIgnoreCase(datasetSample.getSampleCode()) == false)
         {
-            if (operationLog.isDebugEnabled())
+            if (operationLog.isInfoEnabled())
             {
-                operationLog.debug(String.format(IMAGE_FILE_BELONGS_TO_WRONG_SAMPLE, imageFile,
+                operationLog.info(String.format(IMAGE_FILE_BELONGS_TO_WRONG_SAMPLE, imageFile,
                         datasetSample, sampleCode));
             }
             return null;
@@ -250,24 +248,24 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
                 }
             } else
             {
-                if (operationLog.isDebugEnabled())
+                if (operationLog.isInfoEnabled())
                 {
-                    operationLog.debug(String.format(IMAGE_FILE_NOT_STANDARDIZABLE, imageFile,
+                    operationLog.info(String.format(IMAGE_FILE_NOT_STANDARDIZABLE, imageFile,
                             imageInfo));
                 }
                 invalidFiles.add(imageFile);
             }
         }
-        return new HCSImageFileExtractionResult(acquiredImages, Collections
-                .unmodifiableList(invalidFiles), getAllChannels());
+        return new HCSImageFileExtractionResult(acquiredImages,
+                Collections.unmodifiableList(invalidFiles), getAllChannels());
 
     }
 
     private String getRelativeImagePath(File incomingDataSetDirectory, final File imageFile)
     {
         String imageRelativePath =
-                FileUtilities.getRelativeFile(incomingDataSetDirectory, new File(imageFile
-                        .getPath()));
+                FileUtilities.getRelativeFile(incomingDataSetDirectory,
+                        new File(imageFile.getPath()));
         assert imageRelativePath != null : "Image relative path should not be null.";
         return imageRelativePath;
     }
@@ -290,9 +288,9 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         return components;
     }
 
-    protected final static Set<Channel> createChannels(List<ChannelDescription> channelDescriptions)
+    protected final static List<Channel> createChannels(List<ChannelDescription> channelDescriptions)
     {
-        Set<Channel> channels = new HashSet<Channel>();
+        List<Channel> channels = new ArrayList<Channel>();
         for (ChannelDescription channelDescription : channelDescriptions)
         {
             channels.add(new Channel(channelDescription.getCode(), null, null, channelDescription

@@ -20,11 +20,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
@@ -49,6 +49,13 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 {
     private static final String TILE_MAPPING = "tile_mapping";
 
+    // boolean property, if true the names of the plate in file name and directory name have to
+    // match.
+    // True by default.
+    private static final String CHECK_PLATE_NAME_FLAG_PROPERTY_NAME = "validate-plate-name";
+
+    private final boolean shouldValidatePlateName;
+
     private final TileMapper tileMapperOrNull;
 
     private final List<ChannelDescription> channelDescriptions;
@@ -66,6 +73,8 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         this.wellGeometry = getWellGeometry(properties);
         this.tileMapperOrNull =
                 TileMapper.tryCreate(properties.getProperty(TILE_MAPPING), wellGeometry);
+        this.shouldValidatePlateName =
+                PropertyUtils.getBoolean(properties, CHECK_PLATE_NAME_FLAG_PROPERTY_NAME, true);
     }
 
     private void checkChannelsAndColorComponents()
@@ -145,7 +154,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected Set<Channel> getAllChannels()
+    protected List<Channel> getAllChannels()
     {
         return createChannels(channelDescriptions);
     }
@@ -153,6 +162,6 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     @Override
     protected ImageFileInfo tryExtractImageInfo(File imageFile, SampleIdentifier datasetSample)
     {
-        return tryExtractDefaultImageInfo(imageFile, datasetSample);
+        return tryExtractDefaultImageInfo(imageFile, datasetSample, shouldValidatePlateName);
     }
 }

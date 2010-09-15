@@ -111,14 +111,11 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
 
-    @Select("select * from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by CODE")
+    @Select("select * from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by ID")
     public List<ImgChannelDTO> getChannelsByDatasetIdOrExperimentId(long datasetId,
             long experimentId);
 
-    @Select(sql = "select id from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by LABEL", fetchSize = FETCH_SIZE)
-    public long[] getChannelIdsByDatasetIdOrExperimentId(long datasetId, long experimentId);
-
-    @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by LABEL", fetchSize = FETCH_SIZE)
+    @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by ID", fetchSize = FETCH_SIZE)
     public List<ImgChannelDTO> getChannelsByExperimentId(long experimentId);
 
     @Select("select * from SPOTS where cont_id = ?{1}")

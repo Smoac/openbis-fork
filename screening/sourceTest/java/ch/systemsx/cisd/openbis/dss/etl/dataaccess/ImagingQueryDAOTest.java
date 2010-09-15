@@ -181,14 +181,18 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(CHANNEL_LABEL, channelDTOS.get(1).getLabel());
 
         // test getChannelIdsByDatasetIdOrExperimentId
-        long[] channels = dao.getChannelIdsByDatasetIdOrExperimentId(datasetId, experimentId);
-        assertEquals(2, channels.length);
-        AssertJUnit.assertTrue(channels[0] == channelId1 && channels[1] == channelId2
-                || channels[1] == channelId1 && channels[0] == channelId2);
+        List<ImgChannelDTO> channels =
+                dao.getChannelsByDatasetIdOrExperimentId(datasetId, experimentId);
+        assertEquals(2, channels.size());
+        AssertJUnit.assertTrue(channels.get(0).getId() == channelId1
+                && channels.get(1).getId() == channelId2 || channels.get(1).getId() == channelId1
+                && channels.get(0).getId() == channelId2);
 
         // test get id of first channel
-        assertEquals(channels[0], dao.tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(
-                datasetId, experimentId, "dsChannel").intValue());
+        assertEquals(
+                channels.get(0).getId(),
+                dao.tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(datasetId, experimentId,
+                        "dsChannel").intValue());
 
         List<ImgChannelDTO> experimentChannels = dao.getChannelsByExperimentId(experimentId);
         assertEquals(1, experimentChannels.size());

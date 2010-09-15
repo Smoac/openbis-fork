@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -102,11 +101,11 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     /** The directory where <i>original</i> data could be found. */
     private static final String DIR_ORIGINAL = ScreeningConstants.ORIGINAL_DATA_DIR;
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PlateStorageProcessor.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PlateStorageProcessor.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, PlateStorageProcessor.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            PlateStorageProcessor.class);
 
     // tiles geometry, e.g. 3x4 if the well is divided into 12 tiles (3 rows, 4 columns)
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
@@ -460,8 +459,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         {
             throw UserFailureException.fromTemplate(
                     "No extractable files were found inside a dataset '%s'."
-                            + " Have you changed your naming convention?", incomingDataSetDirectory
-                            .getAbsolutePath());
+                            + " Have you changed your naming convention?",
+                    incomingDataSetDirectory.getAbsolutePath());
         }
         checkCompleteness(imageCheckList, dataSetInformation, incomingDataSetDirectory.getName(),
                 mailClient);
@@ -756,19 +755,19 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                             new HCSImageFileAccepter(imageFileRootDirectory,
                                     extractChannelCodes(descriptions));
                     ch.systemsx.cisd.etlserver.HCSImageFileExtractionResult originalResult =
-                            extractor.process(NodeFactory
-                                    .createDirectoryNode(incomingDataSetDirectory),
+                            extractor.process(
+                                    NodeFactory.createDirectoryNode(incomingDataSetDirectory),
                                     dataSetInformation, accepter);
-                    Set<HCSImageFileExtractionResult.Channel> channels =
+                    List<HCSImageFileExtractionResult.Channel> channels =
                             convert(originalResult.getChannels());
                     return new HCSImageFileExtractionResult(accepter.getImages(),
                             asRelativePaths(originalResult.getInvalidFiles()), channels);
                 }
 
-                private Set<HCSImageFileExtractionResult.Channel> convert(Set<Channel> channels)
+                private List<HCSImageFileExtractionResult.Channel> convert(Set<Channel> channels)
                 {
-                    Set<HCSImageFileExtractionResult.Channel> result =
-                            new HashSet<HCSImageFileExtractionResult.Channel>();
+                    List<HCSImageFileExtractionResult.Channel> result =
+                            new ArrayList<HCSImageFileExtractionResult.Channel>();
                     for (Channel channel : channels)
                     {
                         result.add(new HCSImageFileExtractionResult.Channel(getChannelCodeOrLabel(
@@ -820,8 +819,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                 final Location tileLocation, final IFile imageFile)
         {
             final String imageRelativePath =
-                    FileUtilities.getRelativeFile(imageFileRootDirectory, new File(imageFile
-                            .getPath()));
+                    FileUtilities.getRelativeFile(imageFileRootDirectory,
+                            new File(imageFile.getPath()));
             assert imageRelativePath != null : "Image relative path should not be null.";
             String channelCode = getChannelCodeOrLabel(channelCodes, channel);
             AcquiredPlateImage imageDesc =

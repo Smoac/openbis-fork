@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
@@ -62,8 +61,8 @@ public class ScreeningContainerDatasetInfoHelper
     public static long createImageDataset(IImagingQueryDAO dao, ImageDatasetInfo info, long contId)
     {
         ImgDatasetDTO dataset =
-                new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(), info
-                        .getTileColumns(), contId, info.hasImageSeries());
+                new ImgDatasetDTO(info.getDatasetPermId(), info.getTileRows(),
+                        info.getTileColumns(), contId, info.hasImageSeries());
         return dao.addDataset(dataset);
     }
 
@@ -100,7 +99,7 @@ public class ScreeningContainerDatasetInfoHelper
      */
     public static ExperimentWithChannelsAndContainer getOrCreateExperimentWithChannelsAndContainer(
             IImagingQueryDAO dao, ScreeningContainerDatasetInfo info,
-            Set<HCSImageFileExtractionResult.Channel> channels)
+            List<HCSImageFileExtractionResult.Channel> channels)
     {
         ScreeningContainerDatasetInfoHelper helper = new ScreeningContainerDatasetInfoHelper(dao);
         synchronized (IImagingQueryDAO.class)
@@ -131,8 +130,8 @@ public class ScreeningContainerDatasetInfoHelper
         } else
         {
             ImgContainerDTO container =
-                    new ImgContainerDTO(containerPermId, info.getContainerRows(), info
-                            .getContainerColumns(), expId);
+                    new ImgContainerDTO(containerPermId, info.getContainerRows(),
+                            info.getContainerColumns(), expId);
             containerId = dao.addContainer(container);
             return new CreatedOrFetchedEntity(false, containerId);
         }
@@ -219,7 +218,7 @@ public class ScreeningContainerDatasetInfoHelper
     // ------ channels creation ------------------------------
 
     private Map<String, Long> getOrCreateChannels(long expId,
-            Set<HCSImageFileExtractionResult.Channel> channels)
+            List<HCSImageFileExtractionResult.Channel> channels)
     {
         List<ImgChannelDTO> allChannels = dao.getChannelsByExperimentId(expId);
         if (allChannels.size() == 0)
@@ -231,7 +230,7 @@ public class ScreeningContainerDatasetInfoHelper
         }
     }
 
-    private Map<String, Long> updateChannels(long expId, Set<Channel> channels,
+    private Map<String, Long> updateChannels(long expId, List<Channel> channels,
             List<ImgChannelDTO> allChannels)
     {
         Map<String/* name */, ImgChannelDTO> existingChannels = asNameMap(allChannels);
@@ -244,7 +243,7 @@ public class ScreeningContainerDatasetInfoHelper
         return map;
     }
 
-    private Map<String, Long> createChannels(long expId, Set<Channel> channels)
+    private Map<String, Long> createChannels(long expId, List<Channel> channels)
     {
         Map<String, Long> map = new HashMap<String, Long>();
         for (HCSImageFileExtractionResult.Channel channel : channels)

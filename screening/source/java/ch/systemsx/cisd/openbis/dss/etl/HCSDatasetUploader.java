@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfoHelper.ExperimentWithChannelsAndContainer;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSp
 public class HCSDatasetUploader
 {
     public static void upload(IImagingQueryDAO dao, ImageDatasetInfo info,
-            List<AcquiredPlateImage> images, Set<HCSImageFileExtractionResult.Channel> channels)
+            List<AcquiredPlateImage> images, List<HCSImageFileExtractionResult.Channel> channels)
     {
         new HCSDatasetUploader(dao).upload(info, images, channels);
     }
@@ -49,7 +49,7 @@ public class HCSDatasetUploader
     }
 
     private void upload(ImageDatasetInfo info, List<AcquiredPlateImage> images,
-            Set<HCSImageFileExtractionResult.Channel> channels)
+            List<HCSImageFileExtractionResult.Channel> channels)
     {
         ExperimentWithChannelsAndContainer basicStruct =
                 ScreeningContainerDatasetInfoHelper.getOrCreateExperimentWithChannelsAndContainer(
@@ -134,8 +134,8 @@ public class HCSDatasetUploader
 
     private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
     {
-        return new AcquiredImageInStack(image.getChannelCode(), image.getImageReference(), image
-                .getThumbnailFilePathOrNull());
+        return new AcquiredImageInStack(image.getChannelCode(), image.getImageReference(),
+                image.getThumbnailFilePathOrNull());
     }
 
     private ImgChannelStackDTO makeStackDtoWithouId(AcquiredPlateImage image, Long[][] spotIds,
@@ -249,8 +249,8 @@ public class HCSDatasetUploader
     {
         ImgImageDTO dto =
                 new ImgImageDTO(dao.createImageId(), imageReferenceOrNull.getRelativeImagePath(),
-                        imageReferenceOrNull.tryGetPage(), imageReferenceOrNull
-                                .tryGetColorComponent());
+                        imageReferenceOrNull.tryGetPage(),
+                        imageReferenceOrNull.tryGetColorComponent());
         return dto;
     }
 
@@ -262,8 +262,8 @@ public class HCSDatasetUploader
     {
         List<ImgSpotDTO> oldSpots = dao.listSpots(contId);
         List<ImgSpotDTO> newSpots =
-                createNewSpots(contId, images, oldSpots, info.getContainerRows(), info
-                        .getContainerColumns(), info.getContainerPermId());
+                createNewSpots(contId, images, oldSpots, info.getContainerRows(),
+                        info.getContainerColumns(), info.getContainerPermId());
         newSpots.addAll(oldSpots);
         return makeTechIdMatrix(newSpots, info.getContainerRows(), info.getContainerColumns());
     }

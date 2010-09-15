@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -69,7 +68,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected final Set<Channel> getAllChannels()
+    protected final List<Channel> getAllChannels()
     {
         return createChannels(channelDescriptions);
     }
