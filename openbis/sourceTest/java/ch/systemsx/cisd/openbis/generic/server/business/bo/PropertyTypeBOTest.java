@@ -267,4 +267,78 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         propertyTypeBO.define(propertyType);
         context.assertIsSatisfied();
     }
+
+    @Test(groups = "broken")
+    public final void testDefineWithXmlPropertyWithSchemaFails()
+    {
+        final DataTypePE dataTypePE = new DataTypePE();
+        dataTypePE.setCode(DataTypeCode.XML);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    one(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
+
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
+                    will(returnValue(dataTypePE));
+                }
+            });
+        final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
+        final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
+
+        propertyType.setSchema(XmlUtilsTest.EXAMPLE_INCORRECT_SCHEMA);
+        boolean exceptionThrown = false;
+        try
+        {
+            propertyTypeBO.define(propertyType);
+        } catch (UserFailureException ex)
+        {
+            assertTrue(ex.getMessage().startsWith(
+                    "Provided XML Schema isn't valid. cvc-complex-type.2.4.a: "
+                            + "Invalid content was found starting with element 'xs:complex'."));
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    @Test(groups = "broken")
+    public final void testDefineWithXmlPropertyWithXsltFails()
+    {
+        final DataTypePE dataTypePE = new DataTypePE();
+        dataTypePE.setCode(DataTypeCode.XML);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    one(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
+
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
+                    will(returnValue(dataTypePE));
+                }
+            });
+        final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
+        final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
+
+        propertyType.setTransformation(XmlUtilsTest.EXAMPLE_INCORRECT_XSLT);
+        boolean exceptionThrown = false;
+        try
+        {
+            propertyTypeBO.define(propertyType);
+        } catch (UserFailureException ex)
+        {
+            assertTrue(ex.getMessage().startsWith(
+                    "Provided XSLT isn't valid. cvc-elt.1: "
+                            + "Cannot find the declaration of element 'xsl:styleshet'."));
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
 }

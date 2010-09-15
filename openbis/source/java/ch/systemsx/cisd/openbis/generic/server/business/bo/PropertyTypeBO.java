@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.net.URL;
+import javax.xml.validation.Schema;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.XmlUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -100,11 +101,11 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
 
     private void validateXmlDocumentValues()
     {
-        validateXML(propertyTypePE.getSchema(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_URL);
-        validateXML(propertyTypePE.getTransformation(), "XSLT", XmlUtils.XSLT_XSD_URL);
+        validateXML(propertyTypePE.getSchema(), "XML Schema", XmlUtils.XML_SCHEMA_XSD_FILE_RESOURCE);
+        validateXML(propertyTypePE.getTransformation(), "XSLT", XmlUtils.XSLT_XSD_FILE_RESOURCE);
     }
 
-    private static void validateXML(String xmlValue, String xmlName, String schemaURL)
+    private static void validateXML(String xmlValue, String xmlName, String schemaFilePath)
     {
         if (StringUtils.isBlank(xmlValue))
         {
@@ -112,16 +113,16 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
         }
 
         Document document = XmlUtils.parseXmlDocument(xmlValue);
-        // FIXME 2010-09-14, Piotr Buczek: turn validation on
-        // - fix dependency on java version
-        // - make it work offline
+        // FIXME 2010-09-14, Piotr Buczek: turn validation on when fixed
         if (true)
         {
             return;
         }
+
+        Schema schema = XMLInfraStructure.createSchema(schemaFilePath);
         try
         {
-            XmlUtils.validate(document, new URL(schemaURL));
+            XmlUtils.validate(document, schema);
         } catch (Exception e)
         {
             throw UserFailureException.fromTemplate("Provided %s isn't valid. %s", xmlName, e

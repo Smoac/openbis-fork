@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.util.PropertyValidator;
+import ch.systemsx.cisd.openbis.generic.server.util.XmlUtilsTest;
 import ch.systemsx.cisd.openbis.generic.server.util.PropertyValidator.SupportedDatePattern;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -43,8 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 @Friend(toClasses = PropertyValidator.class)
 public final class PropertyValidatorTest extends AbstractBOTest
 {
-    // TODO extend
-
     private final PropertyValidator createPropertyValidator()
     {
         return new PropertyValidator(daoFactory);
@@ -94,6 +93,14 @@ public final class PropertyValidatorTest extends AbstractBOTest
     private final static PropertyTypePE createVarcharPropertyType()
     {
         final PropertyTypePE propertyType = createPropertyType(DataTypeCode.VARCHAR);
+        return propertyType;
+    }
+
+    private final static PropertyTypePE createXmlPropertyType(String label, String schema)
+    {
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.XML);
+        propertyType.setLabel(label);
+        propertyType.setSchema(schema);
         return propertyType;
     }
 
@@ -168,6 +175,44 @@ public final class PropertyValidatorTest extends AbstractBOTest
         } catch (final UserFailureException ex)
         {
             // Nothing to do here.
+        }
+    }
+
+    // 
+    // XML property with schema
+    // 
+
+    @Test
+    public final void testValidateXMLPropertyValue()
+    {
+        final String propertyLabel = "prop";
+        final String propertySchema = XmlUtilsTest.EXAMPLE_SCHEMA;
+        final String propertyValue = XmlUtilsTest.EXAMPLE_XML;
+        final PropertyTypePE propertyType = createXmlPropertyType(propertyLabel, propertySchema);
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        propertyValidator.validatePropertyValue(propertyType, propertyValue);
+    }
+
+    @Test
+    public final void testValidateXMLPropertyValueFailed()
+    {
+        final String propertyLabel = "prop";
+        final String propertySchema = XmlUtilsTest.EXAMPLE_SCHEMA;
+        final String propertyValue = XmlUtilsTest.EXAMPLE_INCORRECT_XML;
+        final PropertyTypePE propertyType = createXmlPropertyType(propertyLabel, propertySchema);
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        try
+        {
+            propertyValidator.validatePropertyValue(propertyType, propertyValue);
+            fail(String.format("'%s' expected.", UserFailureException.class.getSimpleName()));
+        } catch (final UserFailureException ex)
+        {
+            assertEquals(String.format(
+                    "Provided value:\n\n%s\n\ndoesn't validate against schema of property type '%s'. "
+                            + "cvc-complex-type.2.4.d: "
+                            + "Invalid content was found starting with element 'footer'. "
+                            + "No child element is expected at this point.", propertyValue,
+                    propertyLabel), ex.getMessage());
         }
     }
 

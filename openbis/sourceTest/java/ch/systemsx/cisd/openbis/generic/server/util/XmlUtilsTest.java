@@ -25,6 +25,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
@@ -36,15 +37,26 @@ import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
  * 
  * @author Piotr Buczek
  */
+// FIXME 2010-13-09, Piotr Buczek: fix on hudson
 public class XmlUtilsTest extends AssertJUnit
 {
-    private static String EXAMPLE_XML =
+    public static String EXAMPLE_XML =
             "<?xml version='1.0'?>\n                                            "
                     + "<note xmlns='http://www.w3schools.com'>\n                "
                     + "  <to>Tove</to>\n                                        "
                     + "  <from>Jani</from>\n                                    "
                     + "  <heading>Reminder</heading>\n                          "
                     + "  <body>Don't forget me this weekend!</body>\n           "
+                    + "</note>                                                  ";
+
+    public static String EXAMPLE_INCORRECT_XML =
+            "<?xml version='1.0'?>\n                                            "
+                    + "<note xmlns='http://www.w3schools.com'>\n                "
+                    + "  <to>Tove</to>\n                                        "
+                    + "  <from>Jani</from>\n                                    "
+                    + "  <heading>Reminder</heading>\n                          "
+                    + "  <body>Don't forget me this weekend!</body>\n           "
+                    + "  <footer>Cheers!</footer>\n                             "
                     + "</note>                                                  ";
 
     public static String EXAMPLE_SCHEMA =
@@ -64,6 +76,9 @@ public class XmlUtilsTest extends AssertJUnit
                     + "  </xs:complexType>\n                                    "
                     + "</xs:element>\n                                          "
                     + "</xs:schema>                                             ";
+
+    public static String EXAMPLE_INCORRECT_SCHEMA =
+            EXAMPLE_SCHEMA.replaceAll("xs:complexType", "xs:complex");
 
     public static String EXAMPLE_XSLT =
             "<?xml version='1.0'?>\n"
@@ -87,6 +102,9 @@ public class XmlUtilsTest extends AssertJUnit
                     + "</xsl:template>\n                                        "
                     + "</xsl:stylesheet>";
 
+    public static String EXAMPLE_INCORRECT_XSLT =
+            EXAMPLE_XSLT.replaceAll("xsl:stylesheet", "xsl:styleshet");
+
     @Test
     public void testParseXmlDocument()
     {
@@ -107,7 +125,27 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, EXAMPLE_SCHEMA);
     }
 
-    // FIXME 2010-13-09, Piotr Buczek: fix on hudson
+    @Test
+    public void testParseAndValidateXmlDocumentWithGivenSchemaFails() throws SAXException,
+            IOException
+    {
+        // this test doesn't work offline! online namespaces are needed
+        Document document = XmlUtils.parseXmlDocument(EXAMPLE_INCORRECT_XML);
+        boolean exceptionThrown = false;
+        try
+        {
+            XmlUtils.validate(document, EXAMPLE_SCHEMA);
+        } catch (SAXParseException ex)
+        {
+            assertTrue("Unexpected exception message:\n" + ex.getMessage(), ex.getMessage()
+                    .contains(
+                            "Invalid content was found starting with element 'footer'. "
+                                    + "No child element is expected at this point."));
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+
     @Test(groups = "broken")
     public void testParseAndValidateXmlSchemaDocument() throws SAXException, IOException
     {
@@ -120,7 +158,26 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, schema);
     }
 
-    @Test
+    @Test(groups = "broken")
+    public void testParseAndValidateXmlSchemaDocumentFails() throws SAXException, IOException
+    {
+        // this test doesn't work offline! online namespaces are needed
+        Document document = XmlUtils.parseXmlDocument(EXAMPLE_INCORRECT_SCHEMA);
+        Schema schema = XMLInfraStructure.createSchema(XmlUtils.XML_SCHEMA_XSD_FILE_RESOURCE);
+        boolean exceptionThrown = false;
+        try
+        {
+            XmlUtils.validate(document, schema);
+        } catch (SAXParseException ex)
+        {
+            assertTrue("Unexpected exception message:\n" + ex.getMessage(), ex.getMessage()
+                    .contains("Invalid content was found starting with element 'xs:complex'."));
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+    }
+
+    @Test(groups = "broken")
     public void testParseAndValidateXsltXmlDocument() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -130,5 +187,24 @@ public class XmlUtilsTest extends AssertJUnit
         // get schema from a file resource
         Schema schema = XMLInfraStructure.createSchema(XmlUtils.XSLT_XSD_FILE_RESOURCE);
         XmlUtils.validate(document, schema);
+    }
+
+    @Test(groups = "broken")
+    public void testParseAndValidateXsltXmlDocumentFails() throws SAXException, IOException
+    {
+        // this test doesn't work offline! online namespaces are needed
+        Document document = XmlUtils.parseXmlDocument(EXAMPLE_INCORRECT_XSLT);
+        Schema schema = XMLInfraStructure.createSchema(XmlUtils.XSLT_XSD_FILE_RESOURCE);
+        boolean exceptionThrown = false;
+        try
+        {
+            XmlUtils.validate(document, schema);
+        } catch (SAXParseException ex)
+        {
+            assertTrue("Unexpected exception message:\n" + ex.getMessage(), ex.getMessage()
+                    .contains("Cannot find the declaration of element 'xsl:styleshet'."));
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
     }
 }
