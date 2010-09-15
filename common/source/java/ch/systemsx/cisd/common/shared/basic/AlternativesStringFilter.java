@@ -248,14 +248,38 @@ public class AlternativesStringFilter
         }
     }
 
+    static class ConjunctionMatcher implements Matcher
+    {
+        private Matcher m1;
+
+        private Matcher m2;
+
+        ConjunctionMatcher(Matcher m1, Matcher m2)
+        {
+            this.m1 = m1;
+            this.m2 = m2;
+        }
+
+        public boolean matches(String value)
+        {
+            return m1.matches(value) && m2.matches(value);
+        }
+    }
+
     /**
      * Sets a new filter <var>value</var>.
      */
     public void setFilterValue(String value)
     {
         alternatives.clear();
+        boolean conjunct = false;
         for (String s : StringUtils.tokenize(value))
         {
+            if (s.equals("&") && alternatives.size() > 0)
+            {
+                conjunct = true;
+                continue;
+            }
             final boolean negateValue = s.startsWith(PREFIX_NOT);
             if (negateValue)
             {
@@ -269,6 +293,11 @@ public class AlternativesStringFilter
             if (negateValue)
             {
                 matcher = new NegationMatcher(matcher);
+            }
+            if (conjunct)
+            {
+                Matcher previousMatcher = alternatives.remove(alternatives.size() - 1);
+                matcher = new ConjunctionMatcher(previousMatcher, matcher);
             }
             alternatives.add(matcher);
         }

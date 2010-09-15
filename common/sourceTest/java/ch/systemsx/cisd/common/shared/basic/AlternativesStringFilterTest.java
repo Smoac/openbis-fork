@@ -453,4 +453,25 @@ public class AlternativesStringFilterTest
         assertTrue(filter.passes("!=10.3"));
     }
 
+    @Test
+    public void testNumericalConjunction()
+    {
+        AlternativesStringFilter filter = prepare(">5 & <10");
+        assertFalse(filter.passes("4"));
+        assertTrue(filter.passes("7"));
+        assertFalse(filter.passes("12"));
+    }
+
+    @Test
+    public void testNonNumericalConjunction()
+    {
+        AlternativesStringFilter filter = prepare("ab & ba");
+        assertFalse(filter.passes("ab"));
+        assertFalse(filter.passes("abb"));
+        assertTrue(filter.passes("aba"));
+        assertTrue(filter.passes("bab"));
+        assertTrue(filter.passes("abba"));
+        assertFalse(filter.passes("ba"));
+        assertFalse(filter.passes("bba"));
+    }
 }
