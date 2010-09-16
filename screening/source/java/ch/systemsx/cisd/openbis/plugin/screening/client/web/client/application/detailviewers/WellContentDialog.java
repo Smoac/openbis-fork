@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -338,7 +339,11 @@ public class WellContentDialog extends Dialog
                 public void handleEvent(BaseEvent be)
                 {
                     Rectangle bounds = GuiUtils.calculateBounds(getElement());
-                    setSize(bounds.width + getFrameWidth(), bounds.height);
+                    int maxWidth = (9 * XDOM.getBody().getOffsetWidth()) / 10;
+                    int maxHeight = (9 * XDOM.getBody().getOffsetHeight()) / 10;
+                    int w = Math.min(maxWidth, bounds.width + getFrameWidth());
+                    int h = Math.min(maxHeight, bounds.height);
+                    setSize(w, h);
                     center();
                 }
             });
@@ -362,13 +367,12 @@ public class WellContentDialog extends Dialog
 
     private LayoutContainer createContentDescription()
     {
-        LayoutContainer container = new LayoutContainer();
+        final LayoutContainer container = new LayoutContainer();
         TableLayout tableLayout = new TableLayout(2);
-        tableLayout.setCellPadding(2);
-        tableLayout.setWidth("100%");
+        tableLayout.setCellPadding(3);
         container.setLayout(tableLayout);
         TableData cellLayout = new TableData();
-        cellLayout.setMargin(2);
+        cellLayout.setMargin(5);
         if (wellOrNull != null)
         {
             container.add(new Text("Well: "), cellLayout);
@@ -429,9 +433,10 @@ public class WellContentDialog extends Dialog
                 value = prop.getValue();
             }
         }
-        LayoutContainer container = new LayoutContainer();
+        final LayoutContainer container = new LayoutContainer();
         HBoxLayout layout = new HBoxLayout();
         container.setLayout(layout);
+        container.setWidth(300);
         container.add(createPlateLocationsMaterialViewerLink(gene));
         LayoutContainer spacer = new LayoutContainer();
         spacer.setWidth(10);
@@ -457,7 +462,6 @@ public class WellContentDialog extends Dialog
                     viewContext.getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
         }
         container.add(new Text("]"));
-        container.setWidth("100%");
         return container;
     }
 
