@@ -20,6 +20,8 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+
 /**
  * Main panel - where the pages will open.
  * 
@@ -43,6 +45,7 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
         reset();
         content = tabItemFactory.create();
         add(content.getComponent());
+        GWTUtils.updatePageTitle(tabItemFactory.getTabTitle());
         layout();
     }
 

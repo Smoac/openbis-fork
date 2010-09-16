@@ -19,11 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
-import com.google.gwt.user.client.Window;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
@@ -152,8 +151,7 @@ public class DefaultTabItem implements ITabItem
         {
             lastModificationStateUpdaterOrNull.update();
         }
-        Window.setTitle(getTabTitleUpdater().getCurrentTitle() + " - "
-                + CommonViewContext.ClientStaticState.getPageTitleSuffix());
+        GWTUtils.updatePageTitle(getTabTitleUpdater().getCurrentTitle());
     }
 
     public void onClose()

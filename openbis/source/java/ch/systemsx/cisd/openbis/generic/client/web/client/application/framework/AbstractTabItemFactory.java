@@ -48,9 +48,6 @@ public abstract class AbstractTabItemFactory
 
     /**
      * Returns a short description of contents of the tab that can be used in tab or page title.
-     * <p>
-     * NOTE: implementation has been changed such that it is used only internally and page title is
-     * always exactly the same as the tab title.
      */
     public abstract String getTabTitle();
 

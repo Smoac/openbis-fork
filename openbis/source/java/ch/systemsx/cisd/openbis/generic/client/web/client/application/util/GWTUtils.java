@@ -40,6 +40,7 @@ import com.google.gwt.user.client.Window.ClosingHandler;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.ListBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 
 /**
@@ -77,6 +78,14 @@ public final class GWTUtils
     public static void testing()
     {
         testing = true;
+    }
+
+    /**
+     * Updates prefix of the page title to the specified one.
+     */
+    public static void updatePageTitle(String prefix)
+    {
+        Window.setTitle(prefix + " - " + CommonViewContext.ClientStaticState.getPageTitleSuffix());
     }
 
     /**
