@@ -19,6 +19,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 
 /**
  * {@link LayoutContainer} which allows to choose which contained panels should be visible and uses
@@ -99,7 +100,7 @@ public class SectionsPanel extends LayoutContainer
                     {
                         final String thisTabID = sectionElement.getPanel().getDisplayID();
                         String tabToActivateID =
-                                viewContext.getDisplaySettingsManager().getTabSettings(
+                                viewContext.getDisplaySettingsManager().getActiveTabSettings(
                                         getDisplayID());
                         if (tabToActivateID != null && tabToActivateID.equals(thisTabID))
                         {
@@ -118,7 +119,14 @@ public class SectionsPanel extends LayoutContainer
 
     public void addPanel(final TabContent panel)
     {
-
+        DetailViewConfiguration viewSettingsOrNull =
+                viewContext.getDisplaySettingsManager().tryGetDetailViewSettings(getDisplayID());
+        if (viewSettingsOrNull != null
+                && viewSettingsOrNull.getDisabledTabs()
+                        .contains(panel.getDisplayID().toUpperCase()))
+        {
+            return;
+        }
         final SectionElement element = new SectionElement(panel, viewContext);
         // sections will be disposed when section panel is removed, not when they are hidden
         // (see onDetach())
@@ -172,8 +180,8 @@ public class SectionsPanel extends LayoutContainer
                     {
                         panel.setContentVisible(true);
                         layout();
-                        viewContext.getDisplaySettingsManager().storeTabSettings(getDisplayID(),
-                                panel.getDisplayID(), SectionsPanel.this);
+                        viewContext.getDisplaySettingsManager().storeActiveTabSettings(
+                                getDisplayID(), panel.getDisplayID(), SectionsPanel.this);
                     }
                 });
         }

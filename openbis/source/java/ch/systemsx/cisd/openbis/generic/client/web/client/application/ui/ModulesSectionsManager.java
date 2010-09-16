@@ -77,6 +77,7 @@ public class ModulesSectionsManager
             final Collection<? extends TabContent> sections = module.getSections(entity);
             for (final TabContent panel : sections)
             {
+                // FIXME 2010-09-15, IA: check when this is needed
                 panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION);
                 container.addPanel(panel);
             }

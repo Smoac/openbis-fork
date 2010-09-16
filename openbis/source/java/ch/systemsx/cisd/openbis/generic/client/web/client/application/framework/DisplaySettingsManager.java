@@ -36,8 +36,10 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped
@@ -97,6 +99,8 @@ public class DisplaySettingsManager
 
     private final IDelayedUpdater updater;
 
+    private final WebClientConfiguration webClientConfiguration;
+
     /**
      * Private, we need this interface to make tests easier. We wrap {@link DelayedTask} which
      * requires the access to the browser.
@@ -111,9 +115,9 @@ public class DisplaySettingsManager
      * Creates an instance for the specified display settings.
      */
     public DisplaySettingsManager(DisplaySettings displaySettings,
-            final IDelegatedAction settingsUpdater)
+            final IDelegatedAction settingsUpdater, WebClientConfiguration webClientConfiguration)
     {
-        this(displaySettings, createDelayedUpdater(settingsUpdater));
+        this(displaySettings, createDelayedUpdater(settingsUpdater), webClientConfiguration);
     }
 
     private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater)
@@ -146,14 +150,18 @@ public class DisplaySettingsManager
         }
     }
 
-    /** Private, for tests only */
-    public DisplaySettingsManager(DisplaySettings displaySettings, final IDelayedUpdater updater)
+    /**
+     * Private, for tests only
+     */
+    public DisplaySettingsManager(DisplaySettings displaySettings, final IDelayedUpdater updater,
+            WebClientConfiguration webClientConfiguration)
     {
         if (displaySettings == null)
         {
             throw new IllegalArgumentException("Unspecified display manager.");
         }
         this.displaySettings = displaySettings;
+        this.webClientConfiguration = webClientConfiguration;
         this.updater = updater;
     }
 
@@ -358,9 +366,10 @@ public class DisplaySettingsManager
                 .getModifier(), delayMs);
     }
 
-    public void storeTabSettings(String tabGroupDisplayID, String tabDisplayID, Object modifier)
+    public void storeActiveTabSettings(String tabGroupDisplayID, String tabDisplayID,
+            Object modifier)
     {
-        updateTabSettings(tabGroupDisplayID, tabDisplayID, modifier);
+        updateActiveTabSettings(tabGroupDisplayID, tabDisplayID, modifier);
         updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
@@ -442,17 +451,27 @@ public class DisplaySettingsManager
      *          manually after a modification.
      */
     @SuppressWarnings("deprecation")
-    public final String getTabSettings(String tabGroupDisplayTypeID)
+    public final String getActiveTabSettings(String tabGroupDisplayTypeID)
     {
         return displaySettings.getTabSettings().get(tabGroupDisplayTypeID);
+    }
+
+    /**
+     * @returns hidden tabs for given panel - which tab should be selected<br>
+     * <br>
+     *          NOTE: Returned value should be used read only
+     */
+    public final DetailViewConfiguration tryGetDetailViewSettings(String entityDetailViewID)
+    {
+        return webClientConfiguration.getViews().get(entityDetailViewID);
     }
 
     /**
      * update section settings for given display id (modification date is updated automatically)
      */
     @SuppressWarnings("deprecation")
-    private final void updateTabSettings(String tabGroupDisplayID, String selectedTabDisplayID,
-            Object modifier)
+    private final void updateActiveTabSettings(String tabGroupDisplayID,
+            String selectedTabDisplayID, Object modifier)
     {
         displaySettings.getTabSettings().put(tabGroupDisplayID, selectedTabDisplayID);
         tabModifications.put(tabGroupDisplayID, Modification.create(modifier));

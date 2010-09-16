@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.IDelayedUpdater;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * @author Franz-Josef Elmer
@@ -90,6 +91,8 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
     private ColumnModelEvent event;
 
+    private WebClientConfiguration webClientConfiguration;
+
     @BeforeMethod
     public void setUp()
     {
@@ -97,7 +100,8 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         updater = context.mock(IDelayedUpdater.class);
         grid = context.mock(IDisplaySettingsGetter.class);
         displaySettings = new DisplaySettings();
-        manager = new DisplaySettingsManager(displaySettings, updater);
+        webClientConfiguration = new WebClientConfiguration();
+        manager = new DisplaySettingsManager(displaySettings, updater, webClientConfiguration);
         event = new ColumnModelEvent(null);
     }
 

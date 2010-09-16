@@ -147,7 +147,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
         this.propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
         add(propertiesPanelOrNull, createLeftBorderLayoutData());
-        final String displayIdSuffix = getDisplayIdSuffix(this.experimentType.getCode());
+        final String displayIdSuffix = this.experimentType.getCode();
 
         configureLeftPanel(displayIdSuffix);
 
@@ -227,11 +227,6 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                     return identifiable.getCode();
                 }
             };
-    }
-
-    private static final String getDisplayIdSuffix(String suffix)
-    {
-        return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
     }
 
     private List<DisposableTabContent> createRightPanel()

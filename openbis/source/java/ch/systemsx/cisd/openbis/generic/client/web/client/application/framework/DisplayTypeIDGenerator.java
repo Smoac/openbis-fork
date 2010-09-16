@@ -72,9 +72,13 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     FILE_FORMAT_TYPE_BROWSER_GRID("file-format-type-browser-grid"),
 
+    SAMPLE_TYPE_BROWSER("sample-type-browser"),
+
+    // -------------- Sections
+
     ATTACHMENT_SECTION("attachment-section"),
 
-    CONTAINER_SAMPLES_SECTION("sample-section"),
+    CONTAINER_SAMPLES_SECTION("container-sample-section"),
 
     DERIVED_SAMPLES_SECTION("derived-samples-section"),
 
@@ -90,7 +94,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     MODULE_SECTION("module-section"),
 
-    SAMPLE_TYPE_BROWSER("sample-type-browser"),
+    // -------------- Viewers (detail view)
 
     GENERIC_DATASET_VIEWER("generic_dataset_viewer"),
 
@@ -118,5 +122,4 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     {
         return createID() + suffix;
     }
-
 }

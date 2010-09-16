@@ -127,7 +127,7 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
 
     private final Component createRightPanel(Material material)
     {
-        displayIdSuffix = getDisplayIdSuffix(material.getMaterialType().getCode());
+        displayIdSuffix = material.getMaterialType().getCode();
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER, displayIdSuffix);
@@ -139,11 +139,6 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
         container.layout();
         moduleSectionManager.initialize(container, material);
         return container;
-    }
-
-    private static final String getDisplayIdSuffix(String suffix)
-    {
-        return GENERIC_MATERIAL_VIEWER + "-" + suffix;
     }
 
     protected void reloadAllData()

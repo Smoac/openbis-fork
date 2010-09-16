@@ -89,6 +89,8 @@ public abstract class AbstractClientService implements IClientService,
 
     private String onlineHelpSpecificPageTemplate;
 
+    private WebClientConfigurationProvider webClientConfigurationProvider;
+
     protected AbstractClientService()
     {
     }
@@ -176,6 +178,12 @@ public abstract class AbstractClientService implements IClientService,
         {
             operationLog.info("Set CIFEX URL for client to '" + cifexURL + "'.");
         }
+    }
+
+    public final void setWebClientConfigurationProvider(
+            WebClientConfigurationProvider webClientConfigurationProvider)
+    {
+        this.webClientConfigurationProvider = webClientConfigurationProvider;
     }
 
     public final void setCifexRecipient(String cifexRecipient)
@@ -361,11 +369,15 @@ public abstract class AbstractClientService implements IClientService,
         {
             applicationInfo.setCIFEXURL(cifexURL);
             applicationInfo.setCifexRecipient(cifexRecipient);
+            applicationInfo.setWebClientConfiguration(webClientConfigurationProvider
+                    .getWebClientConfiguration());
         } else
         {
             ApplicationInfo commonApplicationInfo = commonClientService.getApplicationInfo();
             applicationInfo.setCIFEXURL(commonApplicationInfo.getCIFEXURL());
             applicationInfo.setCifexRecipient(commonApplicationInfo.getCifexRecipient());
+            applicationInfo.setWebClientConfiguration(commonApplicationInfo
+                    .getWebClientConfiguration());
         }
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setVersion(getVersion());

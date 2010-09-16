@@ -182,15 +182,10 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         return ID_PREFIX + sampleId;
     }
 
-    private static final String getDisplayIdSuffix(String suffix)
-    {
-        return GENERIC_SAMPLE_VIEWER + "-" + suffix;
-    }
-
     private final Component createRightPanel(SampleParentWithDerived sampleGeneration)
     {
         final Sample generator = sampleGeneration.getParent();
-        displayIdSuffix = getDisplayIdSuffix(generator.getSampleType().getCode());
+        displayIdSuffix = generator.getSampleType().getCode();
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_SAMPLE_VIEWER, displayIdSuffix);

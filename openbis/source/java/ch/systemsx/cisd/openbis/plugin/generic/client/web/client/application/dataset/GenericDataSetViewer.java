@@ -169,7 +169,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     private final Component createRightPanel(final ExternalData dataset)
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
-        displayIdSuffix = getDisplayIdSuffix(dataset.getDataSetType().getCode());
+        displayIdSuffix = dataset.getDataSetType().getCode();
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER, displayIdSuffix);
 
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
@@ -195,11 +195,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         // container.layout();
         moduleSectionManager.initialize(container, dataset);
         return container;
-    }
-
-    private static final String getDisplayIdSuffix(String suffix)
-    {
-        return PREFIX + suffix;
     }
 
     /**

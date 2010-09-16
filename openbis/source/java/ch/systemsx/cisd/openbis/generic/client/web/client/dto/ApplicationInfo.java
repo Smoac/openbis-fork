@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
+
 /**
  * A bean that contains information about the application.
  * 
@@ -32,6 +34,8 @@ public final class ApplicationInfo implements IsSerializable
     private String cifexRecipient;
 
     private boolean archivingConfigured;
+
+    private WebClientConfiguration webClientConfiguration;
 
     public String getCifexRecipient()
     {
@@ -71,6 +75,16 @@ public final class ApplicationInfo implements IsSerializable
     public void setArchivingConfigured(boolean archivingConfigured)
     {
         this.archivingConfigured = archivingConfigured;
+    }
+
+    public void setWebClientConfiguration(WebClientConfiguration configuration)
+    {
+        this.webClientConfiguration = configuration;
+    }
+
+    public WebClientConfiguration getWebClientConfiguration()
+    {
+        return webClientConfiguration;
     }
 
 }

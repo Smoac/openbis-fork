@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.IProfilingTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.ProfilingTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * The <i>generic</i> {@link IViewContext} implementation.
@@ -117,7 +118,9 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         final DisplaySettings loggedUserDisplaySettings =
                 viewModel.getSessionContext().getDisplaySettings();
-        displaySettingsManager = createDisplaySettingsManager(loggedUserDisplaySettings);
+        displaySettingsManager =
+                createDisplaySettingsManager(loggedUserDisplaySettings, viewModel
+                        .getApplicationInfo().getWebClientConfiguration());
     }
 
     public DisplaySettingsManager getDisplaySettingsManager()
@@ -127,7 +130,8 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     }
 
     private DisplaySettingsManager createDisplaySettingsManager(
-            final DisplaySettings displaySettings)
+            final DisplaySettings displaySettings,
+            WebClientConfiguration webClientConfigurationDTO)
     {
         IDelegatedAction settingsUpdater = new IDelegatedAction()
             {
@@ -144,7 +148,8 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
                     service.updateDisplaySettings(displaySettings, callback);
                 }
             };
-        return new DisplaySettingsManager(displaySettings, settingsUpdater);
+        return new DisplaySettingsManager(displaySettings, settingsUpdater,
+                webClientConfigurationDTO);
     }
 
     public final IGenericImageBundle getImageBundle()

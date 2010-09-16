@@ -87,6 +87,11 @@
         <constructor-arg ref="last-modification-state" />
     </bean>
 
+		<bean id="web-client-configuration-provider"
+        class="ch.systemsx.cisd.openbis.generic.client.web.server.WebClientConfigurationProvider">
+        <constructor-arg value="${web-client-configuration-file}" />
+    </bean>
+
     <bean id="common-service" class="ch.systemsx.cisd.openbis.generic.client.web.server.CommonClientService">
         <constructor-arg ref="common-server" />
         <constructor-arg ref="request-context-provider" />
@@ -96,6 +101,7 @@
         <property name="onlineHelpGenericPageTemplate" value="${onlinehelp.generic.page-template}"/>
         <property name="onlineHelpSpecificRootURL" value="${onlinehelp.specific.root-url}"/>
         <property name="onlineHelpSpecificPageTemplate" value="${onlinehelp.specific.page-template}"/>
+        <property name="webClientConfigurationProvider" ref="web-client-configuration-provider"/>
     </bean>
     
     <bean id="rpc-name-server" class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer" />
