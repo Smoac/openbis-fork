@@ -45,7 +45,7 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
                 openSampleBrowser(groupOrNull, entityTypeOrNull);
                 break;
             case MATERIAL:
-                openMaterialBrowser();
+                openMaterialBrowser(entityTypeOrNull);
                 break;
             default:
                 throw new UserFailureException("Browsing " + entityKind.getDescription()
@@ -66,10 +66,10 @@ public class BrowserLocatorResolver extends AbstractViewLocatorResolver
                 initialGroupOrNull, initialSampleTypeOrNull));
     }
 
-    private void openMaterialBrowser()
+    private void openMaterialBrowser(String initialMaterialTypeOrNull)
     {
-        // TODO 2010-03-09, Piotr Buczek: optionally select material type
-        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext).getMaterialBrowser());
+        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
+                .getMaterialBrowser(initialMaterialTypeOrNull));
     }
 
 }
