@@ -126,6 +126,13 @@ public class ScreeningClientApiTest
 
         List<FeatureVectorDatasetReference> featureVectorDatasets =
                 facade.listFeatureVectorDatasets(plates);
+        Collections.sort(featureVectorDatasets, new Comparator<FeatureVectorDatasetReference>()
+                {
+                    public int compare(FeatureVectorDatasetReference r1, FeatureVectorDatasetReference r2)
+                    {
+                        return r1.getDatasetCode().compareTo(r2.getDatasetCode());
+                    }
+                });
         print("Feature vector datasets: " + featureVectorDatasets.subList(0, Math.min(5, featureVectorDatasets.size())));
 
         List<String> featureCodes = facade.listAvailableFeatureCodes(featureVectorDatasets);
