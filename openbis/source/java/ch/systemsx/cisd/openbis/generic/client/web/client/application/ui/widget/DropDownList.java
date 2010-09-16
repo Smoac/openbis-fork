@@ -114,7 +114,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         StoreFilter<M> filter = new StoreFilter<M>()
             {
 
-                public boolean select(Store s, M parent, M item, String property)
+                public boolean select(Store<M> s, M parent, M item, String property)
                 {
                     String v = comboBox.getRawValue();
                     // WORKAROUND: (GXT2.1) only one option in the list when something
