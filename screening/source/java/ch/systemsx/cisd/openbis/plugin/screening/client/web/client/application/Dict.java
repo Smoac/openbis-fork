@@ -38,6 +38,12 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String WELL_CONTENT_PROPERTIES = "WELL_CONTENT_PROPERTIES";
 
+    public static final String WELL_CONTENT_FEATURE_VECTORS = "WELL_CONTENT_FEATURE_VECTORS";
+
+    public static final String IMAGE_ANALYSIS_DATA_SET = "IMAGE_ANALYSIS_DATA_SET";
+
+    public static final String IMAGE_DATA_SET = "IMAGE_DATA_SET";
+
     public static final String PLATE = "PLATE";
 
     public static final String WELL = "WELL";

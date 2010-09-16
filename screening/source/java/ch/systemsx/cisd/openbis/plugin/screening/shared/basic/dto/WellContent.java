@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
  */
 public class WellContent implements IsSerializable
 {
+    // ------------ Metadata -----------
+
     private WellLocation locationOrNull; // null if well code was incorrect
 
     private EntityReference well;
@@ -40,6 +42,8 @@ public class WellContent implements IsSerializable
     // Material which was being searched for inside a well. Enriched with properties.
     private Material materialContent;
 
+    // ------------ Dataset Data -------------
+
     // dataset which contains images for this well, null if no images have been acquired
     private DatasetImagesReference imagesDatasetOrNull;
 
@@ -47,10 +51,7 @@ public class WellContent implements IsSerializable
     private DatasetReference featureVectorDatasetOrNull;
 
     // Feature vector values, null if images have not been analyzed.
-    // Some features may not be available, then the value is Float.NaN.
-    // External data structure should be used to figure out which value corresponds to which
-    // feature.
-    private float[] featureVectorValuesOrNull;
+    private NamedFeatureVector featureVectorOrNull;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -61,11 +62,22 @@ public class WellContent implements IsSerializable
     public WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
             ExperimentReference experiment, Material materialContent)
     {
+        this(locationOrNull, well, plate, experiment, materialContent, null, null, null);
+    }
+
+    private WellContent(WellLocation locationOrNull, EntityReference well, EntityReference plate,
+            ExperimentReference experiment, Material materialContent,
+            DatasetImagesReference imagesDatasetOrNull,
+            DatasetReference featureVectorDatasetOrNull, NamedFeatureVector featureVectorOrNull)
+    {
         this.locationOrNull = locationOrNull;
         this.well = well;
         this.plate = plate;
         this.experiment = experiment;
         this.materialContent = materialContent;
+        this.imagesDatasetOrNull = imagesDatasetOrNull;
+        this.featureVectorDatasetOrNull = featureVectorDatasetOrNull;
+        this.featureVectorOrNull = featureVectorOrNull;
     }
 
     public WellLocation tryGetLocation()
@@ -98,9 +110,9 @@ public class WellContent implements IsSerializable
         return featureVectorDatasetOrNull;
     }
 
-    public float[] tryGetFeatureVectorValues()
+    public NamedFeatureVector tryGetFeatureVectorValues()
     {
-        return featureVectorValuesOrNull;
+        return featureVectorOrNull;
     }
 
     public ExperimentReference getExperiment()
@@ -108,24 +120,19 @@ public class WellContent implements IsSerializable
         return experiment;
     }
 
-    public WellContent cloneWithDatasets(DatasetImagesReference imagesOrNull,
-            DatasetReference featureVectorOrNull)
+    public WellContent cloneWithDatasets(DatasetImagesReference newImagesDatasetOrNull,
+            DatasetReference newFeatureVectorDatasetOrNull)
     {
-        WellContent clone =
-                new WellContent(locationOrNull, well, plate, experiment, materialContent);
-        clone.imagesDatasetOrNull = imagesOrNull;
-        clone.featureVectorDatasetOrNull = featureVectorOrNull;
-        return clone;
+        return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
+                this.materialContent, newImagesDatasetOrNull, newFeatureVectorDatasetOrNull,
+                this.featureVectorOrNull);
     }
 
-    public WellContent cloneWithDatasets(float[] values)
+    public WellContent cloneWithFeatureVector(NamedFeatureVector newFeatureVectorOrNull)
     {
-        WellContent clone =
-                new WellContent(locationOrNull, well, plate, experiment, materialContent);
-        clone.imagesDatasetOrNull = imagesDatasetOrNull;
-        clone.featureVectorDatasetOrNull = featureVectorDatasetOrNull;
-        clone.featureVectorValuesOrNull = values;
-        return clone;
+        return new WellContent(this.locationOrNull, this.well, this.plate, this.experiment,
+                this.materialContent, this.imagesDatasetOrNull, this.featureVectorDatasetOrNull,
+                newFeatureVectorOrNull);
     }
 
     @Override

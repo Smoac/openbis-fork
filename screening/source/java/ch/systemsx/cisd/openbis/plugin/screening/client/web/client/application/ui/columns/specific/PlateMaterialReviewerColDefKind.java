@@ -23,6 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -33,8 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<WellContent>
 {
-    WELL_CONTENT_MATERIAL(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_CONTENT_MATERIAL,
-            true)
+    WELL_CONTENT_MATERIAL(new AbstractColumnDefinitionKind<WellContent>(Dict.WELL_CONTENT_MATERIAL)
         {
             @Override
             public String tryGetValue(WellContent entity)
@@ -50,7 +51,7 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
         }),
 
     WELL_CONTENT_MATERIAL_TYPE(new AbstractColumnDefinitionKind<WellContent>(
-            Dict.WELL_CONTENT_MATERIAL_TYPE, true)
+            Dict.WELL_CONTENT_MATERIAL_TYPE)
         {
             @Override
             public String tryGetValue(WellContent entity)
@@ -60,7 +61,7 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
         }),
 
     WELL_CONTENT_PROPERTIES(new AbstractColumnDefinitionKind<WellContent>(
-            Dict.WELL_CONTENT_PROPERTIES, true)
+            Dict.WELL_CONTENT_PROPERTIES)
         {
             @Override
             public String tryGetValue(WellContent entity)
@@ -80,6 +81,43 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
                     sb.append(p.tryGetAsString());
                 }
                 return sb.toString();
+            }
+        }),
+
+    WELL_FEATURE_VECTORS(new AbstractColumnDefinitionKind<WellContent>(
+            Dict.WELL_CONTENT_FEATURE_VECTORS)
+        {
+            @Override
+            public String tryGetValue(WellContent entity)
+            {
+                NamedFeatureVector featureVector = entity.tryGetFeatureVectorValues();
+                if (featureVector != null)
+                {
+                    String separator = " <br/> ";
+                    StringBuilder sb = new StringBuilder();
+
+                    float[] values = featureVector.getValues();
+                    String[] labels = featureVector.getFeatureLabels();
+                    for (int i = 0; i < values.length; i++)
+                    {
+                        float value = values[i];
+                        if (Float.isNaN(value) == false)
+                        {
+                            if (sb.length() != 0)
+                            {
+                                sb.append(separator);
+                            }
+                            sb.append(labels[i]);
+                            sb.append(": ");
+                            sb.append(value);
+                        }
+                    }
+                    return sb.toString();
+
+                } else
+                {
+                    return null;
+                }
             }
         }),
 
@@ -148,7 +186,7 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             }
         }),
 
-    DATASET(new AbstractColumnDefinitionKind<WellContent>(Dict.DATA_SET)
+    /* IMAGE_ */DATASET(new AbstractColumnDefinitionKind<WellContent>(Dict.IMAGE_DATA_SET)
         {
             @Override
             public String tryGetValue(WellContent entity)
@@ -171,7 +209,31 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             }
         }),
 
-    DATASET_FILE_TYPE(new AbstractColumnDefinitionKind<WellContent>(Dict.FILE_FORMAT_TYPE)
+    /* IMAGE_ */IMAGE_ANALYSIS_DATASET(new AbstractColumnDefinitionKind<WellContent>(
+            Dict.IMAGE_ANALYSIS_DATA_SET)
+        {
+            @Override
+            public String tryGetValue(WellContent entity)
+            {
+                DatasetReference dataset = entity.tryGetFeatureVectorDataset();
+                return dataset != null ? dataset.getCode() : null;
+            }
+
+            @Override
+            public String tryGetLink(WellContent entity)
+            {
+                DatasetReference dataset = entity.tryGetFeatureVectorDataset();
+                if (dataset != null)
+                {
+                    return LinkExtractor.tryExtract(dataset);
+                } else
+                {
+                    return null;
+                }
+            }
+        }),
+
+    DATASET_FILE_TYPE(new AbstractColumnDefinitionKind<WellContent>(Dict.FILE_FORMAT_TYPE, true)
         {
             @Override
             public String tryGetValue(WellContent entity)

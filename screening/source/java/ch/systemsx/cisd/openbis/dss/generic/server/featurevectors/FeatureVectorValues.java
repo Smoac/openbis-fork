@@ -26,9 +26,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class FeatureVectorValues
 {
-    private WellFeatureVectorReference featureVectorReference = new WellFeatureVectorReference();
+    private WellFeatureVectorReference featureVectorReference;
 
     private float[] featureValues;
+
+    public FeatureVectorValues(String dataSetCode, WellPosition wellPosition, float[] featureValues)
+    {
+        this.featureVectorReference = new WellFeatureVectorReference(dataSetCode, wellPosition);
+        this.featureValues = featureValues;
+    }
 
     public float[] getFeatureValues()
     {
@@ -45,29 +51,19 @@ public class FeatureVectorValues
         return doubleValues;
     }
 
-    public void setFeatureValues(float[] featureValues)
-    {
-        this.featureValues = featureValues;
-    }
-
     public String getDataSetCode()
     {
         return featureVectorReference.getDatasetCode();
     }
 
-    public void setDataSetCode(String dataSetCode)
-    {
-        featureVectorReference.setDatasetCode(dataSetCode);
-    }
-
-    public void setWellPosition(WellPosition wellPosition)
-    {
-        featureVectorReference.setWellPosition(wellPosition);
-    }
-
     public WellPosition getWellPosition()
     {
         return featureVectorReference.getWellPosition();
+    }
+
+    public WellFeatureVectorReference getFeatureVectorReference()
+    {
+        return featureVectorReference;
     }
 
 }

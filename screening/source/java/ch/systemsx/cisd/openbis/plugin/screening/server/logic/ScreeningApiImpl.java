@@ -104,7 +104,8 @@ public class ScreeningApiImpl
         FeatureVectorDatasetLoader datasetRetriever =
                 new FeatureVectorDatasetLoader(session, businessObjectFactory,
                         session.tryGetHomeGroupCode(), plates);
-        List<FeatureVectorDatasetReference> result = datasetRetriever.getFeatureVectorDatasetReferences();
+        List<FeatureVectorDatasetReference> result =
+                datasetRetriever.getFeatureVectorDatasetReferences();
 
         return result;
     }
@@ -254,16 +255,16 @@ public class ScreeningApiImpl
         final ExperimentIdentifier fullExperimentIdentifier =
                 getExperimentIdentifierFromDB(experimentIdentifier);
         wellContents =
-                PlateMaterialLocationsLoader.load(session, businessObjectFactory, daoFactory,
-                        new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId(),
-                        false);
+                PlateMaterialLocationsLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
+                        new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId());
         if (findDatasets)
         {
             final Set<Plate> plates = extractPlates(wellContents, fullExperimentIdentifier);
             final FeatureVectorDatasetLoader datasetRetriever =
                     new FeatureVectorDatasetLoader(session, businessObjectFactory,
                             session.tryGetHomeGroupCode(), plates);
-            final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasetReferences();
+            final List<ImageDatasetReference> imageDatasets =
+                    datasetRetriever.getImageDatasetReferences();
             final List<FeatureVectorDatasetReference> featureVectorDatasets =
                     datasetRetriever.getFeatureVectorDatasetReferences();
 
@@ -314,7 +315,8 @@ public class ScreeningApiImpl
             final FeatureVectorDatasetLoader datasetRetriever =
                     new FeatureVectorDatasetLoader(session, businessObjectFactory,
                             session.tryGetHomeGroupCode(), plates);
-            final List<ImageDatasetReference> imageDatasets = datasetRetriever.getImageDatasetReferences();
+            final List<ImageDatasetReference> imageDatasets =
+                    datasetRetriever.getImageDatasetReferences();
             final List<FeatureVectorDatasetReference> featureVectorDatasets =
                     datasetRetriever.getFeatureVectorDatasetReferences();
 
@@ -550,9 +552,8 @@ public class ScreeningApiImpl
             Map<String, DatasetReferenceHolder> plateToDatasetsMap)
     {
         final Plate plate = asPlate(experimentIdentifier, wellContent);
-        final WellPosition wellPosition =
-                new WellPosition(wellContent.tryGetLocation().getRow(), wellContent
-                        .tryGetLocation().getColumn());
+        WellLocation location = wellContent.tryGetLocation();
+        final WellPosition wellPosition = new WellPosition(location.getRow(), location.getColumn());
         final DatasetReferenceHolder datasetReferences = plateToDatasetsMap.get(plate.getPermId());
         if (datasetReferences == null)
         {

@@ -72,6 +72,10 @@ public interface IScreeningServer extends IServer
     public PlateImages getPlateContentForDataset(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
+    /**
+     * Finds wells matching the specified criteria. Loads wells content: metadata and (if available) image dataset
+     * and feature vectors.
+     */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = WellContentValidator.class)

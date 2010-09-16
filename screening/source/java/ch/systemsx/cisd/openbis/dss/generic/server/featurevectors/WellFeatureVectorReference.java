@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.featurevectors;
 
+import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -23,25 +24,21 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * 
  * @author Tomasz Pylak
  */
-public class WellFeatureVectorReference
+public class WellFeatureVectorReference extends AbstractHashable
 {
     private String dataSetCode; // dataset with feature vectors
 
     private WellPosition wellPosition;
 
+    public WellFeatureVectorReference(String dataSetCode, WellPosition wellPosition)
+    {
+        this.dataSetCode = dataSetCode;
+        this.wellPosition = wellPosition;
+    }
+
     public final String getDatasetCode()
     {
         return dataSetCode;
-    }
-
-    public final void setDatasetCode(String dataSetCode)
-    {
-        this.dataSetCode = dataSetCode;
-    }
-
-    public void setWellPosition(WellPosition wellPosition)
-    {
-        this.wellPosition = wellPosition;
     }
 
     public final WellPosition getWellPosition()

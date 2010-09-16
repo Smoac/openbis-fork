@@ -40,8 +40,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
@@ -64,13 +64,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.PlateMaterialReviewerColDefKind;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * A grid with a list of material (e.g. gene) locations on the plate with a fast access to images.
@@ -87,8 +88,8 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
 
     private static final int IMAGE_HEIGHT_PX = 120;
 
-    public static final String BROWSER_ID =
-            GenericConstants.ID_PREFIX + "PlateMaterialReviewerGrid";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX
+            + "PlateMaterialReviewerGrid";
 
     public static final String GRID_ID = BROWSER_ID + "-grid";
 
@@ -98,8 +99,8 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
             String[] materialTypeCodes, boolean exactMatchOnly)
     {
         ExperimentSearchCriteria experimentCriteria =
-                ExperimentSearchCriteria.createExperiment(experiment.getId(), experiment
-                        .getIdentifier());
+                ExperimentSearchCriteria.createExperiment(experiment.getId(),
+                        experiment.getIdentifier());
         MaterialSearchCriteria materialCriteria =
                 MaterialSearchCriteria.createCodesCriteria(materialItemList, materialTypeCodes,
                         exactMatchOnly);
@@ -110,8 +111,8 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull, TechId materialId)
     {
-        return create(viewContext, experimentCriteriaOrNull, MaterialSearchCriteria
-                .createIdCriteria(materialId));
+        return create(viewContext, experimentCriteriaOrNull,
+                MaterialSearchCriteria.createIdCriteria(materialId));
     }
 
     private static IDisposableComponent create(
@@ -321,11 +322,22 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
                     {
                         public void handle(WellContent wellContent, boolean specialKeyPressed)
                         {
-                            DatasetImagesReference imageDataset = wellContent.tryGetImageDataset();
-                            if (imageDataset != null)
+                            DatasetImagesReference dataset = wellContent.tryGetImageDataset();
+                            if (dataset != null)
                             {
-                                showEntityViewer(imageDataset.getDatasetReference(),
-                                        specialKeyPressed);
+                                showEntityViewer(dataset.getDatasetReference(), specialKeyPressed);
+                            }
+                        }
+                    });
+        registerLinkClickListenerFor(PlateMaterialReviewerColDefKind.IMAGE_ANALYSIS_DATASET.id(),
+                new ICellListener<WellContent>()
+                    {
+                        public void handle(WellContent wellContent, boolean specialKeyPressed)
+                        {
+                            DatasetReference dataset = wellContent.tryGetFeatureVectorDataset();
+                            if (dataset != null)
+                            {
+                                showEntityViewer(dataset, specialKeyPressed);
                             }
                         }
                     });
@@ -356,7 +368,8 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
             { PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
                     PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
                     PlateMaterialReviewerColDefKind.PLATE, PlateMaterialReviewerColDefKind.WELL,
-                    PlateMaterialReviewerColDefKind.DATASET });
+                    PlateMaterialReviewerColDefKind.DATASET,
+                    PlateMaterialReviewerColDefKind.IMAGE_ANALYSIS_DATASET });
         setImageRenderer(schema);
         return schema;
     }

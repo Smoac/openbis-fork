@@ -38,6 +38,11 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
+import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.WellFeatureVectorReference;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -60,17 +65,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
  * Loades selected wells content: metadata and (if available) image dataset and feature vectors.
@@ -80,27 +88,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
 @Friend(toClasses = IScreeningQuery.class)
 public class PlateMaterialLocationsLoader
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PlateMaterialLocationsLoader.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PlateMaterialLocationsLoader.class);
 
     /**
      * Finds wells containing the specified material and belonging to the specified experiment.
-     * Loads wells content: metadata and (if available) image dataset and feature vectors.
+     * Loads wells metadata, but no information about connected datasets.
      */
-    public static List<WellContent> load(Session session,
+    public static List<WellContent> loadOnlyMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            TechId geneMaterialId, String experimentPermId, boolean enrichWithImages)
+            TechId geneMaterialId, String experimentPermId)
     {
         return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(geneMaterialId, experimentPermId, enrichWithImages);
-    }
-
-    public static List<WellContent> load(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            PlateMaterialsSearchCriteria materialCriteria)
-    {
-        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(materialCriteria, true);
+                .loadLocations(geneMaterialId, experimentPermId);
     }
 
     /** loads wells metadata, but no information about image or image analysis datasets */
@@ -109,7 +109,20 @@ public class PlateMaterialLocationsLoader
             TechId geneMaterialId)
     {
         return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
-                .getPlateLocations(geneMaterialId);
+                .loadLocations(geneMaterialId);
+    }
+
+    /**
+     * Finds wells matching the specified criteria. containing the specified materials and belonging
+     * to the specified experiment. Loads wells content: metadata and (if available) image dataset
+     * and feature vectors.
+     */
+    public static List<WellContent> load(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
+            PlateMaterialsSearchCriteria materialCriteria)
+    {
+        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
+                .loadLocationsAndEnrich(materialCriteria);
     }
 
     private final Session session;
@@ -126,35 +139,11 @@ public class PlateMaterialLocationsLoader
         this.daoFactory = daoFactory;
     }
 
-    private List<WellContent> getPlateLocations(PlateMaterialsSearchCriteria materialCriteria,
-            boolean enrichWithImages)
+    private List<WellContent> loadLocationsAndEnrich(PlateMaterialsSearchCriteria materialCriteria)
     {
         List<WellContent> locations = loadLocations(materialCriteria);
-        if (enrichWithImages)
-        {
-            return enrichWithDatasets(locations);
-        } else
-        {
-            return locations;
-        }
-    }
-
-    private List<WellContent> getPlateLocations(TechId geneMaterialId, String experimentPermId,
-            boolean enrichWithImages)
-    {
-        List<WellContent> locations = loadLocations(geneMaterialId, experimentPermId);
-        if (enrichWithImages)
-        {
-            return enrichWithDatasets(locations);
-        } else
-        {
-            return locations;
-        }
-    }
-
-    private List<WellContent> getPlateLocations(TechId geneMaterialId)
-    {
-        return loadLocations(geneMaterialId);
+        List<WellContent> enriched = enrichWithDatasets(locations);
+        return enrichWithFeatureVectors(enriched);
     }
 
     private List<WellContent> enrichWithDatasets(List<WellContent> locations)
@@ -165,26 +154,20 @@ public class PlateMaterialLocationsLoader
         Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
         Map<String, PlateImageParameters> imageParams = loadImagesReport(imageDatasets);
 
-        // TODO 2010-09-07, Tomasz Pylak: uncomment this when showing fetures in Reviewing Panel is
-        // implemented
-        // Collection<ExternalData> featureVectorDatasets =
-        // datasetsRetriever.getFeatureVectorDatasets();
-        // Collection<ExternalData> childlessImageDatasets =
-        // selectChildlessImageDatasets(imageDatasets, featureVectorDatasets);
-        //
-        // Map<Long/* plate id */, List<ExternalData>> plateToChildlessImageDatasetMap =
-        // createPlateToDatasetMap(childlessImageDatasets);
-        // Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap =
-        // createPlateToDatasetMap(featureVectorDatasets);
-        //
-        // return enrichWithDatasets(locations, plateToChildlessImageDatasetMap,
-        // plateToFeatureVectoreDatasetMap, imageParams);
+        Collection<ExternalData> featureVectorDatasets =
+                datasetsRetriever.getFeatureVectorDatasets();
+        Collection<ExternalData> childlessImageDatasets =
+                selectChildlessImageDatasets(imageDatasets, featureVectorDatasets);
 
-        return enrichWithDatasets(locations, createPlateToDatasetMap(imageDatasets),
-                new HashMap<Long, List<ExternalData>>(), imageParams);
+        Map<Long/* plate id */, List<ExternalData>> plateToChildlessImageDatasetMap =
+                createPlateToDatasetMap(childlessImageDatasets);
+        Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap =
+                createPlateToDatasetMap(featureVectorDatasets);
+
+        return enrichWithDatasets(locations, plateToChildlessImageDatasetMap,
+                plateToFeatureVectoreDatasetMap, imageParams);
     }
 
-    @SuppressWarnings("unused")
     private static Collection<ExternalData> selectChildlessImageDatasets(
             Collection<ExternalData> imageDatasets, Collection<ExternalData> featureVectorDatasets)
     {
@@ -250,17 +233,118 @@ public class PlateMaterialLocationsLoader
                 wellsWithDatasets.addAll(clonedWellContents);
             }
         }
-        wellsWithDatasets = enrichWithFeatureVectors(wellsWithDatasets);
         return wellsWithDatasets;
     }
 
     private static List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets)
     {
-        // TODO 2010-09-07, Tomasz Pylak: Enrich each WellContent with feature values.
-        // WellFeatureCollection<FeatureVectorValues> featureVectors =
-        // FeatureTableBuilder.fetchWellFeatureValues(references, dao, service);
-        // return enrichWithFeatureVectors(wellsWithDatasets, featureVectors);
+        IImagingReadonlyQueryDAO dao = DssScreeningUtils.getQuery();
+        List<WellFeatureVectorReference> wellReferences = extractWellReferences(wellsWithDatasets);
+        WellFeatureCollection<FeatureVectorValues> featureVectors =
+                FeatureTableBuilder.fetchWellFeatureValuesIfPossible(wellReferences, dao);
+        return enrichWithFeatureVectors(wellsWithDatasets, featureVectors);
+    }
+
+    private static class FeaturesMetadata
+    {
+        private final String[] featureCodes;
+
+        private final String[] featureLabels;
+
+        public FeaturesMetadata(String[] featureCodes, String[] featureLabels)
+        {
+            this.featureCodes = featureCodes;
+            this.featureLabels = featureLabels;
+        }
+    }
+
+    private static List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets,
+            WellFeatureCollection<FeatureVectorValues> featureVectors)
+    {
+        FeaturesMetadata featureMetadata = extractFeaturesMetadata(featureVectors);
+        Map<WellFeatureVectorReference, FeatureVectorValues> refsToFeaturesMap =
+                createReferencesToFeaturesMap(featureVectors);
+        List<WellContent> enrichedWellContents = new ArrayList<WellContent>();
+        for (WellContent wellContent : wellsWithDatasets)
+        {
+            WellContent enrichedWellContent =
+                    enrichWithFeatureVectors(wellContent, refsToFeaturesMap, featureMetadata);
+            enrichedWellContents.add(enrichedWellContent);
+        }
+        return enrichedWellContents;
+    }
+
+    private static FeaturesMetadata extractFeaturesMetadata(
+            WellFeatureCollection<FeatureVectorValues> featureVectors)
+    {
+        int size = featureVectors.getFeatureCodesAndLabels().size();
+        String[] featureCodes = new String[size];
+        featureVectors.getFeatureCodes().toArray(featureCodes);
+
+        String[] featureLabels = new String[size];
+        featureVectors.getFeatureLabels().toArray(featureLabels);
+
+        return new FeaturesMetadata(featureCodes, featureLabels);
+    }
+
+    private static WellContent enrichWithFeatureVectors(WellContent wellsWithDatasets,
+            Map<WellFeatureVectorReference, FeatureVectorValues> refsToFeaturesMap,
+            FeaturesMetadata featureMetadata)
+    {
+        WellFeatureVectorReference ref = tryAsWellReference(wellsWithDatasets);
+        if (ref != null)
+        {
+            FeatureVectorValues featureVectorValues = refsToFeaturesMap.get(ref);
+            if (featureVectorValues != null)
+            {
+                NamedFeatureVector fv =
+                        new NamedFeatureVector(featureVectorValues.getFeatureValues(),
+                                featureMetadata.featureCodes, featureMetadata.featureLabels);
+                return wellsWithDatasets.cloneWithFeatureVector(fv);
+            }
+        }
         return wellsWithDatasets;
+    }
+
+    private static Map<WellFeatureVectorReference, FeatureVectorValues> createReferencesToFeaturesMap(
+            WellFeatureCollection<FeatureVectorValues> featureVectors)
+    {
+        Map<WellFeatureVectorReference, FeatureVectorValues> map =
+                new HashMap<WellFeatureVectorReference, FeatureVectorValues>();
+        for (FeatureVectorValues featureVector : featureVectors.getFeatures())
+        {
+            map.put(featureVector.getFeatureVectorReference(), featureVector);
+        }
+        return map;
+    }
+
+    private static List<WellFeatureVectorReference> extractWellReferences(
+            List<WellContent> wellsWithDatasets)
+    {
+        List<WellFeatureVectorReference> wellRefs = new ArrayList<WellFeatureVectorReference>();
+        for (WellContent wellContent : wellsWithDatasets)
+        {
+            WellFeatureVectorReference ref = tryAsWellReference(wellContent);
+            if (ref != null)
+            {
+                wellRefs.add(ref);
+            }
+        }
+        return wellRefs;
+    }
+
+    private static WellFeatureVectorReference tryAsWellReference(WellContent wellContent)
+    {
+        WellFeatureVectorReference ref = null;
+        WellLocation location = wellContent.tryGetLocation();
+        DatasetReference featureVectorDataset = wellContent.tryGetFeatureVectorDataset();
+        if (location != null && featureVectorDataset != null)
+        {
+            WellPosition pos = new WellPosition(location.getRow(), location.getColumn());
+            ref = new WellFeatureVectorReference(featureVectorDataset.getCode(), pos);
+
+        }
+        return ref;
     }
 
     /**
@@ -327,8 +411,8 @@ public class PlateMaterialLocationsLoader
         PlateImageParameters imageParameters = imageParams.get(imageDataset.getCode());
         if (imageParameters != null)
         {
-            return DatasetImagesReference.create(ScreeningUtils
-                    .createDatasetReference(imageDataset), imageParameters);
+            return DatasetImagesReference.create(
+                    ScreeningUtils.createDatasetReference(imageDataset), imageParameters);
         } else
         {
             operationLog.error("Cannot find image parameters for dataset: "
@@ -399,13 +483,13 @@ public class PlateMaterialLocationsLoader
             if (expId == null)
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
-                                .getMaterialTypeCodes());
+                        dao.getPlateLocationsForMaterialCodes(ids,
+                                codesCriteria.getMaterialTypeCodes());
             } else
             {
                 locations =
-                        dao.getPlateLocationsForMaterialCodes(ids, codesCriteria
-                                .getMaterialTypeCodes(), expId);
+                        dao.getPlateLocationsForMaterialCodes(ids,
+                                codesCriteria.getMaterialTypeCodes(), expId);
             }
 
         } else if (materialSearchCriteria.tryGetMaterialId() != null)
@@ -457,9 +541,10 @@ public class PlateMaterialLocationsLoader
         criteria.setCriteria(listOfCriteria);
         criteria.setConnection(SearchCriteriaConnection.MATCH_ANY);
         criteria.setUseWildcardSearchMode(codesCriteria.isExactMatchOnly());
-        return ArrayUtils.toPrimitive(daoFactory.getHibernateSearchDAO().searchForEntityIds(
-                criteria,
-                ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
+        return ArrayUtils.toPrimitive(daoFactory
+                .getHibernateSearchDAO()
+                .searchForEntityIds(criteria,
+                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL)
                 .toArray(new Long[0]));
     }
 

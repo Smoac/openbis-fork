@@ -84,9 +84,9 @@ public class FeatureTableBuilderTest extends AssertJUnit
         prepareAddFeatureVectors(3, null, "<B>b");
 
         FeatureTableBuilder builder = createBuilder();
-        builder.addFeatureVectorsOfDataSet(DATA_SET_CODE1);
-        builder.addFeatureVectorsOfDataSet(DATA_SET_CODE2);
-        builder.addFeatureVectorsOfDataSet(DATA_SET_CODE3);
+        builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE1);
+        builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE2);
+        builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE3);
         List<CodeAndLabel> codesAndLabels = builder.getCodesAndLabels();
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
 
@@ -109,9 +109,9 @@ public class FeatureTableBuilderTest extends AssertJUnit
         prepareAddFeatureVectors(3, "B", "b");
 
         FeatureTableBuilder builder = createBuilder("B");
-        builder.addFeatureVectorsOfDataSet(DATA_SET_CODE1);
-        builder.addFeatureVectorsOfDataSet(DATA_SET_CODE2);
-        builder.addFeatureVectorsOfDataSet(DATA_SET_CODE3);
+        builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE1);
+        builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE2);
+        builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE3);
         List<CodeAndLabel> codesAndLabels = builder.getCodesAndLabels();
         List<FeatureTableRow> rows = builder.createFeatureTableRows();
 

@@ -28,7 +28,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.WellFeatureVectorReference;
@@ -53,6 +57,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  */
 public class FeatureTableBuilder
 {
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FeatureTableBuilder.class);
+
     // stores all feature vectors of one dataset
     private static final class DatasetFeaturesBundle
     {
@@ -63,7 +70,7 @@ public class FeatureTableBuilder
 
     private final IImagingReadonlyQueryDAO dao;
 
-    private final IEncapsulatedOpenBISService service;
+    private final IEncapsulatedOpenBISService serviceOrNull;
 
     private final List<DatasetFeaturesBundle> bundles;
 
@@ -73,18 +80,12 @@ public class FeatureTableBuilder
 
     private final boolean useAllFeatures;
 
-    /** fetches all features of specified wells */
-    public static WellFeatureCollection<FeatureTableRow> fetchWellFeatures(
-            List<FeatureVectorDatasetWellReference> references, IImagingReadonlyQueryDAO dao,
-            IEncapsulatedOpenBISService service)
-    {
-        return fetchWellFeatures(references, new ArrayList<String>(), dao, service);
-    }
-
     /**
      * fetches specified features of specified wells
      * 
      * @param featureCodes empty list means no filtering.
+     * @throws UserFailureException if one of the specified datasets contains no feature vectors or
+     *             does not exist.
      */
     public static WellFeatureCollection<FeatureTableRow> fetchWellFeatures(
             List<FeatureVectorDatasetWellReference> references, List<String> featureCodes,
@@ -92,39 +93,41 @@ public class FeatureTableBuilder
     {
         FeatureTableBuilder builder = new FeatureTableBuilder(featureCodes, dao, service);
         Set<String> datasetCodes = extractDatasetCodes(references);
-        addFeatureVectorsOfDataSets(builder, datasetCodes);
+        builder.addFeatureVectorsOfDataSetsOrDie(datasetCodes);
         List<FeatureTableRow> features = builder.createFeatureTableRows(references);
         return new WellFeatureCollection<FeatureTableRow>(features, builder.getCodesAndLabels());
-    }
-
-    /**
-     * fetches all features of specified wells, used basic data types
-     */
-    public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValues(
-            List<WellFeatureVectorReference> references, IImagingReadonlyQueryDAO dao,
-            IEncapsulatedOpenBISService service)
-    {
-        FeatureTableBuilder builder =
-                new FeatureTableBuilder(new ArrayList<String>(), dao, service);
-        Set<String> datasetCodes = extractDatasetCodesFromSimpleReferences(references);
-        addFeatureVectorsOfDataSets(builder, datasetCodes);
-        List<FeatureVectorValues> features = builder.createFeatureVectorValues(references);
-        return new WellFeatureCollection<FeatureVectorValues>(features, builder.getCodesAndLabels());
     }
 
     /**
      * fetches specified features of all wells
      * 
      * @param featureCodes empty list means no filtering.
+     * @throws UserFailureException if one of the specified datasets contains no feature vectors or
+     *             does not exist.
      */
     public static WellFeatureCollection<FeatureTableRow> fetchDatasetFeatures(
             List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao,
             IEncapsulatedOpenBISService service)
     {
         FeatureTableBuilder builder = new FeatureTableBuilder(featureCodes, dao, service);
-        addFeatureVectorsOfDataSets(builder, datasetCodes);
+        builder.addFeatureVectorsOfDataSetsOrDie(datasetCodes);
         List<FeatureTableRow> features = builder.createFeatureTableRows();
         return new WellFeatureCollection<FeatureTableRow>(features, builder.getCodesAndLabels());
+    }
+
+    /**
+     * Fetches all features of specified wells. Uses basic data types. If a reference to a dataset
+     * without any feature vectors is specified, it is silently ignored.
+     */
+    public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
+            List<WellFeatureVectorReference> references, IImagingReadonlyQueryDAO dao)
+    {
+        FeatureTableBuilder builder = new FeatureTableBuilder(new ArrayList<String>(), dao, null);
+        Set<String> datasetCodes = extractDatasetCodesFromSimpleReferences(references);
+        builder.addFeatureVectorsOfDataSetsIfPossible(datasetCodes);
+        List<FeatureVectorValues> features =
+                builder.createFeatureVectorValuesIfPossible(references);
+        return new WellFeatureCollection<FeatureVectorValues>(features, builder.getCodesAndLabels());
     }
 
     /** stores feature vectors for a set of wells */
@@ -172,12 +175,23 @@ public class FeatureTableBuilder
         }
     }
 
-    private static void addFeatureVectorsOfDataSets(FeatureTableBuilder builder,
-            Collection<String> datasetCodes)
+    private void addFeatureVectorsOfDataSetsOrDie(Collection<String> datasetCodes)
     {
         for (String datasetCode : datasetCodes)
         {
-            builder.addFeatureVectorsOfDataSet(datasetCode);
+            addFeatureVectorsOfDataSetOrDie(datasetCode);
+        }
+    }
+
+    private void addFeatureVectorsOfDataSetsIfPossible(Collection<String> datasetCodes)
+    {
+        for (String datasetCode : datasetCodes)
+        {
+            if (addFeatureVectorsOfDataSet(datasetCode) == false)
+            {
+                operationLog.warn("Dataset " + datasetCode
+                        + " contains no feature vectors or does not exist.");
+            }
         }
     }
 
@@ -207,12 +221,13 @@ public class FeatureTableBuilder
      * Creates an instance for specified DAO and openBIS service but filters on specified features.
      * 
      * @param featureCodes empty list means no filtering.
+     * @param serviceOrNull if null info about plates will not be fetched from openBIS
      */
     FeatureTableBuilder(List<String> featureCodes, IImagingReadonlyQueryDAO dao,
-            IEncapsulatedOpenBISService service)
+            IEncapsulatedOpenBISService serviceOrNull)
     {
         this.dao = dao;
-        this.service = service;
+        this.serviceOrNull = serviceOrNull;
         bundles = new ArrayList<DatasetFeaturesBundle>();
         featureCodeLabelToIndexMap = new LinkedHashMap<CodeAndLabel, Integer>();
         this.featureCodes = new LinkedHashSet<String>(featureCodes);
@@ -221,13 +236,32 @@ public class FeatureTableBuilder
 
     /**
      * Adds feature vectors for specified feature vector data set code.
+     * 
+     * @throws UserFailureException if dataset with the specified code contains no feature vectors
+     *             or does not exist.
      */
-    DatasetFeaturesBundle addFeatureVectorsOfDataSet(String dataSetCode)
+    void addFeatureVectorsOfDataSetOrDie(String dataSetCode)
+    {
+        boolean added = addFeatureVectorsOfDataSet(dataSetCode);
+        if (added == false)
+        {
+            throw new UserFailureException("Unkown data set " + dataSetCode);
+        }
+    }
+
+    /**
+     * Adds feature vectors for specified feature vector data set code.
+     * 
+     * @return false if dataset with the specified code contains no feature vectors or does not
+     *         exist.<br>
+     *         true if feature vectors have been added.
+     */
+    boolean addFeatureVectorsOfDataSet(String dataSetCode)
     {
         final ImgDatasetDTO dataSet = dao.tryGetDatasetByPermId(dataSetCode);
         if (dataSet == null)
         {
-            throw new UserFailureException("Unkown data set " + dataSetCode);
+            return false;
         }
         final DatasetFeaturesBundle bundle = new DatasetFeaturesBundle();
         final Map<String, ImgFeatureDefDTO> featureCodeToDefMap =
@@ -260,7 +294,7 @@ public class FeatureTableBuilder
                 bundle.featureDefToValuesMap.put(featureDefinition, featureValueSets);
             }
         }
-        return bundle;
+        return true;
     }
 
     private static Map<String, ImgFeatureDefDTO> createFeatureCodeToDefMap(
@@ -296,7 +330,7 @@ public class FeatureTableBuilder
         for (DatasetFeaturesBundle bundle : bundles)
         {
             ImgContainerDTO container = dao.getContainerById(bundle.dataSet.getContainerId());
-            SampleIdentifier identifier = service.tryToGetSampleIdentifier(container.getPermId());
+            SampleIdentifier identifier = tryGetSampleIdentifier(container);
             for (int rowIndex = 1; rowIndex <= container.getNumberOfRows(); rowIndex++)
             {
                 for (int colIndex = 1; colIndex <= container.getNumberOfColumns(); colIndex++)
@@ -311,11 +345,22 @@ public class FeatureTableBuilder
         return rows;
     }
 
+    private SampleIdentifier tryGetSampleIdentifier(ImgContainerDTO container)
+    {
+        if (serviceOrNull != null)
+        {
+            return serviceOrNull.tryToGetSampleIdentifier(container.getPermId());
+        } else
+        {
+            return null;
+        }
+    }
+
     /**
      * Returns all features for the specified wells in previously loaded datasets. Operates on very
-     * basic data types.
+     * basic data types. Ignores the references for which no feature vectors exist.
      */
-    private List<FeatureVectorValues> createFeatureVectorValues(
+    private List<FeatureVectorValues> createFeatureVectorValuesIfPossible(
             List<WellFeatureVectorReference> references)
     {
         Map<String/* dataset code */, DatasetFeaturesBundle> bundleMap = createBundleMap(bundles);
@@ -323,10 +368,13 @@ public class FeatureTableBuilder
         for (WellFeatureVectorReference reference : references)
         {
             String dataSetCode = reference.getDatasetCode();
-            DatasetFeaturesBundle bundle = getDatasetFeaturesBundleOrDie(bundleMap, dataSetCode);
-            FeatureVectorValues featureVector =
-                    createFeatureVector(bundle, reference.getWellPosition());
-            featureVectors.add(featureVector);
+            DatasetFeaturesBundle bundle = bundleMap.get(dataSetCode);
+            if (bundle != null)
+            {
+                FeatureVectorValues featureVector =
+                        createFeatureVector(bundle, reference.getWellPosition());
+                featureVectors.add(featureVector);
+            }
         }
         return featureVectors;
     }
@@ -344,7 +392,7 @@ public class FeatureTableBuilder
             String dataSetCode = reference.getDatasetCode();
             DatasetFeaturesBundle bundle = getDatasetFeaturesBundleOrDie(bundleMap, dataSetCode);
             ImgContainerDTO container = dao.getContainerById(bundle.dataSet.getContainerId());
-            SampleIdentifier identifier = service.tryToGetSampleIdentifier(container.getPermId());
+            SampleIdentifier identifier = tryGetSampleIdentifier(container);
             final FeatureTableRow row =
                     createFeatureTableRow(bundle, identifier, reference,
                             reference.getWellPosition());
@@ -376,12 +424,12 @@ public class FeatureTableBuilder
     }
 
     private FeatureTableRow createFeatureTableRow(DatasetFeaturesBundle bundle,
-            SampleIdentifier identifier, FeatureVectorDatasetWellReference reference,
+            SampleIdentifier identifierOrNull, FeatureVectorDatasetWellReference reference,
             WellPosition wellPosition)
     {
         FeatureVectorValues featureVector = createFeatureVector(bundle, wellPosition);
         FeatureTableRow row = new FeatureTableRow(featureVector);
-        row.setPlateIdentifier(identifier);
+        row.setPlateIdentifier(identifierOrNull);
         row.setReference(reference);
         return row;
     }
@@ -389,12 +437,9 @@ public class FeatureTableBuilder
     private FeatureVectorValues createFeatureVector(DatasetFeaturesBundle bundle,
             WellPosition wellPosition)
     {
-        FeatureVectorValues fv = new FeatureVectorValues();
-        fv.setDataSetCode(bundle.dataSet.getPermId());
-        fv.setWellPosition(wellPosition);
+        String permId = bundle.dataSet.getPermId();
         float[] valueArray = createFeatureValueArray(bundle.featureDefToValuesMap, wellPosition);
-        fv.setFeatureValues(valueArray);
-        return fv;
+        return new FeatureVectorValues(permId, wellPosition, valueArray);
     }
 
     private float[] createFeatureValueArray(

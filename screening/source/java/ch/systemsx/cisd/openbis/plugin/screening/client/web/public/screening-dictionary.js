@@ -45,6 +45,10 @@ var screening = {
     WELL_CONTENT_MATERIAL: "Content",
     WELL_CONTENT_MATERIAL_TYPE: "Content Type",
     WELL_CONTENT_PROPERTIES: "Content Properties",
+    WELL_CONTENT_FEATURE_VECTORS: "Feature Vector",
+    IMAGE_ANALYSIS_DATA_SET: "Image Analysis Dataset",
+    IMAGE_DATA_SET: "Image Dataset",
+    
     PLATE_MATERIAL_REVIEWER_TITLE: "Wells Reviewing Panel",
     PLATE_MATERIAL_REVIEWER_HELP_INFO: "Specify a list of materials contained in the wells. You can use material codes or properties. The content of all wells in this experiment will be checked and wells containing specified materials will be shown.",
     PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of material codes or properties (e.g. gene ids, gene symbols, gene descriptions, control names, compound names) separated by commas (\",\") or one item per line.",
