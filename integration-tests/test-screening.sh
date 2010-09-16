@@ -112,7 +112,7 @@ function install_screening {
 
 function test_screening_api {
 	cd $API_HCS
-	. ./run.sh admin password https://localhost:8443
+	. ./run.sh admin password https://localhost:8443 > std.txt
 	if [ $? -ne 0 ]; then
        report_error Running screening API has failed
     else
