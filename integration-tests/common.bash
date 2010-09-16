@@ -19,7 +19,7 @@ OPENBIS_SERVER=$WORK/openBIS-server
 
 CI_HOST=cisd-vesuvio.ethz.ch
 SSH_CRUISE_CONTROL_NAME=ci@$CI_HOST
-HUDSON_ARTIFACTS=$HOME/hudson/jobs
+HUDSON_ARTIFACTS=hudson/jobs
 CI_HOST_IP=`host $CI_HOST|grep address|awk '{print $4}'`
 MY_HOST=`hostname`
 MY_HOST_IP=`host $MY_HOST|grep address|awk '{print $4}'`
@@ -325,12 +325,12 @@ function fetch_latest_artifacts_from_cruise_control {
     local dest_dir=$2
     
     local last_build="$HUDSON_ARTIFACTS/$proj_name/lastSuccessful/archive/_main/targets/dist"
-    local list_cmd="ls -1 $last_build | sort | tail -1"
     if [ $MY_HOST_IP == $CI_HOST_IP ]; then
-        local last=`eval $list_cmd`
+        local last=`ls -1 $HOME/$last_build | sort | tail -1`
         echo "Fetching artifacts for $proj_name: $last" 
         cp $last_build/*.zip $dest_dir
     else
+        local list_cmd="ls -1 $last_build | sort | tail -1"
         local last=`echo $list_cmd | ssh $SSH_CRUISE_CONTROL_NAME -T`
         echo "Fetching artifacts for $proj_name: $last" 
         scp $SSH_CRUISE_CONTROL_NAME:$last_build/*.zip $dest_dir
