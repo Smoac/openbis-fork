@@ -114,7 +114,6 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         StoreFilter<M> filter = new StoreFilter<M>()
             {
 
-                @SuppressWarnings("unchecked")
                 public boolean select(Store s, M parent, M item, String property)
                 {
                     String v = comboBox.getRawValue();
