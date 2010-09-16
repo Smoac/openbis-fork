@@ -363,6 +363,11 @@ public class PlateMaterialLocationsLoader
         List<WellContent> clonedWellContents = new ArrayList<WellContent>();
 
         List<ExternalData> featureVectoreDatasets = plateToFeatureVectoreDatasetMap.get(plateId);
+        List<ExternalData> childlessImageDatasets = plateToChildlessImageDatasetMap.get(plateId);
+        DatasetImagesReference singleImageDatasetOrNull =
+                tryGetSingleImageDataset(childlessImageDatasets, imageParams);
+        boolean singleImageAlreadyUsed = false;
+
         if (featureVectoreDatasets != null)
         {
             for (ExternalData featureVectoreDataset : featureVectoreDatasets)
@@ -371,6 +376,14 @@ public class PlateMaterialLocationsLoader
                         ScreeningUtils.createDatasetReference(featureVectoreDataset);
                 DatasetImagesReference imagesDatasetReference =
                         tryGetImageDatasetReference(featureVectoreDataset, imageParams);
+                if (imagesDatasetReference == null && singleImageDatasetOrNull != null)
+                {
+                    // If the plate has only one childless image dataset, then we assume that it
+                    // must have been the one which has been analysed. We need such a heuristic
+                    // because some analysis dataset may have no parent dataset assigned.
+                    imagesDatasetReference = singleImageDatasetOrNull;
+                    singleImageAlreadyUsed = true;
+                }
                 clonedWellContents.add(wellContent.cloneWithDatasets(imagesDatasetReference,
                         featureVectoreDatasetReference));
             }
@@ -378,8 +391,7 @@ public class PlateMaterialLocationsLoader
 
         // there can be more than one dataset with images for each well - in such a case we will
         // have one well content duplicated for each dataset
-        List<ExternalData> childlessImageDatasets = plateToChildlessImageDatasetMap.get(plateId);
-        if (childlessImageDatasets != null)
+        if (childlessImageDatasets != null && singleImageAlreadyUsed == false)
         {
             for (ExternalData childlessImageDataset : childlessImageDatasets)
             {
@@ -389,6 +401,19 @@ public class PlateMaterialLocationsLoader
             }
         }
         return clonedWellContents;
+    }
+
+    private static DatasetImagesReference tryGetSingleImageDataset(
+            List<ExternalData> childlessImageDatasets, Map<String, PlateImageParameters> imageParams)
+    {
+        if (childlessImageDatasets != null && childlessImageDatasets.size() == 1)
+        {
+            ExternalData singleImageDataset = childlessImageDatasets.get(0);
+            return createDatasetImagesReference(singleImageDataset, imageParams);
+        } else
+        {
+            return null;
+        }
     }
 
     private static DatasetImagesReference tryGetImageDatasetReference(
