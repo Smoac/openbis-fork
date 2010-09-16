@@ -37,7 +37,7 @@ public class ScreeningConstants
 
     // id of the DSS screening reporting plugin to get the images of the plate
     public static final String PLATE_IMAGE_ANALYSIS_REPORT_KEY =
-            "default-plate-image-analysis-merger";
+            "default-plate-image-analysis";
 
     // ---- required entity types
 
