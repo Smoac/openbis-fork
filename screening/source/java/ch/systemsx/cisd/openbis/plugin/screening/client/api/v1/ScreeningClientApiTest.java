@@ -133,6 +133,13 @@ public class ScreeningClientApiTest
         print("Feature codes: " + featureCodes);
         List<FeatureVectorDataset> features =
                 facade.loadFeatures(featureVectorDatasets, featureCodes);
+        Collections.sort(features, new Comparator<FeatureVectorDataset>()
+                {
+                    public int compare(FeatureVectorDataset f1, FeatureVectorDataset f2)
+                    {
+                        return f1.getDataset().getDatasetCode().compareTo(f2.getDataset().getDatasetCode());
+                    }
+                });
         print("Loaded feature datasets: " + features.size());
         if (features.size() > 0)
         {
