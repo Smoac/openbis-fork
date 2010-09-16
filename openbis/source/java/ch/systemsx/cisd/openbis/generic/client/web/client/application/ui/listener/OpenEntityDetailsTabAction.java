@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener;
 
+import com.google.gwt.user.client.Window;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
@@ -66,6 +68,13 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
         final AbstractTabItemFactory tabView =
                 createClientPlugin.createEntityViewer(entityType, entity);
         tabView.setInBackground(keyPressed);
+
+        if (viewContext.isSimpleMode())
+        {
+            Window.setTitle(entityKind + ": " + entity.getCode() + " [" + entityType + "]" + " - "
+                    + viewContext.getBasicPageTitle());
+        }
+
         DispatcherHelper.dispatchNaviEvent(tabView);
     }
 }

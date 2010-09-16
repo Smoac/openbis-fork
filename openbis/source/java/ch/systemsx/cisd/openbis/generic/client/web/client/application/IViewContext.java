@@ -48,6 +48,8 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
 
     public IPageController getPageController();
 
+    public String getBasicPageTitle();
+
     public IClientPluginFactoryProvider getClientPluginFactoryProvider();
 
     public ICommonClientServiceAsync getCommonService();

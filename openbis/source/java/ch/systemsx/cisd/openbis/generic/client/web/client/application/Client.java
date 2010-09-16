@@ -103,10 +103,15 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
 
         CommonViewContext commonContext =
                 new CommonViewContext(service, imageBundle, pageController, isLoggingEnabled(),
-                        isSimpleMode());
+                        isSimpleMode(), getPageTitle());
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
         initializeLocatorHandlerRegistry(commonContext.getLocatorResolverRegistry(), commonContext);
         return commonContext;
+    }
+
+    private String getPageTitle()
+    {
+        return Window.getTitle();
     }
 
     private boolean isSimpleMode()
