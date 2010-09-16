@@ -63,6 +63,7 @@ public class ScreeningClientApiTest
         {
             System.err.println("Usage: <user> <password> <openbis-server-url>");
             System.err.println("Example parameters: test-user my-password http://localhost:8888");
+            System.exit(1);
             return;
         }
         configureLogging();
@@ -77,6 +78,7 @@ public class ScreeningClientApiTest
         if (facade == null)
         {
             System.err.println("Authentication failed: check the user name and password.");
+            System.exit(1);
             return;
         }
         List<ExperimentIdentifier> experiments = facade.listExperiments();
@@ -84,25 +86,29 @@ public class ScreeningClientApiTest
 
         MaterialIdentifier gene = new MaterialIdentifier(MaterialTypeIdentifier.GENE, "1111");
         ExperimentIdentifier experimentIdentifer = experiments.get(0);
-        List<PlateWellReferenceWithDatasets> plateWells =
-                facade.listPlateWells(experimentIdentifer, gene, true);
-        print(String.format("Wells with gene '%s' in experiment '%s': %s", gene,
-                experimentIdentifer, plateWells));
-
-        List<FeatureVectorWithDescription> featuresForPlateWells =
-                facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null);
-        print("Features for wells: " + featuresForPlateWells);
-
-        List<FeatureVectorWithDescription> featuresForPlateWellsCheck =
-                facade.loadFeaturesForDatasetWellReferences(
-                        facade.convertToFeatureVectorDatasetWellIdentifier(plateWells), null);
-
-        if (featuresForPlateWellsCheck.equals(featuresForPlateWells) == false)
+        List<PlateWellReferenceWithDatasets> plateWells = null;
+        List<FeatureVectorWithDescription> featuresForPlateWells = null;
+        List<FeatureVectorWithDescription> featuresForPlateWellsCheck = null;
+        try
+        {
+            plateWells = facade.listPlateWells(experimentIdentifer, gene, true);
+            print(String.format("Wells with gene '%s' in experiment '%s': %s", gene,
+                    experimentIdentifer, plateWells));
+            featuresForPlateWells = facade.loadFeaturesForPlateWells(experimentIdentifer, gene, null);
+            print("Features for wells: " + featuresForPlateWells);
+            featuresForPlateWellsCheck = facade.loadFeaturesForDatasetWellReferences(
+                    facade.convertToFeatureVectorDatasetWellIdentifier(plateWells), null);
+        } catch (Exception e)
+        {
+            print(e.toString());
+        }
+        if (featuresForPlateWells != null && featuresForPlateWells.equals(featuresForPlateWellsCheck) == false)
         {
             throw new IllegalStateException(String.format(
                     "Inconsistent results to fetch feature vectors, expected:\n%s\nbut got:\n%s",
                     featuresForPlateWells, featuresForPlateWellsCheck));
         }
+        
 
         List<Plate> plates = facade.listPlates();
         print("Plates: " + plates);
