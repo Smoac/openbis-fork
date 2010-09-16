@@ -26,15 +26,12 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -81,23 +78,12 @@ public class MainTabPanel extends TabPanel implements IMainPanel
 
     private final MainTabItem createWelcomePanel()
     {
-        final LayoutContainer layoutContainer = new LayoutContainer(new CenterLayout());
-        String layoutContainerId = PREFIX + "welcome";
-        layoutContainer.setId(layoutContainerId);
-        layoutContainer.addText(createWelcomeText());
+        final Component mainComponent = WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX);
         final MainTabItem intro =
-                new MainTabItem(DefaultTabItem.createUnaware("&nbsp;", layoutContainer, false),
-                        layoutContainerId, null);
+                new MainTabItem(DefaultTabItem.createUnaware("&nbsp;", mainComponent, false),
+                        mainComponent.getId(), null);
         intro.setClosable(false);
         return intro;
-    }
-
-    private final String createWelcomeText()
-    {
-        final Element div = DOM.createDiv();
-        div.setClassName("intro-tab");
-        div.setInnerText(viewContext.getMessage(Dict.WELCOME));
-        return div.getString();
     }
 
     private final MainTabItem tryFindTab(final AbstractTabItemFactory tabItemFactory)

@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
@@ -30,14 +34,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 public class MainPagePanel extends ContentPanel implements IMainPanel
 {
 
+    private static final String PREFIX = GenericConstants.ID_PREFIX + "main-page_";
+
     private IClosableItem content;
 
-    public MainPagePanel()
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    public MainPagePanel(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
+        this.viewContext = viewContext;
         setLayout(new FitLayout());
         setBodyBorder(false);
         setBorders(false);
         setHeaderVisible(false);
+        add(createWelcomePanel());
+    }
+
+    private final Component createWelcomePanel()
+    {
+        return WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX);
     }
 
     public final void open(final AbstractTabItemFactory tabItemFactory)
@@ -54,8 +69,8 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
         if (content != null)
         {
             content.onClose();
-            removeAll();
         }
+        removeAll();
     }
 
     public Widget asWidget()

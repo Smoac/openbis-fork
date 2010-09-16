@@ -125,7 +125,7 @@ final class AppView extends View
     {
         if (context.isSimpleMode())
         {
-            return new MainPagePanel();
+            return new MainPagePanel(context);
         } else
         {
             return new MainTabPanel(context);
