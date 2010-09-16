@@ -102,11 +102,6 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
         return commonViewContext.getPageController();
     }
 
-    public final String getBasicPageTitle()
-    {
-        return commonViewContext.getBasicPageTitle();
-    }
-
     public final IClientPluginFactoryProvider getClientPluginFactoryProvider()
     {
         return commonViewContext.getClientPluginFactoryProvider();

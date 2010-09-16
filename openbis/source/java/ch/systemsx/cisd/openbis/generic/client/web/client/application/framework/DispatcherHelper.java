@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
+import com.google.gwt.user.client.Window;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 
 /**
  * A helper for using {@link Dispatcher}.
@@ -49,6 +52,8 @@ public final class DispatcherHelper
     {
         AppEvent event = createEvent(AppEvents.NAVI_EVENT, tabItemFactory);
         Dispatcher.get().dispatch(event);
+        Window.setTitle(tabItemFactory.getTabTitle() + " "
+                + CommonViewContext.ClientStaticState.getPageTitleSuffix());
     }
 
     private final static AppEvent createEvent(EventType eventType, Object data)

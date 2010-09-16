@@ -202,7 +202,8 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
     }
 
     @Override
-    protected void showEntityViewer(final AuthorizationGroup group, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(final AuthorizationGroup group, boolean editMode,
+            boolean inBackground)
     {
         final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
@@ -211,9 +212,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 {
                     IDisposableComponent component =
                             PersonGrid.createForAuthorizationGroup(viewContext, group);
-                    String tabTitle =
-                            viewContext.getMessage(Dict.AUTHORIZATION_GROUP_USERS, group.getCode());
-                    return DefaultTabItem.create(tabTitle, component, viewContext);
+                    return DefaultTabItem.create(getTabTitle(), component, viewContext);
                 }
 
                 @Override
@@ -227,6 +226,12 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 {
                     return new HelpPageIdentifier(HelpPageDomain.AUTHORIZATION_GROUPS,
                             HelpPageAction.VIEW);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return viewContext.getMessage(Dict.AUTHORIZATION_GROUP_USERS, group.getCode());
                 }
             };
         tabFactory.setInBackground(inBackground);

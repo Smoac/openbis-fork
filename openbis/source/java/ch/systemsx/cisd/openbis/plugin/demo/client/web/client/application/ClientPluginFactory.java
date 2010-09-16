@@ -124,8 +124,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     {
                         final DemoSampleViewer sampleViewer =
                                 new DemoSampleViewer(getViewContext(), sampleId);
-                        return DefaultTabItem.createUnaware(identifiable.getCode(), sampleViewer,
-                                false);
+                        return DefaultTabItem.createUnaware(getTabTitle(), sampleViewer, false);
                     }
 
                     @Override
@@ -138,6 +137,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return identifiable.getCode();
                     }
                 };
         }
@@ -168,7 +173,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     @Override
                     public ITabItem create()
                     {
-                        return createDummyTab(identifiable.getCode());
+                        return createDummyTab(getTabTitle());
                     }
 
                     @Override
@@ -181,6 +186,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.EDIT);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return identifiable.getCode();
                     }
                 };
         }
@@ -204,7 +215,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     @Override
                     public ITabItem create()
                     {
-                        return createDummyTab(identifiable.getCode());
+                        return createDummyTab(getTabTitle());
                     }
 
                     @Override
@@ -218,6 +229,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
                                 HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return identifiable.getCode();
                     }
                 };
         }

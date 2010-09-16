@@ -85,9 +85,7 @@ public class DataSetReportGenerator
                             @Override
                             public ITabItem create()
                             {
-                                final String reportTitle =
-                                        service.getLabel() + " (" + reportDate + ")";
-                                return DefaultTabItem.create(reportTitle, reportComponent,
+                                return DefaultTabItem.create(getTabTitle(), reportComponent,
                                         viewContext);
                             }
 
@@ -103,6 +101,12 @@ public class DataSetReportGenerator
                             {
                                 return new HelpPageIdentifier(HelpPageDomain.DATA_SET,
                                         HelpPageAction.REPORT);
+                            }
+
+                            @Override
+                            public String getTabTitle()
+                            {
+                                return service.getLabel() + " (" + reportDate + ")";
                             }
 
                         };

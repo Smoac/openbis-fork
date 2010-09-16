@@ -97,5 +97,11 @@ public class DataSetSearchLocatorResolver
         {
             return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.SEARCH);
         }
+
+        @Override
+        public String getTabTitle()
+        {
+            return getMessage(Dict.DATA_SET_SEARCH);
+        }
     }
 }

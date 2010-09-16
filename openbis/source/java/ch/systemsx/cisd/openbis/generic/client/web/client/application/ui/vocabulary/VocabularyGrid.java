@@ -227,10 +227,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 {
                     IDisposableComponent component =
                             VocabularyTermGrid.create(viewContext, vocabulary);
-                    String tabTitle =
-                            viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER, vocabulary
-                                    .getCode());
-                    return DefaultTabItem.create(tabTitle, component, viewContext);
+                    return DefaultTabItem.create(getTabTitle(), component, viewContext);
                 }
 
                 @Override
@@ -243,6 +240,13 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.TERM, HelpPageAction.BROWSE);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER, vocabulary
+                            .getCode());
                 }
             };
         tabFactory.setInBackground(inBackground);

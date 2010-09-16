@@ -66,7 +66,8 @@ public final class ShowRelatedDatasetsDialog extends
                     return RelatedDataSetGrid.BROWSER_ID + XDOM.getUniqueId();
                 }
 
-                private String getTabTitle()
+                @Override
+                public String getTabTitle()
                 {
                     return "Related Data Sets";
                 }

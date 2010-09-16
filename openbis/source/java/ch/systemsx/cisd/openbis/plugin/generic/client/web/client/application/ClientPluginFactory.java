@@ -154,8 +154,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         final DatabaseModificationAwareComponent sampleViewer =
                                 GenericSampleViewer.create(getViewContext(), identifiable);
-                        return DefaultTabItem.create(getViewerTitle(Dict.SAMPLE, identifiable),
-                                sampleViewer, getViewContext(), false);
+                        return DefaultTabItem.create(getTabTitle(), sampleViewer, getViewContext(),
+                                false);
                     }
 
                     @Override
@@ -168,6 +168,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.SAMPLE, identifiable);
                     }
                 };
         }
@@ -199,8 +205,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         DatabaseModificationAwareComponent component =
                                 GenericSampleEditForm.create(getViewContext(), identifiable);
-                        String title = getEditorTitle(Dict.SAMPLE, identifiable);
-                        return DefaultTabItem.create(title, component, getViewContext(), true);
+                        return DefaultTabItem.create(getTabTitle(), component, getViewContext(),
+                                true);
                     }
 
                     @Override
@@ -213,6 +219,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.EDIT);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getEditorTitle(Dict.SAMPLE, identifiable);
                     }
                 };
         }
@@ -241,8 +253,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         final DatabaseModificationAwareComponent materialViewer =
                                 GenericMaterialViewer.create(getViewContext(), techId);
-                        return DefaultTabItem.create(getViewerTitle(Dict.MATERIAL, identifiable),
-                                materialViewer, getViewContext(), false);
+                        return DefaultTabItem.create(getTabTitle(), materialViewer,
+                                getViewContext(), false);
                     }
 
                     @Override
@@ -255,6 +267,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.MATERIAL, identifiable);
                     }
                 };
         }
@@ -270,8 +288,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                         DatabaseModificationAwareComponent component =
                                 GenericMaterialEditForm
                                         .create(getViewContext(), identifiable, true);
-                        String title = getEditorTitle(Dict.MATERIAL, identifiable);
-                        return DefaultTabItem.create(title, component, getViewContext(), true);
+                        return DefaultTabItem.create(getTabTitle(), component, getViewContext(),
+                                true);
                     }
 
                     @Override
@@ -284,6 +302,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.EDIT);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getEditorTitle(Dict.MATERIAL, identifiable);
                     }
                 };
         }
@@ -309,8 +333,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                         final DatabaseModificationAwareComponent experimentViewer =
                                 GenericExperimentViewer.create(getViewContext(), experimentType,
                                         experimentId);
-                        return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, experimentId),
-                                experimentViewer, getViewContext(), false);
+                        return DefaultTabItem.create(getTabTitle(), experimentViewer,
+                                getViewContext(), false);
                     }
 
                     @Override
@@ -324,6 +348,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
                                 HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.EXPERIMENT, experimentId);
                     }
                 };
         }
@@ -347,8 +377,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         DatabaseModificationAwareComponent component =
                                 GenericExperimentEditForm.create(getViewContext(), identifiable);
-                        String title = getEditorTitle(Dict.EXPERIMENT, identifiable);
-                        return DefaultTabItem.create(title, component, getViewContext(), true);
+                        return DefaultTabItem.create(getTabTitle(), component, getViewContext(),
+                                true);
                     }
 
                     @Override
@@ -363,6 +393,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
                                 HelpPageAction.EDIT);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getEditorTitle(Dict.EXPERIMENT, identifiable);
                     }
                 };
         }
@@ -383,8 +419,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         final DatabaseModificationAwareComponent dataSetViewer =
                                 GenericDataSetViewer.create(getViewContext(), identifiable);
-                        return DefaultTabItem.create(getViewerTitle(Dict.DATA_SET, identifiable),
-                                dataSetViewer, getViewContext(), false);
+                        return DefaultTabItem.create(getTabTitle(), dataSetViewer,
+                                getViewContext(), false);
                     }
 
                     @Override
@@ -397,6 +433,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.DATA_SET, identifiable);
                     }
                 };
         }
@@ -411,8 +453,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         DatabaseModificationAwareComponent component =
                                 GenericDataSetEditForm.create(getViewContext(), identifiable);
-                        String title = getEditorTitle(Dict.DATA_SET, identifiable);
-                        return DefaultTabItem.create(title, component, getViewContext(), true);
+                        return DefaultTabItem.create(getTabTitle(), component, getViewContext(),
+                                true);
                     }
 
                     @Override
@@ -425,6 +467,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.EDIT);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getEditorTitle(Dict.DATA_SET, identifiable);
                     }
                 };
         }

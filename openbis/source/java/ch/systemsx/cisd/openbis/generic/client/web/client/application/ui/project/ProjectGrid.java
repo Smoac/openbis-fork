@@ -207,7 +207,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     {
                         final DatabaseModificationAwareComponent viewer =
                                 ProjectViewer.create(viewContext, projectId);
-                        return DefaultTabItem.create(getViewerTitle(), viewer, viewContext, false);
+                        return DefaultTabItem.create(getTabTitle(), viewer, viewContext, false);
                     }
 
                     @Override
@@ -216,7 +216,8 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         return ProjectViewer.createId(projectId);
                     }
 
-                    private String getViewerTitle()
+                    @Override
+                    public String getTabTitle()
                     {
                         return AbstractViewer.getTitle(viewContext, Dict.PROJECT, project);
                     }
@@ -226,6 +227,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     {
                         return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.VIEW);
                     }
+
                 };
         } else
         {
@@ -236,7 +238,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     {
                         DatabaseModificationAwareComponent component =
                                 ProjectEditForm.create(viewContext, projectId);
-                        return DefaultTabItem.create(getEditTitle(), component, viewContext, true);
+                        return DefaultTabItem.create(getTabTitle(), component, viewContext, true);
                     }
 
                     @Override
@@ -245,7 +247,8 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         return ProjectEditForm.createId(projectId);
                     }
 
-                    private String getEditTitle()
+                    @Override
+                    public String getTabTitle()
                     {
                         return AbstractRegistrationForm.getEditTitle(viewContext, Dict.PROJECT,
                                 project);

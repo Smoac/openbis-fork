@@ -25,8 +25,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TabActionMenuItemFactory
@@ -59,8 +57,7 @@ public class TabActionMenuItemFactory
                 @Override
                 public ITabItem create()
                 {
-                    String tabItemText = viewContext.getMessage(tabLabelKey);
-                    return DefaultTabItem.create(tabItemText, definition
+                    return DefaultTabItem.create(getTabTitle(), definition
                             .createComponent(viewContext), viewContext, false);
                 }
 
@@ -68,6 +65,12 @@ public class TabActionMenuItemFactory
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return HelpPageIdentifier.createSpecific(definition.getHelpPageTitle());
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return viewContext.getMessage(tabLabelKey);
                 }
             });
 

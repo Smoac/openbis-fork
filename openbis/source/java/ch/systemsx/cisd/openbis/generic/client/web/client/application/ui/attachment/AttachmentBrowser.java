@@ -296,9 +296,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 @Override
                 public ITabItem create()
                 {
-                    final String tabTitle = helper.createTabTitle();
                     final Component component = helper.createVersionsPanel(versions);
-                    return DefaultTabItem.createUnaware(tabTitle, component, false);
+                    return DefaultTabItem.createUnaware(getTabTitle(), component, false);
                 }
 
                 @Override
@@ -311,6 +310,12 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.ATTACHMENTS, HelpPageAction.VIEW);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return helper.createTabTitle();
                 }
             };
         tabFactory.setInBackground(inBackground);

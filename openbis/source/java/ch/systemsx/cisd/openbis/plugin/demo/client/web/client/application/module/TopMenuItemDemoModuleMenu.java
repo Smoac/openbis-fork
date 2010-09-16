@@ -52,8 +52,8 @@ public class TopMenuItemDemoModuleMenu extends MenuItem
         @Override
         public ITabItem create()
         {
-            return DefaultTabItem.create(viewContext.getMessage(Dict.STATISTICS_DEMO_TAB_HEADER),
-                    StatisticsWidget.create(viewContext), viewContext, false);
+            return DefaultTabItem.create(getTabTitle(), StatisticsWidget.create(viewContext),
+                    viewContext, false);
         }
 
         @Override
@@ -66,6 +66,12 @@ public class TopMenuItemDemoModuleMenu extends MenuItem
         public HelpPageIdentifier getHelpPageIdentifier()
         {
             return HelpPageIdentifier.createSpecific("Experiment Statistics");
+        }
+
+        @Override
+        public String getTabTitle()
+        {
+            return viewContext.getMessage(Dict.STATISTICS_DEMO_TAB_HEADER);
         }
     }
 

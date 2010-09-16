@@ -48,14 +48,22 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         private static boolean simpleMode;
 
-        public static void init(final boolean isSimpleMode)
+        private static String pageTitleSuffix;
+
+        public static void init(final boolean isSimpleMode, final String aPageTitleSuffix)
         {
             simpleMode = isSimpleMode;
+            pageTitleSuffix = aPageTitleSuffix;
         }
 
         public static boolean isSimpleMode()
         {
             return simpleMode;
+        }
+
+        public static String getPageTitleSuffix()
+        {
+            return pageTitleSuffix;
         }
     }
 
@@ -79,8 +87,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     private final IProfilingTable profilingTable;
 
-    private final String basicPageTitle;
-
     CommonViewContext(final ICommonClientServiceAsync service,
             final IGenericImageBundle imageBundle, final IPageController pageController,
             boolean isLoggingEnabled, boolean isSimpleMode, String basicPageTitle)
@@ -89,12 +95,11 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         this.imageBundle = imageBundle;
         this.pageController = pageController;
         this.profilingTable = ProfilingTable.create(isLoggingEnabled);
-        this.basicPageTitle = basicPageTitle;
         messageProvider = new CompositeMessageProvider();
         messageProvider.add(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME));
         viewModel = new GenericViewModel();
         locatorHandlerRegistry = new ViewLocatorResolverRegistry();
-        ClientStaticState.init(isSimpleMode);
+        ClientStaticState.init(isSimpleMode, basicPageTitle);
     }
 
     final void setClientPluginFactoryProvider(
@@ -133,8 +138,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     }
 
     private DisplaySettingsManager createDisplaySettingsManager(
-            final DisplaySettings displaySettings,
-            WebClientConfiguration webClientConfigurationDTO)
+            final DisplaySettings displaySettings, WebClientConfiguration webClientConfigurationDTO)
     {
         IDelegatedAction settingsUpdater = new IDelegatedAction()
             {
@@ -163,11 +167,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     public final IPageController getPageController()
     {
         return pageController;
-    }
-
-    public final String getBasicPageTitle()
-    {
-        return basicPageTitle;
     }
 
     public final IClientPluginFactoryProvider getClientPluginFactoryProvider()

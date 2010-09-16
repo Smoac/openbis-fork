@@ -73,14 +73,19 @@ public class QueryLocatorResolver extends AbstractViewLocatorResolver
                 @Override
                 public ITabItem create()
                 {
-                    String tabItemText = viewContext.getMessage(tabLabelKey);
-                    return DefaultTabItem.create(tabItemText, component, viewContext, false);
+                    return DefaultTabItem.create(getTabTitle(), component, viewContext, false);
                 }
 
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return HelpPageIdentifier.createSpecific(definition.getHelpPageTitle());
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return viewContext.getMessage(tabLabelKey);
                 }
             };
         DispatcherHelper.dispatchNaviEvent(tabItemFactory);

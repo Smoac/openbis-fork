@@ -195,7 +195,7 @@ public final class SearchWidget extends LayoutContainer
     }
 
     private static AbstractTabItemFactory createTabFactory(
-            final MatchingEntitiesPanel matchingEntitiesPanel, String title,
+            final MatchingEntitiesPanel matchingEntitiesPanel, final String title,
             IViewContext<?> viewContext)
     {
         final ITabItem tab =
@@ -221,6 +221,12 @@ public final class SearchWidget extends LayoutContainer
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.SEARCH, HelpPageAction.ACTION);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return title;
                 }
             };
     }

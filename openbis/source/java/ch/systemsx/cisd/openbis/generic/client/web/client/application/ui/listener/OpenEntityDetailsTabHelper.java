@@ -102,7 +102,7 @@ public class OpenEntityDetailsTabHelper
                 {
                     final DatabaseModificationAwareComponent viewer =
                             ProjectViewer.create(viewContext.getCommonViewContext(), projectId);
-                    return DefaultTabItem.create(getViewerTitle(), viewer, viewContext, false);
+                    return DefaultTabItem.create(getTabTitle(), viewer, viewContext, false);
                 }
 
                 @Override
@@ -111,7 +111,8 @@ public class OpenEntityDetailsTabHelper
                     return ProjectViewer.createId(projectId);
                 }
 
-                private String getViewerTitle()
+                @Override
+                public String getTabTitle()
                 {
                     return AbstractViewer.getTitle(viewContext, Dict.PROJECT, project);
                 }
@@ -121,6 +122,7 @@ public class OpenEntityDetailsTabHelper
                 {
                     return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.VIEW);
                 }
+
             };
         tabFactory.setInBackground(keyPressed);
         DispatcherHelper.dispatchNaviEvent(tabFactory);

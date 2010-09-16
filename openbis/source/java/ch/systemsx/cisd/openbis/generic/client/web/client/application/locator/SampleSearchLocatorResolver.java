@@ -155,5 +155,11 @@ public class SampleSearchLocatorResolver
         {
             return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.SEARCH);
         }
+
+        @Override
+        public String getTabTitle()
+        {
+            return getMessage(Dict.SAMPLE_SEARCH);
+        }
     }
 }

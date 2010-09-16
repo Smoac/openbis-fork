@@ -47,6 +47,11 @@ public abstract class AbstractTabItemFactory
     public abstract HelpPageIdentifier getHelpPageIdentifier();
 
     /**
+     * Returns a short description of contents of the tab that can be used in tab or page title.
+     */
+    public abstract String getTabTitle();
+
+    /**
      * True if the tab should become active.
      */
     public boolean isInBackground()
