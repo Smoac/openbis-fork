@@ -19,10 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
 /**
@@ -36,16 +33,9 @@ public class WelcomePanelHelper
     {
         final LayoutContainer layoutContainer = new LayoutContainer(new CenterLayout());
         layoutContainer.setId(idPrefix + "welcome");
-        layoutContainer.addText(createWelcomeText(viewContext));
+        HtmlPage welcomePage = new HtmlPage("welcomePage");
+        layoutContainer.add(welcomePage);
         return layoutContainer;
-    }
-
-    private static final String createWelcomeText(IViewContext<?> viewContext)
-    {
-        final Element div = DOM.createDiv();
-        div.setClassName("intro-tab");
-        div.setInnerText(viewContext.getMessage(Dict.WELCOME));
-        return div.getString();
     }
 
 }
