@@ -182,4 +182,4 @@ function quick_api_test {
 }
 
 integration_tests_screening
-#quick_api_test
+quick_api_test
