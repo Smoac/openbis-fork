@@ -61,33 +61,39 @@ public final class MaterialTypeSelectionWidget extends
      */
     public static MaterialTypeSelectionWidget createWithAdditionalOption(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String additionalOptionLabel, final String idSuffix)
+            final String additionalOptionLabel, final String initialCodeOrNullParameter,
+            final String idSuffix)
     {
-        return new MaterialTypeSelectionWidget(viewContext, additionalOptionLabel, idSuffix, null);
+        return new MaterialTypeSelectionWidget(viewContext, additionalOptionLabel, idSuffix,
+                initialCodeOrNullParameter, null);
     }
 
     public static MaterialTypeSelectionWidget create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String displayTypeIdOrNull, final String idSuffix)
+            final String displayTypeIdOrNull, final String initialCodeOrNullParameter,
+            final String idSuffix)
     {
-        return new MaterialTypeSelectionWidget(viewContext, null, idSuffix, displayTypeIdOrNull);
+        return new MaterialTypeSelectionWidget(viewContext, null, idSuffix,
+                initialCodeOrNullParameter, displayTypeIdOrNull);
     }
 
     public MaterialTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix)
+            final String initialCodeOrNullParameter, final String idSuffix)
     {
-        this(viewContext, null, idSuffix, null);
+        this(viewContext, null, idSuffix, initialCodeOrNullParameter, null);
     }
 
     private MaterialTypeSelectionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
-            String additionalOptionLabelOrNull, String idSuffix, final String displayTypeIdOrNull)
+            String additionalOptionLabelOrNull, String idSuffix,
+            final String initialCodeOrNullParameter, final String displayTypeIdOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.MATERIAL_TYPE, ModelDataPropertyNames.CODE,
                 "material type", "material types");
         this.viewContext = viewContext;
         this.additionalOptionLabelOrNull = additionalOptionLabelOrNull;
         this.initialCodeOrNull =
-                tryGetInitialValue(displayTypeIdOrNull, viewContext.getDisplaySettingsManager());
+                tryGetInitialValue(displayTypeIdOrNull, initialCodeOrNullParameter, viewContext
+                        .getDisplaySettingsManager());
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
         if (displayTypeIdOrNull != null)
@@ -208,9 +214,13 @@ public final class MaterialTypeSelectionWidget extends
     }
 
     private static String tryGetInitialValue(final String displayTypeIdOrNull,
-            DisplaySettingsManager displaySettingsManager)
+            final String initialCodeOrNull, DisplaySettingsManager displaySettingsManager)
     {
-        if (displayTypeIdOrNull != null)
+        boolean initialCodeExplicitlyDefined = initialCodeOrNull != null;
+        if (initialCodeExplicitlyDefined)
+        {
+            return initialCodeOrNull;
+        } else if (displayTypeIdOrNull != null)
         {
             return displaySettingsManager.getDropDownSettings(displayTypeIdOrNull);
         } else

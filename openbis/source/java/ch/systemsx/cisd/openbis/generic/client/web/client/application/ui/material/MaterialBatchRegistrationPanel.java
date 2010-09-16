@@ -63,7 +63,7 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
         this.viewContext = viewContext;
         setId(ID);
         setScrollMode(Scroll.AUTO);
-        materialTypeSelection = new MaterialTypeSelectionWidget(viewContext, ID_SUFFIX);
+        materialTypeSelection = new MaterialTypeSelectionWidget(viewContext, null, ID_SUFFIX);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         materialTypeSelection

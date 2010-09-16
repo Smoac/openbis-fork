@@ -70,17 +70,22 @@ public class MaterialBrowserGrid extends
     /**
      * Creates a browser with a toolbar which allows to choose the material type. Allows to show or
      * edit material details.
+     * 
+     * @param initialMaterialTypeOrNull
      */
     public static DisposableEntityChooser<Material> createWithTypeChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            String initialMaterialTypeOrNull)
     {
-        return createWithTypeChooser(viewContext, true);
+        return createWithTypeChooser(viewContext, true, initialMaterialTypeOrNull);
     }
 
     private static DisposableEntityChooser<Material> createWithTypeChooser(
-            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable)
+            final IViewContext<ICommonClientServiceAsync> viewContext, boolean detailsAvailable,
+            String initialMaterialTypeOrNull)
     {
-        final MaterialBrowserToolbar toolbar = new MaterialBrowserToolbar(viewContext, null);
+        final MaterialBrowserToolbar toolbar =
+                new MaterialBrowserToolbar(viewContext, initialMaterialTypeOrNull, null);
         final ICriteriaProvider<ListMaterialDisplayCriteria> criteriaProvider = toolbar;
         final MaterialBrowserGrid browserGrid =
                 createBrowserGrid(viewContext, criteriaProvider, detailsAvailable);
@@ -100,7 +105,7 @@ public class MaterialBrowserGrid extends
     {
         if (initValueOrNull == null)
         {
-            return createWithTypeChooser(viewContext, false);
+            return createWithTypeChooser(viewContext, false, null);
         } else
         {
             return createWithoutTypeChooser(viewContext, initValueOrNull);

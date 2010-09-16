@@ -140,13 +140,19 @@ public final class ComponentProvider
 
     public final AbstractTabItemFactory getMaterialBrowser()
     {
+        return getMaterialBrowser(null);
+    }
+
+    public final AbstractTabItemFactory getMaterialBrowser(final String initialMaterialTypeOrNull)
+    {
         return new AbstractTabItemFactory()
             {
                 @Override
                 public ITabItem create()
                 {
                     IDisposableComponent browser =
-                            MaterialBrowserGrid.createWithTypeChooser(viewContext);
+                            MaterialBrowserGrid.createWithTypeChooser(viewContext,
+                                    initialMaterialTypeOrNull);
                     return createTab(Dict.MATERIAL_BROWSER, browser);
                 }
 

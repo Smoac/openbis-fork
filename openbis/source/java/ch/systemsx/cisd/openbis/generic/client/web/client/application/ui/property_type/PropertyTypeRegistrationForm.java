@@ -114,7 +114,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     {
         String label = viewContext.getMessage(Dict.ALLOW_ANY_TYPE);
         MaterialTypeSelectionWidget chooser =
-                MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, label, ID);
+                MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, label, null, ID);
         FieldUtil.markAsMandatory(chooser);
         return chooser;
     }

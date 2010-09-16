@@ -217,7 +217,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 if (materialTypeSelectionWidget == null)
                 {
                     materialTypeSelectionWidget =
-                            new MaterialTypeSelectionWidget(viewContext, MATERIAL_TYPE_ID_SUFFIX);
+                            new MaterialTypeSelectionWidget(viewContext, null,
+                                    MATERIAL_TYPE_ID_SUFFIX);
                     created = true;
                 }
                 result = materialTypeSelectionWidget;
