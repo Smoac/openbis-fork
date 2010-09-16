@@ -17,8 +17,12 @@ LOCAL_PROJECTS=..
 
 OPENBIS_SERVER=$WORK/openBIS-server
 
-SSH_CRUISE_CONTROL_NAME=ci@cisd-vesuvio.ethz.ch
+CI_HOST=cisd-vesuvio.ethz.ch
+SSH_CRUISE_CONTROL_NAME=ci@$CI_HOST
 HUDSON_ARTIFACTS=hudson/jobs
+CI_HOST_IP=`host $CI_HOST|grep address|awk '{print $4}'`
+MY_HOST=`hostname`
+MY_HOST_IP=`host $MY_HOST|grep address|awk '{print $4}'`
 
 # ----------------------------- global state
 
@@ -322,9 +326,15 @@ function fetch_latest_artifacts_from_cruise_control {
     
     local last_build="$HUDSON_ARTIFACTS/$proj_name/lastSuccessful/archive/_main/targets/dist"
     local list_cmd="ls -1 $last_build | sort | tail -1"
-    local last=`echo $list_cmd | ssh $SSH_CRUISE_CONTROL_NAME -T`
-    echo "Fetching artifacts for $proj_name: $last" 
-    scp $SSH_CRUISE_CONTROL_NAME:$last_build/*.zip $dest_dir
+    if [ $MY_HOST_IP == $CI_HOST_IP ]; then
+        local last=`$list_cmd`
+        echo "Fetching artifacts for $proj_name: $last" 
+        cp $last_build/*.zip $dest_dir
+    else
+        local last=`echo $list_cmd | ssh $SSH_CRUISE_CONTROL_NAME -T`
+        echo "Fetching artifacts for $proj_name: $last" 
+        scp $SSH_CRUISE_CONTROL_NAME:$last_build/*.zip $dest_dir
+    fi
 }
 
 # -------------------------- installation
