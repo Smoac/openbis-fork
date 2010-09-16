@@ -112,12 +112,27 @@ function install_screening {
 
 function test_screening_api {
 	cd $API_HCS
-	. ./run.sh admin password https://localhost:8443 > std.txt
+	. ./run.sh admin password https://localhost:8443 > api-client-log.txt
 	if [ $? -ne 0 ]; then
        report_error Running screening API has failed
     else
        echo [OK] Screening API runs without exceptions.
 	fi
+	assert_pattern_present api-client-log.txt 1 "Experiments: \[/DEMO/DEMO_PROJECT/DEMO_EXPERIMENT \[20100623121102843-1\]\]"
+	assert_pattern_present api-client-log.txt 1 "Plates: \[/DEMO/PLATE1 \[20100624113752213-5\]"
+	assert_pattern_present api-client-log.txt 1 "Image datasets: \[[0-9]*-9"
+	assert_pattern_present api-client-log.txt 1 "Feature vector datasets: \[[0-9]*-11 (plate: /DEMO/PLATE2 \[20100624113756254-6\]"
+	assert_pattern_present api-client-log.txt 1 "Feature codes: \[CELLNUMBER, FEATRUE1, FEATRUE10, FEATRUE11, FEATRUE12, FEATRUE13, FEATRUE14, FEATRUE15, FEATRUE16, FEATRUE2, FEATRUE3, FEATRUE4, FEATRUE5, FEATRUE6, FEATRUE7, FEATRUE8, FEATRUE9, FRET, HITRATE, RFU645, RFU730, STD1, STD10, STD11, STD12, STD13, STD14, STD15, STD16, STD2, STD3, STD4, STD5, STD6, STD7, STD8, STD9\]"
+	assert_pattern_present api-client-log.txt 1 "Loaded feature datasets: 2"
+	assert_pattern_present api-client-log.txt 1 "Features of the first dataset: datasetCode: 20100916114711847-11"
+	assert_pattern_present api-client-log.txt 1 "wellPosition: \[1, 2\], values: \[1911000.0, 4915000.0, 8203000.0\]"
+	assert_pattern_present api-client-log.txt 1 "Image metadata: \[Dataset [0-9]*-9 (plate: /DEMO/PLATE3 \[20100624113759640-7\]) has \[\[DAPI, GFP\]\] channels, 9 tiles\. Images resolution: 720x468"
+	for imgFile in `find . -name *.png`; do
+	  assert_pattern_present $imgFile 1 PNG
+	done
+	numberOfImages=`find . -name *.png|wc|awk '{print $1}'`
+	assert_equals "number of images" 36 $numberOfImages
+	
 	# return to the original directory
 	cd ../../..
 }
