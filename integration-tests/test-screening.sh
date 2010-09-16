@@ -121,11 +121,18 @@ function test_screening_api {
 	assert_pattern_present api-client-log.txt 1 "Experiments: \[/DEMO/DEMO_PROJECT/DEMO_EXPERIMENT \[20100623121102843-1\]\]"
 	assert_pattern_present api-client-log.txt 1 "Plates: \[/DEMO/PLATE1 \[20100624113752213-5\]"
 	assert_pattern_present api-client-log.txt 1 "Image datasets: \[[0-9]*-9"
-	assert_pattern_present api-client-log.txt 1 "Feature vector datasets: \[[0-9]*-11 (plate: /DEMO/PLATE2 \[20100624113756254-6\]"
+	assert_pattern_present api-client-log.txt 1 "Feature vector datasets: \[[0-9]*-8 (plate: /DEMO/PLATE2 \[20100624113756254-6\]"
 	assert_pattern_present api-client-log.txt 1 "Feature codes: \[CELLNUMBER, FEATRUE1, FEATRUE10, FEATRUE11, FEATRUE12, FEATRUE13, FEATRUE14, FEATRUE15, FEATRUE16, FEATRUE2, FEATRUE3, FEATRUE4, FEATRUE5, FEATRUE6, FEATRUE7, FEATRUE8, FEATRUE9, FRET, HITRATE, RFU645, RFU730, STD1, STD10, STD11, STD12, STD13, STD14, STD15, STD16, STD2, STD3, STD4, STD5, STD6, STD7, STD8, STD9\]"
 	assert_pattern_present api-client-log.txt 1 "Loaded feature datasets: 2"
-	assert_pattern_present api-client-log.txt 1 "Features of the first dataset: datasetCode: 20100916114711847-11"
-	assert_pattern_present api-client-log.txt 1 "wellPosition: \[1, 2\], values: \[1911000.0, 4915000.0, 8203000.0\]"
+	assert_pattern_present api-client-log.txt 1 "features labels: \[cellNumber, featrue1, featrue10, featrue11, featrue12, featrue13, featrue14, featrue15, featrue16, featrue2, featrue3, featrue4, featrue5, featrue6, featrue7, featrue8, featrue9, Hit Rate, std1, std10, std11, std12, std13, std14, std15, std16, std2, std3, std4, std5, std6, std7, std8, std9\]"
+	assert_pattern_present api-client-log.txt 1 "Features of the first dataset: datasetCode: [0-9]*-8"
+	assert_pattern_present api-client-log.txt 1 "wellPosition: \[1, 2\], values: \[48.0, 0.0051865000277757645, 2.7146999491378665E-4, 0.0026249000802636147, 8.3676
+99920199811E-4, 0.07603199779987335, 0.6520699858665466, 0.8323100209236145, 2.4511001110076904, 6.074199918657541E-4, 0
+.004476199857890606, 6.795800291001797E-4, 0.004821899812668562, 8.004099945537746E-4, 0.0032108998857438564, 6.64030027
+1101296E-4, 0.001956300111487508, 0.09523800015449524, 0.0034064999781548977, 1.3176999345887452E-4, 6.364699802361429E-
+4, 4.711899964604527E-4, 0.02412099950015545, 0.27717000246047974, 0.14854000508785248, 0.9543099999427795, 6.5120001090
+69049E-4, 0.00208020000718534, 8.392700110562146E-4, 0.0026328000240027905, 0.001057300018146634, 8.995099924504757E-4, 
+5.60179993044585E-4, 3.910500090569258E-4\]"
 	assert_pattern_present api-client-log.txt 1 "Image metadata: \[Dataset [0-9]*-9 (plate: /DEMO/PLATE3 \[20100624113759640-7\]) has \[\[DAPI, GFP\]\] channels, 9 tiles\. Images resolution: 720x468"
 	for imgFile in `find . -name *.png`; do
 	  assert_pattern_present $imgFile 1 PNG
