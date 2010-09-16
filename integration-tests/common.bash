@@ -19,7 +19,7 @@ OPENBIS_SERVER=$WORK/openBIS-server
 
 CI_HOST=cisd-vesuvio.ethz.ch
 SSH_CRUISE_CONTROL_NAME=ci@$CI_HOST
-HUDSON_ARTIFACTS=hudson/jobs
+HUDSON_ARTIFACTS=$PWD/hudson/jobs
 CI_HOST_IP=`host $CI_HOST|grep address|awk '{print $4}'`
 MY_HOST=`hostname`
 MY_HOST_IP=`host $MY_HOST|grep address|awk '{print $4}'`
