@@ -31,12 +31,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class PlateLayoutSampleSection extends TabContent
 {
-    public static final String ID_SUFFIX = "PlateLayoutSection";
 
     private final ScreeningViewContext viewContext;
 
@@ -61,7 +60,7 @@ public class PlateLayoutSampleSection extends TabContent
         super("Plate Layout", viewContext);
         this.viewContext = viewContext;
         this.sampleId = sampleId;
-        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
+        setDisplayID(DisplayTypeIDGenerator.PLATE_LAYOUT_SAMPLE_SECTION);
     }
 
     @Override

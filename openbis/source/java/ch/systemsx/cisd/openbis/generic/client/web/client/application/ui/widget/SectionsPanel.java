@@ -121,9 +121,10 @@ public class SectionsPanel extends LayoutContainer
     {
         DetailViewConfiguration viewSettingsOrNull =
                 viewContext.getDisplaySettingsManager().tryGetDetailViewSettings(getDisplayID());
+        String panelDisplayId = panel.getDisplayID().toUpperCase();
         if (viewSettingsOrNull != null
                 && viewSettingsOrNull.getDisabledTabs()
-                        .contains(panel.getDisplayID().toUpperCase()))
+                        .contains(panelDisplayId))
         {
             return;
         }
@@ -133,6 +134,7 @@ public class SectionsPanel extends LayoutContainer
         panel.disableAutoDisposeComponents();
         elements.add(element);
         addToToolbar(element);
+        panel.setParentDisplayID(getDisplayID());
     }
 
     @Override

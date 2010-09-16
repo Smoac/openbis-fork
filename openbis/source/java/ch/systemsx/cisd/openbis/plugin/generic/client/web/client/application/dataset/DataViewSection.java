@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
@@ -89,8 +90,19 @@ public class DataViewSection extends TabContent
     @Override
     protected void showContent()
     {
+        boolean hideFileView = false;
+        boolean hideSmartView = false;
+        DetailViewConfiguration viewSettingsOrNull =
+                viewContext.getDisplaySettingsManager().tryGetDetailViewSettings(
+                        getParentDisplayID());
+        if (viewSettingsOrNull != null)
+        {
+            hideFileView = viewSettingsOrNull.isHideFileView();
+            hideSmartView = viewSettingsOrNull.isHideSmartView();
+        }
         final DatastoreServiceSelectionWidget serviceSelectionWidget =
-                new DatastoreServiceSelectionWidget(viewContext, dataset);
+                new DatastoreServiceSelectionWidget(viewContext, dataset, hideFileView,
+                        hideSmartView);
         getHeader().addTool(new LabelToolItem(serviceSelectionWidget.getFieldLabel() + ":&nbsp;"));
         getHeader().addTool(serviceSelectionWidget);
         serviceSelectionWidget.addSelectionChangedListener(createServiceSelectionChangedListener());
@@ -203,13 +215,19 @@ public class DataViewSection extends TabContent
 
         private DatastoreServiceDescriptionModel defaultModel;
 
+        private final boolean hideFileView;
+
+        private final boolean hideSmartView;
+
         public DatastoreServiceSelectionWidget(final IViewContext<?> viewContext,
-                final ExternalData dataset)
+                final ExternalData dataset, boolean hideFileView, boolean hideSmartView)
         {
             super(viewContext, ("data-set_" + dataset.getCode() + "_viewer"), Dict.BUTTON_SHOW,
                     ModelDataPropertyNames.LABEL, "viewer", "viewers");
             this.viewContext = viewContext;
             this.dataset = dataset;
+            this.hideFileView = hideFileView;
+            this.hideSmartView = hideSmartView;
             if (dataset.getStatus().isAvailable())
             {
                 addPostRefreshCallback(createDefaultServiceSelectionAction());
@@ -251,8 +269,14 @@ public class DataViewSection extends TabContent
         {
             List<DatastoreServiceDescriptionModel> models =
                     DatastoreServiceDescriptionModel.convert(result, dataset);
-            models.add(0, defaultModel = createFilesServiceDescription(FILES_SMART_VIEW));
-            models.add(1, createFilesServiceDescription(FILES_HOME_VIEW));
+            if (hideFileView == false)
+            {
+                models.add(0, createFilesServiceDescription(FILES_HOME_VIEW));
+            }
+            if (hideSmartView == false)
+            {
+                models.add(0, defaultModel = createFilesServiceDescription(FILES_SMART_VIEW));
+            }
             return models;
         }
 

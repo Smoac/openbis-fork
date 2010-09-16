@@ -15,7 +15,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
  */
 public class ExperimentWellMaterialsSection extends DisposableTabContent
 {
-    public static final String ID_SUFFIX = "ExperimentWellMaterialsSection";
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
@@ -29,7 +28,7 @@ public class ExperimentWellMaterialsSection extends DisposableTabContent
                 screeningViewContext);
         this.screeningViewContext = screeningViewContext;
         this.experiment = experiment;
-        setDisplayID(DisplayTypeIDGenerator.PLATE_MATERIAL_BROWSER);
+        setDisplayID(DisplayTypeIDGenerator.EXPERIMENT_WELL_MATERIALS_SECTION);
     }
 
     @Override

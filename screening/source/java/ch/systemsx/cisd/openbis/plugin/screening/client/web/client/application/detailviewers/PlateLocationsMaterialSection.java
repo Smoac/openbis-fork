@@ -2,10 +2,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -32,7 +32,7 @@ class PlateLocationsMaterialSection extends TabContent
         this.reviewer =
                 PlateMaterialReviewer.create(screeningViewContext, experimentCriteriaOrNull,
                         materialId);
-        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
+        setDisplayID(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
     }
 
     @Override

@@ -49,6 +49,8 @@ abstract public class TabContent extends ContentPanel
      */
     private boolean autoDisposeComponents = true;
 
+    private String parentDisplayID;
+
     public TabContent(final String header, IViewContext<?> viewContext)
     {
         this.viewContext = viewContext;
@@ -58,6 +60,16 @@ abstract public class TabContent extends ContentPanel
         setAnimCollapse(false);
         setBodyBorder(true);
         setLayout(new FitLayout());
+    }
+
+    public String getParentDisplayID()
+    {
+        return parentDisplayID;
+    }
+
+    public void setParentDisplayID(String parentDisplayID)
+    {
+        this.parentDisplayID = parentDisplayID;
     }
 
     public void setDisplayID(IDisplayTypeIDGenerator generator)

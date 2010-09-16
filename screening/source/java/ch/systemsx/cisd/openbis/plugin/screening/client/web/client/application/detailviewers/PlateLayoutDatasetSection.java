@@ -25,10 +25,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 
@@ -51,7 +51,7 @@ public class PlateLayoutDatasetSection extends TabContent
         super("Plate Layout", viewContext);
         this.viewContext = viewContext;
         this.datasetId = datasetId;
-        setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
+        setDisplayID(DisplayTypeIDGenerator.PLATE_LAYOUT_DATASET_SECTION);
     }
 
     @Override
