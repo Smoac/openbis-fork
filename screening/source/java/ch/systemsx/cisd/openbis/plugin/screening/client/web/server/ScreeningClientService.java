@@ -187,25 +187,6 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
-    public ResultSet<WellContent> listExperimentMaterials(
-            DefaultResultSetConfig<String, WellContent> gridCriteria,
-            final PlateMaterialsSearchCriteria materialCriteria)
-    {
-        try
-        {
-            return listEntities(gridCriteria, new IOriginalDataProvider<WellContent>()
-                {
-                    public List<WellContent> getOriginalData() throws UserFailureException
-                    {
-                        return server.listPlateWells(getSessionToken(), materialCriteria);
-                    }
-                });
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
