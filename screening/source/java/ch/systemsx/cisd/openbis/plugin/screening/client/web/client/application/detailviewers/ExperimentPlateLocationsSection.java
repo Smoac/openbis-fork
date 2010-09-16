@@ -125,8 +125,7 @@ public class ExperimentPlateLocationsSection extends TabContent
                 @Override
                 public ITabItem create()
                 {
-                    String tabItemText = viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_TITLE);
-                    return DefaultTabItem.create(tabItemText, reviewer, viewContext);
+                    return DefaultTabItem.create(getTabTitle(), reviewer, viewContext);
                 }
 
                 @Override
@@ -141,6 +140,12 @@ public class ExperimentPlateLocationsSection extends TabContent
                     final String reportDate =
                             DateTimeFormat.getMediumTimeFormat().format(new Date());
                     return GenericConstants.ID_PREFIX + "-PlateMaterialReviewer-" + reportDate;
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_TITLE);
                 }
             };
         DispatcherHelper.dispatchNaviEvent(tabFactory);

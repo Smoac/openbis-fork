@@ -290,14 +290,14 @@ public class PlateLayouter
             tooltip += "<br>" + propertyType.getLabel() + ": " + property.tryGetAsString();
             Material material = property.getMaterial();
             if (material != null
-                    && material.getMaterialType().getCode()
-                            .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+                    && material.getMaterialType().getCode().equalsIgnoreCase(
+                            ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
                 List<IEntityProperty> geneProperties = material.getProperties();
                 for (IEntityProperty geneProperty : geneProperties)
                 {
-                    if (geneProperty.getPropertyType().getCode()
-                            .equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
+                    if (geneProperty.getPropertyType().getCode().equalsIgnoreCase(
+                            ScreeningConstants.GENE_SYMBOLS))
                     {
                         tooltip += " [" + geneProperty.tryGetAsString() + "]";
                     }
@@ -361,10 +361,9 @@ public class PlateLayouter
                             @Override
                             public ITabItem create()
                             {
-                                return DefaultTabItem.create(
-                                        "Plate Report: " + plate.getCode(),
-                                        PlateMetadataBrowser.create(viewContext,
-                                                new TechId(plate.getId())), viewContext);
+                                return DefaultTabItem.create(getTabTitle(), PlateMetadataBrowser
+                                        .create(viewContext, new TechId(plate.getId())),
+                                        viewContext);
                             }
 
                             @Override
@@ -379,6 +378,12 @@ public class PlateLayouter
                             {
                                 return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
                                         HelpPageAction.VIEW);
+                            }
+
+                            @Override
+                            public String getTabTitle()
+                            {
+                                return "Plate Report: " + plate.getCode();
                             }
                         };
                 }

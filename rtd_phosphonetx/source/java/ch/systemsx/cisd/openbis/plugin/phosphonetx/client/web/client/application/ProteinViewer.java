@@ -99,17 +99,22 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                             new ProteinViewer(viewContext, experiment, proteinInfo.getId());
                     DatabaseModificationAwareComponent c =
                             new DatabaseModificationAwareComponent(viewer, viewer);
-                    String description = getAbbreviatedDescription(proteinInfo);
-                    String identifier = experiment == null ? "?" : experiment.getCode();
-                    return DefaultTabItem.create(viewContext.getMessage(
-                            Dict.PROTEIN_IN_EXPERIMENT_TAB_LABEL, description, identifier), c,
-                            viewContext, false);
+                    return DefaultTabItem.create(getTabTitle(), c, viewContext, false);
                 }
 
                 @Override
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return HelpPageIdentifier.createSpecific("Protein Viewer");
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    String description = getAbbreviatedDescription(proteinInfo);
+                    String identifier = experiment == null ? "?" : experiment.getCode();
+                    return viewContext.getMessage(Dict.PROTEIN_IN_EXPERIMENT_TAB_LABEL,
+                            description, identifier);
                 }
             };
     }

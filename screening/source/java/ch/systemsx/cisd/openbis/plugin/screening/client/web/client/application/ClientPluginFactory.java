@@ -176,7 +176,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     final DatabaseModificationAwareComponent viewer =
                             PlateLocationsMaterialViewer.create(viewContext, TechId
                                     .create(materialId), experimentCriteriaOrNull);
-                    return createMaterialViewerTab(materialId, viewer, viewContext);
+                    return createViewerTab(viewer, getTabTitle(), viewContext);
                 }
 
                 @Override
@@ -190,13 +190,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 {
                     return PlateLocationsMaterialViewer.getHelpPageIdentifier();
                 }
-            };
-    }
 
-    private static ITabItem createMaterialViewerTab(final IIdAndCodeHolder materialId,
-            final DatabaseModificationAwareComponent viewer, IViewContext<?> viewContext)
-    {
-        return createViewerTab(viewer, materialId, Dict.MATERIAL, viewContext);
+                @Override
+                public String getTabTitle()
+                {
+                    return getViewerTitle(Dict.MATERIAL, materialId, viewContext);
+                }
+
+            };
     }
 
     private final class DatasetClientPlugin extends DelegatedClientPlugin<DataSetType>
@@ -220,8 +221,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     {
                         final DatabaseModificationAwareComponent viewer =
                                 PlateDatasetViewer.create(screeningViewContext, identifiable);
-                        return createViewerTab(viewer, identifiable, Dict.DATA_SET,
-                                screeningViewContext);
+                        return createViewerTab(viewer, getTabTitle(), screeningViewContext);
                     }
 
                     @Override
@@ -235,6 +235,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return HelpPageIdentifier.createSpecific("Plate Dataset Viewer");
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.DATA_SET, identifiable, screeningViewContext);
                     }
                 };
         }
@@ -261,8 +267,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     {
                         final DatabaseModificationAwareComponent viewer =
                                 PlateSampleViewer.create(screeningViewContext, identifiable);
-                        return createViewerTab(viewer, identifiable, Dict.SAMPLE,
-                                screeningViewContext);
+                        return createViewerTab(viewer, getTabTitle(), screeningViewContext);
                     }
 
                     @Override
@@ -276,6 +281,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return HelpPageIdentifier.createSpecific("Plate Sample Viewer");
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.SAMPLE, identifiable, screeningViewContext);
                     }
                 };
         }
@@ -294,9 +305,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     private static ITabItem createViewerTab(DatabaseModificationAwareComponent viewer,
-            ICodeHolder codeProvider, String dictTitleKey, IViewContext<?> viewContext)
+            String title, IViewContext<?> viewContext)
     {
-        String title = getViewerTitle(dictTitleKey, codeProvider, viewContext);
         return DefaultTabItem.create(title, viewer, viewContext, false);
     }
 

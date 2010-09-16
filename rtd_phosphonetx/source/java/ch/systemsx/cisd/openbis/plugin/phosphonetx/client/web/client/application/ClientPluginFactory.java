@@ -115,8 +115,8 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                         final DatabaseModificationAwareComponent experimentViewer =
                                 ExperimentViewer.create(getViewContext(), experimentType,
                                         identifiable);
-                        return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, identifiable),
-                                experimentViewer, getViewContext(), false);
+                        return DefaultTabItem.create(getTabTitle(), experimentViewer,
+                                getViewContext(), false);
                     }
 
                     @Override
@@ -130,6 +130,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
                                 HelpPageAction.VIEW);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.EXPERIMENT, identifiable);
                     }
                 };
         }
@@ -155,8 +161,8 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                         DatabaseModificationAwareComponent component =
                                 GenericExperimentEditForm.create(getGenericViewContext(),
                                         identifiable);
-                        String title = getEditorTitle(Dict.EXPERIMENT, identifiable);
-                        return DefaultTabItem.create(title, component, getViewContext(), true);
+                        return DefaultTabItem.create(getTabTitle(), component, getViewContext(),
+                                true);
                     }
 
                     @Override
@@ -171,6 +177,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     {
                         return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
                                 HelpPageAction.EDIT);
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getEditorTitle(Dict.EXPERIMENT, identifiable);
                     }
                 };
         }
