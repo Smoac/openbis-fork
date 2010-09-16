@@ -57,10 +57,10 @@ public class MainPagePanel extends ContentPanel implements IMainPanel
 
     public final void open(final AbstractTabItemFactory tabItemFactory)
     {
+        GWTUtils.updatePageTitle(tabItemFactory.getTabTitle());
         reset();
         content = tabItemFactory.create();
         add(content.getComponent());
-        GWTUtils.updatePageTitle(tabItemFactory.getTabTitle());
         layout();
     }
 
