@@ -21,7 +21,8 @@ public class GeneratedImageTableCellTest extends AssertJUnit
                 URLMethodWithParameters
                         .createEmbededImageHtml(
                                 "http://my.server.ch/servletName?sessionID=sessionToken&code=CODE_8472&w=60&h=60",
-                                "http://my.server.ch/servletName?sessionID=sessionToken&code=CODE_8472&w=600&h=300");
+                                "http://my.server.ch/servletName?sessionID=sessionToken&code=CODE_8472&w=600&h=300",
+                                600, 300);
         assertEquals(cellHTML, rendererHTML);
     }
 }

@@ -34,7 +34,7 @@ public class SimpleImageHtmlRenderer
 
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
         String imageURL = methodWithParameters.toString();
-        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL);
+        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL, width, height);
     }
 
 }
