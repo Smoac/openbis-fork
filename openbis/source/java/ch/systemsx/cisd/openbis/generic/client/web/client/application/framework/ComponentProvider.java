@@ -114,7 +114,7 @@ public final class ComponentProvider
                     IDisposableComponent browser =
                             SampleBrowserGrid.create(viewContext, initialGroupOrNull,
                                     initialSampleTypeOrNull);
-                    return createTab(getMessage(Dict.SAMPLE_BROWSER), browser);
+                    return createTab(getTabTitle(), browser);
                 }
 
                 @Override
@@ -132,16 +132,8 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    StringBuilder sb = new StringBuilder();
-                    if (initialGroupOrNull != null)
-                    {
-                        sb.append(getMessage(Dict.GROUP) + "=" + initialGroupOrNull);
-                    }
-                    if (initialSampleTypeOrNull != null)
-                    {
-                        sb.append("type=" + initialSampleTypeOrNull);
-                    }
-                    return getMessage(Dict.SAMPLE_BROWSER) + " " + sb.toString();
+
+                    return getMessage(Dict.SAMPLE_BROWSER);
                 }
             };
     }
@@ -166,7 +158,7 @@ public final class ComponentProvider
                     IDisposableComponent browser =
                             MaterialBrowserGrid.createWithTypeChooser(viewContext,
                                     initialMaterialTypeOrNull);
-                    return createTab(getMessage(Dict.MATERIAL_BROWSER), browser);
+                    return createTab(getTabTitle(), browser);
                 }
 
                 @Override
@@ -184,12 +176,7 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    StringBuilder sb = new StringBuilder();
-                    if (initialMaterialTypeOrNull != null)
-                    {
-                        sb.append("type=" + initialMaterialTypeOrNull);
-                    }
-                    return getMessage(Dict.MATERIAL_BROWSER) + " " + sb.toString();
+                    return getMessage(Dict.MATERIAL_BROWSER);
                 }
 
             };
@@ -680,7 +667,6 @@ public final class ComponentProvider
                     return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT, HelpPageAction.BROWSE);
                 }
 
-                // FIXME
                 @Override
                 public String getTabTitle()
                 {
@@ -870,7 +856,6 @@ public final class ComponentProvider
                     return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.SEARCH);
                 }
 
-                // FIXME
                 @Override
                 public String getTabTitle()
                 {
@@ -902,7 +887,6 @@ public final class ComponentProvider
                     return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.SEARCH);
                 }
 
-                // FIXME
                 @Override
                 public String getTabTitle()
                 {

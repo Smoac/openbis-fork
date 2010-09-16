@@ -19,6 +19,14 @@ public class TabTitleUpdater
     }
 
     /**
+     * Returns current title of the tab.
+     */
+    String getCurrentTitle()
+    {
+        return title;
+    }
+
+    /**
      * Updates the tab title if binded, stores the title value otherwise.
      */
     void update(String newTitle)
