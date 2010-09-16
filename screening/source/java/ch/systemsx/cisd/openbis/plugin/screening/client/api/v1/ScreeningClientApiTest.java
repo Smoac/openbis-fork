@@ -25,6 +25,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -113,13 +115,21 @@ public class ScreeningClientApiTest
         List<Plate> plates = facade.listPlates();
         print("Plates: " + plates);
         List<ImageDatasetReference> imageDatasets = facade.listImageDatasets(plates);
-        print("Image datasets: " + imageDatasets);
+        Collections.sort(imageDatasets, new Comparator<ImageDatasetReference>()
+            {
+                public int compare(ImageDatasetReference r1, ImageDatasetReference r2)
+                {
+                    return r1.getDatasetCode().compareTo(r2.getDatasetCode());
+                }
+            });
+        print("Image datasets: " + imageDatasets.subList(0, Math.min(5, imageDatasets.size())));
 
         List<FeatureVectorDatasetReference> featureVectorDatasets =
                 facade.listFeatureVectorDatasets(plates);
-        print("Feature vector datasets: " + featureVectorDatasets);
+        print("Feature vector datasets: " + featureVectorDatasets.subList(0, Math.min(5, featureVectorDatasets.size())));
 
         List<String> featureCodes = facade.listAvailableFeatureCodes(featureVectorDatasets);
+        Collections.sort(featureCodes);
         print("Feature codes: " + featureCodes);
         List<FeatureVectorDataset> features =
                 facade.loadFeatures(featureVectorDatasets, featureCodes);
