@@ -71,8 +71,8 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
 
         if (viewContext.isSimpleMode())
         {
-            Window.setTitle(entityKind + ": " + entity.getCode() + " [" + entityType + "]" + " - "
-                    + viewContext.getBasicPageTitle());
+            Window.setTitle(entityKind.getDescription() + ": " + entity.getCode() + " ["
+                    + entityType + "]" + " - " + viewContext.getBasicPageTitle());
         }
 
         DispatcherHelper.dispatchNaviEvent(tabView);
