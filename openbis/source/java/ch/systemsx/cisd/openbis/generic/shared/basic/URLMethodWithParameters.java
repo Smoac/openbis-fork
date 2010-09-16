@@ -99,11 +99,11 @@ public class URLMethodWithParameters implements IsSerializable
         StringBuilder builder = new StringBuilder();
         if (width > 0)
         {
-            builder.append("width='").append(width).append("' ");
+            builder.append(" width='").append(width).append("'");
         }
         if (height > 0)
         {
-            builder.append("height='").append(height).append("' ");
+            builder.append(" height='").append(height).append("'");
         }
         return "<div align='center'>" + linkStart + "<img src='" + imageURL + "' alt='" + " image "
                 + "'" + builder + "/>" + linkEnd + "</div>";

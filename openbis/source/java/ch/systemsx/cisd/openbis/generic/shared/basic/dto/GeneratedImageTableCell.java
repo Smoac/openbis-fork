@@ -151,7 +151,7 @@ public class GeneratedImageTableCell implements ISerializableComparable
         urlMethodThumb.addParameter(IMAGE_HEIGHT_PARAM, thumbnailHeight);
 
         return URLMethodWithParameters.createEmbededImageHtml(urlMethodThumb.toString(),
-                urlMethodImage.toString(), 0, 0);
+                urlMethodImage.toString(), thumbnailWidth, thumbnailHeight);
     }
 
 }
