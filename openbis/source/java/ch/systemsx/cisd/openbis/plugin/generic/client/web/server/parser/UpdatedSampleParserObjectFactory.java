@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -30,17 +31,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
  */
 final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactory
 {
-    private final SampleBatchUpdateDetails batchUpdateDetails;
+    private final SampleBatchUpdateDetails basicBatchUpdateDetails;
 
     UpdatedSampleParserObjectFactory(final SampleType sampleType,
             final IPropertyMapper propertyMapper, boolean identifierExpectedInFile,
             boolean allowExperiments)
     {
         super(sampleType, propertyMapper, identifierExpectedInFile, allowExperiments);
-        this.batchUpdateDetails = createBatchUpdateDetails();
+        this.basicBatchUpdateDetails = createBasicBatchUpdateDetails();
     }
 
-    private SampleBatchUpdateDetails createBatchUpdateDetails()
+    /**
+     * Prepares details about which values should be updated in general taking into account only the
+     * information about availability of columns in the file.
+     */
+    private SampleBatchUpdateDetails createBasicBatchUpdateDetails()
     {
         boolean updateExperiment = isColumnAvailable(UpdatedSample.EXPERIMENT);
         boolean updateParent = isColumnAvailable(UpdatedSample.PARENT);
@@ -57,6 +62,61 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
     public NewSample createObject(final String[] lineTokens) throws ParserException
     {
         final NewSample newSample = super.createObject(lineTokens);
-        return new UpdatedSample(newSample, batchUpdateDetails);
+        final SampleBatchUpdateDetails updateDetails = createBatchUpdateDetails(newSample);
+        cleanUp(newSample);
+        return new UpdatedSample(newSample, updateDetails);
     }
+
+    //
+
+    /**
+     * Returns details about which values should be updated for the specified sample. If a cell was
+     * left empty in the file the corresponding value will not be modified.
+     */
+    private SampleBatchUpdateDetails createBatchUpdateDetails(NewSample newSample)
+    {
+        boolean updateExperiment =
+                basicBatchUpdateDetails.isExperimentUpdateRequested()
+                        && isNotEmpty(newSample.getExperimentIdentifier());
+        boolean updateParent =
+                basicBatchUpdateDetails.isParentUpdateRequested()
+                        && isNotEmpty(newSample.getParentIdentifier());
+        boolean updateContainer =
+                basicBatchUpdateDetails.isContainerUpdateRequested()
+                        && isNotEmpty(newSample.getContainerIdentifier());
+
+        // TODO 2010-09-17, Piotr Buczek: properties
+        return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateContainer,
+                basicBatchUpdateDetails.getPropertiesToUpdate());
+    }
+
+    /** Cleans the placeholders used to mark deletion of values in the specified sample. */
+    private void cleanUp(NewSample newSample)
+    {
+        if (shouldDelete(newSample.getExperimentIdentifier()))
+        {
+            newSample.setExperimentIdentifier(null);
+        }
+        if (shouldDelete(newSample.getParentIdentifier()))
+        {
+            newSample.setParentIdentifier(null);
+        }
+        if (shouldDelete(newSample.getContainerIdentifier()))
+        {
+            newSample.setContainerIdentifier(null);
+        }
+    }
+
+    private static final String DELETE = "<DELETE>";
+
+    private static boolean isNotEmpty(String value)
+    {
+        return StringUtils.isBlank(value) == false;
+    }
+
+    private static boolean shouldDelete(String value)
+    {
+        return DELETE.equals(value);
+    }
+
 }

@@ -100,7 +100,8 @@ public final class UpdatedSampleParserObjectFactoryTest
         assertEquals(2, propertiesToUpdate.size());
         assertTrue(propertiesToUpdate.contains(PROPERTY_1));
         assertTrue(propertiesToUpdate.contains(PROPERTY_2));
-        assertTrue(batchUpdateDetails.isContainerUpdateRequested());
+        assertEquals(StringUtils.isBlank(lineTokens[2]) == false, batchUpdateDetails
+                .isContainerUpdateRequested());
         assertFalse(batchUpdateDetails.isParentUpdateRequested());
         assertFalse(batchUpdateDetails.isExperimentUpdateRequested());
     }

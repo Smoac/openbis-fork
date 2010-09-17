@@ -186,7 +186,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse> implements
-         ICommonServerForInternalUse
+        ICommonServerForInternalUse
 {
     private final LastModificationState lastModificationState;
 
@@ -220,7 +220,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         return new CommonServerLogger(getSessionManager(), context);
     }
-    
+
     //
     // ISystemAuthenticator
     //
@@ -233,19 +233,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         role.setDatabaseInstance(getDAOFactory().getHomeDatabaseInstance());
         role.setRole(RoleCode.ADMIN);
         systemUser.addRoleAssignment(role);
-        String sessionToken = sessionManager.tryToOpenSession(systemUser.getUserId(), new IPrincipalProvider()
-            {
-                public Principal tryToGetPrincipal(String userID)
-                {
-                    return new Principal(systemUser.getUserId(), systemUser.getFirstName(),
-                            systemUser.getLastName(), systemUser.getEmail(), true);
-                }
-            });
+        String sessionToken =
+                sessionManager.tryToOpenSession(systemUser.getUserId(), new IPrincipalProvider()
+                    {
+                        public Principal tryToGetPrincipal(String userID)
+                        {
+                            return new Principal(systemUser.getUserId(), systemUser.getFirstName(),
+                                    systemUser.getLastName(), systemUser.getEmail(), true);
+                        }
+                    });
         Session session = sessionManager.getSession(sessionToken);
         session.setPerson(systemUser);
         return tryGetSession(sessionToken);
     }
-    
+
     //
     // IGenericServer
     //
@@ -429,8 +430,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
             final Collection<Long> sampleIds =
-                    searchDAO.searchForEntityIds(criteria,
-                            DtoConverters.convertEntityKind(EntityKind.SAMPLE));
+                    searchDAO.searchForEntityIds(criteria, DtoConverters
+                            .convertEntityKind(EntityKind.SAMPLE));
             final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
             return sampleLister.list(new ListOrSearchSampleCriteria(sampleIds));
         } catch (final DataAccessException ex)
@@ -644,8 +645,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(session,
-                        DtoConverters.convertEntityKind(entityKind));
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
+                        .convertEntityKind(entityKind));
         etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
         etptBO.updateLoadedAssignment(isMandatory, defaultValue, section, previousETPTOrdinal);
     }
@@ -657,8 +658,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(session,
-                        DtoConverters.convertEntityKind(entityKind));
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
+                        .convertEntityKind(entityKind));
         etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
         etptBO.deleteLoadedAssignment();
     }
@@ -670,8 +671,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         Session session = getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(session,
-                        DtoConverters.convertEntityKind(entityKind));
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
+                        .convertEntityKind(entityKind));
         return etptBO.countAssignmentValues(propertyTypeCode, entityTypeCode);
     }
 
@@ -783,8 +784,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
 
             final Collection<Long> datasetIds =
-                    searchDAO.searchForEntityIds(criteria,
-                            DtoConverters.convertEntityKind(EntityKind.DATA_SET));
+                    searchDAO.searchForEntityIds(criteria, DtoConverters
+                            .convertEntityKind(EntityKind.DATA_SET));
             final IDatasetLister datasetLister = createDatasetLister(session);
             return datasetLister.listByDatasetIds(datasetIds);
         } catch (final DataAccessException ex)
@@ -930,8 +931,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             getDAOFactory().getFileFormatTypeDAO().createOrUpdate(fileFormatType);
         } catch (final DataAccessException ex)
         {
-            DataAccessExceptionTranslator.throwException(ex,
-                    String.format("File format type '%s' ", fileFormatType.getCode()), null);
+            DataAccessExceptionTranslator.throwException(ex, String.format(
+                    "File format type '%s' ", fileFormatType.getCode()), null);
         }
     }
 
@@ -1199,9 +1200,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
             experimentBO.loadDataByTechId(experimentId);
-            return AttachmentTranslator.translate(
-                    listHolderAttachments(session, experimentBO.getExperiment()),
-                    session.getBaseIndexURL());
+            return AttachmentTranslator.translate(listHolderAttachments(session, experimentBO
+                    .getExperiment()), session.getBaseIndexURL());
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1215,9 +1215,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
             sampleBO.loadDataByTechId(sampleId);
-            return AttachmentTranslator
-                    .translate(listHolderAttachments(session, sampleBO.getSample()),
-                            session.getBaseIndexURL());
+            return AttachmentTranslator.translate(listHolderAttachments(session, sampleBO
+                    .getSample()), session.getBaseIndexURL());
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1231,9 +1230,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
             projectBO.loadDataByTechId(projectId);
-            return AttachmentTranslator.translate(
-                    listHolderAttachments(session, projectBO.getProject()),
-                    session.getBaseIndexURL());
+            return AttachmentTranslator.translate(listHolderAttachments(session, projectBO
+                    .getProject()), session.getBaseIndexURL());
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1376,8 +1374,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         if (entityOrNull == null)
         {
-            throw UserFailureException.fromTemplate("There is no %s with permId '%s'.",
-                    kind.getDescription(), permId);
+            throw UserFailureException.fromTemplate("There is no %s with permId '%s'.", kind
+                    .getDescription(), permId);
         }
         return createInformationHolder(kind, entityOrNull);
     }
@@ -1480,9 +1478,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 } catch (DataIntegrityViolationException ex)
                 {
                     throw new UserFailureException(
-                            String.format(
-                                    "File format type '%s' is being used. Use 'Data Set Search' to find all connected data sets.",
-                                    code));
+                            String
+                                    .format(
+                                            "File format type '%s' is being used. Use 'Data Set Search' to find all connected data sets.",
+                                            code));
                 }
             }
         }
@@ -1511,17 +1510,23 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             if (types.size() != 1)
             {
                 section =
-                        String.format(
-                                "[%s]\n%s%s\n",
-                                entityType.getCode(),
-                                firstSection ? "# Comments must be located after the type declaration ('[TYPE]').\n"
-                                        : "", section);
+                        String
+                                .format(
+                                        "[%s]\n%s%s\n",
+                                        entityType.getCode(),
+                                        firstSection ? "# Comments must be located after the type declaration ('[TYPE]').\n"
+                                                : "", section);
             }
             sb.append(section);
             firstSection = false;
         }
         return sb.toString();
     }
+
+    private static final String UPDATE_TEMPLATE_COMMENT =
+            "# If one doesn't want to modify values in a column the column can be removed completely from the file.\n"
+                    + "# Empty value in a column also means that the value stored in openBIS shouldn't be changed.\n "
+                    + "# To delete a value/connection from openBIS one needs to put '<DELETE>' into the corresponding cell.\n";
 
     private String createTemplateForType(EntityKind entityKind, boolean autoGenerate,
             EntityTypePE entityType, boolean addComments, boolean withExperiments,
@@ -1561,16 +1566,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
             sb.append(column);
         }
-        if (entityKind.equals(EntityKind.SAMPLE) && addComments)
+        if (addComments)
         {
-
             switch (operationKind)
             {
                 case REGISTRATION:
-                    sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
+                    if (entityKind.equals(EntityKind.SAMPLE))
+                    {
+                        sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
+                    }
                     break;
                 case UPDATE:
-                    sb.insert(0, UpdatedSample.SAMPLE_UPDATE_TEMPLATE_COMMENT);
+                    sb.insert(0, UPDATE_TEMPLATE_COMMENT);
+                    if (entityKind.equals(EntityKind.SAMPLE))
+                    {
+                        sb.insert(0, UpdatedSample.SAMPLE_UPDATE_TEMPLATE_COMMENT);
+                    }
                     break;
             }
         }
@@ -1702,8 +1713,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         Map<String, String> parameterBindings = new HashMap<String, String>();
-        externalDataTable.processDatasets(serviceDescription.getKey(),
-                serviceDescription.getDatastoreCode(), datasetCodes, parameterBindings);
+        externalDataTable.processDatasets(serviceDescription.getKey(), serviceDescription
+                .getDatastoreCode(), datasetCodes, parameterBindings);
     }
 
     public void registerAuthorizationGroup(String sessionToken,
