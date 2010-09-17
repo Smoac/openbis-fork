@@ -1191,15 +1191,19 @@ public final class CommonClientService extends AbstractClientService implements
                 AbstractParserObjectFactory<VocabularyTerm>
         {
 
-            private final VocabularyTermBatchUpdateDetails batchUpdateDetails;
+            private final VocabularyTermBatchUpdateDetails basicBatchUpdateDetails;
 
             protected UpdatedVocabularyTermObjectFactory(IPropertyMapper propertyMapper)
             {
                 super(VocabularyTerm.class, propertyMapper);
-                this.batchUpdateDetails = createBatchUpdateDetails();
+                this.basicBatchUpdateDetails = createBasicBatchUpdateDetails();
             }
 
-            private VocabularyTermBatchUpdateDetails createBatchUpdateDetails()
+            /**
+             * Prepares details about which values should be updated in general taking into account
+             * only the information about availability of columns in the file.
+             */
+            private VocabularyTermBatchUpdateDetails createBasicBatchUpdateDetails()
             {
                 boolean updateLabel = isColumnAvailable(UpdatedVocabularyTerm.LABEL);
                 boolean updateDescription = isColumnAvailable(UpdatedVocabularyTerm.DESCRIPTION);
@@ -1209,8 +1213,43 @@ public final class CommonClientService extends AbstractClientService implements
             @Override
             public VocabularyTerm createObject(String[] lineTokens) throws ParserException
             {
-                final VocabularyTerm vocabularyTerm = super.createObject(lineTokens);
-                return new UpdatedVocabularyTerm(vocabularyTerm, batchUpdateDetails);
+                final VocabularyTerm term = super.createObject(lineTokens);
+                final VocabularyTermBatchUpdateDetails updateDetails =
+                        createBatchUpdateDetails(term);
+                cleanUp(term);
+                return new UpdatedVocabularyTerm(term, updateDetails);
+            }
+
+            //
+            // handle empty values and deletion
+            //
+
+            /**
+             * Returns details about which values should be updated for the specified term. If a
+             * cell was left empty in the file the corresponding value will not be modified.
+             */
+            private VocabularyTermBatchUpdateDetails createBatchUpdateDetails(VocabularyTerm term)
+            {
+                final boolean updateLabel =
+                        basicBatchUpdateDetails.isLabelUpdateRequested()
+                                && isNotEmpty(term.getLabel());
+                final boolean updateDescription =
+                        basicBatchUpdateDetails.isDescriptionUpdateRequested()
+                                && isNotEmpty(term.getDescription());
+                return new VocabularyTermBatchUpdateDetails(updateLabel, updateDescription);
+            }
+
+            /** Cleans properties of the specified term that are marked for deletion. */
+            private void cleanUp(VocabularyTerm term)
+            {
+                if (isDeletionMark(term.getLabel()))
+                {
+                    term.setLabel(null);
+                }
+                if (isDeletionMark(term.getDescription()))
+                {
+                    term.setDescription(null);
+                }
             }
         }
 
