@@ -76,7 +76,11 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     private static final String CREATOR_MINIMAL_ROLE_KEY = "creator-minimal-role";
 
-    private static final String DEFAULT_CREATOR_MINIMAL_ROLE = RoleWithHierarchy.SPACE_POWER_USER.name();
+    private static final String DEFAULT_CREATOR_MINIMAL_ROLE_SPACE =
+            RoleWithHierarchy.SPACE_POWER_USER.name();
+
+    private static final String DEFAULT_CREATOR_MINIMAL_ROLE_INSTANCE =
+            RoleWithHierarchy.INSTANCE_OBSERVER.name();
 
     private static final String DATA_SPACE_KEY = "data-space";
 
@@ -303,11 +307,11 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                     new SimpleDatabaseConfigurationContext(databaseProperties);
             final String label =
                     PropertyUtils.getMandatoryProperty(databaseProperties, LABEL_PROPERTY_KEY);
-            final String creatorMinimalRoleString =
-                    PropertyUtils.getProperty(databaseProperties, CREATOR_MINIMAL_ROLE_KEY,
-                            DEFAULT_CREATOR_MINIMAL_ROLE);
             final String dataSpaceOrNullString =
                     PropertyUtils.getProperty(databaseProperties, DATA_SPACE_KEY);
+            final String creatorMinimalRoleString =
+                    PropertyUtils.getProperty(databaseProperties, CREATOR_MINIMAL_ROLE_KEY,
+                            getDefaultRoleForDataSource(dataSpaceOrNullString));
 
             if (labels.contains(label))
             {
@@ -331,7 +335,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             }
             try
             {
-                final RoleWithHierarchy creatorMinimalRole = RoleWithHierarchy.valueOf(creatorMinimalRoleString);
+                final RoleWithHierarchy creatorMinimalRole =
+                        RoleWithHierarchy.valueOf(creatorMinimalRoleString);
                 definitions.put(databaseKey, new DatabaseDefinition(configurationContext,
                         databaseKey, label, creatorMinimalRole, dataSpaceOrNull));
             } catch (IllegalArgumentException ex)
@@ -343,5 +348,16 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
         }
         QueryAccessController.initialize(definitions);
+    }
+
+    private String getDefaultRoleForDataSource(final String dataSpaceOrNull)
+    {
+        if (dataSpaceOrNull == null) // database contains data for the whole instance
+        {
+            return DEFAULT_CREATOR_MINIMAL_ROLE_INSTANCE;
+        } else
+        {
+            return DEFAULT_CREATOR_MINIMAL_ROLE_SPACE;
+        }
     }
 }
