@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
  */
 public abstract class AbstractParserObjectFactory<E> implements IParserObjectFactory<E>
 {
+    protected static final String DELETE = "--DELETE--";
 
     /** The <code>IPropertyMapper</code> implementation. */
     private final IPropertyMapper propertyMapper;
@@ -148,8 +149,19 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             throw new IndexOutOfBoundsException(column, lineTokens);
         }
         String value = lineTokens[column];
+        // TODO this check doesn't work for <DELETE>
         checkMandatory(value, propertyModel.getCode());
         return value;
+    }
+
+    protected static boolean isNotEmpty(String value)
+    {
+        return StringUtils.isBlank(value) == false;
+    }
+
+    protected static boolean isDeletionMark(String value)
+    {
+        return DELETE.equals(value);
     }
 
     private void checkMandatory(String value, String code)
