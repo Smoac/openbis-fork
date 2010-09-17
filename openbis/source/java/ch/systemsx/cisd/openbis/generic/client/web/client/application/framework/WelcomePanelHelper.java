@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 
@@ -29,13 +29,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
  */
 public class WelcomePanelHelper
 {
+    private static final String APPLICATION_VIEW_MODE_PAGE_BASE_NAME = "welcomePage";
+
+    private static final String SIMPLE_VIEW_MODE_PAGE_BASE_NAME = "welcomePageSimple";
+
     public static final Component createWelcomePanel(IViewContext<?> viewContext, String idPrefix)
     {
-        final LayoutContainer layoutContainer = new LayoutContainer(new CenterLayout());
+        final LayoutContainer layoutContainer = new LayoutContainer(new FitLayout());
         layoutContainer.setId(idPrefix + "welcome");
-        HtmlPage welcomePage = new HtmlPage("welcomePage");
+        HtmlPage welcomePage = new HtmlPage(getWelcomePageBaseName(viewContext));
         layoutContainer.add(welcomePage);
         return layoutContainer;
+    }
+
+    private static final String getWelcomePageBaseName(IViewContext<?> viewContext)
+    {
+        return viewContext.isSimpleMode() ? SIMPLE_VIEW_MODE_PAGE_BASE_NAME
+                : APPLICATION_VIEW_MODE_PAGE_BASE_NAME;
     }
 
 }

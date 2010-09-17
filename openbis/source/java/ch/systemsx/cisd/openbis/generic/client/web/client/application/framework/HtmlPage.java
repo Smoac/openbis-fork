@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.HTML;
 /**
  * A {@link HTML} panel for displaying static pages.
  * <p>
- * An <i>HTML</i> page named {@code <widgetId>.html} is expected in the public directory.
+ * An <i>HTML</i> page named {@code <pageBaseName>.html} is expected in the public directory.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -36,10 +36,10 @@ public class HtmlPage extends HTML
 {
     private final String pageUrl;
 
-    public HtmlPage(final String widgetId)
+    public HtmlPage(final String pageBaseName)
     {
         final RequestBuilder requestBuilder =
-                new RequestBuilder(RequestBuilder.GET, pageUrl = createUrl(widgetId));
+                new RequestBuilder(RequestBuilder.GET, pageUrl = createUrl(pageBaseName));
         try
         {
             requestBuilder.sendRequest(null, new HelpRequestCallback());
@@ -49,9 +49,9 @@ public class HtmlPage extends HTML
         }
     }
 
-    private final static String createUrl(final String widgetId)
+    private final static String createUrl(final String pageBaseName)
     {
-        return widgetId + ".html";
+        return pageBaseName + ".html";
     }
 
     private final void displayException(final Throwable ex)

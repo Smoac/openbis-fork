@@ -54,6 +54,8 @@ public class MainTabPanel extends TabPanel implements IMainPanel
 
     public static final String TAB_SUFFIX = "_tab";
 
+    public static final String BLANK_TAB_TITLE = "&nbsp;";
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static final String ID = PREFIX.substring(0, PREFIX.length() - 1);
@@ -80,7 +82,8 @@ public class MainTabPanel extends TabPanel implements IMainPanel
     {
         final Component mainComponent = WelcomePanelHelper.createWelcomePanel(viewContext, PREFIX);
         final MainTabItem intro =
-                new MainTabItem(DefaultTabItem.createUnaware("&nbsp;", mainComponent, false),
+                new MainTabItem(
+                        DefaultTabItem.createUnaware(BLANK_TAB_TITLE, mainComponent, false),
                         mainComponent.getId(), null);
         intro.setClosable(false);
         return intro;

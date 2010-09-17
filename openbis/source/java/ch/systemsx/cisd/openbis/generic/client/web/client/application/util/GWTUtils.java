@@ -41,6 +41,7 @@ import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.ListBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 
 /**
@@ -85,7 +86,10 @@ public final class GWTUtils
      */
     public static void updatePageTitle(String prefix)
     {
-        Window.setTitle(prefix + " - " + CommonViewContext.ClientStaticState.getPageTitleSuffix());
+        String title =
+                (prefix.equals(MainTabPanel.BLANK_TAB_TITLE) ? "" : prefix + " - ")
+                        + CommonViewContext.ClientStaticState.getPageTitleSuffix();
+        Window.setTitle(title);
     }
 
     /**
