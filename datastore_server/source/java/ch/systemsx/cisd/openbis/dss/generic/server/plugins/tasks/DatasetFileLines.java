@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class DatasetFileLines implements ITabularData
 {
     private final String[] headerTokens;
-    
+
     private final String[] headerCodes;
 
     private final List<String[]> dataLines;
@@ -50,8 +50,9 @@ public class DatasetFileLines implements ITabularData
     {
         this(file, datasetCode, lines, false);
     }
-    
-    public DatasetFileLines(File file, String datasetCode, List<String[]> lines, boolean ignoreTrailingEmptyCells)
+
+    public DatasetFileLines(File file, String datasetCode, List<String[]> lines,
+            boolean ignoreTrailingEmptyCells)
     {
         this.file = file;
         if (lines.size() < 2)
@@ -64,7 +65,7 @@ public class DatasetFileLines implements ITabularData
         headerCodes = new String[headerTokens.length];
         for (int i = 0; i < headerCodes.length; i++)
         {
-            headerCodes[i] = CodeAndLabel.normalize(headerTokens[i]);
+            headerCodes[i] = CodeAndLabelUtil.normalize(headerTokens[i]);
         }
         dataLines = new ArrayList<String[]>(lines.size());
         for (int i = 1; i < lines.size(); i++)
@@ -112,7 +113,8 @@ public class DatasetFileLines implements ITabularData
     }
 
     /**
-     * Returns the normalized headers. Normalization is done by {@link CodeAndLabel#normalize(String)}.
+     * Returns the normalized headers. Normalization is done by
+     * {@link CodeAndLabelUtil#normalize(String)}.
      */
     public String[] getHeaderCodes()
     {

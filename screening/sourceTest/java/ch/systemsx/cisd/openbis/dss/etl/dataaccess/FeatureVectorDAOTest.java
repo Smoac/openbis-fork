@@ -26,8 +26,7 @@ import net.lemnik.eodsql.QueryTool;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
@@ -107,7 +106,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
 
         ImgFeatureDefDTO featureDef = featureDefs.get(0);
         assertEquals(TEST_FEATURE_LABEL, featureDef.getLabel());
-        assertEquals(CodeAndLabel.normalize(TEST_FEATURE_LABEL), featureDef.getCode());
+        assertEquals(CodeAndLabelUtil.normalize(TEST_FEATURE_LABEL), featureDef.getCode());
 
         createFeatureValues(featureDef);
         List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef);
@@ -151,7 +150,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         // Attach a feature def to it
         ImgFeatureDefDTO featureDef =
                 new ImgFeatureDefDTO(TEST_FEATURE_LABEL,
-                        CodeAndLabel.normalize(TEST_FEATURE_LABEL), "Test", dataSet.getId());
+                        CodeAndLabelUtil.normalize(TEST_FEATURE_LABEL), "Test", dataSet.getId());
         return dao.addFeatureDef(featureDef);
     }
 }

@@ -34,9 +34,10 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
@@ -57,8 +58,9 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
     private static final String SEPARATOR_PROPERTY_KEY = "separator";
 
     public static final String IGNORE_COMMENTS_PROPERTY_KEY = "ignore-comments";
-    
-    public static final String IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY = "ignore-trailing-empty-cells";
+
+    public static final String IGNORE_TRAILING_EMPTY_CELLS_PROPERTY_KEY =
+            "ignore-trailing-empty-cells";
 
     // if the line starts with this character and comments should be ignored, the line is ignored
     private static final char COMMENT = '#';
@@ -156,7 +158,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         SimpleTableModelBuilder tableBuilder = new SimpleTableModelBuilder();
         for (String title : lines.getHeaderLabels())
         {
-            CodeAndLabel codeAndTitle = new CodeAndLabel(title);
+            CodeAndLabel codeAndTitle = CodeAndLabelUtil.create(title);
             tableBuilder.addHeader(codeAndTitle.getLabel(), codeAndTitle.getCode());
         }
         for (String[] line : lines.getDataLines())
@@ -170,7 +172,7 @@ abstract public class AbstractFileTableReportingPlugin extends AbstractDatastore
         }
         return tableBuilder.getTableModel();
     }
-    
+
     protected static TableModel createTransposedTableModel(DatasetFileLines lines)
     {
         int columns = lines.getHeaderLabels().length;

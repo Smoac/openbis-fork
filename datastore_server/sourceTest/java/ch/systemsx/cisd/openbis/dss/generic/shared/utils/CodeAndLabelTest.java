@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
+
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CodeAndLabelTest extends AssertJUnit
@@ -32,19 +32,20 @@ public class CodeAndLabelTest extends AssertJUnit
         assertNormalized("", "");
         assertNormalized("ABC_123", "Abc=123");
     }
-    
+
     private void assertNormalized(String expectedNormalizedCode, String code)
     {
-        assertEquals(expectedNormalizedCode, CodeAndLabel.normalize(code));
-        assertEquals(expectedNormalizedCode, CodeAndLabel.normalize(CodeAndLabel.normalize(code)));
+        assertEquals(expectedNormalizedCode, CodeAndLabelUtil.normalize(code));
+        assertEquals(expectedNormalizedCode,
+                CodeAndLabelUtil.normalize(CodeAndLabelUtil.normalize(code)));
     }
-    
+
     @Test
     public void testConstructor()
     {
-        assertCodeAndTitle("ABC_1_2_3_4", "abc", new CodeAndLabel("<abc?1=2-3+4> abc"));
-        assertCodeAndTitle("ABC_123_", "abc<123>", new CodeAndLabel("abc<123>"));
-        assertCodeAndTitle("ABC", "ABC", new CodeAndLabel("<abc> "));
+        assertCodeAndTitle("ABC_1_2_3_4", "abc", CodeAndLabelUtil.create("<abc?1=2-3+4> abc"));
+        assertCodeAndTitle("ABC_123_", "abc<123>", CodeAndLabelUtil.create("abc<123>"));
+        assertCodeAndTitle("ABC", "ABC", CodeAndLabelUtil.create("<abc> "));
     }
 
     private void assertCodeAndTitle(String expectedCode, String expectedTitle,

@@ -40,18 +40,16 @@ import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -65,6 +63,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
@@ -239,8 +241,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             FeatureVectorDatasetReference dataset, List<String> featureCodes)
     {
         WellFeatureCollection<FeatureTableRow> datasetFeatures =
-                FeatureTableBuilder.fetchDatasetFeatures(Arrays.asList(dataset.getDatasetCode()),
-                        featureCodes, getDAO(), getOpenBISService());
+                FeatureVectorLoader.fetchDatasetFeatures(Arrays.asList(dataset.getDatasetCode()),
+                        featureCodes, getDAO(), createMetadataProvider());
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
         for (FeatureTableRow featureTableRow : datasetFeatures.getFeatures())
         {
@@ -257,7 +259,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         ArrayList<String> codes = new ArrayList<String>(names.size());
         for (String name : names)
         {
-            codes.add(CodeAndLabel.normalize(name));
+            codes.add(CodeAndLabelUtil.normalize(name));
         }
         return codes;
     }
@@ -268,9 +270,21 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, datasetWellReferences);
         WellFeatureCollection<FeatureTableRow> features =
-                FeatureTableBuilder.fetchWellFeatures(datasetWellReferences, featureNames, dao,
-                        getOpenBISService());
+                FeatureVectorLoader.fetchWellFeatures(datasetWellReferences, featureNames, dao,
+                        createMetadataProvider());
         return createFeatureVectorList(features);
+    }
+
+    private IMetadataProvider createMetadataProvider()
+    {
+        final IEncapsulatedOpenBISService openBISService = getOpenBISService();
+        return new IMetadataProvider()
+            {
+                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
+                {
+                    return openBISService.tryToGetSampleIdentifier(samplePermId);
+                }
+            };
     }
 
     private List<FeatureVectorWithDescription> createFeatureVectorList(

@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -38,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -53,7 +53,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
 {
     private Mockery context;
 
-    private IEncapsulatedOpenBISService service;
+    private IMetadataProvider service;
 
     private IImagingReadonlyQueryDAO dao;
 
@@ -63,7 +63,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
     public void beforeMethod()
     {
         context = new Mockery();
-        service = context.mock(IEncapsulatedOpenBISService.class);
+        service = context.mock(IMetadataProvider.class);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
         plugin =
                 new ImageAnalysisMergedRowsReportingPlugin(new Properties(), new File("."),
@@ -113,7 +113,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
                     one(dao).getContainerById(101);
                     will(returnValue(p1));
 
-                    one(service).tryToGetSampleIdentifier(p1.getPermId());
+                    one(service).tryGetSampleIdentifier(p1.getPermId());
                     will(returnValue(p1Identifier));
 
                     one(dao).getFeatureValues(ds1f1);
@@ -131,7 +131,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
                     one(dao).getContainerById(102);
                     will(returnValue(p2));
 
-                    one(service).tryToGetSampleIdentifier(p2.getPermId());
+                    one(service).tryGetSampleIdentifier(p2.getPermId());
                     will(returnValue(p2Identifier));
 
                     one(dao).getFeatureValues(ds2f2);
@@ -146,8 +146,8 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
         TableModel tableModel = plugin.createReport(Arrays.asList(ds1, ds2));
 
         List<TableModelColumnHeader> headers = tableModel.getHeader();
-        assertEquals("[Data Set Code, Plate Identifier, Row, Column, f1, f2, f3]", headers
-                .toString());
+        assertEquals("[Data Set Code, Plate Identifier, Row, Column, f1, f2, f3]",
+                headers.toString());
         List<TableModelRow> rows = tableModel.getRows();
         String prefix = "[ds1, 1:/S/P1, ";
         assertEquals(prefix + "A, 1, 12.0, -3.5, ]", rows.get(0).getValues().toString());
@@ -183,7 +183,7 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
             }
         }
         final MDFloatArray array = new MDFloatArray(matrix);
-        return new ImgFeatureValuesDTO(0.0, 0.0, new PlateFeatureValues(NativeTaggedArray
-                .toByteArray(array)), 0L);
+        return new ImgFeatureValuesDTO(0.0, 0.0, new PlateFeatureValues(
+                NativeTaggedArray.toByteArray(array)), 0L);
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,14 +27,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -56,7 +58,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
 
     private Mockery context;
 
-    private IEncapsulatedOpenBISService service;
+    private IMetadataProvider service;
 
     private IImagingReadonlyQueryDAO dao;
 
@@ -64,7 +66,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
     public void beforeMethod()
     {
         context = new Mockery();
-        service = context.mock(IEncapsulatedOpenBISService.class);
+        service = context.mock(IMetadataProvider.class);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
     }
 
@@ -83,7 +85,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
         prepareAddFeatureVectors(2, null, "<B>beta", "c");
         prepareAddFeatureVectors(3, null, "<B>b");
 
-        FeatureTableBuilder builder = createBuilder();
+        FeatureVectorLoader builder = createBuilder();
         builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE1);
         builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE2);
         builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE3);
@@ -108,7 +110,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
         prepareAddFeatureVectors(2, "B", "<B>beta", "c");
         prepareAddFeatureVectors(3, "B", "b");
 
-        FeatureTableBuilder builder = createBuilder("B");
+        FeatureVectorLoader builder = createBuilder("B");
         builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE1);
         builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE2);
         builder.addFeatureVectorsOfDataSetOrDie(DATA_SET_CODE3);
@@ -145,7 +147,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
                     for (int i = 0; i < featureCodesAndLabels.length; i++)
                     {
                         String codeAndLabels = featureCodesAndLabels[i];
-                        CodeAndLabel codeAndTitle = new CodeAndLabel(codeAndLabels);
+                        CodeAndLabel codeAndTitle = CodeAndLabelUtil.create(codeAndLabels);
                         String title = codeAndTitle.getLabel();
                         String code = codeAndTitle.getCode();
                         if (filteredCodeOrNull == null || filteredCodeOrNull.equals(code))
@@ -170,7 +172,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
                     will(returnValue(new ImgContainerDTO(samplePermID, geometry.getNumberOfRows(),
                             geometry.getNumberOfColumns(), EXPERIMENT_ID)));
 
-                    one(service).tryToGetSampleIdentifier(samplePermID);
+                    one(service).tryGetSampleIdentifier(samplePermID);
                     will(returnValue(new SampleIdentifier(new SpaceIdentifier("db", "s"), "S"
                             + dataSetID)));
                 }
@@ -202,9 +204,9 @@ public class FeatureTableBuilderTest extends AssertJUnit
         return builder.toString();
     }
 
-    private FeatureTableBuilder createBuilder(String... featureCodes)
+    private FeatureVectorLoader createBuilder(String... featureCodes)
     {
-        return new FeatureTableBuilder(Arrays.asList(featureCodes), dao, service);
+        return new FeatureVectorLoader(Arrays.asList(featureCodes), dao, service);
     }
 
 }

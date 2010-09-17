@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.graph;
 
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 
 
 /**

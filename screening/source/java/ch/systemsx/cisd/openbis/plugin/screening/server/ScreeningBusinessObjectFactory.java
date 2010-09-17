@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -32,8 +34,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.WellFeatureVectorReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
  * The unique {@link IScreeningBusinessObjectFactory} implementation.
@@ -56,6 +64,19 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
         return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(datastoreCode),
                 datasetCode);
+    }
+
+    public IHCSFeatureVectorLoader createHCSFeatureVectorLoader(String datastoreCode)
+    {
+        final IImagingReadonlyQueryDAO dao = specificDAOFactory.getImagingQueryDAO(datastoreCode);
+        return new IHCSFeatureVectorLoader()
+            {
+                public WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
+                        List<WellFeatureVectorReference> references)
+                {
+                    return FeatureVectorLoader.fetchWellFeatureValuesIfPossible(references, dao);
+                }
+            };
     }
 
     public final ISampleBO createSampleBO(final Session session)
@@ -97,5 +118,4 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
         return getCommonBusinessObjectFactory().createDatasetLister(session);
     }
-
 }

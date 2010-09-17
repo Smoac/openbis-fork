@@ -40,7 +40,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
@@ -230,7 +230,7 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
             }
             Location plateLocation = tryGetPlateLocation(imageInfo.getPlateLocationToken());
             Location wellLocation = tryGetWellLocation(imageInfo.getWellLocationToken());
-            String channelCode = CodeAndLabel.normalize(imageInfo.getChannelToken());
+            String channelCode = CodeAndLabelUtil.normalize(imageInfo.getChannelToken());
 
             if (wellLocation != null && plateLocation != null && channelCode != null)
             {

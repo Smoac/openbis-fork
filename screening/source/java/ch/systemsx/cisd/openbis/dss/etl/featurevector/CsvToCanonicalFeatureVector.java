@@ -23,7 +23,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
@@ -132,7 +133,7 @@ public class CsvToCanonicalFeatureVector
             FeatureColumn column, Counters<String> counters)
     {
         CanonicalFeatureVector featureVector = new CanonicalFeatureVector();
-        CodeAndLabel codeAndTitle = new CodeAndLabel(column.name);
+        CodeAndLabel codeAndTitle = CodeAndLabelUtil.create(column.name);
         ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO();
         featureDef.setLabel(codeAndTitle.getLabel());
         featureDef.setDescription(codeAndTitle.getLabel());

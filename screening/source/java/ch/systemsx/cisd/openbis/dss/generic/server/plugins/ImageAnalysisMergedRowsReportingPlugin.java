@@ -21,23 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
@@ -61,7 +64,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
 
     private static final String COLUMN_TITLE = "Column";
 
-    private IEncapsulatedOpenBISService service;
+    private IMetadataProvider metadataProvider;
 
     private IImagingReadonlyQueryDAO dao;
 
@@ -71,10 +74,10 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
     }
 
     ImageAnalysisMergedRowsReportingPlugin(Properties properties, File storeRoot,
-            IEncapsulatedOpenBISService service, IImagingReadonlyQueryDAO dao)
+            IMetadataProvider service, IImagingReadonlyQueryDAO dao)
     {
         super(properties, storeRoot);
-        this.service = service;
+        this.metadataProvider = service;
         this.dao = dao;
     }
 
@@ -83,16 +86,17 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         List<String> datasetCodes = extractDatasetCodes(datasets);
         ArrayList<String> featureCodes = new ArrayList<String>(); // fetch all
         WellFeatureCollection<FeatureTableRow> featuresCollection =
-                FeatureTableBuilder.fetchDatasetFeatures(datasetCodes, featureCodes, getDAO(),
-                        getService());
+                FeatureVectorLoader.fetchDatasetFeatures(datasetCodes, featureCodes, getDAO(),
+                        getMetadataProvider());
 
         List<CodeAndLabel> codeAndLabels = featuresCollection.getFeatureCodesAndLabels();
         List<FeatureTableRow> rows = featuresCollection.getFeatures();
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
-        builder.addHeader(DATA_SET_CODE_TITLE, CodeAndLabel.normalize(DATA_SET_CODE_TITLE));
-        builder.addHeader(PLATE_IDENTIFIER_TITLE, CodeAndLabel.normalize(PLATE_IDENTIFIER_TITLE));
-        builder.addHeader(ROW_TITLE, CodeAndLabel.normalize(ROW_TITLE));
-        builder.addHeader(COLUMN_TITLE, CodeAndLabel.normalize(COLUMN_TITLE));
+        builder.addHeader(DATA_SET_CODE_TITLE, CodeAndLabelUtil.normalize(DATA_SET_CODE_TITLE));
+        builder.addHeader(PLATE_IDENTIFIER_TITLE,
+                CodeAndLabelUtil.normalize(PLATE_IDENTIFIER_TITLE));
+        builder.addHeader(ROW_TITLE, CodeAndLabelUtil.normalize(ROW_TITLE));
+        builder.addHeader(COLUMN_TITLE, CodeAndLabelUtil.normalize(COLUMN_TITLE));
         for (CodeAndLabel codeAndLabel : codeAndLabels)
         {
             builder.addHeader(codeAndLabel.getLabel(), "feature-" + codeAndLabel.getCode());
@@ -144,12 +148,27 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDatastorePlu
         return dao;
     }
 
-    private IEncapsulatedOpenBISService getService()
+    private IMetadataProvider getMetadataProvider()
     {
-        if (service == null)
+        synchronized (this)
         {
-            service = ServiceProvider.getOpenBISService();
+            if (metadataProvider == null)
+            {
+                metadataProvider = createFeatureVectorsMetadataProvider();
+            }
         }
-        return service;
+        return metadataProvider;
+    }
+
+    private static IMetadataProvider createFeatureVectorsMetadataProvider()
+    {
+        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        return new IMetadataProvider()
+            {
+                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
+                {
+                    return openBISService.tryToGetSampleIdentifier(samplePermId);
+                }
+            };
     }
 }

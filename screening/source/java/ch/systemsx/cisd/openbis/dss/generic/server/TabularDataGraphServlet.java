@@ -21,15 +21,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 
 /**
@@ -48,7 +52,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
     private IImagingReadonlyQueryDAO imagingDbDao;
 
-    private IEncapsulatedOpenBISService openBisService;
+    private IMetadataProvider service;
 
     final public static String WELL_ROW_COLUMN = "Row";
 
@@ -65,7 +69,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
         private final IImagingReadonlyQueryDAO dao;
 
-        private final IEncapsulatedOpenBISService service;
+        private final IMetadataProvider metadataProvider;
 
         private final String dataSetCode;
 
@@ -75,11 +79,11 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
 
         private ArrayList<String[]> lines;
 
-        private ImagingTabularData(IImagingReadonlyQueryDAO dao,
-                IEncapsulatedOpenBISService service, String dataSetCode)
+        private ImagingTabularData(IImagingReadonlyQueryDAO dao, IMetadataProvider service,
+                String dataSetCode)
         {
             this.dao = dao;
-            this.service = service;
+            this.metadataProvider = service;
             this.dataSetCode = dataSetCode;
             initialize();
         }
@@ -87,8 +91,8 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
         private void initialize()
         {
             WellFeatureCollection<FeatureTableRow> featureCollection =
-                    FeatureTableBuilder.fetchDatasetFeatures(Arrays.asList(dataSetCode),
-                            new ArrayList<String>(), dao, service);
+                    FeatureVectorLoader.fetchDatasetFeatures(Arrays.asList(dataSetCode),
+                            new ArrayList<String>(), dao, metadataProvider);
 
             List<CodeAndLabel> featureCodeAndLabels = featureCollection.getFeatureCodesAndLabels();
             int headerTokensLength = featureCodeAndLabels.size() + 3;
@@ -97,9 +101,9 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             headerLabels[1] = WELL_ROW_COLUMN;
             headerLabels[2] = WELL_COLUMN_COLUMN;
             headerCodes = new String[headerTokensLength];
-            headerCodes[0] = CodeAndLabel.normalize(WELL_NAME_COLUMN);
-            headerCodes[1] = CodeAndLabel.normalize(WELL_ROW_COLUMN);
-            headerCodes[2] = CodeAndLabel.normalize(WELL_COLUMN_COLUMN);
+            headerCodes[0] = CodeAndLabelUtil.normalize(WELL_NAME_COLUMN);
+            headerCodes[1] = CodeAndLabelUtil.normalize(WELL_ROW_COLUMN);
+            headerCodes[2] = CodeAndLabelUtil.normalize(WELL_COLUMN_COLUMN);
 
             int i = 3;
             for (CodeAndLabel featureCodeAndLabel : featureCodeAndLabels)
@@ -151,7 +155,7 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
     protected ITabularData getDatasetLines(String dataSetCode, String filePathOrNull)
             throws IOException
     {
-        return new ImagingTabularData(getDAO(), getService(), dataSetCode);
+        return new ImagingTabularData(getDAO(), getMetadataProvider(), dataSetCode);
     }
 
     private IImagingReadonlyQueryDAO getDAO()
@@ -166,16 +170,28 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
         return imagingDbDao;
     }
 
-    private IEncapsulatedOpenBISService getService()
+    private IMetadataProvider getMetadataProvider()
     {
         synchronized (this)
         {
-            if (openBisService == null)
+            if (service == null)
             {
-                openBisService = ServiceProvider.getOpenBISService();
+                service = createFeatureVectorsMetadataProvider();
             }
         }
-        return openBisService;
+        return service;
+    }
+
+    private static IMetadataProvider createFeatureVectorsMetadataProvider()
+    {
+        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
+        return new IMetadataProvider()
+            {
+                public SampleIdentifier tryGetSampleIdentifier(String samplePermId)
+                {
+                    return openBISService.tryToGetSampleIdentifier(samplePermId);
+                }
+            };
     }
 
 }

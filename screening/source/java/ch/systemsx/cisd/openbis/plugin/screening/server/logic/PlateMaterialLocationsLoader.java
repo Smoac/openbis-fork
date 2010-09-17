@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
@@ -38,11 +39,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder;
-import ch.systemsx.cisd.openbis.dss.generic.server.FeatureTableBuilder.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureVectorValues;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.WellFeatureVectorReference;
-import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -78,7 +74,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.WellFeatureVectorReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 
 /**
  * Loades selected wells content: metadata and (if available) image dataset and feature vectors.
@@ -236,12 +235,58 @@ public class PlateMaterialLocationsLoader
         return wellsWithDatasets;
     }
 
-    private static List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets)
+    private List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets)
     {
-        IImagingReadonlyQueryDAO dao = DssScreeningUtils.getQuery();
+        List<WellContent> enrichedWellContents = new ArrayList<WellContent>();
+        Map<String/* dss code */, List<WellContent>> datastoreToWellContentsMap =
+                createAnalysisDatastoreToWellContentsMap(wellsWithDatasets);
+        for (Entry<String, List<WellContent>> entry : datastoreToWellContentsMap.entrySet())
+        {
+            String datastoreCode = entry.getKey();
+            List<WellContent> oneDatastoreWellContents = entry.getValue();
+
+            if (datastoreCode != null)
+            {
+                IHCSFeatureVectorLoader loader =
+                        businessObjectFactory.createHCSFeatureVectorLoader(datastoreCode);
+                oneDatastoreWellContents =
+                        enrichWithFeatureVectors(oneDatastoreWellContents, loader);
+            }
+            enrichedWellContents.addAll(oneDatastoreWellContents);
+        }
+        return enrichedWellContents;
+    }
+
+    // Groups elements according to the datastore server to which the connected analysis dataset
+    // belongs. At null key we store all elements which do not have the dataset assigned.
+    private Map<String, List<WellContent>> createAnalysisDatastoreToWellContentsMap(
+            List<WellContent> wellContents)
+    {
+        Map<String/* dss code */, List<WellContent>> map =
+                new HashMap<String/* dss code */, List<WellContent>>();
+        for (WellContent wellContent : wellContents)
+        {
+            DatasetReference featureVectorDataset = wellContent.tryGetFeatureVectorDataset();
+            String datastoreCode =
+                    (featureVectorDataset == null ? null : featureVectorDataset.getDatastoreCode());
+            List<WellContent> datastoreWellContents = map.get(datastoreCode);
+            if (datastoreWellContents == null)
+            {
+                datastoreWellContents = new ArrayList<WellContent>();
+            }
+            datastoreWellContents.add(wellContent);
+            map.put(datastoreCode, datastoreWellContents);
+        }
+        return map;
+    }
+
+    // should be called for wells which have feature vector datasets from the same DSS
+    private static List<WellContent> enrichWithFeatureVectors(List<WellContent> wellsWithDatasets,
+            IHCSFeatureVectorLoader loader)
+    {
         List<WellFeatureVectorReference> wellReferences = extractWellReferences(wellsWithDatasets);
         WellFeatureCollection<FeatureVectorValues> featureVectors =
-                FeatureTableBuilder.fetchWellFeatureValuesIfPossible(wellReferences, dao);
+                loader.fetchWellFeatureValuesIfPossible(wellReferences);
         return enrichWithFeatureVectors(wellsWithDatasets, featureVectors);
     }
 

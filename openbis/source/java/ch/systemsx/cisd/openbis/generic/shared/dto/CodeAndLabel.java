@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
  * Value object which has a label and a normalized code. Normalized means that the original code
@@ -25,56 +25,17 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
  */
 public class CodeAndLabel
 {
-    /**
-     * Normalizes the specified code. That is lower-case characters are turned to upper case and any
-     * symbol which isn't from A-Z or 0-9 is replaced by an underscore character.
-     */
-    public static String normalize(String code)
-    {
-        StringBuilder builder = new StringBuilder(code.toUpperCase().trim());
-        for (int i = 0, n = builder.length(); i < n; i++)
-        {
-            if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".indexOf(builder.charAt(i)) < 0)
-            {
-                builder.setCharAt(i, '_');
-            }
-        }
-        return builder.toString();
-    }
-
     private final String label;
 
     private final String code;
 
     /**
-     * Creates an instance for specified code and label. The code will be normalized.
+     * Creates an instance for specified code and label. The code should be already be normalized.
      */
     public CodeAndLabel(String code, String label)
     {
-        this.code = normalize(code);
+        this.code = code;
         this.label = label.trim();
-    }
-
-    /**
-     * Creates an instance from specified label with optional code prefix in form of
-     * <code>&lt;code&gt;</code>. The code will be normalized.
-     */
-    public CodeAndLabel(String labelWithOptionalCode)
-    {
-        String t = labelWithOptionalCode;
-        String c = labelWithOptionalCode;
-        if (labelWithOptionalCode.startsWith("<"))
-        {
-            int indexOfClosing = labelWithOptionalCode.indexOf('>');
-            if (indexOfClosing > 0)
-            {
-                c = labelWithOptionalCode.substring(1, indexOfClosing).trim();
-                t = labelWithOptionalCode.substring(indexOfClosing + 1).trim();
-            }
-        }
-        code = normalize(c);
-        String rest = t.trim();
-        label = rest.length() == 0 ? code : rest;
     }
 
     /**

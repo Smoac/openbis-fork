@@ -34,7 +34,7 @@ import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 
 /**
  * Abstract superclass for the different kinds of graphs.

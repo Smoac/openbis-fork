@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,15 +33,14 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureTableRow;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.FeatureVectorValues;
-import ch.systemsx.cisd.openbis.dss.generic.server.featurevectors.WellFeatureVectorReference;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -54,11 +53,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  * {@link IImagingReadonlyQueryDAO}.
  * 
  * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
-public class FeatureTableBuilder
+public class FeatureVectorLoader
 {
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            FeatureTableBuilder.class);
+            FeatureVectorLoader.class);
 
     // stores all feature vectors of one dataset
     private static final class DatasetFeaturesBundle
@@ -68,9 +68,15 @@ public class FeatureTableBuilder
         private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
     }
 
+    public static interface IMetadataProvider
+    {
+        /** fetches sample identifier from openBIS */
+        SampleIdentifier tryGetSampleIdentifier(String samplePermId);
+    }
+
     private final IImagingReadonlyQueryDAO dao;
 
-    private final IEncapsulatedOpenBISService serviceOrNull;
+    private final IMetadataProvider metadataProviderOrNull;
 
     private final List<DatasetFeaturesBundle> bundles;
 
@@ -89,9 +95,10 @@ public class FeatureTableBuilder
      */
     public static WellFeatureCollection<FeatureTableRow> fetchWellFeatures(
             List<FeatureVectorDatasetWellReference> references, List<String> featureCodes,
-            IImagingReadonlyQueryDAO dao, IEncapsulatedOpenBISService service)
+            IImagingReadonlyQueryDAO dao, IMetadataProvider metadataProviderOrNull)
     {
-        FeatureTableBuilder builder = new FeatureTableBuilder(featureCodes, dao, service);
+        FeatureVectorLoader builder =
+                new FeatureVectorLoader(featureCodes, dao, metadataProviderOrNull);
         Set<String> datasetCodes = extractDatasetCodes(references);
         builder.addFeatureVectorsOfDataSetsOrDie(datasetCodes);
         List<FeatureTableRow> features = builder.createFeatureTableRows(references);
@@ -107,9 +114,10 @@ public class FeatureTableBuilder
      */
     public static WellFeatureCollection<FeatureTableRow> fetchDatasetFeatures(
             List<String> datasetCodes, List<String> featureCodes, IImagingReadonlyQueryDAO dao,
-            IEncapsulatedOpenBISService service)
+            IMetadataProvider metadataProviderOrNull)
     {
-        FeatureTableBuilder builder = new FeatureTableBuilder(featureCodes, dao, service);
+        FeatureVectorLoader builder =
+                new FeatureVectorLoader(featureCodes, dao, metadataProviderOrNull);
         builder.addFeatureVectorsOfDataSetsOrDie(datasetCodes);
         List<FeatureTableRow> features = builder.createFeatureTableRows();
         return new WellFeatureCollection<FeatureTableRow>(features, builder.getCodesAndLabels());
@@ -122,7 +130,7 @@ public class FeatureTableBuilder
     public static WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
             List<WellFeatureVectorReference> references, IImagingReadonlyQueryDAO dao)
     {
-        FeatureTableBuilder builder = new FeatureTableBuilder(new ArrayList<String>(), dao, null);
+        FeatureVectorLoader builder = new FeatureVectorLoader(new ArrayList<String>(), dao, null);
         Set<String> datasetCodes = extractDatasetCodesFromSimpleReferences(references);
         builder.addFeatureVectorsOfDataSetsIfPossible(datasetCodes);
         List<FeatureVectorValues> features =
@@ -221,13 +229,13 @@ public class FeatureTableBuilder
      * Creates an instance for specified DAO and openBIS service but filters on specified features.
      * 
      * @param featureCodes empty list means no filtering.
-     * @param serviceOrNull if null info about plates will not be fetched from openBIS
+     * @param metadataProviderOrNull if null info about plates will not be fetched from openBIS
      */
-    FeatureTableBuilder(List<String> featureCodes, IImagingReadonlyQueryDAO dao,
-            IEncapsulatedOpenBISService serviceOrNull)
+    FeatureVectorLoader(List<String> featureCodes, IImagingReadonlyQueryDAO dao,
+            IMetadataProvider metadataProviderOrNull)
     {
         this.dao = dao;
-        this.serviceOrNull = serviceOrNull;
+        this.metadataProviderOrNull = metadataProviderOrNull;
         bundles = new ArrayList<DatasetFeaturesBundle>();
         featureCodeLabelToIndexMap = new LinkedHashMap<CodeAndLabel, Integer>();
         this.featureCodes = new LinkedHashSet<String>(featureCodes);
@@ -347,9 +355,9 @@ public class FeatureTableBuilder
 
     private SampleIdentifier tryGetSampleIdentifier(ImgContainerDTO container)
     {
-        if (serviceOrNull != null)
+        if (metadataProviderOrNull != null)
         {
-            return serviceOrNull.tryToGetSampleIdentifier(container.getPermId());
+            return metadataProviderOrNull.tryGetSampleIdentifier(container.getPermId());
         } else
         {
             return null;

@@ -28,12 +28,13 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.TabularDataGraphServlet;
 import ch.systemsx.cisd.openbis.dss.generic.server.graph.TabularDataGraphConfiguration.GraphType;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ITabularData;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
+import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 /**
@@ -198,8 +199,8 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
                 }
             case HISTOGRAM:
                 return new TabularDataHistogramConfiguration(title, getCodeAndLabel(props,
-                        COLUMN_KEY), getThumbnailWidth(), getThumbnailHeight(), PropertyUtils
-                        .getInt(props, NUMBER_OF_BINS_KEY, 10));
+                        COLUMN_KEY), getThumbnailWidth(), getThumbnailHeight(),
+                        PropertyUtils.getInt(props, NUMBER_OF_BINS_KEY, 10));
             case SCATTERPLOT:
                 xAxis = getCodeAndLabel(props, X_AXIS_KEY);
                 yAxis = getCodeAndLabel(props, Y_AXIS_KEY);
@@ -216,7 +217,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         String labelWithOptionalCode = properties.getProperty(key);
         if (labelWithOptionalCode != null)
         {
-            return new CodeAndLabel(labelWithOptionalCode);
+            return CodeAndLabelUtil.create(labelWithOptionalCode);
         }
         String labelKey = key + LABEL_POSTFIX;
         String label = properties.getProperty(labelKey);
@@ -229,9 +230,9 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         }
         if (code == null)
         {
-            return new CodeAndLabel(label);
+            return CodeAndLabelUtil.create(label);
         }
-        return new CodeAndLabel(code, label);
+        return CodeAndLabelUtil.create(code, label);
     }
 
     private CodeAndLabel getCodeAndLabelWithDefault(Properties properties, String key,
@@ -240,7 +241,7 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         String labelWithOptionalCode = properties.getProperty(key);
         if (labelWithOptionalCode != null)
         {
-            return new CodeAndLabel(labelWithOptionalCode);
+            return CodeAndLabelUtil.create(labelWithOptionalCode);
         }
         String labelKey = key + LABEL_POSTFIX;
         String label = properties.getProperty(labelKey);
@@ -249,13 +250,13 @@ public class TabularDataGraphCollectionConfiguration implements ICsvFileReaderCo
         if (label == null && code == null)
         {
             label = defaultLabel;
-            code = CodeAndLabel.normalize(label);
+            code = CodeAndLabelUtil.normalize(label);
         }
         if (code == null)
         {
-            return new CodeAndLabel(label);
+            return CodeAndLabelUtil.create(label);
         }
-        return new CodeAndLabel(code, label);
+        return CodeAndLabelUtil.create(code, label);
     }
 
     /**
