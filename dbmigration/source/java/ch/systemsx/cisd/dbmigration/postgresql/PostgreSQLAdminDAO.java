@@ -125,7 +125,7 @@ public class PostgreSQLAdminDAO extends AbstractDatabaseAdminDAO
     {
         try
         {
-            getJdbcTemplate().execute("create role \"" + role + "\"");
+            getJdbcTemplate().execute("create role \"" + role + "\" with LOGIN");
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Created role '" + role + "'.");
