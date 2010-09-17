@@ -1526,7 +1526,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private static final String UPDATE_TEMPLATE_COMMENT =
             "# If one doesn't want to modify values in a column the column can be removed completely from the file.\n"
                     + "# Empty value in a column also means that the value stored in openBIS shouldn't be changed.\n "
-                    + "# To delete a value/connection from openBIS one needs to put '<DELETE>' into the corresponding cell.\n";
+                    + "# To delete a value/connection from openBIS one needs to put \"--DELETE--\" into the corresponding cell.\n";
 
     private String createTemplateForType(EntityKind entityKind, boolean autoGenerate,
             EntityTypePE entityType, boolean addComments, boolean withExperiments,
@@ -1577,10 +1577,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     }
                     break;
                 case UPDATE:
-                    sb.insert(0, UPDATE_TEMPLATE_COMMENT);
                     if (entityKind.equals(EntityKind.SAMPLE))
                     {
                         sb.insert(0, UpdatedSample.SAMPLE_UPDATE_TEMPLATE_COMMENT);
+                    } else
+                    {
+                        sb.insert(0, UPDATE_TEMPLATE_COMMENT);
                     }
                     break;
             }

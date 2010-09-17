@@ -111,6 +111,16 @@ public abstract class AbstractEntityProperty implements IEntityProperty
         return ordinal;
     }
 
+    //
+    // Object
+    //
+
+    @Override
+    public String toString()
+    {
+        return propertyType + ": " + tryGetAsString();
+    }
+
     // 
     // Comparable
     // 

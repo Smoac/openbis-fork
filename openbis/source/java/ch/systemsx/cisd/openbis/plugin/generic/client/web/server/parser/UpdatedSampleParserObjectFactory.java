@@ -16,9 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -75,46 +81,60 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
      */
     private SampleBatchUpdateDetails createBatchUpdateDetails(NewSample newSample)
     {
-        boolean updateExperiment =
+        final boolean updateExperiment =
                 basicBatchUpdateDetails.isExperimentUpdateRequested()
                         && isNotEmpty(newSample.getExperimentIdentifier());
-        boolean updateParent =
+        final boolean updateParent =
                 basicBatchUpdateDetails.isParentUpdateRequested()
                         && isNotEmpty(newSample.getParentIdentifier());
-        boolean updateContainer =
+        final boolean updateContainer =
                 basicBatchUpdateDetails.isContainerUpdateRequested()
                         && isNotEmpty(newSample.getContainerIdentifier());
 
-        // TODO 2010-09-17, Piotr Buczek: properties
+        final Set<String> propertiesToUpdate = new HashSet<String>();
+        for (IEntityProperty property : newSample.getProperties())
+        {
+            propertiesToUpdate.add(property.getPropertyType().getCode());
+        }
+
         return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateContainer,
-                basicBatchUpdateDetails.getPropertiesToUpdate());
+                propertiesToUpdate);
     }
 
-    /** Cleans the placeholders used to mark deletion of values in the specified sample. */
+    /** Cleans properties and connections of the specified sample that are marked for deletion. */
     private void cleanUp(NewSample newSample)
     {
-        if (shouldDelete(newSample.getExperimentIdentifier()))
+        if (isDeleteMark(newSample.getExperimentIdentifier()))
         {
             newSample.setExperimentIdentifier(null);
         }
-        if (shouldDelete(newSample.getParentIdentifier()))
+        if (isDeleteMark(newSample.getParentIdentifier()))
         {
             newSample.setParentIdentifier(null);
         }
-        if (shouldDelete(newSample.getContainerIdentifier()))
+        if (isDeleteMark(newSample.getContainerIdentifier()))
         {
             newSample.setContainerIdentifier(null);
         }
+        final List<IEntityProperty> updatedProperties = new ArrayList<IEntityProperty>();
+        for (IEntityProperty property : newSample.getProperties())
+        {
+            if (isDeleteMark(property.getValue()) == false)
+            {
+                updatedProperties.add(property);
+            }
+        }
+        newSample.setProperties(updatedProperties.toArray(new IEntityProperty[0]));
     }
 
-    private static final String DELETE = "<DELETE>";
+    private static final String DELETE = "--DELETE--";
 
     private static boolean isNotEmpty(String value)
     {
         return StringUtils.isBlank(value) == false;
     }
 
-    private static boolean shouldDelete(String value)
+    private static boolean isDeleteMark(String value)
     {
         return DELETE.equals(value);
     }
