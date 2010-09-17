@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Set;
 
@@ -71,22 +70,36 @@ public final class UpdatedSampleParserObjectFactoryTest
         return new Object[][]
             {
                 { new String[]
-                    { "", "", "", "" }, 0 },
+                    { "", "", "", "" }, 0, 0 },
                 { new String[]
-                    { "id1", "cont1", "1", "hello" }, 2 }, };
+                    { "id1", "cont1", "1", "hello" }, 2, 2 },
+                { new String[]
+                    { "id1", "", "1", "" }, 1, 1 },
+                { new String[]
+                    { "", "cont1", "", "hello" }, 1, 1 },
+                { new String[]
+                    { "id1", "cont1", "--DELETE--", "--DELETE--" }, 0, 2 },
+                { new String[]
+                    { "--DELETE--", "--DELETE--", "--DELETE--", "hello" }, 1, 2 } };
     }
 
     @Test(dataProvider = "getLineTokens")
-    public final void testCreateObject(final String[] lineTokens, final int numberOfProperties)
+    public final void testCreateObject(final String[] lineTokens, final int numberOfProperties,
+            final int numOfPropertiestoUpdate)
     {
+        final String identifierToken = lineTokens[0];
+        final String containerToken = lineTokens[1];
+        final String p1Token = lineTokens[2];
+        final String p2Token = lineTokens[3];
         final UpdatedSampleParserObjectFactory parserObjectFactory =
                 createUpdatedSampleParserObjectFactory(createPropertyMapper(), true);
         final UpdatedSample objectCreated =
                 (UpdatedSample) parserObjectFactory.createObject(lineTokens);
         // assert that all NewSample properties are set properly
-        assertEquals(objectCreated.getIdentifier(), lineTokens[0]);
-        assertEquals(objectCreated.getContainerIdentifier(),
-                StringUtils.isEmpty(lineTokens[1]) ? null : lineTokens[1]);
+        assertEquals(identifierToken, objectCreated.getIdentifier());
+        assertEquals(
+                StringUtils.isEmpty(containerToken) || "--DELETE--".equals(containerToken) ? null
+                        : containerToken, objectCreated.getContainerIdentifier());
         final IEntityProperty[] properties = objectCreated.getProperties();
         assertEquals(numberOfProperties, properties.length);
         int index = 2;
@@ -97,10 +110,10 @@ public final class UpdatedSampleParserObjectFactoryTest
         // assert that SampleBatchUpdateDetails contains proper data
         final SampleBatchUpdateDetails batchUpdateDetails = objectCreated.getBatchUpdateDetails();
         final Set<String> propertiesToUpdate = batchUpdateDetails.getPropertiesToUpdate();
-        assertEquals(2, propertiesToUpdate.size());
-        assertTrue(propertiesToUpdate.contains(PROPERTY_1));
-        assertTrue(propertiesToUpdate.contains(PROPERTY_2));
-        assertEquals(StringUtils.isBlank(lineTokens[2]) == false, batchUpdateDetails
+        assertEquals(numOfPropertiestoUpdate, propertiesToUpdate.size());
+        assertEquals(StringUtils.isBlank(p1Token) == false, propertiesToUpdate.contains(PROPERTY_1));
+        assertEquals(StringUtils.isBlank(p2Token) == false, propertiesToUpdate.contains(PROPERTY_2));
+        assertEquals(StringUtils.isBlank(containerToken) == false, batchUpdateDetails
                 .isContainerUpdateRequested());
         assertFalse(batchUpdateDetails.isParentUpdateRequested());
         assertFalse(batchUpdateDetails.isExperimentUpdateRequested());
