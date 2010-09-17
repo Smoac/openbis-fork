@@ -23,7 +23,6 @@ import java.util.Set;
 
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
@@ -74,6 +73,8 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
     }
 
     //
+    // handle empty values and deletion
+    //
 
     /**
      * Returns details about which values should be updated for the specified sample. If a cell was
@@ -104,39 +105,27 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
     /** Cleans properties and connections of the specified sample that are marked for deletion. */
     private void cleanUp(NewSample newSample)
     {
-        if (isDeleteMark(newSample.getExperimentIdentifier()))
+        if (isDeletionMark(newSample.getExperimentIdentifier()))
         {
             newSample.setExperimentIdentifier(null);
         }
-        if (isDeleteMark(newSample.getParentIdentifier()))
+        if (isDeletionMark(newSample.getParentIdentifier()))
         {
             newSample.setParentIdentifier(null);
         }
-        if (isDeleteMark(newSample.getContainerIdentifier()))
+        if (isDeletionMark(newSample.getContainerIdentifier()))
         {
             newSample.setContainerIdentifier(null);
         }
         final List<IEntityProperty> updatedProperties = new ArrayList<IEntityProperty>();
         for (IEntityProperty property : newSample.getProperties())
         {
-            if (isDeleteMark(property.getValue()) == false)
+            if (isDeletionMark(property.getValue()) == false)
             {
                 updatedProperties.add(property);
             }
         }
-        newSample.setProperties(updatedProperties.toArray(new IEntityProperty[0]));
-    }
-
-    private static final String DELETE = "--DELETE--";
-
-    private static boolean isNotEmpty(String value)
-    {
-        return StringUtils.isBlank(value) == false;
-    }
-
-    private static boolean isDeleteMark(String value)
-    {
-        return DELETE.equals(value);
+        newSample.setProperties(updatedProperties.toArray(IEntityProperty.EMPTY_ARRAY));
     }
 
 }

@@ -17,9 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
@@ -51,21 +51,26 @@ public final class NewDataSetParserObjectFactory extends AbstractParserObjectFac
 
     private final void setProperties(final NewDataSet newObject, final String[] lineTokens)
     {
-        final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
+        final List<IEntityProperty> updatedProperties = new ArrayList<IEntityProperty>();
+        final Set<String> propertiesToUpdate = new HashSet<String>();
         for (final String unmatchedProperty : getUnmatchedProperties())
         {
             final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
             final String propertyValue = getPropertyValue(lineTokens, propertyModel);
-            if (StringUtils.isEmpty(propertyValue) == false)
+            if (isNotEmpty(propertyValue))
             {
-                final IEntityProperty property = new EntityProperty();
-                property.setPropertyType(createPropertyType(unmatchedProperty));
-                property.setValue(propertyValue);
-                properties.add(property);
+                propertiesToUpdate.add(unmatchedProperty);
+                if (isDeletionMark(propertyValue) == false)
+                {
+                    final IEntityProperty property = new EntityProperty();
+                    property.setPropertyType(createPropertyType(unmatchedProperty));
+                    property.setValue(propertyValue);
+                    updatedProperties.add(property);
+                }
             }
         }
-        newObject.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
-        newObject.setPropertiesToUpdate(getUnmatchedProperties());
+        newObject.setProperties(updatedProperties.toArray(IEntityProperty.EMPTY_ARRAY));
+        newObject.setPropertiesToUpdate(propertiesToUpdate);
     }
 
     @Override
