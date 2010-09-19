@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.quant;
 
+import java.util.Collection;
+
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
@@ -46,5 +48,5 @@ public interface IQuantMSDAO extends IDMGenericDAO
 
     @Update(sql = "insert into MS_QUANT_COMPOUNDS (MS_QUANT_CONCENTRATION_ID, COMPOUND_ID) "
             + "values (?{1}, ?{2})", batchUpdate = true)
-    public void addCompoundIds(long concentrationId, Iterable<Long> compoundIds);
+    public void addCompoundIds(long concentrationId, Collection<Long> compoundIds);
 }

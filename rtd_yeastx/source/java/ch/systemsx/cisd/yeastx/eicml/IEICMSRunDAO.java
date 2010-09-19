@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
+import java.util.Collection;
+
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
@@ -51,7 +53,7 @@ public interface IEICMSRunDAO extends IDMGenericDAO
     @Update(sql = "insert into EIC_CHROMATOGRAMS (EIC_MS_RUN_ID, Q1_MZ, Q3_LOW_MZ, Q3_HIGH_MZ, LABEL, POLARITY, RUN_TIMES, "
             + "intensities) values (?{1}, ?{2.q1Mz}, ?{2.q3LowMz}, ?{2.q3HighMz}, ?{2.label}, "
             + "?{2.polarity}, ?{2.runTimes}, ?{2.intensities})", batchUpdate = true)
-    public void addChromatograms(long EIC_MS_RUN_ID, Iterable<ChromatogramDTO> chromatogram);
+    public void addChromatograms(long EIC_MS_RUN_ID, Collection<ChromatogramDTO> chromatogram);
 
     @Select(sql = "select EIC_MS_RUNS.*,count(EIC_CHROMATOGRAMS.*) as chromCount from EIC_MS_RUNS "
             + "left join EIC_CHROMATOGRAMS on EIC_MS_RUN_ID = EIC_MS_RUNS.ID group by "

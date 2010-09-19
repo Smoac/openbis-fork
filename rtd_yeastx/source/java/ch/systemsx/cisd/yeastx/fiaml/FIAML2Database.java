@@ -18,6 +18,8 @@ package ch.systemsx.cisd.yeastx.fiaml;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.AbstractCollection;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.sql.DataSource;
@@ -36,10 +38,11 @@ public class FIAML2Database extends AbstractDatasetLoader<IFIAMSRunDAO>
 
     private final static int PROFILE_CHUNK_SIZE = 250;
 
-    private static Iterable<ProfileDTO> profileChunk(final FIAMSRunDataDTO runData)
+    private static Collection<ProfileDTO> profileChunk(final FIAMSRunDataDTO runData)
     {
-        return new Iterable<ProfileDTO>()
+        return new AbstractCollection<ProfileDTO>()
             {
+                @Override
                 public Iterator<ProfileDTO> iterator()
                 {
                     return new Iterator<ProfileDTO>()
@@ -67,6 +70,12 @@ public class FIAML2Database extends AbstractDatasetLoader<IFIAMSRunDAO>
                                 throw new UnsupportedOperationException();
                             }
                         };
+                }
+
+                @Override
+                public int size()
+                {
+                    return runData.getProfileMz().length;
                 }
             };
     }

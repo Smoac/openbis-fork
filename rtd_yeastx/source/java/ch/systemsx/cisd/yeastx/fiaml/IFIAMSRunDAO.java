@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.yeastx.fiaml;
 
+import java.util.Collection;
+
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
@@ -54,7 +56,7 @@ public interface IFIAMSRunDAO extends IDMGenericDAO
 
     @Update(sql = "insert into FIA_PROFILES (FIA_MS_RUN_ID, LOW_MZ, HIGH_MZ, MZ, INTENSITIES) "
             + "values (?{1}, ?{2.lowMz}, ?{2.highMz}, ?{2.mz}, ?{2.intensities})", batchUpdate = true)
-    public void addProfiles(long fiaMsRunId, Iterable<ProfileDTO> profiles);
+    public void addProfiles(long fiaMsRunId, Collection<ProfileDTO> profiles);
 
     @Select(sql = "select FIA_MS_RUNS.*,count(FIA_PROFILES.*) as profileCount from FIA_MS_RUNS "
             + "left join FIA_PROFILES on FIA_MS_RUN_ID = FIA_MS_RUNS.ID group by "
