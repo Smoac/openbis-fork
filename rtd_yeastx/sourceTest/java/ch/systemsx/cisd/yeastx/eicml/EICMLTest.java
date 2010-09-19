@@ -27,6 +27,7 @@ import net.lemnik.eodsql.DataIterator;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -50,6 +51,12 @@ public class EICMLTest extends AbstractDBTest
     public void setDAO() throws SQLException
     {
         eicmlDAO = DBUtils.getQuery(datasource, IEICMSRunDAO.class);
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void close()
+    {
+        eicmlDAO.close();
     }
 
     @Test
