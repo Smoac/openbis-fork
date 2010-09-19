@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Util;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -103,7 +102,6 @@ public class DataViewSection extends TabContent
         final DatastoreServiceSelectionWidget serviceSelectionWidget =
                 new DatastoreServiceSelectionWidget(viewContext, dataset, hideFileView,
                         hideSmartView);
-        getHeader().addTool(new LabelToolItem(serviceSelectionWidget.getFieldLabel() + ":&nbsp;"));
         getHeader().addTool(serviceSelectionWidget);
         serviceSelectionWidget.addSelectionChangedListener(createServiceSelectionChangedListener());
     }
@@ -259,6 +257,13 @@ public class DataViewSection extends TabContent
                             }
                         }
                         setSelection(Arrays.asList(defaultModel));
+                        if (modelsStore.getCount() < 2)
+                        {
+                            hide();
+                        } else
+                        {
+                            show();
+                        }
                     }
                 };
         }
