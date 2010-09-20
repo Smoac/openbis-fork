@@ -127,7 +127,7 @@ function test_screening_api {
 	assert_pattern_present api-client-log.txt 1 "features labels: \[cellNumber, featrue1, featrue10, featrue11, featrue12, featrue13, featrue14, featrue15, featrue16, featrue2, featrue3, featrue4, featrue5, featrue6, featrue7, featrue8, featrue9, Hit Rate, std1, std10, std11, std12, std13, std14, std15, std16, std2, std3, std4, std5, std6, std7, std8, std9\]"
 	assert_pattern_present api-client-log.txt 1 "Features of the first dataset: datasetCode: [0-9]*-8"
 	assert_pattern_present api-client-log.txt 1 "wellPosition: \[1, 2\], values: \[48.0, 0.0051865"
-	assert_pattern_present api-client-log.txt 1 "Image metadata: \[Dataset [0-9]*-9 (plate: /DEMO/PLATE3 \[20100624113759640-7\]) has \[\[DAPI, GFP\]\] channels, 9 tiles\. Images resolution: 720x468"
+	assert_pattern_present api-client-log.txt 1 "Image metadata: \[Dataset [0-9]*-[0-9]* (plate: /DEMO/PLATE3 \[20100624113759640-7\]) has \[\[DAPI, GFP\]\] channels, 9 tiles\. Images resolution: 720x468"
 	for imgFile in `find . -name *.png`; do
 	  assert_pattern_present $imgFile 1 PNG
 	done
