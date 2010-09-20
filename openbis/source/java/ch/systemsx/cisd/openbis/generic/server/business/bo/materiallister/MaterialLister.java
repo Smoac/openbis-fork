@@ -67,7 +67,6 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
 
     private final IEntityPropertiesEnricher propertiesEnricher;
 
-
     public static IMaterialLister create(IDAOFactory daoFactory, String baseIndexURL)
     {
         MaterialListerDAO dao = MaterialListerDAO.create(daoFactory);
@@ -221,7 +220,22 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     public void enrichWithProperties(List<Material> materials)
     {
         setEmptyProperties(materials);
-        enrichWithProperties(asMap(materials));
+        Long2ObjectMap<Material> materialMap = asMap(materials);
+        enrichWithProperties(materialMap);
+        enrichRepeatedMaterialsWithProperties(materials, materialMap);
+    }
+
+    private void enrichRepeatedMaterialsWithProperties(List<Material> allMaterials,
+            Long2ObjectMap<Material> enrichedMaterials)
+    {
+        for (Material material : allMaterials)
+        {
+            if (material.getProperties().isEmpty())
+            {
+                Material enrichedMaterial = enrichedMaterials.get(material.getId());
+                material.setProperties(new ArrayList<IEntityProperty>(enrichedMaterial.getProperties()));
+            }
+        }
     }
 
     private void setEmptyProperties(List<Material> materials)
