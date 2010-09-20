@@ -258,6 +258,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         this.contentPanel = createEmptyContentPanel();
         bottomToolbars = createBottomToolbars(contentPanel, pagingToolbar);
+        // TODO: Delete the following line -- it has been moved to BrowserGridPagingManager
         configureBottomToolbarSyncSize();
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
@@ -616,7 +617,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         listEntities(resultSetConfig, listCallback);
     }
 
-    private void debug(String msg)
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    void debug(String msg)
     {
         if (DEBUG)
         {
@@ -767,6 +769,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             grid.el().unmask();
             onComplete(false);
+            // TODO: change to pagingManager.finishOnFailure()
             pagingToolbar.enable(); // somehow enabling toolbar is lost in its handleEvent() method
             // no need to show error message - it should be shown by DEFAULT_CALLBACK_LISTENER
             caught.printStackTrace();
@@ -969,6 +972,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** adds given <var>button</var> to grid {@link PagingToolBar} */
     protected final void addButton(Button button)
     {
+     // TODO: change to pagingManager.addButton()
         pagingToolbar.add(button);
     }
 
@@ -1213,7 +1217,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // Refreshes the data, does not clear the cache. Does not change the column model.
-    private void reloadData(ResultSetFetchConfig<String> resultSetFetchConfig)
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    void reloadData(ResultSetFetchConfig<String> resultSetFetchConfig)
     {
         if (pendingFetchConfigOrNull != null)
         {
@@ -1222,6 +1227,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             return;
         }
         pendingFetchConfigOrNull = resultSetFetchConfig;
+        // TODO: change to pagingManager.load(0);
         pagingLoader.load(0, PAGE_SIZE);
     }
 
@@ -1248,7 +1254,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // returns true if some filters have changed
-    private boolean rebuildFiltersFromIds(List<String> filteredColumnIds)
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    boolean rebuildFiltersFromIds(List<String> filteredColumnIds)
     {
         List<IColumnDefinition<T>> filteredColumns = getColumnDefinitions(filteredColumnIds);
         return filterToolbar.rebuildColumnFilters(filteredColumns);
@@ -1311,6 +1318,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     if (wasSuccessful)
                     {
                         hideLoadingMask();
+                        // TODO: change to pagingManager.postRefresh();
                         pagingToolbar.updateDefaultConfigButton(true);
                         pagingToolbar.enableExportButton();
                     }
@@ -1371,72 +1379,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private void configureColumnSettings()
     {
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
-
-        List<ColumnDataModel> settingsModel =
-                createColumnsSettingsModel(getColumnModel(), filterToolbar
-                        .extractFilteredColumnIds());
-        AbstractColumnSettingsDataModelProvider provider =
-                new AbstractColumnSettingsDataModelProvider(settingsModel)
-                    {
-                        @Override
-                        public void onClose(List<ColumnDataModel> newColumnDataModels)
-                        {
-                            MoveableColumnModel cm = getColumnModel();
-                            updateColumnsSettingsModel(cm, newColumnDataModels);
-
-                            // refresh the whole grid if custom columns changed
-                            List<GridCustomColumnInfo> newCustomColumns = tryGetCustomColumnsInfo();
-                            if (newCustomColumns != null)
-                            {
-                                customColumnsMetadataProvider
-                                        .setCustomColumnsMetadata(newCustomColumns);
-                            }
-                            boolean customColumnsChanged =
-                                    customColumnsMetadataProvider.getHasChangedAndSetFalse();
-                            if (customColumnsChanged)
-                            {
-                                recreateColumnModelAndRefreshColumnsWithFilters();
-                            }
-
-                            boolean columnFiltersChanged =
-                                    rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
-                            saveColumnDisplaySettings();
-
-                            if (customColumnsChanged || columnFiltersChanged)
-                            {
-                                debug("refreshing custom columns and/or filter distinct value in "
-                                        + pendingFetchConfigOrNull + " mode");
-                                // we do not need to reload data if custom filters changed (we do
-                                // not need distinct column values)
-                                reloadData(createRefreshSettingsFetchConfig());
-                            }
-                            // settings will be automatically stored because of event handling
-                            refreshColumnsSettings();
-                            filterToolbar.refresh();
-                        }
-
-                        private ResultSetFetchConfig<String> createRefreshSettingsFetchConfig()
-                        {
-                            if (pendingFetchConfigOrNull == null)
-                            {
-                                if (resultSetKeyOrNull == null)
-                                {
-                                    return ResultSetFetchConfig.createComputeAndCache();
-                                } else
-                                {
-                                    return ResultSetFetchConfig
-                                            .createFetchFromCacheAndRecompute(resultSetKeyOrNull);
-                                }
-                            } else
-                            {
-                                return pendingFetchConfigOrNull;
-                            }
-                        }
-                    };
-        ColumnSettingsDialog.show(viewContext, provider, getGridDisplayTypeID());
+        ColumnSettingsConfigurer<T, M> columnSettingsConfigurer =
+                new ColumnSettingsConfigurer<T, M>(this, viewContext, filterToolbar,
+                        customColumnsMetadataProvider, resultSetKeyOrNull, pendingFetchConfigOrNull);
+        columnSettingsConfigurer.showDialog();
     }
 
-    private void saveColumnDisplaySettings()
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    void saveColumnDisplaySettings()
     {
         viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
                 createDisplaySettingsUpdater(), false);
@@ -1474,10 +1424,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return the number of all objects cached in the browser */
     public int getTotalCount()
     {
+        // TODO: Change to return pagingManager.getTotalCount();
         return pagingToolbar.getTotalCount();
     }
 
-    private void refreshColumnsSettings()
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    void refreshColumnsSettings()
     {
         grid.setLoadMask(false);
         grid.getView().refresh(true);
@@ -1486,11 +1438,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final void addEntityOperationsLabel()
     {
+        // TODO: change to pagingManager.addEntityOperationsLabel();
         pagingToolbar.addEntityOperationsLabel();
     }
 
     protected final void addEntityOperationsSeparator()
     {
+     // TODO: change to pagingManager.addEntityOperationsSeparator();
         pagingToolbar.add(new SeparatorToolItem());
     }
 
@@ -1506,7 +1460,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // ------- generic static helpers
 
-    private static List<String> getFilteredColumnIds(List<ColumnDataModel> result)
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    static List<String> getFilteredColumnIds(List<ColumnDataModel> result)
     {
         List<String> filteredColumnsIds = new ArrayList<String>();
         for (ColumnDataModel model : result)
@@ -1533,7 +1488,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * Updates specified model (<code>cm</code>) with visibility and order settings from
      * <code>columnModels</code>.
      */
-    private static void updateColumnsSettingsModel(final MoveableColumnModel cm,
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    static void updateColumnsSettingsModel(final MoveableColumnModel cm,
             List<ColumnDataModel> columnModels)
     {
         int newIndex = 0;
@@ -1573,7 +1529,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return columnConfig;
     }
 
-    private static List<ColumnDataModel> createColumnsSettingsModel(ColumnModel cm,
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    static List<ColumnDataModel> createColumnsSettingsModel(ColumnModel cm,
             List<String> filteredColumnsIds)
     {
         Set<String> filteredColumnsMap = new HashSet<String>(filteredColumnsIds);
@@ -1658,7 +1615,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return new MoveableColumnModel(columConfigs);
     }
 
-    private MoveableColumnModel getColumnModel()
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    MoveableColumnModel getColumnModel()
     {
         return (MoveableColumnModel) grid.getColumnModel();
     }
@@ -1799,5 +1757,4 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     .getTotalCount()).show();
         }
     }
-
 }
