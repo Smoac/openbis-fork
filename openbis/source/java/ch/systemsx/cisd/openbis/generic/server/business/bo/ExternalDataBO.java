@@ -209,12 +209,36 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 .getStorageFormat()));
         externalData.setLocatorType(getLocatorTypeDAO().tryToFindLocatorTypeByCode(
                 locatorType.getCode()));
+        externalData.setRegistrator(tryToGetRegistrator(data));
         DataStorePE dataStore = getDataStoreDAO().tryToFindDataStoreByCode(data.getDataStoreCode());
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData, convertToDataSetProperties(data
                 .getDataSetProperties()));
         externalData.setDerived(sourceType == SourceType.DERIVED);
         return dataStore;
+    }
+
+    private PersonPE tryToGetRegistrator(NewExternalData data)
+    {
+        String userId = data.getUserId();
+        if (userId != null)
+        {
+            return getPersonDAO().tryFindPersonByUserId(userId);
+        }
+        String userEMail = data.getUserEMail();
+        if (userEMail == null)
+        {
+            return null;
+        }
+        List<PersonPE> persons = getPersonDAO().listPersons();
+        for (PersonPE person : persons)
+        {
+            if (userEMail.equalsIgnoreCase(person.getEmail()))
+            {
+                return person;
+            }
+        }
+        return null;
     }
 
     private VocabularyTermPE tryToFindStorageFormatTerm(StorageFormat storageFormat)

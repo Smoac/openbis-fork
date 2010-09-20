@@ -169,6 +169,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(authorizationGroupDAO));
                     allowing(daoFactory).getGridCustomFilterDAO();
                     will(returnValue(filterDAO));
+                    allowing(daoFactory).getPersonDAO();
+                    will(returnValue(personDAO));
                 }
             });
     }

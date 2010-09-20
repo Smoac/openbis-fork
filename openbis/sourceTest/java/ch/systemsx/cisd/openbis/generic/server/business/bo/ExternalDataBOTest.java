@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -156,6 +157,104 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertSame(true, externalData.isDerived());
         assertEquals(StorageFormat.PROPRIETARY, externalData.getStorageFormat());
         assertSame(vocabularyTerm, externalData.getStorageFormatVocabularyTerm());
+        assertEquals(null, externalData.getRegistrator());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDefineWithUserID()
+    {
+        final DataSetTypePE dataSetType = new DataSetTypePE();
+        final FileFormatTypePE fileFormatType = new FileFormatTypePE();
+        final VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.addTerm(new VocabularyTermPE());
+        VocabularyTermPE vocabularyTerm = new VocabularyTermPE();
+        vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
+        vocabulary.addTerm(vocabularyTerm);
+        final LocatorTypePE locatorType = new LocatorTypePE();
+        SamplePE sample = new SamplePE();
+        ExperimentPE experimentPE = new ExperimentPE();
+        sample.setExperiment(experimentPE);
+        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, new DataStorePE());
+        final NewExternalData data = createData(null);
+        data.setUserId("my-id");
+        final PersonPE registrator = new PersonPE();
+        context.checking(new Expectations()
+            {
+                {
+                    one(personDAO).tryFindPersonByUserId(data.getUserId());
+                    will(returnValue(registrator));
+                }
+            });
+        
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(data, sample, SourceType.DERIVED);
+        ExternalDataPE externalData = dataBO.getExternalData();
+        
+        assertEquals(DATA_SET_CODE, externalData.getCode());
+        assertEquals(BooleanOrUnknown.U, externalData.getComplete());
+        assertEquals(DATA_PRODUCER_CODE, externalData.getDataProducerCode());
+        assertSame(dataSetType, externalData.getDataSetType());
+        assertSame(fileFormatType, externalData.getFileFormatType());
+        assertSame(locatorType, externalData.getLocatorType());
+        assertEquals(LOCATION, externalData.getLocation());
+        assertEquals(0, externalData.getParents().size());
+        assertSame(experimentPE, externalData.getExperiment());
+        assertEquals(PRODUCTION_DATE, externalData.getProductionDate());
+        assertSame(sample, externalData.tryGetSample());
+        assertSame(true, externalData.isDerived());
+        assertEquals(StorageFormat.PROPRIETARY, externalData.getStorageFormat());
+        assertSame(vocabularyTerm, externalData.getStorageFormatVocabularyTerm());
+        assertSame(registrator, externalData.getRegistrator());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testDefineWithUserEMail()
+    {
+        final DataSetTypePE dataSetType = new DataSetTypePE();
+        final FileFormatTypePE fileFormatType = new FileFormatTypePE();
+        final VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.addTerm(new VocabularyTermPE());
+        VocabularyTermPE vocabularyTerm = new VocabularyTermPE();
+        vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
+        vocabulary.addTerm(vocabularyTerm);
+        final LocatorTypePE locatorType = new LocatorTypePE();
+        SamplePE sample = new SamplePE();
+        ExperimentPE experimentPE = new ExperimentPE();
+        sample.setExperiment(experimentPE);
+        prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, new DataStorePE());
+        final NewExternalData data = createData(null);
+        data.setUserEMail("my-email");
+        final PersonPE registrator = new PersonPE();
+        registrator.setEmail(data.getUserEMail());
+        context.checking(new Expectations()
+        {
+            {
+                one(personDAO).listPersons();
+                will(returnValue(Arrays.asList(new PersonPE(), registrator)));
+            }
+        });
+        
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(data, sample, SourceType.DERIVED);
+        ExternalDataPE externalData = dataBO.getExternalData();
+        
+        assertEquals(DATA_SET_CODE, externalData.getCode());
+        assertEquals(BooleanOrUnknown.U, externalData.getComplete());
+        assertEquals(DATA_PRODUCER_CODE, externalData.getDataProducerCode());
+        assertSame(dataSetType, externalData.getDataSetType());
+        assertSame(fileFormatType, externalData.getFileFormatType());
+        assertSame(locatorType, externalData.getLocatorType());
+        assertEquals(LOCATION, externalData.getLocation());
+        assertEquals(0, externalData.getParents().size());
+        assertSame(experimentPE, externalData.getExperiment());
+        assertEquals(PRODUCTION_DATE, externalData.getProductionDate());
+        assertSame(sample, externalData.tryGetSample());
+        assertSame(true, externalData.isDerived());
+        assertEquals(StorageFormat.PROPRIETARY, externalData.getStorageFormat());
+        assertSame(vocabularyTerm, externalData.getStorageFormatVocabularyTerm());
+        assertSame(registrator, externalData.getRegistrator());
         context.assertIsSatisfied();
     }
 

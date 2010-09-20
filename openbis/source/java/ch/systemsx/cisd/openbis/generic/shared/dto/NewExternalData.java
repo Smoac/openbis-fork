@@ -45,6 +45,10 @@ public final class NewExternalData implements Serializable
     private StorageFormat storageFormat;
 
     private Date registrationDate;
+    
+    private String userId;
+    
+    private String userEMail;
 
     private FileFormatType fileFormatType;
 
@@ -110,6 +114,26 @@ public final class NewExternalData implements Serializable
     public void setRegistrationDate(final Date registrationDate)
     {
         this.registrationDate = registrationDate;
+    }
+
+    public void setUserId(String userId)
+    {
+        this.userId = userId;
+    }
+
+    public String getUserId()
+    {
+        return userId;
+    }
+
+    public void setUserEMail(String userEMail)
+    {
+        this.userEMail = userEMail;
+    }
+
+    public String getUserEMail()
+    {
+        return userEMail;
     }
 
     /** Returns <code>fileFormatType</code>. */
