@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.Loader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
@@ -58,7 +57,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -180,12 +178,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // ------ private section. NOTE: it should remain unaccessible to subclasses! ---------------
 
-    private static final int PAGE_SIZE = 50;
-
     // set to true to see some useful debugging messages
     private static final boolean DEBUG = false;
-
-    private final PagingLoader<PagingLoadResult<M>> pagingLoader;
 
     private final ContentPanel contentPanel;
 
@@ -194,9 +188,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final ColumnListener<T, M> columnListener;
 
     private final boolean refreshAutomatically;
-
-    // the toolbar has the refresh and export buttons besides the paging controls
-    private final BrowserGridPagingToolBar pagingToolbar;
 
     // used to change displayed filter widgets
     private final FilterToolbar<T> filterToolbar;
@@ -221,6 +212,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private LayoutContainer bottomToolbars;
 
+    private final BrowserGridPagingManager<T, M> pagingManager;
+
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -241,7 +234,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.viewContext = viewContext;
         int logID = log("create browser grid " + gridId);
         this.refreshAutomatically = refreshAutomatically;
-        this.pagingLoader = createPagingLoader();
+        final PagingLoader<PagingLoadResult<M>> pagingLoader = createPagingLoader();
         this.customColumnsMetadataProvider = new CustomColumnsMetadataProvider();
         this.grid = createGrid(pagingLoader, gridId);
         // WORKAROUND
@@ -250,16 +243,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         // Turning it off for all grids is the safest solution for our system tests framework
         // and should improve GUI speed in development mode a bit.
         grid.setLazyRowRender(0);
-        this.pagingToolbar =
-                new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE, gridId);
-        pagingToolbar.bind(pagingLoader);
         this.filterToolbar =
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
 
         this.contentPanel = createEmptyContentPanel();
-        bottomToolbars = createBottomToolbars(contentPanel, pagingToolbar);
-        // TODO: Delete the following line -- it has been moved to BrowserGridPagingManager
-        configureBottomToolbarSyncSize();
+        pagingManager =
+                new BrowserGridPagingManager<T, M>(this, viewContext, pagingLoader, contentPanel,
+                        asActionInvoker(), gridId, filterToolbar);
+        bottomToolbars = createBottomToolbars(contentPanel, pagingManager.getPagingToolbar());
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(false);
@@ -297,35 +288,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             };
     }
 
-    private void configureBottomToolbarSyncSize()
-    {
-        // fixes problems with:
-        // - no 'overflow' button when some buttons don't fit into pagingToolbar
-        pagingLoader.addListener(Loader.Load, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    pagingToolbar.syncSize();
-                }
-            });
-        // - hidden paging toolbar
-        pagingToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    contentPanel.syncSize();
-                }
-            });
-        // - bottom toolbar is not resized when new filter row appears
-        filterToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
-            {
-                public void handleEvent(BaseEvent be)
-                {
-                    contentPanel.syncSize();
-                }
-            });
-    }
-
     private void configureLoggingBetweenEvents(int logID)
     {
         if (viewContext.isLoggingEnabled())
@@ -337,7 +299,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             logger.prepareLoggingBetweenEvents(contentPanel, EventPair.LAYOUT);
             logger.prepareLoggingBetweenEvents(bottomToolbars, EventPair.LAYOUT);
             logger.prepareLoggingBetweenEvents(filterToolbar, EventPair.LAYOUT);
-            logger.prepareLoggingBetweenEvents(pagingToolbar, EventPair.LAYOUT);
+            pagingManager.configureLoggingBetweenEvents(logger);
             viewContext.logStop(logID);
         }
     }
@@ -618,6 +580,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     void debug(String msg)
     {
         if (DEBUG)
@@ -694,8 +657,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return columnIDs;
     }
 
-    private static <T> SortInfo<T> translateSortInfo(
-            com.extjs.gxt.ui.client.data.SortInfo sortInfo,
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
+    static <T> SortInfo<T> translateSortInfo(com.extjs.gxt.ui.client.data.SortInfo sortInfo,
             Set<IColumnDefinition<T>> availableColumns)
     {
         return translateSortInfo(sortInfo.getSortField(), sortInfo.getSortDir(), availableColumns);
@@ -769,8 +733,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             grid.el().unmask();
             onComplete(false);
-            // TODO: change to pagingManager.finishOnFailure()
-            pagingToolbar.enable(); // somehow enabling toolbar is lost in its handleEvent() method
+            pagingManager.finishOnFailure();
             // no need to show error message - it should be shown by DEFAULT_CALLBACK_LISTENER
             caught.printStackTrace();
             delegate.onFailure(caught);
@@ -794,8 +757,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             .getTotalLength());
 
             delegate.onSuccess(loadResult);
-            pagingToolbar.enableExportButton();
-            pagingToolbar.updateDefaultConfigButton(true);
+            pagingManager.process();
 
             filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
             onComplete(true);
@@ -972,8 +934,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** adds given <var>button</var> to grid {@link PagingToolBar} */
     protected final void addButton(Button button)
     {
-     // TODO: change to pagingManager.addButton()
-        pagingToolbar.add(button);
+        pagingManager.addButton(button);
     }
 
     /**
@@ -1057,8 +1018,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         // N.B. -- The order in which things are refreshed and configured is significant
 
         // export and config buttons are enabled when ListEntitiesCallback is complete
-        pagingToolbar.disableExportButton();
-        pagingToolbar.updateDefaultConfigButton(false);
+        pagingManager.refreshGridWithFilters();
 
         // Need to reset filter fields *before* refreshing the grid so the list can
         // be correctly retrieved
@@ -1076,8 +1036,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final void updateDefaultRefreshButton()
     {
-        boolean isEnabled = isRefreshEnabled();
-        pagingToolbar.updateDefaultRefreshButton(isEnabled);
+        pagingManager.updateDefaultRefreshButton(isRefreshEnabled());
     }
 
     /**
@@ -1099,7 +1058,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             boolean refreshColumnsDefinition)
     {
         int id = log("refresh (refreshColumnsDefinition=" + refreshColumnsDefinition + ")");
-        pagingToolbar.updateDefaultRefreshButton(false);
+        pagingManager.refresh();
         debug("clean cache for refresh");
         this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
         if (columnDefinitions == null || refreshColumnsDefinition)
@@ -1218,6 +1177,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // Refreshes the data, does not clear the cache. Does not change the column model.
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     void reloadData(ResultSetFetchConfig<String> resultSetFetchConfig)
     {
         if (pendingFetchConfigOrNull != null)
@@ -1227,8 +1187,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             return;
         }
         pendingFetchConfigOrNull = resultSetFetchConfig;
-        // TODO: change to pagingManager.load(0);
-        pagingLoader.load(0, PAGE_SIZE);
+        pagingManager.load(0);
     }
 
     private IDisplaySettingsGetter createDisplaySettingsUpdater()
@@ -1255,6 +1214,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // returns true if some filters have changed
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     boolean rebuildFiltersFromIds(List<String> filteredColumnIds)
     {
         List<IColumnDefinition<T>> filteredColumns = getColumnDefinitions(filteredColumnIds);
@@ -1318,9 +1278,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     if (wasSuccessful)
                     {
                         hideLoadingMask();
-                        // TODO: change to pagingManager.postRefresh();
-                        pagingToolbar.updateDefaultConfigButton(true);
-                        pagingToolbar.enableExportButton();
+                        pagingManager.postRefresh();
                     }
                 }
             };
@@ -1339,7 +1297,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             };
     }
 
-    private List<IColumnDefinition<T>> getVisibleColumns(Set<IColumnDefinition<T>> availableColumns)
+    // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
+    List<IColumnDefinition<T>> getVisibleColumns(Set<IColumnDefinition<T>> availableColumns)
     {
         Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
         final ColumnModel columnModel = grid.getColumnModel();
@@ -1386,6 +1346,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     void saveColumnDisplaySettings()
     {
         viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
@@ -1424,11 +1385,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return the number of all objects cached in the browser */
     public int getTotalCount()
     {
-        // TODO: Change to return pagingManager.getTotalCount();
-        return pagingToolbar.getTotalCount();
+        return pagingManager.getTotalCount();
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     void refreshColumnsSettings()
     {
         grid.setLoadMask(false);
@@ -1438,14 +1399,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final void addEntityOperationsLabel()
     {
-        // TODO: change to pagingManager.addEntityOperationsLabel();
-        pagingToolbar.addEntityOperationsLabel();
+        pagingManager.addEntityOperationsLabel();
     }
 
     protected final void addEntityOperationsSeparator()
     {
-     // TODO: change to pagingManager.addEntityOperationsSeparator();
-        pagingToolbar.add(new SeparatorToolItem());
+        pagingManager.addEntityOperationsSeparator();
     }
 
     protected final GridCellRenderer<BaseEntityModel<?>> createMultilineStringCellRenderer()
@@ -1461,6 +1420,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // ------- generic static helpers
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     static List<String> getFilteredColumnIds(List<ColumnDataModel> result)
     {
         List<String> filteredColumnsIds = new ArrayList<String>();
@@ -1489,6 +1449,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      * <code>columnModels</code>.
      */
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     static void updateColumnsSettingsModel(final MoveableColumnModel cm,
             List<ColumnDataModel> columnModels)
     {
@@ -1530,6 +1491,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     static List<ColumnDataModel> createColumnsSettingsModel(ColumnModel cm,
             List<String> filteredColumnsIds)
     {
@@ -1616,6 +1578,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
+    // @Private
     MoveableColumnModel getColumnModel()
     {
         return (MoveableColumnModel) grid.getColumnModel();
