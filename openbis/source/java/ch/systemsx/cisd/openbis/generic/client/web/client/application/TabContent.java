@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -54,8 +55,8 @@ abstract public class TabContent extends ContentPanel
     public TabContent(final String header, IViewContext<?> viewContext)
     {
         this.viewContext = viewContext;
-        setHeaderVisible(true);
         setHeading(header);
+        setHeaderVisible(true);
         setCollapsible(false);
         setAnimCollapse(false);
         setBodyBorder(true);
@@ -93,6 +94,15 @@ abstract public class TabContent extends ContentPanel
         if (visible && isContentVisible == false)
         {
             showContent();
+            Header h = getHeader();
+            if (h.getToolCount() > 0)
+            {
+                h.show();
+            } else
+            {
+                h.hide();
+            }
+            syncSize();
             isContentVisible = true;
         }
     }
