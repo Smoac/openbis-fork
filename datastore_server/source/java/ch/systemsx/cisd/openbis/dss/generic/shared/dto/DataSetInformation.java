@@ -88,6 +88,8 @@ public class DataSetInformation implements Serializable
      * Email of uploading user.
      */
     private String uploadingUserEmailOrNull;
+    
+    private String uploadingUserIdOrNull;
 
     /** This constructor is for serialization. */
     public DataSetInformation()
@@ -102,6 +104,16 @@ public class DataSetInformation implements Serializable
     public void setUploadingUserEmail(String uploadingUserEmail)
     {
         this.uploadingUserEmailOrNull = uploadingUserEmail;
+    }
+
+    public void setUploadingUserId(String uploadingUserIdOrNull)
+    {
+        this.uploadingUserIdOrNull = uploadingUserIdOrNull;
+    }
+
+    public String getUploadingUserIdOrNull()
+    {
+        return uploadingUserIdOrNull;
     }
 
     public final BooleanOrUnknown getIsCompleteFlag()

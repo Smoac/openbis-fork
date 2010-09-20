@@ -432,6 +432,7 @@ public abstract class DataSetRegistrationAlgorithm
     private NewExternalData createExternalData()
     {
         final NewExternalData data = new NewExternalData();
+        data.setUserId(dataSetInformation.getUploadingUserIdOrNull());
         data.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
         data.setExtractableData(dataSetInformation.getExtractableData());
         data.setLocatorType(getTypeExtractor().getLocatorType(incomingDataSetFile));

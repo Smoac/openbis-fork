@@ -607,11 +607,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
             final SessionContextDTO session =
                     service.getOpenBisService().tryGetSession(sessionToken);
-            dataSetInfo.setUploadingUserEmail(session.getUserEmail());
-
-            // TODO 2010-06-10, CR, LMS-1564: When registering, set the registrator to the session
-            // owner; only an admin on
-            // the space or an ETL server can override.
+            dataSetInfo.setUploadingUserId(session.getUserName());
             return dataSetInfo;
         }
     }
