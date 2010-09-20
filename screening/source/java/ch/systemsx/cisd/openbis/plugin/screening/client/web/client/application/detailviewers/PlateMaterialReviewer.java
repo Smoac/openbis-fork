@@ -225,7 +225,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
             SingleExperimentSearchCriteria singleExperiment)
     {
         this.singleExperimentChooserStateOrNull = singleExperiment;
-        chooserField.updateValue(new ExperimentIdentifier(singleExperiment.getDisplayIdentifier()));
+        chooserField.updateValue(new ExperimentIdentifier(singleExperiment.getExperimentIdentifier()));
     }
 
     private boolean isAllExperimentsChoosen()

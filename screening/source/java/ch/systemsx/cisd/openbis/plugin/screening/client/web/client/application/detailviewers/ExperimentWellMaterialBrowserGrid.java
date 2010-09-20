@@ -18,17 +18,22 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -110,6 +115,16 @@ public class ExperimentWellMaterialBrowserGrid extends MaterialBrowserGrid
         {
             super.showEntityViewer(material, editMode, active);
         }
+    }
+
+    @Override
+    protected BaseEntityModel<Material> createModel(GridRowModel<Material> entity)
+    {
+        BaseEntityModel<Material> basicModel = super.createModel(entity);
+        basicModel.set(ModelDataPropertyNames.link(CommonMaterialColDefKind.CODE.id()),
+                ScreeningLinkExtractor.tryExtractMaterialWithExperiment(entity.getOriginalObject(),
+                        experiment.getIdentifier()));
+        return basicModel;
     }
 
 }

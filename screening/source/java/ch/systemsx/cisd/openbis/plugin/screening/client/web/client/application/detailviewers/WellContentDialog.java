@@ -41,7 +41,6 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -50,6 +49,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
@@ -288,7 +288,7 @@ public class WellContentDialog extends Dialog
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
     {
         return new SingleExperimentSearchCriteria(wellData.getExperimentId().getId(), wellData
-                .getExperimentDisplayIdentifier());
+                .getExperimentIdentifier());
     }
 
     private static SingleExperimentSearchCriteria getExperiment(
@@ -469,7 +469,9 @@ public class WellContentDialog extends Dialog
 
     private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)
     {
-        final String href = LinkExtractor.tryExtractMaterial(material);
+        final String href =
+                ScreeningLinkExtractor.tryExtractMaterialWithExperiment(material, experiment
+                        .getExperimentIdentifier());
         final ClickHandler listener = new ClickHandler()
             {
                 public void onClick(ClickEvent event)

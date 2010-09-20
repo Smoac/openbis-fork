@@ -41,7 +41,7 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
 
         private TechId experimentId;
 
-        private String displayIdentifier; // for display purposes only
+        private String experimentIdentifier; // for display purposes and links in simpe view mode
 
         // GWT only
         @SuppressWarnings("unused")
@@ -49,10 +49,10 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         {
         }
 
-        public SingleExperimentSearchCriteria(long experimentId, String displayIdentifier)
+        public SingleExperimentSearchCriteria(long experimentId, String experimentIdentifier)
         {
             this.experimentId = new TechId(experimentId);
-            this.displayIdentifier = displayIdentifier;
+            this.experimentIdentifier = experimentIdentifier;
         }
 
         public TechId getExperimentId()
@@ -60,15 +60,15 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
             return experimentId;
         }
 
-        public String getDisplayIdentifier()
+        public String getExperimentIdentifier()
         {
-            return displayIdentifier;
+            return experimentIdentifier;
         }
 
         @Override
         public String toString()
         {
-            return "experiment " + displayIdentifier;
+            return "experiment " + experimentIdentifier;
         }
     }
 
@@ -94,10 +94,10 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         }
 
         public static final ExperimentSearchCriteria createExperiment(long experimentId,
-                String displayIdentifier)
+                String experimentIdentifier)
         {
             return new ExperimentSearchCriteria(new SingleExperimentSearchCriteria(experimentId,
-                    displayIdentifier));
+                    experimentIdentifier));
         }
 
         // GWT only

@@ -46,7 +46,8 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             @Override
             public String tryGetLink(WellContent entity)
             {
-                return LinkExtractor.tryExtract(entity.getMaterialContent());
+                return ScreeningLinkExtractor.tryExtractMaterialWithExperiment(entity
+                        .getMaterialContent(), entity.getExperiment().getExperimentIdentifier());
             }
         }),
 

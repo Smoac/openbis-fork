@@ -29,12 +29,14 @@ public class ViewLocatorTest extends AbstractGWTTestCase
 {
     public void testURLParsingOfValidParameters()
     {
-        String urlParameterString = "action=search&entity=dataset&code=184029";
+        String urlParameterString =
+                "action=search&entity=dataset&code=184029&experiment=%2FCISD%2FNEMO%2FEXP1";
         ViewLocator viewLocator = new ViewLocator(urlParameterString);
         assertEquals("search", viewLocator.tryGetAction());
         assertEquals("dataset", viewLocator.tryGetEntity());
         Map<String, String> parameters = viewLocator.getParameters();
         assertEquals("184029", parameters.get("code"));
+        assertEquals("/CISD/NEMO/EXP1", parameters.get("experiment"));
         assertTrue(viewLocator.isValid());
     }
 

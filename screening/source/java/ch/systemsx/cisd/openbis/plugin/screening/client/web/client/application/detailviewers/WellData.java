@@ -34,7 +34,7 @@ class WellData
 
     private WellImages imagesOrNull;
 
-    private String experimentDisplayIdentifier;
+    private String experimentIdentifier;
 
     private TechId experimentId;
 
@@ -58,11 +58,11 @@ class WellData
         }
     }
 
-    private WellData(WellImages imagesOrNull, long experimentId, String experimentDisplayIdentifier)
+    private WellData(WellImages imagesOrNull, long experimentId, String experimentIdentifier)
     {
         this.imagesOrNull = imagesOrNull;
         this.experimentId = new TechId(experimentId);
-        this.experimentDisplayIdentifier = experimentDisplayIdentifier;
+        this.experimentIdentifier = experimentIdentifier;
     }
 
     public void setMetadata(WellMetadata well)
@@ -85,9 +85,9 @@ class WellData
         return experimentId;
     }
 
-    public String getExperimentDisplayIdentifier()
+    public String getExperimentIdentifier()
     {
-        return experimentDisplayIdentifier;
+        return experimentIdentifier;
     }
 
     public String getWellDescription()

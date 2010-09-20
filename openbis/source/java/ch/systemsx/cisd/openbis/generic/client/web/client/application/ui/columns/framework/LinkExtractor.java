@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
- * Defines the ways links are created for objects of selected types.
+ * Defines the ways simple view mode links are created for objects of selected types.
  * 
  * @author Izabela Adamczyk
  */
@@ -49,7 +49,7 @@ public class LinkExtractor
             url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityOrNull
                     .getEntityKind().name());
             url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, entityOrNull.getPermId());
-            return print(url);
+            return tryPrint(url);
         }
     }
 
@@ -64,7 +64,7 @@ public class LinkExtractor
                 ProjectLocatorResolver.PROJECT);
         url.addParameter(ProjectLocatorResolver.CODE_PARAMETER_KEY, p.getCode());
         url.addParameter(ProjectLocatorResolver.SPACE_PARAMETER_KEY, p.getSpace().getCode());
-        return print(url);
+        return tryPrint(url);
     }
 
     public static final String tryExtractMaterial(IEntityInformationHolder material)
@@ -73,7 +73,8 @@ public class LinkExtractor
         {
             return null;
         }
-        return tryCreateMaterialLink(material.getCode(), material.getEntityType().getCode());
+        return tryPrint(tryCreateMaterialLink(material.getCode(), material.getEntityType()
+                .getCode()));
     }
 
     public static final String tryExtract(MaterialIdentifier identifier)
@@ -82,10 +83,11 @@ public class LinkExtractor
         {
             return null;
         }
-        return tryCreateMaterialLink(identifier.getCode(), identifier.getTypeCode());
+        return tryPrint(tryCreateMaterialLink(identifier.getCode(), identifier.getTypeCode()));
     }
 
-    private static final String tryCreateMaterialLink(String materialCode, String materialTypeCode)
+    protected static final URLMethodWithParameters tryCreateMaterialLink(String materialCode,
+            String materialTypeCode)
     {
         if (materialCode == null || materialTypeCode == null)
         {
@@ -95,11 +97,11 @@ public class LinkExtractor
         url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, EntityKind.MATERIAL.name());
         url.addParameter(MaterialLocatorResolver.CODE_PARAMETER_KEY, materialCode);
         url.addParameter(MaterialLocatorResolver.TYPE_PARAMETER_KEY, materialTypeCode);
-        return print(url);
+        return url;
     }
 
-    private static String print(URLMethodWithParameters url)
+    protected static String tryPrint(URLMethodWithParameters url)
     {
-        return url.toString().substring(1);
+        return url == null ? null : url.toString().substring(1);
     }
 }

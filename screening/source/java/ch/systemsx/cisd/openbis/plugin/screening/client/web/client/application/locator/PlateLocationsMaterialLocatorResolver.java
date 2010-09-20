@@ -23,7 +23,7 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private final static String EXPERIMENT_PARAMETER_KEY = "experiment";
+    public final static String EXPERIMENT_PARAMETER_KEY = "experiment";
 
     public PlateLocationsMaterialLocatorResolver(
             IViewContext<IScreeningClientServiceAsync> viewContext)
