@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 
@@ -129,7 +130,8 @@ public class ViewLocator
         {
             final String[] paramPair = params[i].split(KEY_VALUE_SEPARATOR);
             assert paramPair.length == 2 : "Incorrectly formatted URL parameters";
-
+            // TODO 2010-09-20, Piotr Buczek: write and use BasicURLDecoder
+            paramPair[1] = StringEscapeUtils.unescapeHtml(paramPair[1].replaceAll("%2F", "/"));
             if (GWT_PARAMETER.equals(paramPair[0]))
             {
                 // skip GWT parameters -- only relevant during testing
