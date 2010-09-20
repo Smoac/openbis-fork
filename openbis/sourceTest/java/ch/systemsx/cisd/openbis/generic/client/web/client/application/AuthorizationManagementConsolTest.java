@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Ope
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleAssignmentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ListEntitiesCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
@@ -114,7 +114,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
         FailureExpectation failureExpectation =
                 new FailureExpectation(
-                        (Class<? extends AsyncCallback<?>>) AbstractBrowserGrid.ListEntitiesCallback.class)
+                        (Class<? extends AsyncCallback<?>>) ListEntitiesCallback.class)
                         .with("Authorization failure: None of method roles '[INSTANCE_ADMIN]' "
                                 + "could be found in roles of user 'o'.");
 

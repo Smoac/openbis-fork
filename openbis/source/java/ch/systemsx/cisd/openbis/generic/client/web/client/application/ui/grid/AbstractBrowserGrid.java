@@ -26,7 +26,6 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -70,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelate
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -95,7 +93,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -107,7 +104,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -204,9 +200,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // result set key of the last refreshed data
     private String resultSetKeyOrNull;
 
-    // not null only if there is a pending request. No new request can be issued until this one is
-    // finished.
-    private ResultSetFetchConfig<String> pendingFetchConfigOrNull;
+    // Keeps track of the pending fetch (only tracks 1)
+    private final PendingFetchManager pendingFetchManager;
 
     private IDataRefreshCallback refreshCallback;
 
@@ -230,6 +225,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             String gridId, boolean refreshAutomatically,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
+        pendingFetchManager = new PendingFetchManager();
         this.displayTypeIDGenerator = displayTypeIDGenerator;
         this.viewContext = viewContext;
         int logID = log("create browser grid " + gridId);
@@ -429,7 +425,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void execute()
                 {
-                    if (resultSetKeyOrNull != null && pendingFetchConfigOrNull == null)
+                    if (resultSetKeyOrNull != null && pendingFetchManager.hasNoPendingFetch())
                     {
                         ResultSetFetchConfig<String> fetchConfig =
                                 ResultSetFetchConfig.createFetchFromCache(resultSetKeyOrNull);
@@ -559,7 +555,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private void loadData(final PagingLoadConfig loadConfig,
             final AsyncCallback<PagingLoadResult<M>> callback)
     {
-        if (pendingFetchConfigOrNull == null)
+        if (pendingFetchManager.hasNoPendingFetch())
         {
             // this can happen when user wants to sort data - the refresh method is not called
             if (resultSetKeyOrNull == null)
@@ -567,14 +563,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 // data are not yet cached, so we ignore this call - should not really happen
                 return;
             }
-            pendingFetchConfigOrNull =
-                    ResultSetFetchConfig.createFetchFromCache(resultSetKeyOrNull);
+            pendingFetchManager.pushPendingFetchConfig(ResultSetFetchConfig
+                    .createFetchFromCache(resultSetKeyOrNull));
         }
         final DefaultResultSetConfig<String, T> resultSetConfig =
-                createPagingConfig(loadConfig, filterToolbar.getFilters(), getGridDisplayTypeID());
-        debug("create a refresh callback " + pendingFetchConfigOrNull);
-        final ListEntitiesCallback listCallback =
-                new ListEntitiesCallback(viewContext, callback, resultSetConfig);
+                pagingManager.createPagingConfig(loadConfig, filterToolbar.getFilters(),
+                        getGridDisplayTypeID(), columnDefinitions, pendingFetchManager
+                                .tryTopPendingFetchConfig());
+        debug("create a refresh callback " + pendingFetchManager.tryTopPendingFetchConfig());
+        final ListEntitiesCallback<T, M> listCallback =
+                new ListEntitiesCallback<T, M>(this, viewContext, callback, resultSetConfig, grid,
+                        pendingFetchManager, refreshCallback, pagingManager,
+                        customColumnsMetadataProvider, filterToolbar);
 
         listEntities(resultSetConfig, listCallback);
     }
@@ -609,52 +609,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             filters.add(codeColDef);
         }
         return filters;
-    }
-
-    private DefaultResultSetConfig<String, T> createPagingConfig(PagingLoadConfig loadConfig,
-            GridFilters<T> filters, String gridDisplayId)
-    {
-        int limit = loadConfig.getLimit();
-        int offset = loadConfig.getOffset();
-        com.extjs.gxt.ui.client.data.SortInfo sortInfo = loadConfig.getSortInfo();
-
-        DefaultResultSetConfig<String, T> resultSetConfig = new DefaultResultSetConfig<String, T>();
-        resultSetConfig.setLimit(limit);
-        resultSetConfig.setOffset(offset);
-        SortInfo<T> translatedSortInfo = translateSortInfo(sortInfo, columnDefinitions);
-        resultSetConfig.setAvailableColumns(columnDefinitions);
-        Set<String> columnIDs = getIDsOfColumnsToBeShown();
-        resultSetConfig.setIDsOfPresentedColumns(columnIDs);
-        resultSetConfig.setSortInfo(translatedSortInfo);
-        resultSetConfig.setFilters(filters);
-        resultSetConfig.setCacheConfig(pendingFetchConfigOrNull);
-        resultSetConfig.setGridDisplayId(gridDisplayId);
-        resultSetConfig.setCustomColumnErrorMessageLong(viewContext.getDisplaySettingsManager()
-                .isDisplayCustomColumnDebuggingErrorMessages());
-        return resultSetConfig;
-    }
-
-    private Set<String> getIDsOfColumnsToBeShown()
-    {
-        Set<String> columnIDs = new HashSet<String>();
-        DisplaySettingsManager manager = viewContext.getDisplaySettingsManager();
-        List<ColumnSetting> columnSettings = manager.getColumnSettings(getGridDisplayTypeID());
-        if (columnSettings != null)
-        {
-            for (ColumnSetting columnSetting : columnSettings)
-            {
-                if (columnSetting.isHidden() == false)
-                {
-                    columnIDs.add(columnSetting.getColumnID());
-                }
-            }
-        }
-        List<IColumnDefinition<T>> visibleColumns = getVisibleColumns(columnDefinitions);
-        for (IColumnDefinition<T> definition : visibleColumns)
-        {
-            columnIDs.add(definition.getIdentifier());
-        }
-        return columnIDs;
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
@@ -705,82 +659,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return grid.getStore().getCount();
     }
 
-    public final class ListEntitiesCallback extends AbstractAsyncCallback<ResultSet<T>>
-    {
-        private final AsyncCallback<PagingLoadResult<M>> delegate;
-
-        // configuration with which the listing was called
-        private final DefaultResultSetConfig<String, T> resultSetConfig;
-
-        private int logID;
-
-        public ListEntitiesCallback(final IViewContext<?> viewContext,
-                final AsyncCallback<PagingLoadResult<M>> delegate,
-                final DefaultResultSetConfig<String, T> resultSetConfig)
-        {
-            super(viewContext);
-            this.delegate = delegate;
-            this.resultSetConfig = resultSetConfig;
-            logID = log("load data");
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        @Override
-        public final void finishOnFailure(final Throwable caught)
-        {
-            grid.el().unmask();
-            onComplete(false);
-            pagingManager.finishOnFailure();
-            // no need to show error message - it should be shown by DEFAULT_CALLBACK_LISTENER
-            caught.printStackTrace();
-            delegate.onFailure(caught);
-        }
-
-        @Override
-        protected final void process(final ResultSet<T> result)
-        {
-            viewContext.logStop(logID);
-            logID = log("process loaded data");
-            // save the key of the result, later we can refer to the result in the cache using this
-            // key
-            saveCacheKey(result.getResultSetKey());
-            GridRowModels<T> rowModels = result.getList();
-            List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
-            customColumnsMetadataProvider.setCustomColumnsMetadata(customColumnMetadata);
-            // convert the result to the model data for the grid control
-            final List<M> models = createModels(rowModels);
-            final PagingLoadResult<M> loadResult =
-                    new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(), result
-                            .getTotalLength());
-
-            delegate.onSuccess(loadResult);
-            pagingManager.process();
-
-            filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
-            onComplete(true);
-
-            viewContext.logStop(logID);
-        }
-
-        // notify that the refresh is done
-        private void onComplete(boolean wasSuccessful)
-        {
-            pendingFetchConfigOrNull = null;
-            refreshCallback.postRefresh(wasSuccessful);
-        }
-
-        @Override
-        /* Note: we want to differentiate between callbacks in different subclasses of this grid. */
-        public String getCallbackId()
-        {
-            return grid.getId();
-        }
-    }
-
-    private List<M> createModels(final GridRowModels<T> gridRowModels)
+    // Used by friend classes. Should be considered private.
+    // @Private
+    List<M> createModels(final GridRowModels<T> gridRowModels)
     {
         final List<M> result = new ArrayList<M>();
         for (final GridRowModel<T> entity : gridRowModels)
@@ -1180,13 +1061,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // @Private
     void reloadData(ResultSetFetchConfig<String> resultSetFetchConfig)
     {
-        if (pendingFetchConfigOrNull != null)
+        if (pendingFetchManager.hasPendingFetch())
         {
             debug("Cannot reload the data with the mode '" + resultSetFetchConfig
-                    + "'; there is an unfinished request already: " + pendingFetchConfigOrNull);
+                    + "'; there is an unfinished request already: "
+                    + pendingFetchManager.tryTopPendingFetchConfig());
             return;
         }
-        pendingFetchConfigOrNull = resultSetFetchConfig;
+        pendingFetchManager.pushPendingFetchConfig(resultSetFetchConfig);
         pagingManager.load(0);
     }
 
@@ -1306,7 +1188,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return getVisibleColumns(availableColumnsMap, columnModel);
     }
 
-    private void saveCacheKey(final String newResultSetKey)
+    // Used by friend classes. Otherwise should be considered private.
+    // @Private
+    void saveCacheKey(final String newResultSetKey)
     {
         resultSetKeyOrNull = newResultSetKey;
         debug("saving new cache key");
@@ -1341,7 +1225,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
         ColumnSettingsConfigurer<T, M> columnSettingsConfigurer =
                 new ColumnSettingsConfigurer<T, M>(this, viewContext, filterToolbar,
-                        customColumnsMetadataProvider, resultSetKeyOrNull, pendingFetchConfigOrNull);
+                        customColumnsMetadataProvider, resultSetKeyOrNull, pendingFetchManager
+                                .tryTopPendingFetchConfig());
         columnSettingsConfigurer.showDialog();
     }
 
