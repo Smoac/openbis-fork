@@ -67,9 +67,6 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getPersonDAO();
-                    will(returnValue(personDAO));
-
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(new PersonPE[]
                         { personPE })));
