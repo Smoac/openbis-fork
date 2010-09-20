@@ -93,6 +93,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     private boolean isDerived;
 
+    private PersonPE registrator;
+    
     /** Registration date of the database instance. */
     private Date registrationDate;
 
@@ -127,6 +129,19 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.dataStore = dataStorePE;
     }
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.PERSON_REGISTERER_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_REGISTRATOR)
+    public PersonPE getRegistrator()
+    {
+        return registrator;
+    }
+
+    public void setRegistrator(final PersonPE registrator)
+    {
+        this.registrator = registrator;
+    }
+    
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
     public Date getRegistrationDate()

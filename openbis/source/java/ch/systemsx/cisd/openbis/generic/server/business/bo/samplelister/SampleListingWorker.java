@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -50,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -80,7 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 @Friend(toClasses =
     { ExperimentProjectGroupCodeRecord.class, SampleRecord.class, SampleRelationRecord.class,
             ISampleListingQuery.class })
-final class SampleListingWorker
+final class SampleListingWorker extends AbstractLister
 {
     private final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, SampleListingWorker.class);
@@ -136,8 +136,6 @@ final class SampleListingWorker
     private final Long2ObjectOpenHashMap<SampleType> sampleTypes =
             new Long2ObjectOpenHashMap<SampleType>();
 
-    private final Long2ObjectMap<Person> persons = new Long2ObjectOpenHashMap<Person>();
-
     private final Long2ObjectMap<Experiment> experiments = new Long2ObjectOpenHashMap<Experiment>();
 
     private final LongSet idsOfSamplesAwaitingParentResolution = new LongOpenHashSet();
@@ -185,6 +183,7 @@ final class SampleListingWorker
             IEntityPropertiesEnricher samplePropertiesEnricherOrNull,
             SecondaryEntityDAO referencedEntityDAO)
     {
+        super(referencedEntityDAO);
         assert criteria != null;
         assert baseIndexURL != null;
         assert databaseInstance != null;
@@ -592,7 +591,7 @@ final class SampleListingWorker
                 final Invalidation invalidation = new Invalidation();
                 sample.setInvalidation(invalidation);
             }
-            sample.setRegistrator(getOrCreateRegistrator(row));
+            sample.setRegistrator(getOrCreateRegistrator(row.pers_id_registerer));
             if (row.expe_id != null)
             {
                 sample.setExperiment(getOrCreateExperiment(row));
@@ -654,22 +653,6 @@ final class SampleListingWorker
             experiment = createAndSaveExperiment(row.expe_id);
         }
         return experiment;
-    }
-
-    private Person getOrCreateRegistrator(SampleRecord row)
-    {
-        return getOrCreateRegistrator(row.pers_id_registerer);
-    }
-
-    private Person getOrCreateRegistrator(long personId)
-    {
-        Person registrator = persons.get(personId);
-        if (registrator == null)
-        {
-            registrator = referencedEntityDAO.getPerson(personId);
-            persons.put(personId, registrator);
-        }
-        return registrator;
     }
 
     private void retrieveDependentSamplesRecursively(boolean primary)

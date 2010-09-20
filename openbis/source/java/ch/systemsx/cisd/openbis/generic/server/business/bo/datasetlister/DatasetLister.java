@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
@@ -71,7 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 @Friend(toClasses =
     { DatasetRecord.class, DatasetRelationRecord.class, DataStoreRecord.class,
             IDatasetListingQuery.class })
-public class DatasetLister implements IDatasetLister
+public class DatasetLister extends AbstractLister implements IDatasetLister
 {
     //
     // Input
@@ -129,6 +130,7 @@ public class DatasetLister implements IDatasetLister
             final IDatasetListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
             SecondaryEntityDAO referencedEntityDAO, String baseIndexURL)
     {
+        super(referencedEntityDAO);
         assert databaseInstance != null;
         assert query != null;
 
@@ -427,6 +429,7 @@ public class DatasetLister implements IDatasetLister
         dataset.setLocatorType(locatorTypes.get(record.loty_id));
         dataset.setProductionDate(record.production_timestamp);
         dataset.setRegistrationDate(record.registration_timestamp);
+        dataset.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
         dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
 
         if (record.samp_id != null)

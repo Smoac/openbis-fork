@@ -31,6 +31,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.AbstractLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Fast DB operations on material table.
@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  */
 @Friend(toClasses =
     { MaterialRecord.class, IMaterialListingQuery.class })
-public class MaterialLister implements IMaterialLister
+public class MaterialLister extends AbstractLister implements IMaterialLister
 {
 
     //
@@ -67,15 +67,6 @@ public class MaterialLister implements IMaterialLister
 
     private final IEntityPropertiesEnricher propertiesEnricher;
 
-    private SecondaryEntityDAO referencedEntityDAO;
-
-    //
-    // Working data structures
-    //
-
-    private final Long2ObjectMap<Person> persons = new Long2ObjectOpenHashMap<Person>();
-
-    //
 
     public static IMaterialLister create(IDAOFactory daoFactory, String baseIndexURL)
     {
@@ -100,13 +91,13 @@ public class MaterialLister implements IMaterialLister
             final IMaterialListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
             SecondaryEntityDAO referencedEntityDAO)
     {
+        super(referencedEntityDAO);
         assert query != null;
 
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
         this.propertiesEnricher = propertiesEnricher;
-        this.referencedEntityDAO = referencedEntityDAO;
     }
 
     //
@@ -180,29 +171,13 @@ public class MaterialLister implements IMaterialLister
         assert record.dbin_id == databaseInstanceId;
         material.setDatabaseInstance(databaseInstance);
 
-        material.setRegistrator(getOrCreateRegistrator(record));
+        material.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
         material.setRegistrationDate(record.registration_timestamp);
         material.setModificationDate(record.modification_timestamp);
 
         material.setProperties(new ArrayList<IEntityProperty>());
 
         return material;
-    }
-
-    private Person getOrCreateRegistrator(MaterialRecord row)
-    {
-        return getOrCreateRegistrator(row.pers_id_registerer);
-    }
-
-    private Person getOrCreateRegistrator(long personId)
-    {
-        Person registrator = persons.get(personId);
-        if (registrator == null)
-        {
-            registrator = referencedEntityDAO.getPerson(personId);
-            persons.put(personId, registrator);
-        }
-        return registrator;
     }
 
     private static <T> List<T> asList(Iterable<T> items)

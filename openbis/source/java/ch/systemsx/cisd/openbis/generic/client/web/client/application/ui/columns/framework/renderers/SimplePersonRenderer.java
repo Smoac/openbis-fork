@@ -26,19 +26,22 @@ public class SimplePersonRenderer
     public final static StringBuilder createPersonName(final Person person)
     {
         final StringBuilder builder = new StringBuilder();
-        final String lastName = person.getLastName();
-        final String firstName = person.getFirstName();
-        if (isBlank(lastName) == false)
+        if (person != null)
         {
-            builder.append(lastName);
-        }
-        if (isBlank(firstName) == false)
-        {
-            if (builder.length() > 0)
+            final String lastName = person.getLastName();
+            final String firstName = person.getFirstName();
+            if (isBlank(lastName) == false)
             {
-                builder.append(", ");
+                builder.append(lastName);
             }
-            builder.append(firstName);
+            if (isBlank(firstName) == false)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(firstName);
+            }
         }
         return builder;
     }

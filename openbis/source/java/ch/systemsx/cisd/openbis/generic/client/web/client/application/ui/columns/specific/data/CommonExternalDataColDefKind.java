@@ -152,6 +152,15 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
+    REGISTRATOR(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATOR)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return renderRegistrator(entity);
+            }
+        }),
+
     REGISTRATION_DATE(new AbstractColumnDefinitionKind<ExternalData>(Dict.REGISTRATION_DATE, 200,
             false)
         {

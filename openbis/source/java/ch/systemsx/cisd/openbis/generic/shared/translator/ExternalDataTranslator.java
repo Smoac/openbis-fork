@@ -100,6 +100,7 @@ public class ExternalDataTranslator
         setChildren(externalDataPE, externalData);
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());
+        externalData.setRegistrator(PersonTranslator.translate(externalDataPE.getRegistrator()));
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
         externalData.setSample(sampleOrNull == null ? null : fillSample(new Sample(), sampleOrNull,
                 loadSampleProperties));
