@@ -365,7 +365,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     {
         ColumnDefsAndConfigs<WellContent> schema = super.createColumnsDefinition();
         setLinksRenderer(schema, new PlateMaterialReviewerColDefKind[]
-            { PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
+            {
                     PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
                     PlateMaterialReviewerColDefKind.PLATE, PlateMaterialReviewerColDefKind.WELL,
                     PlateMaterialReviewerColDefKind.DATASET,

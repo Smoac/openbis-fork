@@ -34,12 +34,14 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -162,8 +164,8 @@ public class WellContentDialog extends Dialog
             WellContent wellContent, WellImages wellImages)
     {
         WellContentDialog contentDialog =
-                new WellContentDialog(wellContent.getWell(), null,
-                        getExperiment(wellContent.getExperiment()), viewContext);
+                new WellContentDialog(wellContent.getWell(), null, getExperiment(wellContent
+                        .getExperiment()), viewContext);
 
         // NOTE: channel chooser state will be not reused among different dialogs
         DefaultChannelState channelState = new DefaultChannelState();
@@ -196,8 +198,8 @@ public class WellContentDialog extends Dialog
                     return createTilesGrid(images, channel, sessionId);
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                images.getChannelsCodes());
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
+                .getChannelsCodes());
     }
 
     private static LayoutContainer createTilesGrid(final WellImages images, String channel,
@@ -265,8 +267,8 @@ public class WellContentDialog extends Dialog
                             getImageHeight(images));
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                images.getChannelsCodes());
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
+                .getChannelsCodes());
     }
 
     // ---------------- STATIC METHODS -------------------
@@ -285,15 +287,15 @@ public class WellContentDialog extends Dialog
 
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
     {
-        return new SingleExperimentSearchCriteria(wellData.getExperimentId().getId(),
-                wellData.getExperimentDisplayIdentifier());
+        return new SingleExperimentSearchCriteria(wellData.getExperimentId().getId(), wellData
+                .getExperimentDisplayIdentifier());
     }
 
     private static SingleExperimentSearchCriteria getExperiment(
             ExperimentReference experimentReference)
     {
-        return new SingleExperimentSearchCriteria(experimentReference.getId(),
-                experimentReference.getExperimentIdentifier());
+        return new SingleExperimentSearchCriteria(experimentReference.getId(), experimentReference
+                .getExperimentIdentifier());
     }
 
     private static float getImageSizeMultiplyFactor(WellImages images)
@@ -348,7 +350,7 @@ public class WellContentDialog extends Dialog
                 }
             });
     }
-    
+
     private void addComponent(LayoutContainer component)
     {
         add(component);
@@ -408,8 +410,8 @@ public class WellContentDialog extends Dialog
         if (material != null)
         {
 
-            if (material.getMaterialType().getCode()
-                    .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+            if (material.getMaterialType().getCode().equalsIgnoreCase(
+                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
                 container.add(createEntityExternalLink(material));
             } else
@@ -458,8 +460,8 @@ public class WellContentDialog extends Dialog
             }
         } else
         {
-            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database",
-                    viewContext.getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
+            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", viewContext
+                    .getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
         }
         container.add(new Text("]"));
         return container;
@@ -467,17 +469,29 @@ public class WellContentDialog extends Dialog
 
     private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)
     {
-        return LinkRenderer.getLinkWidget(material.getCode(), new ClickHandler()
+        final String href = LinkExtractor.tryExtractMaterial(material);
+        final ClickHandler listener = new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
-                            .openPlateLocationsMaterialViewer(material,
-                                    ExperimentSearchCriteria.createExperiment(experiment),
-                                    viewContext);
+                            .openPlateLocationsMaterialViewer(material, ExperimentSearchCriteria
+                                    .createExperiment(experiment), viewContext);
                 }
-            });
+            };
+        Anchor link = (Anchor) LinkRenderer.getLinkWidget(material.getCode(), listener, href);
+        if (viewContext.isSimpleMode())
+        {
+            link.addClickHandler(new ClickHandler()
+                {
+                    public void onClick(ClickEvent event)
+                    {
+                        WellContentDialog.this.hide();
+                    }
+                });
+        }
+        return link;
     }
 
     private Widget createEntityLink(IEntityInformationHolder entity)

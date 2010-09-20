@@ -40,10 +40,17 @@ public class LinkExtractor
         {
             return null;
         }
-        URLMethodWithParameters url = new URLMethodWithParameters("");
-        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityOrNull.getEntityKind().name());
-        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, entityOrNull.getPermId());
-        return print(url);
+        if (entityOrNull.getEntityKind() == EntityKind.MATERIAL)
+        {
+            return tryExtractMaterial(entityOrNull);
+        } else
+        {
+            URLMethodWithParameters url = new URLMethodWithParameters("");
+            url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityOrNull
+                    .getEntityKind().name());
+            url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, entityOrNull.getPermId());
+            return print(url);
+        }
     }
 
     public static final String tryExtract(Project p)
