@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -60,6 +65,36 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
 
     private int nextTableButtonIndex;
 
+    void setPagingComponentsHidden(boolean hide)
+    {
+        // WORKAROUND GXT2.1: to access all the elements of the paging toolbar
+        Component separator1 = getItem(indexOf(prev) + 1);
+        Component beforePage = getItem(indexOf(separator1) + 1);
+        Component pageTextWidget = getItem(indexOf(beforePage) + 1);
+        Component separator2 = getItem(indexOf(afterText) + 1);
+        Component separator3 = getItem(indexOf(last) + 1);
+        List<Component> components = new ArrayList<Component>();
+        components.addAll(Arrays.asList(first, prev, separator1, beforePage, pageTextWidget,
+                afterText, separator2, next, last, separator3, refresh));
+        for (Component c : components)
+        {
+            if (hide)
+            {
+                c.hide();
+            } else
+            {
+                c.show();
+                // WORKAROUND GXT2.1: fixes the width of a button (hidden before) with an icon
+                if (c instanceof Button)
+                {
+                    Button button = ((Button) c);
+                    button.setIcon(button.getIcon());
+                }
+            }
+        }
+        syncSize();
+    }
+
     public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker, IViewContext<?> viewContext,
             int pageSize, String gridId)
     {
@@ -98,6 +133,20 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
 
         insertTableButton(new FillToolItem());
         viewContext.logStop(logID);
+        setPagingComponentsHidden(true);
+    }
+
+    @Override
+    protected void onLoad(LoadEvent event)
+    {
+        super.onLoad(event);
+        if (pages < 2)
+        {
+            setPagingComponentsHidden(true);
+        } else
+        {
+            setPagingComponentsHidden(false);
+        }
     }
 
     /** Total number of items on all pages */
