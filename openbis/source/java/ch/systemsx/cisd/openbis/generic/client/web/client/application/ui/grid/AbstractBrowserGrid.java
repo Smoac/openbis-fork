@@ -574,7 +574,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final ListEntitiesCallback<T, M> listCallback =
                 new ListEntitiesCallback<T, M>(this, viewContext, callback, resultSetConfig, grid,
                         pendingFetchManager, refreshCallback, pagingManager,
-                        customColumnsMetadataProvider, filterToolbar);
+                        customColumnsMetadataProvider, filterToolbar)
+                    {
+                        // WORKAROUND Initialization ordering in tests.
+                        // Need to override this method because of a dependency problem in the
+                        // testing infrastructure. The test infrastructure requires that the
+                        // callbackId be known the AbstractAsyncCallback constructor, the
+                        // ListEntitiesCallback doesn't know it until after its constructor has
+                        // completed. Thus, this override.
+                        @Override
+                        public String getCallbackId()
+                        {
+                            return grid.getId();
+                        }
+
+                    };
 
         listEntities(resultSetConfig, listCallback);
     }

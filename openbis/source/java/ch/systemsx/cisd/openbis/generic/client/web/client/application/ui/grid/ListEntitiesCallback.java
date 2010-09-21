@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public final class ListEntitiesCallback<T, M extends BaseEntityModel<T>> extends
+public class ListEntitiesCallback<T, M extends BaseEntityModel<T>> extends
         AbstractAsyncCallback<ResultSet<T>>
 {
     private final AbstractBrowserGrid<T, M> browserGrid;
