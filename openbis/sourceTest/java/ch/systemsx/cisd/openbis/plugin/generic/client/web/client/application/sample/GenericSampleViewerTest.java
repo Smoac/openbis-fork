@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -203,11 +202,21 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
-        final CheckSample checkSample = new CheckSample();
+
         // simplified sample properties check
+        final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
         checkSample.property("Experiment").asString(CELL_PLATE_EXAMPLE_EXPERIMENT_ID);
         remoteConsole.prepare(checkSample);
+
+        // show data set section tab
+        final String tabPanelId =
+                GenericSampleViewer.createId(WILDCARD_ID) + SectionsPanel.SECTION_PANEL_ID_SUFFIX;
+        final String tabItemId =
+                TabContent
+                        .createId(WILDCARD_ID.toString(), DisplayTypeIDGenerator.DATA_SET_SECTION)
+                        + SectionsPanel.SECTION_TAB_ID_SUFFIX;
+        activateTab(tabPanelId, tabItemId);
 
         // check directly connected datasets
         final CheckTableCommand checkDirectlyConnectedDataTable =
@@ -217,29 +226,19 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 .expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
                         .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID)
                         .withExperiment(CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
+        remoteConsole.prepare(checkDirectlyConnectedDataTable);
 
-        final String tabPanelId =
-                GenericSampleViewer.createId(WILDCARD_ID) + SectionsPanel.SECTION_PANEL_ID_SUFFIX;
-        final String tabItemId =
-                TabContent
-                        .createId(WILDCARD_ID.toString(), DisplayTypeIDGenerator.DATA_SET_SECTION)
-                        + SectionsPanel.SECTION_TAB_ID_SUFFIX;
-        remoteConsole.prepare(createChangeTabCommandWrapper(checkDirectlyConnectedDataTable,
-                tabPanelId, tabItemId));
-
-        launchTest();
-    }
-
-    public final void testShowIndirectlyConnectedDataSets()
-    {
-        loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
-        remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
-        remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
-        final CheckSample checkSample = new CheckSample();
-        // simplified sample properties check
-        checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
-        checkSample.property("Experiment").asString(CELL_PLATE_EXAMPLE_EXPERIMENT_ID);
-        remoteConsole.prepare(checkSample);
+        // show indirectly connected data sets
+        remoteConsole.prepare(new AbstractDefaultTestCommand()
+            {
+                public void execute()
+                {
+                    String showOnlyDirectlyConnectedCheckBoxId =
+                            GenericSampleViewer.createId(WILDCARD_ID)
+                                    + GenericSampleViewer.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX;
+                    GWTTestUtil.clickCheckBoxWithID(showOnlyDirectlyConnectedCheckBoxId);
+                }
+            });
 
         // check indirectly connected datasets
         final CheckTableCommand checkIndirectlyConnectedDataTable =
@@ -261,26 +260,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
             checkIndirectlyConnectedDataTable.expectedRow(new DataSetRow().valid().withSample("")
                     .withExperiment(differentExperimentIdentifier).withLocation(location));
         }
-
-        final String tabPanelId =
-                GenericSampleViewer.createId(WILDCARD_ID) + SectionsPanel.SECTION_PANEL_ID_SUFFIX;
-        final String tabItemId =
-                TabContent
-                        .createId(WILDCARD_ID.toString(), DisplayTypeIDGenerator.DATA_SET_SECTION)
-                        + SectionsPanel.SECTION_TAB_ID_SUFFIX;
-        remoteConsole.prepare(createCommandWrapper(checkIndirectlyConnectedDataTable,
-                new IDelegatedAction()
-                    {
-                        public void execute()
-                        {
-                            GWTTestUtil.selectTabItemWithId(tabPanelId, tabItemId);
-                            // show indirectly connected datasets
-                            String showOnlyDirectlyConnectedCheckBoxId =
-                                    GenericSampleViewer.createId(WILDCARD_ID)
-                                            + GenericSampleViewer.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX;
-                            GWTTestUtil.clickCheckBoxWithID(showOnlyDirectlyConnectedCheckBoxId);
-                        }
-                    }));
+        remoteConsole.prepare(checkIndirectlyConnectedDataTable);
 
         launchTest();
     }

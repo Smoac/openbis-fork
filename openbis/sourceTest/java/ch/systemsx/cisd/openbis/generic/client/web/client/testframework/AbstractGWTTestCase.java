@@ -179,14 +179,10 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
         remoteConsole.prepare(new InvokeActionMenu(actionMenuKind));
     }
 
-    /**
-     * Returns a command that will first select a specified tab before preparing the specified
-     * <var>command</var>.
-     */
-    protected ITestCommand createChangeTabCommandWrapper(final ITestCommand command,
-            final String tabPanelId, final String tabItemId)
+    /** activate the specified tab */
+    protected final void activateTab(final String tabPanelId, final String tabItemId)
     {
-        return createCommandWrapper(command, new IDelegatedAction()
+        remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
                 public void execute()
                 {
