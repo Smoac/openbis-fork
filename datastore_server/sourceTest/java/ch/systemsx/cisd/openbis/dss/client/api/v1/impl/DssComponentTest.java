@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
+import ch.systemsx.cisd.openbis.dss.generic.server.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
@@ -350,7 +351,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     }
 
     private static class MockDssServiceRpc extends AbstractDssServiceRpc implements
-            IDssServiceRpcGeneric
+            IDssServiceRpcGenericInternal
     {
         private final FileInfoDssDTO[] fileInfos;
 
@@ -413,7 +414,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        protected boolean isDatasetAccessible(String sessionToken, String dataSetCode)
+        public boolean isDatasetAccessible(String sessionToken, String dataSetCode)
         {
             return isDataSetAccessible;
         }

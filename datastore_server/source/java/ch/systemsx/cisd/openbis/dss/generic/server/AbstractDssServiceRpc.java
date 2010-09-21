@@ -120,7 +120,7 @@ public abstract class AbstractDssServiceRpc
      * Check with openBIS if the user with the given sessionToken is allowed to access the data set
      * specified by the dataSetCode.
      */
-    protected boolean isDatasetAccessible(String sessionToken, String dataSetCode)
+    public boolean isDatasetAccessible(String sessionToken, String dataSetCode)
     {
         boolean access;
         if (operationLog.isInfoEnabled())

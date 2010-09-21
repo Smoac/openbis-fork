@@ -83,7 +83,8 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             final Object[] args = methodInvocation.getArguments();
             String sessionToken = getSessionToken(args);
             String dataSetCode = getDataSetCode(args, methodInvocation);
-            AbstractDssServiceRpc recv = (AbstractDssServiceRpc) methodInvocation.getThis();
+            IDssServiceRpcGenericInternal recv =
+                    (IDssServiceRpcGenericInternal) methodInvocation.getThis();
             if (false == recv.isDatasetAccessible(sessionToken, dataSetCode))
             {
                 authorizationLog.info(String.format(

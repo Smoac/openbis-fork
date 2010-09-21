@@ -34,4 +34,6 @@ public interface IDssServiceRpcGenericInternal extends IDssServiceRpcGeneric
     public void setStoreDirectory(File aFile);
 
     public void setIncomingDirectory(File aFile);
+
+    public boolean isDatasetAccessible(String sessionToken, String dataSetCode);
 }
