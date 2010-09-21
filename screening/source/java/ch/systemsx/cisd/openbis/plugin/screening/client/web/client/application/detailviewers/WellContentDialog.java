@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -54,13 +55,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A dialog which shows the content of the well (static or a timepoints movie).
@@ -76,19 +77,19 @@ public class WellContentDialog extends Dialog
     /**
      * A dialog which shows the content of the well (static or a timepoints movie).
      */
-    public static void showContentDialog(final WellData wellData, DefaultChannelState channelState,
+    public static void showContentDialog(final WellData wellData,
+            DatasetImagesReference imageDatasetOrNull, DefaultChannelState channelState,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         final WellContentDialog contentDialog = createContentDialog(wellData, viewContext);
-        final WellImages imagesOrNull = wellData.tryGetImages();
-        showContentDialog(contentDialog, imagesOrNull, channelState, viewContext);
+        showContentDialog(contentDialog, imageDatasetOrNull, channelState, viewContext);
     }
 
     private static void showContentDialog(final WellContentDialog contentDialog,
-            final WellImages imagesOrNull, DefaultChannelState channelState,
+            final DatasetImagesReference imagesOrNull, DefaultChannelState channelState,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        if (imagesOrNull != null && imagesOrNull.isMultidimensional())
+        if (imagesOrNull != null && imagesOrNull.getImageParameters().isMultidimensional())
         {
             showTimepointImageDialog(contentDialog, imagesOrNull, channelState, viewContext);
         } else
@@ -100,6 +101,7 @@ public class WellContentDialog extends Dialog
     private static WellContentDialog createContentDialog(final WellData wellData,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
+        WellLocation wellLocation = wellData.getWellLocation();
         WellMetadata wellMetadata = wellData.tryGetMetadata();
         IEntityInformationHolder wellOrNull = null;
         List<IEntityProperty> wellPropertiesOrNull = null;
@@ -108,8 +110,8 @@ public class WellContentDialog extends Dialog
             wellOrNull = wellMetadata.getWellSample();
             wellPropertiesOrNull = wellMetadata.getWellSample().getProperties();
         }
-        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, getExperiment(wellData),
-                viewContext);
+        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation,
+                tryGetExperiment(wellData), viewContext);
     }
 
     /**
@@ -121,7 +123,7 @@ public class WellContentDialog extends Dialog
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final WellContent wellContent, int imageWidthPx, int imageHeightPx, String channel)
     {
-        DatasetImagesReference imageDataset = wellContent.tryGetImageDataset();
+        final DatasetImagesReference imageDataset = wellContent.tryGetImageDataset();
         if (imageDataset == null)
         {
             return new Text("Images not acquired.");
@@ -137,10 +139,10 @@ public class WellContentDialog extends Dialog
         {
             return new Text("No images available for this channel.");
         }
-        final WellImages wellImages = new WellImages(imageDataset, locationOrNull);
 
         boolean createImageLinks = (imageParameters.isMultidimensional() == false);
         String sessionId = getSessionId(viewContext);
+        final WellImages wellImages = new WellImages(imageDataset, locationOrNull);
         LayoutContainer staticTilesGrid =
                 createTilesGrid(wellImages, channel, sessionId, imageWidthPx, imageHeightPx,
                         createImageLinks);
@@ -152,7 +154,7 @@ public class WellContentDialog extends Dialog
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        showContentDialog(viewContext, wellContent, wellImages);
+                        showContentDialog(viewContext, wellContent, imageDataset);
                     }
                 });
         }
@@ -161,25 +163,27 @@ public class WellContentDialog extends Dialog
     }
 
     private static void showContentDialog(IViewContext<IScreeningClientServiceAsync> viewContext,
-            WellContent wellContent, WellImages wellImages)
+            WellContent wellContent, DatasetImagesReference imageDatasetOrNull)
     {
         WellContentDialog contentDialog =
-                new WellContentDialog(wellContent.getWell(), null, getExperiment(wellContent
-                        .getExperiment()), viewContext);
+                new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(),
+                        getExperiment(wellContent.getExperiment()), viewContext);
 
         // NOTE: channel chooser state will be not reused among different dialogs
         DefaultChannelState channelState = new DefaultChannelState();
-        showContentDialog(contentDialog, wellImages, channelState, viewContext);
+        showContentDialog(contentDialog, imageDatasetOrNull, channelState, viewContext);
     }
 
     // --------------- STATIC IMAGES VIEWER
 
     private static void showStaticImageDialog(final WellContentDialog contentDialog,
-            final WellImages imagesOrNull, DefaultChannelState channelState,
+            final DatasetImagesReference imageDatasetOrNull, DefaultChannelState channelState,
             final IViewContext<?> viewContext)
     {
-        if (imagesOrNull != null)
+        WellLocation wellLocation = contentDialog.wellLocationOrNull;
+        if (imageDatasetOrNull != null && wellLocation != null)
         {
+            WellImages imagesOrNull = new WellImages(imageDatasetOrNull, wellLocation);
             LayoutContainer imageViewer =
                     createStaticImageViewer(imagesOrNull, channelState, viewContext);
             contentDialog.addComponent(imageViewer);
@@ -198,8 +202,8 @@ public class WellContentDialog extends Dialog
                     return createTilesGrid(images, channel, sessionId);
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsCodes());
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
+                images.getChannelsCodes());
     }
 
     private static LayoutContainer createTilesGrid(final WellImages images, String channel,
@@ -227,11 +231,19 @@ public class WellContentDialog extends Dialog
     // --------------- TIMEPOINT IMAGES PLAYER
 
     private static void showTimepointImageDialog(final WellContentDialog contentDialog,
-            final WellImages images, final DefaultChannelState channelState,
+            final DatasetImagesReference imageDataset, final DefaultChannelState channelState,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        viewContext.getService().listImageChannelStacks(images.getDatasetCode(),
-                images.getDatastoreCode(), images.getWellLocation(),
+        assert imageDataset != null;
+
+        final WellLocation wellLocation = contentDialog.wellLocationOrNull;
+        if (wellLocation == null)
+        {
+            // images stacks cannot be obtained
+            showStaticImageDialog(contentDialog, imageDataset, channelState, viewContext);
+        }
+        viewContext.getService().listImageChannelStacks(imageDataset.getDatasetCode(),
+                imageDataset.getDatastoreCode(), wellLocation,
                 new AbstractAsyncCallback<List<WellImageChannelStack>>(viewContext)
                     {
                         @Override
@@ -239,12 +251,13 @@ public class WellContentDialog extends Dialog
                         {
                             if (channelStackImages.size() == 0)
                             {
-                                showStaticImageDialog(contentDialog, images, channelState,
+                                showStaticImageDialog(contentDialog, imageDataset, channelState,
                                         viewContext);
                             } else
                             {
+                                WellImages wellImages = new WellImages(imageDataset, wellLocation);
                                 LayoutContainer imageViewer =
-                                        createTimepointImageViewer(channelStackImages, images,
+                                        createTimepointImageViewer(channelStackImages, wellImages,
                                                 channelState, viewContext);
                                 contentDialog.addComponent(imageViewer);
                                 contentDialog.show();
@@ -267,8 +280,8 @@ public class WellContentDialog extends Dialog
                             getImageHeight(images));
                 }
             };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsCodes());
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
+                images.getChannelsCodes());
     }
 
     // ---------------- STATIC METHODS -------------------
@@ -285,17 +298,22 @@ public class WellContentDialog extends Dialog
         return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor);
     }
 
-    private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
+    private static SingleExperimentSearchCriteria tryGetExperiment(WellData wellData)
     {
-        return new SingleExperimentSearchCriteria(wellData.getExperimentId().getId(), wellData
-                .getExperimentIdentifier());
+        WellMetadata wellMetadata = wellData.tryGetMetadata();
+        if (wellMetadata == null)
+        {
+            return null;
+        }
+        Experiment experiment = wellMetadata.getWellSample().getExperiment();
+        return new SingleExperimentSearchCriteria(experiment.getId(), experiment.getIdentifier());
     }
 
     private static SingleExperimentSearchCriteria getExperiment(
             ExperimentReference experimentReference)
     {
-        return new SingleExperimentSearchCriteria(experimentReference.getId(), experimentReference
-                .getExperimentIdentifier());
+        return new SingleExperimentSearchCriteria(experimentReference.getId(),
+                experimentReference.getExperimentIdentifier());
     }
 
     private static float getImageSizeMultiplyFactor(WellImages images)
@@ -314,23 +332,27 @@ public class WellContentDialog extends Dialog
 
     private final IEntityInformationHolder wellOrNull;
 
+    private final WellLocation wellLocationOrNull;
+
     private final List<IEntityProperty> wellPropertiesOrNull;
 
-    private final SingleExperimentSearchCriteria experiment;
+    private final SingleExperimentSearchCriteria experimentOrNull;
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
     private WellContentDialog(IEntityInformationHolder wellOrNull,
-            List<IEntityProperty> wellPropertiesOrNull, SingleExperimentSearchCriteria experiment,
+            List<IEntityProperty> wellPropertiesOrNull, WellLocation wellLocationOrNull,
+            SingleExperimentSearchCriteria experimentOrNull,
             IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         this.wellOrNull = wellOrNull;
+        this.wellLocationOrNull = wellLocationOrNull;
         this.wellPropertiesOrNull = wellPropertiesOrNull;
         if (wellPropertiesOrNull != null)
         {
             Collections.sort(wellPropertiesOrNull);
         }
-        this.experiment = experiment;
+        this.experimentOrNull = experimentOrNull;
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
         setHideOnButtonClick(true);
@@ -410,8 +432,8 @@ public class WellContentDialog extends Dialog
         if (material != null)
         {
 
-            if (material.getMaterialType().getCode().equalsIgnoreCase(
-                    ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+            if (material.getMaterialType().getCode()
+                    .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
                 container.add(createEntityExternalLink(material));
             } else
@@ -460,8 +482,8 @@ public class WellContentDialog extends Dialog
             }
         } else
         {
-            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", viewContext
-                    .getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
+            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database",
+                    viewContext.getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
         }
         container.add(new Text("]"));
         return container;
@@ -469,17 +491,19 @@ public class WellContentDialog extends Dialog
 
     private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)
     {
+        assert experimentOrNull != null : "experiment is unknown";
         final String href =
-                ScreeningLinkExtractor.tryExtractMaterialWithExperiment(material, experiment
-                        .getExperimentIdentifier());
+                ScreeningLinkExtractor.tryExtractMaterialWithExperiment(material,
+                        experimentOrNull.getExperimentIdentifier());
         final ClickHandler listener = new ClickHandler()
             {
                 public void onClick(ClickEvent event)
                 {
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
-                            .openPlateLocationsMaterialViewer(material, ExperimentSearchCriteria
-                                    .createExperiment(experiment), viewContext);
+                            .openPlateLocationsMaterialViewer(material,
+                                    ExperimentSearchCriteria.createExperiment(experimentOrNull),
+                                    viewContext);
                 }
             };
         Anchor link = (Anchor) LinkRenderer.getLinkWidget(material.getCode(), listener, href);
