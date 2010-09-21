@@ -6,7 +6,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
@@ -105,7 +104,6 @@ public class ExperimentPlateLocationsSection extends TabContent
                 }
             });
 
-        container.add(new Label(viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_HELP_INFO)));
         container.add(exactMatchOnly);
         container.add(materialListField);
         container.add(searchButton);

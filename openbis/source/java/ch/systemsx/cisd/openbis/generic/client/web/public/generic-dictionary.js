@@ -6,11 +6,14 @@ var generic = {
   //
   
   no_samples_found: "There are no samples in this experiment",
+	experiment_samples_selction_title: "Samples",
+
 
   //
   // Sample Viewer
   //
-  
+
+	sample_properties_panel_sample_identifier: "Sample", 
   sample_properties_heading: "Sample Properties",
   part_of_heading: "Components",
   derived_samples_heading: "Derived Samples",

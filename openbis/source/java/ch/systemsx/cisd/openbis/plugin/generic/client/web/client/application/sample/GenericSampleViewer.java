@@ -255,7 +255,8 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         final SampleType sampleType = sample.getSampleType();
         final Invalidation invalidation = sample.getInvalidation();
         final Sample[] generated = sampleGeneration.getDerived();
-        properties.put(messageProvider.getMessage(Dict.SAMPLE), sample.getIdentifier());
+        properties.put(messageProvider.getMessage(Dict.SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER),
+                sample.getIdentifier());
         properties.put(messageProvider.getMessage(Dict.PERM_ID), new ExternalHyperlink(sample
                 .getPermId(), sample.getPermlink()));
         properties.put(messageProvider.getMessage(Dict.SAMPLE_TYPE), sampleType);

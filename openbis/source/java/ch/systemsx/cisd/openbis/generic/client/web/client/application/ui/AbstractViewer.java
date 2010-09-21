@@ -65,7 +65,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     private LabelToolItem titleLabel;
 
-    private D originalData;
+    protected D originalData;
 
     protected final ModulesSectionsManager moduleSectionManager = new ModulesSectionsManager();
 

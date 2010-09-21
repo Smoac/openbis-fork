@@ -179,6 +179,9 @@ public abstract class Dict
 
     public static final String IDENTIFIER = "identifier";
 
+    public static final String SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER =
+            "sample_properties_panel_sample_identifier";
+
     public static final String NO_MATCH = "no_match";
 
     public static final String ENTITY_TYPE = "entity_type";
@@ -852,6 +855,9 @@ public abstract class Dict
     public static final String REASON = "reason";
 
     public static final String ADD_ATTACHMENT = "add_attachment";
+
+    public static final String EXPERIMENT_SAMPLES_SELCTION_TITLE =
+            "experiment_samples_selction_title";
 
     public static final String DATA_SET_UPLOAD = "data_set_upload";
 

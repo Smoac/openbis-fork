@@ -21,7 +21,7 @@ public final class GenericViewContext extends AbstractPluginViewContext<IGeneric
     {
         super(commonViewContext);
     }
-    
+
     @Override
     protected String getTechnology()
     {

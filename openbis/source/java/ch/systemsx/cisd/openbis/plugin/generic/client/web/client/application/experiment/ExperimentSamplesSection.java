@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -44,7 +45,7 @@ public class ExperimentSamplesSection extends DisposableTabContent
     public ExperimentSamplesSection(IViewContext<?> viewContext, BasicEntityType experimentType,
             IIdAndCodeHolder experimentId)
     {
-        super("Samples", viewContext);
+        super(viewContext.getMessage(Dict.EXPERIMENT_SAMPLES_SELCTION_TITLE), viewContext);
         this.experimentType = experimentType;
         this.experimentId = new TechId(experimentId.getId());
     }

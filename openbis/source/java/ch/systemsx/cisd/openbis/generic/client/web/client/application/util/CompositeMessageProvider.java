@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * A {@link IMessageProvider} implementation based on <i>Composite</i> pattern.
  * 
@@ -27,7 +26,12 @@ import java.util.List;
  */
 public final class CompositeMessageProvider implements IMessageProvider
 {
+    private static final String TRUE = "true";
+
+    private static final String IS_DEFAULT_DICTIONARY = "is_default_dictionary";
+
     private final List<IMessageProvider> messageProviders = new ArrayList<IMessageProvider>();
+
     private String name;
 
     public void add(IMessageProvider messageProvider)
@@ -56,7 +60,7 @@ public final class CompositeMessageProvider implements IMessageProvider
         }
         return name;
     }
-    
+
     public final boolean containsKey(final String key)
     {
         for (final IMessageProvider messageProvider : messageProviders)
@@ -71,6 +75,11 @@ public final class CompositeMessageProvider implements IMessageProvider
 
     public final String getMessage(final String key, final Object... parameters)
     {
+        IMessageProvider defaultMessageProvider = tryGetDefaultDictionary(key);
+        if (defaultMessageProvider != null && defaultMessageProvider.containsKey(key))
+        {
+            return defaultMessageProvider.getMessage(key, parameters);
+        }
         for (final IMessageProvider messageProvider : messageProviders)
         {
             if (messageProvider.containsKey(key))
@@ -79,6 +88,26 @@ public final class CompositeMessageProvider implements IMessageProvider
             }
         }
         return "Unknown key '" + key + "' in dictonaries " + getName() + ".";
+    }
+
+    /**
+     * Returns a {@link IMessageProvider} containing key {@link #IS_DEFAULT_DICTIONARY} with value =
+     * {@link #TRUE} or null if no such {@link IMessageProvider} defined.
+     */
+    private IMessageProvider tryGetDefaultDictionary(final String key)
+    {
+        for (final IMessageProvider messageProvider : messageProviders)
+        {
+            if (messageProvider.containsKey(IS_DEFAULT_DICTIONARY))
+            {
+                String isDefaultMsg = messageProvider.getMessage(IS_DEFAULT_DICTIONARY);
+                if (isDefaultMsg.compareToIgnoreCase(TRUE) == 0)
+                {
+                    return messageProvider;
+                }
+            }
+        }
+        return null;
     }
 
 }

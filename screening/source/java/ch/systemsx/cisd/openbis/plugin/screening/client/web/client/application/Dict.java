@@ -46,6 +46,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String PLATE = "PLATE";
 
+    public static final String PLATE_VIEWER_TITLE = "PLATE_VIEWER_TITLE";
+
     public static final String WELL = "WELL";
 
     public static final String WELL_IMAGES = "WELL_IMAGES";
@@ -67,9 +69,6 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
     public static final String SCREENING_MODULE_TITLE = "SCREENING_MODULE_TITLE";
 
     public static final String PLATE_MATERIAL_REVIEWER_TITLE = "PLATE_MATERIAL_REVIEWER_TITLE";
-
-    public static final String PLATE_MATERIAL_REVIEWER_HELP_INFO =
-            "PLATE_MATERIAL_REVIEWER_HELP_INFO";
 
     public static final String PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS =
             "PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS";

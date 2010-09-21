@@ -286,7 +286,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.SAMPLE, identifiable, screeningViewContext);
+                        return getViewerTitle(Dict.PLATE, identifiable, screeningViewContext);
                     }
                 };
         }

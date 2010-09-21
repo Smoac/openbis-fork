@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 
 /**
@@ -66,6 +67,12 @@ public final class PlateSampleViewer extends GenericSampleViewer
         List<TabContent> sections = new ArrayList<TabContent>();
         sections.add(new PlateLayoutSampleSection(screeningViewContext, sampleId));
         return sections;
+    }
+
+    @Override
+    protected String getOriginalDataDescription()
+    {
+        return screeningViewContext.getMessage(Dict.PLATE_VIEWER_TITLE, originalData.getCode());
     }
 
 }
