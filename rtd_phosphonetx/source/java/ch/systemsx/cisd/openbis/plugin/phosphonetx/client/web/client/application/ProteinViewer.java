@@ -236,7 +236,8 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         layoutData.setSize(400);
         add(propertyPanel, layoutData);
         DisposableTabContent sequencesSection =
-                new DisposableTabContent(viewContext.getMessage(Dict.SEQUENCES), viewContext)
+                new DisposableTabContent(viewContext.getMessage(Dict.SEQUENCES), viewContext,
+                        proteinReferenceID)
                     {
                         @Override
                         protected IDisposableComponent createDisposableContent()
@@ -248,7 +249,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         add(sequencesSection, createRightBorderLayoutData());
         DisposableTabContent proteinsSection =
                 new DisposableTabContent(viewContext.getMessage(Dict.DATA_SET_PROTEINS),
-                        viewContext)
+                        viewContext, proteinReferenceID)
                     {
                         @Override
                         protected IDisposableComponent createDisposableContent()

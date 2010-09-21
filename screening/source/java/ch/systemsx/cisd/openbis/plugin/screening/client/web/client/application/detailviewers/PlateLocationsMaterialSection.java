@@ -27,12 +27,12 @@ class PlateLocationsMaterialSection extends TabContent
         super(
                 screeningViewContext
                         .getMessage(ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.PLATE_LOCATIONS),
-                screeningViewContext);
+                screeningViewContext, materialId);
         setHeaderVisible(false);
         this.reviewer =
                 PlateMaterialReviewer.create(screeningViewContext, experimentCriteriaOrNull,
                         materialId);
-        setDisplayID(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
+        setIds(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
     }
 
     @Override

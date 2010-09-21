@@ -238,15 +238,13 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, experimentType, experimentId);
-        sampleSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
         allPanels.add(sampleSection);
 
         final DisposableTabContent dataSection = createExperimentDataSetSection();
-        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION);
+        dataSection.setIds(DisplayTypeIDGenerator.DATA_SET_SECTION);
         allPanels.add(dataSection);
 
         final AttachmentVersionsSection attachmentsSection = createAttachmentsSection();
-        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION);
         allPanels.add(attachmentsSection);
 
         return allPanels;
@@ -254,7 +252,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
     private DisposableTabContent createExperimentDataSetSection()
     {
-        return new DisposableTabContent("Data Sets", viewContext)
+        return new DisposableTabContent("Data Sets", viewContext, experimentId)
             {
                 @Override
                 protected IDisposableComponent createDisposableContent()
@@ -268,11 +266,12 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
     private SectionsPanel layoutSections(List<DisposableTabContent> allPanels,
             String displayIdSuffix)
     {
-        final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        final SectionsPanel container =
+                new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + experimentId);
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_EXPERIMENT_VIEWER, displayIdSuffix);
         for (DisposableTabContent panel : allPanels)
         {
-            container.addPanel(panel);
+            container.addSection(panel);
         }
         container.layout();
         return container;

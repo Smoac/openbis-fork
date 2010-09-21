@@ -46,10 +46,10 @@ public class PlateLayoutDatasetSection extends TabContent
 
     public PlateLayoutDatasetSection(final ScreeningViewContext viewContext, final TechId datasetId)
     {
-        super("Plate Layout", viewContext);
+        super("Plate Layout", viewContext, datasetId);
         this.viewContext = viewContext;
         this.datasetId = datasetId;
-        setDisplayID(DisplayTypeIDGenerator.PLATE_LAYOUT_DATASET_SECTION);
+        setIds(DisplayTypeIDGenerator.PLATE_LAYOUT_DATASET_SECTION);
     }
 
     @Override

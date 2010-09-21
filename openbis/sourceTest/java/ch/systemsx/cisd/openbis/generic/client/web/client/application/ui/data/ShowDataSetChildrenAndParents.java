@@ -49,11 +49,13 @@ public class ShowDataSetChildrenAndParents extends AbstractDefaultTestCommand
         clickButton(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION);
     }
 
+    // FIXME 2010-09-21, Piotr Buczek: this is the thing that doesn't work any more
     private void clickButton(DisplayTypeIDGenerator idGenerator)
     {
-        Widget widget = GWTTestUtil.getWidgetWithID(GenericConstants.ID_PREFIX
-                + idGenerator.createID(GenericDataSetViewer.PREFIX + code)
-                + SectionsPanel.POSTFIX_SECTION_TAB_ID);
+        Widget widget =
+                GWTTestUtil.getWidgetWithID(GenericConstants.ID_PREFIX
+                        + idGenerator.createID(GenericDataSetViewer.PREFIX + code)
+                        + SectionsPanel.SECTION_TAB_ID_SUFFIX);
         if (widget instanceof ToggleButton)
         {
             ToggleButton button = (ToggleButton) widget;

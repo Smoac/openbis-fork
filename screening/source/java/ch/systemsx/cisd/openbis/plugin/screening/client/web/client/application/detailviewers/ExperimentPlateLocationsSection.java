@@ -57,7 +57,7 @@ public class ExperimentPlateLocationsSection extends TabContent
             IEntityInformationHolderWithIdentifier experiment)
     {
         super(screeningViewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION),
-                screeningViewContext);
+                screeningViewContext, experiment);
         this.screeningViewContext = screeningViewContext;
         this.experiment = experiment;
         this.materialListField = createMaterialListArea();
@@ -65,7 +65,7 @@ public class ExperimentPlateLocationsSection extends TabContent
                 new CheckBoxField(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY), false);
         exactMatchOnly.setBoxLabel(screeningViewContext.getMessage(Dict.EXACT_MATCH_ONLY));
         exactMatchOnly.setValue(true);
-        setDisplayID(DisplayTypeIDGenerator.EXPERIMENT_PLATE_LOCATIONS_SECTION);
+        setIds(DisplayTypeIDGenerator.EXPERIMENT_PLATE_LOCATIONS_SECTION);
         screeningViewContext.getCommonService().listMaterialTypes(
                 new AbstractAsyncCallback<List<MaterialType>>(screeningViewContext)
                     {

@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * {@link ContentPanel} for sections with deferred request handling.
@@ -52,9 +53,17 @@ abstract public class TabContent extends ContentPanel
 
     private String parentDisplayID;
 
-    public TabContent(final String header, IViewContext<?> viewContext)
+    private final String ownerId;
+
+    public TabContent(final String header, IViewContext<?> viewContext, IIdHolder ownerId)
+    {
+        this(header, viewContext, ownerId.getId().toString());
+    }
+
+    private TabContent(final String header, IViewContext<?> viewContext, String ownerId)
     {
         this.viewContext = viewContext;
+        this.ownerId = ownerId;
         setHeading(header);
         setHeaderVisible(true);
         setCollapsible(false);
@@ -73,9 +82,15 @@ abstract public class TabContent extends ContentPanel
         this.parentDisplayID = parentDisplayID;
     }
 
-    public void setDisplayID(IDisplayTypeIDGenerator generator)
+    public void setIds(IDisplayTypeIDGenerator generator)
     {
+        setId(createId(ownerId, generator));
         this.displayId = generator.createID();
+    }
+
+    public static String createId(String ownerId, IDisplayTypeIDGenerator generator)
+    {
+        return GenericConstants.ID_PREFIX + ownerId + "-" + generator.createID();
     }
 
     public String getDisplayID()

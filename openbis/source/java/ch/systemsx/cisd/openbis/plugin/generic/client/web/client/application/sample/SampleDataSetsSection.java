@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -40,10 +41,11 @@ public class SampleDataSetsSection extends DisposableTabContent
     public SampleDataSetsSection(final IViewContext<?> viewContext,
             CheckBox showOnlyDirectlyConnectedCheckBox, TechId sampleId, SampleType sampleType)
     {
-        super(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING), viewContext);
+        super(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING), viewContext, sampleId);
         this.showOnlyDirectlyConnectedCheckBox = showOnlyDirectlyConnectedCheckBox;
         this.sampleId = sampleId;
         this.sampleType = sampleType;
+        setIds(DisplayTypeIDGenerator.DATA_SET_SECTION);
     }
 
     @Override

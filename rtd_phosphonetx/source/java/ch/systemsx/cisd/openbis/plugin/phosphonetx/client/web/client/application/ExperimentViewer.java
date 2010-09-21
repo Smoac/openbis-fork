@@ -60,7 +60,7 @@ public class ExperimentViewer extends GenericExperimentViewer
     {
         DisposableTabContent section =
                 new DisposableTabContent(specificViewContext.getMessage(Dict.PROTEINS_SECTION),
-                        specificViewContext)
+                        specificViewContext, experiment)
                     {
                         @Override
                         protected IDisposableComponent createDisposableContent()
@@ -69,7 +69,7 @@ public class ExperimentViewer extends GenericExperimentViewer
                                     experimentType, experiment);
                         }
                     };
-        section.setDisplayID(DisplayTypeIDGenerator.PROTEIN_SECTION);
+        section.setIds(DisplayTypeIDGenerator.PROTEIN_SECTION);
         return Collections.<DisposableTabContent> singletonList(section);
     }
 

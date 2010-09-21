@@ -168,29 +168,27 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
 
     private final Component createRightPanel(final ExternalData dataset)
     {
-        final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        final SectionsPanel container =
+                new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + dataset.getId());
         displayIdSuffix = dataset.getDataSetType().getCode();
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER, displayIdSuffix);
 
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
         {
-            container.addPanel(panel);
+            container.addSection(panel);
         }
         // data
         final TabContent dataSection = new DataViewSection(viewContext, dataset);
-        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_DATA_SECTION);
-        container.addPanel(dataSection);
+        container.addSection(dataSection);
 
         // parents
         final TabContent parentsSection = new DataSetParentsSection(viewContext, dataset);
-        parentsSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION);
-        container.addPanel(parentsSection);
+        container.addSection(parentsSection);
 
         // children
         final TabContent childrenSection = new DataSetChildrenSection(viewContext, dataset);
-        childrenSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION);
-        container.addPanel(childrenSection);
+        container.addSection(childrenSection);
 
         // container.layout();
         moduleSectionManager.initialize(container, dataset);

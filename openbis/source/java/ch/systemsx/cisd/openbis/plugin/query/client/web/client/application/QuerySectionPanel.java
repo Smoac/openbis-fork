@@ -57,7 +57,7 @@ final class QuerySectionPanel extends DisposableTabContent
         super(
                 queryModuleContext
                         .getMessage(ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.QUERY_MODULE_MENU_TITLE),
-                queryModuleContext);
+                queryModuleContext, entity);
         this.queryModuleContext = queryModuleContext;
         this.entity = entity;
 

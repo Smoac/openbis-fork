@@ -123,12 +123,12 @@ public abstract class AbstractClientService implements IClientService,
     }
 
     protected final <T> IResultSet<String, T> getResultSet(
-            IResultSetConfig<String, T> resultSetConfig, IOriginalDataProvider<T> dummyDataProvider)
+            IResultSetConfig<String, T> resultSetConfig, IOriginalDataProvider<T> dataProvider)
     {
         final IResultSetManager<String> resultSetManager = getResultSetManager();
         final IResultSet<String, T> result =
                 resultSetManager
-                        .getResultSet(getSessionToken(), resultSetConfig, dummyDataProvider);
+                        .getResultSet(getSessionToken(), resultSetConfig, dataProvider);
         return result;
     }
 

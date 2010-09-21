@@ -25,10 +25,10 @@ public class ExperimentWellMaterialsSection extends DisposableTabContent
             IEntityInformationHolderWithIdentifier experiment)
     {
         super(screeningViewContext.getMessage(Dict.EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION),
-                screeningViewContext);
+                screeningViewContext, experiment);
         this.screeningViewContext = screeningViewContext;
         this.experiment = experiment;
-        setDisplayID(DisplayTypeIDGenerator.EXPERIMENT_WELL_MATERIALS_SECTION);
+        setIds(DisplayTypeIDGenerator.EXPERIMENT_WELL_MATERIALS_SECTION);
     }
 
     @Override

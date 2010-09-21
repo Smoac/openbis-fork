@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * Abstract super class of all GWT System Tests.
@@ -176,5 +177,38 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     {
         remoteConsole.prepare(new Login(userName, passwd));
         remoteConsole.prepare(new InvokeActionMenu(actionMenuKind));
+    }
+
+    /**
+     * Returns a command that will first select a specified tab before preparing the specified
+     * <var>command</var>.
+     */
+    protected ITestCommand createChangeTabCommandWrapper(final ITestCommand command,
+            final String tabPanelId, final String tabItemId)
+    {
+        return createCommandWrapper(command, new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    GWTTestUtil.selectTabItemWithId(tabPanelId, tabItemId);
+                }
+            });
+    }
+
+    /**
+     * Returns a command that executes specified <var>preprocessingAction</var> before preparing the
+     * specified <var>command</var>.
+     */
+    protected ITestCommand createCommandWrapper(final ITestCommand command,
+            final IDelegatedAction preprocessingAction)
+    {
+        return new AbstractDefaultTestCommand()
+            {
+                public void execute()
+                {
+                    preprocessingAction.execute();
+                    remoteConsole.prepare(command);
+                }
+            };
     }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
-	<classpathentry kind="src" path="sourceTest/java"/>
+	<classpathentry excluding="ch/systemsx/cisd/openbis/plugin/generic/client/web/client/application/sample/CopyOfGenericSampleViewerTest.java" kind="src" path="sourceTest/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/authentication"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/common"/>

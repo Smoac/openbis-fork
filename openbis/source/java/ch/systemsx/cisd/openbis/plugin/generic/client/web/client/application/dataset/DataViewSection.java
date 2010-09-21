@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
@@ -68,8 +69,9 @@ public class DataViewSection extends TabContent
 
     public DataViewSection(final IViewContext<?> viewContext, final ExternalData dataset)
     {
-        super(viewContext.getMessage(Dict.DATA_VIEW), viewContext);
+        super(viewContext.getMessage(Dict.DATA_VIEW), viewContext, dataset);
         this.dataset = dataset;
+        setIds(DisplayTypeIDGenerator.DATA_SET_DATA_SECTION);
     }
 
     @Override

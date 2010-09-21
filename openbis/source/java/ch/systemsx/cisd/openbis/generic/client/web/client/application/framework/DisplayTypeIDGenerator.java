@@ -78,6 +78,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     ATTACHMENT_SECTION("attachment-section"),
 
+    EXPERIMENT_SAMPLES_SECTION("experiment-sample-section"),
+
     CONTAINER_SAMPLES_SECTION("container-sample-section"),
 
     DERIVED_SAMPLES_SECTION("derived-samples-section"),

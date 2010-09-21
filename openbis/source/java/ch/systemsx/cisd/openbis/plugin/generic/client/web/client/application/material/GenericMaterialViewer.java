@@ -129,12 +129,13 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
     {
         displayIdSuffix = material.getMaterialType().getCode();
 
-        final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        final SectionsPanel container =
+                new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + material.getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER, displayIdSuffix);
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
         {
-            container.addPanel(panel);
+            container.addSection(panel);
         }
         container.layout();
         moduleSectionManager.initialize(container, material);

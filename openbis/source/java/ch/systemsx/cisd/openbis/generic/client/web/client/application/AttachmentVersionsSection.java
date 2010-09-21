@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
@@ -34,8 +35,9 @@ public class AttachmentVersionsSection extends DisposableTabContent
     public AttachmentVersionsSection(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IAttachmentHolder attachmentHolder)
     {
-        super(viewContext.getMessage(Dict.ATTACHMENTS), viewContext);
+        super(viewContext.getMessage(Dict.ATTACHMENTS), viewContext, attachmentHolder);
         this.attachmentHolder = attachmentHolder;
+        setIds(DisplayTypeIDGenerator.ATTACHMENT_SECTION);
     }
 
     @Override

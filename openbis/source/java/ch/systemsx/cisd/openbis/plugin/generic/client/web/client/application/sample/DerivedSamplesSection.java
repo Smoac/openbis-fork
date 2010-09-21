@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Disposable
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -41,8 +42,9 @@ public class DerivedSamplesSection extends DisposableTabContent
 
     public DerivedSamplesSection(final IViewContext<?> viewContext, final Sample parent)
     {
-        super(viewContext.getMessage(Dict.DERIVED_SAMPLES_HEADING), viewContext);
+        super(viewContext.getMessage(Dict.DERIVED_SAMPLES_HEADING), viewContext, parent);
         this.parent = parent;
+        setIds(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION);
     }
 
     // @Private

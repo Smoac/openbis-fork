@@ -93,9 +93,9 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "generic-sample-properties-viewer_";
 
-    public static final String COMPONENTS_POSTFIX = "-components";
+    // public static final String COMPONENTS_POSTFIX = "-components";
 
-    public static final String DATA_POSTFIX = "-data";
+    // public static final String DATA_POSTFIX = "-data";
 
     public static final String SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX =
             "-show_only_directly_connected_checkbox";
@@ -112,7 +112,7 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
 
     private DisposableTabContent parentSamplesSection;
 
-    private DisposableTabContent dataSetBrowser;
+    private DisposableTabContent dataSetSection;
 
     private PropertyGrid propertyGrid;
 
@@ -187,37 +187,33 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         final Sample generator = sampleGeneration.getParent();
         displayIdSuffix = generator.getSampleType().getCode();
 
-        final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        final SectionsPanel container =
+                new SectionsPanel(viewContext.getCommonViewContext(), getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_SAMPLE_VIEWER, displayIdSuffix);
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
         for (TabContent panel : additionalPanels)
         {
-            container.addPanel(panel);
+            container.addSection(panel);
         }
         // Contained samples
         containerSamplesSection = new ContainerSamplesSection(viewContext, generator);
-        containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION);
-        container.addPanel(containerSamplesSection);
+        container.addSection(containerSamplesSection);
         // Derived samples
         derivedSamplesSection = new DerivedSamplesSection(viewContext, generator);
-        derivedSamplesSection.setDisplayID(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION);
-        container.addPanel(derivedSamplesSection);
+        container.addSection(derivedSamplesSection);
         // Parent samples
         parentSamplesSection = new ParentSamplesSection(viewContext, generator);
-        parentSamplesSection.setDisplayID(DisplayTypeIDGenerator.PARENT_SAMPLES_SECTION);
-        container.addPanel(parentSamplesSection);
+        container.addSection(parentSamplesSection);
         // Data Sets
         CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
-        dataSetBrowser =
+        dataSetSection =
                 new SampleDataSetsSection(viewContext, showOnlyDirectlyConnectedCheckBox, sampleId,
                         generator.getSampleType());
-        dataSetBrowser.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION);
-        container.addPanel(dataSetBrowser);
+        container.addSection(dataSetSection);
 
         // Attachments
         attachmentsSection = createAttachmentsSection(generator);
-        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION);
-        container.addPanel(attachmentsSection);
+        container.addSection(attachmentsSection);
 
         container.layout();
         moduleSectionManager.initialize(container, generator);
@@ -487,9 +483,9 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         CompositeDatabaseModificationObserver observer =
                 new CompositeDatabaseModificationObserverWithMainObserver(
                         new PropertyGridDatabaseModificationObserver());
-        if (dataSetBrowser != null)
+        if (dataSetSection != null)
         {
-            observer.addObserver(dataSetBrowser.tryGetDatabaseModificationObserver());
+            observer.addObserver(dataSetSection.tryGetDatabaseModificationObserver());
         }
         if (attachmentsSection != null)
         {

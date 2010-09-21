@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -32,8 +33,9 @@ class DataSetParentsSection extends DisposableTabContent
 
     DataSetParentsSection(IViewContext<?> viewContext, ExternalData dataset)
     {
-        super("Parents (Data Sets)", viewContext);
+        super("Parents (Data Sets)", viewContext, dataset);
         this.dataset = dataset;
+        setIds(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION);
     }
 
     @Override

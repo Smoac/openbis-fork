@@ -45,7 +45,7 @@ public class ProteinSamplesSection extends DisposableTabContent
     public ProteinSamplesSection(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             final TechId proteinReferenceID, IIdAndCodeHolder experimentOrNull)
     {
-        super("Samples", viewContext);
+        super("Samples", viewContext, proteinReferenceID);
         this.viewContext = viewContext;
         this.experimentOrNull = experimentOrNull;
         this.proteinReferenceID = proteinReferenceID;

@@ -324,15 +324,21 @@ public final class GWTTestUtil
     public final static void selectTabItemWithId(final String tabPanelId, final String tabItemId)
     {
         final TabPanel tabPanel = getTabPanelWithID(tabPanelId);
+        final List<String> unmatchedTabIds = new ArrayList<String>();
+
         for (TabItem tabItem : tabPanel.getItems())
         {
             if (tabItem.getId().matches(tabItemId))
             {
                 tabPanel.setSelection(tabItem);
                 return;
+            } else
+            {
+                unmatchedTabIds.add(tabItem.getId());
             }
         }
-        Assert.fail("No tab item with id '" + tabItemId + "' could be found.");
+        Assert.fail("No tab item with id '" + tabItemId
+                + "' could be found in panel with following tabs: " + unmatchedTabIds);
     }
 
     /**

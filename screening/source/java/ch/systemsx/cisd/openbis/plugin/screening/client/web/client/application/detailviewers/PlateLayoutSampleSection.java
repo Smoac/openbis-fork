@@ -105,10 +105,10 @@ public class PlateLayoutSampleSection extends TabContent
 
     public PlateLayoutSampleSection(final ScreeningViewContext viewContext, final TechId sampleId)
     {
-        super("Plate Layout", viewContext);
+        super("Plate Layout", viewContext, sampleId);
         this.viewContext = viewContext;
         this.sampleId = sampleId;
-        setDisplayID(DisplayTypeIDGenerator.PLATE_LAYOUT_SAMPLE_SECTION);
+        setIds(DisplayTypeIDGenerator.PLATE_LAYOUT_SAMPLE_SECTION);
     }
 
     @Override

@@ -78,8 +78,8 @@ public class ModulesSectionsManager
             for (final TabContent panel : sections)
             {
                 // FIXME 2010-09-15, IA: check when this is needed
-                panel.setDisplayID(DisplayTypeIDGenerator.MODULE_SECTION);
-                container.addPanel(panel);
+                panel.setIds(DisplayTypeIDGenerator.MODULE_SECTION);
+                container.addSection(panel);
             }
         }
         container.layout();

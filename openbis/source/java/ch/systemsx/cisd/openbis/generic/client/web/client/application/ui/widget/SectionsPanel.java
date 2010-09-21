@@ -29,23 +29,26 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration
  */
 public class SectionsPanel extends LayoutContainer
 {
-    public static final String POSTFIX_SECTION_TAB_ID = "_sections_tab";
+    public static final String SECTION_PANEL_ID_SUFFIX = "_sections";
+
+    public static final String SECTION_TAB_ID_SUFFIX = "_element";
 
     private final List<SectionElement> elements = new ArrayList<SectionElement>();
 
-    private final TabPanel toolbar;
+    private final TabPanel tabPanel;
 
     private String displayId;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public SectionsPanel(IViewContext<ICommonClientServiceAsync> viewContext)
+    public SectionsPanel(IViewContext<ICommonClientServiceAsync> viewContext, String idPrefix)
     {
         this.viewContext = viewContext;
         setLayout(new FillLayout());
-        toolbar = new TabPanel();
-        toolbar.setAutoSelect(false);
-        super.add(toolbar);
+        tabPanel = new TabPanel();
+        tabPanel.setAutoSelect(false);
+        tabPanel.setId(idPrefix + SECTION_PANEL_ID_SUFFIX);
+        super.add(tabPanel);
         addRefreshDisplaySettingsListener();
     }
 
@@ -98,43 +101,42 @@ public class SectionsPanel extends LayoutContainer
                 {
                     for (SectionElement sectionElement : elements)
                     {
-                        final String thisTabID = sectionElement.getPanel().getDisplayID();
+                        final String thisTabID = sectionElement.getTabContent().getDisplayID();
                         String tabToActivateID =
                                 viewContext.getDisplaySettingsManager().getActiveTabSettings(
                                         getDisplayID());
                         if (tabToActivateID != null && tabToActivateID.equals(thisTabID))
                         {
-                            toolbar.setSelection(sectionElement);
+                            tabPanel.setSelection(sectionElement);
                             return;
                         }
                     }
                     if (elements.size() > 0)
                     {
-                        toolbar.setSelection(elements.get(0));
+                        tabPanel.setSelection(elements.get(0));
                     }
                 }
 
             });
     }
 
-    public void addPanel(final TabContent panel)
+    public void addSection(final TabContent tabContent)
     {
         DetailViewConfiguration viewSettingsOrNull =
                 viewContext.getDisplaySettingsManager().tryGetDetailViewSettings(getDisplayID());
-        String panelDisplayId = panel.getDisplayID().toUpperCase();
+        String panelDisplayId = tabContent.getDisplayID().toUpperCase();
         if (viewSettingsOrNull != null
-                && viewSettingsOrNull.getDisabledTabs()
-                        .contains(panelDisplayId))
+                && viewSettingsOrNull.getDisabledTabs().contains(panelDisplayId))
         {
             return;
         }
-        final SectionElement element = new SectionElement(panel, viewContext);
+        final SectionElement element = new SectionElement(tabContent, viewContext);
         // sections will be disposed when section panel is removed, not when they are hidden
         // (see onDetach())
-        panel.disableAutoDisposeComponents();
+        tabContent.disableAutoDisposeComponents();
         elements.add(element);
-        addToToolbar(element);
-        panel.setParentDisplayID(getDisplayID());
+        addToTabPanel(element);
+        tabContent.setParentDisplayID(getDisplayID());
     }
 
     @Override
@@ -142,18 +144,18 @@ public class SectionsPanel extends LayoutContainer
     {
         for (SectionElement el : elements)
         {
-            el.getPanel().disposeComponents();
+            el.getTabContent().disposeComponents();
         }
         super.onDetach();
     }
 
-    private void addToToolbar(SectionElement element)
+    private void addToTabPanel(SectionElement element)
     {
-        toolbar.add(element);
+        tabPanel.add(element);
     }
 
     /**
-     * Use {@link #addPanel(TabContent)}
+     * Use {@link #addSection(TabContent)}
      */
     @Deprecated
     @Override
@@ -165,37 +167,38 @@ public class SectionsPanel extends LayoutContainer
     private class SectionElement extends TabItem
     {
 
-        private TabContent panel;
+        private TabContent tabContent;
 
-        public SectionElement(final TabContent panel,
+        public SectionElement(final TabContent tabContent,
                 final IViewContext<ICommonClientServiceAsync> viewContext)
         {
             setClosable(false);
             setLayout(new FitLayout());
-            this.setPanel(panel);
-            setText(panel.getHeading());
-            add(panel);
+            this.setTabContent(tabContent);
+            setText(tabContent.getHeading());
+            add(tabContent);
+            setId(tabContent.getId() + SECTION_TAB_ID_SUFFIX);
 
             addListener(Events.Select, new Listener<TabPanelEvent>()
                 {
                     public void handleEvent(TabPanelEvent be)
                     {
-                        panel.setContentVisible(true);
+                        tabContent.setContentVisible(true);
                         layout();
                         viewContext.getDisplaySettingsManager().storeActiveTabSettings(
-                                getDisplayID(), panel.getDisplayID(), SectionsPanel.this);
+                                getDisplayID(), tabContent.getDisplayID(), SectionsPanel.this);
                     }
                 });
         }
 
-        void setPanel(TabContent panel)
+        void setTabContent(TabContent tabContent)
         {
-            this.panel = panel;
+            this.tabContent = tabContent;
         }
 
-        TabContent getPanel()
+        TabContent getTabContent()
         {
-            return panel;
+            return tabContent;
         }
     }
 

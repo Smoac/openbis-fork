@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
  * Panel of a details view showing a component which should be disposed at the end (i.e. browser
@@ -35,9 +36,9 @@ abstract public class DisposableTabContent extends TabContent
     /**
      * Creates section with specified header.
      */
-    public DisposableTabContent(String header, IViewContext<?> viewContext)
+    public DisposableTabContent(String header, IViewContext<?> viewContext, IIdHolder ownerId)
     {
-        super(header, viewContext);
+        super(header, viewContext, ownerId);
     }
 
     public IDatabaseModificationObserver tryGetDatabaseModificationObserver()
