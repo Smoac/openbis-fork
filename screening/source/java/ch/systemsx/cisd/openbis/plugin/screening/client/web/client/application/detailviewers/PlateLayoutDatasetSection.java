@@ -19,14 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
@@ -75,7 +73,6 @@ public class PlateLayoutDatasetSection extends TabContent
                     setScrollMode(Scroll.AUTO);
 
                     renderPlate(plateContent);
-                    addMetadataTable(plateContent.getPlate());
 
                     layout();
                 }
@@ -87,11 +84,5 @@ public class PlateLayoutDatasetSection extends TabContent
         LayoutContainer container = new LayoutContainer();
         container.add(PlateLayouter.createVisualization(plateImages, viewContext));
         add(container, PlateLayouter.createRowLayoutMarginData());
-    }
-
-    private void addMetadataTable(final Sample plate)
-    {
-        Button generateButton = PlateLayouter.createPlateMetadataButton(plate, viewContext);
-        add(generateButton, PlateLayouter.createRowLayoutMarginData());
     }
 }

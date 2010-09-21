@@ -24,15 +24,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImagePara
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Stores: 1. image dataset reference and metadata 2. well location
+ * Stores image dataset reference and well location.
  * 
  * @author Tomasz Pylak
  */
 public class WellImages
 {
-    private final PlateImageParameters imageParams;
-
-    private final DatasetReference dataset;
+    private final DatasetImagesReference imageDataset;
 
     private final WellLocation wellLocation;
 
@@ -40,48 +38,57 @@ public class WellImages
     {
         assert imageDataset != null : "image dataset is null";
         assert location != null : "location is null";
-        this.imageParams = imageDataset.getImageParameters();
-        this.dataset = imageDataset.getDatasetReference();
+        this.imageDataset = imageDataset;
         this.wellLocation = location;
-    }
-
-    public int getTileRowsNum()
-    {
-        return imageParams.getTileRowsNum();
-    }
-
-    public int getTileColsNum()
-    {
-        return imageParams.getTileColsNum();
-    }
-
-    public List<String> getChannelsCodes()
-    {
-        return imageParams.getChannelsCodes();
-    }
-
-    public boolean isMultidimensional()
-    {
-        return imageParams.isMultidimensional();
-    }
-
-    public String getDatasetCode()
-    {
-        return dataset.getCode();
-    }
-
-    public String getDownloadUrl()
-    {
-        return dataset.getDownloadUrl();
-    }
-
-    public String getDatastoreCode()
-    {
-        return dataset.getDatastoreCode();
     }
 
     public WellLocation getWellLocation()
     {
         return wellLocation;
+    }
+
+    private PlateImageParameters getImageParams()
+    {
+        return imageDataset.getImageParameters();
+    }
+
+    private DatasetReference getDataset()
+    {
+        return imageDataset.getDatasetReference();
+    }
+
+    public int getTileRowsNum()
+    {
+        return getImageParams().getTileRowsNum();
+    }
+
+    public int getTileColsNum()
+    {
+        return getImageParams().getTileColsNum();
+    }
+
+    public List<String> getChannelsCodes()
+    {
+        return getImageParams().getChannelsCodes();
+    }
+
+    public boolean isMultidimensional()
+    {
+        return getImageParams().isMultidimensional();
+    }
+
+    public String getDatasetCode()
+    {
+        return getDataset().getCode();
+    }
+
+    public String getDownloadUrl()
+    {
+        return getDataset().getDownloadUrl();
+    }
+
+    public String getDatastoreCode()
+    {
+        return getDataset().getDatastoreCode();
     }
 }

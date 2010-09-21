@@ -16,88 +16,37 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
- * Stores information about images and metadata of one well.
+ * Stores information about well metadata, may be extended in future.
  * 
  * @author Tomasz Pylak
  */
 class WellData
 {
-    private WellMetadata metadataOrNull;
+    private final WellLocation wellLocation;
 
-    private WellImages imagesOrNull;
+    private WellMetadata wellMetadataOrNull;
 
-    private String experimentIdentifier;
-
-    private TechId experimentId;
-
-    /** metadata have to be set separately with {@link #setMetadata} */
-    public static WellData create(PlateImages plateImages, WellLocation location)
+    public WellData(WellLocation wellLocation)
     {
-        Experiment experiment = plateImages.getPlate().getExperiment();
-        WellImages wellImages = tryCreateWellImages(plateImages, location);
-        return new WellData(wellImages, experiment.getId(), experiment.getIdentifier());
-    }
-
-    private static WellImages tryCreateWellImages(PlateImages plateImages, WellLocation location)
-    {
-        DatasetImagesReference images = plateImages.tryGetImages();
-        if (images != null)
-        {
-            return new WellImages(images, location);
-        } else
-        {
-            return null;
-        }
-    }
-
-    private WellData(WellImages imagesOrNull, long experimentId, String experimentIdentifier)
-    {
-        this.imagesOrNull = imagesOrNull;
-        this.experimentId = new TechId(experimentId);
-        this.experimentIdentifier = experimentIdentifier;
+        this.wellLocation = wellLocation;
     }
 
     public void setMetadata(WellMetadata well)
     {
-        this.metadataOrNull = well;
+        this.wellMetadataOrNull = well;
     }
 
     public WellMetadata tryGetMetadata()
     {
-        return metadataOrNull;
+        return wellMetadataOrNull;
     }
 
-    public WellImages tryGetImages()
+    public WellLocation getWellLocation()
     {
-        return imagesOrNull;
-    }
-
-    public TechId getExperimentId()
-    {
-        return experimentId;
-    }
-
-    public String getExperimentIdentifier()
-    {
-        return experimentIdentifier;
-    }
-
-    public String getWellDescription()
-    {
-        if (metadataOrNull != null)
-        {
-            return metadataOrNull.getWellSample().getSubCode();
-        } else
-        {
-            return "?";
-        }
+        return wellLocation;
     }
 }

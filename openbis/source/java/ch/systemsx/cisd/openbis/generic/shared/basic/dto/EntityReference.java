@@ -66,9 +66,7 @@ public class EntityReference implements Serializable, IsSerializable,
 
     public BasicEntityType getEntityType()
     {
-        BasicEntityType basicEntityType = new BasicEntityType();
-        basicEntityType.setCode(typeCode);
-        return basicEntityType;
+        return new BasicEntityType(typeCode);
     }
 
     public Long getId()

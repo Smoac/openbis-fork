@@ -22,69 +22,97 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
- * Utilities to create plate visualization.
+ * Utilities to create plate visualization. Visualizes wells metadata and at most one image dataset.
  * 
  * @author Tomasz Pylak
  */
 public class PlateLayouter
 {
+    /** @return widget with plate visualization for a plate without images. */
+    public static Widget createVisualization(PlateMetadata plateMetadata,
+            ScreeningViewContext viewContext)
+    {
+        return new PlateLayouter(viewContext, plateMetadata, null).renderVisualizationWidget();
+    }
+
     /** @return widget with plate visualization - all the wells and possibility to browse images. */
     public static Widget createVisualization(PlateImages plateImages,
             ScreeningViewContext viewContext)
     {
+        return new PlateLayouter(viewContext, plateImages.getPlateMetadata(),
+                plateImages.getImagesDataset()).renderVisualizationWidget();
+    }
+
+    // ------- internal state
+
+    private final ScreeningViewContext viewContext;
+
+    private final PlateMetadata plateMetadata;
+
+    // can be changed for the visualization dynamically
+    private DatasetImagesReference imageDatasetOrNull;
+
+    public PlateLayouter(ScreeningViewContext viewContext, PlateMetadata plateMetadata,
+            DatasetImagesReference imageDatasetOrNull)
+    {
+        this.viewContext = viewContext;
+        this.plateMetadata = plateMetadata;
+        this.imageDatasetOrNull = imageDatasetOrNull;
+    }
+
+    /**
+     * Renders widget which visualizes the plate. The image dataset which is used to display images
+     * can be changed afterwards with {@link #changeDisplayedImageDataset} method without
+     * re-rendering.
+     */
+    public Widget renderVisualizationWidget()
+    {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
-        LayoutContainer wellsMatrix = renderWellsMatrix(plateImages, viewContext);
+        LayoutContainer wellsMatrix = renderWellsMatrix();
+        container.add(new Text(
+                "Hold the mouse cursor over a well or click on it to get the details."));
         container.add(wellsMatrix);
         container.add(renderWellsLegend());
         return container;
     }
 
-    private static LayoutContainer renderWellsMatrix(PlateImages plateContent,
-            ScreeningViewContext viewContext)
+    public void changeDisplayedImageDataset(DatasetImagesReference newImageDatasetOrNull)
     {
-        WellData[][] wellMatrix = createMatrix(plateContent);
-        List<Widget> wellWidgets = createWellWidgets(wellMatrix, plateContent, viewContext);
+        this.imageDatasetOrNull = newImageDatasetOrNull;
+    }
+
+    private LayoutContainer renderWellsMatrix()
+    {
+        WellData[][] wellMatrix = createMatrix(plateMetadata);
+        List<Widget> wellWidgets = createWellWidgets(wellMatrix);
 
         LayoutContainer plateMatrix = new LayoutContainer();
         plateMatrix.setScrollMode(Scroll.AUTO);
@@ -98,8 +126,7 @@ public class PlateLayouter
         return plateMatrix;
     }
 
-    private static List<Widget> createWellWidgets(WellData[][] wellMatrix,
-            PlateImages plateContent, ScreeningViewContext viewContext)
+    private List<Widget> createWellWidgets(WellData[][] wellMatrix)
     {
         List<Widget> wellWidgets = new ArrayList<Widget>();
         int rowsNum = wellMatrix.length;
@@ -113,13 +140,12 @@ public class PlateLayouter
                 if (wellWidget == null)
                 {
                     WellData wellData = wellMatrix[row][col];
-                    if (wellData.tryGetImages() == null && wellData.tryGetMetadata() == null)
+                    if (hasImages() == false && wellData.tryGetMetadata() == null)
                     {
                         wellWidget = createEmptyWellWidget();
                     } else
                     {
-                        wellWidget =
-                                createWellWidget(wellData, plateContent, channelState, viewContext);
+                        wellWidget = createWellWidget(wellData, channelState);
                     }
                 }
                 wellWidgets.add(wellWidget);
@@ -127,6 +153,34 @@ public class PlateLayouter
         }
         return wellWidgets;
     }
+
+    private Component createContentWell(WellData wellData)
+    {
+        WellMetadata metadata = wellData.tryGetMetadata();
+        if (metadata == null)
+        {
+            Component widget = createBox();
+            // we may have images but at the same time no metadata
+            if (hasImages())
+            {
+                return PlateStyleSetter.setNoMetadataWellStyle(widget);
+            } else
+            {
+                return PlateStyleSetter.setEmptyWellStyle(widget);
+            }
+        } else
+        {
+            boolean isControlWell = isControlWell(metadata);
+            return createNonEmptyWell(isControlWell);
+        }
+    }
+
+    private boolean hasImages()
+    {
+        return imageDatasetOrNull != null;
+    }
+
+    // ----------- static methods
 
     private static int getColumnsNum(WellData[][] wellMatrix)
     {
@@ -174,21 +228,17 @@ public class PlateLayouter
         verticalSeparator.setHeight("10");
         legend.add(verticalSeparator, mergedColumns);
 
-        legend.add(
-                new Text("Hold the mouse cursor over a well or click on it to get the details."),
-                mergedColumns);
-
         legend.add(createNonEmptyWell(false));
-        legend.add(new Text("Non-empty well"));
+        legend.add(new Text("Non-control Well"));
 
         legend.add(createNonEmptyWell(true));
-        legend.add(new Text("Control well"));
+        legend.add(new Text("Control Well"));
 
         legend.add(createEmptyWellWidget());
-        legend.add(new Text("Empty well"));
+        legend.add(new Text("Empty Well"));
 
         legend.add(noMetadataWellWidget());
-        legend.add(new Text("No metadata well"));
+        legend.add(new Text("Images without Metadata"));
 
         return legend;
     }
@@ -207,42 +257,21 @@ public class PlateLayouter
         return PlateStyleSetter.setNoMetadataWellStyle(widget);
     }
 
-    private static Component createWellWidget(final WellData wellData,
-            final PlateImages plateContent, final DefaultChannelState channelState,
-            final ScreeningViewContext viewContext)
+    private Component createWellWidget(final WellData wellData,
+            final DefaultChannelState channelState)
     {
         Component widget = createContentWell(wellData);
         widget.addListener(Events.OnMouseDown, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent ce)
                 {
-                    WellContentDialog.showContentDialog(wellData, channelState, viewContext);
+                    WellContentDialog.showContentDialog(wellData, imageDatasetOrNull, channelState,
+                            viewContext);
                 }
             });
         widget.sinkEvents(Events.OnMouseDown.getEventCode());
         setWellDescription(wellData, widget);
         return widget;
-    }
-
-    private static Component createContentWell(WellData wellData)
-    {
-        WellMetadata metadata = wellData.tryGetMetadata();
-        if (metadata == null)
-        {
-            Component widget = createBox();
-            // we may have images but at the same time no metadata
-            if (wellData.tryGetImages() != null)
-            {
-                return PlateStyleSetter.setNoMetadataWellStyle(widget);
-            } else
-            {
-                return PlateStyleSetter.setEmptyWellStyle(widget);
-            }
-        } else
-        {
-            boolean isControlWell = isControlWell(metadata);
-            return createNonEmptyWell(isControlWell);
-        }
     }
 
     private static Component createNonEmptyWell(boolean isControlWell)
@@ -280,7 +309,7 @@ public class PlateLayouter
         {
             return;
         }
-        String tooltip = "Well: " + wellData.getWellDescription();
+        String tooltip = getWellDescription(metadata);
 
         List<IEntityProperty> properties = metadata.getWellSample().getProperties();
         Collections.sort(properties);
@@ -290,14 +319,14 @@ public class PlateLayouter
             tooltip += "<br>" + propertyType.getLabel() + ": " + property.tryGetAsString();
             Material material = property.getMaterial();
             if (material != null
-                    && material.getMaterialType().getCode().equalsIgnoreCase(
-                            ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+                    && material.getMaterialType().getCode()
+                            .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
             {
                 List<IEntityProperty> geneProperties = material.getProperties();
                 for (IEntityProperty geneProperty : geneProperties)
                 {
-                    if (geneProperty.getPropertyType().getCode().equalsIgnoreCase(
-                            ScreeningConstants.GENE_SYMBOLS))
+                    if (geneProperty.getPropertyType().getCode()
+                            .equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
                     {
                         tooltip += " [" + geneProperty.tryGetAsString() + "]";
                     }
@@ -308,12 +337,17 @@ public class PlateLayouter
 
     }
 
+    private static String getWellDescription(WellMetadata metadata)
+    {
+        return "Well: " + metadata.getWellSample().getSubCode();
+    }
+
     // Elements will not contain null even if well is empty.
     // Numbering starts with 1 so row and column with index 0 are left empty.
-    private static WellData[][] createMatrix(PlateImages plateContent)
+    private static WellData[][] createMatrix(PlateMetadata plateMetadata)
     {
-        WellData[][] matrix = createWellData(plateContent);
-        List<WellMetadata> wells = plateContent.getWells();
+        WellData[][] matrix = createEmptyWellMatrix(plateMetadata);
+        List<WellMetadata> wells = plateMetadata.getWells();
         for (WellMetadata well : wells)
         {
             WellLocation location = well.tryGetLocation();
@@ -326,15 +360,15 @@ public class PlateLayouter
         return matrix;
     }
 
-    private static WellData[][] createWellData(PlateImages plateContent)
+    private static WellData[][] createEmptyWellMatrix(PlateMetadata plateMetadata)
     {
         WellData[][] data =
-                new WellData[plateContent.getRowsNum() + 1][plateContent.getColsNum() + 1];
+                new WellData[plateMetadata.getRowsNum() + 1][plateMetadata.getColsNum() + 1];
         for (int row = 1; row < data.length; row++)
         {
             for (int col = 1; col < data[row].length; col++)
             {
-                data[row][col] = WellData.create(plateContent, new WellLocation(row, col));
+                data[row][col] = new WellData(new WellLocation(row, col));
             }
         }
         return data;
@@ -342,53 +376,6 @@ public class PlateLayouter
 
     // ---------
 
-    /** @return a button which shows a grid with the plate metadata */
-    public static Button createPlateMetadataButton(final Sample plate,
-            final IViewContext<IScreeningClientServiceAsync> viewContext)
-    {
-        return new Button("Show Plate Report", new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    DispatcherHelper.dispatchNaviEvent(createPlateMetadataTabFactory());
-                }
-
-                private AbstractTabItemFactory createPlateMetadataTabFactory()
-                {
-                    return new AbstractTabItemFactory()
-                        {
-                            @Override
-                            public ITabItem create()
-                            {
-                                return DefaultTabItem.create(getTabTitle(), PlateMetadataBrowser
-                                        .create(viewContext, new TechId(plate.getId())),
-                                        viewContext);
-                            }
-
-                            @Override
-                            public String getId()
-                            {
-                                return GenericConstants.ID_PREFIX + "plate-metadata-"
-                                        + plate.getId();
-                            }
-
-                            @Override
-                            public HelpPageIdentifier getHelpPageIdentifier()
-                            {
-                                return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
-                                        HelpPageAction.VIEW);
-                            }
-
-                            @Override
-                            public String getTabTitle()
-                            {
-                                return "Plate Report: " + plate.getCode();
-                            }
-                        };
-                }
-            });
-    }
 
     /** @return layout data with big margin */
     public static RowData createRowLayoutMarginData()

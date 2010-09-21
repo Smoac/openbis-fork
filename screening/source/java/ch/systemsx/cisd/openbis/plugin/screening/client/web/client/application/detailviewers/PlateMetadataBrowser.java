@@ -109,8 +109,9 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
             final PlateMetadataStaticColumns column, final String typeCode,
             final EntityKind entityKind, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(createEntityInformationHolder(entity, column, typeCode,
-                entityKind), editMode, active);
+        showEntityInformationHolderViewer(
+                createEntityInformationHolder(entity, column, typeCode, entityKind), editMode,
+                active);
     }
 
     @Override
@@ -140,9 +141,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
 
     private static BasicEntityType createEntityType(String typeCode)
     {
-        BasicEntityType type = new BasicEntityType();
-        type.setCode(typeCode);
-        return type;
+        return new BasicEntityType(typeCode);
     }
 
     private static IEntityInformationHolder createEntityInformationHolder(

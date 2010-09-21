@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Points to an experiment.
- *
+ * 
  * @author Tomasz Pylak
  */
 public class ExperimentReference implements Serializable, IsSerializable,
@@ -71,9 +71,7 @@ public class ExperimentReference implements Serializable, IsSerializable,
 
     public BasicEntityType getEntityType()
     {
-        BasicEntityType basicEntityType = new BasicEntityType();
-        basicEntityType.setCode(experimentTypeCode);
-        return basicEntityType;
+        return new BasicEntityType(experimentTypeCode);
     }
 
     public Long getId()

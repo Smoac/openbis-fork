@@ -42,7 +42,7 @@ public class LinkRenderer
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {// TODO 2010-05-18, IA: almost the same as
-                // InternalLinkCellRenderer#createLinkRenderer()
+             // InternalLinkCellRenderer#createLinkRenderer()
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
@@ -134,6 +134,17 @@ public class LinkRenderer
     }
 
     /**
+     * See {@link #getLinkAnchor}. Use this method to hide the type of returned widget.
+     */
+    public static Widget getLinkWidget(final String text, final ClickHandler listener,
+            final String historyHref)
+    {
+        return getLinkAnchor(text, listener, historyHref);
+    }
+
+    /**
+     * It is suggested to use {@link #getLinkWidget} method instead of this one.
+     * 
      * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>.
      *         If <var>historyHref</var> is not null and simple view mode is active
      *         <var>historyHref</var> will be appended to the link after '#'. Otherwise if
@@ -141,10 +152,10 @@ public class LinkRenderer
      *         <p>
      *         The link display style is default (not invalidated).
      */
-    public static Widget getLinkWidget(final String text, final ClickHandler listener,
+    public static Anchor getLinkAnchor(final String text, final ClickHandler listener,
             final String historyHref)
     {
-        return getLinkWidget(text, listener, historyHref, false);
+        return getLinkAnchor(text, listener, historyHref, false);
     }
 
     public static Widget getLinkWidgetWithHtml(final ClickHandler listener,
@@ -170,6 +181,8 @@ public class LinkRenderer
     }
 
     /**
+     * It is suggested to use {@link #getLinkWidget} method instead of this one.
+     * 
      * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>.
      *         If <var>historyHref</var> is not null and simple view mode is active
      *         <var>historyHref</var> will be appended to the link after '#'. Otherwise if
@@ -179,6 +192,12 @@ public class LinkRenderer
      *         false).
      */
     public static Widget getLinkWidget(final String text, final ClickHandler listener,
+            final String historyHref, final boolean invalidate)
+    {
+        return getLinkAnchor(text, listener, historyHref, invalidate);
+    }
+
+    private static Anchor getLinkAnchor(final String text, final ClickHandler listener,
             final String historyHref, final boolean invalidate)
     {
         Anchor link = new Anchor();

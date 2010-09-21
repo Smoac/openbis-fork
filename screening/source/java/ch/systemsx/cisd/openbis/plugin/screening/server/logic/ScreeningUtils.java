@@ -64,8 +64,8 @@ public class ScreeningUtils
                     ("/" + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME).length();
             downloadUrl = downloadUrl.substring(0, downloadUrl.length() - toRemoveLength);
         }
-        return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode, fileTypeCode,
-                dataStore.getCode(), downloadUrl);
+        return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode,
+                dataset.getRegistrationDate(), fileTypeCode, dataStore.getCode(), downloadUrl);
     }
 
     public static List<ExternalDataPE> filterImageAnalysisDatasets(List<ExternalDataPE> datasets)
@@ -76,6 +76,21 @@ public class ScreeningUtils
     public static List<ExternalDataPE> filterImageDatasets(List<ExternalDataPE> datasets)
     {
         return filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+    }
+
+    /** chooses datasets of unknown types */
+    public static List<ExternalDataPE> filterUnknownDatasets(List<ExternalDataPE> datasets)
+    {
+        List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();
+        for (ExternalDataPE dataset : datasets)
+        {
+            if (isTypeEqual(dataset, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE) == false
+                    && isTypeEqual(dataset, ScreeningConstants.IMAGE_DATASET_TYPE) == false)
+            {
+                chosenDatasets.add(dataset);
+            }
+        }
+        return chosenDatasets;
     }
 
     public static List<ExternalDataPE> filterDatasetsByType(List<ExternalDataPE> datasets,

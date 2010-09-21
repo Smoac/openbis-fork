@@ -27,6 +27,15 @@ public class BasicEntityType extends AbstractType
 
     private DatabaseInstance databaseInstance;
 
+    public BasicEntityType()
+    {
+    }
+
+    public BasicEntityType(String code)
+    {
+        setCode(code);
+    }
+
     public final DatabaseInstance getDatabaseInstance()
     {
         return databaseInstance;

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.util.Rectangle;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
@@ -62,7 +63,27 @@ public class GuiUtils
         c.add(component);
         return c;
     }
-    
+
+    public static Component renderInRow(Widget... widgets)
+    {
+        LayoutContainer c = new LayoutContainer();
+        c.setLayout(new TableLayout(widgets.length * 2 - 1));
+        TableData cellLayout = new TableData();
+        cellLayout.setMargin(5);
+        Html separator = new Html();
+        separator.setWidth(10);
+
+        for (Widget widget : widgets)
+        {
+            if (c.getItems().size() > 0)
+            {
+                c.add(separator);
+            }
+            c.add(widget, cellLayout);
+        }
+        return c;
+    }
+
     public static Rectangle calculateBounds(Element element)
     {
         Rectangle rectangle = null;
@@ -77,7 +98,7 @@ public class GuiUtils
         }
         return rectangle;
     }
-    
+
     private static Rectangle merge(Rectangle r1OrNull, Rectangle r2OrNull)
     {
         if (r1OrNull == null)

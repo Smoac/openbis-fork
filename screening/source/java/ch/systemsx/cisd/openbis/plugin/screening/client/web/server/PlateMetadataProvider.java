@@ -47,7 +47,7 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
     public PlateMetadataProvider(IScreeningServer server, String sessionToken, TechId plateId)
     {
         PlateContent plateContent = server.getPlateContent(sessionToken, plateId);
-        this.wells = plateContent.getPlateImages().getWells();
+        this.wells = plateContent.getPlateMetadata().getWells();
     }
 
     public List<GenericTableRow> getOriginalData() throws UserFailureException
@@ -86,14 +86,14 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
         List<Column> columns = new ArrayList<Column>();
         Column codeColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
-                        PlateMetadataStaticColumns.WELL.ordinal(), PlateMetadataStaticColumns.WELL
-                                .getColumnId()));
+                        PlateMetadataStaticColumns.WELL.ordinal(),
+                        PlateMetadataStaticColumns.WELL.getColumnId()));
         columns.add(codeColumn);
 
         Column typeColumn =
                 new Column(GenericTableColumnHeader.untitledStringHeader(
-                        PlateMetadataStaticColumns.TYPE.ordinal(), PlateMetadataStaticColumns.TYPE
-                                .getColumnId()));
+                        PlateMetadataStaticColumns.TYPE.ordinal(),
+                        PlateMetadataStaticColumns.TYPE.getColumnId()));
         columns.add(typeColumn);
 
         int fixedColumns = columns.size();

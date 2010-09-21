@@ -193,7 +193,7 @@ public enum PlateMaterialReviewerColDefKind implements IColumnDefinitionKind<Wel
             public String tryGetValue(WellContent entity)
             {
                 DatasetImagesReference imageDataset = entity.tryGetImageDataset();
-                return imageDataset != null ? imageDataset.getDatasetReference().getCode() : null;
+                return imageDataset != null ? imageDataset.getDatasetCode() : null;
             }
 
             @Override

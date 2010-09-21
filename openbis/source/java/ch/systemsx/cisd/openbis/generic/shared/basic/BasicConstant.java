@@ -58,6 +58,11 @@ public class BasicConstant
      */
     public static final String RENDERED_CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss ZZZZ";
 
+    /**
+     * Date format which does not include time and time zone.
+     */
+    public static final String DATE_WITHOUT_TIME_FORMAT_PATTERN = "yyyy-MM-dd";
+
     // constants used for link creation and handling
 
     public static final String VIEW_MODE_KEY = "viewMode";

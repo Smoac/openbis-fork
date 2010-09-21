@@ -33,12 +33,6 @@ public class ScreeningConstants
     // name of the data source (configured in service.properties) which allows to access imaging db
     public static final String IMAGING_DATA_SOURCE = "imaging-db";
 
-    // ---- required DSS plugins
-
-    // id of the DSS screening reporting plugin to get the images of the plate
-    public static final String PLATE_IMAGE_ANALYSIS_REPORT_KEY =
-            "default-plate-image-analysis";
-
     // ---- required entity types
 
     // type of the dataset which stores plate images, there should be at most one

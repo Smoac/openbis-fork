@@ -20,25 +20,21 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-
 /**
- * Describes the whole plate - metadata of each non-empty well, references to datasets with images
- * and analysis results.
+ * Describes the whole plate - metadata of each non-empty well, references to images datasets,
+ * analysis results datasets and all other connected datasets.
  * 
  * @author Tomasz Pylak
  */
 public class PlateContent implements IsSerializable
 {
-    // reference to dataset will be null if not exactly one dataset with images exist for a plate
-    private PlateImages plateImages;
+    private PlateMetadata plateMetadata;
 
-    // not null if exactly one image analysis dataset exists
-    private DatasetReference imageAnalysisDatasetOrNull;
+    private List<DatasetImagesReference> imagesDatasets;
 
-    private int imageDatasetsNumber;
+    private List<DatasetReference> imageAnalysisDatasets;
 
-    private int imageAnalysisDatasetsNumber;
+    private List<DatasetReference> unknownDatasets;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -46,42 +42,32 @@ public class PlateContent implements IsSerializable
     {
     }
 
-    public PlateContent(Sample plate, List<WellMetadata> wells, int plateRowsNum, int plateColsNum,
-            DatasetImagesReference imagesOrNull, int imageDatasetsNumber,
-            DatasetReference imageAnalysisDatasetOrNull, int imageAnalysisDatasetsNumber)
+    public PlateContent(PlateMetadata plateMetadata, List<DatasetImagesReference> imagesDatasets,
+            List<DatasetReference> imageAnalysisDatasets, List<DatasetReference> unknownDatasets)
     {
-        assert (imagesOrNull != null && imageDatasetsNumber == 1)
-                || (imagesOrNull == null && imageDatasetsNumber != 1);
-        assert (imageAnalysisDatasetOrNull != null && imageAnalysisDatasetsNumber == 1)
-                || (imageAnalysisDatasetOrNull == null && imageAnalysisDatasetsNumber != 1);
-        this.plateImages = new PlateImages(plate, wells, imagesOrNull, plateRowsNum, plateColsNum);
-        this.imageDatasetsNumber = imageDatasetsNumber;
-        this.imageAnalysisDatasetOrNull = imageAnalysisDatasetOrNull;
-        this.imageAnalysisDatasetsNumber = imageAnalysisDatasetsNumber;
+        this.plateMetadata = plateMetadata;
+        this.imagesDatasets = imagesDatasets;
+        this.imageAnalysisDatasets = imageAnalysisDatasets;
+        this.unknownDatasets = unknownDatasets;
     }
 
-    public DatasetReference tryGetImageAnalysisDataset()
+    public PlateMetadata getPlateMetadata()
     {
-        return imageAnalysisDatasetOrNull;
+        return plateMetadata;
     }
 
-    public int getImageDatasetsNumber()
+    public List<DatasetImagesReference> getImageDatasets()
     {
-        return imageDatasetsNumber;
+        return imagesDatasets;
     }
 
-    public int getImageAnalysisDatasetsNumber()
+    public List<DatasetReference> getImageAnalysisDatasets()
     {
-        return imageAnalysisDatasetsNumber;
+        return imageAnalysisDatasets;
     }
 
-    public PlateImages getPlateImages()
+    public List<DatasetReference> getUnknownDatasets()
     {
-        return plateImages;
-    }
-
-    public Sample getPlate()
-    {
-        return plateImages.getPlate();
+        return unknownDatasets;
     }
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -47,18 +48,21 @@ public class DatasetReference implements Serializable, IsSerializable,
 
     private String downloadUrl;
 
+    private Date registrationDate;
+
     // GWT only
     @SuppressWarnings("unused")
     private DatasetReference()
     {
     }
 
-    public DatasetReference(long id, String code, String typeCode, String fileTypeCode,
-            String datastoreCode, String downloadUrl)
+    public DatasetReference(long id, String code, String typeCode, Date registrationDate,
+            String fileTypeCode, String datastoreCode, String downloadUrl)
     {
         this.id = id;
         this.datasetCode = code;
         this.typeCode = typeCode;
+        this.registrationDate = registrationDate;
         this.fileTypeCode = fileTypeCode;
         this.datastoreCode = datastoreCode;
         this.downloadUrl = downloadUrl;
@@ -86,9 +90,7 @@ public class DatasetReference implements Serializable, IsSerializable,
 
     public BasicEntityType getEntityType()
     {
-        BasicEntityType basicEntityType = new BasicEntityType();
-        basicEntityType.setCode(typeCode);
-        return basicEntityType;
+        return new BasicEntityType(typeCode);
     }
 
     public Long getId()
@@ -104,5 +106,10 @@ public class DatasetReference implements Serializable, IsSerializable,
     public String getFileTypeCode()
     {
         return fileTypeCode;
+    }
+
+    public Date getRegistrationDate()
+    {
+        return registrationDate;
     }
 }

@@ -36,12 +36,11 @@ public class DatasetImagesReference implements IsSerializable
     private PlateImageParameters imageParameters;
 
     // GWT only
-    @SuppressWarnings("unused")
     private DatasetImagesReference()
     {
     }
 
-    public DatasetImagesReference(DatasetReference dataset, PlateImageParameters imageParameters)
+    private DatasetImagesReference(DatasetReference dataset, PlateImageParameters imageParameters)
     {
         this.dataset = dataset;
         this.imageParameters = imageParameters;
@@ -55,6 +54,11 @@ public class DatasetImagesReference implements IsSerializable
     public String getDownloadUrl()
     {
         return dataset.getDownloadUrl();
+    }
+
+    public String getDatasetCode()
+    {
+        return dataset.getCode();
     }
 
     public DatasetReference getDatasetReference()

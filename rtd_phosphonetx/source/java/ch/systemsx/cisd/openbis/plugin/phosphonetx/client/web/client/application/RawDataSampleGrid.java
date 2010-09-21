@@ -130,9 +130,7 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
 
                 public BasicEntityType getEntityType()
                 {
-                    BasicEntityType type = new BasicEntityType();
-                    type.setCode("MS_INJECTION");
-                    return type;
+                    return new BasicEntityType("MS_INJECTION");
                 }
 
                 public EntityKind getEntityKind()

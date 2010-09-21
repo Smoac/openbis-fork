@@ -16,40 +16,88 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 
 /**
- * A section of plate detail view which shows where the oligo and gene samples are located on the
- * plate and allow to check the content of the well quickly.
+ * A section of a plate detail view which shows plate's wells and allow to check the content of the
+ * well quickly.
  * 
  * @author Tomasz Pylak
  */
 public class PlateLayoutSampleSection extends TabContent
 {
+    // --- GUI messages (to be moved to the dictionary)
+
+    private static final String PLATE_METADATA_REPORT_LABEL = "Plate Metadata Report: ";
+
+    private static final String IMAGES_DATASET_CHOOSER_LABEL = "Images acquired on: ";
+
+    private static final String SINGLE_IMAGE_DATASET_DETAILS_LABEL = "Image acquisition details: ";
+
+    private static final String UNKNOWN_DATASETS_LABEL = "Other data connected to this plate:";
+
+    private static final String SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON = "Advanced";
+
+    private static final String NO_IMAGES_DATASET_LABEL = "No images data has been acquired.";
+
+    private static final String NO_IMAGE_ANALYSIS_DATASET_LABEL =
+            "No image analysis data is available.";
+
+    private static final String IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL = "Images analysis results: ";
+
+    // ----
+
+    private static final String LABEL_WIDTH_PX = "160";
+
+    private static final int DATASET_COMBOBOX_CHOOSER_WIDTH_PX = 350;
 
     private final ScreeningViewContext viewContext;
 
@@ -82,103 +130,403 @@ public class PlateLayoutSampleSection extends TabContent
                     setLayout(new RowLayout());
                     setScrollMode(Scroll.AUTO);
 
-                    renderPlate(plateContent);
-                    addImageAnalysisButton(plateContent);
-
-                    addMetadataTable(plateContent);
+                    addPlateVisualisation(plateContent);
+                    addImageAnalysisChooser(plateContent);
+                    addPlateMetadataReportLink(plateContent);
+                    addUnknownDatasetsLinks(plateContent.getUnknownDatasets());
 
                     layout();
                 }
             };
     }
 
-    private void addImageAnalysisButton(final PlateContent plateContent)
+    private void addImageAnalysisChooser(final PlateContent plateContent)
     {
-        Component analysisPanel;
-        int datasetsNumber = plateContent.getImageAnalysisDatasetsNumber();
-        final DatasetReference dataset = plateContent.tryGetImageAnalysisDataset();
-        if (dataset != null)
+        Widget analysisPanel;
+        List<DatasetReference> analysisDatasets = plateContent.getImageAnalysisDatasets();
+        if (analysisDatasets.size() > 1)
         {
-            assert datasetsNumber == 1 : "only one image analysis dataset expected, but found: "
-                    + datasetsNumber;
-            Button generateButton =
-                    new Button("Show Image Analysis Results", new SelectionListener<ButtonEvent>()
+            final DatasetChooserComboBox<DatasetReference> datasetChooser =
+                    new DatasetChooserComboBox<DatasetReference>(viewContext, analysisDatasets,
+                            createDatasetLabels(analysisDatasets));
+            final Anchor detailsButton = createImageAnalysisDetailsButton(datasetChooser);
+            datasetChooser
+                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<DatasetChoosableItem<DatasetReference>>>()
                         {
                             @Override
-                            public void componentSelected(ButtonEvent ce)
+                            public void selectionChanged(
+                                    SelectionChangedEvent<SimpleComboValue<DatasetChoosableItem<DatasetReference>>> se)
                             {
-                                generateImageAnalysisReport(dataset, plateContent);
+                                updateDatasetSimpleViewModeLink(datasetChooser, detailsButton);
                             }
                         });
-            analysisPanel = generateButton;
+            analysisPanel =
+                    GuiUtils.renderInRow(new Text(IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL),
+                            datasetChooser, detailsButton);
+        } else if (analysisDatasets.size() == 1)
+        {
+            Widget datasetDetailsLink = createDatasetDetailsLink(analysisDatasets.get(0));
+            analysisPanel = withLabel(datasetDetailsLink, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL);
         } else
         {
-            if (datasetsNumber == 0)
-            {
-                analysisPanel = new Text("No image analysis data is available.");
-            } else
-            {
-                analysisPanel =
-                        new Text("There are " + datasetsNumber + " analysis datasets, "
-                                + "select the one of your interest from the 'Data Sets' section "
-                                + "and go to its detail view to see the image analysis results.");
-            }
+            analysisPanel = new Text(NO_IMAGE_ANALYSIS_DATASET_LABEL);
         }
         add(analysisPanel, PlateLayouter.createRowLayoutMarginData());
     }
 
-    private void generateImageAnalysisReport(DatasetReference dataset, PlateContent plateContent)
+    private void addUnknownDatasetsLinks(List<DatasetReference> unknownDatasets)
     {
-        DatastoreServiceDescription service = createImageAnalysisReporter(dataset, plateContent);
-        DisplayedOrSelectedDatasetCriteria criteria =
-                DisplayedOrSelectedDatasetCriteria.createSelectedItems(Arrays.asList(dataset
-                        .getCode()));
-        DataSetReportGenerator.generate(viewContext.getCommonViewContext(), service, criteria);
+        if (unknownDatasets.isEmpty())
+        {
+            return;
+        }
+        LayoutContainer c = new LayoutContainer();
+        c.add(new Text(UNKNOWN_DATASETS_LABEL));
+        for (DatasetReference dataset : unknownDatasets)
+        {
+            String label = createUnknownDatasetLabel(dataset);
+            Widget detailsLink = createDatasetDetailsLink(dataset, label);
+            c.add(detailsLink);
+        }
+        add(c, PlateLayouter.createRowLayoutMarginData());
     }
 
-    private DatastoreServiceDescription createImageAnalysisReporter(DatasetReference dataset,
-            PlateContent plateContent)
-    {
-        String reportLabel = "Image Analysis of " + plateContent.getPlate().getCode();
-        return new DatastoreServiceDescription(ScreeningConstants.PLATE_IMAGE_ANALYSIS_REPORT_KEY,
-                reportLabel, new String[] {}, dataset.getDatastoreCode());
-    }
-
-    private void renderPlate(PlateContent plateContent)
+    private static Widget withLabel(Widget widet, String label)
     {
         LayoutContainer container = new LayoutContainer();
-        Widget datasetNumberLegend = tryRenderImageDatasetsNumberLegend(plateContent);
-        if (datasetNumberLegend != null)
-        {
-            container.add(datasetNumberLegend);
-        }
-        container
-                .add(PlateLayouter.createVisualization(plateContent.getPlateImages(), viewContext));
-
-        add(container, PlateLayouter.createRowLayoutMarginData());
+        container.setLayout(new TableLayout(2));
+        Text labelWidget = new Text(label);
+        labelWidget.setWidth(LABEL_WIDTH_PX);
+        container.add(labelWidget);
+        container.add(widet);
+        return container;
     }
 
-    private Widget tryRenderImageDatasetsNumberLegend(PlateContent plateContent)
+    private static class DatasetChoosableItem<T>
     {
-        int datasetsNumber = plateContent.getImageDatasetsNumber();
-        if (datasetsNumber == 0)
+        private final T item;
+
+        private final String label;
+
+        public DatasetChoosableItem(T item, String label)
         {
-            return new Text("No images data is available.");
-        } else if (datasetsNumber == 1)
+            this.item = item;
+            this.label = label;
+        }
+
+        public T getItem()
         {
-            return null;
+            return item;
+        }
+
+        @Override
+        public String toString()
+        {
+            return label;
+        }
+    }
+
+    private static class DatasetChooserComboBox<T> extends SimpleComboBox<DatasetChoosableItem<T>>
+    {
+        /**
+         * Creates a combobox and selects the first value.
+         */
+        public DatasetChooserComboBox(IMessageProvider messageProvider, List<T> items,
+                String[] labels)
+        {
+            setTriggerAction(TriggerAction.ALL);
+            setAllowBlank(false);
+            setEditable(false);
+            setEmptyText(messageProvider.getMessage(Dict.COMBO_BOX_CHOOSE));
+            setWidth(DATASET_COMBOBOX_CHOOSER_WIDTH_PX);
+            int i = 0;
+            for (T item : items)
+            {
+                add(new DatasetChoosableItem<T>(item, labels[i]));
+                i++;
+            }
+            autoselect();
+        }
+
+        /**
+         * Selects first element if nothing was selected before.
+         */
+        private void autoselect()
+        {
+            if (getStore().getModels().size() > 0 && getValue() == null)
+            {
+                setValue(getStore().getModels().get(0));
+            }
+        }
+    }
+
+    private static String createDatasetLabel(DatasetReference datasetReference)
+    {
+        String registrationDate =
+                DateRenderer.renderDate(datasetReference.getRegistrationDate(),
+                        BasicConstant.DATE_WITHOUT_TIME_FORMAT_PATTERN);
+        return registrationDate + ", " + datasetReference.getCode() + " ("
+                + datasetReference.getFileTypeCode() + ")";
+    }
+
+    private static String createUnknownDatasetLabel(DatasetReference datasetReference)
+    {
+        return datasetReference.getEntityType().getCode() + ", registered on "
+                + createDatasetLabel(datasetReference);
+    }
+
+    private void addPlateVisualisation(PlateContent plateContent)
+    {
+        LayoutContainer container = new LayoutContainer();
+        PlateMetadata plateMetadata = plateContent.getPlateMetadata();
+        List<DatasetImagesReference> imageDatasets = plateContent.getImageDatasets();
+        RowData margin = PlateLayouter.createRowLayoutMarginData();
+        if (imageDatasets.size() == 0)
+        {
+            container.add(new Text(NO_IMAGES_DATASET_LABEL));
+            container.add(PlateLayouter.createVisualization(plateMetadata, viewContext));
         } else
         {
-            return new Text("There are " + datasetsNumber + " datasets with images, "
-                    + "select the one of your interest from the 'Data Sets' section "
-                    + "and go to its detail view to browse acquired images.");
+            Widget renderedPlate;
+            if (imageDatasets.size() > 1)
+            {
+                renderedPlate = renderPlateWithManyImageDatasets(imageDatasets, plateMetadata);
+            } else
+            {
+                renderedPlate = renderPlateWithOneImageDataset(imageDatasets.get(0), plateMetadata);
+            }
+            container.add(renderedPlate);
+        }
+
+        add(container, margin);
+    }
+
+    private Widget renderPlateWithOneImageDataset(DatasetImagesReference datasetImagesReference,
+            PlateMetadata plateMetadata)
+    {
+        LayoutContainer container = new LayoutContainer();
+        PlateImages plateImages = new PlateImages(plateMetadata, datasetImagesReference);
+        container.add(PlateLayouter.createVisualization(plateImages, viewContext));
+
+        Widget datasetDetailsButton =
+                createDatasetDetailsLink(datasetImagesReference.getDatasetReference());
+        container.add(withLabel(datasetDetailsButton, SINGLE_IMAGE_DATASET_DETAILS_LABEL));
+
+        return container;
+    }
+
+    private LayoutContainer renderPlateWithManyImageDatasets(
+            List<DatasetImagesReference> imageDatasets, final PlateMetadata plateMetadata)
+    {
+        final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser =
+                new DatasetChooserComboBox<DatasetImagesReference>(viewContext, imageDatasets,
+                        createDatasetLabels(asReferences(imageDatasets)));
+
+        DatasetImagesReference chosenImageDataset = getChosenDataset(imageDatasetChooser);
+        final PlateLayouter plateLayouter =
+                new PlateLayouter(viewContext, plateMetadata, chosenImageDataset);
+
+        final Anchor imageDetailsButton = createImageDetailsButton(imageDatasetChooser);
+        imageDatasetChooser
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<DatasetChoosableItem<DatasetImagesReference>>>()
+                    {
+                        @Override
+                        public void selectionChanged(
+                                SelectionChangedEvent<SimpleComboValue<DatasetChoosableItem<DatasetImagesReference>>> se)
+                        {
+                            DatasetImagesReference imageDataset =
+                                    se.getSelectedItem().getValue().getItem();
+                            plateLayouter.changeDisplayedImageDataset(imageDataset);
+                            updateImageDatasetSimpleViewModeLink(imageDatasetChooser,
+                                    imageDetailsButton);
+                        }
+                    });
+
+        Widget plateLayout = plateLayouter.renderVisualizationWidget();
+
+        Widget chooserRow =
+                GuiUtils.renderInRow(new Text(IMAGES_DATASET_CHOOSER_LABEL), imageDatasetChooser,
+                        imageDetailsButton);
+        LayoutContainer layoutWithToolbar = layoutWithToolbar(plateLayout, chooserRow);
+        return layoutWithToolbar;
+    }
+
+    private static <T> T getChosenDataset(DatasetChooserComboBox<T> imageDatasetChooser)
+    {
+        return imageDatasetChooser.getSimpleValue().getItem();
+    }
+
+    private Anchor createImageAnalysisDetailsButton(
+            final DatasetChooserComboBox<DatasetReference> datasetChooser)
+    {
+        return LinkRenderer.getLinkAnchor(viewContext.getMessage(Dict.BUTTON_SHOW),
+                new ClickHandler()
+                    {
+                        public void onClick(ClickEvent event)
+                        {
+                            openDatasetDetails(getChosenDataset(datasetChooser));
+                        }
+                    }, createDatasetSimpleViewModeHref(datasetChooser));
+    }
+
+    private Anchor createImageDetailsButton(
+            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser)
+    {
+        return LinkRenderer.getLinkAnchor(SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON,
+                new ClickHandler()
+                    {
+                        public void onClick(ClickEvent event)
+                        {
+                            openDatasetDetails(getChosenDatasetReference(imageDatasetChooser));
+                        }
+                    }, createImageDatasetSimpleViewModeHref(imageDatasetChooser));
+    }
+
+    private void updateImageDatasetSimpleViewModeLink(
+            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser,
+            final Anchor anchor)
+    {
+        if (ClientStaticState.isSimpleMode())
+        {
+            anchor.setHref("#" + createImageDatasetSimpleViewModeHref(imageDatasetChooser));
         }
     }
 
-    private void addMetadataTable(final PlateContent plateContent)
+    private void updateDatasetSimpleViewModeLink(
+            final DatasetChooserComboBox<DatasetReference> datasetChooser, final Anchor anchor)
     {
-        Button generateButton =
-                PlateLayouter.createPlateMetadataButton(plateContent.getPlate(), viewContext);
-        add(generateButton, PlateLayouter.createRowLayoutMarginData());
+        if (ClientStaticState.isSimpleMode())
+        {
+            anchor.setHref("#" + createDatasetSimpleViewModeHref(datasetChooser));
+        }
+    }
+
+    private static String createImageDatasetSimpleViewModeHref(
+            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser)
+    {
+        return LinkExtractor.tryExtract(getChosenDatasetReference(imageDatasetChooser));
+    }
+
+    private String createDatasetSimpleViewModeHref(
+            DatasetChooserComboBox<DatasetReference> datasetChooser)
+    {
+        return LinkExtractor.tryExtract(getChosenDataset(datasetChooser));
+    }
+
+    private static DatasetReference getChosenDatasetReference(
+            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser)
+    {
+        return getChosenDataset(imageDatasetChooser).getDatasetReference();
+    }
+
+    private Widget createDatasetDetailsLink(final DatasetReference dataset)
+    {
+        return createDatasetDetailsLink(dataset, viewContext.getMessage(Dict.BUTTON_SHOW));
+    }
+
+    private Widget createDatasetDetailsLink(final DatasetReference dataset, String label)
+    {
+        String href = LinkExtractor.tryExtract(dataset);
+        assert href != null : "invalid link for " + dataset;
+        ClickHandler listener = new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    openDatasetDetails(dataset);
+                }
+            };
+        return LinkRenderer.getLinkWidget(label, listener, href);
+    }
+
+    private void openDatasetDetails(DatasetReference selectedDatasetReference)
+    {
+        new OpenEntityDetailsTabAction(selectedDatasetReference, viewContext).execute();
+    }
+
+    private static LayoutContainer layoutWithToolbar(Widget mainComponent, Widget toolbar)
+    {
+        LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+        container.add(toolbar);
+        container.add(mainComponent);
+        return container;
+    }
+
+    private static List<DatasetReference> asReferences(List<DatasetImagesReference> imageDatasets)
+    {
+        List<DatasetReference> refs = new ArrayList<DatasetReference>();
+        for (DatasetImagesReference dataset : imageDatasets)
+        {
+            refs.add(dataset.getDatasetReference());
+        }
+        return refs;
+    }
+
+    private static String[] createDatasetLabels(List<DatasetReference> datasetReferences)
+    {
+        String[] labels = new String[datasetReferences.size()];
+        int i = 0;
+        for (DatasetReference dataset : datasetReferences)
+        {
+            labels[i] = createDatasetLabel(dataset);
+            i++;
+        }
+        return labels;
+    }
+
+    private void addPlateMetadataReportLink(final PlateContent plateContent)
+    {
+        Sample plate = plateContent.getPlateMetadata().getPlate();
+        Widget generateLink = createPlateMetadataLink(plate, viewContext);
+        add(withLabel(generateLink, PLATE_METADATA_REPORT_LABEL),
+                PlateLayouter.createRowLayoutMarginData());
+    }
+
+    /** @return a button which shows a grid with the plate metadata */
+    private static Widget createPlateMetadataLink(final Sample plate,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        return LinkRenderer.getLinkWidget(viewContext.getMessage(Dict.BUTTON_SHOW),
+                new ClickHandler()
+                    {
+                        public void onClick(ClickEvent event)
+                        {
+                            DispatcherHelper.dispatchNaviEvent(createPlateMetadataTabFactory());
+                        }
+
+                        private AbstractTabItemFactory createPlateMetadataTabFactory()
+                        {
+                            return new AbstractTabItemFactory()
+                                {
+                                    @Override
+                                    public ITabItem create()
+                                    {
+                                        return DefaultTabItem.create(getTabTitle(),
+                                                PlateMetadataBrowser.create(viewContext,
+                                                        new TechId(plate.getId())), viewContext);
+                                    }
+
+                                    @Override
+                                    public String getId()
+                                    {
+                                        return GenericConstants.ID_PREFIX + "plate-metadata-"
+                                                + plate.getId();
+                                    }
+
+                                    @Override
+                                    public HelpPageIdentifier getHelpPageIdentifier()
+                                    {
+                                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
+                                                HelpPageAction.VIEW);
+                                    }
+
+                                    @Override
+                                    public String getTabTitle()
+                                    {
+                                        return "Plate Report: " + plate.getCode();
+                                    }
+                                };
+                        }
+                    });
     }
 }

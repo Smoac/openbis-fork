@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -55,8 +54,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateMaterialLocationsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateMaterialLocationsLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
@@ -165,20 +164,6 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImageChannelStacks(session, businessObjectFactory,
                 datasetCode, datastoreCode, wellLocation);
-    }
-
-    public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
-    {
-        Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImageAnalysisForExperiment(session, businessObjectFactory,
-                experimentId);
-    }
-
-    public TableModel loadImageAnalysisForPlate(String sessionToken, TechId plateId)
-    {
-        Session session = getSession(sessionToken);
-        return PlateContentLoader
-                .loadImageAnalysisForPlate(session, businessObjectFactory, plateId);
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)

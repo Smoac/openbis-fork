@@ -20,8 +20,8 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -36,7 +36,7 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
 
     private EntityKind entityKind;
 
-    private EntityType entityType;
+    private BasicEntityType entityType;
 
     private String code;
 
@@ -48,8 +48,8 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
         // needed for serialization purposes
     }
 
-    public BasicEntityInformationHolder(EntityKind entityKind, EntityType entityType, String code,
-            Long id)
+    public BasicEntityInformationHolder(EntityKind entityKind, BasicEntityType entityType,
+            String code, Long id)
     {
         this.entityKind = entityKind;
         this.entityType = entityType;
@@ -62,7 +62,7 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
         return entityKind;
     }
 
-    public EntityType getEntityType()
+    public BasicEntityType getEntityType()
     {
         return entityType;
     }

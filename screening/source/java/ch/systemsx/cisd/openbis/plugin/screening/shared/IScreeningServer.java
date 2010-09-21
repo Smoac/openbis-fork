@@ -25,10 +25,10 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.PlateMaterialsSearchCriteriaPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
@@ -99,24 +98,6 @@ public interface IScreeningServer extends IServer
     public List<WellImageChannelStack> listImageChannelStacks(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
             String datastoreCode, WellLocation wellLocation);
-
-    /**
-     * Loads all analysis results from all existing image-analysis datasets connected with the
-     * specified experiment. It is assumed that all datasets are CSV files with the same headers.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public TableModel loadImageAnalysisForExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
-
-    /**
-     * Loads all analysis results from all existing image-analysis datasets connected with the
-     * specified plate. It is assumed that all datasets are CSV files with the same headers.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public TableModel loadImageAnalysisForPlate(String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
 
     /**
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.

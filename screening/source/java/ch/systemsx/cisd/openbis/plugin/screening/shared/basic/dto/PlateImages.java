@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * DTO with metadata of a plate and all its wells + reference to a dataset with plate images.
+ * Plate metadata and reference to one image dataset for the plate.
  * <p>
  * There is no information which images are missing for the plate in the dataset, although it can be
  * a case because e.g. they have not been acquired. The information about the plate geometry is
@@ -35,15 +35,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class PlateImages implements IsSerializable
 {
-    private Sample plate;
+    private PlateMetadata plateMetadata;
 
-    private List<WellMetadata> wellsMetadata;
-
-    // null if dataset with images does not exist
-    private DatasetImagesReference imagesOrNull;
-
-    // plate dimension
-    private int plateRowsNum, plateColsNum;
+    private DatasetImagesReference imagesDataset;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -51,39 +45,40 @@ public class PlateImages implements IsSerializable
     {
     }
 
-    public PlateImages(Sample plate, List<WellMetadata> wellsMetadata,
-            DatasetImagesReference imagesOrNull, int plateRowsNum, int plateColsNum)
+    public PlateImages(PlateMetadata plateMetadata, DatasetImagesReference imagesDataset)
     {
-        this.plate = plate;
-        this.wellsMetadata = wellsMetadata;
-        this.imagesOrNull = imagesOrNull;
-        this.plateRowsNum = plateRowsNum;
-        this.plateColsNum = plateColsNum;
+        this.plateMetadata = plateMetadata;
+        this.imagesDataset = imagesDataset;
+    }
+
+    public DatasetImagesReference getImagesDataset()
+    {
+        return imagesDataset;
+    }
+
+    public PlateMetadata getPlateMetadata()
+    {
+        return plateMetadata;
     }
 
     public List<WellMetadata> getWells()
     {
-        return wellsMetadata;
-    }
-
-    /** can be null */
-    public DatasetImagesReference tryGetImages()
-    {
-        return imagesOrNull;
+        return plateMetadata.getWells();
     }
 
     public Sample getPlate()
     {
-        return plate;
+        return plateMetadata.getPlate();
     }
 
     public int getRowsNum()
     {
-        return plateRowsNum;
+        return plateMetadata.getRowsNum();
     }
 
     public int getColsNum()
     {
-        return plateColsNum;
+        return plateMetadata.getColsNum();
     }
+
 }
