@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The content of one row, without the header specification.
  * 
- * @author Tomasz Pylak
+ *
+ * @author Franz-Josef Elmer
  */
-public class TableModelRow implements IsSerializable, Serializable
+public class TableModelRowWithObject<T extends IsSerializable> extends TableModelRow
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    
+    private T objectOrNull;
 
-    // values in each column from left to right
-    private List<ISerializableComparable> values;
-
-    public TableModelRow(List<ISerializableComparable> values)
+    public TableModelRowWithObject(T objectOrNull, List<ISerializableComparable> values)
     {
-        this.values = values;
+        super(values);
+        this.objectOrNull = objectOrNull;
     }
-
-    public List<ISerializableComparable> getValues()
-    {
-        return values;
-    }
-
-    // ---------------------------
-
+    
     // GWT only
-    protected TableModelRow()
+    @SuppressWarnings("unused")
+    private TableModelRowWithObject()
     {
+        
     }
+
+    public T getObjectOrNull()
+    {
+        return objectOrNull;
+    }
+    
 }

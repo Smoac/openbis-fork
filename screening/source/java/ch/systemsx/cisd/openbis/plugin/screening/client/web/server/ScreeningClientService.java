@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeade
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -185,6 +187,24 @@ public final class ScreeningClientService extends AbstractClientService implemen
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public TypedTableResultSet<WellContent> listPlateWells2(
+            IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
+            PlateMaterialsSearchCriteria materialCriteria)
+    {
+        final WellContentProvider provider =
+                new WellContentProvider(server, getSessionToken(), materialCriteria);
+        ResultSet<TableModelRowWithObject<WellContent>> resultSet =
+                listEntities(gridCriteria,
+                        new IOriginalDataProvider<TableModelRowWithObject<WellContent>>()
+                            {
+                                public List<TableModelRowWithObject<WellContent>> getOriginalData()
+                                {
+                                    return provider.getTableModel().getRows();
+                                }
+                            });
+        return new TypedTableResultSet<WellContent>(resultSet, provider.getTableModel().getHeader());
     }
 
     public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)

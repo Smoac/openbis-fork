@@ -27,11 +27,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -71,6 +73,13 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             PlateMaterialsSearchCriteria materialCriteria,
             AsyncCallback<ResultSet<WellContent>> callback);
 
+    /**
+     * @see IScreeningClientService#listPlateWells2(IResultSetConfig, PlateMaterialsSearchCriteria)
+     */
+    public void listPlateWells2(IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
+            PlateMaterialsSearchCriteria materialCriteria,
+            AsyncCallback<TypedTableResultSet<WellContent>> callback);
+    
     /**
      * @see IScreeningClientService#prepareExportPlateLocations(TableExportCriteria)
      */
