@@ -309,7 +309,8 @@ public class PlateLayoutSampleSection extends TabContent
         container.add(PlateLayouter.createVisualization(plateImages, viewContext));
 
         Widget datasetDetailsButton =
-                createDatasetDetailsLink(datasetImagesReference.getDatasetReference());
+                createDatasetDetailsLink(datasetImagesReference.getDatasetReference(),
+                        SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON);
         container.add(withLabel(datasetDetailsButton, SINGLE_IMAGE_DATASET_DETAILS_LABEL));
 
         return container;
