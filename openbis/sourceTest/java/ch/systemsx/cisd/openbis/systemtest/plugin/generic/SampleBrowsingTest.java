@@ -49,6 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 @Test(groups = "system test")
 public class SampleBrowsingTest extends GenericSystemTestCase
 {
+    private static final boolean DEBUG = false;
+
     private static final String DEFAULT_INSTANCE = "CISD";
 
     private static final String DEFAULT_GROUP = "CISD";
@@ -241,7 +243,10 @@ public class SampleBrowsingTest extends GenericSystemTestCase
         for (GridRowModel<Sample> gridRowModel : list)
         {
             Sample sample = gridRowModel.getOriginalObject();
-            System.out.println(sample.getIdentifier());
+            if (DEBUG)
+            {
+                System.out.println(sample.getIdentifier());
+            }
             if (sample.getIdentifier().equals(identifier))
             {
                 return sample;
