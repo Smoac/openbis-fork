@@ -572,25 +572,31 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                 .tryTopPendingFetchConfig());
         debug("create a refresh callback " + pendingFetchManager.tryTopPendingFetchConfig());
         final ListEntitiesCallback<T, M> listCallback =
-                new ListEntitiesCallback<T, M>(this, viewContext, callback, resultSetConfig, grid,
-                        pendingFetchManager, refreshCallback, pagingManager,
-                        customColumnsMetadataProvider, filterToolbar)
-                    {
-                        // WORKAROUND Initialization ordering in tests.
-                        // Need to override this method because of a dependency problem in the
-                        // testing infrastructure. The test infrastructure requires that the
-                        // callbackId be known the AbstractAsyncCallback constructor, the
-                        // ListEntitiesCallback doesn't know it until after its constructor has
-                        // completed. Thus, this override.
-                        @Override
-                        public String getCallbackId()
-                        {
-                            return grid.getId();
-                        }
-
-                    };
+                new AbstractBrowserGridListEntitiesCallback(callback, resultSetConfig);
 
         listEntities(resultSetConfig, listCallback);
+    }
+
+    public final class AbstractBrowserGridListEntitiesCallback extends ListEntitiesCallback<T, M>
+    {
+        public AbstractBrowserGridListEntitiesCallback(AsyncCallback<PagingLoadResult<M>> callback,
+                DefaultResultSetConfig<String, T> resultSetConfig)
+        {
+            super(AbstractBrowserGrid.this, AbstractBrowserGrid.this.viewContext, callback,
+                    resultSetConfig, grid, pendingFetchManager, refreshCallback, pagingManager,
+                    customColumnsMetadataProvider, filterToolbar);
+        }
+
+        // WORKAROUND Initialization ordering in tests.
+        // Need to override this method to keep the testing infrastructure happy. The infrastructure
+        // requires that the callbackId be known the AbstractAsyncCallback constructor, a
+        // ListEntitiesCallback doesn't know it until after its constructor has completed.
+        @Override
+        public String getCallbackId()
+        {
+            return grid.getId();
+        }
+
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
