@@ -60,7 +60,7 @@ final class QuerySectionPanel extends DisposableTabContent
                 queryModuleContext, entity);
         this.queryModuleContext = queryModuleContext;
         this.entity = entity;
-
+        setIds(DisplayTypeIDGenerator.QUERY_SECTION);
     }
 
     @Override

@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
     QUERY_EDITOR("query-editor"),
+
+    QUERY_SECTION("query-section"),
 
     ;
 

@@ -1,5 +1,10 @@
 // screening dictionary
 var screening = {
+	
+	// If a dictionary contains 'is_default_dictionary' key and the value is 'true', 
+	// that dictionary will be treated as a 'default' one. This means that values 
+	// from that dictionary will override entries with the same keys defined in other dictionaries. 
+	// There should be at most one default dictionary, otherwise the behavior is undefined.  
 	is_default_dictionary: "true",
 
 

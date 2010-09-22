@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
@@ -77,8 +76,6 @@ public class ModulesSectionsManager
             final Collection<? extends TabContent> sections = module.getSections(entity);
             for (final TabContent panel : sections)
             {
-                // FIXME 2010-09-15, IA: check when this is needed
-                panel.setIds(DisplayTypeIDGenerator.MODULE_SECTION);
                 container.addSection(panel);
             }
         }
