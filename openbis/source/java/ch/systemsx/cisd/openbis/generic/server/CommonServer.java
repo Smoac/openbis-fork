@@ -1525,7 +1525,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     private static final String UPDATE_TEMPLATE_COMMENT =
             "# If one doesn't want to modify values in a column the column can be removed completely from the file.\n"
-                    + "# Empty value in a column also means that the value stored in openBIS shouldn't be changed.\n "
+                    + "# Empty value in a column also means that the value stored in openBIS shouldn't be changed.\n"
                     + "# To delete a value/connection from openBIS one needs to put \"--DELETE--\" into the corresponding cell.\n";
 
     private String createTemplateForType(EntityKind entityKind, boolean autoGenerate,
