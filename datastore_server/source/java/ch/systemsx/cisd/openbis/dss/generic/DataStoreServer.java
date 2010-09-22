@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.openbis.dss.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.dss.generic.server.CommandQueueLister;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
 
@@ -68,6 +69,12 @@ public class DataStoreServer
 
     public static void main(String[] args)
     {
+        if (args[0].equals("--version"))
+        {
+            System.err
+            .println("Data Store Server version " + BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+            System.exit(0);
+        }
         initLog();
         final boolean showShredder = (args.length > 0 && args[0].equals("--show-shredder"));
         if (showShredder)
