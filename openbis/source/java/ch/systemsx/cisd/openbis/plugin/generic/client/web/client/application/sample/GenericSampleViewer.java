@@ -93,10 +93,6 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "generic-sample-properties-viewer_";
 
-    // public static final String COMPONENTS_POSTFIX = "-components";
-
-    // public static final String DATA_POSTFIX = "-data";
-
     public static final String SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX =
             "-show_only_directly_connected_checkbox";
 

@@ -16,18 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import com.extjs.gxt.ui.client.event.MvcEvent;
-import com.extjs.gxt.ui.client.mvc.Dispatcher;
-import com.extjs.gxt.ui.client.mvc.DispatcherListener;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
@@ -72,7 +64,18 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     private static final String INDIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159188-3";
 
-    @DoNotRunWith(Platform.HtmlUnit)
+    private static final String createSectionsTabPanelId()
+    {
+        return GenericSampleViewer.createId(WILDCARD_ID)
+                + SectionsPanel.SECTIONS_TAB_PANEL_ID_SUFFIX;
+    }
+
+    private static final String createSectionId(IDisplayTypeIDGenerator generator)
+    {
+        return TabContent.createId(WILDCARD_ID.toString(), generator)
+                + SectionsPanel.SECTION_ID_SUFFIX;
+    }
+
     public final void testShowMasterPlateView()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
@@ -87,23 +90,28 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Registrator").asPerson("Doe, John");
         checkSample.property("Plate Geometry").asProperty("384_WELLS_16X24");
         checkSample.property("Description").asProperty("test control layout");
+        remoteConsole.prepare(checkSample);
 
-        final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(2);
+        activateTab(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION));
+        final CheckTableCommand checkComponentsTable =
+                checkSample.createComponentsTableCheck().expectedSize(2);
         final String sampleSubcodeFieldIdent = CommonSampleColDefKind.SUBCODE.id();
-        componentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A01", "WELL")
+        checkComponentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A01", "WELL")
                 .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID).withCell(
                         sampleSubcodeFieldIdent, "A01"));
-        componentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A03", "WELL")
+        checkComponentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A03", "WELL")
                 .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID).withCell(
                         sampleSubcodeFieldIdent, "A03"));
+        remoteConsole.prepare(checkComponentsTable);
 
-        checkSample.dataTable().expectedSize(0);
-        remoteConsole.prepare(checkSample);
+        activateTab(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.DATA_SETS_SECTION));
+        remoteConsole.prepare(checkSample.createDataTableCheck().expectedSize(0));
 
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowCellPlateView()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
@@ -119,11 +127,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 ".*<a href=\".*permId=" + CELL_PLATE_EXAMPLE_PERM_ID + ".*>"
                         + CELL_PLATE_EXAMPLE_PERM_ID + "</a>.*");
         checkSample.property("Sample Type").asCode("CELL_PLATE");
-        final CheckTableCommand childrenTable = checkSample.childrenTable().expectedSize(2);
-        childrenTable.expectedRow(new SampleRow("3VRP1A", "REINFECT_PLATE").identifier("CISD",
-                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID));
-        childrenTable.expectedRow(new SampleRow("3VRP1B", "REINFECT_PLATE").identifier("CISD",
-                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID));
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {
                 public void assertValue(final Invalidation invalidation)
@@ -134,65 +137,27 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
             });
         checkSample.property("Parent").asCode(parentCode1);
         checkSample.property("Parent").asInvalidEntity();
-
-        final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(1);
-        dataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
-                .withFileFormatType("TIFF"));
-        dataTable.expectedColumnsNumber(25);
-        final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
-        dataTable.expectedColumnHidden(commentColIdent, true);
-
         remoteConsole.prepare(checkSample);
-        remoteConsole.prepare(new AbstractDefaultTestCommand()
-            {
-                public void execute()
-                {
-                    // show DataSet
-                    TechId wildcard = TechId.createWildcardTechId();
-                    final Widget widget =
-                            GWTTestUtil
-                                    .getWidgetWithID(SampleDataSetBrowser.createGridId(wildcard));
-                    assertTrue(widget instanceof Grid<?>);
-                    final Grid<?> table = (Grid<?>) widget;
-                    GridTestUtils.fireSelectRow(table, CommonExternalDataColDefKind.CODE.id(),
-                            DIRECTLY_CONNECTED_DATA_SET_CODE);
-                    String showDetailsButtonId =
-                            SampleDataSetBrowser.createBrowserId(wildcard)
-                                    + SampleDataSetBrowser.SHOW_DETAILS_BUTTON_ID_SUFFIX;
 
-                    // prepare check of request made by Data View section browsing the dataset
-                    final Dispatcher dispatcher = Dispatcher.get();
-                    DispatcherListener dispatcherListener =
-                            createDispatcherListenerForDataView(DIRECTLY_CONNECTED_DATA_SET_CODE);
-                    dispatcher.addDispatcherListener(dispatcherListener);
-                    GWTTestUtil.clickButtonWithID(showDetailsButtonId);
-                    dispatcher.removeDispatcherListener(dispatcherListener);
-                }
+        activateTab(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.DERIVED_SAMPLES_SECTION));
+        final CheckTableCommand checkChildrenTable =
+                checkSample.createChildrenTableCheck().expectedSize(2);
+        checkChildrenTable.expectedRow(new SampleRow("3VRP1A", "REINFECT_PLATE").identifier("CISD",
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID));
+        checkChildrenTable.expectedRow(new SampleRow("3VRP1B", "REINFECT_PLATE").identifier("CISD",
+                "CISD").derivedFromAncestors(CELL_PLATE_EXAMPLE_ID));
+        remoteConsole.prepare(checkChildrenTable);
 
-                /**
-                 * Performs a check of the URL before dispatch. Dispatch will be canceled.
-                 */
-                private DispatcherListener createDispatcherListenerForDataView(
-                        final String dataSetCode)
-                {
-                    return new DispatcherListener()
-                        {
-                            @Override
-                            public void beforeDispatch(MvcEvent mvce)
-                            {
-                                // TODO 2010-07-09, Piotr Buczek: fix URL check
-                                // String url = String.valueOf(mvce.getAppEvent().getData());
-                                // assertTrue("Invalid URL: " + url, url
-                                // .startsWith("https://localhost:8889/"
-                                // + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
-                                // + dataSetCode + "?sessionID=test-"));
-                                // assertTrue("Invalid URL: " + url, url
-                                // .endsWith("mode=simpleHtml&autoResolve=true"));
-                                mvce.setCancelled(true);
-                            }
-                        };
-                }
-            });
+        activateTab(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.DATA_SETS_SECTION));
+        final CheckTableCommand checkDataTable = checkSample.createDataTableCheck().expectedSize(1);
+        checkDataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
+                .withFileFormatType("TIFF"));
+        checkDataTable.expectedColumnsNumber(25);
+        final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
+        checkDataTable.expectedColumnHidden(commentColIdent, true);
+        remoteConsole.prepare(checkDataTable);
 
         launchTest();
     }
@@ -210,13 +175,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(checkSample);
 
         // show data set section tab
-        final String tabPanelId =
-                GenericSampleViewer.createId(WILDCARD_ID) + SectionsPanel.SECTION_PANEL_ID_SUFFIX;
-        final String tabItemId =
-                TabContent
-                        .createId(WILDCARD_ID.toString(), DisplayTypeIDGenerator.DATA_SET_SECTION)
-                        + SectionsPanel.SECTION_TAB_ID_SUFFIX;
-        activateTab(tabPanelId, tabItemId);
+        activateTab(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.DATA_SETS_SECTION));
 
         // check directly connected datasets
         final CheckTableCommand checkDirectlyConnectedDataTable =

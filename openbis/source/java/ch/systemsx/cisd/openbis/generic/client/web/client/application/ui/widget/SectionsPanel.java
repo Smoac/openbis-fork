@@ -29,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration
  */
 public class SectionsPanel extends LayoutContainer
 {
-    public static final String SECTION_PANEL_ID_SUFFIX = "_sections";
+    public static final String SECTIONS_TAB_PANEL_ID_SUFFIX = "_section_tabs";
 
-    public static final String SECTION_TAB_ID_SUFFIX = "_element";
+    public static final String SECTION_ID_SUFFIX = "_element";
 
     private final List<SectionElement> elements = new ArrayList<SectionElement>();
 
@@ -47,7 +47,7 @@ public class SectionsPanel extends LayoutContainer
         setLayout(new FillLayout());
         tabPanel = new TabPanel();
         tabPanel.setAutoSelect(false);
-        tabPanel.setId(idPrefix + SECTION_PANEL_ID_SUFFIX);
+        tabPanel.setId(idPrefix + SECTIONS_TAB_PANEL_ID_SUFFIX);
         super.add(tabPanel);
         addRefreshDisplaySettingsListener();
     }
@@ -177,7 +177,7 @@ public class SectionsPanel extends LayoutContainer
             this.setTabContent(tabContent);
             setText(tabContent.getHeading());
             add(tabContent);
-            setId(tabContent.getId() + SECTION_TAB_ID_SUFFIX);
+            setId(tabContent.getId() + SECTION_ID_SUFFIX);
 
             addListener(Events.Select, new Listener<TabPanelEvent>()
                 {

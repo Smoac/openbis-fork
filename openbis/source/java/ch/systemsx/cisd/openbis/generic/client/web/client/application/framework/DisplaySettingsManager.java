@@ -366,10 +366,10 @@ public class DisplaySettingsManager
                 .getModifier(), delayMs);
     }
 
-    public void storeActiveTabSettings(String tabGroupDisplayID, String tabDisplayID,
+    public void storeActiveTabSettings(String tabGroupDisplayID, String selectedTabDisplayID,
             Object modifier)
     {
-        updateActiveTabSettings(tabGroupDisplayID, tabDisplayID, modifier);
+        updateActiveTabSettings(tabGroupDisplayID, selectedTabDisplayID, modifier);
         updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 

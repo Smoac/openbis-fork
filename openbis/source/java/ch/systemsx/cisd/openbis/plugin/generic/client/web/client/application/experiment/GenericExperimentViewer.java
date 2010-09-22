@@ -241,7 +241,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
         allPanels.add(sampleSection);
 
         final DisposableTabContent dataSection = createExperimentDataSetSection();
-        dataSection.setIds(DisplayTypeIDGenerator.DATA_SET_SECTION);
+        dataSection.setIds(DisplayTypeIDGenerator.DATA_SETS_SECTION);
         allPanels.add(dataSection);
 
         final AttachmentVersionsSection attachmentsSection = createAttachmentsSection();

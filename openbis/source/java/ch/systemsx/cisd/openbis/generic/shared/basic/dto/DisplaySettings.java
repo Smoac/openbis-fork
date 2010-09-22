@@ -43,9 +43,6 @@ public class DisplaySettings implements Serializable, IsSerializable
     private Map<String, List<ColumnSetting>> columnSettings =
             new LinkedHashMap<String, List<ColumnSetting>>();
 
-    @SuppressWarnings("unused")
-    private Map<String, Boolean> sectionSettings;
-
     private Map<String, String> tabSettings = new HashMap<String, String>();
 
     private Map<String, String> dropDownSettings = new HashMap<String, String>();

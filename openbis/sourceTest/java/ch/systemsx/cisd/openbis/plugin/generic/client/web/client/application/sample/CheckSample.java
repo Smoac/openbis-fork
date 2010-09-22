@@ -35,10 +35,6 @@ public class CheckSample extends AbstractDefaultTestCommand implements
 
     private final PropertyCheckingManager propertyCheckingManager;
 
-    private CheckTableCommand componentsTableCheck;
-
-    private CheckTableCommand dataTableCheck;
-
     public CheckSample()
     {
         this(TechId.createWildcardTechId());
@@ -61,38 +57,27 @@ public class CheckSample extends AbstractDefaultTestCommand implements
         return this;
     }
 
-    public CheckTableCommand componentsTable()
+    public CheckTableCommand createComponentsTableCheck()
     {
         String gridId = ContainerSamplesSection.createGridId(sampleId);
-        componentsTableCheck = new CheckTableCommand(gridId);
-        return componentsTableCheck;
+        return new CheckTableCommand(gridId);
     }
 
-    public CheckTableCommand childrenTable()
+    public CheckTableCommand createChildrenTableCheck()
     {
         String gridId = DerivedSamplesSection.createGridId(sampleId);
-        componentsTableCheck = new CheckTableCommand(gridId);
-        return componentsTableCheck;
+        return new CheckTableCommand(gridId);
     }
 
-    public CheckTableCommand dataTable()
+    public CheckTableCommand createDataTableCheck()
     {
         String gridId = SampleDataSetBrowser.createGridId(sampleId);
-        dataTableCheck = new CheckTableCommand(gridId);
-        return dataTableCheck;
+        return new CheckTableCommand(gridId);
     }
 
     public void execute()
     {
         propertyCheckingManager.assertPropertiesOf(PROPERTIES_ID_PREFIX + sampleId);
-        if (componentsTableCheck != null)
-        {
-            componentsTableCheck.execute();
-        }
-        if (dataTableCheck != null)
-        {
-            dataTableCheck.execute();
-        }
     }
 
 }

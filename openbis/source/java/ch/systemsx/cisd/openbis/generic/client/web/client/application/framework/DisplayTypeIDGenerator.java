@@ -86,7 +86,7 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     PARENT_SAMPLES_SECTION("parent-samples-section"),
 
-    DATA_SET_SECTION("data-set-section"),
+    DATA_SETS_SECTION("data-sets-section"),
 
     DATA_SET_PARENTS_SECTION("data-set-parents-section"),
 

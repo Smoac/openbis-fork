@@ -45,7 +45,7 @@ public class SampleDataSetsSection extends DisposableTabContent
         this.showOnlyDirectlyConnectedCheckBox = showOnlyDirectlyConnectedCheckBox;
         this.sampleId = sampleId;
         this.sampleType = sampleType;
-        setIds(DisplayTypeIDGenerator.DATA_SET_SECTION);
+        setIds(DisplayTypeIDGenerator.DATA_SETS_SECTION);
     }
 
     @Override

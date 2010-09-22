@@ -55,7 +55,7 @@ public class ShowDataSetChildrenAndParents extends AbstractDefaultTestCommand
         Widget widget =
                 GWTTestUtil.getWidgetWithID(GenericConstants.ID_PREFIX
                         + idGenerator.createID(GenericDataSetViewer.PREFIX + code)
-                        + SectionsPanel.SECTION_TAB_ID_SUFFIX);
+                        + SectionsPanel.SECTION_ID_SUFFIX);
         if (widget instanceof ToggleButton)
         {
             ToggleButton button = (ToggleButton) widget;
