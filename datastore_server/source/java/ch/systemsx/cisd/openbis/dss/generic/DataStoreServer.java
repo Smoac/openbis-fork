@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.openbis.dss.generic.server.CommandQueueLister;
 import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterService;
@@ -36,6 +37,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.QueueingDataSetStatusUpdaterS
  */
 public class DataStoreServer
 {
+    static
+    {
+        SpringEoDSQLExceptionTranslator.activate();
+    }
+    
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, DataStoreServer.class);
 

@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.hibernate.SessionFactory;
 
+import ch.systemsx.cisd.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
@@ -50,6 +51,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 {
+    static
+    {
+        SpringEoDSQLExceptionTranslator.activate();
+    }
+    
     private final ISampleTypeDAO sampleTypeDAO;
 
     private final IHibernateSearchDAO hibernateSearchDAO;
