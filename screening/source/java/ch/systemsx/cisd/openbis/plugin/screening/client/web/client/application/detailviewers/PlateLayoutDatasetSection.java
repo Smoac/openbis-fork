@@ -38,8 +38,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
  */
 public class PlateLayoutDatasetSection extends TabContent
 {
-    public static final String ID_SUFFIX = "PlateLayoutDatasetSection";
-
     private final ScreeningViewContext viewContext;
 
     private final TechId datasetId;
