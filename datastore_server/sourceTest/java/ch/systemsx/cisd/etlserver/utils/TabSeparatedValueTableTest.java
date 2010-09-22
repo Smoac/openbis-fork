@@ -107,14 +107,14 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     @Test
     public void testGetColumns()
     {
-        StringReader source = new StringReader("alpha\tbeta\n11\t12\n\t22\n31\n\n");
+        StringReader source = new StringReader("alpha\tbeta \n11 \t12\n\t22\n31\n\n");
         TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
         List<Column> columns = table.getColumns();
 
         assertEquals(2, columns.size());
         assertEquals("alpha", columns.get(0).getHeader());
-        assertEquals("[11, , 31, ]", columns.get(0).getValues().toString());
-        assertEquals("beta", columns.get(1).getHeader());
+        assertEquals("[11 , , 31, ]", columns.get(0).getValues().toString());
+        assertEquals("beta ", columns.get(1).getHeader());
         assertEquals("[12, 22, , ]", columns.get(1).getValues().toString());
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());

@@ -157,7 +157,7 @@ public class TabSeparatedValueTable
                         + " trailing tab characters detected in headers line: '" + headerLine + "'.");
             }
         }
-        headers = getRowCells(headerLine.trim());
+        headers = getRowCells(headerLine);
     }
     
     /**
