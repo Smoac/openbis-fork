@@ -79,6 +79,13 @@ public class AlternativesStringFilterTest
     }
 
     @Test
+    public void testSimpleNegationMatchWithSubStringOfTerm()
+    {
+        final AlternativesStringFilter filter = prepare("!end");
+        assertTrue(filter.passes("start middle nd"));
+    }
+    
+    @Test
     public void testSimpleNegationMismatch()
     {
         final AlternativesStringFilter filter = prepare("!end");
@@ -473,5 +480,32 @@ public class AlternativesStringFilterTest
         assertTrue(filter.passes("abba"));
         assertFalse(filter.passes("ba"));
         assertFalse(filter.passes("bba"));
+    }
+    
+    @Test
+    public void testTwoConjunctions()
+    {
+        AlternativesStringFilter filter = prepare("a & b & c");
+        assertTrue(filter.passes("abc"));
+        assertTrue(filter.passes("cab"));
+        assertFalse(filter.passes("ab"));
+        assertFalse(filter.passes("ac"));
+        assertFalse(filter.passes("bc"));
+        assertFalse(filter.passes("345"));
+    }
+    
+    @Test
+    public void testTwoConjunctionsAndOneAlternative()
+    {
+        AlternativesStringFilter filter = prepare("a & b c & d");
+        assertTrue(filter.passes("ab"));
+        assertTrue(filter.passes("cd"));
+        assertTrue(filter.passes("dc"));
+        assertTrue(filter.passes("abcd"));
+        assertTrue(filter.passes("dabc"));
+        assertFalse(filter.passes("ad"));
+        assertFalse(filter.passes("ac"));
+        assertFalse(filter.passes("bc"));
+        assertFalse(filter.passes("a"));
     }
 }

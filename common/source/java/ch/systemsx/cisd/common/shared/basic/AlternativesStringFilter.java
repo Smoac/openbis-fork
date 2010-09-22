@@ -291,7 +291,7 @@ public class AlternativesStringFilter
             Matcher matcher = tryGetNumericMatcher(s);
             if (matcher == null)
             {
-                matcher = getStringMatcher(negateValue ? s.substring(1) : s);
+                matcher = getStringMatcher(s);
             }
             if (negateValue)
             {
@@ -301,6 +301,7 @@ public class AlternativesStringFilter
             {
                 Matcher previousMatcher = alternatives.remove(alternatives.size() - 1);
                 matcher = new ConjunctionMatcher(previousMatcher, matcher);
+                conjunct = false;
             }
             alternatives.add(matcher);
         }
