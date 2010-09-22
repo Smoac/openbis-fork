@@ -154,7 +154,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         final CheckTableCommand checkDataTable = checkSample.createDataTableCheck().expectedSize(1);
         checkDataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
                 .withFileFormatType("TIFF"));
-        checkDataTable.expectedColumnsNumber(25);
+        checkDataTable.expectedColumnsNumber(26);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         checkDataTable.expectedColumnHidden(commentColIdent, true);
         remoteConsole.prepare(checkDataTable);
