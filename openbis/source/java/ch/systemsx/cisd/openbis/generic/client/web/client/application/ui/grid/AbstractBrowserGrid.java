@@ -208,7 +208,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // available columns definitions
     private Set<IColumnDefinition<T>> columnDefinitions;
 
-    private CustomColumnsMetadataProvider customColumnsMetadataProvider;
+    private final CustomColumnsMetadataProvider customColumnsMetadataProvider;
 
     // result set key of the last refreshed data
     private String resultSetKeyOrNull;
