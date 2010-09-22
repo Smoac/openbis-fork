@@ -16,20 +16,21 @@ fi
 ROOT=$BASE/../servers
 
 # -- AS
-cp $CONF/service.properties $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties
-cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/log.xml 
-cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/bin/openbis.conf
-cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/jetty.xml
-cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/bin/jetty.properties
+cp $CONF/service.properties $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/
+cp $CONF/log.xml $ROOT/openBIS-server/jetty/etc/ 
+cp $CONF/openbis.conf $ROOT/openBIS-server/jetty/bin/
+cp $CONF/jetty.xml $ROOT/openBIS-server/jetty/etc/
+cp $CONF/jetty.properties $ROOT/openBIS-server/jetty/bin/
 # not always present
 cp $CONF/.keystore $ROOT/openBIS-server/jetty/etc/openBIS.keystore
-cp $CONF/passwd $ROOT/openBIS-server/jetty/etc/passwd
+cp $CONF/passwd $ROOT/openBIS-server/jetty/etc/
+cp $CONF/web-client.properties $ROOT/openBIS-server/jetty/etc/
 
 # -- DSS
 cp $CONF/dss-service.properties $ROOT/datastore_server/etc/service.properties
 cp $CONF/dss-log.xml $ROOT/datastore_server/etc/log.xml
-cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/datastore_server.conf
+cp $CONF/datastore_server.conf $ROOT/datastore_server/etc/
 # not always present
 cp $CONF/.keystore $ROOT/datastore_server/etc/openBIS.keystore
 # screening-specific
-cp $CONF/tabular-data-graph.properties $ROOT/datastore_server/etc/tabular-data-graph.properties
+cp $CONF/tabular-data-graph.properties $ROOT/datastore_server/etc/

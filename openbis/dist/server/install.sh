@@ -73,6 +73,7 @@ echo Unzipping Jetty...
 # Files are unzipped in $rel_jetty_folder
 unzip -q "$installation_folder/jetty.zip" -d "$server_folder"
 test -f "$installation_folder/jetty.xml" && cp -p "$installation_folder/jetty.xml" "$jetty_folder/etc"
+test -f "$installation_folder/web-client.properties" && cp -p "$installation_folder/web-client.properties" "$jetty_folder/etc"
 test -f "$jetty_folder/etc/keystore" && rm "$jetty_folder/etc/keystore"
 cp -p "$installation_folder/openBIS.keystore" "$jetty_folder/etc"
 

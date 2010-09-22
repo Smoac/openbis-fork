@@ -16,14 +16,15 @@ fi
 ROOT=$BASE/../servers
 
 # -- AS
-cp $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/service.properties
-cp $ROOT/openBIS-server/jetty/etc/log.xml $CONF/log.xml
-cp $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/openbis.conf
-cp $ROOT/openBIS-server/jetty/etc/jetty.xml $CONF/jetty.xml
-cp $ROOT/openBIS-server/jetty/bin/jetty.properties $CONF/jetty.properties
+cp $ROOT/openBIS-server/jetty/webapps/openbis/WEB-INF/classes/service.properties $CONF/
+cp $ROOT/openBIS-server/jetty/etc/log.xml $CONF/
+cp $ROOT/openBIS-server/jetty/bin/openbis.conf $CONF/
+cp $ROOT/openBIS-server/jetty/etc/jetty.xml $CONF/
+cp $ROOT/openBIS-server/jetty/bin/jetty.properties $CONF/
 # not always present
 cp $ROOT/openBIS-server/jetty/etc/openBIS.keystore $CONF/.keystore 
-cp $ROOT/openBIS-server/jetty/etc/passwd $CONF/passwd
+cp $ROOT/openBIS-server/jetty/etc/passwd $CONF/
+cp $ROOT/openBIS-server/jetty/etc/web-client.properties $CONF/
 
 # -- DSS
 cp $ROOT/datastore_server/etc/service.properties $CONF/dss-service.properties

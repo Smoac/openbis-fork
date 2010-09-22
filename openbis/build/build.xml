@@ -191,6 +191,7 @@
     <move file="${admin.dist.file}" todir="${server.dist}" />
     <move file="${query.api.dist.file}" todir="${server.dist}" />
     <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
+    <copy file="${original.server.dist}/web-client.properties" todir="${server.dist}" />   
     <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
     <copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
