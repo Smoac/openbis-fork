@@ -114,7 +114,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 
         FailureExpectation failureExpectation =
                 new FailureExpectation(
-                        (Class<? extends AsyncCallback<?>>) AbstractBrowserGrid.AbstractBrowserGridListEntitiesCallback.class)
+                        (Class<? extends AsyncCallback<?>>) AbstractBrowserGrid.ListEntitiesCallback.class)
                         .with("Authorization failure: None of method roles '[INSTANCE_ADMIN]' "
                                 + "could be found in roles of user 'o'.");
 
