@@ -72,11 +72,11 @@ var screening = {
     IMAGE_ANALYSIS_DATA_SET: "Image Analysis Dataset",
     IMAGE_DATA_SET: "Image Dataset",
     
-    PLATE_MATERIAL_REVIEWER_TITLE: "Material Search",
-    PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "List of material codes or properties (e.g. gene ids, gene symbols, gene descriptions, control names, compound names) separated by commas (\",\") or one item per line.",
+    PLATE_MATERIAL_REVIEWER_TITLE: "Wells Search",
+    PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS: "E.g. gene symbols, gene ids, gene descriptions, control names or compound names. Separate items with commas (\",\") or specify one item per line.",
 
-    EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Material Search",
-    EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Well Materials",
+    EXPERIMENT_PLATE_MATERIAL_REVIEWER_SECTION: "Wells Search",
+    EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Library Index",
 		EXACT_MATCH_ONLY: "Exact Matches Only",
 	
   
