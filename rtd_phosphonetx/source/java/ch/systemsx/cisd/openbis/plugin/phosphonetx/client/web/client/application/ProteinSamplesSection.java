@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.DisposableTabContent;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -30,26 +33,27 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
  * 
  * @author Piotr Buczek
  */
-public class ProteinSamplesSection extends DisposableTabContent
+public class ProteinSamplesSection extends ContentPanel
 {
     private static final String PREFIX = "protein-samples-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-
-    private final TechId proteinReferenceID;
-
-    private final IIdAndCodeHolder experimentOrNull;
-
+    private IDisposableComponent disposableComponent;
+    
     public ProteinSamplesSection(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             final TechId proteinReferenceID, IIdAndCodeHolder experimentOrNull)
     {
-        super("Samples", viewContext, proteinReferenceID);
-        this.viewContext = viewContext;
-        this.experimentOrNull = experimentOrNull;
-        this.proteinReferenceID = proteinReferenceID;
-        setContentVisible(true);
+        setHeading("Samples");
+        setHeaderVisible(true);
+        setCollapsible(true);
+        setAnimCollapse(false);
+        setBodyBorder(true);
+        setLayout(new FitLayout());
+        Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
+        disposableComponent = SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext,
+                proteinReferenceID, experimentID, createGridId(proteinReferenceID));
+        add(disposableComponent.getComponent());
     }
 
     // @Private
@@ -59,11 +63,18 @@ public class ProteinSamplesSection extends DisposableTabContent
     }
 
     @Override
-    protected IDisposableComponent createDisposableContent()
+    protected void onDetach()
     {
-        Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
-        return SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext,
-                proteinReferenceID, experimentID, createGridId(proteinReferenceID));
+        if (disposableComponent != null)
+        {
+            disposableComponent.dispose();
+        }
+        super.onDetach();
+    }
+    
+    IDatabaseModificationObserver tryGetDatabaseModificationObserver()
+    {
+        return disposableComponent;
     }
 
 }
