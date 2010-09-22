@@ -80,7 +80,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
  */
 public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent>
 {
+    private static final String CHANNEL_CHOOSER_LABEL = "Channel:";
+
     private static final String ALL_EXPERIMENTS_TEXT = "All experiments";
+
+    private static final String SINGLE_EXPERIMENT_TEXT = "Single experiment";
 
     private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
 
@@ -156,7 +160,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     {
         ToolBar toolbar = new ToolBar();
         toolbar.add(createExperimentChooser());
-        toolbar.add(new Label("Channel:"));
+        toolbar.add(new Label(CHANNEL_CHOOSER_LABEL));
         toolbar.add(channelChooser);
         return toolbar;
     }
@@ -225,7 +229,8 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
             SingleExperimentSearchCriteria singleExperiment)
     {
         this.singleExperimentChooserStateOrNull = singleExperiment;
-        chooserField.updateValue(new ExperimentIdentifier(singleExperiment.getExperimentIdentifier()));
+        chooserField.updateValue(new ExperimentIdentifier(singleExperiment
+                .getExperimentIdentifier()));
     }
 
     private boolean isAllExperimentsChoosen()
@@ -246,7 +251,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
         experimentRadio.add(allExps);
 
         final Radio oneExps = new Radio();
-        oneExps.setBoxLabel("Single experiment");
+        oneExps.setBoxLabel(SINGLE_EXPERIMENT_TEXT);
         experimentRadio.add(oneExps);
 
         experimentRadio.setValue(isAllExperimentsChoosen() ? allExps : oneExps);
@@ -365,8 +370,7 @@ public class PlateMaterialReviewer extends AbstractSimpleBrowserGrid<WellContent
     {
         ColumnDefsAndConfigs<WellContent> schema = super.createColumnsDefinition();
         setLinksRenderer(schema, new PlateMaterialReviewerColDefKind[]
-            {
-                    PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
+            { PlateMaterialReviewerColDefKind.WELL_CONTENT_MATERIAL,
                     PlateMaterialReviewerColDefKind.PLATE, PlateMaterialReviewerColDefKind.WELL,
                     PlateMaterialReviewerColDefKind.DATASET,
                     PlateMaterialReviewerColDefKind.IMAGE_ANALYSIS_DATASET });

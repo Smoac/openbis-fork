@@ -70,6 +70,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 public class WellContentDialog extends Dialog
 {
+    private static final String UNKNOWN_WELL_LABEL = "No well information available.";
+
+    private static final String UNKNOWN_CHANNEL_LABEL = "No images available for this channel.";
+
+    private static final String INCORRECT_WELL_CODE_LABEL = "Incorrect well code.";
+
+    private static final String NO_IMAGE_DATASETS_LABEL = "Images not acquired.";
+
+    private static final String WELL_LABEL = "Well: ";
+
+    // ---
+
     private static final int ONE_IMAGE_WIDTH_PX = 200;
 
     private static final int ONE_IMAGE_HEIGHT_PX = 120;
@@ -111,7 +123,7 @@ public class WellContentDialog extends Dialog
             wellPropertiesOrNull = wellMetadata.getWellSample().getProperties();
         }
         return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation,
-                tryGetExperiment(wellData), viewContext);
+                getExperiment(wellData), viewContext);
     }
 
     /**
@@ -126,18 +138,18 @@ public class WellContentDialog extends Dialog
         final DatasetImagesReference imageDataset = wellContent.tryGetImageDataset();
         if (imageDataset == null)
         {
-            return new Text("Images not acquired.");
+            return new Text(NO_IMAGE_DATASETS_LABEL);
         }
         WellLocation locationOrNull = wellContent.tryGetLocation();
         if (locationOrNull == null)
         {
-            return new Text("Incorrect well code.");
+            return new Text(INCORRECT_WELL_CODE_LABEL);
         }
         PlateImageParameters imageParameters = imageDataset.getImageParameters();
         if (imageParameters.getChannelsCodes().contains(channel) == false
                 && channel.equals(ScreeningConstants.MERGED_CHANNELS) == false)
         {
-            return new Text("No images available for this channel.");
+            return new Text(UNKNOWN_CHANNEL_LABEL);
         }
 
         boolean createImageLinks = (imageParameters.isMultidimensional() == false);
@@ -298,14 +310,9 @@ public class WellContentDialog extends Dialog
         return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor);
     }
 
-    private static SingleExperimentSearchCriteria tryGetExperiment(WellData wellData)
+    private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
     {
-        WellMetadata wellMetadata = wellData.tryGetMetadata();
-        if (wellMetadata == null)
-        {
-            return null;
-        }
-        Experiment experiment = wellMetadata.getWellSample().getExperiment();
+        Experiment experiment = wellData.getExperiment();
         return new SingleExperimentSearchCriteria(experiment.getId(), experiment.getIdentifier());
     }
 
@@ -336,13 +343,13 @@ public class WellContentDialog extends Dialog
 
     private final List<IEntityProperty> wellPropertiesOrNull;
 
-    private final SingleExperimentSearchCriteria experimentOrNull;
+    private final SingleExperimentSearchCriteria experimentCriteria;
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
     private WellContentDialog(IEntityInformationHolder wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, WellLocation wellLocationOrNull,
-            SingleExperimentSearchCriteria experimentOrNull,
+            SingleExperimentSearchCriteria experimentCriteria,
             IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         this.wellOrNull = wellOrNull;
@@ -352,11 +359,11 @@ public class WellContentDialog extends Dialog
         {
             Collections.sort(wellPropertiesOrNull);
         }
-        this.experimentOrNull = experimentOrNull;
+        this.experimentCriteria = experimentCriteria;
         this.viewContext = viewContext;
         setScrollMode(Scroll.AUTO);
         setHideOnButtonClick(true);
-        setHeading("Well Content: " + getWellDescription());
+        setHeading(WELL_LABEL + getWellDescription());
         setTopComponent(createContentDescription());
         addListener(Events.Show, new Listener<BaseEvent>()
             {
@@ -399,11 +406,11 @@ public class WellContentDialog extends Dialog
         cellLayout.setMargin(5);
         if (wellOrNull != null)
         {
-            container.add(new Text("Well: "), cellLayout);
+            container.add(new Text(WELL_LABEL), cellLayout);
             container.add(createEntityLink(wellOrNull));
         } else
         {
-            container.add(new Text("No well information available."));
+            container.add(new Text(UNKNOWN_WELL_LABEL));
         }
         if (wellPropertiesOrNull != null)
         {
@@ -491,10 +498,9 @@ public class WellContentDialog extends Dialog
 
     private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)
     {
-        assert experimentOrNull != null : "experiment is unknown";
         final String href =
                 ScreeningLinkExtractor.tryExtractMaterialWithExperiment(material,
-                        experimentOrNull.getExperimentIdentifier());
+                        experimentCriteria.getExperimentIdentifier());
         final ClickHandler listener = new ClickHandler()
             {
                 public void onClick(ClickEvent event)
@@ -502,7 +508,7 @@ public class WellContentDialog extends Dialog
                     WellContentDialog.this.hide();
                     ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
                             .openPlateLocationsMaterialViewer(material,
-                                    ExperimentSearchCriteria.createExperiment(experimentOrNull),
+                                    ExperimentSearchCriteria.createExperiment(experimentCriteria),
                                     viewContext);
                 }
             };

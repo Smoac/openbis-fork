@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -364,18 +365,18 @@ public class PlateLayouter
     {
         WellData[][] data =
                 new WellData[plateMetadata.getRowsNum() + 1][plateMetadata.getColsNum() + 1];
+        Experiment experiment = plateMetadata.getPlate().getExperiment();
         for (int row = 1; row < data.length; row++)
         {
             for (int col = 1; col < data[row].length; col++)
             {
-                data[row][col] = new WellData(new WellLocation(row, col));
+                data[row][col] = new WellData(new WellLocation(row, col), experiment);
             }
         }
         return data;
     }
 
     // ---------
-
 
     /** @return layout data with big margin */
     public static RowData createRowLayoutMarginData()

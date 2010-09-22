@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -28,11 +29,14 @@ class WellData
 {
     private final WellLocation wellLocation;
 
+    private final Experiment experiment;
+
     private WellMetadata wellMetadataOrNull;
 
-    public WellData(WellLocation wellLocation)
+    public WellData(WellLocation wellLocation, Experiment experiment)
     {
         this.wellLocation = wellLocation;
+        this.experiment = experiment;
     }
 
     public void setMetadata(WellMetadata well)
@@ -48,5 +52,10 @@ class WellData
     public WellLocation getWellLocation()
     {
         return wellLocation;
+    }
+
+    public Experiment getExperiment()
+    {
+        return experiment;
     }
 }
