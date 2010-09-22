@@ -154,7 +154,6 @@ public class RowLayoutManager
         if (container.getItemCount() > 0)
         {
             Listener<BaseEvent> listener = createListener(contentPanel, dynamicRowDatas.size());
-            System.out.println(listener);
             contentPanel.addListener(Events.Render, listener);
         }
         contentPanel.setAnimCollapse(false);
@@ -288,8 +287,6 @@ public class RowLayoutManager
         
         above.originalValue += diffRatio;
         below.originalValue -= diffRatio;
-        System.out.println("new above:"+above.originalValue);
-        System.out.println("new below:"+below.originalValue);
         adjustRelative();
     }
     
