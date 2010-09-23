@@ -41,7 +41,6 @@ import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
  */
 public class XmlUtils
 {
-
     public static String XML_SCHEMA_XSD_URL = "http://www.w3.org/2001/XMLSchema.xsd";
 
     public static String XSLT_XSD_URL = "http://www.w3.org/2007/schema-for-xslt20.xsd";
@@ -58,7 +57,7 @@ public class XmlUtils
     public static Document parseXmlDocument(String value)
     {
         DocumentBuilderFactory dBF = DocumentBuilderFactory.newInstance();
-        dBF.setNamespaceAware(false);
+        dBF.setNamespaceAware(true);
         InputSource is = new InputSource(new StringReader(value));
         try
         {
@@ -85,20 +84,20 @@ public class XmlUtils
         validate(document, XMLInfraStructure.createSchema(schemaURL));
     }
 
-    // private
+    /** validate given document against the schema specified in File */
+    public static void validate(Document document, File schemaFile) throws SAXException,
+            IOException
+    {
+        validate(document, XMLInfraStructure.createSchema(schemaFile));
+    }
+
+    /** validate given document against the specified schema */
     public static void validate(Document document, Schema schema) throws SAXException, IOException
     {
         // create a Validator instance, which can be used to validate an instance document
         Validator validator = schema.newValidator();
         // validate the DOM tree
         validator.validate(new DOMSource(document));
-    }
-
-    /** validate given document against the schema specified in File */
-    public static void validate(Document document, File schemaFile) throws SAXException,
-            IOException
-    {
-        validate(document, XMLInfraStructure.createSchema(schemaFile));
     }
 
 }

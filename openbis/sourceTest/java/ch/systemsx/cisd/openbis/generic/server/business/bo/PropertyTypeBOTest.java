@@ -268,7 +268,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public final void testDefineWithXmlPropertyWithSchemaFails()
     {
         final DataTypePE dataTypePE = new DataTypePE();
@@ -305,7 +305,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public final void testDefineWithXmlPropertyWithXsltFails()
     {
         final DataTypePE dataTypePE = new DataTypePE();

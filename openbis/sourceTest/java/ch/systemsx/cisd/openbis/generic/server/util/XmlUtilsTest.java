@@ -145,6 +145,7 @@ public class XmlUtilsTest extends AssertJUnit
         assertTrue(exceptionThrown);
     }
 
+    @Test
     public void testParseAndValidateXmlSchemaDocument() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -156,6 +157,7 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, schema);
     }
 
+    @Test
     public void testParseAndValidateXmlSchemaDocumentFails() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -174,6 +176,7 @@ public class XmlUtilsTest extends AssertJUnit
         assertTrue(exceptionThrown);
     }
 
+    @Test
     public void testParseAndValidateXsltXmlDocument() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -185,6 +188,7 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, schema);
     }
 
+    @Test
     public void testParseAndValidateXsltXmlDocumentFails() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
