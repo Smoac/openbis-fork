@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 @Friend(toClasses =
     { IScreeningQuery.class, WellContent.class })
 @Test(groups =
-    { "db", "screening" })
+    { "db", "screening", "broken" })
 public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
 {
 
