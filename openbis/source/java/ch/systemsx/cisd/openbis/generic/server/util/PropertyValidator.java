@@ -399,14 +399,6 @@ public final class PropertyValidator implements IPropertyValueValidator
     private final static class XmlValidator implements IDataTypeValidator
     {
 
-        static final String JAXP_SCHEMA_LANGUAGE =
-                "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
-
-        static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
-
-        static final String JAXP_SCHEMA_SOURCE =
-                "http://java.sun.com/xml/jaxp/properties/schemaSource";
-
         private String xmlSchema;
 
         private String propertyTypeLabel;
@@ -441,7 +433,7 @@ public final class PropertyValidator implements IPropertyValueValidator
                 {
                     // instance document is invalid!
                     throw UserFailureException.fromTemplate(
-                            "Provided value:\n\n%s\n\ndoesn't validate against schema "
+                            "Provided value doesn't validate against schema "
                                     + "of property type '%s'. %s", value, propertyTypeLabel, e
                                     .getMessage());
                 }
