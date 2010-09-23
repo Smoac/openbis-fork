@@ -37,7 +37,6 @@ import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
  * 
  * @author Piotr Buczek
  */
-// FIXME 2010-13-09, Piotr Buczek: fix on hudson
 public class XmlUtilsTest extends AssertJUnit
 {
     public static String EXAMPLE_XML =
@@ -146,7 +145,6 @@ public class XmlUtilsTest extends AssertJUnit
         assertTrue(exceptionThrown);
     }
 
-    @Test(groups = "broken")
     public void testParseAndValidateXmlSchemaDocument() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -158,7 +156,6 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, schema);
     }
 
-    @Test(groups = "broken")
     public void testParseAndValidateXmlSchemaDocumentFails() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -177,7 +174,6 @@ public class XmlUtilsTest extends AssertJUnit
         assertTrue(exceptionThrown);
     }
 
-    @Test(groups = "broken")
     public void testParseAndValidateXsltXmlDocument() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -189,7 +185,6 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, schema);
     }
 
-    @Test(groups = "broken")
     public void testParseAndValidateXsltXmlDocumentFails() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
