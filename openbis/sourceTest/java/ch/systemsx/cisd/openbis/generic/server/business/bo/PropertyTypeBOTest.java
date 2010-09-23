@@ -269,6 +269,58 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     }
 
     @Test
+    public final void testDefineWithXmlPropertyWithSchema()
+    {
+        final DataTypePE dataTypePE = new DataTypePE();
+        dataTypePE.setCode(DataTypeCode.XML);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    one(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
+
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
+                    will(returnValue(dataTypePE));
+                }
+            });
+        final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
+        final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
+
+        propertyType.setSchema(XmlUtilsTest.EXAMPLE_SCHEMA);
+        propertyTypeBO.define(propertyType);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testDefineWithXmlPropertyWithXslt()
+    {
+        final DataTypePE dataTypePE = new DataTypePE();
+        dataTypePE.setCode(DataTypeCode.XML);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    one(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
+
+                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
+                    will(returnValue(dataTypePE));
+                }
+            });
+        final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
+        final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
+
+        propertyType.setTransformation(XmlUtilsTest.EXAMPLE_XSLT);
+        propertyTypeBO.define(propertyType);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public final void testDefineWithXmlPropertyWithSchemaFails()
     {
         final DataTypePE dataTypePE = new DataTypePE();
