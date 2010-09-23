@@ -434,7 +434,7 @@ public final class PropertyValidator implements IPropertyValueValidator
                     // instance document is invalid!
                     throw UserFailureException.fromTemplate(
                             "Provided value doesn't validate against schema "
-                                    + "of property type '%s'. %s", value, propertyTypeLabel, e
+                                    + "of property type '%s'. %s", propertyTypeLabel, e
                                     .getMessage());
                 }
             }

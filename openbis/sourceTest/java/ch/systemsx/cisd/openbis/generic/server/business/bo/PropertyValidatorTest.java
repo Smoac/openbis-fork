@@ -208,11 +208,11 @@ public final class PropertyValidatorTest extends AbstractBOTest
         } catch (final UserFailureException ex)
         {
             assertEquals(String.format(
-                    "Provided value:\n\n%s\n\ndoesn't validate against schema of property type '%s'. "
+                    "Provided value doesn't validate against schema of property type '%s'. "
                             + "cvc-complex-type.2.4.d: "
                             + "Invalid content was found starting with element 'footer'. "
-                            + "No child element is expected at this point.", propertyValue,
-                    propertyLabel), ex.getMessage());
+                            + "No child element is expected at this point.", propertyLabel), ex
+                    .getMessage());
         }
     }
 
