@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
  */
 public class GenericSampleViewerTest extends AbstractGWTTestCase
 {
-    private static final TechId WILDCARD_ID = TechId.createWildcardTechId();
 
     private static final String CISD_ID_PREFIX = "CISD:/CISD/";
 
@@ -63,6 +62,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
     private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092158673-1";
 
     private static final String INDIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159188-3";
+
+    private static final TechId WILDCARD_ID = TechId.createWildcardTechId();
 
     private static final String createSectionsTabPanelId()
     {

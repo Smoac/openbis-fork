@@ -42,10 +42,6 @@ public class CheckDataSet extends AbstractDefaultTestCommand implements
 
     private final PropertyCheckingManager propertyCheckingManager;
 
-    private CheckTableCommand checkChildrenTable;
-
-    private CheckTableCommand checkParentsTable;
-
     public CheckDataSet()
     {
         this(TechId.createWildcardTechId());
@@ -76,28 +72,16 @@ public class CheckDataSet extends AbstractDefaultTestCommand implements
     {
         propertyCheckingManager.assertPropertiesOf(DataSetPropertiesPanel.PROPERTIES_ID_PREFIX
                 + datasetId);
-
-        if (checkChildrenTable != null)
-        {
-            checkChildrenTable.execute();
-        }
-
-        if (checkParentsTable != null)
-        {
-            checkParentsTable.execute();
-        }
     }
 
-    public CheckTableCommand childrenTable()
+    public CheckTableCommand createChildrenTableCheck()
     {
-        checkChildrenTable = new CheckTableCommand(childrenGridId);
-        return checkChildrenTable;
+        return new CheckTableCommand(childrenGridId);
     }
 
-    public CheckTableCommand parentsTable()
+    public CheckTableCommand createParentsTableCheck()
     {
-        checkParentsTable = new CheckTableCommand(parentsGridId);
-        return checkParentsTable;
+        return new CheckTableCommand(parentsGridId);
     }
 
 }

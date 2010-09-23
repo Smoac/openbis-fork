@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSetChildrenAndParents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSetEditor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.FillSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -39,14 +39,25 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * 
  * @author Piotr Buczek
  */
-// TODO 2009-10-07, Piotr Buczek: add tests where sample/experiment is modified
-// FIXME 2010-07-12, Piotr Buczek: these tests fail on CI
-@DoNotRunWith(Platform.HtmlUnit)
 public class GenericDataSetEditorTest extends AbstractGWTTestCase
 {
     // private static final String DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE = "20081105092158673-1";
 
     private static final String DS_WITH_MANY_PARENTS_CODE = "20081105092259000-9";
+
+    private static final TechId WILDCARD_ID = TechId.createWildcardTechId();
+
+    private static final String createSectionsTabPanelId()
+    {
+        return GenericDataSetViewer.createId(WILDCARD_ID)
+                + SectionsPanel.SECTIONS_TAB_PANEL_ID_SUFFIX;
+    }
+
+    private static final String createSectionId(IDisplayTypeIDGenerator generator)
+    {
+        return TabContent.createId(WILDCARD_ID.toString(), generator)
+                + SectionsPanel.SECTION_ID_SUFFIX;
+    }
 
     public final void testEditDataSetWithParents()
     {
@@ -65,12 +76,18 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
         fillForm.addProperty(new PropertyField("comment", newCommentColumnValue));
         remoteConsole.prepare(fillForm);
         remoteConsole.prepare(new ShowUpdatedDataSet());
+
         final CheckDataSet checkDataSet = new CheckDataSet();
         checkDataSet.property("Comment").asProperty(newCommentColumnValue);
-        final CheckTableCommand checkParents = checkDataSet.parentsTable().expectedSize(2);
+        remoteConsole.prepare(checkDataSet);
+
+        activateTab(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION));
+        final CheckTableCommand checkParents =
+                checkDataSet.createParentsTableCheck().expectedSize(2);
         checkParents.expectedRow(new DataSetRow(newParentCode));
         checkParents.expectedRow(new DataSetRow(oldParentCode));
-        remoteConsole.prepare(checkDataSet);
+        remoteConsole.prepare(checkParents);
 
         launchTest();
     }
@@ -105,7 +122,6 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_SEARCH);
         remoteConsole.prepare(FillSearchCriteria.searchForDataSetWithCode(dataSetCode));
         remoteConsole.prepare(new ShowDataSet(dataSetCode));
-        remoteConsole.prepare(new ShowDataSetChildrenAndParents("HCS_IMAGE"));
         remoteConsole.prepare(new ShowDataSetEditor());
     }
 

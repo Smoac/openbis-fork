@@ -16,25 +16,23 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSetChildrenAndParents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.FillSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test {@link GenericDataSetViewer}.
  * 
  * @author Piotr Buczek
  */
-// TODO 2009-10-07, Piotr Buczek: ignore iframe trying to get connection with DSS
-// FIXME 2010-07-12, Piotr Buczek: these tests fail on CI
-@DoNotRunWith(Platform.HtmlUnit)
 public class GenericDataSetViewerTest extends AbstractGWTTestCase
 {
 
@@ -49,6 +47,20 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
     private static final String SAMPLE_TEST_1 = "CP-TEST-1";
 
     private static final String DS_TYPE_HCS_IMAGE = "HCS_IMAGE";
+
+    private static final TechId WILDCARD_ID = TechId.createWildcardTechId();
+
+    private static final String createSectionsTabPanelId()
+    {
+        return GenericDataSetViewer.createId(WILDCARD_ID)
+                + SectionsPanel.SECTIONS_TAB_PANEL_ID_SUFFIX;
+    }
+
+    private static final String createSectionId(IDisplayTypeIDGenerator generator)
+    {
+        return TabContent.createId(WILDCARD_ID.toString(), generator)
+                + SectionsPanel.SECTION_ID_SUFFIX;
+    }
 
     public final void testShowDataSetWithDetailsAndSample()
     {
@@ -73,8 +85,11 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
         // high level entity relationships
         checkDataSet.property("Experiment").asString(EXP_TEST_1);
         checkDataSet.property("Sample").asCode(SAMPLE_TEST_1);
-        checkDataSetRelationships(checkDataSet.parentsTable(), parentCodes);
-        checkDataSetRelationships(checkDataSet.childrenTable(), childCodes);
+
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION, checkDataSet
+                .createParentsTableCheck(), parentCodes);
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION, checkDataSet
+                .createChildrenTableCheck(), childCodes);
 
         remoteConsole.prepare(checkDataSet);
 
@@ -102,21 +117,27 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
         checkDataSet.property("Comment").asProperty("no comment");
         // high level entity relationships
         checkDataSet.property("Experiment").asString(EXP_REUSE_ID);
-        checkDataSetRelationships(checkDataSet.parentsTable(), parentCodes);
-        checkDataSetRelationships(checkDataSet.childrenTable(), childCodes);
+
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION, checkDataSet
+                .createParentsTableCheck(), parentCodes);
+        checkDataSetRelationships(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION, checkDataSet
+                .createChildrenTableCheck(), childCodes);
 
         remoteConsole.prepare(checkDataSet);
 
         launchTest();
     }
 
-    private void checkDataSetRelationships(CheckTableCommand checkTable, String[] expectedCodes)
+    private void checkDataSetRelationships(IDisplayTypeIDGenerator sectionIdGenerator,
+            CheckTableCommand checkTable, String[] expectedCodes)
     {
+        activateTab(createSectionsTabPanelId(), createSectionId(sectionIdGenerator));
         checkTable.expectedSize(expectedCodes.length);
         for (String code : expectedCodes)
         {
             checkTable.expectedRow(new DataSetRow(code));
         }
+        remoteConsole.prepare(checkTable);
     }
 
     private void prepareShowDataSet(String dataSetCode)
@@ -127,7 +148,6 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_SEARCH);
         remoteConsole.prepare(FillSearchCriteria.searchForDataSetWithCode(dataSetCode));
         remoteConsole.prepare(new ShowDataSet(dataSetCode));
-        remoteConsole.prepare(new ShowDataSetChildrenAndParents("HCS_IMAGE"));
     }
 
 }
