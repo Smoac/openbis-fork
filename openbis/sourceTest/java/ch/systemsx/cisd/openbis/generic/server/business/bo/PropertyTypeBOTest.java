@@ -241,24 +241,10 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testDefineWithXmlPropertyWithSchemaAndXslt()
     {
-        final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(DataTypeCode.XML);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
-                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
-                    will(returnValue(dataTypePE));
-                }
-            });
+        prepareDefineXmlPropertyType();
         final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
         final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
 
@@ -268,24 +254,10 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testDefineWithXmlPropertyWithSchema()
     {
-        final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(DataTypeCode.XML);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
-                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
-                    will(returnValue(dataTypePE));
-                }
-            });
+        prepareDefineXmlPropertyType();
         final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
         final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
 
@@ -297,21 +269,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     @Test
     public final void testDefineWithXmlPropertyWithXslt()
     {
-        final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(DataTypeCode.XML);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
-                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
-                    will(returnValue(dataTypePE));
-                }
-            });
+        prepareDefineXmlPropertyType();
         final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
         final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
 
@@ -323,21 +281,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     @Test
     public final void testDefineWithXmlPropertyWithSchemaFails()
     {
-        final DataTypePE dataTypePE = new DataTypePE();
-        dataTypePE.setCode(DataTypeCode.XML);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
-                    one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.XML);
-                    will(returnValue(dataTypePE));
-                }
-            });
+        prepareDefineXmlPropertyType();
         final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
         final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
 
@@ -360,6 +304,29 @@ public final class PropertyTypeBOTest extends AbstractBOTest
     @Test
     public final void testDefineWithXmlPropertyWithXsltFails()
     {
+        prepareDefineXmlPropertyType();
+        final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
+        final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
+
+        propertyType.setTransformation(XmlUtilsTest.EXAMPLE_INCORRECT_XSLT);
+
+        boolean exceptionThrown = false;
+        try
+        {
+            propertyTypeBO.define(propertyType);
+        } catch (UserFailureException ex)
+        {
+            assertTrue("Unexpected exception: " + ex.getMessage(), ex.getMessage().startsWith(
+                    "Provided XSLT isn't valid. cvc-elt.1: "
+                            + "Cannot find the declaration of element 'xsl:styleshet'."));
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
+        context.assertIsSatisfied();
+    }
+
+    private void prepareDefineXmlPropertyType()
+    {
         final DataTypePE dataTypePE = new DataTypePE();
         dataTypePE.setCode(DataTypeCode.XML);
         context.checking(new Expectations()
@@ -375,22 +342,5 @@ public final class PropertyTypeBOTest extends AbstractBOTest
                     will(returnValue(dataTypePE));
                 }
             });
-        final PropertyTypeBO propertyTypeBO = createPropertyTypeBO();
-        final PropertyType propertyType = createPropertyType(DataTypeCode.XML);
-
-        propertyType.setTransformation(XmlUtilsTest.EXAMPLE_INCORRECT_XSLT);
-        boolean exceptionThrown = false;
-        try
-        {
-            propertyTypeBO.define(propertyType);
-        } catch (UserFailureException ex)
-        {
-            assertTrue("Unexpected exception: " + ex.getMessage(), ex.getMessage().startsWith(
-                    "Provided XSLT isn't valid. cvc-elt.1: "
-                            + "Cannot find the declaration of element 'xsl:styleshet'."));
-            exceptionThrown = true;
-        }
-        assertTrue(exceptionThrown);
-        context.assertIsSatisfied();
     }
 }
