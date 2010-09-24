@@ -22,6 +22,7 @@ import java.net.URL;
 import javax.xml.validation.Schema;
 
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -103,6 +104,12 @@ public class XmlUtilsTest extends AssertJUnit
 
     public static String EXAMPLE_INCORRECT_XSLT =
             EXAMPLE_XSLT.replaceAll("xsl:stylesheet", "xsl:styleshet");
+
+    @BeforeClass
+    public void outputJaxpInfo()
+    {
+        System.err.println(XMLInfraStructure.getJaxpImplementationInfo());
+    }
 
     @Test
     public void testParseXmlDocument()

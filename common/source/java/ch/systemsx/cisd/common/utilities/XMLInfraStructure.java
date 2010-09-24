@@ -20,16 +20,21 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
+import java.security.CodeSource;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import javax.xml.xpath.XPathFactory;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
@@ -202,6 +207,40 @@ public class XMLInfraStructure
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
+    }
+
+    // for debugging
+
+    public static String getJaxpImplementationInfo()
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(getJaxpImplementationInfo("DocumentBuilderFactory", DocumentBuilderFactory
+                .newInstance().getClass()));
+        sb.append("\n");
+        sb.append(getJaxpImplementationInfo("XPathFactory", XPathFactory.newInstance().getClass()));
+        sb.append("\n");
+        sb.append(getJaxpImplementationInfo("TransformerFactory", TransformerFactory.newInstance()
+                .getClass()));
+        sb.append("\n");
+        sb.append(getJaxpImplementationInfo("SAXParserFactory", SAXParserFactory.newInstance()
+                .getClass()));
+        sb.append("\n");
+        sb.append(getJaxpImplementationInfo("SchemaFactory", SCHEMA_FACTORY.getClass()));
+        sb.append("\n");
+        return sb.toString();
+    }
+
+    private static String getJaxpImplementationInfo(String componentName, Class<?> componentClass)
+    {
+        CodeSource source = componentClass.getProtectionDomain().getCodeSource();
+        Package p = componentClass.getPackage();
+
+        return MessageFormat
+                .format(
+                        "{0} loaded from: {1},\n\timpl: {2}\n\tpackage: {3},\n\timplVendor: {4},\n\tspecVer: {5},\n\timplVer: {6}",
+                        componentName, source == null ? "Java Runtime" : source.getLocation(),
+                        componentClass.getName(), p.getName(), p.getImplementationVendor(), p
+                                .getSpecificationVersion(), p.getImplementationVersion());
     }
 
 }

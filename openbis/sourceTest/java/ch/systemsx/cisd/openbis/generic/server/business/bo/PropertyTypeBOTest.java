@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.util.XmlUtilsTest;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -81,6 +83,12 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         assertEquals(propertyType.getDescription(), propertyTypePE.getDescription());
         assertEquals(propertyType.getDataType().getCode().name(), propertyTypePE.getType()
                 .getCode().name());
+    }
+
+    @BeforeClass
+    public void outputJaxpInfo()
+    {
+        System.err.println(XMLInfraStructure.getJaxpImplementationInfo());
     }
 
     @Test
