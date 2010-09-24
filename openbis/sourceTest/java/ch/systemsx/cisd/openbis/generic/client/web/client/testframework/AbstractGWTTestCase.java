@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ActivateTab;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -182,13 +183,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     /** activate the specified tab */
     protected final void activateTab(final String tabPanelId, final String tabItemId)
     {
-        remoteConsole.prepare(new AbstractDefaultTestCommand()
-            {
-                public void execute()
-                {
-                    GWTTestUtil.selectTabItemWithId(tabPanelId, tabItemId);
-                }
-            });
+        remoteConsole.prepare(new ActivateTab(tabPanelId, tabItemId));
     }
 
     /**

@@ -26,10 +26,14 @@ import com.google.gwt.http.client.Response;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitForAllActiveCallbacksFinish;
@@ -46,20 +50,37 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 
     private static final String SIRNA_HCS = "SIRNA_HCS";
 
-    private void prepareShowExperiment(final String projectName, final String experimentTypeName,
-            final String experimentCode)
+    private static final TechId WILDCARD_ID = TechId.createWildcardTechId();
+
+    private static final String createSectionsTabPanelId()
+    {
+        return GenericExperimentViewer.createId(WILDCARD_ID)
+                + SectionsPanel.SECTIONS_TAB_PANEL_ID_SUFFIX;
+    }
+
+    private static final String createSectionId(IDisplayTypeIDGenerator generator)
+    {
+        return TabContent.createId(WILDCARD_ID.toString(), generator)
+                + SectionsPanel.SECTION_ID_SUFFIX;
+    }
+
+    private void prepareShowExperimentWithAttachments(final String projectName,
+            final String experimentTypeName, final String experimentCode)
     {
         loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
         remoteConsole.prepare(new ListExperiments(projectName, experimentTypeName));
         remoteConsole.prepare(new ShowExperiment(experimentCode));
+        activateTab(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.ATTACHMENT_SECTION));
     }
 
     public final void testDownloadAttachment()
     {
-        prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
+        prepareShowExperimentWithAttachments(DEFAULT, SIRNA_HCS, EXP_REUSE);
         //
         // Assumption: technicalId(CISD:/CISD/DEFAULT/EXP_REUSE) = 8
         //
+
         remoteConsole.prepare(new DownloadAttachment("cellPlates.txt", new TechId(8L)));
 
         // this callback will be used when the attempt to open an URL will occur
