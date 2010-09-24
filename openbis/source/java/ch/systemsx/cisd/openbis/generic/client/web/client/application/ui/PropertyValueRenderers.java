@@ -277,6 +277,8 @@ public final class PropertyValueRenderers
                     return createHyperlink(object);
                 case MULTILINE_VARCHAR:
                     return createMultilineHtmlWidget(object);
+                case XML:
+                    return createXmlWidget(object);
                 default:
                     return createHtmlWidget(object);
             }
@@ -314,6 +316,13 @@ public final class PropertyValueRenderers
 
         private Widget createMultilineHtmlWidget(IEntityProperty object)
         {
+            return MultilineStringPropertyValueRenderer
+                    .createMultilineHtmlWidget(object.getValue());
+        }
+
+        private Widget createXmlWidget(IEntityProperty object)
+        {
+            // TODO 2010-09-24, Piotr Buczek: use XSLT
             return MultilineStringPropertyValueRenderer
                     .createMultilineHtmlWidget(object.getValue());
         }
