@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -39,6 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * 
  * @author Piotr Buczek
  */
+@DoNotRunWith(Platform.HtmlUnit)
 public class GenericDataSetEditorTest extends AbstractGWTTestCase
 {
     // private static final String DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE = "20081105092158673-1";
