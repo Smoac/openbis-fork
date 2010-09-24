@@ -36,12 +36,6 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     private final PropertyCheckingManager propertyCheckingManager;
 
-    private CheckTableCommand attachmentsSection;
-
-    private CheckTableCommand samplesSection;
-
-    private CheckTableCommand dataSetsSection;
-
     public CheckExperiment()
     {
         this(TechId.createWildcardTechId());
@@ -68,40 +62,22 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     {
         propertyCheckingManager.assertPropertiesOf(ExperimentPropertiesPanel.PROPERTIES_ID_PREFIX
                 + experimentId);
-
-        if (samplesSection != null)
-        {
-            samplesSection.execute();
-        }
-        if (dataSetsSection != null)
-        {
-            dataSetsSection.execute();
-        }
-        if (attachmentsSection != null)
-        {
-            attachmentsSection.execute();
-        }
     }
 
-    public CheckTableCommand attachmentsTable()
+    public CheckTableCommand createAttachmentsTableCheck()
     {
-        attachmentsSection =
-                new CheckTableCommand(AttachmentBrowser.createGridId(experimentId,
-                        AttachmentHolderKind.EXPERIMENT));
-        return attachmentsSection;
+        return new CheckTableCommand(AttachmentBrowser.createGridId(experimentId,
+                AttachmentHolderKind.EXPERIMENT));
     }
 
-    public CheckTableCommand sampleTable()
+    public CheckTableCommand createSampleTableCheck()
     {
-        samplesSection = new CheckTableCommand(ExperimentSamplesSection.createGridId(experimentId));
-        return samplesSection;
+        return new CheckTableCommand(ExperimentSamplesSection.createGridId(experimentId));
     }
 
-    public CheckTableCommand dataSetTable()
+    public CheckTableCommand createDataSetTableCheck()
     {
-        dataSetsSection =
-                new CheckTableCommand(ExperimentDataSetBrowser.createGridId(experimentId));
-        return dataSetsSection;
+        return new CheckTableCommand(ExperimentDataSetBrowser.createGridId(experimentId));
     }
 
 }
