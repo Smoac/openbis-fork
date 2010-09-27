@@ -47,22 +47,29 @@ class SampleProvider implements ISampleProvider
     
     public void loadByExperimentID(TechId experimentID)
     {
+        samplesByPermIDs = new HashMap<String, Sample>();
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(experimentID);
         ISampleLister lister = boFactory.createSampleLister(session);
         ListOrSearchSampleCriteria criteria2 = new ListOrSearchSampleCriteria(criteria);
         criteria2.setEnrichDependentSamplesWithProperties(true);
-        List<Sample> list = lister.list(criteria2);
-        samplesByPermIDs = new HashMap<String, Sample>();
+        gatherSamplesAndAncestorsRecursively(lister, criteria2);
+    }
+
+    private void gatherSamplesAndAncestorsRecursively(ISampleLister lister,
+            ListOrSearchSampleCriteria criteria)
+    {
+        List<Sample> list = lister.list(criteria);
         for (Sample sample : list)
         {
-            for (Sample s = sample; s != null; s = s.getGeneratedFrom())
-            {
-                samplesByPermIDs.put(s.getPermId(), s);
-            }
+            samplesByPermIDs.put(sample.getPermId(), sample);
+            ListSampleCriteria criteria2 =
+                    ListSampleCriteria.createForChild(new TechId(sample.getId()));
+            ListOrSearchSampleCriteria criteria3 = new ListOrSearchSampleCriteria(criteria2);
+            criteria3.setEnrichDependentSamplesWithProperties(true);
+            gatherSamplesAndAncestorsRecursively(lister, criteria3);
         }
-
     }
-    
+
     public Sample getSample(String permID)
     {
         Sample sample = samplesByPermIDs.get(permID);

@@ -43,6 +43,33 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public class SampleProviderTest extends AssertJUnit
 {
+    private static final class MatcherOfSampleCriteriaByChildID extends
+            BaseMatcher<ListOrSearchSampleCriteria>
+    {
+        private final Long childID;
+
+        private MatcherOfSampleCriteriaByChildID(Long childID)
+        {
+            this.childID = childID;
+        }
+
+        public boolean matches(Object item)
+        {
+            if (item instanceof ListOrSearchSampleCriteria)
+            {
+                ListOrSearchSampleCriteria criteria = (ListOrSearchSampleCriteria) item;
+                assertEquals(true, criteria.isEnrichDependentSamplesWithProperties());
+                assertEquals(childID, criteria.getChildSampleId().getId());
+                return true;
+            }
+            return false;
+        }
+
+        public void describeTo(Description description)
+        {
+        }
+    }
+
     private static final Principal PRINCIPAL =
             new Principal(CommonTestUtils.USER_ID, "john", "doe", "j@d");
     private static final String SESSION_TOKEN = "session-token";
@@ -77,6 +104,7 @@ public class SampleProviderTest extends AssertJUnit
     {
         final Sample s1 = createSample("abc");
         final Sample s2 = createSample("123");
+        final Sample s3 = createSample("parent-of-123");
         context.checking(new Expectations()
             {
                 {
@@ -102,12 +130,22 @@ public class SampleProviderTest extends AssertJUnit
                             }
                         }));
                     will(returnValue(Arrays.asList(s1, s2)));
+                    
+                    one(sampleLister).list(with(new MatcherOfSampleCriteriaByChildID(s1.getId())));
+                    will(returnValue(Arrays.asList()));
+                    
+                    one(sampleLister).list(with(new MatcherOfSampleCriteriaByChildID(s2.getId())));
+                    will(returnValue(Arrays.asList(s3)));
+                    
+                    one(sampleLister).list(with(new MatcherOfSampleCriteriaByChildID(s3.getId())));
+                    will(returnValue(Arrays.asList()));
                 }
             });
         
         sampleProvider.loadByExperimentID(EXPERIMENT_ID);
-        assertSame(s1, sampleProvider.getSample("abc"));
-        assertSame(s2, sampleProvider.getSample("123"));
+        assertSame(s1, sampleProvider.getSample(s1.getPermId()));
+        assertSame(s2, sampleProvider.getSample(s2.getPermId()));
+        assertSame(s3, sampleProvider.getSample(s3.getPermId()));
         try
         {
             sampleProvider.getSample("42");
@@ -122,6 +160,7 @@ public class SampleProviderTest extends AssertJUnit
     
     private Sample createSample(String samplePermID){
         Sample sample = new Sample();
+        sample.setId((long) samplePermID.hashCode());
         sample.setPermId(samplePermID);
         return sample;
     }
