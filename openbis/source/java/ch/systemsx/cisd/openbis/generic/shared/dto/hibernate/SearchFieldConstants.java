@@ -64,4 +64,8 @@ public final class SearchFieldConstants
 
     public static final String FILE_NAME = "name";
 
+    public static final String FILE_TITLE = "title";
+
+    public static final String FILE_DESCRIPTION = "description";
+
 }
