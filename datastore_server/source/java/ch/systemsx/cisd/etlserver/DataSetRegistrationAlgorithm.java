@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -53,6 +54,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 public abstract class DataSetRegistrationAlgorithm
 {
+    @Private
+    public static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
+    
+    @Private
+    static final String DATA_SET_REGISTRATION_FAILURE_TEMPLATE =
+        "Registration of data set '%s' failed.";
+    
+    @Private
+    static final String DATA_SET_STORAGE_FAILURE_TEMPLATE = "Storing data set '%s' failed.";
+    
+    @Private
+    static final String SUCCESSFULLY_REGISTERED = "Successfully registered data set: [";
+    
     protected final IDelegatedActionWithResult<Boolean> cleanAftrewardsAction;
 
     protected final File incomingDataSetFile;
@@ -72,7 +86,7 @@ public abstract class DataSetRegistrationAlgorithm
     public DataSetRegistrationAlgorithm(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction)
     {
-        this.errorMessageTemplate = TransferredDataSetHandler.DATA_SET_STORAGE_FAILURE_TEMPLATE;
+        this.errorMessageTemplate = DataSetRegistrationAlgorithm.DATA_SET_STORAGE_FAILURE_TEMPLATE;
         this.incomingDataSetFile = incomingDataSetFile;
         this.cleanAftrewardsAction = cleanAftrewardsAction;
         this.dataSetInformation = extractDataSetInformation(incomingDataSetFile);
@@ -222,7 +236,7 @@ public abstract class DataSetRegistrationAlgorithm
             try
             {
                 errorMessageTemplate =
-                        TransferredDataSetHandler.DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
+                        DataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
                 plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
                 clean();
             } finally
@@ -328,7 +342,13 @@ public abstract class DataSetRegistrationAlgorithm
     private final String getSuccessRegistrationMessage()
     {
         final StringBuilder buffer = new StringBuilder();
-        buffer.append(TransferredDataSetHandler.SUCCESSFULLY_REGISTERED);
+        buffer.append(DataSetRegistrationAlgorithm.SUCCESSFULLY_REGISTERED);
+        String userID = dataSetInformation.getUploadingUserIdOrNull();
+        String userEMail = dataSetInformation.tryGetUploadingUserEmail();
+        if (userID != null || userEMail != null)
+        {
+            appendNameAndObject(buffer, "User", userID == null ? userEMail : userID);
+        }
         appendNameAndObject(buffer, "Data Set Code", dataSetInformation.getDataSetCode());
         appendNameAndObject(buffer, "Data Set Type", dataSetType.getCode());
         appendNameAndObject(buffer, "Experiment Identifier", dataSetInformation

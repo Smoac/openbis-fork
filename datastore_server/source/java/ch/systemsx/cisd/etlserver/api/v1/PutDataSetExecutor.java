@@ -50,7 +50,6 @@ import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -499,7 +498,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         @Override
         protected String getEmailSubjectTemplate()
         {
-            return TransferredDataSetHandler.EMAIL_SUBJECT_TEMPLATE;
+            return DataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
         }
 
         @Override

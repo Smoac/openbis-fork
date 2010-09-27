@@ -26,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -57,19 +56,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     static final String TARGET_NOT_RELATIVE_TO_STORE_ROOT =
             "Target path '%s' is not relative to store root directory '%s'.";
-
-    @Private
-    static final String DATA_SET_STORAGE_FAILURE_TEMPLATE = "Storing data set '%s' failed.";
-
-    @Private
-    static final String DATA_SET_REGISTRATION_FAILURE_TEMPLATE =
-            "Registration of data set '%s' failed.";
-
-    @Private
-    static final String SUCCESSFULLY_REGISTERED = "Successfully registered data set: [";
-
-    @Private
-    public static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
 
     static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, TransferredDataSetHandler.class);
@@ -452,7 +438,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         @Override
         protected String getEmailSubjectTemplate()
         {
-            return EMAIL_SUBJECT_TEMPLATE;
+            return DataSetRegistrationAlgorithm.EMAIL_SUBJECT_TEMPLATE;
         }
 
         @Override
