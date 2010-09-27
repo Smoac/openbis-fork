@@ -377,7 +377,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         int row = (tile / tileColumnsNum) + 1;
         int col = (tile % tileColumnsNum) + 1;
-        return new Location(row, col);
+        return new Location(col, row);
     }
 
     private static Location asLocation(WellPosition wellPosition)
