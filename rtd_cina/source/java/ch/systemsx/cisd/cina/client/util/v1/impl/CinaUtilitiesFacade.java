@@ -147,8 +147,8 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         return state.getSessionToken();
     }
 
-    public List<Sample> searchForSamples(SearchCriteria searchCriteria) throws IllegalStateException,
-            EnvironmentFailureException
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria)
+            throws IllegalStateException, EnvironmentFailureException
     {
         return state.searchForSamples(searchCriteria);
     }
@@ -176,8 +176,8 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
         throw new IllegalStateException("Please log in");
     }
 
-    public List<Sample> searchForSamples(SearchCriteria searchCriteria) throws IllegalStateException,
-            EnvironmentFailureException
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria)
+            throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
@@ -273,9 +273,16 @@ class AuthenticatedState extends AbstractCinaFacadeState
     }
 
     @Override
-    public List<Sample> searchForSamples(SearchCriteria searchCriteria) throws IllegalStateException,
-            EnvironmentFailureException
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria)
+            throws IllegalStateException, EnvironmentFailureException
     {
+        // This functionality has only been supported since version 1.1
+        int minorVersion = service.getMinorVersion();
+        if (minorVersion < 1)
+        {
+            throw new EnvironmentFailureException("Server does not support this feature.");
+        }
+
         return service.searchForSamples(sessionToken, searchCriteria);
     }
 

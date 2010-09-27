@@ -83,7 +83,7 @@ public interface IGeneralInformationService extends IRpcService
             String sessionToken, String databaseInstanceCodeOrNull);
 
     /**
-     * Return all samples that match the search criteria.
+     * Return all samples that match the search criteria. Available since minor version 1.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
      */
@@ -92,7 +92,7 @@ public interface IGeneralInformationService extends IRpcService
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
-     * Return all data sets attached to the given samples.
+     * Return all data sets attached to the given samples. Available since minor version 1.
      * 
      * @param samples The samples for which we return attached data sets.
      */

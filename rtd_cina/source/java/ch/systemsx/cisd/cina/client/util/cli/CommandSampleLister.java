@@ -42,7 +42,7 @@ public class CommandSampleLister extends AbstractCommand<GlobalArguments>
         {
             super(command);
         }
-
+        
         @Override
         protected int doExecute(ICinaUtilities component)
         {
