@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
  */
 public class CommandPutTest extends AbstractFileSystemTestCase
 {
-    private final class MockCommandLs extends CommandPut
+    private final class MockCommandPut extends CommandPut
     {
         @Override
         protected IDssComponent login(GlobalArguments arguments)
@@ -108,7 +108,7 @@ public class CommandPutTest extends AbstractFileSystemTestCase
                     one(dssComponent).logout();
                 }
             });
-        ICommand command = new MockCommandLs();
+        ICommand command = new MockCommandPut();
         
         int exitCode =
                 command.execute(new String[]

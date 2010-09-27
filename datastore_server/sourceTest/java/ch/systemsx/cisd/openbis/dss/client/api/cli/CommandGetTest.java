@@ -28,13 +28,11 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CommandGetTest extends AssertJUnit
 {
-    private final class MockCommandLs extends CommandGet
+    private final class MockCommandGet extends CommandGet
     {
         @Override
         protected IDssComponent login(GlobalArguments arguments)
@@ -42,9 +40,11 @@ public class CommandGetTest extends AssertJUnit
             return dssComponent;
         }
     }
-    
+
     private Mockery context;
+
     private IDssComponent dssComponent;
+
     private IDataSetDss dataSet;
 
     @BeforeMethod
@@ -71,18 +71,18 @@ public class CommandGetTest extends AssertJUnit
                 {
                     one(dssComponent).getDataSet("ds1");
                     will(returnValue(dataSet));
-                    
+
                     one(dataSet).listFiles("root-dir", false);
                     will(returnValue(new FileInfoDssDTO[] {}));
-                    
+
                     one(dssComponent).logout();
                 }
             });
-        ICommand command = new MockCommandLs();
-        
+        ICommand command = new MockCommandGet();
+
         int exitCode = command.execute(new String[]
             { "-s", "url", "-u", "user", "-p", "pswd", "ds1", "root-dir" });
-        
+
         assertEquals(0, exitCode);
         context.assertIsSatisfied();
     }
