@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public class GenericExperimentViewer extends AbstractViewer<Experiment> implements
+public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Experiment> implements
         IDatabaseModificationObserver
 {
     private static final String GENERIC_EXPERIMENT_VIEWER = "generic-experiment-viewer";
@@ -147,9 +147,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
 
         this.propertiesPanelOrNull = new ExperimentPropertiesPanel(experiment, viewContext, this);
         add(propertiesPanelOrNull, createLeftBorderLayoutData());
-        final String displayIdSuffix = this.experimentType.getCode();
-
-        configureLeftPanel(displayIdSuffix);
+        configureLeftPanel(propertiesPanelOrNull);
 
         final Html loadingLabel = new Html(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         add(loadingLabel, createRightBorderLayoutData());
@@ -162,27 +160,12 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
                 {
                     remove(loadingLabel);
                     GenericExperimentViewer.this.rightPanelSectionsOrNull = createRightPanel();
-                    SectionsPanel rightPanel =
-                            layoutSections(rightPanelSectionsOrNull, displayIdSuffix);
+                    SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
                     moduleSectionManager.initialize(rightPanel, experiment);
                     add(rightPanel, createRightBorderLayoutData());
                     layout();
                 }
             });
-    }
-
-    /**
-     * Adds listeners and sets up the initial left panel state.
-     */
-    private void configureLeftPanel(String displayIdSuffix)
-    {
-        if (isLeftPanelInitiallyCollapsed(displayIdSuffix))
-        {
-            ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
-        }
-
-        // Add the listeners after configuring the panel, so as not to cause confusion
-        addLeftPanelCollapseExpandListeners(displayIdSuffix);
     }
 
     public static final String createId(final IIdAndCodeHolder identifiable)
@@ -263,8 +246,7 @@ public class GenericExperimentViewer extends AbstractViewer<Experiment> implemen
             };
     }
 
-    private SectionsPanel layoutSections(List<DisposableTabContent> allPanels,
-            String displayIdSuffix)
+    private SectionsPanel layoutSections(List<DisposableTabContent> allPanels)
     {
         final SectionsPanel container =
                 new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + experimentId);

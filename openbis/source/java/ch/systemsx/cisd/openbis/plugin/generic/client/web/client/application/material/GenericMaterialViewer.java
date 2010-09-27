@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
@@ -67,8 +67,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-abstract public class GenericMaterialViewer extends AbstractViewer<Material> implements
-        IDatabaseModificationObserver
+abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSplit<Material>
+        implements IDatabaseModificationObserver
 {
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "material-properties-section_";
@@ -80,8 +80,6 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     private PropertyGrid propertyGrid;
-
-    private String displayIdSuffix;
 
     private final IViewContext<?> viewContext;
 
@@ -127,8 +125,6 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
 
     private final Component createRightPanel(Material material)
     {
-        displayIdSuffix = material.getMaterialType().getCode();
-
         final SectionsPanel container =
                 new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + material.getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER, displayIdSuffix);
@@ -235,20 +231,6 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
         propertyGrid.setProperties(properties);
     }
 
-    private void configureLeftPanel()
-    {
-        // displayIdSuffix must be initialized first -- this happens in createRightPanel, so that
-        // method must be called before this
-        if (isLeftPanelInitiallyCollapsed(displayIdSuffix))
-        {
-            viewContext.log(displayIdSuffix + " Initially Collapsed");
-            ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
-        }
-
-        // Add the listeners after configuring the panel, so as not to cause confusion
-        addLeftPanelCollapseExpandListeners(displayIdSuffix);
-    }
-
     private static final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
     {
         private final GenericMaterialViewer viewer;
@@ -268,10 +250,11 @@ abstract public class GenericMaterialViewer extends AbstractViewer<Material> imp
             // Left panel
             final Component leftPanel = viewer.createLeftPanel(result);
             viewer.add(leftPanel, createLeftBorderLayoutData());
+            viewer.configureLeftPanel(leftPanel);
             // Right panel
             final Component rightPanel = viewer.createRightPanel(result);
             viewer.add(rightPanel, createRightBorderLayoutData());
-            viewer.configureLeftPanel();
+
             viewer.layout();
         }
 

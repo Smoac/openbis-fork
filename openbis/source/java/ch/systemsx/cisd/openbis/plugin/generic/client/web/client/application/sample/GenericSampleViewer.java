@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
@@ -81,7 +81,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-abstract public class GenericSampleViewer extends AbstractViewer<Sample> implements
+abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSplit<Sample> implements
         IDatabaseModificationObserver
 {
     private static final String GENERIC_SAMPLE_VIEWER = "generic-sample-viewer";
@@ -111,8 +111,6 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
     private DisposableTabContent dataSetSection;
 
     private PropertyGrid propertyGrid;
-
-    private String displayIdSuffix;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -181,7 +179,6 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
     private final Component createRightPanel(SampleParentWithDerived sampleGeneration)
     {
         final Sample generator = sampleGeneration.getParent();
-        displayIdSuffix = generator.getSampleType().getCode();
 
         final SectionsPanel container =
                 new SectionsPanel(viewContext.getCommonViewContext(), getId());
@@ -361,26 +358,6 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
         loadSampleGenerationInfo(sampleId, callback);
     }
 
-    /**
-     * Adds listeners and sets up the initial left panel state.
-     * <p>
-     * The method {@link createRightPanel} must be called before this because it initializes state
-     * used in this method.
-     */
-    private void configureLeftPanel()
-    {
-        // displayIdSuffix must be initialized first -- this happens in createRightPanel, so that
-        // method must be called before this
-        if (isLeftPanelInitiallyCollapsed(displayIdSuffix))
-        {
-            viewContext.log(displayIdSuffix + " Initially Collapsed");
-            ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
-        }
-
-        // Add the listeners after configuring the panel, so as not to cause confusion
-        addLeftPanelCollapseExpandListeners(displayIdSuffix);
-    }
-
     //
     // Helper classes
     //
@@ -453,13 +430,17 @@ abstract public class GenericSampleViewer extends AbstractViewer<Sample> impleme
             // Left panel
             final Component leftPanel = genericSampleViewer.createLeftPanel(result);
             genericSampleViewer.add(leftPanel, createLeftBorderLayoutData());
+            genericSampleViewer.configureLeftPanel(leftPanel);
             // Right panel
             final Component rightPanel = genericSampleViewer.createRightPanel(result);
             genericSampleViewer.add(rightPanel, createRightBorderLayoutData());
 
-            genericSampleViewer.configureLeftPanel();
+            // ((BorderLayoutData) leftPanel.getLayoutData()).setSize(oldSize + 100);
+            // float newSize = ((BorderLayoutData) leftPanel.getLayoutData()).getSize();
+            // viewContext.log("size: " + newSize);
 
             genericSampleViewer.layout();
+            // viewContext.log("size: " + ((BorderLayoutData) leftPanel.getLayoutData()).getSize());
         }
 
     }

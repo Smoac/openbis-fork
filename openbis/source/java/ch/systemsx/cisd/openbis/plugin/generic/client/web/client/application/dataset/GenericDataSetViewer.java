@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -60,8 +60,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> implements
-        IDatabaseModificationObserver
+abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSplit<ExternalData>
+        implements IDatabaseModificationObserver
 {
     public static final String PREFIX = "generic-dataset-viewer_";
 
@@ -72,9 +72,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     protected final TechId datasetId;
 
     private final IViewContext<?> viewContext;
-
-    // A suffix used to designate widgets owned by this panel
-    private String displayIdSuffix;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -170,7 +167,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     {
         final SectionsPanel container =
                 new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + dataset.getId());
-        displayIdSuffix = dataset.getDataSetType().getCode();
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER, displayIdSuffix);
 
         List<TabContent> additionalPanels = createAdditionalSectionPanels();
@@ -193,25 +189,6 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         // container.layout();
         moduleSectionManager.initialize(container, dataset);
         return container;
-    }
-
-    /**
-     * Adds listeners and sets up the initial left panel state.
-     * <p>
-     * The method {@link createRightPanel} must be called before this because it initializes state
-     * used in this method.
-     */
-    private void configureLeftPanel()
-    {
-        // displayIdSuffix must be initialized first -- this happens in createRightPanel, so that
-        // method must be called before this
-        if (isLeftPanelInitiallyCollapsed(displayIdSuffix))
-        {
-            ((BorderLayout) getLayout()).collapse(com.extjs.gxt.ui.client.Style.LayoutRegion.WEST);
-        }
-
-        // Add the listeners after configuring the panel, so as not to cause confusion
-        addLeftPanelCollapseExpandListeners(displayIdSuffix);
     }
 
     private static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
@@ -247,11 +224,10 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
             // Left panel
             final Component leftPanel = genericDataSetViewer.createLeftPanel(result);
             genericDataSetViewer.add(leftPanel, createLeftBorderLayoutData());
+            genericDataSetViewer.configureLeftPanel(leftPanel);
             // Right panel
             final Component rightPanel = genericDataSetViewer.createRightPanel(result);
             genericDataSetViewer.add(rightPanel, createRightBorderLayoutData());
-
-            genericDataSetViewer.configureLeftPanel();
 
             genericDataSetViewer.layout();
 

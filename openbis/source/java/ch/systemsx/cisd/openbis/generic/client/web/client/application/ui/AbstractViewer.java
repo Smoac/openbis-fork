@@ -22,7 +22,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.BorderLayoutEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -61,13 +60,16 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     private final List<Button> toolBarButtons = new ArrayList<Button>();
 
-    private final IViewContext<?> viewContext;
-
     private LabelToolItem titleLabel;
+
+    protected final IViewContext<?> viewContext;
 
     protected D originalData;
 
     protected final ModulesSectionsManager moduleSectionManager = new ModulesSectionsManager();
+
+    // A suffix used to designate widgets owned by this panel
+    protected String displayIdSuffix;
 
     public AbstractViewer(final IViewContext<?> viewContext, String id)
     {
@@ -174,6 +176,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     protected void updateOriginalData(D newData)
     {
         this.originalData = newData;
+        this.displayIdSuffix = newData.getEntityKind() + "_" + newData.getEntityType().getCode();
         updateTitle(getOriginalDataDescription());
         setToolBarButtonsEnabled(true);
     }
@@ -200,18 +203,6 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                 + originalData.getEntityType().getCode() + "]";
     }
 
-    protected final static BorderLayoutData createLeftBorderLayoutData()
-    {
-        BorderLayoutData layoutData = BorderLayoutDataFactory.create(LayoutRegion.WEST, 300);
-        layoutData.setCollapsible(true);
-        return layoutData;
-    }
-
-    protected final static BorderLayoutData createRightBorderLayoutData()
-    {
-        return createBorderLayoutData(LayoutRegion.CENTER);
-    }
-
     protected final static BorderLayoutData createBorderLayoutData(LayoutRegion region)
     {
         return BorderLayoutDataFactory.create(region);
@@ -234,41 +225,6 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         {
             fireEvent(AppEvents.CloseViewer);
         }
-    }
-
-    protected final static String LEFT_PANEL_PREFIX = "left_panel_";
-
-    protected void addLeftPanelCollapseExpandListeners(final String displayIdSuffix)
-    {
-        final String panelId = LEFT_PANEL_PREFIX + displayIdSuffix;
-        getLayout().addListener(Events.Collapse, new Listener<BorderLayoutEvent>()
-            {
-                public void handleEvent(BorderLayoutEvent be)
-                {
-                    viewContext.log(panelId + " Collapsed");
-                    viewContext.getDisplaySettingsManager().updatePanelCollapsedSetting(panelId,
-                            Boolean.TRUE);
-                }
-
-            });
-        getLayout().addListener(Events.Expand, new Listener<BorderLayoutEvent>()
-            {
-                public void handleEvent(BorderLayoutEvent be)
-                {
-                    viewContext.log(panelId + " Expand");
-                    viewContext.getDisplaySettingsManager().updatePanelCollapsedSetting(panelId,
-                            Boolean.FALSE);
-                }
-
-            });
-    }
-
-    protected boolean isLeftPanelInitiallyCollapsed(final String displayIdSuffix)
-    {
-        final String panelId = LEFT_PANEL_PREFIX + displayIdSuffix;
-        Boolean collapsedOrNull =
-                viewContext.getDisplaySettingsManager().tryGetPanelCollapsedSetting(panelId);
-        return collapsedOrNull == null ? false : collapsedOrNull.booleanValue();
     }
 
     public void notify(List<IModule> modules)

@@ -58,6 +58,8 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     private Map<String, Boolean> panelCollapsedSettings = new HashMap<String, Boolean>();
 
+    private Map<String, Integer> panelSizeSettings = new HashMap<String, Integer>();
+
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
     public final Map<String, List<ColumnSetting>> getColumnSettings()
@@ -85,6 +87,17 @@ public class DisplaySettings implements Serializable, IsSerializable
             panelCollapsedSettings = new HashMap<String, Boolean>();
         }
         return panelCollapsedSettings;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public Map<String, Integer> getPanelSizeSettings()
+    {
+        if (panelSizeSettings == null)
+        {
+            panelSizeSettings = new HashMap<String, Integer>();
+        }
+        return panelSizeSettings;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
@@ -128,6 +141,12 @@ public class DisplaySettings implements Serializable, IsSerializable
     private final void setPanelCollapsedSettings(Map<String, Boolean> panelCollapsedSettings)
     {
         this.panelCollapsedSettings = panelCollapsedSettings;
+    }
+
+    @SuppressWarnings("unused")
+    private final void setPanelSizeSettings(Map<String, Integer> panelSizeSettings)
+    {
+        this.panelSizeSettings = panelSizeSettings;
     }
 
     @SuppressWarnings("unused")

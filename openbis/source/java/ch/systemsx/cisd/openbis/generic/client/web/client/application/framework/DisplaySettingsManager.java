@@ -485,6 +485,7 @@ public class DisplaySettingsManager
         return tabModifications.get(tabDisplayTypeID);
     }
 
+    // FIXME 2010-09-27, Piotr Buczek: store is not invoked
     /**
      * @return True if the given section is collapsed
      */
@@ -498,6 +499,18 @@ public class DisplaySettingsManager
     public final void updatePanelCollapsedSetting(String panelId, Boolean value)
     {
         displaySettings.getPanelCollapsedSettings().put(panelId, value);
+    }
+
+    @SuppressWarnings("deprecation")
+    public final Integer tryGetPanelSizeSetting(String panelId)
+    {
+        return displaySettings.getPanelSizeSettings().get(panelId);
+    }
+
+    @SuppressWarnings("deprecation")
+    public final void updatePanelSizeSetting(String panelId, Integer value)
+    {
+        displaySettings.getPanelSizeSettings().put(panelId, value);
     }
 
     //
