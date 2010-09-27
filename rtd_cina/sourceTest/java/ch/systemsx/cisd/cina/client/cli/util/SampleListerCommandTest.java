@@ -79,7 +79,7 @@ public class SampleListerCommandTest extends AssertJUnit
     }
 
     @Test
-    public void test()
+    public void testCodePath()
     {
         context.checking(new Expectations()
             {
