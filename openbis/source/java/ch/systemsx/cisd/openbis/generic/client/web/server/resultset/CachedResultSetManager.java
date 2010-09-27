@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,17 +29,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
@@ -56,15 +46,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig.ResultSetFetchMode;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.IColumnCalculator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
@@ -76,8 +62,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
  */
 public final class CachedResultSetManager<K> implements IResultSetManager<K>, Serializable
 {
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
-
     private static final long serialVersionUID = 1L;
 
     /** how many values can one column have to consider it reasonably distinct */
@@ -359,10 +343,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private final ICustomColumnsProvider customColumnsProvider;
 
-    private final Map<String, Transformer> cachedTransformers = new HashMap<String, Transformer>();
-
     // all cache access should be doen in a monitor (synchronized clause)
     private final Map<K, TableData<?>> cache = new HashMap<K, TableData<?>>();
+    
+    private final XMLPropertyTransformer xmlPropertyTransformer = new XMLPropertyTransformer();
 
     private final IColumnCalculator columnCalculator;
 
@@ -593,78 +577,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         K dataKey = resultSetKeyProvider.createKey();
         debug("retrieving the data with a new key " + dataKey);
-        List<T> rows = renderXML(dataProvider.getOriginalData());
+        List<T> rows = dataProvider.getOriginalData();
+        xmlPropertyTransformer.transformXMLProperties(rows);
         TableData<T> tableData = new TableData<T>(rows, customColumnsProvider, columnCalculator);
         addToCache(dataKey, tableData);
         return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);
     }
     
-    private <T> List<T> renderXML(List<T> rows)
-    {
-        for (T row : rows)
-        {
-            if (row instanceof IEntityPropertiesHolder)
-            {
-                IEntityPropertiesHolder propertiesHolder = (IEntityPropertiesHolder) row;
-                List<IEntityProperty> properties = propertiesHolder.getProperties();
-                for (IEntityProperty property : properties)
-                {
-                    if (property instanceof GenericValueEntityProperty)
-                    {
-                        GenericValueEntityProperty entityProperty = (GenericValueEntityProperty) property;
-                        PropertyType propertyType = entityProperty.getPropertyType();
-                        if (propertyType.getDataType().getCode().equals(DataTypeCode.XML))
-                        {
-                            String transformation = propertyType.getTransformation();
-                            if (transformation != null)
-                            {
-                                String xslt = StringEscapeUtils.unescapeHtml(transformation);
-                                String v = StringEscapeUtils.unescapeHtml(entityProperty.getValue());
-                                String renderedXMLString = eval(xslt, v);
-                                entityProperty.setValue(renderedXMLString);
-                                entityProperty.setOriginalValue(v);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return rows;
-    }
-    
-    private String eval(String xslt, String xmlString)
-    {
-        Transformer transformer = getTransformer(xslt);
-        StringWriter writer = new StringWriter();
-        try
-        {
-            transformer.transform(new StreamSource(new StringReader(xmlString)), new StreamResult(writer));
-        } catch (TransformerException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-        return writer.toString();
-    }
-    
-    private Transformer getTransformer(String xslt)
-    {
-        try
-        {
-            Transformer transformer = cachedTransformers.get(xslt);
-            if (transformer == null)
-            {
-                long time = System.currentTimeMillis();
-                transformer = TRANSFORMER_FACTORY.newTransformer(new StreamSource(new StringReader(xslt)));
-                System.out.println((System.currentTimeMillis()-time)+ " msec create transformer");
-                cachedTransformers.put(xslt, transformer);
-            }
-            return transformer;
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
     private synchronized <T> void addToCache(K dataKey, TableData<T> tableData)
     {
         cache.put(dataKey, tableData);
