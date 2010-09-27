@@ -140,7 +140,8 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
             String attachmentTitleFieldName =
                     name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_TITLE;
-            document.add(createField(attachmentTitleFieldName, attachment.getTitle(), luceneOptions));
+            document
+                    .add(createField(attachmentTitleFieldName, attachment.getTitle(), luceneOptions));
 
             String attachmentDescriptionFieldName =
                     name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_DESCRIPTION;
@@ -150,7 +151,8 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
 
         private static Field createField(String name, String value, LuceneOptions luceneOptions)
         {
-            return new Field(name, value, Field.Store.YES, luceneOptions.getIndex());
+            return new Field(name, (value == null) ? "" : value, Field.Store.YES, luceneOptions
+                    .getIndex());
         }
 
         private static boolean isSearchable(AttachmentPE attachment)
