@@ -131,14 +131,26 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
                 // TODO 2009-07-28, Tomasz Pylak: switch on indexing attachments
                 // indexFileContent(document, luceneOptions, attachment, attachmentName);
             }
-            // index the file name. Make the field code unique, so that we can recognize which field
-            // has matched the query later on
+            // index the file name, description and title.
+            // Make the field code unique, so that we can recognize which field has matched the
+            // query later on
             String attachmentNameFieldName =
                     name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_NAME;
-            Field field =
-                    new Field(attachmentNameFieldName, attachmentName, Field.Store.YES,
-                            luceneOptions.getIndex());
-            document.add(field);
+            document.add(createField(attachmentNameFieldName, attachmentName, luceneOptions));
+
+            String attachmentTitleFieldName =
+                    name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_TITLE;
+            document.add(createField(attachmentTitleFieldName, attachment.getTitle(), luceneOptions));
+
+            String attachmentDescriptionFieldName =
+                    name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_DESCRIPTION;
+            document.add(createField(attachmentDescriptionFieldName, attachment.getDescription(),
+                    luceneOptions));
+        }
+
+        private static Field createField(String name, String value, LuceneOptions luceneOptions)
+        {
+            return new Field(name, value, Field.Store.YES, luceneOptions.getIndex());
         }
 
         private static boolean isSearchable(AttachmentPE attachment)
