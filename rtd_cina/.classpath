@@ -18,5 +18,7 @@
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-isserializable.jar"/>
+	<classpathentry kind="lib" path="/libraries/spring/spring.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

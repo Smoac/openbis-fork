@@ -30,8 +30,50 @@
 				<include name="**/*.sql" />
 			</fileset>
 		</jar>
-
   </target>
+	
+  <!--  
+    dss-client-jar is designed to be called from make-dist. Thus, it does not depend on compile, but
+    should be called after dss-jar. -->
+  <target name="dss-client-jar" depends="datastore_server.dss-client-jar">
+		<jar update="true" destfile="${dss-client-jar.file}">
+			<fileset dir="${classes}">
+				<include name="ch/systemsx/cisd/cina/client/**/*.class" />
+			</fileset>
+		</jar>
+  </target>
+	
+  
+  <target name="make-dist-client" depends="dss-client-jar">
+    <copy file="${dss-client-jar.file}" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/cisd-args4j/cisd-args4j.jar" todir="${dist.dss_client.lib}" />
+  	<copy file="${lib}/spring/third-party/stream-supporting-httpinvoker.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/log4j/log4j.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-io/commons-io.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.dss_client.lib}" />
+    <copy file="${lib}/spring/spring.jar" todir="${dist.dss_client.lib}" />
+  	<copy file="${lib}/jline/jline.jar" todir="${dist.dss_client.lib}" />
+    <property name="dist.file"
+              value="${dist.client.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
+    
+    <zip destfile="${dist.file}">
+      <zipfileset dir="${dist.dss_client.lib}"
+                  prefix="${dss_client}/lib" />
+      <zipfileset file="${dss.original.dist}/dss_client.sh"
+                  filemode="755"
+                  prefix="${dss_client}" />
+      <zipfileset file="dist/cina_client.sh"
+                  filemode="755"
+                  prefix="${dss_client}" />
+    </zip>
+    <delete dir="${dist.dss_client}" />
+    
+  </target>
+
 
 
 </project>

@@ -85,7 +85,7 @@ public class CinaSampleLister
             // Strip the name of the command and pass the rest of the arguments to the command
             String[] cmdArgs = new String[args.length - 1];
             Arrays.asList(args).subList(1, args.length).toArray(cmdArgs);
-            resultCode = command.execute(cmdArgs);
+            resultCode = command.execute(args);
         } catch (final InvalidSessionException ex)
         {
             System.err
