@@ -36,7 +36,7 @@ import ch.systemsx.cisd.args4j.Option;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class GlobalArguments
+public class GlobalArguments
 {
     @Option(name = "u", longName = "username", usage = "User login name")
     protected String username = "";
