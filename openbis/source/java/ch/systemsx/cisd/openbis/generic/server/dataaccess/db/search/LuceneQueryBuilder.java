@@ -66,11 +66,16 @@ public class LuceneQueryBuilder
                         : CHARS_ESCAPED_IN_BASIC_MODE;
         String result = escapeQuery(userQuery, escapedChars);
         // add '*' wildcard at the beginning and at the end of the query in basic search mode
-        if (useWildcardSearchMode == false)
+        if (useWildcardSearchMode == false && isQuoted(result) == false)
         {
             result = '*' + result + '*';
         }
         return result;
+    }
+
+    private static boolean isQuoted(String result)
+    {
+        return result.startsWith("\"") && result.endsWith("\"");
     }
 
     /**
