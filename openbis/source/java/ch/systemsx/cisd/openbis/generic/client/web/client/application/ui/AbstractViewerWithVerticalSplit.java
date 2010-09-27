@@ -37,22 +37,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformationHolder> extends
         AbstractViewer<D>
 {
-    public AbstractViewerWithVerticalSplit(IViewContext<?> viewContext, String id)
+    private final static String LEFT_PANEL_PREFIX = "left_panel_";
+
+    private final static int INITIAL_LEFT_PANEL_SIZE = 300;
+
+    protected AbstractViewerWithVerticalSplit(IViewContext<?> viewContext, String id)
     {
         super(viewContext, id);
     }
 
-    public AbstractViewerWithVerticalSplit(final IViewContext<?> viewContext, String title,
+    protected AbstractViewerWithVerticalSplit(final IViewContext<?> viewContext, String title,
             String id, boolean withToolBar)
     {
         super(viewContext, title, id, withToolBar);
-    }
-
-    protected final static BorderLayoutData createLeftBorderLayoutData()
-    {
-        BorderLayoutData layoutData = BorderLayoutDataFactory.create(LayoutRegion.WEST, 300);
-        layoutData.setCollapsible(true);
-        return layoutData;
     }
 
     protected final static BorderLayoutData createRightBorderLayoutData()
@@ -60,7 +57,21 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
         return createBorderLayoutData(LayoutRegion.CENTER);
     }
 
-    protected final static String LEFT_PANEL_PREFIX = "left_panel_";
+    /**
+     * Creates {@link BorderLayoutData} for the left panel extracting initial size from display
+     * settings.
+     */
+    protected final BorderLayoutData createLeftBorderLayoutData()
+    {
+        final String panelId = getLeftPanelId();
+        float initialSize = getLeftPanelInitialSize();
+        viewContext.log(panelId + " initial size: " + initialSize);
+
+        BorderLayoutData layoutData =
+                BorderLayoutDataFactory.create(LayoutRegion.WEST, initialSize);
+        layoutData.setCollapsible(true);
+        return layoutData;
+    }
 
     /**
      * Adds listeners and sets up the initial left panel state.
@@ -82,7 +93,7 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
 
     private void addLeftPanelCollapseExpandListeners(final Component panel)
     {
-        final String panelId = LEFT_PANEL_PREFIX + displayIdSuffix;
+        final String panelId = getLeftPanelId();
         getLayout().addListener(Events.Collapse, new Listener<BorderLayoutEvent>()
             {
                 public void handleEvent(BorderLayoutEvent be)
@@ -109,18 +120,36 @@ public abstract class AbstractViewerWithVerticalSplit<D extends IEntityInformati
                 {
                     final Integer size = panel.getOffsetWidth();
                     viewContext.log(panelId + " AfterLayout, size: " + size);
-                    viewContext.getDisplaySettingsManager().updatePanelSizeSetting(panelId, size);
-
+                    // Left panel minimal size can't be less than 20 unless collapse button is used.
+                    // We want to save size only if user dragged the splitter so that after restore
+                    // from collapsed state the size before collapsing it will be used.
+                    if (size > 0)
+                    {
+                        viewContext.getDisplaySettingsManager().updatePanelSizeSetting(panelId,
+                                size);
+                    }
                 }
             });
     }
 
-    protected boolean isLeftPanelInitiallyCollapsed()
+    private String getLeftPanelId()
     {
-        final String panelId = LEFT_PANEL_PREFIX + displayIdSuffix;
+        return LEFT_PANEL_PREFIX + displayIdSuffix;
+    }
+
+    private boolean isLeftPanelInitiallyCollapsed()
+    {
         Boolean collapsedOrNull =
-                viewContext.getDisplaySettingsManager().tryGetPanelCollapsedSetting(panelId);
+                viewContext.getDisplaySettingsManager().tryGetPanelCollapsedSetting(
+                        getLeftPanelId());
         return collapsedOrNull == null ? false : collapsedOrNull.booleanValue();
+    }
+
+    private int getLeftPanelInitialSize()
+    {
+        Integer sizeOrNull =
+                viewContext.getDisplaySettingsManager().tryGetPanelSizeSetting(getLeftPanelId());
+        return sizeOrNull == null ? INITIAL_LEFT_PANEL_SIZE : sizeOrNull.intValue();
     }
 
 }

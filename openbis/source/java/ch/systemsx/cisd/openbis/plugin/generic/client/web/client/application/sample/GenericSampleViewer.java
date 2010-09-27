@@ -429,18 +429,13 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             genericSampleViewer.removeAll();
             // Left panel
             final Component leftPanel = genericSampleViewer.createLeftPanel(result);
-            genericSampleViewer.add(leftPanel, createLeftBorderLayoutData());
+            genericSampleViewer.add(leftPanel, genericSampleViewer.createLeftBorderLayoutData());
             genericSampleViewer.configureLeftPanel(leftPanel);
             // Right panel
             final Component rightPanel = genericSampleViewer.createRightPanel(result);
             genericSampleViewer.add(rightPanel, createRightBorderLayoutData());
 
-            // ((BorderLayoutData) leftPanel.getLayoutData()).setSize(oldSize + 100);
-            // float newSize = ((BorderLayoutData) leftPanel.getLayoutData()).getSize();
-            // viewContext.log("size: " + newSize);
-
             genericSampleViewer.layout();
-            // viewContext.log("size: " + ((BorderLayoutData) leftPanel.getLayoutData()).getSize());
         }
 
     }

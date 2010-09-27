@@ -223,7 +223,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             genericDataSetViewer.removeAll();
             // Left panel
             final Component leftPanel = genericDataSetViewer.createLeftPanel(result);
-            genericDataSetViewer.add(leftPanel, createLeftBorderLayoutData());
+            genericDataSetViewer.add(leftPanel, genericDataSetViewer.createLeftBorderLayoutData());
             genericDataSetViewer.configureLeftPanel(leftPanel);
             // Right panel
             final Component rightPanel = genericDataSetViewer.createRightPanel(result);

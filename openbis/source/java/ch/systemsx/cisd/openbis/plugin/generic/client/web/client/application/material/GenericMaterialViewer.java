@@ -249,7 +249,7 @@ abstract public class GenericMaterialViewer extends AbstractViewerWithVerticalSp
             viewer.removeAll();
             // Left panel
             final Component leftPanel = viewer.createLeftPanel(result);
-            viewer.add(leftPanel, createLeftBorderLayoutData());
+            viewer.add(leftPanel, viewer.createLeftBorderLayoutData());
             viewer.configureLeftPanel(leftPanel);
             // Right panel
             final Component rightPanel = viewer.createRightPanel(result);
