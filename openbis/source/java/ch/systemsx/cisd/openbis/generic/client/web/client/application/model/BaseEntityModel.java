@@ -65,10 +65,10 @@ public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
         {
             String value = renderColumnValue(entity, column);
             set(column.getIdentifier(), value);
-            if (column instanceof AbstractColumnDefinition<?>)
+            if (column instanceof IColumnDefinitionUI<?>)
             {
                 set(ModelDataPropertyNames.link(column.getIdentifier()),
-                        ((AbstractColumnDefinition<T>) column).tryGetLink(entity
+                        ((IColumnDefinitionUI<T>) column).tryGetLink(entity
                                 .getOriginalObject()));
             }
         }

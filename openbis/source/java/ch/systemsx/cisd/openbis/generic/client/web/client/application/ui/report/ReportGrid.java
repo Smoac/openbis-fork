@@ -112,6 +112,11 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
             return false;
         }
 
+        public String tryGetLink(TableModelRow entity)
+        {
+            return null;
+        }
+
         // GWT only
         @SuppressWarnings("unused")
         private ReportColumnUI()

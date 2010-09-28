@@ -58,6 +58,11 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return false;
     }
 
+    public String tryGetLink(T entity)
+    {
+        return null;
+    }
+
     public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
         return getPrimitiveValue(rowModel);

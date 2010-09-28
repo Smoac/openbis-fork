@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -29,10 +31,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -53,6 +57,9 @@ public abstract class TypedTableGrid<T extends IsSerializable>
         extends
         AbstractBrowserGrid<TableModelRowWithObject<T>, BaseEntityModel<TableModelRowWithObject<T>>>
 {
+    private final Map<String, ICellListenerAndLinkGenerator<T>> listenerLinkGenerators =
+            new HashMap<String, ICellListenerAndLinkGenerator<T>>();
+    
     private List<TableModelColumnHeader> headers;
 
     public TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
@@ -86,9 +93,14 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                             .getRealNumberFormatingParameters());
             for (TableModelColumnHeader header : headers)
             {
+                String id = header.getId();
+                if (listenerLinkGenerators.containsKey(id))
+                {
+                    definitions.setGridCellRendererFor(id, LinkRenderer.createLinkRenderer());
+                }
                 if (header.getDataType() == DataTypeCode.REAL)
                 {
-                    definitions.setGridCellRendererFor(header.getId(), realNumberRenderer);
+                    definitions.setGridCellRendererFor(id, realNumberRenderer);
                 }
             }
         }
@@ -101,7 +113,17 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     {
         return new BaseEntityModel<TableModelRowWithObject<T>>(entity, createColDefinitions());
     }
-
+    
+    /**
+     * Registers for the specified column a cell listener and link generator.
+     * This method should be called in the constructor. 
+     */
+    protected void registerListenerAndLinkGenerator(String columnID,
+            final ICellListenerAndLinkGenerator<T> listenerLinkGenerator)
+    {
+        listenerLinkGenerators.put(columnID, listenerLinkGenerator);
+        registerLinkClickListenerFor(columnID, listenerLinkGenerator);
+    }
 
     private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> createColDefinitions()
     {
@@ -116,7 +138,8 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 {
                     title = viewContext.getMessage(header.getId());
                 }
-                list.add(new TypedTableGridColumnDefinitionUI<T>(header, title));
+                ICellListenerAndLinkGenerator<T> linkGeneratorOrNull = listenerLinkGenerators.get(header.getId());
+                list.add(new TypedTableGridColumnDefinitionUI<T>(header, title, linkGeneratorOrNull));
             }
         }
         return list;

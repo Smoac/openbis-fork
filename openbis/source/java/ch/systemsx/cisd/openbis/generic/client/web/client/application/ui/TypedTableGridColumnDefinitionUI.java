@@ -20,6 +20,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypedTableGridColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ILinkGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -32,16 +33,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
         TypedTableGridColumnDefinition<T> implements IColumnDefinitionUI<TableModelRowWithObject<T>>
 {
-    public TypedTableGridColumnDefinitionUI(TableModelColumnHeader header, String title)
+    private transient final ILinkGenerator<T> linkGeneratorOrNull;
+
+    public TypedTableGridColumnDefinitionUI(TableModelColumnHeader header, String title, ILinkGenerator<T> linkGeneratorOrNull)
     {
         super(header, title);
+        this.linkGeneratorOrNull = linkGeneratorOrNull;
     }
 
     // GWT only
     @SuppressWarnings("unused")
     private TypedTableGridColumnDefinitionUI()
     {
-        this(null, null);
+        this(null, null, null);
     }
     
     public int getWidth()
@@ -57,6 +61,16 @@ public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
     public boolean isLink()
     {
         return false;
+    }
+
+    public String tryGetLink(TableModelRowWithObject<T> entity)
+    {
+        if (linkGeneratorOrNull == null)
+        {
+            return null;
+        }
+        T objectOrNull = entity.getObjectOrNull();
+        return objectOrNull == null ? null : linkGeneratorOrNull.tryGetLink(objectOrNull);
     }
 
     public boolean isNumeric()

@@ -71,5 +71,10 @@ public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefi
     {
         return header.isLinkable();
     }
+
+    public String tryGetLink(GenericTableRow entity)
+    {
+        return null;
+    }
     
 }

@@ -89,6 +89,11 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         return false;
     }
 
+    public String tryGetLink(T entity)
+    {
+        return null;
+    }
+
     /**
      * @return given <var>value</var> rendered depending on property type
      */

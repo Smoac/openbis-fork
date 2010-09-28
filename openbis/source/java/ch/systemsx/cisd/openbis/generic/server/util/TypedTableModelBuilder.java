@@ -25,7 +25,9 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -38,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
  */
 public class TypedTableModelBuilder<T extends IsSerializable>
 {
+    private static final StringTableCell EMPTY_CELL = new StringTableCell("");
+
     private static final class Column
     {
         private final TableModelColumnHeader header;
@@ -62,7 +66,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         {
             while (index > values.size())
             {
-                values.add(new StringTableCell(""));
+                values.add(EMPTY_CELL);
             }
             values.add(index, value);
         }
@@ -105,15 +109,25 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         }
         return new TypedTableModel<T>(headers, rows);
     }
-
+    
     public void addColumn(String id)
     {
         addColumn(null, id);
     }
     
+    public void addColumn(String id, int defaultWidth)
+    {
+        addColumn(createColumn(null, id, defaultWidth));
+    }
+
     public void addColumn(String titleOrNull, String id)
     {
-        Column column = createColumn(titleOrNull, id);
+        addColumn(createColumn(titleOrNull, id));
+    }
+
+    private void addColumn(Column column)
+    {
+        String id = column.getHeader().getId();
         Column oldColumn = columns.put(id, column);
         if (oldColumn != null)
         {
@@ -123,12 +137,32 @@ public class TypedTableModelBuilder<T extends IsSerializable>
 
     public void addStringValueToColumn(String id, String value)
     {
-        addValueToColumn(null, id, new StringTableCell(value));
+        addStringValueToColumn(null, id, value);
     }
 
     public void addStringValueToColumn(String title, String id, String value)
     {
-        addValueToColumn(title, id, new StringTableCell(value));
+        addValueToColumn(title, id, value == null ? EMPTY_CELL : new StringTableCell(value));
+    }
+    
+    public void addIntegerValueToColumn(String id, Long value)
+    {
+        addIntegerValueToColumn(null, id, value);
+    }
+    
+    public void addIntegerValueToColumn(String title, String id, Long value)
+    {
+        addValueToColumn(title, id, value == null ? EMPTY_CELL : new IntegerTableCell(value));
+    }
+    
+    public void addDoubleValueToColumn(String id, Double value)
+    {
+        addDoubleValueToColumn(null, id, value);
+    }
+    
+    public void addDoubleValueToColumn(String title, String id, Double value)
+    {
+        addValueToColumn(title, id, value == null ? EMPTY_CELL : new DoubleTableCell(value));
     }
     
     public void addValueToColumn(String titleOrNull, String id, ISerializableComparable value)
@@ -146,17 +180,30 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         }
         return column;
     }
+    
+    private Column createColumn(String titleOrNull, String id, int defaultWidth)
+    {
+        TableModelColumnHeader header = createHeader(titleOrNull, id);
+        header.setDefaultColumnWidth(defaultWidth);
+        return new Column(header);
+    }
 
     private Column createColumn(String titleOrNull, String id)
     {
-        TableModelColumnHeader header = new TableModelColumnHeader(titleOrNull, id, columns.size());
+        TableModelColumnHeader header = createHeader(titleOrNull, id);
         return new Column(header);
+    }
+
+    private TableModelColumnHeader createHeader(String titleOrNull, String id)
+    {
+        TableModelColumnHeader header = new TableModelColumnHeader(titleOrNull, id, columns.size());
+        return header;
     }
 
     public void addRow(T object)
     {
         rowObjects.add(object);
     }
-    
+
 }
 

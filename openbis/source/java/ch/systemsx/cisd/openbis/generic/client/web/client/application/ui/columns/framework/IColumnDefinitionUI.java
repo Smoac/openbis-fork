@@ -25,4 +25,5 @@ public interface IColumnDefinitionUI<T> extends IColumnDefinition<T>
      */
     boolean isLink();
 
+    String tryGetLink(T entity);
 }
