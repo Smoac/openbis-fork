@@ -60,7 +60,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
     private static final String DEFAULT_GROUP = "CISD";
 
     private static final String PERMLINK_TEMPLATE =
-            "http://localhost/openbis/index.html?viewMode=simple#entity=SAMPLE&permId=%s";
+            "http://localhost/openbis/index.html?viewMode=SIMPLE#entity=SAMPLE&permId=%s";
 
     private static final String CONTROL_LAYOUT_EXAMPLE = "CL1";
 
@@ -74,11 +74,11 @@ public class SampleDetailsTest extends GenericSystemTestCase
 
     private static final String CELL_PLATE_EXAMPLE_PERM_ID = "200811050946559-983";
 
-    private static final String CONTROL_LAYOUT_EXAMPLE_PERMLINK =
-            String.format(PERMLINK_TEMPLATE, CONTROL_LAYOUT_EXAMPLE_PERM_ID);
+    private static final String CONTROL_LAYOUT_EXAMPLE_PERMLINK = String.format(PERMLINK_TEMPLATE,
+            CONTROL_LAYOUT_EXAMPLE_PERM_ID);
 
-    private static final String CELL_PLATE_EXAMPLE_PERMLINK =
-            String.format(PERMLINK_TEMPLATE, CELL_PLATE_EXAMPLE_PERM_ID);
+    private static final String CELL_PLATE_EXAMPLE_PERMLINK = String.format(PERMLINK_TEMPLATE,
+            CELL_PLATE_EXAMPLE_PERM_ID);
 
     private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092158673-1";
 
