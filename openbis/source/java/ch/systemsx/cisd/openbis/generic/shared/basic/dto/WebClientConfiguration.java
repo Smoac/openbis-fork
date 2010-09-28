@@ -22,6 +22,8 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
+
 /**
  * Stores Web Client configuration.
  * 
@@ -31,7 +33,10 @@ public class WebClientConfiguration implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    Map<String, DetailViewConfiguration> views = new HashMap<String, DetailViewConfiguration>();
+    private Map<String, DetailViewConfiguration> views =
+            new HashMap<String, DetailViewConfiguration>();
+
+    private ViewMode defaultViewMode;
 
     public Map<String, DetailViewConfiguration> getViews()
     {
@@ -41,6 +46,16 @@ public class WebClientConfiguration implements IsSerializable, Serializable
     public void setViews(Map<String, DetailViewConfiguration> views)
     {
         this.views = views;
+    }
+
+    public ViewMode getDefaultViewMode()
+    {
+        return defaultViewMode;
+    }
+
+    public void setDefaultViewMode(ViewMode defaultViewMode)
+    {
+        this.defaultViewMode = defaultViewMode;
     }
 
     public WebClientConfiguration()

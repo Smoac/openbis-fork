@@ -23,8 +23,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
@@ -50,6 +51,8 @@ public class WebClientConfigurationProvider
 
     private static final String HIDE_FILE_VIEW = "hide-file-view";
 
+    private static final String DEFAULT_VIEW_MODE = "default-view-mode";
+
     private WebClientConfiguration webClientConfiguration = new WebClientConfiguration();
 
     public WebClientConfigurationProvider(String configurationFile)
@@ -60,6 +63,7 @@ public class WebClientConfigurationProvider
         }
         Properties properties = PropertyUtils.loadProperties(configurationFile);
         webClientConfiguration = new WebClientConfiguration();
+        webClientConfiguration.setDefaultViewMode(extractDefaultViewMode(properties));
         webClientConfiguration.setViews(extractHiddenSections(properties));
     }
 
@@ -110,6 +114,19 @@ public class WebClientConfigurationProvider
     private String extractViewId(Properties viewProperties)
     {
         return PropertyUtils.getMandatoryProperty(viewProperties, VIEW);
+    }
+
+    private ViewMode extractDefaultViewMode(Properties properties)
+    {
+        String viewMode =
+                PropertyUtils.getProperty(properties, DEFAULT_VIEW_MODE, ViewMode.NORMAL.name());
+        try
+        {
+            return ViewMode.valueOf(viewMode.toUpperCase());
+        } catch (IllegalArgumentException e)
+        {
+            return ViewMode.NORMAL;
+        }
     }
 
     public WebClientConfiguration getWebClientConfiguration()

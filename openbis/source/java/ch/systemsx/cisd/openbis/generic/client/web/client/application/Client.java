@@ -32,6 +32,7 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Windo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
 /**
  * The {@link EntryPoint} implementation.
@@ -103,7 +105,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
 
         CommonViewContext commonContext =
                 new CommonViewContext(service, imageBundle, pageController, isLoggingEnabled(),
-                        isSimpleMode(), getPageTitle());
+                        getPageTitle());
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
         initializeLocatorHandlerRegistry(commonContext.getLocatorResolverRegistry(), commonContext);
         return commonContext;
@@ -114,11 +116,9 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         return Window.getTitle();
     }
 
-    private boolean isSimpleMode()
+    private String tryGetViewMode()
     {
-        String viewModeParameter = Window.Location.getParameter(BasicConstant.VIEW_MODE_KEY);
-        return viewModeParameter != null
-                && viewModeParameter.equals(BasicConstant.VIEW_MODE_SIMPLE);
+        return Window.Location.getParameter(BasicConstant.VIEW_MODE_KEY);
     }
 
     private boolean isLoggingEnabled()
@@ -191,6 +191,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                 @Override
                 public final void process(final ApplicationInfo info)
                 {
+                    setViewMode(info);
                     viewContext.getModel().setApplicationInfo(info);
                     // the callback sets the SessionContext and redirects to the login page or the
                     // initial page and may additionaly open an initial tab
@@ -199,6 +200,33 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                                     new OpenViewAction(viewContext.getLocatorResolverRegistry(),
                                             locator));
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
+                }
+
+                private void setViewMode(ApplicationInfo info)
+                {
+                    // if view mode is specified in the URL it should override the default one
+                    final ViewMode userViewModeOrNull = tryGetUrlViewMode();
+                    final ViewMode viewMode =
+                            userViewModeOrNull != null ? userViewModeOrNull : info
+                                    .getWebClientConfiguration().getDefaultViewMode();
+                    ClientStaticState.setSimpleMode(viewMode == ViewMode.SIMPLE);
+                    viewContext.log("viewMode = " + viewMode);
+                }
+
+                private ViewMode tryGetUrlViewMode()
+                {
+                    final String userViewMode = tryGetViewMode();
+                    if (userViewMode != null)
+                    {
+                        try
+                        {
+                            return ViewMode.valueOf(userViewMode.toUpperCase());
+                        } catch (IllegalArgumentException e)
+                        {
+                            // ignore mode in URL if it is incorrect (use default mode)
+                        }
+                    }
+                    return null;
                 }
             });
     }

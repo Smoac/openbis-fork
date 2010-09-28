@@ -38,7 +38,7 @@ public class PermlinkUtilities
             final EntityKind entityKind, final String permId)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
-        ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, BasicConstant.VIEW_MODE_SIMPLE);
+        ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, ViewMode.SIMPLE.name());
         ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
         ulrWithParameters.addParameter(PERM_ID_PARAMETER_KEY, permId);
@@ -55,7 +55,7 @@ public class PermlinkUtilities
             final String baseIndexURL, final String fileName, final int version)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
-        ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, BasicConstant.VIEW_MODE_SIMPLE);
+        ulrWithParameters.addParameter(BasicConstant.VIEW_MODE_KEY, ViewMode.SIMPLE.name());
         ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER,
                 DOWNLOAD_ATTACHMENT_ACTION);

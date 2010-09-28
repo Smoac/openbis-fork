@@ -46,19 +46,27 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
      */
     public final static class ClientStaticState
     {
-        private static boolean simpleMode;
+        private static boolean simpleViewMode;
 
         private static String pageTitleSuffix;
 
-        public static void init(final boolean isSimpleMode, final String aPageTitleSuffix)
+        public static void init(final String aPageTitleSuffix)
         {
-            simpleMode = isSimpleMode;
             pageTitleSuffix = aPageTitleSuffix;
         }
 
+        /**
+         * @deprecated use {@link IViewContext#isSimpleMode()} instead where possible
+         */
+        @Deprecated
         public static boolean isSimpleMode()
         {
-            return simpleMode;
+            return simpleViewMode;
+        }
+
+        public static void setSimpleMode(boolean simpleMode)
+        {
+            simpleViewMode = simpleMode;
         }
 
         public static String getPageTitleSuffix()
@@ -89,7 +97,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     CommonViewContext(final ICommonClientServiceAsync service,
             final IGenericImageBundle imageBundle, final IPageController pageController,
-            boolean isLoggingEnabled, boolean isSimpleMode, String basicPageTitle)
+            boolean isLoggingEnabled, String basicPageTitle)
     {
         this.service = service;
         this.imageBundle = imageBundle;
@@ -99,7 +107,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         messageProvider.add(new DictonaryBasedMessageProvider(TECHNOLOGY_NAME));
         viewModel = new GenericViewModel();
         locatorHandlerRegistry = new ViewLocatorResolverRegistry();
-        ClientStaticState.init(isSimpleMode, basicPageTitle);
+        ClientStaticState.init(basicPageTitle);
     }
 
     final void setClientPluginFactoryProvider(

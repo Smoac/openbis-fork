@@ -19,8 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.data
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -35,7 +36,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 public class DataSetMenu extends TopMenuItem
 {
 
-    public DataSetMenu(final CommonViewContext viewContext, ComponentProvider componentProvider)
+    public DataSetMenu(final IViewContext<ICommonClientServiceAsync> viewContext,
+            ComponentProvider componentProvider)
     {
         super(viewContext.getMessage(Dict.MENU_DATA_SET));
 

@@ -25,7 +25,9 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.RootPanel;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
 
@@ -36,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Footer;
  */
 final class AppView extends View
 {
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private Viewport viewport;
 
@@ -121,14 +123,14 @@ final class AppView extends View
         }
     }
 
-    private static IMainPanel createMainPanel(CommonViewContext context)
+    private static IMainPanel createMainPanel(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        if (context.isSimpleMode())
+        if (viewContext.isSimpleMode())
         {
-            return new MainPagePanel(context);
+            return new MainPagePanel(viewContext);
         } else
         {
-            return new MainTabPanel(context);
+            return new MainTabPanel(viewContext);
         }
     }
 }

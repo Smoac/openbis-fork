@@ -168,6 +168,7 @@ public class LinkRenderer
         return link;
     }
 
+    @SuppressWarnings("deprecation")
     private static void setHrefOrListener(final ClickHandler listener, final String historyHref,
             Anchor link)
     {

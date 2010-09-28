@@ -23,8 +23,9 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.administration.AdministrationMenu;
@@ -90,11 +91,12 @@ public class TopMenu extends LayoutContainer
 
     private final ToolBar toolBar;
 
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final ComponentProvider componentProvider;
 
-    public TopMenu(final CommonViewContext viewContext, ComponentProvider componentProvider)
+    public TopMenu(final IViewContext<ICommonClientServiceAsync> viewContext,
+            ComponentProvider componentProvider)
     {
         this.viewContext = viewContext;
         this.componentProvider = componentProvider;

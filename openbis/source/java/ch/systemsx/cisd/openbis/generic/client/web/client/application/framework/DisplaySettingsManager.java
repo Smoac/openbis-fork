@@ -120,6 +120,7 @@ public class DisplaySettingsManager
         this(displaySettings, createDelayedUpdater(settingsUpdater), webClientConfiguration);
     }
 
+    @SuppressWarnings("deprecation")
     private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater)
     {
         if (ClientStaticState.isSimpleMode())
@@ -362,8 +363,8 @@ public class DisplaySettingsManager
             boolean delayed)
     {
         int delayMs = delayed ? QUITE_TIME_BEFORE_SETTINGS_SAVED_MS : 1; // zero not allowed
-        storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds(), grid
-                .getModifier(), delayMs);
+        storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds(),
+                grid.getModifier(), delayMs);
     }
 
     public void storeActiveTabSettings(String tabGroupDisplayID, String selectedTabDisplayID,

@@ -36,7 +36,6 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
@@ -387,7 +386,7 @@ public class PlateLayoutSampleSection extends TabContent
             final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser,
             final Anchor anchor)
     {
-        if (ClientStaticState.isSimpleMode())
+        if (viewContext.isSimpleMode())
         {
             anchor.setHref("#" + createImageDatasetSimpleViewModeHref(imageDatasetChooser));
         }
@@ -396,7 +395,7 @@ public class PlateLayoutSampleSection extends TabContent
     private void updateDatasetSimpleViewModeLink(
             final DatasetChooserComboBox<DatasetReference> datasetChooser, final Anchor anchor)
     {
-        if (ClientStaticState.isSimpleMode())
+        if (viewContext.isSimpleMode())
         {
             anchor.setHref("#" + createDatasetSimpleViewModeHref(datasetChooser));
         }
