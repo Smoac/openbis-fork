@@ -301,24 +301,31 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         @Override
         public final void process(final SessionContext sessionContext)
         {
+            clientSysout("SessionContextCallback.process session: " + (sessionContext != null));
             final Dispatcher dispatcher = Dispatcher.get();
             if (sessionContext == null)
             {
+                clientSysout("SessionContextCallback.process login");
                 dispatcher.dispatch(AppEvents.LOGIN);
             } else
             {
+                clientSysout("SessionContextCallback.process setSessionContext");
                 viewContext.getModel().setSessionContext(sessionContext);
                 // NOTE: Display settings manager needs to be reinitialized after login.
                 // Otherwise if two users used the same browser one after another without server
                 // restart than display settings of the user that logged in first would be used
                 // also for the second user.
+                clientSysout("SessionContextCallback.process initDisplaySettingsManager");
                 viewContext.initDisplaySettingsManager();
+                clientSysout("SessionContextCallback.process INIT");
                 dispatcher.dispatch(AppEvents.INIT);
+                clientSysout("SessionContextCallback.process afterInitAction");
                 afterInitAction.execute();
                 if (viewContext.isSimpleMode() == false)
                 {
                     GWTUtils.setConfirmExitMessage();
                 }
+                clientSysout("SessionContextCallback.process finish");
             }
         }
     }
@@ -350,5 +357,11 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         ViewLocator viewLocator = createViewLocator(History.getToken());
         OpenViewAction openViewAction = new OpenViewAction(resolver, viewLocator);
         openViewAction.execute();
+    }
+
+    // TODO 2010-09-28, Piotr Buczek: remove with all invocations after analysing output on CI
+    public static void clientSysout(String message)
+    {
+        System.out.println("!!" + message);
     }
 }

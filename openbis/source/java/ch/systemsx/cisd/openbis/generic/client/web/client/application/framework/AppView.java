@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.RootPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -66,16 +67,22 @@ final class AppView extends View
 
     private final void initUI()
     {
+        Client.clientSysout("AppView.initUI.start");
         viewport = new Viewport();
         viewport.setLayout(new BorderLayout());
         if (viewContext.isSimpleMode() == false)
         {
             createNorth();
         }
+        Client.clientSysout("AppView.initUI.center");
         createCenter();
+        Client.clientSysout("AppView.initUI.south");
         createSouth();
+        Client.clientSysout("AppView.initUI.clear");
         RootPanel.get().clear();
+        Client.clientSysout("AppView.initUI.viewport");
         RootPanel.get().add(viewport);
+        Client.clientSysout("AppView.initUI.finish");
     }
 
     private final void createNorth()
@@ -116,6 +123,7 @@ final class AppView extends View
     {
         if (event.getType() == AppEvents.INIT)
         {
+            Client.clientSysout("AppView.initUI" + event.getType());
             initUI();
         } else if (event.getType() == AppEvents.NAVI_EVENT)
         {
