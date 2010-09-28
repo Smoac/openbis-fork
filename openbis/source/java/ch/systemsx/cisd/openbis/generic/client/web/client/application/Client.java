@@ -173,10 +173,6 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
         {
             viewContext = createViewContext(openUrlController);
             initializeControllers(openUrlController);
-            if (viewContext.isSimpleMode())
-            {
-                History.addValueChangeHandler(this);
-            }
         }
         final ViewLocator locator = createViewLocator(History.getToken());
 
@@ -209,8 +205,13 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     final ViewMode viewMode =
                             userViewModeOrNull != null ? userViewModeOrNull : info
                                     .getWebClientConfiguration().getDefaultViewMode();
-                    ClientStaticState.setSimpleMode(viewMode == ViewMode.SIMPLE);
                     viewContext.log("viewMode = " + viewMode);
+                    final boolean simpleMode = viewMode == ViewMode.SIMPLE;
+                    ClientStaticState.setSimpleMode(simpleMode);
+                    if (simpleMode)
+                    {
+                        History.addValueChangeHandler(Client.this);
+                    } 
                 }
 
                 private ViewMode tryGetUrlViewMode()
