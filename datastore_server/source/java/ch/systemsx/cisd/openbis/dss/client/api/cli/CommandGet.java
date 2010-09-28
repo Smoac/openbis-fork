@@ -79,6 +79,9 @@ class CommandGet extends AbstractCommand
                 throw new IOExceptionUnchecked(e);
             }
 
+            // This logic is a duplication of that in FileInfoDssDownloader -- if that class were to
+            // be modified with a listener that issued notifications, this code could use that
+            // class.
             // Download file in this thread -- could spawn threads for d/l in a future iteration
             for (FileInfoDssDTO fileInfo : fileInfos)
             {
