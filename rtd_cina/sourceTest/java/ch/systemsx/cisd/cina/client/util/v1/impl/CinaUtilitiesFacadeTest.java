@@ -72,6 +72,9 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
                     one(service).tryToAuthenticateForAllServices(USER_ID, PASSWORD);
                     will(returnValue(SESSION_TOKEN));
 
+                    one(service).getMinorVersion();
+                    will(returnValue(1));
+
                     one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
                     will(returnValue(samples));
 
