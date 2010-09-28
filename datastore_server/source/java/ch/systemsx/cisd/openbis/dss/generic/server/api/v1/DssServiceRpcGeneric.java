@@ -124,7 +124,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
 
     public int getMinorVersion()
     {
-        return 0;
+        return 1;
     }
 
     /**
@@ -149,15 +149,15 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
     public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        return this.getFileForDataSet(sessionToken, fileOrFolder.getDataSetCode(), fileOrFolder
-                .getPath());
+        return this.getFileForDataSet(sessionToken, fileOrFolder.getDataSetCode(),
+                fileOrFolder.getPath());
     }
 
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException
     {
-        return this.listFilesForDataSet(sessionToken, fileOrFolder.getDataSetCode(), fileOrFolder
-                .getPath(), fileOrFolder.isRecursive());
+        return this.listFilesForDataSet(sessionToken, fileOrFolder.getDataSetCode(),
+                fileOrFolder.getPath(), fileOrFolder.isRecursive());
     }
 
     @Override
@@ -171,6 +171,31 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
     public void setIncomingDirectory(File aFile)
     {
         putService.setIncomingDir(aFile);
+    }
+
+    public String getPathToDataSet(String sessionToken, String dataSetCode,
+            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
+            IllegalArgumentException
+    {
+        File rootDir = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
+        String dataSetPath = rootDir.getPath();
+        String dataStoreRootPath = getStoreDirectory().getPath();
+        if (!dataSetPath.startsWith(dataStoreRootPath))
+        {
+            throw new IllegalArgumentException("File not found");
+        }
+
+        // No override specified; give the user the path as we understand it.
+        if (null == overrideStoreRootPathOrNull)
+        {
+            return dataSetPath;
+        }
+
+        // Make the path begin with the user's store root override
+        File usersPath =
+                new File(overrideStoreRootPathOrNull, dataSetPath.substring(dataStoreRootPath
+                        .length()));
+        return usersPath.getPath();
     }
 
 }

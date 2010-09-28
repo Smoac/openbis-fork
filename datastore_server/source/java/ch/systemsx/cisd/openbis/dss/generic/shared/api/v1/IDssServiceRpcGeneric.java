@@ -94,4 +94,23 @@ public interface IDssServiceRpcGeneric extends IRpcService
      */
     public String putDataSet(String sessionToken, NewDataSetDTO newDataset, InputStream inputStream)
             throws IOExceptionUnchecked, IllegalArgumentException;
+
+    /**
+     * Get a path to the data set. This can be used by clients that run on the same machine as the
+     * DSS for more efficient access to a data set.
+     * 
+     * @param sessionToken The session token
+     * @param dataSetCode The data set to retrieve file from
+     * @param overrideStoreRootPathOrNull The path to replace the store path (see return comment).
+     * @return An absolute path to the data set. If overrideStorePathOrNull is specified, it
+     *         replaces the DSS's notion of the store path. Otherwise the return value will begin
+     *         with the DSS's storeRootPath.
+     * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
+     * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
+     * @since 1.1
+     */
+    @DataSetAccessGuard
+    public String getPathToDataSet(String sessionToken, String dataSetCode,
+            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
+            IllegalArgumentException;
 }

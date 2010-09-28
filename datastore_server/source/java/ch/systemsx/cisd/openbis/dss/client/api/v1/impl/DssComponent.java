@@ -357,8 +357,8 @@ class AuthenticatedState extends AbstractDssComponentState
         url = DataStoreApiUrlUtilities.getDataStoreUrlFromServerUrl(url);
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         ConcatenatedContentInputStream fileInputStream =
-                new ConcatenatedContentInputStream(true, getContentForFileInfos(dataSetFile
-                        .getPath(), newDataset.getFileInfos()));
+                new ConcatenatedContentInputStream(true, getContentForFileInfos(
+                        dataSetFile.getPath(), newDataset.getFileInfos()));
         String code = dssService.putDataSet(sessionToken, newDataset, fileInputStream);
         return new DataSetDss(code, dssService, this);
     }
@@ -408,6 +408,61 @@ class AuthenticatedState extends AbstractDssComponentState
     {
         return dataSetDss.getService().getFileForDataSet(getSessionToken(), dataSetDss.getCode(),
                 path);
+    }
+
+    /**
+     * Package visible method to communicate with the server and get a link to the file in the DSS.
+     */
+    File tryLinkToContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
+            throws InvalidSessionException, EnvironmentFailureException
+    {
+        int minorVersion = dataSetDss.getService().getMinorVersion();
+        if (minorVersion < 1)
+        {
+            throw new EnvironmentFailureException("Server does not support this feature.");
+        }
+
+        // Get the path
+        String path =
+                dataSetDss.getService().getPathToDataSet(getSessionToken(), dataSetDss.getCode(),
+                        overrideStoreRootPathOrNull);
+
+        // Check if the file referenced by the path exists, if so return it
+        File contents = new File(path);
+        if (contents.exists())
+        {
+            return contents;
+        }
+
+        // Otherwise return null
+        return null;
+    }
+
+    /**
+     * Package visible method to get a link to the contents of the data set in DSS', if possible,
+     * otherwise copy the contents locally.
+     */
+    File getLinkOrCopyOfContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull,
+            File downloadDir) throws InvalidSessionException
+    {
+        File link = tryLinkToContents(dataSetDss, overrideStoreRootPathOrNull);
+        if (null != link)
+        {
+            return link;
+        }
+
+        File outputDir = new File(downloadDir, dataSetDss.getCode());
+        // Create any directories necessary
+        outputDir.mkdirs();
+
+        FileInfoDssDTO[] fileInfos =
+                dataSetDss.getService().listFilesForDataSet(getSessionToken(),
+                        dataSetDss.getCode(), "/", true);
+        FileInfoDssDownloader downloader =
+                new FileInfoDssDownloader(this, dataSetDss, fileInfos, outputDir);
+        downloader.downloadFiles();
+
+        return outputDir;
     }
 
     /**

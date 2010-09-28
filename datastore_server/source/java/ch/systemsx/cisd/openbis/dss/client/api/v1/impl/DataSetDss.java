@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
 
+import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -58,6 +59,18 @@ public class DataSetDss implements IDataSetDss
             throws IllegalArgumentException, InvalidSessionException
     {
         return parent.listFiles(this, startPath, isRecursive);
+    }
+
+    public File tryLinkToContents(String overrideStoreRootPathOrNull)
+            throws IllegalArgumentException, InvalidSessionException
+    {
+        return parent.tryLinkToContents(this, overrideStoreRootPathOrNull);
+    }
+
+    public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
+            throws IllegalArgumentException, InvalidSessionException
+    {
+        return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir);
     }
 
     IDssServiceRpcGeneric getService()

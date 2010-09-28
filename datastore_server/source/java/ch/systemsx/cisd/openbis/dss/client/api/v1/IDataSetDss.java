@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
+import java.io.File;
 import java.io.InputStream;
 
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -52,5 +53,36 @@ public interface IDataSetDss
      */
     public InputStream getFile(String path) throws IllegalArgumentException,
             InvalidSessionException;
+
+    /**
+     * Returns a {@link File}, if possible, that directly references the contents of a data set in
+     * the data store server. This is only possible if the file system used by the DSS is also
+     * mounted locally.
+     * 
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
+     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
+     *            system mounts.
+     * @return Returns null if the operation is not possible, a File that references the contents of
+     *         the data set otherwise.
+     * @since 1.1
+     */
+    public File tryLinkToContents(String overrideStoreRootPathOrNull)
+            throws IllegalArgumentException, InvalidSessionException;
+
+    /**
+     * Returns a {@link File}, if possible, that directly references the contents of a data set in
+     * the data store server. If not possible, downloads the data set contents and returns a File in
+     * the downloadDir containing the contents of the data set.
+     * 
+     * @param overrideStoreRootPathOrNull A path, in the context of the local file system mounts, to
+     *            the DSS' store root. If null, paths are returned in the context of the DSS' file
+     *            system mounts.
+     * @param downloadDir The directory in which to place the contents of the data set if they must
+     *            be downloaded.
+     * @return A File containing the contents of the data set.
+     * @since 1.1
+     */
+    public File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, File downloadDir)
+            throws IllegalArgumentException, InvalidSessionException;
 
 }
