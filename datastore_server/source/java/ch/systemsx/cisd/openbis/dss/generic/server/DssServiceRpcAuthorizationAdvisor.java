@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
@@ -54,8 +53,8 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
 {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger authorizationLog =
-            LogFactory.getLogger(LogCategory.AUTH, DssServiceRpcAuthorizationAdvisor.class);
+    private static final Logger authorizationLog = LogFactory.getLogger(LogCategory.AUTH,
+            DssServiceRpcAuthorizationAdvisor.class);
 
     /**
      * The public constructor.
@@ -89,11 +88,10 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             {
                 authorizationLog.info(String.format(
                         "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
-                                + "invoking method '%s'", sessionToken, dataSetCode, MethodUtils
-                                .describeMethod(methodInvocation.getMethod())));
+                                + "invoking method '%s'", sessionToken, dataSetCode,
+                        MethodUtils.describeMethod(methodInvocation.getMethod())));
 
-                throw new AuthorizationFailureException("User does not have access to data set "
-                        + dataSetCode);
+                throw new IllegalArgumentException("Data set (" + dataSetCode + ") does not exist.");
             }
 
             return methodInvocation.proceed();
