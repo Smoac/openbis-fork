@@ -17,22 +17,19 @@
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.FileInfoDssDownloader;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
- * Command that lists files in the data set.
+ * Command that retrieves files in a data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -40,12 +37,47 @@ class CommandGet extends AbstractCommand
 {
     private static class CommandGetArguments extends DataSetArguments
     {
+        @Option(name = "l", longName = "link", usage = "Try to return a link to the file in the DSS")
+        private boolean link = false;
+
+        @Option(name = "e", longName = "store-override", usage = "An alternative path to the DSS Store root")
+        private String storeOverride = "";
+
         @Option(name = "o", longName = "output", usage = "Path for output")
         private String output = "";
 
         public String getOutput()
         {
             return output;
+        }
+
+        public boolean isLink()
+        {
+            return link;
+        }
+
+        public String getStoreOverride()
+        {
+            return storeOverride;
+        }
+    }
+
+    private static class DownloaderListener implements
+            FileInfoDssDownloader.FileInfoDssDownloaderListener
+    {
+        public void willDownload(FileInfoDssDTO fileInfo)
+        {
+            System.out.println("downloading " + fileInfo.getPathInDataSet());
+        }
+
+        public void willCreateDirectory(FileInfoDssDTO fileInfo)
+        {
+            System.out.println("mkdir " + fileInfo.getPathInDataSet());
+        }
+
+        public void didFinish()
+        {
+            System.out.println("Finished.");
         }
     }
 
@@ -59,63 +91,66 @@ class CommandGet extends AbstractCommand
         @Override
         protected void handle(FileInfoDssDTO[] fileInfos, IDataSetDss dataSet)
         {
+            if (arguments.isLink())
+            {
+                handleLink(dataSet);
+            } else
+            {
+                handleDownload(fileInfos, dataSet);
+            }
+        }
+
+        private void handleLink(IDataSetDss dataSet)
+        {
+            File outputDir = getOutputDir();
+
+            String storeOverride = null;
+            if (arguments.getStoreOverride().length() > 0)
+            {
+                storeOverride = arguments.getStoreOverride();
+            }
+            File result = dataSet.getLinkOrCopyOfContents(storeOverride, outputDir);
+            printResultFile(result);
+        }
+
+        private void handleDownload(FileInfoDssDTO[] fileInfos, IDataSetDss dataSet)
+        {
+            File outputDir = getOutputDir();
+            outputDir.mkdirs();
+
+            printResultFile(outputDir);
+
+            FileInfoDssDownloader downloader =
+                    new FileInfoDssDownloader(dataSet, fileInfos, outputDir,
+                            new DownloaderListener());
+            downloader.downloadFiles();
+        }
+
+        public File getOutputDir()
+        {
             File outputDir;
             if (arguments.getOutput().length() > 0)
             {
                 // create the directory specified by output
                 outputDir = new File(arguments.getOutput());
-                outputDir.mkdirs();
             } else
             {
                 outputDir = new File(".");
             }
-
-            try
-            {
-                System.out.println("output dir :  " + outputDir.getCanonicalPath());
-
-            } catch (IOException e)
-            {
-                throw new IOExceptionUnchecked(e);
-            }
-
-            // This logic is a duplication of that in FileInfoDssDownloader -- if that class were to
-            // be modified with a listener that issued notifications, this code could use that
-            // class.
-            // Download file in this thread -- could spawn threads for d/l in a future iteration
-            for (FileInfoDssDTO fileInfo : fileInfos)
-            {
-                if (fileInfo.isDirectory())
-                {
-                    System.out.println("mkdir " + fileInfo.getPathInDataSet());
-                    File dir = new File(outputDir, fileInfo.getPathInDataSet());
-                    dir.mkdirs();
-                } else
-                {
-                    System.out.println("downloading " + fileInfo.getPathInDataSet());
-                    File file = new File(outputDir, fileInfo.getPathInDataSet());
-                    // Make sure the parent exists
-                    file.getParentFile().mkdirs();
-
-                    downloadFile(fileInfo, file, dataSet);
-                }
-            }
-            System.out.println("Finished.");
+            return outputDir;
         }
 
-        private void downloadFile(FileInfoDssDTO fileInfo, File file, IDataSetDss dataSet)
+        private void printResultFile(File result)
         {
             try
             {
-                FileOutputStream fos = new FileOutputStream(file);
-                InputStream is = dataSet.getFile(fileInfo.getPathInDataSet());
-                IOUtils.copyLarge(is, fos);
+                System.out.println("output dir :  " + result.getCanonicalPath());
             } catch (IOException e)
             {
+                // This should not happen
                 throw new IOExceptionUnchecked(e);
             }
         }
-
     }
 
     private final CommandGetArguments arguments;

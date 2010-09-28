@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.FileInfoDssDownloader;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
@@ -404,10 +405,9 @@ class AuthenticatedState extends AbstractDssComponentState
      * Package visible method to communicate with the server and get a list of files contained in
      * this data set.
      */
-    InputStream getFile(DataSetDss dataSetDss, String path) throws InvalidSessionException
+    InputStream getFile(DataSetDss dataSet, String path) throws InvalidSessionException
     {
-        return dataSetDss.getService().getFileForDataSet(getSessionToken(), dataSetDss.getCode(),
-                path);
+        return dataSet.getService().getFileForDataSet(getSessionToken(), dataSet.getCode(), path);
     }
 
     /**
@@ -459,7 +459,7 @@ class AuthenticatedState extends AbstractDssComponentState
                 dataSetDss.getService().listFilesForDataSet(getSessionToken(),
                         dataSetDss.getCode(), "/", true);
         FileInfoDssDownloader downloader =
-                new FileInfoDssDownloader(this, dataSetDss, fileInfos, outputDir);
+                new FileInfoDssDownloader(dataSetDss, fileInfos, outputDir);
         downloader.downloadFiles();
 
         return outputDir;

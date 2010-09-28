@@ -35,8 +35,6 @@ public class DataSetDss implements IDataSetDss
 
     private final AuthenticatedState parent;
 
-    // private String ownerUrl;
-
     public DataSetDss(String code, IDssServiceRpcGeneric service, AuthenticatedState parent)
     {
         this.code = code;
@@ -73,7 +71,12 @@ public class DataSetDss implements IDataSetDss
         return parent.getLinkOrCopyOfContents(this, overrideStoreRootPathOrNull, downloadDir);
     }
 
-    IDssServiceRpcGeneric getService()
+    public AuthenticatedState getParent()
+    {
+        return parent;
+    }
+
+    public IDssServiceRpcGeneric getService()
     {
         return service;
     }

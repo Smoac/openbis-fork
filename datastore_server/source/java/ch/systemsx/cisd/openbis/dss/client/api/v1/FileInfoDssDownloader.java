@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.v1.impl;
+package ch.systemsx.cisd.openbis.dss.client.api.v1;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,23 +31,61 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-final class FileInfoDssDownloader
+public final class FileInfoDssDownloader
 {
-    private final AuthenticatedState parent;
+    /**
+     * Interface for listeners to events from the downloader.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static interface FileInfoDssDownloaderListener
+    {
+        public void willCreateDirectory(FileInfoDssDTO fileInfo);
 
-    private final DataSetDss dataSetDss;
+        public void willDownload(FileInfoDssDTO fileInfo);
+
+        public void didFinish();
+    }
+
+    private final IDataSetDss dataSetDss;
 
     private final FileInfoDssDTO[] fileInfos;
 
     private final File outputDir;
 
-    public FileInfoDssDownloader(AuthenticatedState parent, DataSetDss dataSetDss,
-            FileInfoDssDTO[] fileInfos, File outputDir)
+    private final FileInfoDssDownloaderListener listener;
+
+    public FileInfoDssDownloader(IDataSetDss dataSetDss, FileInfoDssDTO[] fileInfos, File outputDir)
     {
-        this.parent = parent;
+        // use a no-op listener
+        this(dataSetDss, fileInfos, outputDir, new FileInfoDssDownloaderListener()
+            {
+
+                public void willCreateDirectory(FileInfoDssDTO fileInfo)
+                {
+
+                }
+
+                public void willDownload(FileInfoDssDTO fileInfo)
+                {
+
+                }
+
+                public void didFinish()
+                {
+
+                }
+
+            });
+    }
+
+    public FileInfoDssDownloader(IDataSetDss dataSetDss, FileInfoDssDTO[] fileInfos,
+            File outputDir, FileInfoDssDownloaderListener listenerOrNull)
+    {
+        this.dataSetDss = dataSetDss;
         this.fileInfos = fileInfos;
         this.outputDir = outputDir;
-        this.dataSetDss = dataSetDss;
+        this.listener = listenerOrNull;
     }
 
     public final void downloadFiles()
@@ -57,25 +95,29 @@ final class FileInfoDssDownloader
         {
             if (fileInfo.isDirectory())
             {
+                listener.willCreateDirectory(fileInfo);
                 File dir = new File(outputDir, fileInfo.getPathInDataSet());
                 dir.mkdirs();
             } else
             {
+                listener.willDownload(fileInfo);
                 File file = new File(outputDir, fileInfo.getPathInDataSet());
                 // Make sure the parent exists
                 file.getParentFile().mkdirs();
 
-                downloadFile(fileInfo, file, dataSetDss);
+                downloadFile(fileInfo, file);
             }
         }
+
+        listener.didFinish();
     }
 
-    private void downloadFile(FileInfoDssDTO fileInfo, File file, DataSetDss dataSet)
+    private void downloadFile(FileInfoDssDTO fileInfo, File file)
     {
         try
         {
             FileOutputStream fos = new FileOutputStream(file);
-            InputStream is = parent.getFile(dataSet, fileInfo.getPathInDataSet());
+            InputStream is = dataSetDss.getFile(fileInfo.getPathInDataSet());
             IOUtils.copyLarge(is, fos);
         } catch (IOException e)
         {
