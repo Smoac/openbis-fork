@@ -164,7 +164,7 @@ public class ExperimentPlateLocationsSection extends TabContent
             return null;
         }
         String[] materialTypeCodes = Code.extractCodesToArray(materialTypesOrNull);
-        return PlateMaterialReviewer.create(screeningViewContext, experiment, materialItemList,
+        return PlateMaterialReviewer2.create(screeningViewContext, experiment, materialItemList,
                 materialTypeCodes, exactMatchOnly.getValue());
     }
 

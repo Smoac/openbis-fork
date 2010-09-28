@@ -30,7 +30,7 @@ class PlateLocationsMaterialSection extends TabContent
                 screeningViewContext, materialId);
         setHeaderVisible(false);
         this.reviewer =
-                PlateMaterialReviewer.create(screeningViewContext, experimentCriteriaOrNull,
+                PlateMaterialReviewer2.create(screeningViewContext, experimentCriteriaOrNull,
                         materialId);
         setIds(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
     }
