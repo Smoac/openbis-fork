@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
  * </ol>
  * <p>
  * The IDssComponent itself is designed to be used in a single thread, though it may return objects
- * that can be used in multiple threads. Documentation for the return values clairifies their level
+ * that can be used in multiple threads. Documentation for the return values clarifies their level
  * of thread safety.
  * 
  * @author Chandrasekhar Ramakrishnan
