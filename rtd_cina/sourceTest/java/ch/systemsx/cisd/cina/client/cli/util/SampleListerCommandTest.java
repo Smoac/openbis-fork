@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.cina.client.util.cli.CommandSampleLister;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -112,5 +113,41 @@ public class SampleListerCommandTest extends AssertJUnit
 
         assertEquals(0, exitCode);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testOldVersion()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    final SearchCriteria searchCriteria = new SearchCriteria();
+                    searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                            MatchClauseAttribute.TYPE, CinaConstants.REPLICA_SAMPLE_TYPE_CODE));
+
+                    one(service).tryToAuthenticateForAllServices(USER_ID, PASSWORD);
+                    will(returnValue(SESSION_TOKEN));
+
+                    // The service used wasn't available in version 0
+                    one(service).getMinorVersion();
+                    will(returnValue(0));
+
+                    one(service).logout(SESSION_TOKEN);
+                }
+            });
+        facade =
+                ch.systemsx.cisd.cina.client.util.v1.impl.CinaUtilitiesFacadeTest.createFacade(
+                        service, USER_ID, PASSWORD);
+        ICommand command = new MockCommandSampleLister();
+
+        try
+        {
+            command.execute(new String[]
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
+            fail("Command should throw an exception when run against an older version of the interface.");
+        } catch (EnvironmentFailureException e)
+        {
+            assertEquals("Server does not support this feature.", e.getMessage());
+        }
     }
 }
