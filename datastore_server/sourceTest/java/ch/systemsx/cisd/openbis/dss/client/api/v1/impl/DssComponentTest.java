@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.IDssServiceRpcGenericInternal;
+import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
@@ -209,16 +210,16 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
         File contents = dataSetProxy.tryLinkToContents(null);
         assertNotNull(contents);
-        assertEquals(
-                "targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponentTest",
+        assertEquals(workingDirectory.getParentFile().getAbsolutePath()
+                + "/ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponentTest",
                 contents.getPath());
 
         // Check using an alternative path to the data store server
-        String alternativeRoot = workingDirectory.getParentFile().getCanonicalPath();
+        String alternativeRoot = workingDirectory.getParentFile().getPath();
         contents = dataSetProxy.tryLinkToContents(alternativeRoot);
         assertNotNull(contents);
-        assertEquals(alternativeRoot
-                + "/ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponentTest",
+        assertEquals(
+                "targets/unit-test-wd/ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponentTest",
                 contents.getPath());
 
         // Check using a path which doesn't exist
@@ -540,12 +541,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
                 IllegalArgumentException
         {
-            if (overrideStoreRootPathOrNull == null)
-            {
-                return getDataSetFile().getPath();
-            }
-            return overrideStoreRootPathOrNull
-                    + getDataSetFile().getPath().substring(getStoreRootFile().getPath().length());
+            return DssServiceRpcGeneric.convertPath(getStoreRootFile(), getDataSetFile(),
+                    overrideStoreRootPathOrNull);
         }
 
     }

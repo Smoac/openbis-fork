@@ -178,15 +178,18 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
             IllegalArgumentException
     {
         File rootDir = checkAccessAndGetRootDirectory(sessionToken, dataSetCode);
-        String dataSetPath = rootDir.getPath();
-        String dataStoreRootPath = getStoreDirectory().getPath();
-        if (!dataSetPath.startsWith(dataStoreRootPath))
-        {
-            throw new IllegalArgumentException("File not found");
-        }
+        return convertPath(getStoreDirectory(), rootDir, overrideStoreRootPathOrNull);
+    }
+
+    public static String convertPath(File storeRoot, File dataSetRoot,
+            String overrideStoreRootPathOrNull)
+    {
+        String dataStoreRootPath = storeRoot.getAbsolutePath();
+        String dataSetPath = dataSetRoot.getAbsolutePath();
 
         // No override specified; give the user the path as we understand it.
-        if (null == overrideStoreRootPathOrNull)
+        if (null == overrideStoreRootPathOrNull
+                || false == dataSetPath.startsWith(dataStoreRootPath))
         {
             return dataSetPath;
         }

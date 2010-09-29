@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
+import java.io.File;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -82,6 +84,33 @@ public class CommandGetTest extends AssertJUnit
 
         int exitCode = command.execute(new String[]
             { "-s", "url", "-u", "user", "-p", "pswd", "ds1", "root-dir" });
+
+        assertEquals(0, exitCode);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLink()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssComponent).getDataSet("ds1");
+                    will(returnValue(dataSet));
+
+                    one(dataSet).listFiles("/", false);
+                    will(returnValue(new FileInfoDssDTO[] {}));
+
+                    one(dataSet).getLinkOrCopyOfContents(null, new File("."));
+                    will(returnValue(new File(".")));
+
+                    one(dssComponent).logout();
+                }
+            });
+        ICommand command = new MockCommandGet();
+
+        int exitCode = command.execute(new String[]
+            { "-s", "url", "-u", "user", "-p", "pswd", "-l", "ds1" });
 
         assertEquals(0, exitCode);
         context.assertIsSatisfied();

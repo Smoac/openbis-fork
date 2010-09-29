@@ -17,11 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
-import java.io.IOException;
 
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.Option;
-import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.FileInfoDssDownloader;
@@ -37,10 +35,10 @@ class CommandGet extends AbstractCommand
 {
     private static class CommandGetArguments extends DataSetArguments
     {
-        @Option(name = "l", longName = "link", usage = "Try to return a link to the file in the DSS")
+        @Option(name = "l", longName = "link", usage = "Try to return a link to the data set in the DSS if possible, download the entire data set otherwise.")
         private boolean link = false;
 
-        @Option(name = "e", longName = "store-override", usage = "An alternative path to the DSS Store root")
+        @Option(name = "e", longName = "store-override", usage = "An alternative path to the DSS Store root (only applicable with the link option)")
         private String storeOverride = "";
 
         @Option(name = "o", longName = "output", usage = "Path for output")
@@ -142,14 +140,7 @@ class CommandGet extends AbstractCommand
 
         private void printResultFile(File result)
         {
-            try
-            {
-                System.out.println("output dir :  " + result.getCanonicalPath());
-            } catch (IOException e)
-            {
-                // This should not happen
-                throw new IOExceptionUnchecked(e);
-            }
+            System.out.println("output dir :  " + result.getPath());
         }
     }
 
