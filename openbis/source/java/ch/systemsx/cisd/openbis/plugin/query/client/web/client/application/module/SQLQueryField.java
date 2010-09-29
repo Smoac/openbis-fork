@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
@@ -32,16 +29,15 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
  * 
  * @author Piotr Buczek
  */
-public class SQLQueryField extends MultilineVarcharField implements
-        Listener<SelectionChangedEvent<SimpleComboValue<QueryType>>>
+public class SQLQueryField extends MultilineVarcharField
 {
 
     private final static String EMPTY_TEXT = "SELECT ... \nFROM ... \nWHERE ...";
 
     private final static String EMPTY_TEXT_WITH_KEY = EMPTY_TEXT + " '${key}' ...";
 
-    private final static String EMPTY_TEXT_WITH_KEY_AND_TYPE =
-            EMPTY_TEXT_WITH_KEY + " ... '${type}'";
+    private final static String EMPTY_TEXT_WITH_KEY_AND_TYPE = EMPTY_TEXT_WITH_KEY
+            + " ... '${type}'";
 
     private static final String TYPE_REGEX = "'\\$\\{type\\}'";
 
@@ -54,16 +50,16 @@ public class SQLQueryField extends MultilineVarcharField implements
 
     private static final String SELECT_WITH_KEY_REGEX = SELECT_REGEX + KEY_REGEX + ANY_REGEX;
 
-    private static final String SELECT_WITH_KEY_AND_TYPE_REGEX =
-            SELECT_WITH_KEY_REGEX + TYPE_REGEX + ANY_REGEX;
+    private static final String SELECT_WITH_KEY_AND_TYPE_REGEX = SELECT_WITH_KEY_REGEX + TYPE_REGEX
+            + ANY_REGEX;
 
     private final static String REGEX_TEXT_MSG = "SQL query should begin with a 'SELECT' keyword.";
 
-    private final static String REGEX_TEXT_WITH_KEY_MSG =
-            REGEX_TEXT_MSG + " Magic parameter '${key}' is required.";
+    private final static String REGEX_TEXT_WITH_KEY_MSG = REGEX_TEXT_MSG
+            + " Magic parameter '${key}' is required.";
 
-    private final static String REGEX_TEXT_WITH_KEY_AND_TYPE_MSG =
-            REGEX_TEXT_WITH_KEY_MSG + " Magic parameter '${type}' required.";
+    private final static String REGEX_TEXT_WITH_KEY_AND_TYPE_MSG = REGEX_TEXT_WITH_KEY_MSG
+            + " Magic parameter '${type}' required.";
 
     private final static String SINGLE_QUERY_MSG =
             "SQL query should not contain ';' in the middle.";
@@ -73,7 +69,7 @@ public class SQLQueryField extends MultilineVarcharField implements
     public SQLQueryField(IMessageProvider messageProvider, boolean mandatory, int lines)
     {
         super(messageProvider.getMessage(Dict.SQL_QUERY), mandatory, lines);
-        updateValidation(QueryType.GENERIC);
+        updateQueryType(QueryType.GENERIC);
     }
 
     public SQLQueryField(IMessageProvider messageProvider, boolean mandatory)
@@ -97,14 +93,7 @@ public class SQLQueryField extends MultilineVarcharField implements
         }
     }
 
-    public void handleEvent(SelectionChangedEvent<SimpleComboValue<QueryType>> be)
-    {
-        SimpleComboValue<QueryType> selectedItem = be.getSelectedItem();
-        QueryType type = selectedItem == null ? QueryType.GENERIC : selectedItem.getValue();
-        updateValidation(type);
-    }
-
-    private void updateValidation(QueryType type)
+    public void updateQueryType(QueryType type)
     {
         setEmptyText(createEmptyText(type));
         setRegex(createRegex(type));
@@ -114,12 +103,12 @@ public class SQLQueryField extends MultilineVarcharField implements
         validate();
     }
 
-    private String createBlankText(QueryType type)
+    private static String createBlankText(QueryType type)
     {
         return BLANK_TEXT_MSG;
     }
 
-    private String createRegexText(QueryType type)
+    private static String createRegexText(QueryType type)
     {
         switch (type)
         {
@@ -135,7 +124,7 @@ public class SQLQueryField extends MultilineVarcharField implements
         return null;
     }
 
-    private String createRegex(QueryType type)
+    private static String createRegex(QueryType type)
     {
         switch (type)
         {
@@ -151,7 +140,7 @@ public class SQLQueryField extends MultilineVarcharField implements
         return null;
     }
 
-    private String createEmptyText(QueryType type)
+    private static String createEmptyText(QueryType type)
     {
         switch (type)
         {

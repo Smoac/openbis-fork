@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
+import java.util.HashMap;
+
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
@@ -24,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryModule;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryParameterValue;
 
 /**
  * Main menu of {@link QueryModule}.
@@ -59,8 +61,8 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             public DatabaseModificationAwareComponent createComponent(
                     IViewContext<IQueryClientServiceAsync> viewContext)
             {
-                return QueryViewer.create(viewContext, new RunCannedQueryToolbar(viewContext,
-                        QueryType.GENERIC));
+                return QueryViewer.create(viewContext, RunCannedQueryToolbar.createGeneric(
+                        viewContext, null, new HashMap<String, QueryParameterValue>(0)));
             }
         },
         RUN_CUSTOM_QUERY("Run Custom SQL Query")

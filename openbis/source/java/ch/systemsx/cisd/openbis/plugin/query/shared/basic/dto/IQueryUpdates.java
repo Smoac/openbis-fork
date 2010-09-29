@@ -29,4 +29,6 @@ public interface IQueryUpdates extends IExpressionUpdates
     QueryType getQueryType();
 
     QueryDatabase getQueryDatabase();
+
+    String getEntityTypeCode();
 }

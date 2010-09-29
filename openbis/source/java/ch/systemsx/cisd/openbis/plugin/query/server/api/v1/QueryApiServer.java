@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
@@ -70,7 +71,9 @@ public class QueryApiServer extends AbstractServer<IQueryApiServer> implements I
     public List<QueryDescription> listQueries(String sessionToken)
     {
         List<QueryDescription> result = new ArrayList<QueryDescription>();
-        List<QueryExpression> queries = queryServer.listQueries(sessionToken, QueryType.GENERIC);
+        List<QueryExpression> queries =
+                queryServer.listQueries(sessionToken, QueryType.GENERIC,
+                        BasicEntityType.UNSPECIFIED);
         for (QueryExpression queryExpression : queries)
         {
             QueryDescription queryDescription = new QueryDescription();

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
@@ -53,7 +54,8 @@ public interface IQueryClientService extends IClientService
             String sqlQuery, QueryParameterBindings bindingsOrNull) throws UserFailureException;
 
     /** Returns a list of all the canned custom queries created so far. */
-    public List<QueryExpression> listQueries(QueryType queryType) throws UserFailureException;
+    public List<QueryExpression> listQueries(QueryType queryType, BasicEntityType entityTypeOrNull)
+            throws UserFailureException;
 
     /**
      * Returns all queries for the specified configuration.

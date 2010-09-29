@@ -28,9 +28,7 @@ public interface IQueryDAO extends IGenericDAO<QueryPE>
 {
 
     /**
-     * Lists all queries defined in the home database instance.
-     * 
-     * @param queryType
+     * Lists all queries defined of specified type in the home database instance.
      */
     public List<QueryPE> listQueries(QueryType queryType);
 

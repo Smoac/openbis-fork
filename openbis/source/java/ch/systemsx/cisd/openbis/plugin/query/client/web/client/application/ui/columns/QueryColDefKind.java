@@ -76,6 +76,17 @@ public enum QueryColDefKind implements IColumnDefinitionKind<QueryExpression>
             }
         }),
 
+    ENTITY_TYPE(new AbstractColumnDefinitionKind<QueryExpression>(
+            ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.ENTITY_TYPE,
+            true)
+        {
+            @Override
+            public String tryGetValue(QueryExpression entity)
+            {
+                return entity.getEntityTypeCode();
+            }
+        }),
+
     QUERY_DATABASE(
             new AbstractColumnDefinitionKind<QueryExpression>(
                     ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict.QUERY_DATABASE,

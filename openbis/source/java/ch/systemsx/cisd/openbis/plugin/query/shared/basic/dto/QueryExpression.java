@@ -33,6 +33,8 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
 
     private QueryDatabase queryDatabase;
 
+    private String entityTypeCode;
+
     public QueryExpression()
     {
     }
@@ -42,14 +44,19 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
         setExpression(expression);
     }
 
+    public QueryType getQueryType()
+    {
+        return queryType;
+    }
+
     public void setQueryType(QueryType queryType)
     {
         this.queryType = queryType;
     }
 
-    public QueryType getQueryType()
+    public String getQueryDatabaseLabel()
     {
-        return queryType;
+        return queryDatabase == null ? null : queryDatabase.getLabel();
     }
 
     public QueryDatabase getQueryDatabase()
@@ -62,9 +69,14 @@ public class QueryExpression extends AbstractExpressionWithParameters implements
         this.queryDatabase = queryDatabase;
     }
 
-    public String getQueryDatabaseLabel()
+    public String getEntityTypeCode()
     {
-        return queryDatabase == null ? null : queryDatabase.getLabel();
+        return entityTypeCode;
+    }
+
+    public void setEntityTypeCode(String entityTypeCode)
+    {
+        this.entityTypeCode = entityTypeCode;
     }
 
 }

@@ -15,13 +15,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.IV
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryParameterValue;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryModuleDatabaseMenuItem;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryModuleDatabaseMenuItem.ActionMenuDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryViewer;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.RunCannedQueryToolbar;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryModuleDatabaseMenuItem.ActionMenuDefinition;
 
 /**
  * {@link IViewLocatorResolver} for Query locators.
@@ -56,8 +55,8 @@ public class QueryLocatorResolver extends AbstractViewLocatorResolver
         final String queryNameOrNull = locator.getParameters().get(QUERY_NAME_PARAMETER_KEY);
 
         final DatabaseModificationAwareComponent component =
-                QueryViewer.create(viewContext, new RunCannedQueryToolbar(viewContext,
-                        queryNameOrNull, parameters, QueryType.GENERIC));
+                QueryViewer.create(viewContext, RunCannedQueryToolbar.createGeneric(viewContext,
+                        queryNameOrNull, parameters));
 
         final ITabActionMenuItemDefinition<IQueryClientServiceAsync> definition =
                 ActionMenuDefinition.RUN_CANNED_QUERY;

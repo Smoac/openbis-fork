@@ -31,6 +31,8 @@ public class NewQuery extends NewExpression
 
     private QueryDatabase queryDatabase;
 
+    private String entityTypeCode;
+
     public QueryType getQueryType()
     {
         return queryType;
@@ -49,6 +51,16 @@ public class NewQuery extends NewExpression
     public void setQueryDatabase(QueryDatabase queryDatabase)
     {
         this.queryDatabase = queryDatabase;
+    }
+
+    public String getEntityTypeCode()
+    {
+        return entityTypeCode;
+    }
+
+    public void setEntityTypeCode(String entityTypeCode)
+    {
+        this.entityTypeCode = entityTypeCode;
     }
 
 }

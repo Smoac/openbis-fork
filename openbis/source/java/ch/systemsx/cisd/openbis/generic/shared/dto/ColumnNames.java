@@ -70,6 +70,8 @@ public final class ColumnNames
 
     public static final String QUERY_DATABASE_KEY_COLUMN = "db_key";
 
+    public static final String QUERY_ENTITY_TYPE_CODE_COLUMN = "entity_type_code";
+
     public static final String DESCRIPTION_COLUMN = "description";
 
     public static final String DOWNLOAD_URL_COLUMN = "download_url";

@@ -68,8 +68,8 @@ final class QuerySectionPanel extends DisposableTabContent
     {
         HashMap<String, QueryParameterValue> parameters = extractFixedQueryParameters(entity);
         AbstractQueryProviderToolbar toolbar =
-                new RunCannedQueryToolbar(queryModuleContext, null, parameters, translate(entity
-                        .getEntityKind()));
+                RunCannedQueryToolbar.createTyped(queryModuleContext, null, parameters,
+                        translate(entity.getEntityKind()), entity.getEntityType());
         final DatabaseModificationAwareComponent viewer =
                 QueryViewer.create(queryModuleContext, toolbar);
         return new IDisposableComponent()

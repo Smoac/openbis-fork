@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
@@ -58,6 +59,23 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     private static final String INITIAL_PARAMETER_NAME_PREFIX = "_";
 
+    public static final RunCannedQueryToolbar createGeneric(
+            IViewContext<IQueryClientServiceAsync> viewContext, String initialQueryNameOrNull,
+            Map<String, QueryParameterValue> initialParameterValues)
+    {
+        return new RunCannedQueryToolbar(viewContext, initialQueryNameOrNull,
+                initialParameterValues, QueryType.GENERIC, null);
+    }
+
+    public static final RunCannedQueryToolbar createTyped(
+            IViewContext<IQueryClientServiceAsync> viewContext, String initialQueryNameOrNull,
+            Map<String, QueryParameterValue> initialParameterValues, QueryType queryType,
+            BasicEntityType entityTypeOrNull)
+    {
+        return new RunCannedQueryToolbar(viewContext, initialQueryNameOrNull,
+                initialParameterValues, queryType, entityTypeOrNull);
+    }
+
     private final ContentPanel parameterContainer;
 
     private final QuerySelectionWidget querySelectionWidget;
@@ -71,21 +89,16 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     private final Map<String, String> initialFixedParameters;
 
-    public RunCannedQueryToolbar(final IViewContext<IQueryClientServiceAsync> viewContext,
-            QueryType queryType)
-    {
-        this(viewContext, null, new HashMap<String, QueryParameterValue>(0), queryType);
-    }
-
-    public RunCannedQueryToolbar(IViewContext<IQueryClientServiceAsync> viewContext,
+    private RunCannedQueryToolbar(IViewContext<IQueryClientServiceAsync> viewContext,
             String initialQueryNameOrNull, Map<String, QueryParameterValue> initialParameterValues,
-            QueryType queryType)
+            QueryType queryType, BasicEntityType entityTypeOrNull)
     {
         super(viewContext);
         this.initialParameterValues = initialParameterValues;
         initialFixedParameters = new HashMap<String, String>();
         querySelectionWidget =
-                new QuerySelectionWidget(viewContext, initialQueryNameOrNull, queryType);
+                new QuerySelectionWidget(viewContext, initialQueryNameOrNull, queryType,
+                        entityTypeOrNull);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
         parameterFields = new HashSet<ParameterField>();
         resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));

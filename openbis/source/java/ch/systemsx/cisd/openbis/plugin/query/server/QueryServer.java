@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -36,8 +37,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -136,13 +138,29 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return results;
     }
 
-    public List<QueryExpression> listQueries(String sessionToken, QueryType queryType)
+    public List<QueryExpression> listQueries(String sessionToken, QueryType queryType,
+            BasicEntityType entityTypeOrNull)
     {
         checkSession(sessionToken);
 
         try
         {
             List<QueryPE> queries = getDAOFactory().getQueryDAO().listQueries(queryType);
+            // filter queries by entity type if one was specified
+            if (entityTypeOrNull != null)
+            {
+                final String entityTypeCode = entityTypeOrNull.getCode();
+                for (Iterator<QueryPE> iterator = queries.iterator(); iterator.hasNext();)
+                {
+                    final QueryPE query = iterator.next();
+                    final String queryEntityTypeCodeOrNull = query.getEntityTypeCode();
+                    if (queryEntityTypeCodeOrNull != null
+                            && entityTypeCode.equals(queryEntityTypeCodeOrNull) == false)
+                    {
+                        iterator.remove();
+                    }
+                }
+            }
             return QueryTranslator.translate(queries, getDatabaseDefinitions());
         } catch (DataAccessException ex)
         {
@@ -163,14 +181,15 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         query.setPublic(expression.isPublic());
         query.setRegistrator(session.tryGetPerson());
         query.setQueryType(expression.getQueryType());
+        query.setEntityTypeCode(expression.getEntityTypeCode());
         query.setQueryDatabaseKey(expression.getQueryDatabase().getKey());
         try
         {
             getDAOFactory().getQueryDAO().createQuery(query);
         } catch (DataAccessException ex)
         {
-            DataAccessExceptionTranslator.throwException(ex, "Query definition '"
-                    + expression.getName() + "'", null);
+            DataAccessExceptionTranslator.throwException(ex,
+                    "Query definition '" + expression.getName() + "'", null);
         }
     }
 
@@ -210,13 +229,14 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             query.setExpression(updates.getExpression());
             query.setPublic(updates.isPublic());
             query.setQueryType(updates.getQueryType());
+            query.setEntityTypeCode(updates.getEntityTypeCode());
             query.setQueryDatabaseKey(updates.getQueryDatabase().getKey());
 
             queryDAO.validateAndSaveUpdatedEntity(query);
         } catch (DataAccessException ex)
         {
-            DataAccessExceptionTranslator.throwException(ex, "Query definition '"
-                    + updates.getName() + "'", null);
+            DataAccessExceptionTranslator.throwException(ex,
+                    "Query definition '" + updates.getName() + "'", null);
         }
     }
 

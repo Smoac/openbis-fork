@@ -26,9 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
@@ -50,13 +51,16 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
 
     private final QueryType queryType;
 
+    private final BasicEntityType entityTypeOrNull;
+
     public QuerySelectionWidget(final IViewContext<IQueryClientServiceAsync> viewContext,
-            String initialQueryNameOrNull, QueryType queryType)
+            String initialQueryNameOrNull, QueryType queryType, BasicEntityType entityTypeOrNull)
     {
         super(viewContext, SUFFIX, Dict.QUERY, ModelDataPropertyNames.NAME, Dict.QUERY, "queries");
         this.viewContext = viewContext;
         this.initialQueryNameOrNull = initialQueryNameOrNull;
         this.queryType = queryType;
+        this.entityTypeOrNull = entityTypeOrNull;
         setCallbackId(createCallbackId());
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.NAME,
                 ModelDataPropertyNames.TOOLTIP));
@@ -76,7 +80,8 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
     @Override
     protected void loadData(AbstractAsyncCallback<List<QueryExpression>> callback)
     {
-        viewContext.getService().listQueries(queryType, new ListQueriesCallback(viewContext));
+        viewContext.getService().listQueries(queryType, entityTypeOrNull,
+                new ListQueriesCallback(viewContext));
         callback.ignore();
     }
 
@@ -85,7 +90,7 @@ public final class QuerySelectionWidget extends DropDownList<QueryModel, QueryEx
         return DatabaseModificationKind.any(ObjectKind.QUERY);
     }
 
-    // 
+    //
     // initial value support
     //
 

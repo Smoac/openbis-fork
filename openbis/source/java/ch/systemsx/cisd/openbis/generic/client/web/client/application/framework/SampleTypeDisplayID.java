@@ -45,6 +45,8 @@ public enum SampleTypeDisplayID
 
     SAMPLE_REGISTRATION("sample_registration", false),
 
+    SAMPLE_QUERY("sample_query", false),
+
     ;
 
     private static final String SAMPLE_TYPE_PREFIX = "sample-type";

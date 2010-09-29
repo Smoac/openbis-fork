@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.modu
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog.createTextField;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,32 +28,43 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
@@ -155,6 +167,18 @@ public class QueryEditor extends Dialog
 
     private final SQLQueryField statementField;
 
+    // entity type selection widgets (not more than one will be shown at the same time)
+
+    private final MaterialTypeSelectionWidget materialTypeField;
+
+    private final SampleTypeSelectionWidget sampleTypeField;
+
+    private final ExperimentTypeSelectionWidget experimentTypeField;
+
+    private final DataSetTypeSelectionWidget dataSetTypeField;
+
+    //
+
     private final CheckBoxField isPublicField;
 
     private final QueryExpression queryOrNull;
@@ -191,10 +215,36 @@ public class QueryEditor extends Dialog
         statementField = createStatementField();
         isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
         queryTypeField = new QueryTypeComboBox(viewContext);
+        queryTypeField.addListener(Events.SelectionChange,
+                new Listener<SelectionChangedEvent<SimpleComboValue<QueryType>>>()
+                    {
+                        public void handleEvent(
+                                SelectionChangedEvent<SimpleComboValue<QueryType>> be)
+                        {
+                            QueryType selectedType = be.getSelectedItem().getValue();
+                            statementField.updateQueryType(selectedType);
+                            updateFieldsVisibility(selectedType);
+                        }
+                    });
+        // TODO 2010-09-29, Piotr Buczek: add all everywhere and select initially
+        final IViewContext<ICommonClientServiceAsync> commonViewContext =
+                viewContext.getCommonViewContext();
+        materialTypeField =
+                MaterialTypeSelectionWidget.createWithAdditionalOption(commonViewContext, "(all)",
+                        null, ID);
+        sampleTypeField =
+                new SampleTypeSelectionWidget(commonViewContext, ID, false, true, false, null,
+                        SampleTypeDisplayID.SAMPLE_QUERY);
+        dataSetTypeField = new DataSetTypeSelectionWidget(commonViewContext, ID);
+        experimentTypeField = new ExperimentTypeSelectionWidget(commonViewContext, ID, true, null);
+        materialTypeField.setAllowBlank(false);
+        sampleTypeField.setAllowBlank(false);
+        dataSetTypeField.setAllowBlank(false);
+        experimentTypeField.setAllowBlank(false);
+
         queryDatabaseSelectionWidget =
-                new QueryDatabaseSelectionWidget(viewContext, (queryOrNull != null) ? queryOrNull
-                        .getQueryDatabase() : null);
-        queryTypeField.addListener(Events.SelectionChange, statementField);
+                new QueryDatabaseSelectionWidget(viewContext,
+                        (queryOrNull != null) ? queryOrNull.getQueryDatabase() : null);
         if (queryOrNull != null)
         {
             nameField.setValue(queryOrNull.getName());
@@ -202,10 +252,18 @@ public class QueryEditor extends Dialog
             statementField.setValue(StringEscapeUtils.unescapeHtml(queryOrNull.getExpression()));
             isPublicField.setValue(queryOrNull.isPublic());
             queryTypeField.setSimpleValue(queryOrNull.getQueryType());
+            // TODO 2010-09-29, Piotr Buczek: set initial values for entity type
+        } else
+        {
+            queryTypeField.setSimpleValue(QueryType.GENERIC);
         }
         form.add(nameField, FORM_DATA);
         form.add(queryDatabaseSelectionWidget, FORM_DATA);
         form.add(queryTypeField, FORM_DATA);
+        form.add(materialTypeField, FORM_DATA);
+        form.add(sampleTypeField, FORM_DATA);
+        form.add(dataSetTypeField, FORM_DATA);
+        form.add(experimentTypeField, FORM_DATA);
         form.add(descriptionField, FORM_DATA);
         form.add(statementField, FORM_DATA);
         form.add(isPublicField);
@@ -220,6 +278,37 @@ public class QueryEditor extends Dialog
         setWidth(parentWidth);
     }
 
+    private void updateFieldsVisibility(QueryType selectedType)
+    {
+        FieldUtil.setVisibility(selectedType == QueryType.DATA_SET, dataSetTypeField);
+        FieldUtil.setVisibility(selectedType == QueryType.EXPERIMENT, experimentTypeField);
+        FieldUtil.setVisibility(selectedType == QueryType.MATERIAL, materialTypeField);
+        FieldUtil.setVisibility(selectedType == QueryType.SAMPLE, sampleTypeField);
+    }
+
+    private String tryExtractEntityTypeCode(QueryType selectedQueryType)
+    {
+        EntityType entityType = null;
+        switch (selectedQueryType)
+        {
+            case DATA_SET:
+                entityType = dataSetTypeField.tryGetSelectedDataSetType();
+                break;
+            case EXPERIMENT:
+                entityType = sampleTypeField.tryGetSelectedSampleType();
+                break;
+            case MATERIAL:
+                entityType = sampleTypeField.tryGetSelectedSampleType();
+                break;
+            case SAMPLE:
+                entityType = sampleTypeField.tryGetSelectedSampleType();
+                break;
+            default:
+                break;
+        }
+        return (entityType == null || entityType.isAllTypesCode()) ? null : entityType.getCode();
+    }
+
     static class QueryTypeComboBox extends SimpleComboBox<QueryType>
     {
 
@@ -230,11 +319,7 @@ public class QueryEditor extends Dialog
             setEditable(false);
             setTriggerAction(TriggerAction.ALL);
             setFieldLabel(messages.getMessage(Dict.QUERY_TYPE));
-            for (QueryType qt : QueryType.values())
-            {
-                add(qt);
-            }
-            setSimpleValue(QueryType.GENERIC);
+            add(Arrays.asList(QueryType.values()));
         }
     }
 
@@ -316,24 +401,33 @@ public class QueryEditor extends Dialog
 
     protected void register(AsyncCallback<Void> registrationCallback)
     {
+        final String name = nameField.getValue();
+        final String description = descriptionField.getValue();
+        final String statement = statementField.getValue();
+        final boolean isPublic = isPublicField.getValue();
+        final QueryType queryType = queryTypeField.getSimpleValue();
+        final QueryDatabase queryDatabase = queryDatabaseSelectionWidget.tryGetSelected();
+        final String entityTypeOrNull = tryExtractEntityTypeCode(queryType);
         if (queryOrNull == null)
         {
             NewQuery query = new NewQuery();
-            query.setName(nameField.getValue());
-            query.setDescription(descriptionField.getValue());
-            query.setExpression(statementField.getValue());
-            query.setPublic(isPublicField.getValue());
-            query.setQueryType(queryTypeField.getSimpleValue());
-            query.setQueryDatabase(queryDatabaseSelectionWidget.tryGetSelected());
+            query.setName(name);
+            query.setDescription(description);
+            query.setExpression(statement);
+            query.setPublic(isPublic);
+            query.setQueryType(queryType);
+            query.setQueryDatabase(queryDatabase);
+            query.setEntityTypeCode(entityTypeOrNull);
             viewContext.getService().registerQuery(query, registrationCallback);
         } else
         {
-            queryOrNull.setName(nameField.getValue());
-            queryOrNull.setDescription(descriptionField.getValue());
-            queryOrNull.setExpression(statementField.getValue());
-            queryOrNull.setPublic(isPublicField.getValue());
-            queryOrNull.setQueryType(queryTypeField.getSimpleValue());
-            queryOrNull.setQueryDatabase(queryDatabaseSelectionWidget.tryGetSelected());
+            queryOrNull.setName(name);
+            queryOrNull.setDescription(description);
+            queryOrNull.setExpression(statement);
+            queryOrNull.setPublic(isPublic);
+            queryOrNull.setQueryType(queryType);
+            queryOrNull.setQueryDatabase(queryDatabase);
+            queryOrNull.setEntityTypeCode(entityTypeOrNull);
             viewContext.getService().updateQuery(queryOrNull, registrationCallback);
         }
     }

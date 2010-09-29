@@ -25,6 +25,8 @@ public class BasicEntityType extends AbstractType
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    public static final BasicEntityType UNSPECIFIED = null;
+
     private DatabaseInstance databaseInstance;
 
     public BasicEntityType()

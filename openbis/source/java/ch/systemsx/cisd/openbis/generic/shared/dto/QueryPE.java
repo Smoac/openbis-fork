@@ -47,6 +47,8 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
 
     private QueryType queryType;
 
+    private String entityTypeCode;
+
     @Column(name = ColumnNames.NAME_COLUMN)
     @NotNull(message = ValidationMessages.NAME_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 200, message = ValidationMessages.NAME_LENGTH_MESSAGE)
@@ -84,6 +86,17 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
     public void setQueryType(QueryType queryType)
     {
         this.queryType = queryType;
+    }
+
+    @Column(name = ColumnNames.QUERY_ENTITY_TYPE_CODE_COLUMN)
+    public String getEntityTypeCode()
+    {
+        return entityTypeCode;
+    }
+
+    public void setEntityTypeCode(String entityTypeCode)
+    {
+        this.entityTypeCode = entityTypeCode;
     }
 
     @Override

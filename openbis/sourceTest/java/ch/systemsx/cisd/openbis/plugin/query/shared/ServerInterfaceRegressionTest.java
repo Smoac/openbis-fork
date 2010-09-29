@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
 public class ServerInterfaceRegressionTest extends RegressionTestCase
 {
     @Test
-    public void testIGenericServer()
+    public void testIQueryServer()
     {
         assertMandatoryMethodAnnotations(IQueryServer.class);
         assertNormalizedSourceFilesAreEqual(IQueryServer.class);

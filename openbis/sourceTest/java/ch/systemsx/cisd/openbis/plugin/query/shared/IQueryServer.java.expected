@@ -27,10 +27,11 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.QueryAccessController;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
@@ -66,7 +67,8 @@ public interface IQueryServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = ExpressionValidator.class)
-    public List<QueryExpression> listQueries(String sessionToken, QueryType queryType);
+    public List<QueryExpression> listQueries(String sessionToken, QueryType queryType,
+            BasicEntityType entityTypeOrNull);
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)

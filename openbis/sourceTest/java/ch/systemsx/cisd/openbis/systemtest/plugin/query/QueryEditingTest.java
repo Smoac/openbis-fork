@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
@@ -57,7 +58,8 @@ public class QueryEditingTest extends QuerySystemTestCase
     @AfterMethod
     public void tearDown()
     {
-        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
+        List<QueryExpression> queries =
+                queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED);
         List<TechId> ids = new ArrayList<TechId>();
         for (QueryExpression queryExpression : queries)
         {
@@ -86,14 +88,17 @@ public class QueryEditingTest extends QuerySystemTestCase
     public void testRegisterEditAndDeleteQueryDefinition()
     {
         logIntoCommonClientService();
-        assertEquals(0, queryClientService.listQueries(QueryType.GENERIC).size());
+        assertEquals(0,
+                queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED)
+                        .size());
 
         NewQuery query =
                 createQuery("query1", "select * from sample_types", true, QueryType.GENERIC,
                         DATABASE);
         queryClientService.registerQuery(query);
 
-        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
+        List<QueryExpression> queries =
+                queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED);
         assertEquals(1, queries.size());
         assertQuery(query, queries.get(0));
         QueryExpression actualQuery = queries.get(0);
@@ -105,7 +110,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         actualQuery.setPublic(false);
         queryClientService.updateQuery(actualQuery);
 
-        queries = queryClientService.listQueries(QueryType.GENERIC);
+        queries = queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED);
         assertEquals(1, queries.size());
         assertEquals(actualQuery.getName(), queries.get(0).getName());
         assertEquals(actualQuery.getDescription(), queries.get(0).getDescription());
@@ -114,7 +119,9 @@ public class QueryEditingTest extends QuerySystemTestCase
 
         queryClientService.deleteQueries(Arrays.asList(new TechId(queries.get(0).getId())));
 
-        assertEquals(0, queryClientService.listQueries(QueryType.GENERIC).size());
+        assertEquals(0,
+                queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED)
+                        .size());
     }
 
     @Test(dependsOnMethods = "testInitDatabases")
@@ -152,7 +159,8 @@ public class QueryEditingTest extends QuerySystemTestCase
         queryClientService.registerQuery(query1);
         queryClientService.registerQuery(query2);
 
-        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
+        List<QueryExpression> queries =
+                queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED);
         assertEquals(2, queries.size());
         Collections.sort(queries, new Comparator<QueryExpression>()
             {
@@ -200,7 +208,8 @@ public class QueryEditingTest extends QuerySystemTestCase
                         QueryType.GENERIC, DATABASE);
         queryClientService.registerQuery(query);
 
-        List<QueryExpression> queries = queryClientService.listQueries(QueryType.GENERIC);
+        List<QueryExpression> queries =
+                queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED);
         assertEquals(1, queries.size());
         QueryExpression actualQuery = queries.get(0);
         QueryParameterBindings bindings = new QueryParameterBindings();

@@ -36,8 +36,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
  * {@link ComboBox} containing list of material types loaded from the server.
@@ -92,8 +92,9 @@ public final class MaterialTypeSelectionWidget extends
         this.viewContext = viewContext;
         this.additionalOptionLabelOrNull = additionalOptionLabelOrNull;
         this.initialCodeOrNull =
-                tryGetInitialValue(displayTypeIdOrNull, initialCodeOrNullParameter, viewContext
-                        .getDisplaySettingsManager());
+                tryGetInitialValue(displayTypeIdOrNull, initialCodeOrNullParameter,
+                        viewContext.getDisplaySettingsManager());
+        setAutoSelectFirst(additionalOptionLabelOrNull != null && initialCodeOrNull == null);
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
         if (displayTypeIdOrNull != null)
@@ -173,7 +174,7 @@ public final class MaterialTypeSelectionWidget extends
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
-    // 
+    //
     // initial value support
     //
 
