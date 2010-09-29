@@ -62,6 +62,8 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     
     private List<TableModelColumnHeader> headers;
 
+    private Map<String, IColumnDefinition<TableModelRowWithObject<T>>> columnDefinitions;
+
     public TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -86,6 +88,13 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     {
         ColumnDefsAndConfigs<TableModelRowWithObject<T>> definitions =
                 ColumnDefsAndConfigs.create(createColDefinitions());
+        Set<IColumnDefinition<TableModelRowWithObject<T>>> columnDefs = definitions.getColumnDefs();
+        columnDefinitions = new HashMap<String, IColumnDefinition<TableModelRowWithObject<T>>>();
+        for (IColumnDefinition<TableModelRowWithObject<T>> definition : columnDefs)
+        {
+            String identifier = definition.getIdentifier();
+            columnDefinitions.put(identifier, definition);
+        }
         if (headers != null)
         {
             RealNumberRenderer realNumberRenderer =
@@ -124,7 +133,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
         listenerLinkGenerators.put(columnID, listenerLinkGenerator);
         registerLinkClickListenerFor(columnID, listenerLinkGenerator);
     }
-
+    
     private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> createColDefinitions()
     {
         List<IColumnDefinitionUI<TableModelRowWithObject<T>>> list =
@@ -147,7 +156,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
 
     @Override
     protected void listEntities(
-            DefaultResultSetConfig<String, TableModelRowWithObject<T>> resultSetConfig,
+            final DefaultResultSetConfig<String, TableModelRowWithObject<T>> resultSetConfig,
             final AbstractAsyncCallback<ResultSet<TableModelRowWithObject<T>>> callback)
     {
         AbstractAsyncCallback<TypedTableResultSet<T>> extendedCallback =
@@ -156,9 +165,14 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                         @Override
                         protected void process(TypedTableResultSet<T> result)
                         {
+                            boolean undefinedHeaders = headers == null; 
                             headers = result.getHeaders();
-                            callback.onSuccess(result.getResultSet());
                             recreateColumnModelAndRefreshColumnsWithFilters();
+                            callback.onSuccess(result.getResultSet());
+                            if (undefinedHeaders)
+                            {
+                                refresh();
+                            }
                         }
 
                         @Override
@@ -190,7 +204,23 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     @Override
     protected List<IColumnDefinition<TableModelRowWithObject<T>>> getInitialFilters()
     {
-        return Collections.emptyList();
+        
+        List<IColumnDefinition<TableModelRowWithObject<T>>> definitions = new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>();
+        List<String> ids = getColumnIdsOfFilters();
+        for (String id : ids)
+        {
+            IColumnDefinition<TableModelRowWithObject<T>> definition = columnDefinitions.get(id);
+            if (definition != null)
+            {
+                definitions.add(definition);
+            }
+        }
+        return definitions;
+    }
+    
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Collections.<String>emptyList();
     }
     
     public DatabaseModificationKind[] getRelevantModifications()

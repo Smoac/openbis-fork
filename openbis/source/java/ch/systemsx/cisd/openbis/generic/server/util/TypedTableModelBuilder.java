@@ -25,6 +25,7 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
@@ -42,6 +43,34 @@ public class TypedTableModelBuilder<T extends IsSerializable>
 {
     private static final StringTableCell EMPTY_CELL = new StringTableCell("");
 
+    private static final class ColumnMetaData implements IColumnMetaData
+    {
+        private final Column column;
+
+        ColumnMetaData(Column column)
+        {
+            this.column = column;
+        }
+        
+        public IColumnMetaData withTitle(String title)
+        {
+            column.getHeader().setTitle(title);
+            return this;
+        }
+
+        public IColumnMetaData withDefaultWidth(int width)
+        {
+            column.getHeader().setDefaultColumnWidth(width);
+            return this;
+        }
+        
+        public IColumnMetaData withDataType(DataTypeCode dataType)
+        {
+            column.getHeader().setDataType(dataType);
+            return this;
+        }
+    }
+    
     private static final class Column
     {
         private final TableModelColumnHeader header;
@@ -110,21 +139,13 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         return new TypedTableModel<T>(headers, rows);
     }
     
-    public void addColumn(String id)
+    public IColumnMetaData addColumn(String id)
     {
-        addColumn(null, id);
+        Column column = createColumn(null, id);
+        addColumn(column);
+        return new ColumnMetaData(column);
     }
     
-    public void addColumn(String id, int defaultWidth)
-    {
-        addColumn(createColumn(null, id, defaultWidth));
-    }
-
-    public void addColumn(String titleOrNull, String id)
-    {
-        addColumn(createColumn(titleOrNull, id));
-    }
-
     private void addColumn(Column column)
     {
         String id = column.getHeader().getId();
@@ -181,13 +202,6 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         return column;
     }
     
-    private Column createColumn(String titleOrNull, String id, int defaultWidth)
-    {
-        TableModelColumnHeader header = createHeader(titleOrNull, id);
-        header.setDefaultColumnWidth(defaultWidth);
-        return new Column(header);
-    }
-
     private Column createColumn(String titleOrNull, String id)
     {
         TableModelColumnHeader header = createHeader(titleOrNull, id);
