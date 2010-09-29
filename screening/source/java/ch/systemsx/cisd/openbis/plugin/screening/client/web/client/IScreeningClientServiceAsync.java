@@ -85,6 +85,12 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void prepareExportPlateLocations(TableExportCriteria<WellContent> criteria,
             AsyncCallback<String> callback);
+    
+    /**
+     * @see IScreeningClientService#prepareExportPlateLocations2(TableExportCriteria)
+     */
+    public void prepareExportPlateLocations2(TableExportCriteria<TableModelRowWithObject<WellContent>> criteria,
+            AsyncCallback<String> callback);
 
     /**
      * @see IScreeningClientService#listPlateMetadata(IResultSetConfig, TechId)

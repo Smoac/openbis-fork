@@ -95,6 +95,7 @@ public interface IScreeningClientService extends IClientService
      * WellContent.
      */
     public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria);
+    public String prepareExportPlateLocations2(TableExportCriteria<TableModelRowWithObject<WellContent>> criteria);
 
     /**
      * Returns {@link GenericTableResultSet} containing plate metadata.

@@ -213,6 +213,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportPlateLocations2(TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
+    {
+        return prepareExportEntities(criteria);
+    }
+
     public GenericTableResultSet listPlateMetadata(
             IResultSetConfig<String, GenericTableRow> criteria, TechId sampleId)
             throws UserFailureException

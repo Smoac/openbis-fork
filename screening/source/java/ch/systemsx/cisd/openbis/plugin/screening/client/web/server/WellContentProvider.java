@@ -32,6 +32,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.server.util.TypedTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -76,12 +77,12 @@ public class WellContentProvider implements ITableModelProvider<WellContent>
             builder.addColumn(EXPERIMENT);
             builder.addColumn(PLATE);
             builder.addColumn(WELL);
-            builder.addColumn(WELL_ROW);
-            builder.addColumn(WELL_COLUMN);
+            builder.addColumn(WELL_ROW).withDataType(DataTypeCode.INTEGER);
+            builder.addColumn(WELL_COLUMN).withDataType(DataTypeCode.INTEGER);
             builder.addColumn(IMAGE_DATA_SET);
             builder.addColumn(IMAGE_ANALYSIS_DATA_SET);
             builder.addColumn(FILE_FORMAT_TYPE);
-            builder.addColumn(WELL_IMAGES, 500);
+            builder.addColumn(WELL_IMAGES).withDefaultWidth(500);
             List<WellContent> wells = server.listPlateWells(sessionToken, materialCriteria);
             for (WellContent well : wells)
             {

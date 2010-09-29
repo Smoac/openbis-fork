@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialReviewerColumnIds.WELL;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialReviewerColumnIds.WELL_CONTENT_MATERIAL;
+
+import java.util.Arrays;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -512,8 +516,13 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
             TableExportCriteria<TableModelRowWithObject<WellContent>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        // TODO Auto-generated method stub
-
+        viewContext.getService().prepareExportPlateLocations2(exportCriteria, callback);
     }
 
+    @Override
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(WELL_CONTENT_MATERIAL, WELL);
+    }
+    
 }
