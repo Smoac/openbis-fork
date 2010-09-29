@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -48,15 +49,28 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
 
     private final boolean withTypesInFile;
 
+    private final boolean withAll;
+
+    private final String initialCodeOrNull;
+
     public DataSetTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final String idSuffix)
+            final String idSuffix, final boolean withAll, final String initialCodeOrNull)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.DATA_SET_TYPE, ModelDataPropertyNames.CODE,
                 "data set type", "data set types");
         this.viewContext = viewContext;
+        this.withAll = withAll;
+        this.initialCodeOrNull = initialCodeOrNull;
         this.withTypesInFile = false;// parameter not used yet outside this class
+        setAutoSelectFirst(withAll && initialCodeOrNull == null);
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
                 ModelDataPropertyNames.TOOLTIP));
+    }
+
+    public DataSetTypeSelectionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
+            String idSuffix)
+    {
+        this(viewContext, idSuffix, false, null);
     }
 
     /**
@@ -72,13 +86,14 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
     @Override
     protected List<DataSetTypeModel> convertItems(List<DataSetType> result)
     {
-        return DataSetTypeModel.convert(result, withTypesInFile);
+        return DataSetTypeModel.convert(result, withAll, withTypesInFile);
     }
 
     @Override
     protected void loadData(AbstractAsyncCallback<List<DataSetType>> callback)
     {
-        viewContext.getService().listDataSetTypes(callback);
+        viewContext.getService().listDataSetTypes(new ListDataSetTypesCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -88,4 +103,45 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
+
+    //
+    // initial value support
+    //
+
+    private void selectInitialValue()
+    {
+        if (initialCodeOrNull != null)
+        {
+            trySelectByCode(initialCodeOrNull);
+            updateOriginalValue();
+        }
+    }
+
+    private void trySelectByCode(String code)
+    {
+        try
+        {
+            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, code);
+        } catch (IllegalArgumentException ex)
+        {
+            MessageBox.alert("Error", "Data Set Type '" + code + "' doesn't exist.", null);
+        }
+    }
+
+    private class ListDataSetTypesCallback extends DataSetTypeSelectionWidget.ListItemsCallback
+    {
+
+        protected ListDataSetTypesCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public void process(List<DataSetType> result)
+        {
+            super.process(result);
+            selectInitialValue();
+        }
+    }
+
 }

@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -35,25 +36,36 @@ public class DataSetTypeModel extends NonHierarchicalBaseModelData
 
     private static final long serialVersionUID = 1L;
 
+    
     public DataSetTypeModel(final DataSetType dataSetType)
     {
-        set(ModelDataPropertyNames.CODE, dataSetType.getCode());
-        set(ModelDataPropertyNames.OBJECT, dataSetType);
+        this(dataSetType.getCode(), dataSetType);
         set(ModelDataPropertyNames.TOOLTIP, TooltipRenderer.renderAsTooltip(dataSetType.getCode(),
                 dataSetType.getDescription()));
     }
 
+    private DataSetTypeModel(String code, Object object)
+    {
+        set(ModelDataPropertyNames.CODE, code);
+        set(ModelDataPropertyNames.OBJECT, object);
+    }
+
+    
     public final static List<DataSetTypeModel> convert(final List<DataSetType> dataSetTypes,
-            boolean withTypeInFile)
+            boolean withAll, boolean withTypesInFile)
     {
         final List<DataSetTypeModel> result = new ArrayList<DataSetTypeModel>();
         for (final DataSetType st : dataSetTypes)
         {
             result.add(new DataSetTypeModel(st));
         }
-        if (withTypeInFile && dataSetTypes.size() > 0)
+        if (withTypesInFile && dataSetTypes.size() > 0)
         {
             result.add(0, createTypeInFileModel());
+        }
+        if (withAll)
+        {
+            result.add(0, createAllTypesModel());
         }
         return result;
     }
@@ -64,4 +76,10 @@ public class DataSetTypeModel extends NonHierarchicalBaseModelData
         typeInFile.setCode(SampleType.DEFINED_IN_FILE);
         return new DataSetTypeModel(typeInFile);
     }
+
+    private static DataSetTypeModel createAllTypesModel()
+    {
+        return new DataSetTypeModel(EntityType.ALL_TYPES_CODE, null);
+    }
+
 }
