@@ -22,8 +22,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -35,8 +34,8 @@ import ch.systemsx.cisd.yeastx.db.DBUtils;
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractEICMLDatastoreReportingPlugin extends AbstractDatastorePlugin
-        implements IReportingPluginTask
+abstract public class AbstractEICMLDatastoreReportingPlugin extends
+        AbstractTableModelReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 
