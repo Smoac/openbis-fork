@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -35,8 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  * 
  * @author Izabela Adamczyk
  */
-public class TimeSeriesPropertiesReportingPlugin extends AbstractDatastorePlugin implements
-        IReportingPluginTask
+public class TimeSeriesPropertiesReportingPlugin extends AbstractTableModelReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 

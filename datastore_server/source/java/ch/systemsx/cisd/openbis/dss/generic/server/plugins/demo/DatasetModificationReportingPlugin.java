@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Tomasz Pylak
  */
-public class DatasetModificationReportingPlugin extends AbstractDatastorePlugin implements
+public class DatasetModificationReportingPlugin extends AbstractTableModelReportingPlugin implements
         IReportingPluginTask
 {
     private static final long serialVersionUID = 1L;

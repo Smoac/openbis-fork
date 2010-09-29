@@ -32,7 +32,6 @@ import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -46,8 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractFileTableReportingPlugin extends AbstractDatastorePlugin implements
-        IReportingPluginTask
+abstract public class AbstractFileTableReportingPlugin extends AbstractTableModelReportingPlugin
 {
     protected static final char TAB_SEPARATOR = '\t';
 

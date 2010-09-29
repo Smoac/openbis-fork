@@ -25,14 +25,14 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractTableModelReportingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -42,7 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Tomasz Pylak
  */
-public class DemoReportingPlugin extends AbstractDatastorePlugin implements IReportingPluginTask
+public class DemoReportingPlugin extends AbstractTableModelReportingPlugin implements
+        IReportingPluginTask
 {
     private static final long serialVersionUID = 1L;
 
@@ -73,7 +74,8 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
         return builder.getTableModel();
     }
 
-    private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset, File file)
+    private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
+            File file)
     {
         if (file.isFile())
         {
@@ -88,15 +90,15 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
         }
     }
 
-    private void describeUnknown(SimpleTableModelBuilder builder, DatasetDescription dataset, File file)
+    private void describeUnknown(SimpleTableModelBuilder builder, DatasetDescription dataset,
+            File file)
     {
         String datasetCode = dataset.getDatasetCode();
         ISerializableComparable image = createImageCell(dataset, file);
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode), image,
                         new StringTableCell(file.getName()),
-                        new DateTableCell(new Date(file.lastModified())),
-                        new DoubleTableCell(0));
+                        new DateTableCell(new Date(file.lastModified())), new DoubleTableCell(0));
         builder.addRow(row);
     }
 
@@ -116,9 +118,9 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
     {
         ISerializableComparable image = createImageCell(dataset, file);
         List<ISerializableComparable> row =
-                Arrays.<ISerializableComparable> asList(new StringTableCell(dataset
-                        .getDatasetCode()), image, new StringTableCell(file.getName()),
-                        new DateTableCell(new Date(file.lastModified())),
+                Arrays.<ISerializableComparable> asList(
+                        new StringTableCell(dataset.getDatasetCode()), image, new StringTableCell(
+                                file.getName()), new DateTableCell(new Date(file.lastModified())),
                         new DoubleTableCell(getSize(file)));
         builder.addRow(row);
     }
