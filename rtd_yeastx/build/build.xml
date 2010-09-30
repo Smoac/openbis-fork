@@ -3,11 +3,9 @@
 	<project-classpath name="ecp" classes="${classes}" />
 
 	<property name="variant" value="yeastx" />
+	<property name="original.dist" value="dist" />
+	<property name="mainfolder" value="rtd_yeastx" />
 	<property name="nativeroot" value="${targets}/ant" />
-
-	<target name="clean">
-		<delete dir="${dist}" />
-	</target>
 
 	<target name="compile" depends="build-common.compile, clean" />
 
