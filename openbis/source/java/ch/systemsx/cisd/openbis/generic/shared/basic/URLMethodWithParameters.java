@@ -88,7 +88,8 @@ public class URLMethodWithParameters implements IsSerializable
     }
 
     /** Creates HTML which displays an image linking to the given URL (if it is specified). */
-    public static String createEmbededImageHtml(String imageURL, String linkURLOrNull, int width, int height)
+    public static String createEmbededImageHtml(String imageURL, String linkURLOrNull, int width,
+            int height)
     {
         String linkStart = "", linkEnd = "";
         if (linkURLOrNull != null)
@@ -107,5 +108,18 @@ public class URLMethodWithParameters implements IsSerializable
         }
         return "<div align='center'>" + linkStart + "<img src='" + imageURL + "' alt='" + " image "
                 + "'" + builder + "/>" + linkEnd + "</div>";
+    }
+
+    /** Creates HTML which displays a link. */
+    public static String createEmbededLinkHtml(String linkText, String linkUrl)
+    {
+        String linkStart = "", linkEnd = "";
+        if (linkUrl != null)
+        {
+            linkStart = "<a class='link-style' href='" + linkUrl + "' target='_blank'>";
+            linkEnd = "</a>";
+        }
+
+        return "<div align='center'>" + linkStart + linkText + linkEnd + "</div>";
     }
 }
