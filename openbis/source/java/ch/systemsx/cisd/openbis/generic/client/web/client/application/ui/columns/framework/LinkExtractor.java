@@ -100,8 +100,8 @@ public class LinkExtractor
         return url;
     }
 
-    protected static String tryPrint(URLMethodWithParameters url)
+    protected static String tryPrint(URLMethodWithParameters urlOrNull)
     {
-        return url == null ? null : url.toString().substring(1);
+        return urlOrNull == null ? null : urlOrNull.toString().substring(1);
     }
 }
