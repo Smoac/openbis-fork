@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 

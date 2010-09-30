@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
 /**
  * Abstract class for a factory of plugin tasks.
@@ -72,8 +73,8 @@ public abstract class AbstractPluginTaskFactory<T>
     @Private
     public final static String PARAMS_FILE_PATH_PROPERTY_NAME = "properties-file";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractPluginTaskFactory.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractPluginTaskFactory.class);
 
     private final DatastoreServiceDescription description;
 
@@ -90,11 +91,24 @@ public abstract class AbstractPluginTaskFactory<T>
         String pluginKey = sectionProperties.getKey();
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
         String[] datasetCodes = extractDatasetCodes(pluginProperties);
-        this.description =
-                new DatastoreServiceDescription(pluginKey, label, datasetCodes, datastoreCode);
+
         this.className = PropertyUtils.getMandatoryProperty(pluginProperties, CLASS_PROPERTY_NAME);
         this.instanceParameters = extractInstanceParameters(pluginProperties);
         this.pluginInstance = createPluginInstance(clazz, storeRoot);
+
+        // Reporting plugins needs to add some additional information to the description
+        if (pluginInstance instanceof IReportingPluginTask)
+        {
+            ReportingPluginType type =
+                    ((IReportingPluginTask) pluginInstance).getReportingPluginType();
+            this.description =
+                    new DatastoreServiceDescription(pluginKey, label, datasetCodes, datastoreCode,
+                            type);
+        } else
+        {
+            this.description =
+                    new DatastoreServiceDescription(pluginKey, label, datasetCodes, datastoreCode);
+        }
     }
 
     /**
@@ -156,8 +170,8 @@ public abstract class AbstractPluginTaskFactory<T>
         if (operationLog.isInfoEnabled())
         {
             logLine(LABEL_PROPERTY_NAME, description.getLabel());
-            logLine(DATASET_CODES_PROPERTY_NAME, CollectionUtils.abbreviate(description
-                    .getDatasetTypeCodes(), -1));
+            logLine(DATASET_CODES_PROPERTY_NAME,
+                    CollectionUtils.abbreviate(description.getDatasetTypeCodes(), -1));
             logLine(CLASS_PROPERTY_NAME, className);
             logLine(PARAMS_FILE_PATH_PROPERTY_NAME, instanceParameters.toString());
         }

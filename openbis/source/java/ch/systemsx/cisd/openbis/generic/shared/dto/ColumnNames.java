@@ -59,6 +59,8 @@ public final class ColumnNames
     public static final String DATA_STORE_SERVICE_KEY_COLUMN = "key";
 
     public static final String DATA_STORE_SERVICE_LABEL_COLUMN = "label";
+    
+    public static final String DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE = "REPORTING_PLUGIN_TYPE";
 
     public static final String DATA_STORE_SERVICES_DATASET_TYPES_CHILDREN_COLUMN =
             "DATA_SET_TYPE_ID";

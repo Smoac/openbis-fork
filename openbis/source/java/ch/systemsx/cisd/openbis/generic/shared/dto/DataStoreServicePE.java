@@ -43,6 +43,7 @@ import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
 /**
  * Services offered by the Data Store server to the public.<br>
@@ -65,6 +66,8 @@ public class DataStoreServicePE implements Serializable
     private String label;
 
     private DataStoreServiceKind kind;
+
+    private ReportingPluginType reportingPluginTypeOrNull;
 
     private DataStorePE dataStore;
 
@@ -135,6 +138,18 @@ public class DataStoreServicePE implements Serializable
     public void setKind(DataStoreServiceKind kind)
     {
         this.kind = kind;
+    }
+
+    @Column(name = ColumnNames.DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE)
+    @Enumerated(EnumType.STRING)
+    public ReportingPluginType getReportingPluginTypeOrNull()
+    {
+        return reportingPluginTypeOrNull;
+    }
+
+    public void setReportingPluginTypeOrNull(ReportingPluginType reportingPluginType)
+    {
+        this.reportingPluginTypeOrNull = reportingPluginType;
     }
 
     @NotNull(message = ValidationMessages.DATA_STORE_NOT_NULL_MESSAGE)

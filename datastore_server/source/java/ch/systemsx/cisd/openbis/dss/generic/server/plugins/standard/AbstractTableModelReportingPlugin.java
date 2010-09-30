@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ReportingPluginType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**

@@ -43,6 +43,8 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
 
     private String downloadURL;
 
+    private ReportingPluginType reportingPluginTypeOrNull;
+
     @SuppressWarnings("unused")
     // for GWT serialization
     private DatastoreServiceDescription()
@@ -52,10 +54,17 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
     public DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes,
             String datastoreCode)
     {
+        this(key, label, datasetTypeCodes, datastoreCode, null);
+    }
+
+    public DatastoreServiceDescription(String key, String label, String[] datasetTypeCodes,
+            String datastoreCode, ReportingPluginType reportingPluginTypeOrNull)
+    {
         this.key = key;
         this.label = label;
         this.datasetTypeCodes = datasetTypeCodes;
         this.datastoreCode = datastoreCode;
+        this.reportingPluginTypeOrNull = reportingPluginTypeOrNull;
     }
 
     /** the unique key of the plugin */
@@ -91,6 +100,16 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
         this.downloadURL = downloadURL;
     }
 
+    public ReportingPluginType tryReportingPluginType()
+    {
+        return reportingPluginTypeOrNull;
+    }
+
+    public void setReportingPluginTypeOrNull(ReportingPluginType reportingPluginTypeOrNull)
+    {
+        this.reportingPluginTypeOrNull = reportingPluginTypeOrNull;
+    }
+
     @Override
     public String toString()
     {
@@ -107,6 +126,8 @@ public class DatastoreServiceDescription implements IReportInformationProvider, 
             sb.append(code);
             sb.append(" ");
         }
+        sb.append("; ");
+        sb.append(reportingPluginTypeOrNull);
         sb.append("]");
         return sb.toString();
     }

@@ -250,6 +250,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             service.setKind(serviceKind);
             Set<DataSetTypePE> datasetTypes = extractDatasetTypes(desc.getDatasetTypeCodes(), desc);
             service.setDatasetTypes(datasetTypes);
+            service.setReportingPluginTypeOrNull(desc.tryReportingPluginType());
             services.add(service);
         }
         return services;
@@ -719,10 +720,9 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         if (dataStores.size() != 1)
         {
             throw new UserFailureException(
-                    String
-                            .format(
-                                    "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
-                                    dataStores.size()));
+                    String.format(
+                            "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
+                            dataStores.size()));
         }
         return dataStores.get(0).getRemoteUrl();
     }
