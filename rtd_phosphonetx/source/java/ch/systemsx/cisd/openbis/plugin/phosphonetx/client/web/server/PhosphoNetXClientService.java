@@ -226,7 +226,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         final String sessionToken = getSessionToken();
         RawDataSampleProvider rawDataSampleProvider = new RawDataSampleProvider(proteomicsDataService, sessionToken);
         ResultSet<GenericTableRow> resultSet = listEntities(criteria, rawDataSampleProvider);
-        return new GenericTableResultSet(resultSet, rawDataSampleProvider.getHeaders());
+        return new GenericTableResultSet(resultSet, rawDataSampleProvider.getGenericHeaders());
     }
 
     public String prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria)

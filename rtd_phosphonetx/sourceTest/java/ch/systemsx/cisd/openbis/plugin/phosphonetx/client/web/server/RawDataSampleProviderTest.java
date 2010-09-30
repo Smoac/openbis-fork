@@ -67,7 +67,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         prepareListRawDataSamples();
         
-        List<GenericTableColumnHeader> headers = provider.getHeaders();
+        List<GenericTableColumnHeader> headers = provider.getGenericHeaders();
         
         assertColumns(headers);
         context.assertIsSatisfied();
@@ -81,7 +81,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms3 = sample("MS3", sample("DE", "gamma", "alpha"), "two");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
-        List<GenericTableColumnHeader> headers = provider.getHeaders();
+        List<GenericTableColumnHeader> headers = provider.getGenericHeaders();
         
         assertColumns(headers, "one", "two", "alpha", "beta", "gamma");
         context.assertIsSatisfied();

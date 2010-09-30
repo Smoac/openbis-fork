@@ -22,9 +22,9 @@ import java.util.List;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 /**
  * @author Franz-Josef Elmer
  */
-class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
+class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<GenericTableRow>
 {
 
     @Private
@@ -81,7 +81,7 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         return result;
     }
 
-    public List<GenericTableColumnHeader> getHeaders()
+    public List<GenericTableColumnHeader> getGenericHeaders()
     {
         List<Column> columns = getColumns();
         List<GenericTableColumnHeader> headers =

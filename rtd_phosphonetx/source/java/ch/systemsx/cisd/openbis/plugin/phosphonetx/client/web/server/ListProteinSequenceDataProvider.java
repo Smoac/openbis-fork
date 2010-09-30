@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSeque
  *
  * @author Franz-Josef Elmer
  */
-class ListProteinSequenceDataProvider implements IOriginalDataProvider<ProteinSequence>
+class ListProteinSequenceDataProvider extends AbstractOriginalDataProviderWithoutHeaders<ProteinSequence>
 {
     private final IPhosphoNetXServer server;
     private final String sessionToken;
