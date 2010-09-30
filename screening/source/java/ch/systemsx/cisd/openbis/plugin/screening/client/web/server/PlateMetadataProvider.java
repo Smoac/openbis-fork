@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  * 
  * @author Izabela Adamczyk
  */
-class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
+class PlateMetadataProvider extends AbstractOriginalDataProviderWithoutHeaders<GenericTableRow>
 {
 
     private final List<WellMetadata> wells;
@@ -69,7 +69,7 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
         return result;
     }
 
-    public List<GenericTableColumnHeader> getHeaders()
+    public List<GenericTableColumnHeader> getGenericHeaders()
     {
         List<Column> columns = getColumns();
         List<GenericTableColumnHeader> headers =

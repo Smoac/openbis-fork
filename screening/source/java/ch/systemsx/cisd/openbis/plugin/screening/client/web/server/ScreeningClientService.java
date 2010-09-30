@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeade
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -176,7 +178,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         try
         {
-            return listEntities(gridCriteria, new IOriginalDataProvider<WellContent>()
+            return listEntities(gridCriteria, new AbstractOriginalDataProviderWithoutHeaders<WellContent>()
                 {
                     public List<WellContent> getOriginalData() throws UserFailureException
                     {
@@ -203,8 +205,13 @@ public final class ScreeningClientService extends AbstractClientService implemen
                                 {
                                     return provider.getTableModel().getRows();
                                 }
+
+                                public List<TableModelColumnHeader> getHeaders()
+                                {
+                                    return provider.getTableModel().getHeader();
+                                }
                             });
-        return new TypedTableResultSet<WellContent>(resultSet, provider.getTableModel().getHeader());
+        return new TypedTableResultSet<WellContent>(resultSet);
     }
 
     public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)
@@ -229,7 +236,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         // available.
         updateResultSetColumnsFromProvider(criteria, dataProvider);
         ResultSet<GenericTableRow> resultSet = listEntities(criteria, dataProvider);
-        return new GenericTableResultSet(resultSet, dataProvider.getHeaders());
+        return new GenericTableResultSet(resultSet, dataProvider.getGenericHeaders());
     }
 
     /**
@@ -243,7 +250,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         Set<IColumnDefinition<GenericTableRow>> columns = criteria.getAvailableColumns();
         Set<String> availableColumnIdentifiers = extractColumnIdentifiers(columns);
 
-        List<GenericTableColumnHeader> headers = dataProvider.getHeaders();
+        List<GenericTableColumnHeader> headers = dataProvider.getGenericHeaders();
         for (GenericTableColumnHeader header : headers)
         {
             // the header's code is the same as the definition's identifier
@@ -323,7 +330,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         try
         {
-            return listEntities(displayCriteria, new IOriginalDataProvider<Material>()
+            return listEntities(displayCriteria, new AbstractOriginalDataProviderWithoutHeaders<Material>()
                 {
                     public List<Material> getOriginalData() throws UserFailureException
                     {
