@@ -180,10 +180,4 @@ public class QueryAccessControllerTest
                 RoleWithHierarchy.SPACE_POWER_USER));
     }
 
-    @Test
-    public void testFilterResults() throws Exception
-    {
-
-    }
-
 }

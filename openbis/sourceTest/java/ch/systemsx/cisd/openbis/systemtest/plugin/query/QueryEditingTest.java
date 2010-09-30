@@ -58,12 +58,15 @@ public class QueryEditingTest extends QuerySystemTestCase
     @AfterMethod
     public void tearDown()
     {
-        List<QueryExpression> queries =
-                queryClientService.listQueries(QueryType.GENERIC, BasicEntityType.UNSPECIFIED);
         List<TechId> ids = new ArrayList<TechId>();
-        for (QueryExpression queryExpression : queries)
+        for (QueryType queryType : QueryType.values())
         {
-            ids.add(new TechId(queryExpression.getId()));
+            List<QueryExpression> queries =
+                    queryClientService.listQueries(queryType, BasicEntityType.UNSPECIFIED);
+            for (QueryExpression queryExpression : queries)
+            {
+                ids.add(new TechId(queryExpression.getId()));
+            }
         }
         queryClientService.deleteQueries(ids);
     }
@@ -93,8 +96,8 @@ public class QueryEditingTest extends QuerySystemTestCase
                         .size());
 
         NewQuery query =
-                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC,
-                        DATABASE);
+                createQuery("query1", "select * from sample_types", true, DATABASE,
+                        QueryType.GENERIC, null);
         queryClientService.registerQuery(query);
 
         List<QueryExpression> queries =
@@ -130,8 +133,8 @@ public class QueryEditingTest extends QuerySystemTestCase
         logIntoCommonClientService();
 
         NewQuery query =
-                createQuery("query", "select * from sample_types", true, QueryType.GENERIC,
-                        DATABASE);
+                createQuery("query", "select * from sample_types", true, DATABASE,
+                        QueryType.GENERIC, null);
         queryClientService.registerQuery(query);
 
         try
@@ -151,11 +154,11 @@ public class QueryEditingTest extends QuerySystemTestCase
         logIntoCommonClientService();
 
         NewQuery query1 =
-                createQuery("query1", "select * from sample_types", true, QueryType.GENERIC,
-                        DATABASE);
+                createQuery("query1", "select * from sample_types", true, DATABASE,
+                        QueryType.GENERIC, null);
         NewQuery query2 =
-                createQuery("query2", "select * from experiment_types", true, QueryType.GENERIC,
-                        DATABASE);
+                createQuery("query2", "select * from experiment_types", true, DATABASE,
+                        QueryType.GENERIC, null);
         queryClientService.registerQuery(query1);
         queryClientService.registerQuery(query2);
 
@@ -205,7 +208,7 @@ public class QueryEditingTest extends QuerySystemTestCase
 
         NewQuery query =
                 createQuery("query", "select id, code from sample_types where id = ${id}", true,
-                        QueryType.GENERIC, DATABASE);
+                        DATABASE, QueryType.GENERIC, null);
         queryClientService.registerQuery(query);
 
         List<QueryExpression> queries =
@@ -220,6 +223,74 @@ public class QueryEditingTest extends QuerySystemTestCase
                         bindings);
 
         checkTable(table);
+    }
+
+    @Test(dependsOnMethods = "testInitDatabases")
+    public void testRegisterAndListSampleQueries()
+    {
+        logIntoCommonClientService();
+
+        final String noTypeQueryName = "query no type";
+        final String cellPlateQueryName = "query cell plate";
+        final String cellPlateType = "CELL_PLATE";
+        final String wellQueryName = "query well";
+        final String wellType = "WELL";
+        NewQuery query =
+                createQuery(noTypeQueryName, "select * from samples", true, DATABASE,
+                        QueryType.SAMPLE, null);
+        queryClientService.registerQuery(query);
+        query.setName(cellPlateQueryName);
+        query.setEntityTypeCode(cellPlateType);
+        queryClientService.registerQuery(query);
+        query.setName(wellQueryName);
+        query.setEntityTypeCode(wellType);
+        queryClientService.registerQuery(query);
+
+        List<QueryExpression> queriesNoType =
+                queryClientService.listQueries(QueryType.SAMPLE, BasicEntityType.UNSPECIFIED);
+        assertEquals(3, queriesNoType.size());
+        assertEquals(noTypeQueryName, queriesNoType.get(0).getName());
+        assertEquals(cellPlateQueryName, queriesNoType.get(1).getName());
+        assertEquals(wellQueryName, queriesNoType.get(2).getName());
+        List<QueryExpression> queriesForCellPlate =
+                queryClientService
+                        .listQueries(QueryType.SAMPLE, new BasicEntityType(cellPlateType));
+        assertEquals(2, queriesForCellPlate.size());
+        assertEquals(noTypeQueryName, queriesForCellPlate.get(0).getName());
+        assertEquals(cellPlateQueryName, queriesForCellPlate.get(1).getName());
+        List<QueryExpression> queriesForWell =
+                queryClientService.listQueries(QueryType.SAMPLE, new BasicEntityType(wellType));
+        assertEquals(2, queriesForWell.size());
+        assertEquals(noTypeQueryName, queriesForWell.get(0).getName());
+        assertEquals(wellQueryName, queriesForWell.get(1).getName());
+    }
+
+    @Test(dependsOnMethods = "testInitDatabases")
+    public void testRegisterAndListSampleQueryWithType()
+    {
+        logIntoCommonClientService();
+
+        NewQuery query =
+                createQuery("query", "select id, code from sample_types where id = ${id}", true,
+                        DATABASE, QueryType.SAMPLE, null);
+        queryClientService.registerQuery(query);
+
+        List<QueryExpression> queriesNoType =
+                queryClientService.listQueries(QueryType.SAMPLE, BasicEntityType.UNSPECIFIED);
+        assertEquals(1, queriesNoType.size());
+        List<QueryExpression> queriesCellPlate =
+                queryClientService.listQueries(QueryType.SAMPLE, new BasicEntityType("CELL_PLATE"));
+        assertEquals(1, queriesCellPlate.size());
+
+        // QueryExpression actualQuery = queries.get(0);
+        // QueryParameterBindings bindings = new QueryParameterBindings();
+        // bindings.addBinding("id", "1");
+        //
+        // TableModelReference table =
+        // queryClientService.createQueryResultsReport(new TechId(actualQuery.getId()),
+        // bindings);
+        //
+        // checkTable(table);
     }
 
     private void checkTable(TableModelReference table)
@@ -243,15 +314,16 @@ public class QueryEditingTest extends QuerySystemTestCase
     }
 
     private NewQuery createQuery(String name, String expression, boolean isPublic,
-            QueryType queryType, QueryDatabase database)
+            QueryDatabase database, QueryType queryType, String entityTypeCodeOrNull)
     {
         NewQuery query = new NewQuery();
         query.setName(name);
         query.setDescription("A simple query named '" + name + "'.");
         query.setExpression(expression);
         query.setPublic(isPublic);
-        query.setQueryType(queryType);
         query.setQueryDatabase(database);
+        query.setQueryType(queryType);
+        query.setEntityTypeCode(entityTypeCodeOrNull);
         return query;
     }
 
