@@ -442,7 +442,7 @@ var common = {
   use_wildcard_search_mode_tooltip: "Check to treat '*' and '?' as wildcards in searched text. Note, that only whole words will match if you don't add '*' at the beginning and at the end of the text.",
   reset_user_settings_button: "Restore Default",
   reset_user_settings_confirmation_msg: "Are you sure that you want to restore default settings?<br><br><b>Note that:</b><li>Every setting you changed in this application apart from home space, e.g. hiding/showing certain columns in a browser, will be lost.<li>All currently opened tabs will be closed.",
-  real_number_formating_fields: "Custom Real Number Formating in Tables",
+  real_number_formating_fields: "Custom Real Number Formatting in Tables",
   scientific_formating: "Scientific",
   real_number_formating_precision: "Precision",
   error_message_formating: "Debugging Error Messages",
