@@ -537,7 +537,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, PropertyType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<PropertyType>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<PropertyType>()
             {
                 public List<PropertyType> getOriginalData() throws UserFailureException
                 {
@@ -562,7 +562,7 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
             DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria)
     {
-        return listEntities(criteria, new IOriginalDataProvider<EntityTypePropertyType<?>>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<EntityTypePropertyType<?>>()
             {
                 public List<EntityTypePropertyType<?>> getOriginalData()
                         throws UserFailureException
@@ -608,7 +608,7 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<Space> listGroups(DefaultResultSetConfig<String, Space> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<Space>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Space>()
             {
                 public List<Space> getOriginalData() throws UserFailureException
                 {
@@ -650,7 +650,7 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<Person> listPersons(final ListPersonsCriteria criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<Person>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Person>()
             {
                 public List<Person> getOriginalData() throws UserFailureException
                 {
@@ -680,7 +680,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, RoleAssignment> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<RoleAssignment>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<RoleAssignment>()
             {
                 public List<RoleAssignment> getOriginalData() throws UserFailureException
                 {
@@ -706,7 +706,7 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<Project>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Project>()
             {
                 public List<Project> getOriginalData() throws UserFailureException
                 {
@@ -733,7 +733,7 @@ public final class CommonClientService extends AbstractClientService implements
             final boolean excludeInternal, DefaultResultSetConfig<String, Vocabulary> criteria)
             throws UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<Vocabulary>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Vocabulary>()
             {
                 public List<Vocabulary> getOriginalData() throws UserFailureException
                 {
@@ -760,7 +760,7 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<VocabularyTermWithStats> listVocabularyTerms(final Vocabulary vocabulary,
             DefaultResultSetConfig<String, VocabularyTermWithStats> criteria)
     {
-        return listEntities(criteria, new IOriginalDataProvider<VocabularyTermWithStats>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<VocabularyTermWithStats>()
             {
                 public List<VocabularyTermWithStats> getOriginalData() throws UserFailureException
                 {
@@ -776,7 +776,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, MaterialType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<MaterialType>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<MaterialType>()
             {
                 public List<MaterialType> getOriginalData() throws UserFailureException
                 {
@@ -788,7 +788,7 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<SampleType> listSampleTypes(DefaultResultSetConfig<String, SampleType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<SampleType>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<SampleType>()
             {
                 public List<SampleType> getOriginalData() throws UserFailureException
                 {
@@ -801,7 +801,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, ExperimentType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<ExperimentType>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExperimentType>()
             {
                 public List<ExperimentType> getOriginalData() throws UserFailureException
                 {
@@ -814,7 +814,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, DataSetType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<DataSetType>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<DataSetType>()
             {
                 public List<DataSetType> getOriginalData() throws UserFailureException
                 {
@@ -827,7 +827,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, FileFormatType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<FileFormatType>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<FileFormatType>()
             {
                 public List<FileFormatType> getOriginalData() throws UserFailureException
                 {
@@ -841,7 +841,7 @@ public final class CommonClientService extends AbstractClientService implements
             final boolean showOnlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria, new IOriginalDataProvider<ExternalData>()
+        return listEntitiesWithTypes(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
             {
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
@@ -858,7 +858,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria, new IOriginalDataProvider<ExternalData>()
+        return listEntitiesWithTypes(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
             {
 
                 public List<ExternalData> getOriginalData() throws UserFailureException
@@ -877,7 +877,7 @@ public final class CommonClientService extends AbstractClientService implements
             final DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria, new IOriginalDataProvider<ExternalData>()
+        return listEntitiesWithTypes(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
             {
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
@@ -1710,7 +1710,7 @@ public final class CommonClientService extends AbstractClientService implements
             final DefaultResultSetConfig<String, AttachmentVersions> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<AttachmentVersions>()
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<AttachmentVersions>()
             {
                 public List<AttachmentVersions> getOriginalData() throws UserFailureException
                 {
@@ -2177,7 +2177,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig)
     {
 
-        return listEntities(resultSetConfig, new IOriginalDataProvider<AuthorizationGroup>()
+        return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<AuthorizationGroup>()
             {
                 public List<AuthorizationGroup> getOriginalData() throws UserFailureException
                 {
@@ -2296,7 +2296,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig, new IOriginalDataProvider<GridCustomFilter>()
+        return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<GridCustomFilter>()
             {
                 public List<GridCustomFilter> getOriginalData() throws UserFailureException
                 {
@@ -2367,7 +2367,7 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig, new IOriginalDataProvider<GridCustomColumn>()
+        return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<GridCustomColumn>()
             {
                 public List<GridCustomColumn> getOriginalData() throws UserFailureException
                 {

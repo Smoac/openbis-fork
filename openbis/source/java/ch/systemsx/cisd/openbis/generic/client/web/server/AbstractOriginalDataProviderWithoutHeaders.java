@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
 /**
- * An <i>abstract</i> {@link IOriginalDataProvider} implementation.
+ * Abstract super class of {@link IOriginalDataProvider} implementations which return no
+ * {@link TableModelColumnHeader} instances.
  * 
- * @author Christian Ribeaud
+ * @author Franz-Josef Elmer
  */
-abstract class AbstractOriginalDataProvider<T> extends AbstractOriginalDataProviderWithoutHeaders<T>
+public abstract class AbstractOriginalDataProviderWithoutHeaders<T> implements
+        IOriginalDataProvider<T>
 {
+    private static final List<TableModelColumnHeader> NO_HEADERS = new ArrayList<TableModelColumnHeader>();
 
-    protected final ICommonServer commonServer;
-
-    protected final String sessionToken;
-
-    AbstractOriginalDataProvider(final ICommonServer commonServer, final String sessionToken)
+    public List<TableModelColumnHeader> getHeaders()
     {
-        super();
-        this.commonServer = commonServer;
-        this.sessionToken = sessionToken;
+        // Collections.emptyList() can not be serialized by GWT
+        return NO_HEADERS;
     }
-    
 }

@@ -162,7 +162,7 @@ public abstract class AbstractClientService implements IClientService,
 
     protected static <T> IOriginalDataProvider<T> createDummyDataProvider()
     {
-        return new IOriginalDataProvider<T>()
+        return new AbstractOriginalDataProviderWithoutHeaders<T>()
             {
                 public List<T> getOriginalData() throws UserFailureException
                 {
@@ -345,7 +345,7 @@ public abstract class AbstractClientService implements IClientService,
     {
         DefaultResultSetConfig<String, T> criteria = new DefaultResultSetConfig<String, T>();
         criteria.setLimit(0); // we do not need any data now, just a key
-        ResultSet<T> resultSet = listEntities(criteria, new IOriginalDataProvider<T>()
+        ResultSet<T> resultSet = listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<T>()
             {
                 public List<T> getOriginalData() throws UserFailureException
                 {

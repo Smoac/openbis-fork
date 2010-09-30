@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
 /**
@@ -123,12 +124,15 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
         private final IColumnCalculator columnCalculator;
 
+        private final List<TableModelColumnHeader> headers;
+        
         private Map<String, Column> calculatedColumns = new HashMap<String, Column>();
 
-        TableData(List<T> originalData, ICustomColumnsProvider customColumnsProvider,
+        TableData(List<T> originalData, List<TableModelColumnHeader> headers, ICustomColumnsProvider customColumnsProvider,
                 IColumnCalculator columnCalculator)
         {
             this.originalData = originalData;
+            this.headers = headers;
             this.customColumnsProvider = customColumnsProvider;
             this.columnCalculator = columnCalculator;
         }
@@ -182,7 +186,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             List<GridCustomColumnInfo> customColumnInfos =
                     extractColumnInfos(allCustomColumnDefinitions);
 
-            return new GridRowModels<T>(rows, customColumnInfos, columnDistinctValues);
+            return new GridRowModels<T>(rows, headers, customColumnInfos, columnDistinctValues);
         }
 
         private List<GridCustomColumn> loadAllCustomColumnDefinitions(String sessionToken,
@@ -578,8 +582,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         K dataKey = resultSetKeyProvider.createKey();
         debug("retrieving the data with a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData();
+        List<TableModelColumnHeader> headers = dataProvider.getHeaders();
         xmlPropertyTransformer.transformXMLProperties(rows);
-        TableData<T> tableData = new TableData<T>(rows, customColumnsProvider, columnCalculator);
+        TableData<T> tableData = new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
         addToCache(dataKey, tableData);
         return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);
     }

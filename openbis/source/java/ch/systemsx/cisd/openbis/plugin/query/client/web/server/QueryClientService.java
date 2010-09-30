@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -167,7 +167,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     {
         try
         {
-            return listEntities(resultSetConfig, new IOriginalDataProvider<QueryExpression>()
+            return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<QueryExpression>()
                 {
                     public List<QueryExpression> getOriginalData() throws UserFailureException
                     {

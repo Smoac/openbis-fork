@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
@@ -31,12 +28,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 public class TypedTableResultSet<T extends IsSerializable> implements IsSerializable
 {
     private ResultSet<TableModelRowWithObject<T>> resultSet;
-    private List<TableModelColumnHeader> headers;
 
-    public TypedTableResultSet(ResultSet<TableModelRowWithObject<T>> resultSet, List<TableModelColumnHeader> headers)
+    public TypedTableResultSet(ResultSet<TableModelRowWithObject<T>> resultSet)
     {
         this.resultSet = resultSet;
-        this.headers = headers;
     }
     
     // GWT only
@@ -48,11 +43,6 @@ public class TypedTableResultSet<T extends IsSerializable> implements IsSerializ
     public final ResultSet<TableModelRowWithObject<T>> getResultSet()
     {
         return resultSet;
-    }
-
-    public final List<TableModelColumnHeader> getHeaders()
-    {
-        return headers;
     }
 
 }

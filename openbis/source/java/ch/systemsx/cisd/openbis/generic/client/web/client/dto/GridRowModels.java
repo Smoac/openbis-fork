@@ -22,6 +22,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
 /**
  * A list of {@link GridRowModel} together with metadata about custom columns.
@@ -31,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSerializable
 {
     private static final long serialVersionUID = 1L;
+    
+    private List<TableModelColumnHeader> columnHeaders;
 
     /**
      * Metadata of available custom columns for all rows.
@@ -49,18 +52,24 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
     /** Creates a new instance with the specified list of data and previous values for other fields */
     public GridRowModels<T> cloneWithData(List<GridRowModel<T>> list)
     {
-        return new GridRowModels<T>(list, this.getCustomColumnsMetadata(), this
+        return new GridRowModels<T>(list, this.getColumnHeaders(), this.getCustomColumnsMetadata(), this
                 .getColumnDistinctValues());
     }
 
     public GridRowModels(List<GridRowModel<T>> list,
-            List<GridCustomColumnInfo> customColumnsMetadata, List<ColumnDistinctValues> arrayList)
+            List<TableModelColumnHeader> headers, List<GridCustomColumnInfo> customColumnsMetadata, List<ColumnDistinctValues> arrayList)
     {
         super(list);
+        columnHeaders = headers;
         this.customColumnsMetadata = customColumnsMetadata;
         this.columnDistinctValues = arrayList;
     }
 
+    public List<TableModelColumnHeader> getColumnHeaders()
+    {
+        return columnHeaders;
+    }
+    
     /** Used when items are not displayed in a grid (usually we need the values for comboboxes) */
     // TODO 2009-10-08, Tomasz Pylak: this method is a source of many anti-patterns where the
     // existance of server cache is simply forgotten and cache is never cleared.
@@ -91,4 +100,5 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
     private GridRowModels()
     {
     }
+
 }

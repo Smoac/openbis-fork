@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
 /**
  * Each implementation knows how to retrieve the original data used to produce a {@link IResultSet}.
@@ -32,4 +33,9 @@ public interface IOriginalDataProvider<T>
      * Returns the original data.
      */
     public List<T> getOriginalData() throws UserFailureException;
+    
+    /**
+     * Returns headers if known, otherwise an empty list is returned.
+     */
+    public List<TableModelColumnHeader> getHeaders();
 }

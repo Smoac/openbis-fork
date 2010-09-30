@@ -241,7 +241,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         ArrayList<ColumnDistinctValues> columnDistinctValues =
                 new ArrayList<ColumnDistinctValues>();
         GridRowModels<T> rowModels =
-                new GridRowModels<T>(TSVRendererTest.asRowModel(entities), customColumnsMetadata,
+                new GridRowModels<T>(TSVRendererTest.asRowModel(entities), null, customColumnsMetadata,
                         columnDistinctValues);
         return rowModels;
     }
