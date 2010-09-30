@@ -8,6 +8,8 @@
 	<property name="dist.datastore_server.lib" value="${dist.datastore_server}/lib" />
 	<property name="dss-jar.file" value="${dist.datastore_server.lib}/datastore_server.jar" />
 	<property name="dist.file.prefix" value="${dist}/datastore_server" />
+	<property name="dist.lib" value="${dist}/lib"/>
+	<property name="plugin-jar.file" value="${dist}/datastore_server-plugin.jar" />
 	
 	<property name="dss_client" value="dss_client" />
 	<property name="dist.dss_client" value="${dist}/dss_client" />
@@ -70,6 +72,14 @@
 			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
 		</jar>
 	</target>
+	
+  <target name="make-plugin-dist">
+		<move file="${plugin-jar.file}" tofile="${dist.lib}/datastore_server-plugin-${variant}.jar" />
+		<property name="dist.file"
+		          value="${dist}/datastore_server_plugin-${variant}-${version.number}-r${revision.number}.zip" />
+		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar"/>
+		<delete dir="${dist.lib}"/>
+  </target>
 
 	<target name="dist">
 		<antcall target="make-dist">
