@@ -1112,4 +1112,13 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason);
 
+    /**
+     * Gets the link from a service that supports the IReportingPluginTask#createLink method.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public String retrieveLinkFromDataSet(String sessionToken,
+            DatastoreServiceDescription serviceDescription,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode);
+
 }

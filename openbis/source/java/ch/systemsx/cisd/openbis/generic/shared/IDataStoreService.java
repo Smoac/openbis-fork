@@ -83,14 +83,15 @@ public interface IDataStoreService
      * Schedules the processing task with the specified id for provided datasets and specified
      * parameter bindings.
      * 
-     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER} with
-     *            the ID of the user who initiated processing.
+     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER}
+     *            with the ID of the user who initiated processing.
      * @param userEmailOrNull Email of user who initiated processing and will get a message after
      *            the processing is finished. It may be null if the user doesn't have email and no
      *            message will be send in such case.
      */
     public void processDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets, Map<String, String> parameterBindings, String userEmailOrNull);
+            List<DatasetDescription> datasets, Map<String, String> parameterBindings,
+            String userEmailOrNull);
 
     /**
      * Schedules archiving of provided datasets.
@@ -111,4 +112,14 @@ public interface IDataStoreService
      */
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
             String userEmailOrNull);
+
+    /**
+     * Gets the link from a service that supports the IReportingPluginTask#createLink method.
+     * 
+     * @param sessionToken The sessionToken
+     * @param serviceKey The service that should compute the link
+     * @param dataSet The data set we want the link for
+     */
+    public String retrieveLinkFromDataSet(String sessionToken, String serviceKey,
+            DatasetDescription dataSet);
 }

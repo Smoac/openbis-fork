@@ -537,13 +537,14 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, PropertyType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<PropertyType>()
-            {
-                public List<PropertyType> getOriginalData() throws UserFailureException
-                {
-                    return listPropertyTypes(true);
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<PropertyType>()
+                    {
+                        public List<PropertyType> getOriginalData() throws UserFailureException
+                        {
+                            return listPropertyTypes(true);
+                        }
+                    });
     }
 
     public final ResultSet<MatchingEntity> listMatchingEntities(
@@ -562,14 +563,15 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(
             DefaultResultSetConfig<String, EntityTypePropertyType<?>> criteria)
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<EntityTypePropertyType<?>>()
-            {
-                public List<EntityTypePropertyType<?>> getOriginalData()
-                        throws UserFailureException
-                {
-                    return extractAssignments(listPropertyTypes(true));
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<EntityTypePropertyType<?>>()
+                    {
+                        public List<EntityTypePropertyType<?>> getOriginalData()
+                                throws UserFailureException
+                        {
+                            return extractAssignments(listPropertyTypes(true));
+                        }
+                    });
     }
 
     private static List<EntityTypePropertyType<?>> extractAssignments(
@@ -680,13 +682,14 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, RoleAssignment> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<RoleAssignment>()
-            {
-                public List<RoleAssignment> getOriginalData() throws UserFailureException
-                {
-                    return listRoleAssignments();
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<RoleAssignment>()
+                    {
+                        public List<RoleAssignment> getOriginalData() throws UserFailureException
+                        {
+                            return listRoleAssignments();
+                        }
+                    });
     }
 
     public final List<RoleAssignment> listRoleAssignments()
@@ -760,29 +763,32 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSet<VocabularyTermWithStats> listVocabularyTerms(final Vocabulary vocabulary,
             DefaultResultSetConfig<String, VocabularyTermWithStats> criteria)
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<VocabularyTermWithStats>()
-            {
-                public List<VocabularyTermWithStats> getOriginalData() throws UserFailureException
-                {
-                    List<ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats> terms =
-                            commonServer.listVocabularyTermsWithStatistics(getSessionToken(),
-                                    vocabulary);
-                    return VocabularyTermTranslator.translate(terms);
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<VocabularyTermWithStats>()
+                    {
+                        public List<VocabularyTermWithStats> getOriginalData()
+                                throws UserFailureException
+                        {
+                            List<ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats> terms =
+                                    commonServer.listVocabularyTermsWithStatistics(
+                                            getSessionToken(), vocabulary);
+                            return VocabularyTermTranslator.translate(terms);
+                        }
+                    });
     }
 
     public ResultSet<MaterialType> listMaterialTypes(
             DefaultResultSetConfig<String, MaterialType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<MaterialType>()
-            {
-                public List<MaterialType> getOriginalData() throws UserFailureException
-                {
-                    return listMaterialTypes();
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<MaterialType>()
+                    {
+                        public List<MaterialType> getOriginalData() throws UserFailureException
+                        {
+                            return listMaterialTypes();
+                        }
+                    });
     }
 
     public ResultSet<SampleType> listSampleTypes(DefaultResultSetConfig<String, SampleType> criteria)
@@ -801,13 +807,14 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, ExperimentType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExperimentType>()
-            {
-                public List<ExperimentType> getOriginalData() throws UserFailureException
-                {
-                    return listExperimentTypes();
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<ExperimentType>()
+                    {
+                        public List<ExperimentType> getOriginalData() throws UserFailureException
+                        {
+                            return listExperimentTypes();
+                        }
+                    });
     }
 
     public ResultSet<DataSetType> listDataSetTypes(
@@ -827,13 +834,14 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, FileFormatType> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<FileFormatType>()
-            {
-                public List<FileFormatType> getOriginalData() throws UserFailureException
-                {
-                    return listFileTypes();
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<FileFormatType>()
+                    {
+                        public List<FileFormatType> getOriginalData() throws UserFailureException
+                        {
+                            return listFileTypes();
+                        }
+                    });
     }
 
     public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
@@ -841,35 +849,38 @@ public final class CommonClientService extends AbstractClientService implements
             final boolean showOnlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
-            {
-                public List<ExternalData> getOriginalData() throws UserFailureException
-                {
-                    final String sessionToken = getSessionToken();
-                    final List<ExternalData> externalData =
-                            commonServer.listSampleExternalData(sessionToken, sampleId,
-                                    showOnlyDirectlyConnected);
-                    return externalData;
-                }
-            });
+        return listEntitiesWithTypes(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
+                    {
+                        public List<ExternalData> getOriginalData() throws UserFailureException
+                        {
+                            final String sessionToken = getSessionToken();
+                            final List<ExternalData> externalData =
+                                    commonServer.listSampleExternalData(sessionToken, sampleId,
+                                            showOnlyDirectlyConnected);
+                            return externalData;
+                        }
+                    });
     }
 
     public ResultSetWithEntityTypes<ExternalData> listExperimentDataSets(final TechId experimentId,
             DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
-            {
+        return listEntitiesWithTypes(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
+                    {
 
-                public List<ExternalData> getOriginalData() throws UserFailureException
-                {
-                    final String sessionToken = getSessionToken();
-                    final List<ExternalData> externalData =
-                            commonServer.listExperimentExternalData(sessionToken, experimentId);
-                    return externalData;
-                }
+                        public List<ExternalData> getOriginalData() throws UserFailureException
+                        {
+                            final String sessionToken = getSessionToken();
+                            final List<ExternalData> externalData =
+                                    commonServer.listExperimentExternalData(sessionToken,
+                                            experimentId);
+                            return externalData;
+                        }
 
-            });
+                    });
     }
 
     public ResultSetWithEntityTypes<ExternalData> listDataSetRelationships(final TechId datasetId,
@@ -877,16 +888,18 @@ public final class CommonClientService extends AbstractClientService implements
             final DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntitiesWithTypes(criteria, new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
-            {
-                public List<ExternalData> getOriginalData() throws UserFailureException
-                {
-                    final String sessionToken = getSessionToken();
-                    final List<ExternalData> externalData =
-                            commonServer.listDataSetRelationships(sessionToken, datasetId, role);
-                    return externalData;
-                }
-            });
+        return listEntitiesWithTypes(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<ExternalData>()
+                    {
+                        public List<ExternalData> getOriginalData() throws UserFailureException
+                        {
+                            final String sessionToken = getSessionToken();
+                            final List<ExternalData> externalData =
+                                    commonServer.listDataSetRelationships(sessionToken, datasetId,
+                                            role);
+                            return externalData;
+                        }
+                    });
     }
 
     // ---------------- end list using cache ----------
@@ -1346,8 +1359,8 @@ public final class CommonClientService extends AbstractClientService implements
                     Person leader = project.getProjectLeader();
                     final String leaderId =
                             leader == null ? null : project.getProjectLeader().getUserId();
-                    commonServer.registerProject(sessionToken, projectIdentifier, project
-                            .getDescription(), leaderId, attachments);
+                    commonServer.registerProject(sessionToken, projectIdentifier,
+                            project.getDescription(), leaderId, attachments);
                 }
             }.process(sessionKey, getHttpSession(), project.getNewAttachments());
 
@@ -1710,13 +1723,15 @@ public final class CommonClientService extends AbstractClientService implements
             final DefaultResultSetConfig<String, AttachmentVersions> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<AttachmentVersions>()
-            {
-                public List<AttachmentVersions> getOriginalData() throws UserFailureException
-                {
-                    return listAttachmentVersions(holderId, holderKind);
-                }
-            });
+        return listEntities(criteria,
+                new AbstractOriginalDataProviderWithoutHeaders<AttachmentVersions>()
+                    {
+                        public List<AttachmentVersions> getOriginalData()
+                                throws UserFailureException
+                        {
+                            return listAttachmentVersions(holderId, holderKind);
+                        }
+                    });
     }
 
     private List<AttachmentVersions> listAttachmentVersions(TechId holderId,
@@ -1873,9 +1888,7 @@ public final class CommonClientService extends AbstractClientService implements
                     Date date = commonServer.updateProject(sessionToken, updatesDTO);
                     modificationDate.setTime(date.getTime());
                 }
-            }
-                .process(updates.getAttachmentSessionKey(), getHttpSession(), updates
-                        .getAttachments());
+            }.process(updates.getAttachmentSessionKey(), getHttpSession(), updates.getAttachments());
         return modificationDate;
     }
 
@@ -2177,13 +2190,15 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, AuthorizationGroup> resultSetConfig)
     {
 
-        return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<AuthorizationGroup>()
-            {
-                public List<AuthorizationGroup> getOriginalData() throws UserFailureException
-                {
-                    return listAuthorizationGroups();
-                }
-            });
+        return listEntities(resultSetConfig,
+                new AbstractOriginalDataProviderWithoutHeaders<AuthorizationGroup>()
+                    {
+                        public List<AuthorizationGroup> getOriginalData()
+                                throws UserFailureException
+                        {
+                            return listAuthorizationGroups();
+                        }
+                    });
     }
 
     public String prepareExportAuthorizationGroups(
@@ -2296,13 +2311,14 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<GridCustomFilter>()
-            {
-                public List<GridCustomFilter> getOriginalData() throws UserFailureException
-                {
-                    return listFilters(gridId);
-                }
-            });
+        return listEntities(resultSetConfig,
+                new AbstractOriginalDataProviderWithoutHeaders<GridCustomFilter>()
+                    {
+                        public List<GridCustomFilter> getOriginalData() throws UserFailureException
+                        {
+                            return listFilters(gridId);
+                        }
+                    });
     }
 
     public String prepareExportFilters(TableExportCriteria<GridCustomFilter> criteria)
@@ -2367,13 +2383,14 @@ public final class CommonClientService extends AbstractClientService implements
             DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<GridCustomColumn>()
-            {
-                public List<GridCustomColumn> getOriginalData() throws UserFailureException
-                {
-                    return listGridCustomColumns(gridId);
-                }
-            });
+        return listEntities(resultSetConfig,
+                new AbstractOriginalDataProviderWithoutHeaders<GridCustomColumn>()
+                    {
+                        public List<GridCustomColumn> getOriginalData() throws UserFailureException
+                        {
+                            return listGridCustomColumns(gridId);
+                        }
+                    });
     }
 
     public String prepareExportColumns(TableExportCriteria<GridCustomColumn> criteria)
@@ -2498,6 +2515,22 @@ public final class CommonClientService extends AbstractClientService implements
             List<String> datasetCodes = extractDatasetCodes(criteria);
             int result = commonServer.unlockDatasets(sessionToken, datasetCodes);
             return new ArchivingResult(datasetCodes.size(), result);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public String retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
+            String dataSetCode)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final String url =
+                    commonServer.retrieveLinkFromDataSet(sessionToken, serviceDescription,
+                            dataSetCode);
+            return url;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

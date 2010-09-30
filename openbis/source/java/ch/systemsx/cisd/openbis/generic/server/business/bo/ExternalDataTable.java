@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -82,8 +83,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         IExternalDataTable
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ExternalDataTable.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ExternalDataTable.class);
 
     @Private
     static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
@@ -143,8 +144,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                     "Operation failed because following data sets are not available "
                             + "(they are archived or their status is pending): %s. "
                             + "Unarchive these data sets or filter them out using data set status "
-                            + "before performing the operation once again.", CollectionUtils
-                            .abbreviate(unavailableDatasets, 10));
+                            + "before performing the operation once again.",
+                    CollectionUtils.abbreviate(unavailableDatasets, 10));
         }
     }
 
@@ -301,8 +302,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         StringBuilder builder = new StringBuilder();
         if (dataSetsWithUnknownDSS.isEmpty() == false)
         {
-            builder
-                    .append("The following data sets couldn't been uploaded because of unkown data store:");
+            builder.append("The following data sets couldn't been uploaded because of unkown data store:");
             for (ExternalDataPE externalDataPE : dataSetsWithUnknownDSS)
             {
                 builder.append(' ').append(externalDataPE.getCode());
@@ -679,8 +679,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (ExternalDataPE s : externalData)
         {
-            entityPropertiesConverter.checkMandatoryProperties(s.getProperties(), s
-                    .getDataSetType(), cache);
+            entityPropertiesConverter.checkMandatoryProperties(s.getProperties(),
+                    s.getDataSetType(), cache);
         }
     }
 
@@ -712,5 +712,26 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         updateBatchProperties(dataSet, Arrays.asList(d.getProperties()), d.getPropertiesToUpdate());
         return dataSet;
+    }
+
+    public String retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode)
+    {
+        DataStorePE dataStore = findDataStore(datastoreCode);
+        IDataStoreService service = tryGetDataStoreService(dataStore);
+        if (service == null)
+        {
+            throw createUnknownDataStoreServerException();
+        }
+        List<DatasetDescription> locations =
+                loadAvailableDatasetDescriptions(Collections.singletonList(dataSetCode));
+        if (locations.size() < 1)
+        {
+            throw new UserFailureException(String.format("Data set with code '%s' does not exist.",
+                    dataSetCode));
+        }
+
+        DatasetDescription dataSet = locations.get(0);
+        String sessionToken = dataStore.getSessionToken();
+        return service.retrieveLinkFromDataSet(sessionToken, key, dataSet);
     }
 }

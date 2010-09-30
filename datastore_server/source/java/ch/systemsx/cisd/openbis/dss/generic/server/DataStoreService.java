@@ -243,8 +243,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.getPluginInstance(serviceKey);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
-        commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userEmailOrNull, pluginDescription,
-                mailClientParameters);
+        commandExecutor.scheduleProcessDatasets(task, datasets, parameterBindings, userEmailOrNull,
+                pluginDescription, mailClientParameters);
     }
 
     public void unarchiveDatasets(String sessionToken, List<DatasetDescription> datasets,
@@ -301,6 +301,17 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 return archiverTask.unarchive(datasets);
             }
         }
+    }
+
+    public String retrieveLinkFromDataSet(String sessionToken, String serviceKey,
+            DatasetDescription dataSet)
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+
+        PluginTaskProvider<IReportingPluginTask> reportingPlugins =
+                pluginTaskParameters.getReportingPluginsProvider();
+        IReportingPluginTask task = reportingPlugins.getPluginInstance(serviceKey);
+        return task.createLink(dataSet);
     }
 
 }

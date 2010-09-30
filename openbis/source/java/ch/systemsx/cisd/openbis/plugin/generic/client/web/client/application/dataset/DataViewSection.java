@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportLinkRetriever;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
 /**
  * Section panel presenting data from Data Store Server.
@@ -131,10 +133,35 @@ public class DataViewSection extends TabContent
                             showDataSetFilesView(false);
                         } else
                         {
-                            showGeneratedReportComponentView(service);
+                            ReportingPluginType reportingPluginTypeOrNull =
+                                    service.tryReportingPluginType();
+                            if (reportingPluginTypeOrNull == ReportingPluginType.DSS_LINK)
+                            {
+                                showGeneratedDssLink(service);
+                            } else
+                            {
+                                showGeneratedReportComponentView(service);
+                            }
                         }
                     }
 
+                }
+
+                private void showGeneratedDssLink(DatastoreServiceDescription service)
+                {
+
+                    AbstractAsyncCallback<String> action =
+                            new AbstractAsyncCallback<String>(viewContext)
+                                {
+                                    @Override
+                                    protected void process(String result)
+                                    {
+                                        showDssUrl(result);
+                                    }
+
+                                };
+                    DataSetReportLinkRetriever.retrieveAndInvoke(
+                            viewContext.getCommonViewContext(), service, dataset.getCode(), action);
                 }
 
                 private void showGeneratedReportComponentView(DatastoreServiceDescription service)
@@ -167,6 +194,12 @@ public class DataViewSection extends TabContent
 
                 private void showDataSetFilesView(boolean autoResolve)
                 {
+                    showDssUrl(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel(),
+                            "simpleHtml", autoResolve));
+                }
+
+                private void showDssUrl(String url)
+                {
                     Frame iFrame;
                     // WORKAROUND Cannot remove Frame and add it once again because of
                     // Widget#removeFromParent():128 throws IllegalStateException
@@ -192,8 +225,7 @@ public class DataViewSection extends TabContent
                     }
                     currentViewerOrNull = iFrame;
 
-                    iFrame.setUrl(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel(),
-                            "simpleHtml", autoResolve));
+                    iFrame.setUrl(url);
                     layout();
                 }
 
@@ -251,8 +283,8 @@ public class DataViewSection extends TabContent
                         {
                             final DatastoreServiceDescriptionModel serviceModel =
                                     modelsStore.getAt(i);
-                            if (serviceModel.getBaseObject().getKey().startsWith(
-                                    DEFAULT_SERVICE_KEY_PREFIX))
+                            if (serviceModel.getBaseObject().getKey()
+                                    .startsWith(DEFAULT_SERVICE_KEY_PREFIX))
                             {
                                 defaultModel = serviceModel;
                                 break;

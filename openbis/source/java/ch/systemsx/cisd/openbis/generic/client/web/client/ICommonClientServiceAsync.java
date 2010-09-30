@@ -789,5 +789,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria,
             AsyncCallback<ArchivingResult> callback);
 
+    /**
+     * @see ICommonClientService#retrieveLinkFromDataSet(DatastoreServiceDescription, String)
+     */
+    public void retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
+            String dataSetCode, AsyncCallback<String> callback);
+
     // --
 }

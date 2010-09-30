@@ -118,7 +118,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         return null;
     }
-    
+
     public List<Space> listSpaces(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
@@ -204,9 +204,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         {
             logAccess(sessionToken, "list_samples",
                     "TYPE(%s) OWNERS(space=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
-                    criteria.getSampleType(), criteria.getSpaceCode(), criteria
-                            .getContainerSampleId(), criteria.getParentSampleId(), criteria
-                            .getChildSampleId(), criteria.getExperimentId());
+                    criteria.getSampleType(), criteria.getSpaceCode(),
+                    criteria.getContainerSampleId(), criteria.getParentSampleId(),
+                    criteria.getChildSampleId(), criteria.getExperimentId());
         } else if (criteria.isIncludeInstance())
         {
             logAccess(
@@ -214,15 +214,15 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                     "list_samples",
                     "TYPE(%s) OWNERS(instance=%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
                     criteria.getSampleType(), criteria.getSampleType().getDatabaseInstance(),
-                    criteria.getContainerSampleId(), criteria.getParentSampleId(), criteria
-                            .getChildSampleId(), criteria.getExperimentId());
+                    criteria.getContainerSampleId(), criteria.getParentSampleId(),
+                    criteria.getChildSampleId(), criteria.getExperimentId());
         } else
         {
             logAccess(sessionToken, "list_samples",
-                    "TYPE(%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)", criteria
-                            .getSampleType(), criteria.getContainerSampleId(), criteria
-                            .getParentSampleId(), criteria.getChildSampleId(), criteria
-                            .getExperimentId());
+                    "TYPE(%s) CONTAINER(%s) PARENT(%s) CHILD(%s) EXPERIMENT(%s)",
+                    criteria.getSampleType(), criteria.getContainerSampleId(),
+                    criteria.getParentSampleId(), criteria.getChildSampleId(),
+                    criteria.getExperimentId());
         }
         return null;
     }
@@ -276,8 +276,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void registerSample(final String sessionToken, final NewSample newSample)
     {
-        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
-                .getSampleType(), newSample.getIdentifier());
+        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)",
+                newSample.getSampleType(), newSample.getIdentifier());
     }
 
     public List<Experiment> listExperiments(final String sessionToken,
@@ -366,8 +366,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public final void registerPropertyType(final String sessionToken,
             final PropertyType propertyType)
     {
-        logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)", propertyType
-                .getCode());
+        logTracking(sessionToken, "register_property_type", "PROPERTY_TYPE(%s)",
+                propertyType.getCode());
     }
 
     public void updatePropertyType(String sessionToken, IPropertyTypeUpdates updates)
@@ -382,8 +382,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void updateVocabulary(String sessionToken, IVocabularyUpdates updates)
     {
-        logTracking(sessionToken, "update_vocabulary", "ID(%s) CODE(%s)", updates.getId(), updates
-                .getCode());
+        logTracking(sessionToken, "update_vocabulary", "ID(%s) CODE(%s)", updates.getId(),
+                updates.getCode());
     }
 
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
@@ -455,9 +455,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties)
     {
-        logAccess(sessionToken, "list_materials", "TYPE(%s) IDS(%s) withProperties(%s)", criteria
-                .getMaterialType(), criteria.getMaterialIdsOrNull() == null ? "-"
-                : abbreviate(criteria.getMaterialIdsOrNull()), withProperties);
+        logAccess(sessionToken, "list_materials", "TYPE(%s) IDS(%s) withProperties(%s)",
+                criteria.getMaterialType(), criteria.getMaterialIdsOrNull() == null ? "-"
+                        : abbreviate(criteria.getMaterialIdsOrNull()), withProperties);
         return null;
     }
 
@@ -669,8 +669,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
-        logTracking(sessionToken, "edit_project", "PROJECT_ID(%s) ATTACHMENTS_ADDED(%s)", updates
-                .getTechId(), updates.getAttachments().size());
+        logTracking(sessionToken, "edit_project", "PROJECT_ID(%s) ATTACHMENTS_ADDED(%s)",
+                updates.getTechId(), updates.getAttachments().size());
         return null;
     }
 
@@ -764,8 +764,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerAuthorizationGroup(String sessionToken,
             NewAuthorizationGroup newAuthorizationGroup)
     {
-        logTracking(sessionToken, "registerAuthorizationGroup", "CODE(%s)", newAuthorizationGroup
-                .getCode());
+        logTracking(sessionToken, "registerAuthorizationGroup", "CODE(%s)",
+                newAuthorizationGroup.getCode());
 
     }
 
@@ -827,8 +827,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void updateFilter(String sessionToken, IExpressionUpdates updates)
     {
-        logTracking(sessionToken, "updateFilters", "ID(%s) NAME(%s)", updates.getId(), updates
-                .getName());
+        logTracking(sessionToken, "updateFilters", "ID(%s) NAME(%s)", updates.getId(),
+                updates.getName());
     }
 
     // -- columns
@@ -877,6 +877,16 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "unlockDatasets", "DATASETS(%s)", abbreviate(datasetCodes));
         return 0;
+    }
+
+    public String retrieveLinkFromDataSet(String sessionToken,
+            DatastoreServiceDescription serviceDescription, String dataSetCode)
+    {
+        {
+            logAccess(sessionToken, "retrieveLinkFromDataSet", "SERVICE(%s), DATASET(%s)",
+                    serviceDescription, dataSetCode);
+            return null;
+        }
     }
 
 }

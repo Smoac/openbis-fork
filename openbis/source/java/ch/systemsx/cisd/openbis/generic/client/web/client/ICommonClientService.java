@@ -886,4 +886,9 @@ public interface ICommonClientService extends IClientService
     public ArchivingResult unlockDatasets(DisplayedOrSelectedDatasetCriteria criteria)
             throws UserFailureException;
 
+    /**
+     * Gets the link from a service that supports the IReportingPluginTask#createLink method.
+     */
+    public String retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription, String dataSetCode);
+
 }

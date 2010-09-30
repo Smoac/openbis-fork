@@ -105,8 +105,8 @@ class DataStoreServiceLogger implements IDataStoreService
     public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
             List<DatasetDescription> datasets)
     {
-        log("createReportFromDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s)", serviceKey, datasets
-                .size());
+        log("createReportFromDatasets", "TASK_ID(%s) NO_OF_DATASETS(%s)", serviceKey,
+                datasets.size());
         return null;
     }
 
@@ -130,6 +130,13 @@ class DataStoreServiceLogger implements IDataStoreService
     {
         log("archiveDatasets", "NO_OF_DATASETS(%s) USER_EMAIL(%s)", datasets.size(),
                 userEmailOrNull);
+    }
+
+    public String retrieveLinkFromDataSet(String sessionToken, String serviceKey,
+            DatasetDescription dataSet)
+    {
+        log("retrieveLinkFromDataSet", "TASK_ID(%s) DATA_SET(%s)", serviceKey, dataSet);
+        return null;
     }
 
 }

@@ -125,4 +125,9 @@ public interface IExternalDataTable
 
     void save();
 
+    /**
+     * Gets the link from a service that supports the IReportingPluginTask#createLink method.
+     */
+    String retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode);
+
 }
