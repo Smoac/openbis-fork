@@ -21,6 +21,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GenericTableBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -28,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResult
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -44,13 +52,73 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataS
  * 
  * @author Izabela Adamczyk
  */
-class PlateMetadataBrowser extends GenericTableBrowserGrid
+public class PlateMetadataBrowser extends GenericTableBrowserGrid
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "plate_metadata_browser";
 
     public static final String GRID_ID = BROWSER_ID + "-grid";
 
-    public static IDisposableComponent create(
+    /**
+     * Fetches information about the plate with the specified plate id and opens plate metadata
+     * browser tab for that plate.
+     */
+    public static void openTab(final String platePermId,
+            final IViewContext<IScreeningClientServiceAsync> screeningViewContext)
+    {
+        screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.SAMPLE,
+                platePermId,
+                new AbstractAsyncCallback<IEntityInformationHolder>(screeningViewContext)
+                    {
+                        @Override
+                        protected void process(IEntityInformationHolder plate)
+                        {
+                            PlateMetadataBrowser.openTab(plate, screeningViewContext);
+                        }
+                    });
+    }
+
+    public static void openTab(final IIdAndCodeHolder plate,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        AbstractTabItemFactory factory = createPlateMetadataTabFactory(plate, viewContext);
+        DispatcherHelper.dispatchNaviEvent(factory);
+    }
+
+    private static AbstractTabItemFactory createPlateMetadataTabFactory(
+            final IIdAndCodeHolder plate,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    return DefaultTabItem.create(getTabTitle(),
+                            PlateMetadataBrowser.create(viewContext, new TechId(plate.getId())),
+                            viewContext);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return GenericConstants.ID_PREFIX + "plate-metadata-" + plate.getId();
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.VIEW);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return "Plate Report: " + plate.getCode();
+                }
+            };
+    }
+
+    private static IDisposableComponent create(
             final IViewContext<IScreeningClientServiceAsync> viewContext, TechId sampleId)
     {
         return new PlateMetadataBrowser(viewContext, sampleId).asDisposableWithoutToolbar();
@@ -60,7 +128,7 @@ class PlateMetadataBrowser extends GenericTableBrowserGrid
 
     private final TechId sampleId;
 
-    public PlateMetadataBrowser(IViewContext<IScreeningClientServiceAsync> viewContext,
+    private PlateMetadataBrowser(IViewContext<IScreeningClientServiceAsync> viewContext,
             TechId sampleId)
     {
 

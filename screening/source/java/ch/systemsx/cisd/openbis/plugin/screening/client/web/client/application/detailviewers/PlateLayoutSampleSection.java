@@ -36,16 +36,8 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
@@ -58,6 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -486,47 +479,15 @@ public class PlateLayoutSampleSection extends TabContent
     private static Widget createPlateMetadataLink(final Sample plate,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
+        String plateLinkUrl =
+                ScreeningLinkExtractor.extractPlateMetadataBrowserLink(plate.getPermId());
         return LinkRenderer.getLinkWidget(viewContext.getMessage(Dict.BUTTON_SHOW),
                 new ClickHandler()
                     {
                         public void onClick(ClickEvent event)
                         {
-                            DispatcherHelper.dispatchNaviEvent(createPlateMetadataTabFactory());
+                            PlateMetadataBrowser.openTab(plate, viewContext);
                         }
-
-                        private AbstractTabItemFactory createPlateMetadataTabFactory()
-                        {
-                            return new AbstractTabItemFactory()
-                                {
-                                    @Override
-                                    public ITabItem create()
-                                    {
-                                        return DefaultTabItem.create(getTabTitle(),
-                                                PlateMetadataBrowser.create(viewContext,
-                                                        new TechId(plate.getId())), viewContext);
-                                    }
-
-                                    @Override
-                                    public String getId()
-                                    {
-                                        return GenericConstants.ID_PREFIX + "plate-metadata-"
-                                                + plate.getId();
-                                    }
-
-                                    @Override
-                                    public HelpPageIdentifier getHelpPageIdentifier()
-                                    {
-                                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
-                                                HelpPageAction.VIEW);
-                                    }
-
-                                    @Override
-                                    public String getTabTitle()
-                                    {
-                                        return "Plate Report: " + plate.getCode();
-                                    }
-                                };
-                        }
-                    });
+                    }, plateLinkUrl);
     }
 }

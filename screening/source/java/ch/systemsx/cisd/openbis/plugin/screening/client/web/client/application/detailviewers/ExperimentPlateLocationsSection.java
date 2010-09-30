@@ -1,35 +1,32 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer.IURLProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineItemsField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
 
 /**
  * Experiment section panel which allows to find wells were selected genes have been inhibited.
@@ -93,69 +90,66 @@ public class ExperimentPlateLocationsSection extends TabContent
     {
         LayoutContainer container = new LayoutContainer(new RowLayout());
 
+        container.add(exactMatchOnly);
+        container.add(materialListField);
+        container.add(createSearchLink());
+
+        container.setScrollMode(Scroll.AUTO);
+        add(container, new MarginData(10));
+
+    }
+
+    private Widget createSearchLink()
+    {
         Button searchButton = new Button(screeningViewContext.getMessage(Dict.SEARCH_BUTTON));
         searchButton.setWidth(TEXT_AREA_WIDTH);
-        searchButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+        IDelegatedAction normalModeAction = new IDelegatedAction()
             {
-                @Override
-                public void componentSelected(ButtonEvent ce)
+                public void execute()
                 {
                     showPlateMaterialReviewer();
                 }
-            });
-
-        container.add(exactMatchOnly);
-        container.add(materialListField);
-        container.add(searchButton);
-        container.setScrollMode(Scroll.AUTO);
-        add(container, new MarginData(10));
+            };
+        IURLProvider urlProvider = new IURLProvider()
+            {
+                public String tryGetURL()
+                {
+                    MaterialSearchCodesCriteria materialCriteria = tryGetMaterialSearchCriteria();
+                    if (materialCriteria == null)
+                    {
+                        return null;
+                    }
+                    return ScreeningLinkExtractor.createWellsSearchLink(experiment.getPermId(),
+                            materialCriteria);
+                }
+            };
+        return LinkRenderer.createLink(searchButton, normalModeAction, urlProvider, viewContext);
     }
 
     private void showPlateMaterialReviewer()
     {
-        final IDisposableComponent reviewer = tryCreatePlateMaterialReviewer();
-        if (reviewer == null)
+        MaterialSearchCodesCriteria materialCriteria = tryGetMaterialSearchCriteria();
+        if (materialCriteria == null)
         {
             return;
         }
-        final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
-            {
-                @Override
-                public ITabItem create()
-                {
-                    return DefaultTabItem.create(getTabTitle(), reviewer, viewContext);
-                }
-
-                @Override
-                public HelpPageIdentifier getHelpPageIdentifier()
-                {
-                    return HelpPageIdentifier.createSpecific("Well Reviewing Panel");
-                }
-
-                @Override
-                public String getId()
-                {
-                    final String reportDate =
-                            DateTimeFormat.getMediumTimeFormat().format(new Date());
-                    return GenericConstants.ID_PREFIX + "-PlateMaterialReviewer-" + reportDate;
-                }
-
-                @Override
-                public String getTabTitle()
-                {
-                    return viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_TITLE);
-                }
-            };
-        DispatcherHelper.dispatchNaviEvent(tabFactory);
+        ExperimentSearchCriteria experimentCriteria = getExperimentSearchCriteria();
+        PlateMaterialReviewer2.openTab(screeningViewContext, experimentCriteria,
+                MaterialSearchCriteria.create(materialCriteria));
     }
 
-    private IDisposableComponent tryCreatePlateMaterialReviewer()
+    private ExperimentSearchCriteria getExperimentSearchCriteria()
+    {
+        return ExperimentSearchCriteria.createExperiment(experiment.getId(),
+                experiment.getIdentifier());
+    }
+
+    private MaterialSearchCodesCriteria tryGetMaterialSearchCriteria()
     {
         String[] materialItemList = materialListField.tryGetModifiedItemList();
         if (materialItemList == null || materialItemList.length == 0)
         {
             return null;
-
         }
         // TODO 2010-07-23, Tomasz Pylak: allow user to choose the types
         // Now we search using all types available.
@@ -164,8 +158,7 @@ public class ExperimentPlateLocationsSection extends TabContent
             return null;
         }
         String[] materialTypeCodes = Code.extractCodesToArray(materialTypesOrNull);
-        return PlateMaterialReviewer2.create(screeningViewContext, experiment, materialItemList,
-                materialTypeCodes, exactMatchOnly.getValue());
+        return new MaterialSearchCodesCriteria(materialItemList, materialTypeCodes,
+                exactMatchOnly.getValue());
     }
-
 }

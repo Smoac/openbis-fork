@@ -28,17 +28,39 @@ public abstract class AbstractViewLocatorResolver implements IViewLocatorResolve
         return handledAction.equals(locator.tryGetAction());
     }
 
+    protected final static boolean getMandatoryBooleanParameter(ViewLocator locator,
+            String paramName)
+    {
+        String value = getMandatoryParameter(locator, paramName);
+        return new Boolean(value);
+    }
+
+    protected final static String getMandatoryParameter(ViewLocator locator, String paramName)
+    {
+        String valueOrNull = locator.getParameters().get(paramName);
+        if (valueOrNull == null)
+        {
+            throw createMissingParamException(paramName);
+        }
+        return valueOrNull;
+    }
+
     /**
      * Utility method that throws an exception with a standard error message if the required
      * paramter is not specified
      */
-    protected static final void checkRequiredParameter(String valueOrNull, String parameter)
+    protected static final void checkRequiredParameter(String valueOrNull, String paramName)
             throws UserFailureException
     {
         if (valueOrNull == null)
         {
-            throw new UserFailureException("Missing URL parameter: " + parameter);
+            throw createMissingParamException(paramName);
         }
+    }
+
+    private static UserFailureException createMissingParamException(String paramName)
+    {
+        return new UserFailureException("Missing URL parameter: " + paramName);
     }
 
     protected static final EntityKind getEntityKind(ViewLocator locator)

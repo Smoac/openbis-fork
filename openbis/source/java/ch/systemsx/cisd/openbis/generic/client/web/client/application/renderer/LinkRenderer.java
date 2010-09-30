@@ -16,19 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * @author Franz-Josef Elmer
@@ -122,6 +128,12 @@ public class LinkRenderer
         return DOM.toString(anchor);
     }
 
+    public static interface IURLProvider
+    {
+        /** @return URL to which redicection should be made or null if no redirection should occur */
+        String tryGetURL();
+    }
+
     /**
      * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var> and
      *         a <var>listener</var> registered on the click event.
@@ -156,16 +168,6 @@ public class LinkRenderer
             final String historyHref)
     {
         return getLinkAnchor(text, listener, historyHref, false);
-    }
-
-    public static Widget getLinkWidgetWithHtml(final ClickHandler listener,
-            final String historyHref, String html)
-    {
-        Anchor link = new Anchor();
-        link.setHTML(html);
-        link.setStyleName(LINK_STYLE);
-        setHrefOrListener(listener, historyHref, link);
-        return link;
     }
 
     @SuppressWarnings("deprecation")
@@ -210,5 +212,35 @@ public class LinkRenderer
             link.addStyleName("invalid");
         }
         return link;
+    }
+
+    /**
+     * Sets the click listener which executes the specified action if we are in normal view mode
+     * when the click occurs and redirects to the provided URL otherwise.
+     * 
+     * @param viewContext
+     */
+    public static Widget createLink(Button button, final IDelegatedAction normalModeAction,
+            final IURLProvider urlProvider, final IViewContext<?> viewContext)
+    {
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    if (viewContext.isSimpleMode())
+                    {
+                        String url = urlProvider.tryGetURL();
+                        if (url != null)
+                        {
+                            History.newItem(url); // redirects
+                        }
+                    } else
+                    {
+                        normalModeAction.execute();
+                    }
+                }
+            });
+        return button;
     }
 }

@@ -12,6 +12,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
 
 /**
@@ -22,8 +23,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterials
 public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolver
 {
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
-
-    public final static String EXPERIMENT_PARAMETER_KEY = "experiment";
 
     public PlateLocationsMaterialLocatorResolver(
             IViewContext<IScreeningClientServiceAsync> viewContext)
@@ -39,7 +38,8 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
         // otherwise show an error message.
         assert (EntityKind.MATERIAL.name().equals(locator.tryGetEntity()));
 
-        String experimentIdentifierOrNull = locator.getParameters().get(EXPERIMENT_PARAMETER_KEY);
+        String experimentIdentifierOrNull =
+                locator.getParameters().get(ScreeningLinkExtractor.EXPERIMENT_PARAMETER_KEY);
         openInitialMaterialViewer(extractMaterialIdentifier(locator), experimentIdentifierOrNull);
     }
 
@@ -101,8 +101,8 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
                             protected void process(Experiment experiment)
                             {
                                 ExperimentSearchCriteria experimentCriteria =
-                                        ExperimentSearchCriteria.createExperiment(experiment
-                                                .getId(), experiment.getIdentifier());
+                                        ExperimentSearchCriteria.createExperiment(
+                                                experiment.getId(), experiment.getIdentifier());
                                 ClientPluginFactory.openPlateLocationsMaterialViewer(material,
                                         experimentCriteria,
                                         OpenEntityDetailsTabCallback.this.viewContext);

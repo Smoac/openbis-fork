@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMa
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialReviewerColumnIds.WELL_CONTENT_MATERIAL;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -36,18 +37,24 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -57,13 +64,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
@@ -73,48 +81,117 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialReviewerColumnIds;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
 {
-    public static final String BROWSER_ID =
-            GenericConstants.ID_PREFIX + "PlateMaterialReviewer2Grid";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX
+            + "PlateMaterialReviewer2Grid";
 
     public static final String GRID_ID = BROWSER_ID + "-grid";
 
+    private static final String CHANNEL_CHOOSER_LABEL = "Channel:";
+
+    private static final String SINGLE_EXPERIMENT_TEXT = "Single experiment";
+    
     private static final String ALL_EXPERIMENTS_TEXT = "All experiments";
 
     private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
 
     private static final int IMAGE_WIDTH_PX = 200;
+
     private static final int IMAGE_HEIGHT_PX = 120;
 
-    public static IDisposableComponent create(
-            IViewContext<IScreeningClientServiceAsync> viewContext,
-            IEntityInformationHolderWithIdentifier experiment, String[] materialItemList,
-            String[] materialTypeCodes, boolean exactMatchOnly)
+    // by experiment perm id
+    public static void openTab(
+            final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            final String experimentPermId, final MaterialSearchCodesCriteria materialCodesCriteria)
     {
-        ExperimentSearchCriteria experimentCriteria =
-                ExperimentSearchCriteria.createExperiment(experiment.getId(), experiment
-                        .getIdentifier());
-        MaterialSearchCriteria materialCriteria =
-                MaterialSearchCriteria.createCodesCriteria(materialItemList, materialTypeCodes,
-                        exactMatchOnly);
-        return create(viewContext, experimentCriteria, materialCriteria);
+        screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
+                experimentPermId,
+                new AbstractAsyncCallback<IEntityInformationHolder>(screeningViewContext)
+                    {
+                        @Override
+                        protected void process(IEntityInformationHolder experimentIdentifier)
+                        {
+                            TechId experimentId = new TechId(experimentIdentifier.getId());
+                            PlateMaterialReviewer2.openTab(screeningViewContext, experimentId,
+                                    MaterialSearchCriteria.create(materialCodesCriteria));
+                        }
+                    });
+    }
+
+    // by experiment tech id
+    private static void openTab(
+            final IViewContext<IScreeningClientServiceAsync> screeningViewContext,
+            TechId experimentId, final MaterialSearchCriteria materialSearchCriteria)
+    {
+        screeningViewContext.getCommonService().getExperimentInfo(experimentId,
+                new AbstractAsyncCallback<Experiment>(screeningViewContext)
+                    {
+                        @Override
+                        protected void process(Experiment experiment)
+                        {
+                            ExperimentSearchCriteria experimentCriteria =
+                                    ExperimentSearchCriteria.createExperiment(experiment.getId(),
+                                            experiment.getIdentifier());
+                            PlateMaterialReviewer2.openTab(screeningViewContext,
+                                    experimentCriteria, materialSearchCriteria);
+                        }
+                    });
+    }
+
+    public static void openTab(final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final ExperimentSearchCriteria experimentCriteria,
+            final MaterialSearchCriteria materialCriteria)
+    {
+        final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    IDisposableComponent reviewer =
+                            PlateMaterialReviewer2.create(viewContext, experimentCriteria,
+                                    materialCriteria);
+                    return DefaultTabItem.create(getTabTitle(), reviewer, viewContext);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return HelpPageIdentifier.createSpecific("Well Reviewing Panel");
+                }
+
+                @Override
+                public String getId()
+                {
+                    final String reportDate =
+                            DateTimeFormat.getMediumTimeFormat().format(new Date());
+                    return GenericConstants.ID_PREFIX + "-PlateMaterialReviewer-" + reportDate;
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_TITLE);
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
     public static IDisposableComponent create(
             IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull, TechId materialId)
     {
-        return create(viewContext, experimentCriteriaOrNull, MaterialSearchCriteria
-                .createIdCriteria(materialId));
+        return create(viewContext, experimentCriteriaOrNull,
+                MaterialSearchCriteria.createIdCriteria(materialId));
     }
 
     private static IDisposableComponent create(
@@ -210,21 +287,21 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
     {
         registerListenerAndLinkGenerator(PlateMaterialReviewerColumnIds.PLATE,
                 new ICellListenerAndLinkGenerator<WellContent>()
-                {
-            public String tryGetLink(WellContent entity)
-            {
-                return LinkExtractor.tryExtract(entity.getPlate());
-            }
-            
-            public void handle(TableModelRowWithObject<WellContent> wellContent,
-                    boolean specialKeyPressed)
-            {
-                showEntityViewer(wellContent.getObjectOrNull().getPlate(),
-                        specialKeyPressed);
-            }
-                });
+                    {
+                        public String tryGetLink(WellContent entity)
+                        {
+                            return LinkExtractor.tryExtract(entity.getPlate());
+                        }
+
+                        public void handle(TableModelRowWithObject<WellContent> wellContent,
+                                boolean specialKeyPressed)
+                        {
+                            showEntityViewer(wellContent.getObjectOrNull().getPlate(),
+                                    specialKeyPressed);
+                        }
+                    });
     }
-    
+
     private void linkWell()
     {
         registerListenerAndLinkGenerator(PlateMaterialReviewerColumnIds.WELL,
@@ -316,7 +393,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
     {
         ToolBar toolbar = new ToolBar();
         toolbar.add(createExperimentChooser());
-        toolbar.add(new Label("Channel:"));
+        toolbar.add(new Label(CHANNEL_CHOOSER_LABEL));
         toolbar.add(channelChooser);
         return toolbar;
     }
@@ -406,7 +483,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
         experimentRadio.add(allExps);
 
         final Radio oneExps = new Radio();
-        oneExps.setBoxLabel("Single experiment");
+        oneExps.setBoxLabel(SINGLE_EXPERIMENT_TEXT);
         experimentRadio.add(oneExps);
 
         experimentRadio.setValue(isAllExperimentsChoosen() ? allExps : oneExps);
@@ -524,5 +601,5 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
     {
         return Arrays.asList(WELL_CONTENT_MATERIAL, WELL);
     }
-    
+
 }

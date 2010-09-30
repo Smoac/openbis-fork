@@ -21,6 +21,7 @@ import java.util.Arrays;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -41,7 +42,7 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
 
         private TechId experimentId;
 
-        private String experimentIdentifier; // for display purposes and links in simpe view mode
+        private String experimentIdentifier; // for display purposes and links in simple view mode
 
         // GWT only
         @SuppressWarnings("unused")
@@ -150,6 +151,7 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
             this.exactMatchOnly = exactMatchOnly;
             for (int i = 0; i < materialCodesOrProperties.length; i++)
             {
+                assert StringUtils.isBlank(materialCodesOrProperties[i]) == false : "material search property is blank";
                 materialCodesOrProperties[i] = materialCodesOrProperties[i].toUpperCase();
             }
             this.materialCodesOrProperties = materialCodesOrProperties;
@@ -198,8 +200,14 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
         public static final MaterialSearchCriteria createCodesCriteria(String[] materialCodes,
                 String[] materialTypeCodes, boolean exactMatchOnly)
         {
-            return new MaterialSearchCriteria(new MaterialSearchCodesCriteria(materialCodes,
-                    materialTypeCodes, exactMatchOnly), null);
+            return create(new MaterialSearchCodesCriteria(materialCodes, materialTypeCodes,
+                    exactMatchOnly));
+        }
+
+        public static MaterialSearchCriteria create(
+                MaterialSearchCodesCriteria materialCodesCriteria)
+        {
+            return new MaterialSearchCriteria(materialCodesCriteria, null);
         }
 
         public static final MaterialSearchCriteria createIdCriteria(TechId materialId)
