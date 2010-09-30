@@ -26,6 +26,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -78,15 +79,38 @@ public final class DataStoreDAOTest extends AbstractDAOTest
     private Set<DataStoreServicePE> createDataStoreServices(String prefix)
     {
         Set<DataStoreServicePE> services = new HashSet<DataStoreServicePE>();
+        DataStoreServicePE service;
+
         for (int i = 0; i < 3; i++)
         {
-            DataStoreServicePE service = new DataStoreServicePE();
+            service = new DataStoreServicePE();
             service.setKey(prefix + "_key_" + i);
             service.setLabel("label");
             service.setKind(DataStoreServiceKind.PROCESSING);
             service.setDatasetTypes(getDataSetTypes());
+            service.setReportingPluginTypeOrNull(null);
             services.add(service);
         }
+
+        int i = 3;
+        // Add a query as well
+        service = new DataStoreServicePE();
+        service.setKey(prefix + "_key_" + i++);
+        service.setLabel("label");
+        service.setKind(DataStoreServiceKind.QUERIES);
+        service.setDatasetTypes(getDataSetTypes());
+        service.setReportingPluginTypeOrNull(ReportingPluginType.TABLE_MODEL);
+        services.add(service);
+
+        // Add another query
+        service = new DataStoreServicePE();
+        service.setKey(prefix + "_key_" + i++);
+        service.setLabel("label");
+        service.setKind(DataStoreServiceKind.QUERIES);
+        service.setDatasetTypes(getDataSetTypes());
+        service.setReportingPluginTypeOrNull(ReportingPluginType.DSS_LINK);
+        services.add(service);
+
         return services;
     }
 
