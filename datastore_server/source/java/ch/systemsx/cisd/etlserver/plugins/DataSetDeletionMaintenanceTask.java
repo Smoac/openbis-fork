@@ -93,7 +93,10 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
         permIDColumn = properties.getProperty(DATA_SET_PERM_ID_KEY, DEFAULT_DATA_SET_PERM_ID);
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         checkDatabseConnection();
-        operationLog.info("Plugin initialized: " + pluginName);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Plugin initialized: " + pluginName);
+        }
     }
 
     private void checkDatabseConnection()
@@ -114,7 +117,10 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
 
     public void execute()
     {
-        operationLog.info("Synchronizing data set information");
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Synchronizing data set information");
+        }
         Connection connection = null;
         try
         {
@@ -130,8 +136,11 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
                 deleteDatasets(deletedDataSets, connection);
                 updateSynchronizationDate(lastSeenEventId, deletedDataSets, connection);
                 connection.commit();
-                operationLog.info("Synchronization task took "
-                        + ((System.currentTimeMillis() - t0 + 500) / 1000) + " seconds.");
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Synchronization task took "
+                            + ((System.currentTimeMillis() - t0 + 500) / 1000) + " seconds.");
+                }
                 connection.setAutoCommit(autoCommit);
             }
         } catch (SQLException ex)
@@ -166,9 +175,12 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
     private void deleteDatasets(List<DeletedDataSet> deletedDataSets, Connection connection)
             throws SQLException
     {
-        operationLog.info(String
-                .format("Synchronizing deletions of %d datasets with the database.",
-                        deletedDataSets.size()));
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String
+                    .format("Synchronizing deletions of %d datasets with the database.",
+                            deletedDataSets.size()));
+        }
         connection.createStatement().execute(
                 String.format("DELETE FROM " + dataSetTableName + " WHERE " + permIDColumn
                         + " IN (%s)", joinIds(deletedDataSets)));
