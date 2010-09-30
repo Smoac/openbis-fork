@@ -39,6 +39,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -49,6 +50,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.CollectionStyle;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
+import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
@@ -319,8 +321,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
 
                 private void releaseConnection(Connection connection)
                 {
-                    DataSourceUtils.releaseConnection(connection, SessionFactoryUtils
-                            .getDataSource(getSessionFactory()));
+                    DataSourceUtils.releaseConnection(connection,
+                            SessionFactoryUtils.getDataSource(getSessionFactory()));
                 }
             });
     }
@@ -333,6 +335,33 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     protected interface StatelessHibernateCallback
     {
         Object doInStatelessSession(StatelessSession sls);
+    }
+
+    protected static void flushWithSqlExceptionHandling(HibernateTemplate hibernateTemplate)
+            throws DataAccessException
+    {
+        try
+        {
+            hibernateTemplate.flush();
+        } catch (UncategorizedSQLException e)
+        {
+            translateUncategorizedSQLException(e);
+        }
+    }
+
+    protected static void translateUncategorizedSQLException(UncategorizedSQLException exception)
+            throws DataAccessException
+    {
+        final SQLException sqlExceptionOrNull =
+                ExceptionUtils.tryGetThrowableOfClass(exception, SQLException.class);
+        if (sqlExceptionOrNull != null && sqlExceptionOrNull.getNextException() != null)
+        {
+            throw new DataIntegrityViolationException(sqlExceptionOrNull.getNextException()
+                    .getMessage());
+        } else
+        {
+            throw exception;
+        }
     }
 
 }

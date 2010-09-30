@@ -158,7 +158,7 @@ DECLARE
 BEGIN
    if (NEW.entity_type_code IS NOT NULL) then
      if (NEW.query_type = 'GENERIC') then
-       RAISE EXCEPTION 'Insert/Update of query (Name: %) failed, as entity_type has to be null for GENERIC queries.', NEW.name;
+       RAISE EXCEPTION 'Insert/Update of Query (Name: %) failed because entity_type has to be null for GENERIC queries.', NEW.name;
      elsif (NEW.query_type = 'EXPERIMENT') then
        SELECT count(*) INTO counter FROM experiment_types WHERE code = NEW.entity_type_code;
 		 elsif (NEW.query_type = 'DATA_SET') then
@@ -169,7 +169,7 @@ BEGIN
        SELECT count(*) INTO counter FROM sample_types WHERE code = NEW.entity_type_code;
 		 end if;
 		 if (counter = 0) then
-			 RAISE EXCEPTION 'Insert/Update of query (Name: %) failed because % type (Code: %) does not exist.', NEW.name, NEW.query_type, NEW.entity_type_code;
+			 RAISE EXCEPTION 'Insert/Update of Query (Name: %) failed because % Type (Code: %) does not exist.', NEW.name, NEW.query_type, NEW.entity_type_code;
 		 end if;			
    end if;
    RETURN NEW;

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,21 +33,19 @@ import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.validator.ClassValidator;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -56,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -72,8 +68,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, SampleDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SampleDAO.class);
 
     private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
 
@@ -307,6 +303,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         }
 
         // TODO 2010-06-16, Piotr Buczek: is memory usage increasing without clear of session?
+
+        // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(getHibernateTemplate());
     }
 
@@ -315,6 +313,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         assert sample != null : "Unspecified sample";
         validatePE(sample);
 
+        // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(getHibernateTemplate());
 
         if (operationLog.isInfoEnabled())
@@ -339,28 +338,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         return list;
     }
 
-    private static void flushWithSqlExceptionHandling(HibernateTemplate hibernateTemplate)
-            throws DataAccessException
-    {
-        try
-        {
-            hibernateTemplate.flush();
-        } catch (UncategorizedSQLException e)
-        {
-            // need to deal with exception thrown by trigger checking code uniqueness
-            final SQLException sqlExceptionOrNull =
-                    ExceptionUtils.tryGetThrowableOfClass(e, SQLException.class);
-            if (sqlExceptionOrNull != null && sqlExceptionOrNull.getNextException() != null)
-            {
-                throw new DataIntegrityViolationException(sqlExceptionOrNull.getNextException()
-                        .getMessage());
-            } else
-            {
-                throw e;
-            }
-        }
-    }
-
     public void delete(final List<TechId> sampleIds, final PersonPE registrator, final String reason)
             throws DataAccessException
     {
@@ -371,11 +348,10 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         final String sqlDeleteSample =
                 "DELETE FROM " + TableNames.SAMPLES_TABLE + " WHERE id = :sId";
         final String sqlInsertEvent =
-                String
-                        .format(
-                                "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
-                                        + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
-                                TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
+                String.format(
+                        "INSERT INTO %s (id, event_type, description, reason, pers_id_registerer, entity_type, identifier) "
+                                + "VALUES (nextval('%s'), :eventType, :description, :reason, :registratorId, :entityType, :identifier)",
+                        TableNames.EVENTS_TABLE, SequenceNames.EVENT_SEQUENCE);
 
         executeStatelessAction(new StatelessHibernateCallback()
             {
@@ -454,8 +430,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         Set<TechId> result = transformNumbers2TechIds(results);
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%d sample parents(s) have been found.", results
-                    .size()));
+            operationLog.debug(String.format("%d sample parents(s) have been found.",
+                    results.size()));
         }
         return result;
     }

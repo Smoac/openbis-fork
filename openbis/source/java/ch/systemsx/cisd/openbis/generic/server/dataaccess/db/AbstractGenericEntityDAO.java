@@ -48,8 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends AbstractDAO implements
         IGenericDAO<T>
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractGenericEntityDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractGenericEntityDAO.class);
 
     private final Class<T> entityClass;
 
@@ -114,7 +114,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         return result;
     }
 
-    public final void validateAndSaveUpdatedEntity(T entity)
+    public final void validateAndSaveUpdatedEntity(T entity) throws DataAccessException
     {
         assert entity != null : "entity is null";
 
@@ -125,7 +125,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         // experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
 
         validatePE(entity);
-        getHibernateTemplate().flush();
+        flushWithSqlExceptionHandling(getHibernateTemplate());
     }
 
     public final void validate(T entity)

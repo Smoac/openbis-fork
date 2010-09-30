@@ -22,6 +22,8 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -37,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQueryDAO
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, QueryDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            QueryDAO.class);
 
     public QueryDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
@@ -62,13 +64,19 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
         return list;
     }
 
-    public void createQuery(QueryPE query)
+    public void createQuery(QueryPE query) throws DataAccessException
     {
         assert query != null : "Unspecified query";
         assert query.getDatabaseInstance() == null;
         query.setDatabaseInstance(getDatabaseInstance());
 
-        persist(query);
+        try
+        {
+            persist(query);
+        } catch (UncategorizedSQLException e)
+        {
+            translateUncategorizedSQLException(e);
+        }
     }
 
 }
