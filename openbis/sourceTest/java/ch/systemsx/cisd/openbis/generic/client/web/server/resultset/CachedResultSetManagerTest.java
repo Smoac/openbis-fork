@@ -397,6 +397,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Arrays.asList()));
+                    
+                    one(originalDataProvider).getHeaders();
+                    will(returnValue(Arrays.asList()));
                 }
             });
     }
@@ -674,6 +677,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Arrays.asList("a", "b")));
 
+                    one(originalDataProvider).getHeaders();
+                    will(returnValue(Arrays.asList()));
+
                     one(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN, GRID_DISPLAY_ID);
                     will(returnValue(Arrays.asList(c1)));
 
@@ -740,6 +746,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(data));
+                    
+                    one(originalDataProvider).getHeaders();
+                    will(returnValue(Arrays.asList()));
                 }
             });
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).computeAndCache();
@@ -768,6 +777,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Arrays.asList("alpha", "beta")));
+                    
+                    one(originalDataProvider).getHeaders();
+                    will(returnValue(Arrays.asList()));
                 }
             });
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS).computeAndCache();
@@ -790,6 +802,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Arrays.asList("a", "b")));
+                    
+                    one(originalDataProvider).getHeaders();
+                    will(returnValue(Arrays.asList()));
                 }
             });
         builder.clearComputeAndCache(KEY).sortDesc("col1");
@@ -821,6 +836,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                         rows[i] = i + "-a" + i % 2;
                     }
                     will(returnValue(Arrays.asList(rows)));
+                    
+                    one(originalDataProvider).getHeaders();
+                    will(returnValue(Arrays.asList()));
 
                     allowing(customColumnsProvider).getGridCustomColumn(SESSION_TOKEN,
                             GRID_DISPLAY_ID);
