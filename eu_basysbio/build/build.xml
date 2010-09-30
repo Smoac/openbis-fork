@@ -2,9 +2,9 @@
 	<import file="../../datastore_server/build/build.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
+	<property name="variant" value="basysbio" />
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="eu_basysbio" />
-	<property name="variant" value="-basysbio" />
 
 	<target name="compile" depends="build-common.compile, clean" />
 
@@ -14,24 +14,33 @@
 		</antcall>
 	</target>
 
+	<target name="jar" depends="compile">
+		<mkdir dir="${dist}" />
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<jar destfile="${plugin-jar.file}">
+			<fileset dir="${classes}">
+				<include name="eu/**/*.class" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<fileset dir="source">
+				<include name="**/*.sql" />
+			</fileset>	
+			<manifest>
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</jar>
+	</target>
 	<!--
         // Task for creating distributions
         -->
-	<target name="dist" depends="datastore_server.make-dist" />
+	<target name="dist" depends="jar, datastore_server.make-plugin-dist" />
 
 	<!--
         // Task for continuous integration server.
         -->
 	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
 	
-	<target name="dss-jar" depends="datastore_server.dss-jar">
-		<jar update="true" destfile="${dss-jar.file}">
-			<fileset dir="source">
-				<include name="**/*.sql" />
-			</fileset>
-		</jar>
-
-  </target>
-
-
 </project>
