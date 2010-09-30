@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,9 +29,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -46,6 +45,7 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
     @Private static final String SEPARATOR_KEY = "separator";
     @Private static final String DEFAULT_SEPARATOR = "&";
     @Private static final String SEARCH_PROPERTIES = "search.properties";
+    @Private static final String PARENT_DATA_SET_CODES = "parent-data-set-codes";
     
     private final String separator;
     
@@ -78,15 +78,20 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
         NewExperiment experiment = new NewExperiment(experimentIdentifier.toString(),
                 EXPERIMENT_TYPE_CODE);
         ExperimentType experimentType = service.getExperimentType(EXPERIMENT_TYPE_CODE);
-        experiment.setProperties(getProperties(new File(incomingDataSetPath, SEARCH_PROPERTIES),
-                experimentType));
+        Properties properties = loadSearchProperties(new File(incomingDataSetPath, SEARCH_PROPERTIES));
+        experiment.setProperties(Util.getAndCheckProperties(properties, experimentType));
         service.registerExperiment(experiment);
         DataSetInformation info = new DataSetInformation();
         info.setExperimentIdentifier(experimentIdentifier);
+        String parentDataSetCodesOrNull = properties.getProperty(PARENT_DATA_SET_CODES);
+        if (parentDataSetCodesOrNull != null)
+        {
+            info.setParentDataSetCodes(Arrays.asList(StringUtils.split(parentDataSetCodesOrNull)));
+        }
         return info;
     }
     
-    private IEntityProperty[] getProperties(File propertiesFile, EntityType entityType)
+    private Properties loadSearchProperties(File propertiesFile)
     {
         Properties properties;
         if (propertiesFile.exists() == false)
@@ -96,7 +101,7 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
         {
             properties = PropertyUtils.loadProperties(propertiesFile);
         }
-        return Util.getAndCheckProperties(properties, entityType);
+        return properties;
     }
 
 }

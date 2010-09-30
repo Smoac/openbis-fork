@@ -56,6 +56,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
     private static final String SAMPLE_CODE = "my-sample";
     private static final DataSetType DATA_SET_TYPE = new DataSetType("MY");
     private static final String DATA_SET_CODE = "my-dataset-123";
+    private static final String FOLDER_NAME = SAMPLE_CODE + "_" + DATA_SET_CODE + "_" + DATA_SET_TYPE.getCode();
     private static final String DATA = "hello test";
     
     private Mockery context;
@@ -114,7 +115,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
         
         assertEquals(Status.OK, status);
-        File copiedDataSet = new File(destination, SAMPLE_CODE + "_" + DATA_SET_TYPE.getCode());
+        File copiedDataSet = new File(destination, FOLDER_NAME);
         assertEquals(true, copiedDataSet.isDirectory());
         assertEquals(dataSet.lastModified(), copiedDataSet.lastModified());
         assertEquals(DATA, FileUtilities.loadToString(new File(copiedDataSet, dataFile.getName())).trim());
@@ -138,7 +139,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         
         assertEquals(Status.OK, status);
         File copiedDataSet =
-                new File(destination, MsInjectionCopier.SAMPLE_UNKNOWN + "_"
+                new File(destination, MsInjectionCopier.SAMPLE_UNKNOWN + "_" + DATA_SET_CODE + "_"
                         + DATA_SET_TYPE.getCode());
         assertEquals(true, copiedDataSet.isDirectory());
         
@@ -152,7 +153,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
         MsInjectionCopier msInjectionCopier =
                 new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
-        File copiedDataSet = new File(destination, SAMPLE_CODE + "_" + DATA_SET_TYPE.getCode());
+        File copiedDataSet = new File(destination, FOLDER_NAME);
         copiedDataSet.mkdirs();
         File dummy = new File(copiedDataSet, "dummy");
         FileUtilities.writeToFile(dummy, "hello");
@@ -192,7 +193,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
                     one(sshExecutorFactory).create(sshExec, "localhost");
                     will(returnValue(sshExecutor));
                     
-                    File copiedDataSet = new File(destination, SAMPLE_CODE + "_" + DATA_SET_TYPE.getCode());
+                    File copiedDataSet = new File(destination, FOLDER_NAME);
                     one(sshExecutor).exists(copiedDataSet, SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
 

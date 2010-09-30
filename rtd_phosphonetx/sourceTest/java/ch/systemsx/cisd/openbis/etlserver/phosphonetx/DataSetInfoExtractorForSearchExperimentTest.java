@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForSearchExperiment.EXPERIMENT_TYPE_CODE;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForSearchExperiment.PARENT_DATA_SET_CODES;
 
 import java.io.File;
 import java.util.Arrays;
@@ -77,7 +78,7 @@ public class DataSetInfoExtractorForSearchExperimentTest extends AbstractFileSys
     {
         FileUtilities.writeToFile(new File(dataSet,
                 DataSetInfoExtractorForSearchExperiment.SEARCH_PROPERTIES),
-                "answer=42\nblabla=blub");
+                "answer=42\nblabla=blub\n" + PARENT_DATA_SET_CODES + "=1 2  3   4\n");
         prepare();
 
         context.checking(new Expectations()
@@ -113,6 +114,7 @@ public class DataSetInfoExtractorForSearchExperimentTest extends AbstractFileSys
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
 
         assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
+        assertEquals("[1, 2, 3, 4]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();
     }
 

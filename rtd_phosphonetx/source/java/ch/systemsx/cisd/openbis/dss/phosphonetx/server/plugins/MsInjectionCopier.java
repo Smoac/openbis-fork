@@ -309,8 +309,10 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
             Map<String, String> parameterBindings)
     {
         String dataSetTypeCode = dataSetInformation.getDataSetType().getCode();
-        String sampleCode = parameterBindings.get(dataSetInformation.getDataSetCode());
-        return (sampleCode == null ? SAMPLE_UNKNOWN : sampleCode) + "_" + dataSetTypeCode;
+        String dataSetCode = dataSetInformation.getDataSetCode();
+        String sampleCode = parameterBindings.get(dataSetCode);
+        return (sampleCode == null ? SAMPLE_UNKNOWN : sampleCode) + "_" + dataSetCode + "_"
+                + dataSetTypeCode;
     }
     
     private void deleteTargetFolder(File targetFolder)
