@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
- * 
+ * Builder class for creating an instance of {@link TypedTableModel}.
  *
  * @author Franz-Josef Elmer
  */
@@ -88,7 +88,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         
         public ISerializableComparable getValue(int index)
         {
-            return values.get(index);
+            return index < values.size() ? values.get(index) : EMPTY_CELL;
         }
 
         public void insertValueAt(int index, ISerializableComparable value)
@@ -105,6 +105,9 @@ public class TypedTableModelBuilder<T extends IsSerializable>
     
     private final List<T> rowObjects = new ArrayList<T>();
     
+    /**
+     * Returns the model.
+     */
     public TypedTableModel<T> getModel()
     {
         List<Column> cols = new ArrayList<Column>(columns.values());
@@ -138,54 +141,103 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         }
         return new TypedTableModel<T>(headers, rows);
     }
-    
+
+    /**
+     * Adds a column with specified id.
+     * 
+     * @return an {@link IColumnMetaData} instance which allows to set title, default width, and/or
+     *         data type.
+     * @throws IllegalArgumentException if a column with specified is has already been added.
+     */
     public IColumnMetaData addColumn(String id)
     {
         Column column = createColumn(null, id);
-        addColumn(column);
+        String id1 = column.getHeader().getId();
+        Column oldColumn = columns.put(id1, column);
+        if (oldColumn != null)
+        {
+            throw new IllegalArgumentException("There is already a column with id '" + id1 + "'.");
+        }
         return new ColumnMetaData(column);
     }
     
-    private void addColumn(Column column)
+    /**
+     * Adds a row with optional row object. This method has to be called before adding values to
+     * columns.
+     */
+    public void addRow(T objectOrNull)
     {
-        String id = column.getHeader().getId();
-        Column oldColumn = columns.put(id, column);
-        if (oldColumn != null)
-        {
-            throw new IllegalArgumentException("There is already a column with id '" + id + "'.");
-        }
+        rowObjects.add(objectOrNull);
     }
 
-    public void addStringValueToColumn(String id, String value)
+    /**
+     * Adds a string value to specified column. The column will be created if it does not exist.
+     */
+    public void addStringValueToColumn(String id, String valueOrNull)
     {
-        addStringValueToColumn(null, id, value);
+        addStringValueToColumn(null, id, valueOrNull);
     }
 
-    public void addStringValueToColumn(String title, String id, String value)
+    /**
+     * Adds a string value to the column specified by its id. The column will be created if it does
+     * not exist.
+     * 
+     * @param title Title of the column. Will be ignored if the column already exists.
+     */
+    public void addStringValueToColumn(String title, String id, String valueOrNull)
     {
-        addValueToColumn(title, id, value == null ? EMPTY_CELL : new StringTableCell(value));
+        StringTableCell value = valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
+        addValueToColumn(title, id, value);
     }
     
-    public void addIntegerValueToColumn(String id, Long value)
+    /**
+     * Adds an integer value to specified column. The column will be created if it does not exist.
+     */
+    public void addIntegerValueToColumn(String id, Long valueOrNull)
     {
-        addIntegerValueToColumn(null, id, value);
+        addIntegerValueToColumn(null, id, valueOrNull);
+    }
+
+    /**
+     * Adds an integer value to the column specified by its id. The column will be created if it
+     * does not exist.
+     * 
+     * @param title Title of the column. Will be ignored if the column already exists.
+     */
+    public void addIntegerValueToColumn(String title, String id, Long valueOrNull)
+    {
+        ISerializableComparable value =
+                valueOrNull == null ? EMPTY_CELL : new IntegerTableCell(valueOrNull);
+        addValueToColumn(title, id, value);
     }
     
-    public void addIntegerValueToColumn(String title, String id, Long value)
+    /**
+     * Adds a double value to specified column. The column will be created if it does not exist.
+     */
+    public void addDoubleValueToColumn(String id, Double valueOrNull)
     {
-        addValueToColumn(title, id, value == null ? EMPTY_CELL : new IntegerTableCell(value));
+        addDoubleValueToColumn(null, id, valueOrNull);
     }
     
-    public void addDoubleValueToColumn(String id, Double value)
+    /**
+     * Adds a double value to the column specified by its id. The column will be created if it
+     * does not exist.
+     * 
+     * @param title Title of the column. Will be ignored if the column already exists.
+     */
+    public void addDoubleValueToColumn(String title, String id, Double valueOrNull)
     {
-        addDoubleValueToColumn(null, id, value);
+        ISerializableComparable value =
+                valueOrNull == null ? EMPTY_CELL : new DoubleTableCell(valueOrNull);
+        addValueToColumn(title, id, value);
     }
-    
-    public void addDoubleValueToColumn(String title, String id, Double value)
-    {
-        addValueToColumn(title, id, value == null ? EMPTY_CELL : new DoubleTableCell(value));
-    }
-    
+
+    /**
+     * Adds specified value to the column specified by its id. The column will be created if it
+     * does not exist.
+     * 
+     * @param titleOrNull Title of the column. Will be ignored if the column already exists.
+     */
     public void addValueToColumn(String titleOrNull, String id, ISerializableComparable value)
     {
         getOrCreateColumn(titleOrNull, id).insertValueAt(rowObjects.size() - 1, value);
@@ -204,19 +256,12 @@ public class TypedTableModelBuilder<T extends IsSerializable>
     
     private Column createColumn(String titleOrNull, String id)
     {
-        TableModelColumnHeader header = createHeader(titleOrNull, id);
-        return new Column(header);
+        return new Column(createHeader(titleOrNull, id));
     }
 
     private TableModelColumnHeader createHeader(String titleOrNull, String id)
     {
-        TableModelColumnHeader header = new TableModelColumnHeader(titleOrNull, id, columns.size());
-        return header;
-    }
-
-    public void addRow(T object)
-    {
-        rowObjects.add(object);
+        return new TableModelColumnHeader(titleOrNull, id, columns.size());
     }
 
 }
