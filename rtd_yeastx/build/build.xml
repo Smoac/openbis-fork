@@ -48,5 +48,5 @@
       <!--
       // Task for continuous integration server.
       -->
-      <target name="ci" depends="build-common.ci, check-dependencies, jar"/>
+      <target name="ci" depends="build-common.ci, dist, check-dependencies"/>
 </project>
