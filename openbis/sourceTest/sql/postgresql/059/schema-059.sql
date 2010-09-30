@@ -15,6 +15,7 @@ CREATE DOMAIN code AS character varying(60);
 CREATE DOMAIN column_label AS character varying(128);
 CREATE DOMAIN data_store_service_kind AS character varying(40)
 	CONSTRAINT data_store_service_kind_check CHECK (((VALUE)::text = ANY (ARRAY[('PROCESSING'::character varying)::text, ('QUERIES'::character varying)::text])));
+CREATE DOMAIN DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE AS VARCHAR(40) CHECK (VALUE IN ('TABLE_MODEL', 'DSS_LINK'));
 CREATE DOMAIN description_2000 AS character varying(2000);
 CREATE DOMAIN event_type AS character varying(40)
 	CONSTRAINT event_type_check CHECK (((VALUE)::text = ANY (ARRAY[('DELETION'::character varying)::text, ('INVALIDATION'::character varying)::text, ('MOVEMENT'::character varying)::text])));
@@ -479,7 +480,8 @@ CREATE TABLE data_store_services (
     key character varying(256) NOT NULL,
     label character varying(256) NOT NULL,
     kind data_store_service_kind NOT NULL,
-    data_store_id tech_id NOT NULL
+    data_store_id tech_id NOT NULL,
+    REPORTING_PLUGIN_TYPE DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE
 );
 CREATE SEQUENCE data_store_services_id_seq
     START WITH 1
