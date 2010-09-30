@@ -83,8 +83,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
      * appropriate debugging level for class {@link JdbcAccessor}.
      * </p>
      */
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, HibernateSearchDAO.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            HibernateSearchDAO.class);
+
+    /** Maximal number of results per query */
+    private static final int MAX_QUERY_RESULTS = 200000;
 
     HibernateSearchDAO(final SessionFactory sessionFactory)
     {
@@ -119,8 +122,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "%d matching entities of type '%s' have been found for search term '%s'.", list
-                            .size(), searchableEntity.getMatchingEntityClass(), searchTerm));
+                    "%d matching entities of type '%s' have been found for search term '%s'.",
+                    list.size(), searchableEntity.getMatchingEntityClass(), searchTerm));
         }
         return list;
     }
@@ -165,12 +168,13 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         Query query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, analyzer);
         query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
-                fullTextSession.createFullTextQuery(query, searchableEntity
-                        .getMatchingEntityClass());
+                fullTextSession.createFullTextQuery(query,
+                        searchableEntity.getMatchingEntityClass());
 
         // takes data only from Lucene index without hitting DB
         hibernateQuery.setProjection(FullTextQuery.DOCUMENT_ID, FullTextQuery.DOCUMENT);
         hibernateQuery.setReadOnly(true);
+        hibernateQuery.setMaxResults(MAX_QUERY_RESULTS);
 
         MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
         hibernateQuery.setResultTransformer(new MatchingEntityResultTransformer(searchableEntity,
@@ -228,6 +232,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, entityKind.getEntityClass());
 
+        hibernateQuery.setMaxResults(MAX_QUERY_RESULTS);
         hibernateQuery.setProjection(FullTextQuery.ID);
         hibernateQuery.setReadOnly(true);
         hibernateQuery.setResultTransformer(new PassThroughOneObjectTupleResultTransformer());
@@ -237,9 +242,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         return entityIds;
     }
 
-    // 
+    //
     // Helpers
-    // 
+    //
 
     private static class PassThroughOneObjectTupleResultTransformer extends BasicTransformerAdapter
     {
