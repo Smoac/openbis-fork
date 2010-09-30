@@ -106,7 +106,7 @@ CONFFILE=etc/datastore_server.conf
 LOGFILE=log/datastore_server_log.txt
 STARTUPLOG=log/startup_log.txt
 SUCCESS_MSG="Data Store Server ready and waiting for data"
-JAR_FILE=lib/datastore_server.jar
+LIB_FOLDER=lib
 MAX_LOOPS=10
 
 #
@@ -132,6 +132,12 @@ fi
 
 command=$1
 ALL_JAVA_OPTS="-Djavax.net.ssl.trustStore=etc/openBIS.keystore $JAVA_OPTS"
+
+# Build classpath from $LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
+CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar | sed 's/ /:/g'`
+
+CMD="${JAVA_BIN} ${ALL_JAVA_OPTS} -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
+
 # ensure that we ignore a possible prefix "--" for any command 
 command="${command#--*}"
 case "$command" in
@@ -146,7 +152,7 @@ case "$command" in
     echo -n "Starting Data Store Server "
     rotateLogFiles $LOGFILE $MAXLOGS
     shift 1
-    ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+    ${CMD} "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then
       # wait for initial self-test to finish
       n=0
@@ -234,19 +240,19 @@ case "$command" in
     $SCRIPT start
     ;;
   help)
-    ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --help
+    ${CMD} --help
     ;;
   version)
-    ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --version
+    ${CMD} --version
     ;;
   show-shredder)
-    ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --show-shredder
+    ${CMD} --show-shredder
     ;;
   show-updater-queue)
-    ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --show-updater-queue
+    ${CMD} --show-updater-queue
     ;;
   show-command-queue)
-    ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --show-command-queue
+    ${CMD} --show-command-queue
     ;;
   *)
     echo $"Usage: $0 {start|stop|restart|status|help|version|show-shredder|show-updater-queue|show-command-queue}"
