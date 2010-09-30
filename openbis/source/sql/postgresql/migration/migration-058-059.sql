@@ -34,3 +34,10 @@ $$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER query_entity_type_code_check BEFORE INSERT OR UPDATE ON queries
     FOR EACH ROW EXECUTE PROCEDURE query_entity_type_code_check();
+    
+------------------------------------------------------------------------------------
+--  Add a new domain to capture the allowed values for ReportingPluginType
+--  Store the ReportingPluginType on the DATA_STORE_SERVICES table
+------------------------------------------------------------------------------------
+CREATE DOMAIN DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE AS VARCHAR(40) CHECK (VALUE IN ('TABLE_MODEL', 'DSS_LINK'));
+ALTER TABLE DATA_STORE_SERVICES ADD COLUMN REPORTING_PLUGIN_TYPE DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE;
