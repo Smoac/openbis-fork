@@ -846,64 +846,6 @@ class Entities
 
     /**
      * <p>
-     * Escapes the characters in a <code>String</code>.
-     * </p>
-     * <p>
-     * For example, if you have called addEntity(&quot;foo&quot;, 0xA1), escape(&quot;\u00A1&quot;)
-     * will return &quot;&amp;foo;&quot;
-     * </p>
-     * 
-     * @param str The <code>String</code> to escape.
-     * @return A new escaped <code>String</code>.
-     */
-    public String escape(String str)
-    {
-        StringWriter stringWriter = createStringWriter(str);
-        this.escape(stringWriter, str);
-        return stringWriter.toString();
-    }
-
-    /**
-     * <p>
-     * Escapes the characters in the <code>String</code> passed and writes the result to the
-     * <code>StringWriter</code> passed.
-     * </p>
-     * 
-     * @param writer The <code>StringWriter</code> to write the results of the escaping to. Assumed
-     *            to be a non-null value.
-     * @param str The <code>String</code> to escape. Assumed to be a non-null value.
-     * @see #escape(String)
-     * @see StringWriter
-     */
-    public void escape(StringWriter writer, String str)
-    {
-        int len = str.length();
-        for (int i = 0; i < len; i++)
-        {
-            char c = str.charAt(i);
-            String entityName = this.entityName(c);
-            if (entityName == null)
-            {
-                if (c > 0x7F)
-                {
-                    writer.write("&#");
-                    writer.write(Integer.toString(c, 10));
-                    writer.write(';');
-                } else
-                {
-                    writer.write(c);
-                }
-            } else
-            {
-                writer.write('&');
-                writer.write(entityName);
-                writer.write(';');
-            }
-        }
-    }
-
-    /**
-     * <p>
      * Unescapes the entities in a <code>String</code>.
      * </p>
      * <p>
@@ -947,7 +889,6 @@ class Entities
      * 
      * @param writer The <code>StringWriter</code> to write the results to; assumed to be non-null.
      * @param str The source <code>String</code> to unescape; assumed to be non-null.
-     * @see #escape(String)
      * @see StringWriter
      */
     public void unescape(StringWriter writer, String str)
