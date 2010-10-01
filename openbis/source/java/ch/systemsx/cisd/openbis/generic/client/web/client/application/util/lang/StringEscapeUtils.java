@@ -34,49 +34,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang
  */
 public class StringEscapeUtils
 {
-
-    /**
-     * <p>
-     * Escapes the characters in a <code>String</code> using HTML entities.
-     * </p>
-     * <p>
-     * For example:
-     * </p>
-     * <p>
-     * <code>"bread" & "butter"</code>
-     * </p>
-     * becomes:
-     * <p>
-     * <code>&amp;quot;bread&amp;quot; &amp;amp; &amp;quot;butter&amp;quot;</code>.
-     * </p>
-     * <p>
-     * Supports all known HTML 4.0 entities, including funky accents. Note that the commonly used
-     * apostrophe escape character (&amp;apos;) is not a legal entity and so is not supported).
-     * </p>
-     * 
-     * @param str the <code>String</code> to escape, may be null
-     * @return a new escaped <code>String</code>, <code>null</code> if null string input
-     * @see #unescapeHtml(String)
-     * @see <a href="http://hotwired.lycos.com/webmonkey/reference/special_characters/">ISO
-     *      Entities</a>
-     * @see <a href="http://www.w3.org/TR/REC-html32#latin1">HTML 3.2 Character Entities for ISO
-     *      Latin-1</a>
-     * @see <a href="http://www.w3.org/TR/REC-html40/sgml/entities.html">HTML 4.0 Character entity
-     *      references</a>
-     * @see <a href="http://www.w3.org/TR/html401/charset.html#h-5.3">HTML 4.01 Character
-     *      References</a>
-     * @see <a href="http://www.w3.org/TR/html401/charset.html#code-position">HTML 4.01 Code
-     *      positions</a>
-     */
-    public static String escapeHtml(String str)
-    {
-        if (str == null)
-        {
-            return null;
-        }
-        return Entities.HTML40.escape(str);
-    }
-
     /**
      * <p>
      * Unescapes a string containing entity escapes to a string containing the actual Unicode
