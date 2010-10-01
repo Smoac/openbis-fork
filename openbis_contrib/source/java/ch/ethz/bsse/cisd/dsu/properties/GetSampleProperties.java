@@ -48,6 +48,8 @@ public class GetSampleProperties
     private static final String END_TYPE = "END_TYPE";
 
     private static final String ELAND_CONFIG_FILE = "config.txt";
+    
+    private static final String BOWTIE_CONFIG_FILE = "bowtie.txt";
 
     private static final String DEFAULT_FLOW_CELL_SPACE = "CISD:/BSSE_FLOWCELLS/";
 //    private static final String DEFAULT_FLOW_CELL_SPACE = "default_flow_cell_space";
@@ -64,6 +66,7 @@ public class GetSampleProperties
     public static void main(String[] args) throws IOException
     {
         FileWriter writer = new FileWriter(ELAND_CONFIG_FILE);
+        FileWriter bowtieWriter = new FileWriter(BOWTIE_CONFIG_FILE);
         Properties prop = PropertyUtils.loadProperties(SERVICE_PROPERTIES);
         Long techId = 0L;
         String endType = "";
@@ -128,7 +131,9 @@ public class GetSampleProperties
         for (Entry<Integer, List<Sample>> entry : parentSamples.entrySet())
         {
             Integer key = entry.getKey();
-            String gP = "";
+            String propertyString = "";
+            String pathToGenome = "";
+            String bowtieIndexName = "";
             List<Sample> samples = entry.getValue();
             // get the properties of the first parent
             List<IEntityProperty> properties = samples.get(0).getProperties();
@@ -138,11 +143,14 @@ public class GetSampleProperties
                 {
                     try
                     {
-                        gP = GenomeMap.getGenomePath(property.tryGetAsString());
-                        if (gP != null)
+                        propertyString = property.tryGetAsString();
+                        pathToGenome = GenomeMap.getGenomePath(propertyString);
+                        bowtieIndexName = GenomeMap.getBowtieIndex(propertyString);
+                        if (pathToGenome != null)
                         {
-                            writer.write(key + ":ELAND_GENOME " + gP + "\n");
+                            writer.write(key + ":ELAND_GENOME " + pathToGenome + "\n");
                             writer.write(key + ":ANALYSIS " + endType + "\n");
+                            bowtieWriter.write(bowtieIndexName + "\n");
                         }
 
                     } catch (IOException ex)
@@ -154,7 +162,9 @@ public class GetSampleProperties
         }
         writer.write("ELAND_SET_SIZE 10\n" + "EMAIL_LIST manuel.kohler@bsse.ethz.ch");
         writer.close();
+        bowtieWriter.close();
         operationLog.info("Writing " + ELAND_CONFIG_FILE);
+        operationLog.info("Writing " + BOWTIE_CONFIG_FILE);
         service.logout(sessionToken);
     }
 
