@@ -38,6 +38,7 @@ function init_log {
 function report_error {
     local msg=$@
 
+		test -e $ERR_LOG || touch $ERR_LOG
     echo [ERROR] $msg | tee -a $ERR_LOG >&2
     TEST_FAILED="true"
 }
@@ -162,8 +163,8 @@ function assert_pattern_present {
 
   assert_file_exists $file
   echo Matched lines: 
-  cat $file | grep "$pattern"  
-  local lines=`cat $file | grep "$pattern" | wc -l`
+  cat $file | grep -i "$pattern"  
+  local lines=`cat $file | grep -i "$pattern" | wc -l`
   if [ $lines != $occurences ]; then
         report_error $lines instead of $occurences occurences of pattern $pattern found!
   else
