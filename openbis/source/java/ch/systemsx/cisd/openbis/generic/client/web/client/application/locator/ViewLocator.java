@@ -130,7 +130,8 @@ public class ViewLocator
         {
             final String[] paramPair = params[i].split(KEY_VALUE_SEPARATOR);
             assert paramPair.length == 2 : "Incorrectly formatted URL parameters";
-            // TODO 2010-09-20, Piotr Buczek: write and use BasicURLDecoder
+            // TODO 2010-09-20, Piotr Buczek: use com.google.gwt.http.client.URL.decode, exchange
+            // BasicURLEncoder with URL.encode
             paramPair[1] = StringEscapeUtils.unescapeHtml(paramPair[1].replaceAll("%2F", "/"));
             if (GWT_PARAMETER.equals(paramPair[0]))
             {
