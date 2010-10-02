@@ -67,46 +67,6 @@ public class ValueGroupDescriptor
         genotype = dataColumnHeader.getGenotype();
     }
 
-    public ValueGroupDescriptor(ValueGroupDescriptor descr, String replacementBiId, int replacementTimePoint)
-    {
-        experimentType = descr.experimentType;
-        cultivationMethod = descr.cultivationMethod;
-        biologicalReplicates = descr.biologicalReplicates;
-        timePoint = replacementTimePoint;
-        timePointType = descr.timePointType;
-        technicalReplicates = descr.technicalReplicates;
-        cellLocation = descr.cellLocation;
-        dataSetType = descr.dataSetType;
-        biId = replacementBiId;
-        controlledGene = descr.controlledGene;
-        growthPhase = descr.growthPhase;
-        genotype = descr.genotype;
-    }
-    
-    public ValueGroupDescriptor(String[] headerFields)
-    {
-        experimentType = headerFields[0];
-        cultivationMethod = headerFields[1];
-        biologicalReplicates = headerFields[2];
-        if ("NT".equals(headerFields[3]))
-        {
-            timePoint = Integer.MIN_VALUE;
-        } else
-        {
-            timePoint =
-                Integer.parseInt(headerFields[3].startsWith("+") ? headerFields[3].substring(1)
-                        : headerFields[3]);
-        }
-        timePointType = headerFields[4];
-        technicalReplicates = headerFields[5];
-        cellLocation = headerFields[6];
-        dataSetType = headerFields[7];
-        biId = headerFields[10];
-        controlledGene = headerFields[11];
-        growthPhase = headerFields[12];
-        genotype = headerFields[13];
-    }
-
     public String getExperimentType()
     {
         return experimentType;
