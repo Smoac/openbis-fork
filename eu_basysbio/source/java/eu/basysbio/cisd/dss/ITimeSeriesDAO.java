@@ -48,8 +48,7 @@ public interface ITimeSeriesDAO extends BaseQuery
             + "and time_point = ?{1.timePoint} and time_point_type = ?{1.timePointType} "
             + "and technical_replicates = ?{1.technicalReplicateCode} and cell_location = ?{1.celLoc} "
             + "and data_set_type = ?{1.timeSeriesDataSetType} "
-            + "and value_type = ?{1.valueType} and unit = ?{1.unit} and scale = ?{1.scale} "
-            + "and bi_id = ?{1.biID} and cg = ?{1.controlledGene})")
+            + "and value_type = ?{1.valueType} and unit = ?{1.unit} and scale = ?{1.scale})")
     public DataSet<String> listDataSetsByTimeSeriesDataColumnHeader(
             DataColumnHeader dataColumnHeader);
     
@@ -59,7 +58,7 @@ public interface ITimeSeriesDAO extends BaseQuery
             + " controlled_gene, number_of_replicates, "
             + " experiment_type, cultivation_method, biological_replicates, time_point, "
             + " time_point_type, technical_replicates, cell_location, data_set_type, "
-            + " value_type, unit, scale, bi_id, cg, value) "
+            + " value_type, unit, scale, value) "
             + "values (?{1}, ?{2}, ?{3.rowIndex}, ?{3.columnIndex}, ?{3.valueGroupId}, "
             + "        ?{3.identifier}, ?{3.humanReadable}, ?{3.bsbId}, ?{3.confidenceLevel}, "
             + "        ?{3.controlledGene}, ?{3.numberOfReplicates}, "
@@ -68,7 +67,7 @@ public interface ITimeSeriesDAO extends BaseQuery
             + "        ?{3.descriptor.timePointType}, ?{3.descriptor.technicalReplicates}, "
             + "        ?{3.descriptor.cellLocation}, ?{3.descriptor.dataSetType}, "
             + "        ?{3.descriptor.valueType}, ?{3.descriptor.unit}, ?{3.descriptor.scale}, "
-            + "        ?{3.descriptor.biId}, ?{3.descriptor.controlledGene}, ?{3.value})", batchUpdate = true)
+            + "        ?{3.value})", batchUpdate = true)
     public void insertTimeSeriesValues(long dataSetID, String identifierType,
             List<TimeSeriesValue> timeSeriesValues);    
 

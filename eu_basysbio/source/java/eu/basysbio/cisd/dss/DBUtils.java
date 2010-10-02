@@ -25,14 +25,14 @@ import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
 /**
- * 
+ * Method for initializing the BaSysBio database.
  *
  * @author Franz-Josef Elmer
  */
 public class DBUtils
 {
     /** Current version of the database. */
-    public static final String DATABASE_VERSION = "007";
+    public static final String DATABASE_VERSION = "008";
 
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
     
