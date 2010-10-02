@@ -112,6 +112,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                 }
             }
             String lastBBAID = null;
+            String lastControlledGene = null;
             databaseFeeder.resetValueGroupIDGenerator();
             for (int i = 1; i < columns.size(); i++)
             {
@@ -136,13 +137,34 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                 }
                 lastBBAID = bbaIDOfColumn;
                 items[10] = "NB";
+                if (items.length > 11 && "NC".equals(items[11]) == false)
+                {
+                    String controlledGeneOfColumn = items[11];
+                    if (lastControlledGene != null && controlledGeneOfColumn.equals(lastControlledGene) == false)
+                    {
+                        throw new UserFailureException(
+                                "Invalid headers: All ControlledGenes should be the same. "
+                                        + "The folowing two ControlledGenes found: " + lastControlledGene
+                                        + " " + controlledGeneOfColumn);
+                    }
+                    lastControlledGene = controlledGeneOfColumn;
+                    items[11] = "NC";
+                }
                 StringBuilder builder = new StringBuilder("BBA ID");
+                if (lastControlledGene != null)
+                {
+                    builder.append("\tControlledGene");
+                }
                 for (String value : timeValues)
                 {
                     items[3] = value;
                     builder.append("\t").append(StringUtils.join(items, DataColumnHeader.SEPARATOR));
                 }
                 builder.append("\n").append(bbaIDOfColumn);
+                if (lastControlledGene != null)
+                {
+                    builder.append("\t").append(lastControlledGene);
+                }
                 List<String> values = column.getValues();
                 for (String value : values)
                 {
