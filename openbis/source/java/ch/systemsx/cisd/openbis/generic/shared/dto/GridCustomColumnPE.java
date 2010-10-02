@@ -18,6 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -42,6 +46,14 @@ public class GridCustomColumnPE extends AbstractGridExpressionPE<GridCustomColum
     private String code;
 
     private String label;
+
+    @SequenceGenerator(name = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE, sequenceName = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.GRID_CUSTOM_COLUMNS_SEQUENCE)
+    public final Long getId()
+    {
+        return id;
+    }
 
     @Column(name = ColumnNames.CODE_COLUMN)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)

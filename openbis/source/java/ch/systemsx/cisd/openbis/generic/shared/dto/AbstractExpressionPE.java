@@ -21,13 +21,9 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Version;
 
 import org.hibernate.validator.Length;
@@ -58,7 +54,7 @@ public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrat
 
     private DatabaseInstancePE databaseInstance;
 
-    private Long id;
+    protected Long id;
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
@@ -119,14 +115,6 @@ public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrat
     public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstance = databaseInstance;
-    }
-
-    @SequenceGenerator(name = SequenceNames.FILTER_SEQUENCE, sequenceName = SequenceNames.FILTER_SEQUENCE, allocationSize = 1)
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.FILTER_SEQUENCE)
-    public final Long getId()
-    {
-        return id;
     }
 
     public final void setId(final Long id)

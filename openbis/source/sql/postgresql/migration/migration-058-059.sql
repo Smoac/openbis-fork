@@ -41,3 +41,10 @@ CREATE TRIGGER query_entity_type_code_check BEFORE INSERT OR UPDATE ON queries
 ------------------------------------------------------------------------------------
 CREATE DOMAIN DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE AS VARCHAR(40) CHECK (VALUE IN ('TABLE_MODEL', 'DSS_LINK'));
 ALTER TABLE DATA_STORE_SERVICES ADD COLUMN REPORTING_PLUGIN_TYPE DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE;
+
+------------------------------------------------------------------------------------
+-- Put the sequences query_id_seq and grid_custom_columns in use
+--  (by mistake, filter_id_seq had been used for queries and grid custom columns)
+------------------------------------------------------------------------------------
+SELECT setval('query_id_seq', nextval('filter_id_seq'));
+SELECT setval('grid_custom_columns_id_seq', currval('filter_id_seq'));

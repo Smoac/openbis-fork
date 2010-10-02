@@ -20,6 +20,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -48,6 +52,14 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
     private QueryType queryType;
 
     private String entityTypeCode;
+
+    @SequenceGenerator(name = SequenceNames.QUERY_SEQUENCE, sequenceName = SequenceNames.QUERY_SEQUENCE, allocationSize = 1)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.QUERY_SEQUENCE)
+    public final Long getId()
+    {
+        return id;
+    }
 
     @Column(name = ColumnNames.NAME_COLUMN)
     @NotNull(message = ValidationMessages.NAME_NOT_NULL_MESSAGE)

@@ -65,8 +65,12 @@ public final class SequenceNames
     public static final String RELATIONSHIP_TYPE_SEQUENCE = "RELATIONSHIP_TYPE_ID_SEQ";
 
     public static final String GROUP_SEQUENCE = "GROUP_ID_SEQ";
-
+    
     public static final String FILTER_SEQUENCE = "FILTER_ID_SEQ";
+
+    public static final String GRID_CUSTOM_COLUMNS_SEQUENCE = "GRID_CUSTOM_COLUMNS_ID_SEQ";
+
+    public static final String QUERY_SEQUENCE = "QUERY_ID_SEQ";
 
     public static final String INVALIDATION_SEQUENCE = "INVALIDATION_ID_SEQ";
 
@@ -89,7 +93,7 @@ public final class SequenceNames
     public static final String PROJECT_SEQUENCE = "PROJECT_ID_SEQ";
 
     public static final String PROPERTY_TYPES_SEQUENCE = "PROPERTY_TYPE_ID_SEQ";
-
+    
     public static final String ROLE_ASSIGNMENT_SEQUENCE = "ROLE_ASSIGNMENT_ID_SEQ";
 
     public static final String SAMPLE_INPUT_SEQUENCE = "SAMPLE_INPUT_ID_SEQ";
