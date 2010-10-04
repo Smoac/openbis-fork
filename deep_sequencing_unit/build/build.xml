@@ -4,7 +4,7 @@
 
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="deep_sequencing_unit" />
-	<property name="variant" value="-dsu" />
+	<property name="variant" value="dsu" />
 
 	<property name="dist.tracking" value="${dist}/tracking" />
 	<property name="dist.tracking.lib" value="${dist.tracking}/lib" />
