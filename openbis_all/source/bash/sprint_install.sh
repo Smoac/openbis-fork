@@ -70,7 +70,8 @@ cp ~openbis/old/$SERVERS_PREV_VER/openBIS-server/jetty/etc/jetty.xml ~openbis/$S
 
 echo Installing datastore server...
 cd ..
-unzip -q ../datastore_server*$VER*
+unzip -q ../datastore_server-*$VER*
+for file in ../datastore_server_plugin-*$VER*; do unzip -q -d datastore_server $file; done
 cd datastore_server
 cp -p $CONFIG_DIR/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
