@@ -61,10 +61,10 @@
 				           value="${version.number} (r${revision.number},${clean.flag})" />
 			</manifest>
 		</jar>
-  	<copy todir="${original.dist}/data">
+  	<copy todir="dist/data">
   		<fileset dir="${dist}/data" />
   	</copy>
-    <copy todir="${original.dist}/etc">
+    <copy todir="dist/etc">
       <fileset dir="${dist}/etc">
         <include name="tabular-data-graph.properties" />
       </fileset>
