@@ -30,7 +30,8 @@
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
 			<fileset dir="${classes}">
-				<include name="eu/**/*.class" />
+				<include name="ch/ethz/**/*.class" />
+				<include name="ch/systemsx/cisd/openbis/dss/BuildAndEnvironmentInfo*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
 			<fileset dir="source">
