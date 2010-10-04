@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -50,7 +51,7 @@ public abstract class AbstractTableModelReportingPlugin extends AbstractDatastor
         return ReportingPluginType.TABLE_MODEL;
     }
 
-    public String createLink(DatasetDescription dataset)
+    public LinkModel createLink(DatasetDescription dataset)
     {
         throw new IllegalArgumentException(
                 "The method createLink is not supported by TABLE_MODEL tasks");

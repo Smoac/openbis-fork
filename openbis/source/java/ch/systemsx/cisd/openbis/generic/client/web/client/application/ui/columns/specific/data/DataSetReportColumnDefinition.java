@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DssLinkTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -94,6 +95,10 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         if (cell instanceof GeneratedImageTableCell)
         {
             return ((GeneratedImageTableCell) cell).getHTMLString(downloadURL, sessionID);
+        }
+        if (cell instanceof DssLinkTableCell)
+        {
+            return ((DssLinkTableCell) cell).getHtmlString(sessionID);
         }
         return cell.toString();
     }

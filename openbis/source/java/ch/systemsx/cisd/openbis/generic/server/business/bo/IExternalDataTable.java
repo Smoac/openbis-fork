@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -128,6 +129,6 @@ public interface IExternalDataTable
     /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.
      */
-    String retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode);
+    LinkModel retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode);
 
 }

@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -2491,13 +2492,13 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public String retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
+    public LinkModel retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
             String dataSetCode)
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final String url =
+            final LinkModel url =
                     commonServer.retrieveLinkFromDataSet(sessionToken, serviceDescription,
                             dataSetCode);
             return url;

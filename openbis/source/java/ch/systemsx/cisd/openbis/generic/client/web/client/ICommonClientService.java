@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -889,7 +890,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.
      */
-    public String retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
+    public LinkModel retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
             String dataSetCode);
 
 }

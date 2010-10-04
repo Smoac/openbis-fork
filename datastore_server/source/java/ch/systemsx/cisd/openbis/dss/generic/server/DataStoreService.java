@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatu
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -303,7 +304,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         }
     }
 
-    public String retrieveLinkFromDataSet(String sessionToken, String serviceKey,
+    public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);

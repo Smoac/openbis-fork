@@ -19,8 +19,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericViewModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DssLinkTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 
 /**
  * Helper class for getting links from services with a ReportingPluginType of DSS_LINK.
@@ -33,9 +36,19 @@ public class DataSetReportLinkRetriever
      * Retrieves a link for the selected data sets and invokes the action.
      */
     public static void retrieveAndInvoke(IViewContext<ICommonClientServiceAsync> viewContext,
-            DatastoreServiceDescription service, String dataSetCode, AsyncCallback<String> action)
+            DatastoreServiceDescription service, String dataSetCode, AsyncCallback<LinkModel> action)
     {
-        AsyncCallback<String> callback = action;
+        AsyncCallback<LinkModel> callback = action;
         viewContext.getService().retrieveLinkFromDataSet(service, dataSetCode, callback);
+    }
+
+    public static String convertLinkModelToUrl(LinkModel linkModel, GenericViewModel model)
+    {
+        return convertLinkModelToUrl(linkModel, model.getSessionContext().getSessionID());
+    }
+
+    public static String convertLinkModelToUrl(LinkModel linkModel, String sessionId)
+    {
+        return DssLinkTableCell.getLinkUrl(linkModel, sessionId);
     }
 }

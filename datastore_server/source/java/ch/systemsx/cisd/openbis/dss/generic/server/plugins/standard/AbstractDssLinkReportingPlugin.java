@@ -23,7 +23,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IRowBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DssLinkTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -56,32 +56,16 @@ public abstract class AbstractDssLinkReportingPlugin extends AbstractDatastorePl
      */
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader(DATA_SET_HEADER);
         for (DatasetDescription dataSet : datasets)
         {
             IRowBuilder rowBuilder = builder.addRow();
-            String link = createLink(dataSet);
+            LinkModel linkModel = createLink(dataSet);
             String text = dataSet.getDatasetCode();
-            rowBuilder.setCell(DATA_SET_HEADER,
-                    URLMethodWithParameters.createEmbededLinkHtml(text, link));
+
+            rowBuilder.setCell(DATA_SET_HEADER, new DssLinkTableCell(text, linkModel));
         }
         return builder.getTableModel();
     }
-
-    public String createLink(DatasetDescription dataSet)
-    {
-        LinkModel linkModel = createLinkModel(dataSet);
-        URLMethodWithParameters urlMethod =
-                new URLMethodWithParameters(linkModel.getSchemeAndDomain() + "/"
-                        + linkModel.getPath());
-        for (LinkModel.LinkParameter param : linkModel.getParameters())
-        {
-            urlMethod.addParameter(param.getName(), param.getValue());
-        }
-
-        return urlMethod.toString();
-    }
-
-    public abstract LinkModel createLinkModel(DatasetDescription dataSet);
 }

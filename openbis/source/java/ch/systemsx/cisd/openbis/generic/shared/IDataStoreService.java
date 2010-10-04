@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -119,7 +120,9 @@ public interface IDataStoreService
      * @param sessionToken The sessionToken
      * @param serviceKey The service that should compute the link
      * @param dataSet The data set we want the link for
+     * @return A LinkModel that describes the link. The session Id needs to be filled in to retrieve
+     *         the link.
      */
-    public String retrieveLinkFromDataSet(String sessionToken, String serviceKey,
+    public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet);
 }

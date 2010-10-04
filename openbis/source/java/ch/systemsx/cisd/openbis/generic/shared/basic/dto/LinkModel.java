@@ -33,11 +33,17 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * <li>datastore_server/2010093083732894 <b>[path]</b></li>
  * <li>param1=482745&param2=something <b>[parameters]</b></li>
  * </ul>
+ * <p>
+ * LinkModels returned by the server do not (necessarily) contain a sessionID. The client should
+ * provide the session Id to the LinkModel before using it.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class LinkModel implements IsSerializable, Serializable
 {
+    // Package visible constant
+    static final String SESSION_ID_PARAMETER_NAME = "sessionID";
+
     private static final long serialVersionUID = 1L;
 
     private String schemeAndDomain;
@@ -85,6 +91,7 @@ public class LinkModel implements IsSerializable, Serializable
         {
             return value;
         }
+
     }
 
     /**
@@ -137,6 +144,49 @@ public class LinkModel implements IsSerializable, Serializable
     public List<LinkParameter> getParameters()
     {
         return parameters;
+    }
+
+    /**
+     * The session token is a special parameter and should be set this way.
+     */
+    public void setSessionId(String sessionId)
+    {
+        // See if the parameter has already been added
+        LinkParameter sessionToken = trySessionTokenParameter();
+        if (null != sessionToken)
+        {
+            // Set the new value
+            sessionToken.setValue(sessionId);
+            // We're done
+            return;
+        }
+
+        // If we are here, we need to create the sessionToken
+        sessionToken = new LinkParameter(SESSION_ID_PARAMETER_NAME, sessionId);
+        parameters.add(sessionToken);
+    }
+
+    /**
+     * The session token is a special parameter. It is returned as one of the parameters by
+     * {@link #getParameters()}, but it can be retrieved directly this way.
+     */
+    public String trySessionId()
+    {
+        LinkParameter sessionTokenOrNull = trySessionTokenParameter();
+
+        return (null == sessionTokenOrNull) ? null : sessionTokenOrNull.getValue();
+    }
+
+    private LinkParameter trySessionTokenParameter()
+    {
+        for (LinkParameter param : parameters)
+        {
+            if (SESSION_ID_PARAMETER_NAME.equals(param.getName()))
+            {
+                return param;
+            }
+        }
+        return null;
     }
 
 }

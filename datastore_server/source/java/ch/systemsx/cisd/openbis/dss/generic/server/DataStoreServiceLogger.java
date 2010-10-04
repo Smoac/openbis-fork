@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -132,7 +133,7 @@ class DataStoreServiceLogger implements IDataStoreService
                 userEmailOrNull);
     }
 
-    public String retrieveLinkFromDataSet(String sessionToken, String serviceKey,
+    public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet)
     {
         log("retrieveLinkFromDataSet", "TASK_ID(%s) DATA_SET(%s)", serviceKey, dataSet);

@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -714,7 +715,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return dataSet;
     }
 
-    public String retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode)
+    public LinkModel retrieveLinkFromDataSet(String key, String datastoreCode, String dataSetCode)
     {
         DataStorePE dataStore = findDataStore(datastoreCode);
         IDataStoreService service = tryGetDataStoreService(dataStore);

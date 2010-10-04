@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
 /**
@@ -150,13 +151,15 @@ public class DataViewSection extends TabContent
                 private void showGeneratedDssLink(DatastoreServiceDescription service)
                 {
 
-                    AbstractAsyncCallback<String> action =
-                            new AbstractAsyncCallback<String>(viewContext)
+                    AbstractAsyncCallback<LinkModel> action =
+                            new AbstractAsyncCallback<LinkModel>(viewContext)
                                 {
                                     @Override
-                                    protected void process(String result)
+                                    protected void process(LinkModel result)
                                     {
-                                        showDssUrl(result);
+                                        showDssUrl(DataSetReportLinkRetriever
+                                                .convertLinkModelToUrl(result,
+                                                        viewContext.getModel()));
                                     }
 
                                 };
