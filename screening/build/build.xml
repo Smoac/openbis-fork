@@ -36,7 +36,9 @@
 		<jar destfile="${plugin-jar.file}">
 			<fileset dir="${classes}">
 				<include name="ch/systemsx/cisd/openbis/dss/**/*.class" />
+				<include name="ch/systemsx/cisd/plugin/screening/shared/**/*.class" />
 				<include name="ch/systemsx/cisd/utils/**/*.class" />
+				<include name="*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
     	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
