@@ -144,7 +144,7 @@ public class ScreeningClientApiTest
                 {
                     public int compare(FeatureVectorDataset f1, FeatureVectorDataset f2)
                     {
-                        return f1.getDataset().getPlate().getPlateCode().compareTo(f2.getDataset().getPlate().getPlateCode());
+                        return f2.getDataset().getPlate().getPlateCode().compareTo(f1.getDataset().getPlate().getPlateCode());
                     }
                 });
         print("Loaded feature datasets: " + features.size());
