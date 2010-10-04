@@ -119,7 +119,7 @@ public class ScreeningClientApiTest
             {
                 public int compare(ImageDatasetReference r1, ImageDatasetReference r2)
                 {
-                    return r1.getPlate().getPlateCode().compareTo(r2.getPlate().getPlateCode());
+                    return r2.getPlate().getPlateCode().compareTo(r1.getPlate().getPlateCode());
                 }
             });
         print("Image datasets: " + imageDatasets.subList(0, Math.min(5, imageDatasets.size())));
@@ -130,7 +130,7 @@ public class ScreeningClientApiTest
                 {
                     public int compare(FeatureVectorDatasetReference r1, FeatureVectorDatasetReference r2)
                     {
-                        return r1.getPlate().getPlateCode().compareTo(r2.getPlate().getPlateCode());
+                        return r2.getPlate().getPlateCode().compareTo(r1.getPlate().getPlateCode());
                     }
                 });
         print("Feature vector datasets: " + featureVectorDatasets.subList(0, Math.min(5, featureVectorDatasets.size())));
