@@ -26,7 +26,7 @@
         // Task for creating distributions
         -->
 	
-  <target name="dist" depends="openbis.make-dist, datastore_server.make-plugin-dist, screening-api" />
+  <target name="dist" depends="openbis.make-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api" />
   
   <target name="dss-plugin-jar" depends="compile">
 		<mkdir dir="${dist}" />
