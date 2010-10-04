@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * 
  * @author Izabela Adamczyk
  */
-public class PersonModel extends NonHierarchicalBaseModel
+public class PersonModel extends SimplifiedBaseModel
 {
 
     private static final long serialVersionUID = 1L;

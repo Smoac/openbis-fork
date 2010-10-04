@@ -22,7 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
  * 
  * @author Piotr Buczek
  */
-public class QueryModel extends NonHierarchicalBaseModelData
+public class QueryModel extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

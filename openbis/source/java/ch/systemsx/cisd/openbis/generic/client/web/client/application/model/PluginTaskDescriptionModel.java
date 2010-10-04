@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  * 
  * @author Piotr Buczek
  */
-public class PluginTaskDescriptionModel extends NonHierarchicalBaseModelData
+public class PluginTaskDescriptionModel extends SimplifiedBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

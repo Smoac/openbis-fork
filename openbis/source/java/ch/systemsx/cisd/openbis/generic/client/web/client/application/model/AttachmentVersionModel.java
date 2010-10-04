@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
  * 
  * @author Izabela Adamczyk
  */
-public class AttachmentVersionModel extends NonHierarchicalBaseModelData
+public class AttachmentVersionModel extends SimplifiedBaseModelData
 {
     public static final String VERSION = "version";
 

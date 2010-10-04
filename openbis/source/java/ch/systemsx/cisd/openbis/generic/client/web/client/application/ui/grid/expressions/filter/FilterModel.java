@@ -22,7 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
  * 
  * @author Izabela Adamczyk
  */
-public class FilterModel extends NonHierarchicalBaseModelData
+public class FilterModel extends SimplifiedBaseModelData
 {
     public static FilterModel COLUMN_FILTER_MODEL = createColumnFilter();
 

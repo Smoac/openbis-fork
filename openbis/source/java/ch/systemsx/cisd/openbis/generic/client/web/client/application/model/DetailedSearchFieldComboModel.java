@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 
 /** Model of combo box used in detailed entity search. */
-public class DetailedSearchFieldComboModel extends NonHierarchicalBaseModelData
+public class DetailedSearchFieldComboModel extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

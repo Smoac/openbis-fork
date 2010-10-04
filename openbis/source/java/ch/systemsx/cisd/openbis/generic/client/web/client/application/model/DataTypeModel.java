@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
  * 
  * @author Christian Ribeaud
  */
-public final class DataTypeModel extends NonHierarchicalBaseModelData
+public final class DataTypeModel extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

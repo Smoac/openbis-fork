@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
  * 
  * @author Izabela Adamczyk
  */
-public class GroupModel extends NonHierarchicalBaseModelData
+public class GroupModel extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

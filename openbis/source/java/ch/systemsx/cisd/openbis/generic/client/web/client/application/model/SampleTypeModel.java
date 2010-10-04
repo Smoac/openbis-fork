@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypeModel extends NonHierarchicalBaseModelData
+public class SampleTypeModel extends SimplifiedBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

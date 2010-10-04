@@ -16,44 +16,44 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import java.util.Map;
-
 import com.extjs.gxt.ui.client.data.BaseModel;
+import com.extjs.gxt.ui.client.data.RpcMap;
 
 /**
- * A Subclass of the GXT BaseModel that, by default, turns off nested value support. 
+ * A Subclass of the GXT BaseModel that simplifies default behavior ignoring special characters
+ * (e.g. '.', '[', ']').
  * 
- * NestedValues check for key strings with '.' in then treat them as paths for traversing multiple
- * HashMaps. 
- * 
- * We don't need this, and, in fact, it causes problems for us, since we occasionally use '.' as
- * part of a normal column name for a table without intending the nested-value semantics; thus we
- * turn it off.
- * 
+ * @see SimplifiedBaseModelData
  * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
-public abstract class NonHierarchicalBaseModel extends BaseModel
+public abstract class SimplifiedBaseModel extends BaseModel
 {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     *
-     *
-     */
-    public NonHierarchicalBaseModel()
+    // no special handling of '.', '[' and ']'
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <X> X get(String property)
     {
-        super();
-        setAllowNestedValues(false);
+        if (map == null)
+        {
+            return null;
+        }
+        return (X) map.get(property);
     }
 
-    /**
-     * @param properties
-     */
-    public NonHierarchicalBaseModel(Map<String, Object> properties)
+    @Override
+    @SuppressWarnings("unchecked")
+    public <X> X set(String property, X value)
     {
-        super(properties);
-        setAllowNestedValues(false);
+        if (map == null)
+        {
+            map = new RpcMap();
+        }
+        return (X) map.put(property, value);
     }
 
 }

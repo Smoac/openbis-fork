@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
  * 
  * @author Izabela Adamczyk
  */
-public class MaterialTypeModel extends NonHierarchicalBaseModelData
+public class MaterialTypeModel extends SimplifiedBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

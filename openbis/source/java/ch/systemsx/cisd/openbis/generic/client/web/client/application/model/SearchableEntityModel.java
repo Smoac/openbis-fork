@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  * 
  * @author Christian Ribeaud
  */
-public final class SearchableEntityModel extends NonHierarchicalBaseModelData
+public final class SearchableEntityModel extends SimplifiedBaseModelData
 {
     public final static SearchableEntityModel NULL_SEARCHABLE_ENTITY_MODEL =
             createNullSearchableEntityModel();

@@ -50,7 +50,6 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         TestInitializer.init();
     }
 
-    @Test
     public void testQuery()
     {
         String query =
@@ -58,7 +57,6 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         testQueryWithBindings(query, null);
     }
 
-    @Test
     public void testQueryWithBindings()
     {
         String query =
@@ -90,12 +88,31 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         assertEquals(2, rows.size());
     }
 
+    @Test
+    public void testQueryWithSpecialCharacters()
+    {
+        String query = "select code as \"exp.[code]\" from experiments";
+
+        DatabaseConfigurationContext context = new DatabaseConfigurationContext();
+        context.setDatabaseEngineCode("postgresql");
+        context.setBasicDatabaseName("openbis");
+        context.setDatabaseKind("test");
+        DataSource dataSource = context.getDataSource();
+        DAO dao = new DAO(dataSource);
+        TableModel model = dao.query(query, null);
+        List<TableModelColumnHeader> headers = model.getHeader();
+        assertColumnHeader("exp.[code]", DataTypeCode.VARCHAR, headers.get(0));
+        assertEquals(1, headers.size());
+        List<TableModelRow> rows = model.getRows();
+        assertRow("EXP1", rows.get(0));
+    }
+
     void assertColumnHeader(String expectedTitle, DataTypeCode expectedDataType,
             TableModelColumnHeader header)
     {
         assertEquals(expectedTitle, header.getTitle());
-        assertEquals("Data type of '" + header.getTitle() + "'", expectedDataType, header
-                .getDataType());
+        assertEquals("Data type of '" + header.getTitle() + "'", expectedDataType,
+                header.getDataType());
     }
 
     void assertRow(String expectedRow, TableModelRow row)
