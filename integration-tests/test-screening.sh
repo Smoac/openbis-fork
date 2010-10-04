@@ -73,7 +73,9 @@ function install_dss_screening {
 		local dss_template=$TEMPLATE/$DSS_DIR_NAME
 
 		rm -fr $dss_dest
-		unzip -q $INSTALL/datastore_server-screening*.zip -d $dss_dest
+		unzip -q $INSTALL/datastore_server-S*.zip -d $dss_dest
+		unzip -q $INSTALL/datastore_server_plugin-screening*.zip -d $dss_dest/datastore_server
+		unzip -qo $INSTALL/datastore_server-screening*.zip -d $dss_dest datastore_server/etc/service.properties
 		mv $dss_dest/datastore_server/* $dss_dest
 		rmdir $dss_dest/datastore_server
 
@@ -91,6 +93,7 @@ function install_screening_api {
 
 function install_screening {
 		rm -fr $INSTALL
+		fetch_distributions datastore_server
 		fetch_distributions screening
 
 		echo Dropping imaging database: $IMAGING_DB
@@ -114,7 +117,7 @@ function test_screening_api {
 	fi
 	assert_pattern_present api-client-log.txt 1 "Experiments: \[/DEMO/DEMO_PROJECT/DEMO_EXPERIMENT \[20100623121102843-1\]\]"
 	assert_pattern_present api-client-log.txt 1 "Plates: \[/DEMO/PLATE1 \[20100624113752213-5\]"
-	assert_pattern_present api-client-log.txt 1 "Image datasets: \[[0-9]*-9"
+	assert_pattern_present api-client-log.txt 1 "Image datasets: \[[0-9]*-[0-9]* (plate: /DEMO/PLATE3"
 	assert_pattern_present api-client-log.txt 1 "Feature vector datasets: \[[0-9]*-8 (plate: /DEMO/PLATE2 \[20100624113756254-6\]"
 	assert_pattern_present api-client-log.txt 1 "Feature codes: \[CELLNUMBER, FEATRUE1, FEATRUE10, FEATRUE11, FEATRUE12, FEATRUE13, FEATRUE14, FEATRUE15, FEATRUE16, FEATRUE2, FEATRUE3, FEATRUE4, FEATRUE5, FEATRUE6, FEATRUE7, FEATRUE8, FEATRUE9, FRET, HITRATE, RFU645, RFU730, STD1, STD10, STD11, STD12, STD13, STD14, STD15, STD16, STD2, STD3, STD4, STD5, STD6, STD7, STD8, STD9\]"
 	assert_pattern_present api-client-log.txt 1 "Loaded feature datasets: 2"
