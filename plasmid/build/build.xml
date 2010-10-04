@@ -4,7 +4,7 @@
 
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="plasmid" />
-	<property name="variant" value="plasmid" />
+	<property name="variant" value="-plasmid" />
 
 	<target name="compile" depends="build-common.compile, clean" />
 

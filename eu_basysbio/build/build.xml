@@ -2,7 +2,7 @@
 	<import file="../../datastore_server/build/build.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
-	<property name="variant" value="basysbio" />
+	<property name="variant" value="-basysbio" />
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="eu_basysbio" />
 

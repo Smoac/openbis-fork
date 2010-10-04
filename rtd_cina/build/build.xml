@@ -4,7 +4,7 @@
 
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="rtd_cina" />
-	<property name="variant" value="cina" />
+	<property name="variant" value="-cina" />
 
 	<target name="compile" depends="build-common.compile, clean" />
 

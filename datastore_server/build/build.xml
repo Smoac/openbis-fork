@@ -74,9 +74,9 @@
 	</target>
 	
   <target name="make-plugin-dist">
-		<move file="${plugin-jar.file}" tofile="${dist.lib}/datastore_server-plugin-${variant}.jar" />
+		<move file="${plugin-jar.file}" tofile="${dist.lib}/datastore_server_plugin${variant}.jar" />
 		<property name="dist.file"
-		          value="${dist}/datastore_server_plugin-${variant}-${version.number}-r${revision.number}.zip" />
+		          value="${dist}/datastore_server_plugin${variant}-${version.number}-r${revision.number}.zip" />
 		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar"/>
 		<delete dir="${dist.lib}"/>
   </target>

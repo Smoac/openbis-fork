@@ -2,7 +2,7 @@
 	<import file="../../datastore_server/build/build.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
-	<property name="variant" value="yeastx" />
+	<property name="variant" value="-yeastx" />
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="rtd_yeastx" />
 	<property name="nativeroot" value="${targets}/ant" />
