@@ -29,7 +29,8 @@
   <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api" />
   
   <target name="dss-plugin-jar" depends="compile">
-		<mkdir dir="${dist}" />
+		<mkdir dir="${dist}/data" />
+		<mkdir dir="${dist}/etc" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
