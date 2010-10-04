@@ -83,7 +83,7 @@
     	</zipfileset>
       <fileset dir="source">
         <include name="**/*.sql" />
-        <include name="java/*dss*.xml" />
+        <include name="**/*.xml" />
       </fileset>
     	<fileset dir="${lib}/hdf5">
     		<include name="native/**/*"/>
