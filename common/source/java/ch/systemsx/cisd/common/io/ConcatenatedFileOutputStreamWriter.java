@@ -104,26 +104,50 @@ public class ConcatenatedFileOutputStreamWriter
     // reached
     private long readBlockSize() throws IOException
     {
-        int bytesRead = inputStream.read(blockSizeBuffer, 0, BYTES_PER_LONG);
-        if (bytesRead == -1)
+        if (readExactly(blockSizeBuffer, BYTES_PER_LONG) == false)
         {
             return -1;
-        } else if (bytesRead < BYTES_PER_LONG)
-        {
-            throw new IOException("Stream corrupted, cannot read the block size.");
-        } else
-        {
-            long blockSize = bytesToLong(blockSizeBuffer);
-            assert blockSize >= 0 : "block size cannot be negative";
-            return blockSize;
         }
+        long blockSize = bytesToLong(blockSizeBuffer);
+        assert blockSize >= 0 : "block size cannot be negative";
+        return blockSize;
+    }
+
+    /**
+     * Reads exactly 'wantedBytes' bytes.
+     * 
+     * @return -1 if the end of the stream has been reached
+     * @throws IOException if there are some bytes to read, but less than the wanetd amount
+     */
+    private boolean readExactly(byte[] data, int wantedBytes) throws IOException
+    {
+        int bytesRead = 0;
+        while (bytesRead < BYTES_PER_LONG)
+        {
+            int chunkBytesRead =
+                    inputStream.read(blockSizeBuffer, bytesRead, wantedBytes - bytesRead);
+            if (chunkBytesRead == -1)
+            {
+                if (bytesRead == 0)
+                {
+                    return false;
+                } else
+                {
+                    throw new IOException("Stream corrupted, " + wantedBytes
+                            + " bytes expected but only " + bytesRead + " available.");
+                }
+            }
+            bytesRead += chunkBytesRead;
+        }
+        assert bytesRead == wantedBytes : "not enough bytes read";
+        return true;
     }
 
     /**
      * Reads the bytes from the current block. If len is 0 returns 0, otherwise if the end of one
      * block has been reached returns -1. It does not mean that the end of the whole stream has been
-     * reached, the stream may contain other blocks. The method {@link #beginReadingNextBlock()} should be
-     * called to start reading the next block.<br>
+     * reached, the stream may contain other blocks. The method {@link #beginReadingNextBlock()}
+     * should be called to start reading the next block.<br>
      * See {@link InputStream#read(byte[], int, int)} for parameters details.
      */
     private int readCurrent(byte b[], int off, int len) throws IOException
