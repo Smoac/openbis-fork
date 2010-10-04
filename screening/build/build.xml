@@ -6,7 +6,7 @@
   
   <property name="original.dist" value="dist" />
   <property name="mainfolder" value="screening" />
-  <property name="variant" value="screening" />
+  <property name="variant" value="-screening" />
 
   <property name="dist.screening-api" value="${dist}/screening_api" />
   <property name="dist.screening-api.lib" value="${dist.screening-api}" />
@@ -26,7 +26,7 @@
         // Task for creating distributions
         -->
 	
-  <target name="dist" depends="openbis.make-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api" />
+  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api" />
   
   <target name="dss-plugin-jar" depends="compile">
 		<mkdir dir="${dist}" />
@@ -69,6 +69,37 @@
         <include name="tabular-data-graph.properties" />
       </fileset>
     </copy>
+  </target>
+	
+  <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs">
+    <jar update="true" destfile="${dss-jar.file}">
+    	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
+    		<exclude name="META_INF/*"/>
+    		<include name="ch/systemsx/cisd/hdf5/**/*"/>
+    		<include name="ncsa/**/*"/>
+    	</zipfileset>
+      <fileset dir="source">
+        <include name="**/*.sql" />
+      </fileset>
+    	<fileset dir="${lib}/hdf5">
+    		<include name="native/**/*"/>
+    	</fileset>
+    	<fileset dir="${lib}/nativedata">
+    		<include name="native/**/*"/>
+    	</fileset>
+    	<fileset dir="${lib}/unix">
+    		<include name="native/**/*"/>
+    	</fileset>
+    </jar>
+  	<copy todir="${dist.datastore_server}/data">
+  		<fileset dir="${original.dist}/data" />
+  	</copy>
+    <copy todir="${dist.datastore_server}/etc">
+      <fileset dir="${original.dist}/etc">
+        <include name="tabular-data-graph.properties" />
+      </fileset>
+    </copy>
+  	<antcall target="datastore_server.create-distribution" />
   </target>
 	
   <!--
