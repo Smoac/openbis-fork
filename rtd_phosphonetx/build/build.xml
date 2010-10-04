@@ -23,6 +23,7 @@
 			<fileset dir="${classes}">
 				<include name="ch/systemsx/cisd/openbis/dss/**/*.class" />
 				<include name="ch/systemsx/cisd/openbis/etlserver/phosphonetx/**/*.class" />
+				<include name="ch/systemsx/cisd/openbis/plugin/phosphonetx/shared/**/*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
 			<manifest>
