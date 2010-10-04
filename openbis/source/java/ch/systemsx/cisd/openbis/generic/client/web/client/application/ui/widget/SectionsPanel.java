@@ -18,7 +18,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 
 /**
@@ -49,66 +48,34 @@ public class SectionsPanel extends LayoutContainer
         tabPanel.setAutoSelect(false);
         tabPanel.setId(idPrefix + SECTIONS_TAB_PANEL_ID_SUFFIX);
         super.add(tabPanel);
-        addRefreshDisplaySettingsListener();
+        addApplyDisplaySettingsListener();
     }
 
-    private void addRefreshDisplaySettingsListener()
+    private void addApplyDisplaySettingsListener()
     {
-        // all sections are refreshed in one go
         addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {
 
-                private Long lastRefreshCheckTime;
-
                 public void handleEvent(BaseEvent be)
                 {
-                    if (isRefreshNeeded())
-                    {
-                        // need to set time here otherwise invoking layout will cause an infinite
-                        // loop
-                        lastRefreshCheckTime = System.currentTimeMillis();
-                        updateSettings();
-                    }
-                    lastRefreshCheckTime = System.currentTimeMillis();
+                    updateSelection();
                 }
 
-                /** checks if update of tab settings and refresh of layout is needed */
-                private boolean isRefreshNeeded()
+                private void updateSelection()
                 {
-                    if (lastRefreshCheckTime == null
-                            || isModificationDoneInAnotherViewSinceLastRefresh())
+                    final String tabToActivateID =
+                            viewContext.getDisplaySettingsManager().getActiveTabSettings(
+                                    getDisplayID());
+                    if (tabToActivateID != null)
                     {
-                        // Refresh when panel is displayed for the first time or if
-                        // tab settings have been modified in another view of the
-                        // same type.
-                        return true;
-                    }
-                    return false;
-                }
-
-                private boolean isModificationDoneInAnotherViewSinceLastRefresh()
-                {
-                    final Modification lastModificationOrNull =
-                            viewContext.getDisplaySettingsManager()
-                                    .tryGetLastTabSettingsModification(getDisplayID());
-                    return lastModificationOrNull != null
-                            && lastModificationOrNull.getModifier().equals(SectionsPanel.this) == false
-                            && lastModificationOrNull.getTime() > lastRefreshCheckTime;
-                }
-
-                /** updates all section settings */
-                private void updateSettings()
-                {
-                    for (SectionElement sectionElement : elements)
-                    {
-                        final String thisTabID = sectionElement.getTabContent().getDisplayID();
-                        String tabToActivateID =
-                                viewContext.getDisplaySettingsManager().getActiveTabSettings(
-                                        getDisplayID());
-                        if (tabToActivateID != null && tabToActivateID.equals(thisTabID))
+                        for (SectionElement sectionElement : elements)
                         {
-                            tabPanel.setSelection(sectionElement);
-                            return;
+                            final String thisTabID = sectionElement.getTabContent().getDisplayID();
+                            if (tabToActivateID.equals(thisTabID))
+                            {
+                                tabPanel.setSelection(sectionElement);
+                                return;
+                            }
                         }
                     }
                     if (elements.size() > 0)
@@ -116,7 +83,6 @@ public class SectionsPanel extends LayoutContainer
                         tabPanel.setSelection(elements.get(0));
                     }
                 }
-
             });
     }
 

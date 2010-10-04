@@ -74,7 +74,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -268,7 +267,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         setLayout(new FitLayout());
         add(contentPanel);
 
-        addRefreshDisplaySettingsListener();
         configureLoggingBetweenEvents(logID);
 
         grid.addListener(Events.HeaderContextMenu, new Listener<GridEvent<ModelData>>()
@@ -366,40 +364,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
         tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
-    }
-
-    private void addRefreshDisplaySettingsListener()
-    {
-        addListener(Events.AfterLayout, new Listener<BaseEvent>()
-            {
-                private Long lastRefreshCheckTime;
-
-                public void handleEvent(BaseEvent be)
-                {
-                    if (lastRefreshCheckTime == null)
-                    {
-                        // No need to refresh when grid is displayed for the first time.
-                    } else if (isModificationDoneInAnotherViewSinceLastRefresh())
-                    {
-                        // Grid settings have been modified in another view of the same type.
-                        // Refresh this browser settings.
-                        refreshColumnsAndFiltersWithCurrentModel();
-                    }
-                    lastRefreshCheckTime = System.currentTimeMillis();
-                }
-
-                private boolean isModificationDoneInAnotherViewSinceLastRefresh()
-                {
-                    final Modification lastModificationOrNull =
-                            viewContext.getDisplaySettingsManager()
-                                    .tryGetLastColumnSettingsModification(getGridDisplayTypeID());
-                    return lastModificationOrNull != null
-                            && lastModificationOrNull.getModifier()
-                                    .equals(AbstractBrowserGrid.this) == false
-                            && lastModificationOrNull.getTime() > lastRefreshCheckTime;
-                }
-
-            });
     }
 
     /** Refreshes the grid without showing the loading progress bar */
@@ -1162,11 +1126,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             defs.add(colDef);
         }
         return defs;
-    }
-
-    private void refreshColumnsAndFiltersWithCurrentModel()
-    {
-        refreshColumnsAndFilters(getColumnModel());
     }
 
     private void refreshColumnsAndFilters(ColumnModel columnModel)

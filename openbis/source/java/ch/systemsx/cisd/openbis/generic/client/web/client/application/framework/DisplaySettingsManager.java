@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -53,47 +51,6 @@ public class DisplaySettingsManager
 {
 
     private static final int QUITE_TIME_BEFORE_SETTINGS_SAVED_MS = 10000;
-
-    /**
-     * Encapsulates time of modification with the object that caused the modification.
-     * <p>
-     * Used to perform automatic update of display settings when user returns to a previously opened
-     * tab after settings were changed.
-     */
-    public static class Modification
-    {
-        private final long time;
-
-        private final Object modifier; // grid or tab panel
-
-        public static Modification create(Object modifier)
-        {
-            return new Modification(modifier, System.currentTimeMillis());
-        }
-
-        private Modification(Object modifier, long time)
-        {
-            this.modifier = modifier;
-            this.time = time;
-        }
-
-        public long getTime()
-        {
-            return time;
-        }
-
-        public Object getModifier()
-        {
-            return modifier;
-        }
-    }
-
-    /** last display settings {@link Modification} for columns */
-    private final Map<String, Modification> columnModifications =
-            new HashMap<String, Modification>();
-
-    /** last display settings {@link Modification} for tabs */
-    private final Map<String, Modification> tabModifications = new HashMap<String, Modification>();
 
     private final DisplaySettings displaySettings;
 
@@ -434,15 +391,6 @@ public class DisplaySettingsManager
             List<ColumnSetting> newSettings, Object modifier)
     {
         displaySettings.getColumnSettings().put(gridDisplayTypeID, newSettings);
-        columnModifications.put(gridDisplayTypeID, Modification.create(modifier));
-    }
-
-    /**
-     * @returns last column settings {@link Modification} or null if no modification was yet made
-     */
-    public final Modification tryGetLastColumnSettingsModification(String gridDisplayTypeID)
-    {
-        return columnModifications.get(gridDisplayTypeID);
     }
 
     /**
@@ -475,15 +423,6 @@ public class DisplaySettingsManager
             String selectedTabDisplayID, Object modifier)
     {
         displaySettings.getTabSettings().put(tabGroupDisplayID, selectedTabDisplayID);
-        tabModifications.put(tabGroupDisplayID, Modification.create(modifier));
-    }
-
-    /**
-     * @returns last tab setting {@link Modification} or null if no modification was yet made
-     */
-    public final Modification tryGetLastTabSettingsModification(String tabDisplayTypeID)
-    {
-        return tabModifications.get(tabDisplayTypeID);
     }
 
     // FIXME 2010-09-27, Piotr Buczek: store is not invoked
