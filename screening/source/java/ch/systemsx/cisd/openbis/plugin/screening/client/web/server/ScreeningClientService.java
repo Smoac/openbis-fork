@@ -91,9 +91,8 @@ public final class ScreeningClientService extends AbstractClientService implemen
     @Resource(name = ResourceNames.MAIL_CLIENT_PARAMETERS)
     private MailClientParameters mailClientParameters;
 
-    private static ThreadPoolExecutor executor =
-            new ThreadPoolExecutor(1, 10, 360, TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<Runnable>());
+    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
+            TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
     public ScreeningClientService()
     {
@@ -178,13 +177,14 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         try
         {
-            return listEntities(gridCriteria, new AbstractOriginalDataProviderWithoutHeaders<WellContent>()
-                {
-                    public List<WellContent> getOriginalData() throws UserFailureException
-                    {
-                        return server.listPlateWells(getSessionToken(), materialCriteria);
-                    }
-                });
+            return listEntities(gridCriteria,
+                    new AbstractOriginalDataProviderWithoutHeaders<WellContent>()
+                        {
+                            public List<WellContent> getOriginalData() throws UserFailureException
+                            {
+                                return server.listPlateWells(getSessionToken(), materialCriteria);
+                            }
+                        });
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -215,19 +215,18 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportPlateLocations2(TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
+    public String prepareExportPlateLocations2(
+            TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
     public GenericTableResultSet listPlateMetadata(
             IResultSetConfig<String, GenericTableRow> criteria, TechId sampleId)
-            throws UserFailureException
     {
         PlateMetadataProvider dataProvider =
                 new PlateMetadataProvider(server, getSessionToken(), sampleId);
@@ -273,7 +272,6 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     public String prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
@@ -294,8 +292,8 @@ public final class ScreeningClientService extends AbstractClientService implemen
             for (IUncheckedMultipartFile file : uploadedFiles.iterable())
             {
                 LibraryExtractor extractor =
-                        new LibraryExtractor(file.getInputStream(), experiment, space, details
-                                .getPlateGeometry(), details.getScope());
+                        new LibraryExtractor(file.getInputStream(), experiment, space,
+                                details.getPlateGeometry(), details.getScope());
                 extractor.extract();
                 executor.submit(new LibraryRegistrationTask(sessionToken, details.getUserEmail(),
                         extractor.getNewGenes(), extractor.getNewOligos(), extractor
@@ -330,14 +328,16 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         try
         {
-            return listEntities(displayCriteria, new AbstractOriginalDataProviderWithoutHeaders<Material>()
-                {
-                    public List<Material> getOriginalData() throws UserFailureException
-                    {
-                        return server.listExperimentMaterials(getSessionToken(), experimentId,
-                                displayCriteria.getListCriteria().getMaterialType());
-                    }
-                });
+            return listEntities(displayCriteria,
+                    new AbstractOriginalDataProviderWithoutHeaders<Material>()
+                        {
+                            public List<Material> getOriginalData() throws UserFailureException
+                            {
+                                return server.listExperimentMaterials(getSessionToken(),
+                                        experimentId, displayCriteria.getListCriteria()
+                                                .getMaterialType());
+                            }
+                        });
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

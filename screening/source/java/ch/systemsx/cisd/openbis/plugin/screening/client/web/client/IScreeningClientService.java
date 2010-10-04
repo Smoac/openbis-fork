@@ -46,9 +46,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
  * <p>
- * Each method should throw {@link UserFailureException}. The authorisation framework can throw it
- * when the user has insufficient privileges. If it is not marked, the GWT client will report
- * unexpected exception.
+ * Each method should declare throwing {@link UserFailureException}. The authorisation framework can
+ * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
+ * report unexpected exception.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -65,7 +65,7 @@ public interface IScreeningClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link ExternalData}.
      */
-    public ExternalData getDataSetInfo(TechId datasetTechId);
+    public ExternalData getDataSetInfo(TechId datasetTechId) throws UserFailureException;
 
     /**
      * Fetches information about wells on a plate and their content.
@@ -76,7 +76,7 @@ public interface IScreeningClientService extends IClientService
      * Fetches information about a plate: metadata and images for wells. The specified dataset is
      * supposed to be in BDS-HCS format.
      */
-    public PlateImages getPlateContentForDataset(TechId datasetId);
+    public PlateImages getPlateContentForDataset(TechId datasetId) throws UserFailureException;
 
     /**
      * @return well locations which belong to a parent plate connected to a specified experiment(s)
@@ -84,31 +84,35 @@ public interface IScreeningClientService extends IClientService
      */
     public ResultSet<WellContent> listPlateWells(
             DefaultResultSetConfig<String, WellContent> gridCriteria,
-            PlateMaterialsSearchCriteria materialCriteria);
+            PlateMaterialsSearchCriteria materialCriteria) throws UserFailureException;
 
     public TypedTableResultSet<WellContent> listPlateWells2(
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
-            PlateMaterialsSearchCriteria materialCriteria);
+            PlateMaterialsSearchCriteria materialCriteria) throws UserFailureException;
 
     /**
      * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
      * WellContent.
      */
-    public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria);
-    public String prepareExportPlateLocations2(TableExportCriteria<TableModelRowWithObject<WellContent>> criteria);
+    public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)
+            throws UserFailureException;
+
+    public String prepareExportPlateLocations2(
+            TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
+            throws UserFailureException;
 
     /**
      * Returns {@link GenericTableResultSet} containing plate metadata.
      */
     public GenericTableResultSet listPlateMetadata(
             IResultSetConfig<String, GenericTableRow> resultSetConfig, TechId sampleId)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+            throws UserFailureException;
 
     /**
      * Lists {@link Material}s of specified type in experiment with specified id.
      */
     public ResultSet<Material> listExperimentMaterials(TechId experimentId,
-            ListMaterialDisplayCriteria criteria);
+            ListMaterialDisplayCriteria criteria) throws UserFailureException;
 
     /**
      * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
@@ -119,7 +123,7 @@ public interface IScreeningClientService extends IClientService
 
     /** Lists all images for a given well in the given dataset */
     public List<WellImageChannelStack> listImageChannelStacks(String datasetCode,
-            String datastoreCode, WellLocation wellLocation);
+            String datastoreCode, WellLocation wellLocation) throws UserFailureException;
 
     /**
      * Registers a new library.

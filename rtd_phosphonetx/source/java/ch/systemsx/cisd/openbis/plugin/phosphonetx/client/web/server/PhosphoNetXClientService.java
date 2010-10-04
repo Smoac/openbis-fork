@@ -63,7 +63,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
 {
     @Resource(name = ResourceNames.PHOSPHONETX_PLUGIN_SERVER)
     private IPhosphoNetXServer server;
-    
+
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
     private IProteomicsDataServiceInternal proteomicsDataService;
 
@@ -107,12 +107,12 @@ public class PhosphoNetXClientService extends AbstractClientService implements
                     experimentID, treatmentTypeOrNull);
         } finally
         {
-            operationLog.info(stopWatch.getTime() + " msec for getAbundanceColumnDefinitionsForProteinByExperiment");
+            operationLog.info(stopWatch.getTime()
+                    + " msec for getAbundanceColumnDefinitionsForProteinByExperiment");
         }
     }
 
     public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -133,14 +133,12 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
 
     public ResultSet<ProteinSummary> listProteinSummariesByExperiment(
             ListProteinSummaryByExperimentCriteria criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -154,15 +152,13 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             operationLog.info(stopWatch.getTime() + " msec for listProteinSummariesByExperiment");
         }
     }
-    
+
     public String prepareExportProteinSummary(TableExportCriteria<ProteinSummary> exportCriteria)
-    throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
-    
+
     public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         try
@@ -176,7 +172,6 @@ public class PhosphoNetXClientService extends AbstractClientService implements
 
     public ResultSet<ProteinSequence> listSequencesByProteinReference(
             ListProteinSequenceCriteria criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListProteinSequenceDataProvider(server, sessionToken,
@@ -184,14 +179,12 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public String prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
 
     public ResultSet<DataSetProtein> listProteinsByExperimentAndReference(
             ListProteinByExperimentAndReferenceCriteria criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListDataSetProteinDataProvider(server, sessionToken,
@@ -199,14 +192,12 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public String prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
 
     public ResultSet<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
             ListSampleAbundanceByProteinCriteria criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListSampleAbundanceDataProvider(server, sessionToken,
@@ -215,30 +206,30 @@ public class PhosphoNetXClientService extends AbstractClientService implements
 
     public String prepareExportSamplesWithAbundance(
             TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
 
-    public GenericTableResultSet listRawDataSamples(IResultSetConfig<String, GenericTableRow> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    public GenericTableResultSet listRawDataSamples(
+            IResultSetConfig<String, GenericTableRow> criteria)
     {
         final String sessionToken = getSessionToken();
-        RawDataSampleProvider rawDataSampleProvider = new RawDataSampleProvider(proteomicsDataService, sessionToken);
+        RawDataSampleProvider rawDataSampleProvider =
+                new RawDataSampleProvider(proteomicsDataService, sessionToken);
         ResultSet<GenericTableRow> resultSet = listEntities(criteria, rawDataSampleProvider);
         return new GenericTableResultSet(resultSet, rawDataSampleProvider.getGenericHeaders());
     }
 
     public String prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
-    
-    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs, String dataSetType)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+
+    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs,
+            String dataSetType)
     {
-        proteomicsDataService.processRawData(getSessionToken(), dataSetProcessingKey, rawDataSampleIDs, dataSetType);
+        proteomicsDataService.processRawData(getSessionToken(), dataSetProcessingKey,
+                rawDataSampleIDs, dataSetType);
     }
-    
+
 }

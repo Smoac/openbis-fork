@@ -41,58 +41,63 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSumma
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
+ * * Service interface for the PhosphoNetX GWT client.
+ * <p>
+ * Each method should declare throwing {@link UserFailureException}. The authorization framework can
+ * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
+ * report unexpected exception.
+ * </p>
  * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IPhosphoNetXClientService extends IClientService
 {
-    public Vocabulary getTreatmentTypeVocabulary();
-    
+    public Vocabulary getTreatmentTypeVocabulary() throws UserFailureException;
+
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
-            TechId experimentID, String treatmentTypeOrNull);
-    
+            TechId experimentID, String treatmentTypeOrNull) throws UserFailureException;
+
     public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
             throws UserFailureException;
 
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
             throws UserFailureException;
-    
+
     public ResultSet<ProteinSummary> listProteinSummariesByExperiment(
             ListProteinSummaryByExperimentCriteria criteria) throws UserFailureException;
-    
+
     public String prepareExportProteinSummary(TableExportCriteria<ProteinSummary> exportCriteria)
             throws UserFailureException;
-    
+
     public ProteinByExperiment getProteinByExperiment(TechId experimentID, TechId proteinReferenceID)
             throws UserFailureException;
-    
-    public ResultSet<ProteinSequence> listSequencesByProteinReference(ListProteinSequenceCriteria criteria)
-            throws UserFailureException;
+
+    public ResultSet<ProteinSequence> listSequencesByProteinReference(
+            ListProteinSequenceCriteria criteria) throws UserFailureException;
 
     public String prepareExportProteinSequences(TableExportCriteria<ProteinSequence> exportCriteria)
             throws UserFailureException;
-    
+
     public ResultSet<DataSetProtein> listProteinsByExperimentAndReference(
             ListProteinByExperimentAndReferenceCriteria criteria) throws UserFailureException;
-    
+
     public String prepareExportDataSetProteins(TableExportCriteria<DataSetProtein> exportCriteria)
             throws UserFailureException;
-    
+
     public ResultSet<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
-            ListSampleAbundanceByProteinCriteria criteria) throws UserFailureException; 
+            ListSampleAbundanceByProteinCriteria criteria) throws UserFailureException;
 
     public String prepareExportSamplesWithAbundance(
             TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
             throws UserFailureException;
 
-    public GenericTableResultSet listRawDataSamples(IResultSetConfig<String, GenericTableRow> criteria)
-            throws UserFailureException;
-    
+    public GenericTableResultSet listRawDataSamples(
+            IResultSetConfig<String, GenericTableRow> criteria) throws UserFailureException;
+
     public String prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria)
             throws UserFailureException;
-    
-    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs, String dataSetType)
-            throws UserFailureException;
+
+    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs,
+            String dataSetType) throws UserFailureException;
 
 }
