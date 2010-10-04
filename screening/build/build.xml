@@ -57,7 +57,7 @@
     	</fileset>
 			<fileset dir="source">
 				<include name="**/*.sql" />
-        <include name="java/*dss*.xml" />
+        <include name="**/*.xml" />
 			</fileset>	
 			<manifest>
 				<attribute name="Version" value="${version.number}" />
