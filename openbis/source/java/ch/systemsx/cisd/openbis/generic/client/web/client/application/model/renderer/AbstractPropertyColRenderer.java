@@ -53,7 +53,6 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
             case MULTILINE_VARCHAR:
                 return new MultilineVarcharPropertyColRenderer<S>(colDef);
             case XML:
-                // TODO 2010-09-10, Piotr Buczek: try client side XSLT transformation
                 return new MultilineVarcharPropertyColRenderer<S>(colDef);
             case CONTROLLEDVOCABULARY:
                 return new VocabularyPropertyColRenderer<S>(colDef);
