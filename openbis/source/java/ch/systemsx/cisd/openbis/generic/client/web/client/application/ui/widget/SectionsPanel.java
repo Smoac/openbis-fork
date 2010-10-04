@@ -3,7 +3,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
@@ -13,6 +12,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -48,43 +48,39 @@ public class SectionsPanel extends LayoutContainer
         tabPanel.setAutoSelect(false);
         tabPanel.setId(idPrefix + SECTIONS_TAB_PANEL_ID_SUFFIX);
         super.add(tabPanel);
-        addApplyDisplaySettingsListener();
     }
 
-    private void addApplyDisplaySettingsListener()
+    // apply display settings after first render
+    @Override
+    protected void onRender(Element parent, int index)
     {
-        addListener(Events.AfterLayout, new Listener<BaseEvent>()
-            {
-
-                public void handleEvent(BaseEvent be)
-                {
-                    updateSelection();
-                }
-
-                private void updateSelection()
-                {
-                    final String tabToActivateID =
-                            viewContext.getDisplaySettingsManager().getActiveTabSettings(
-                                    getDisplayID());
-                    if (tabToActivateID != null)
-                    {
-                        for (SectionElement sectionElement : elements)
-                        {
-                            final String thisTabID = sectionElement.getTabContent().getDisplayID();
-                            if (tabToActivateID.equals(thisTabID))
-                            {
-                                tabPanel.setSelection(sectionElement);
-                                return;
-                            }
-                        }
-                    }
-                    if (elements.size() > 0)
-                    {
-                        tabPanel.setSelection(elements.get(0));
-                    }
-                }
-            });
+        super.onRender(parent, index);
+        tryApplyDisplaySettings();
     }
+
+    private void tryApplyDisplaySettings()
+    {
+        final String tabToActivateID =
+                viewContext.getDisplaySettingsManager().getActiveTabSettings(getDisplayID());
+        if (tabToActivateID != null)
+        {
+            for (SectionElement sectionElement : elements)
+            {
+                final String thisTabID = sectionElement.getTabContent().getDisplayID();
+                if (tabToActivateID.equals(thisTabID))
+                {
+                    tabPanel.setSelection(sectionElement);
+                    return;
+                }
+            }
+        }
+        if (elements.size() > 0)
+        {
+            tabPanel.setSelection(elements.get(0));
+        }
+    }
+
+    //
 
     public void addSection(final TabContent tabContent)
     {
