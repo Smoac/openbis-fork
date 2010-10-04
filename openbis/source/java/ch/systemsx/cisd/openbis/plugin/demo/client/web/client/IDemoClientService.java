@@ -25,9 +25,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 /**
  * Service interface for the <i>demo</i> <i>GWT</i> client.
  * <p>
- * Each method should throw {@link UserFailureException}. The authorisation framework can throw it
- * when the user has insufficient privileges. If it is not marked, the GWT client will report
- * unexpected exception.
+ * Each method should declare throwing {@link UserFailureException}. The authorization framework can
+ * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
+ * report unexpected exception.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -38,8 +38,8 @@ public interface IDemoClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link SampleParentWithDerived}.
      */
-    public SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
-            throws UserFailureException;
+    public SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId,
+            String baseIndexURL) throws UserFailureException;
 
     /**
      * Registers a new sample.

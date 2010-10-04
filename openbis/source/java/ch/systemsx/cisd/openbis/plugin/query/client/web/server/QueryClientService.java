@@ -149,7 +149,6 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     }
 
     public List<QueryExpression> listQueries(QueryType queryType, BasicEntityType entityTypeOrNull)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -163,18 +162,19 @@ public class QueryClientService extends AbstractClientService implements IQueryC
 
     public ResultSet<QueryExpression> listQueries(
             final IResultSetConfig<String, QueryExpression> resultSetConfig)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            return listEntities(resultSetConfig, new AbstractOriginalDataProviderWithoutHeaders<QueryExpression>()
-                {
-                    public List<QueryExpression> getOriginalData() throws UserFailureException
-                    {
-                        return queryServer.listQueries(getSessionToken(), QueryType.UNSPECIFIED,
-                                BasicEntityType.UNSPECIFIED);
-                    }
-                });
+            return listEntities(resultSetConfig,
+                    new AbstractOriginalDataProviderWithoutHeaders<QueryExpression>()
+                        {
+                            public List<QueryExpression> getOriginalData()
+                                    throws UserFailureException
+                            {
+                                return queryServer.listQueries(getSessionToken(),
+                                        QueryType.UNSPECIFIED, BasicEntityType.UNSPECIFIED);
+                            }
+                        });
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -182,13 +182,11 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     }
 
     public String prepareExportQueries(TableExportCriteria<QueryExpression> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public void registerQuery(NewQuery query)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -200,7 +198,6 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     }
 
     public void deleteQueries(List<TechId> filterIds)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -212,7 +209,6 @@ public class QueryClientService extends AbstractClientService implements IQueryC
     }
 
     public void updateQuery(IQueryUpdates queryUpdate)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {

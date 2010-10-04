@@ -231,7 +231,6 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final void removeResultSet(final String resultSetKey)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -272,7 +271,6 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final void updateGroup(final ISpaceUpdates updates)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert updates != null : "Unspecified updates.";
 
@@ -300,7 +298,6 @@ public final class CommonClientService extends AbstractClientService implements
 
     public final void registerGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -316,7 +313,6 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final void registerInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -330,7 +326,6 @@ public final class CommonClientService extends AbstractClientService implements
 
     public final void deleteGroupRole(final RoleWithHierarchy role, final String group,
             final Grantee grantee)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -347,7 +342,6 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final void deleteInstanceRole(final RoleWithHierarchy role, final Grantee grantee)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -361,7 +355,6 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final List<SampleType> listSampleTypes()
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -378,45 +371,38 @@ public final class CommonClientService extends AbstractClientService implements
     // generic methods :(
 
     public final String prepareExportSamples(final TableExportCriteria<Sample> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public final String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public final String prepareExportMatchingEntities(
             final TableExportCriteria<MatchingEntity> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportPropertyTypes(TableExportCriteria<PropertyType> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportPropertyTypeAssignments(
             TableExportCriteria<EntityTypePropertyType<?>> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportProjects(TableExportCriteria<Project> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
@@ -427,55 +413,46 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public String prepareExportMaterialTypes(final TableExportCriteria<MaterialType> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportExperimentTypes(final TableExportCriteria<ExperimentType> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportSampleTypes(final TableExportCriteria<SampleType> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportFileTypes(TableExportCriteria<FileFormatType> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportAttachmentVersions(TableExportCriteria<AttachmentVersions> criteria)
-            throws UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportGroups(TableExportCriteria<Space> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportPersons(TableExportCriteria<Person> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
     public String prepareExportRoleAssignments(TableExportCriteria<RoleAssignment> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
@@ -484,7 +461,6 @@ public final class CommonClientService extends AbstractClientService implements
 
     public final ResultSetWithEntityTypes<Sample> listSamples(
             final ListSampleDisplayCriteria listCriteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntitiesWithTypes(listCriteria, new ListSamplesOriginalDataProvider(
@@ -494,7 +470,6 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
             DetailedSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntitiesWithTypes(resultSetConfig, new ListDataSetSearchOriginalDataProvider(
@@ -504,7 +479,6 @@ public final class CommonClientService extends AbstractClientService implements
     public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
             RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         DataSetRelatedEntities entities = extractRelatedEntities(criteria);
@@ -526,7 +500,6 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         return listEntities(listCriteria, new ListExperimentsOriginalDataProvider(commonServer,
@@ -535,7 +508,6 @@ public final class CommonClientService extends AbstractClientService implements
 
     public ResultSet<PropertyType> listPropertyTypes(
             DefaultResultSetConfig<String, PropertyType> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria,
                 new AbstractOriginalDataProviderWithoutHeaders<PropertyType>()
@@ -551,7 +523,6 @@ public final class CommonClientService extends AbstractClientService implements
             final SearchableEntity searchableEntityOrNull, final String queryText,
             final boolean useWildcardSearchMode,
             final IResultSetConfig<String, MatchingEntity> resultSetConfig)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
@@ -608,7 +579,6 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ResultSet<Space> listGroups(DefaultResultSetConfig<String, Space> criteria)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Space>()
             {

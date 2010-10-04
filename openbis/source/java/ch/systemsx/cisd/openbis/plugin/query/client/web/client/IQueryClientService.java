@@ -34,6 +34,13 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryParameterBindings;
 
 /**
+ * Service interface for the query module GWT client.
+ * <p>
+ * Each method should declare throwing {@link UserFailureException}. The authorization framework can
+ * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
+ * report unexpected exception.
+ * </p>
+ * 
  * @author Piotr Buczek
  */
 public interface IQueryClientService extends IClientService

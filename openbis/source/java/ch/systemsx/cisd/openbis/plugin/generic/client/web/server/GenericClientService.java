@@ -115,7 +115,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     //
 
     public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -130,13 +129,11 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public final Sample getSampleInfo(final TechId sampleId)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return getSampleGenerationInfo(sampleId).getParent();
     }
 
     public final void registerSample(final String sessionKey, final NewSample newSample)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         new AttachmentRegistrationHelper()
@@ -151,7 +148,6 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
             final String sessionKey, final String defaultGroupIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         BatchSamplesOperation info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier,
@@ -170,7 +166,6 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     public final List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
             final String sessionKey, final String defaultGroupIdentifier)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         BatchSamplesOperation info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true,
@@ -188,7 +183,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public final Material getMaterialInfo(final TechId materialId)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -202,7 +196,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public final ExternalData getDataSetInfo(final TechId datasetId)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -217,7 +210,6 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     public void registerExperiment(final String attachmentsSessionKey,
             final String samplesSessionKey, final NewExperiment experiment)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         if (experiment.isRegisterSamples())
@@ -225,7 +217,9 @@ public class GenericClientService extends AbstractClientService implements IGene
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
             BatchSamplesOperation result =
-                    parseSamples(experiment.getSampleType(), samplesSessionKey,
+                    parseSamples(
+                            experiment.getSampleType(),
+                            samplesSessionKey,
                             new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
                                     .getSpaceCode()).toString(), experiment.isGenerateCodes(),
                             false, BatchOperationKind.REGISTRATION);
@@ -292,7 +286,6 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             final String sessionKey)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -308,8 +301,8 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
             MaterialLoader loader = new MaterialLoader();
             loader.load(files);
-            genericServer.registerMaterials(getSessionToken(), materialType.getCode(), loader
-                    .getNewMaterials());
+            genericServer.registerMaterials(getSessionToken(), materialType.getCode(),
+                    loader.getNewMaterials());
             return loader.getResults();
         } catch (final UserFailureException e)
         {
@@ -321,7 +314,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public SampleUpdateResult updateSample(final SampleUpdates updates)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         final SampleUpdateResult result = new SampleUpdateResult();
@@ -346,12 +338,13 @@ public class GenericClientService extends AbstractClientService implements IGene
                                         .createIdentifier();
                     }
                     SampleUpdateResult updateResult =
-                            genericServer.updateSample(sessionToken, new SampleUpdatesDTO(updates
-                                    .getSampleIdOrNull(), updates.getProperties(),
-                                    convExperimentIdentifierOrNull, attachments, updates
-                                            .getVersion(), sampleOwner, updates
-                                            .getContainerIdentifierOrNull(), updates
-                                            .getModifiedParentCodesOrNull()));
+                            genericServer.updateSample(
+                                    sessionToken,
+                                    new SampleUpdatesDTO(updates.getSampleIdOrNull(), updates
+                                            .getProperties(), convExperimentIdentifierOrNull,
+                                            attachments, updates.getVersion(), sampleOwner, updates
+                                                    .getContainerIdentifierOrNull(), updates
+                                                    .getModifiedParentCodesOrNull()));
                     result.copyFrom(updateResult);
                 }
             }.process(updates.getSessionKey(), getHttpSession(), updates.getAttachments());
@@ -359,7 +352,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public Date updateMaterial(TechId materialId, List<IEntityProperty> properties, Date version)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -372,7 +364,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public ExperimentUpdateResult updateExperiment(final ExperimentUpdates updates)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         final ExperimentUpdateResult result = new ExperimentUpdateResult();
@@ -381,7 +372,9 @@ public class GenericClientService extends AbstractClientService implements IGene
             final ProjectIdentifier newProject =
                     new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
             BatchSamplesOperation info =
-                    parseSamples(updates.getSampleType(), updates.getSamplesSessionKey(),
+                    parseSamples(
+                            updates.getSampleType(),
+                            updates.getSamplesSessionKey(),
                             new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
                                     .getSpaceCode()).toString(), updates.isGenerateCodes(), false,
                             BatchOperationKind.REGISTRATION);
@@ -399,9 +392,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                             genericServer.updateExperiment(sessionToken, updatesDTO);
                     result.copyFrom(updateResult);
                 }
-            }
-                .process(updates.getAttachmentSessionKey(), getHttpSession(), updates
-                        .getAttachments());
+            }.process(updates.getAttachmentSessionKey(), getHttpSession(), updates.getAttachments());
         return result;
     }
 
@@ -426,7 +417,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public DataSetUpdateResult updateDataSet(final DataSetUpdates updates)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
@@ -464,7 +454,6 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     public List<BatchRegistrationResult> updateDataSets(DataSetType dataSetType, String sessionKey)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
 
         HttpSession session = getHttpSession();

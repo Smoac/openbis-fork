@@ -93,9 +93,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
 /**
  * Service interface for the generic GWT client.
  * <p>
- * Each method should throw {@link UserFailureException}. The authorization framework can throw it
- * when the user has insufficient privileges. If it is not marked, the GWT client will report
- * unexpected exception.
+ * Each method should declare throwing {@link UserFailureException}. The authorization framework can
+ * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
+ * report unexpected exception.
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -889,6 +889,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.
      */
-    public String retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription, String dataSetCode);
+    public String retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
+            String dataSetCode);
 
 }

@@ -75,8 +75,8 @@ public final class DemoClientService extends AbstractClientService implements ID
     // IDemoClientService
     //
 
-    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
-            throws UserFailureException
+    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId,
+            String baseIndexURL)
     {
         try
         {
@@ -91,7 +91,6 @@ public final class DemoClientService extends AbstractClientService implements ID
     }
 
     public final void registerSample(final String sessionKey, final NewSample sample)
-            throws UserFailureException
     {
 
         final String sessionToken = getSessionToken();
