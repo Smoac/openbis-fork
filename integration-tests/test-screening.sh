@@ -45,13 +45,6 @@ function prepare_data_second_phase {
     chmod -R 700 $DSS_INCOMING_PARENT_DIR/incoming*
 }
 
-
-function fetch_distributions {
-	rm -fr $INSTALL
-	mkdir -p $INSTALL
-	fetch_latest_artifacts_from_cruise_control screening $INSTALL
-}
-
 function install_and_run_openbis_server_screening {
     local install_openbis=$1
     
@@ -97,7 +90,8 @@ function install_screening_api {
 }
 
 function install_screening {
-		fetch_distributions
+		rm -fr $INSTALL
+		fetch_distributions screening
 
 		echo Dropping imaging database: $IMAGING_DB
 		psql_cmd=`run_psql`
@@ -161,7 +155,7 @@ function integration_tests_screening {
     assertSpotSizes "24x16,24x16,24x16" 
     assertFeatureVectorDef HITRATE "Hit Rate"
     assertFeatureVectorDef CELLNUMBER cellNumber
-    # TODO: add a check if the results are correct
+
     test_screening_api
     
     switch_dss "off" datastore_server_screening

@@ -65,7 +65,7 @@
 	</target>
 
 	<target name="integration-tests"
-	        description="Runs integration tests, rebuild everything from svn sources.">
+	        description="Runs integration tests, fetch distributions from continous integration system.">
 		<antcall target="internal-launch">
 			<param name="arg1" value="--all" />
 			<param name="arg2" value="" />
@@ -91,7 +91,7 @@
 	</target>
 
   <target name="screening-integration-tests"
-          description="Runs integration tests for screening openBIS, fetches distribution from Cruise Control.">
+          description="Runs integration tests for screening openBIS, fetches distribution from continous integration system.">
     <exec executable="sh" dir="${basedir}" resultproperty="result-code">
 			<arg value="./test-screening.sh" />
 		</exec>

@@ -250,7 +250,7 @@ function build_zips {
                 if [ "$use_local_source" = "true" ]; then
                     build_zips_from_local $build_dss $build_dmv $build_openbis
             else
-                    build_zips_from_svn $build_dss $build_dmv $build_openbis
+                    fetch_zips_from_hudson $build_dss $build_dmv $build_openbis
                 fi
     else
                 echo "No components to build were specified (--help explains how to do this)."
@@ -309,17 +309,20 @@ function build_remote {
     cd ..
 }
 
-function build_zips_from_svn {
+function fetch_distributions {
+	local project=$1
+	
+	mkdir -p $INSTALL
+	fetch_latest_artifacts_from_cruise_control $project $INSTALL
+}
+
+function fetch_zips_from_hudson {
     build_dss=$1
     build_dmv=$2
     build_openbis=$3
 
-    RSC=build_resources
-    rm -fr $RSC
-    run_svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk $RSC
-    build_components "build_remote $RSC" $build_dss $build_dmv $build_openbis
-    mv $RSC/*.zip $INSTALL
-    rm -fr $RSC 
+		rm -fr $INSTALL
+    build_components "fetch_distributions" $build_dss $build_dmv $build_openbis
 }
 
 function fetch_latest_artifacts_from_cruise_control {
