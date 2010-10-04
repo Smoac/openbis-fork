@@ -25,6 +25,7 @@
 	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
 
 	<target name="jar" depends="compile">
+		<mkdir dir="${dist}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<jar destfile="${plugin-jar.file}">
