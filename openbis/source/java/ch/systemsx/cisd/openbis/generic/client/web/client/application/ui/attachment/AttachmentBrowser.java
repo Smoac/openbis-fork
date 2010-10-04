@@ -150,8 +150,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     protected ColumnDefsAndConfigs<AttachmentVersions> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<AttachmentVersions> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(AttachmentColDefKind.PERMLINK.id(), LinkRenderer
-                .createExternalLinkRenderer(viewContext.getMessage(Dict.PERMLINK)));
+        schema.setGridCellRendererFor(AttachmentColDefKind.PERMLINK.id(),
+                LinkRenderer.createExternalLinkRenderer(viewContext.getMessage(Dict.PERMLINK)));
         return schema;
     }
 
@@ -273,7 +273,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     }
 
     @Override
-    protected void showEntityViewer(AttachmentVersions entity, boolean editMode, boolean active)
+    protected void showEntityViewer(AttachmentVersions entity, boolean editMode,
+            boolean inBackground)
     {
         assert editMode == false : "edit mode is not implemented";
 
@@ -281,7 +282,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         final String fileName = entity.getCurrent().getFileName();
         final List<Attachment> versions = entity.getVersions();
 
-        showVersionsPanel(fileName, versions, active);
+        showVersionsPanel(fileName, versions, inBackground);
     }
 
     private void showVersionsPanel(final String fileName, final List<Attachment> versions,
@@ -425,8 +426,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                                 if (ColumnListener.isLinkTarget(be))
                                 {
                                     String column =
-                                            attachmentGrid.getColumnModel().getColumn(
-                                                    be.getColIndex()).getId();
+                                            attachmentGrid.getColumnModel()
+                                                    .getColumn(be.getColIndex()).getId();
                                     if (AttachmentVersionModel.VERSION_FILE_NAME.equals(column))
                                     {
                                         final AttachmentVersionModel selectedItem =
@@ -472,8 +473,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
         private ColumnConfig createVersionFileNameColumn()
         {
             final ColumnConfig column =
-                    ColumnConfigFactory.createDefaultColumnConfig(messageProvider
-                            .getMessage(Dict.VERSION_FILE_NAME),
+                    ColumnConfigFactory.createDefaultColumnConfig(
+                            messageProvider.getMessage(Dict.VERSION_FILE_NAME),
                             AttachmentVersionModel.VERSION_FILE_NAME);
             column.setWidth(200);
             column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()

@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -79,7 +80,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the samples are displayed.
@@ -446,8 +446,8 @@ public class SampleBrowserGrid extends
                         IBrowserGridActionInvoker invoker)
                 {
                     return new SampleListDeletionConfirmationDialog(viewContext, samples,
-                            createDeletionCallback(invoker),
-                            getDisplayedAndSelectedItemsAction().execute());
+                            createDeletionCallback(invoker), getDisplayedAndSelectedItemsAction()
+                                    .execute());
                 }
             });
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
@@ -572,9 +572,9 @@ public class SampleBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(Sample sample, boolean editMode, boolean active)
+    protected void showEntityViewer(Sample sample, boolean editMode, boolean inBackground)
     {
-        showEntityInformationHolderViewer(sample, editMode, active);
+        showEntityInformationHolderViewer(sample, editMode, inBackground);
     }
 
     @Override
@@ -593,8 +593,8 @@ public class SampleBrowserGrid extends
         assert propertyTypes != null : "propertyTypes not set!";
 
         final List<AbstractParentSampleColDef> parentColumnsSchema =
-                SampleModelFactory.createParentColumnsSchema(viewContext, criteria
-                        .tryGetSampleType());
+                SampleModelFactory.createParentColumnsSchema(viewContext,
+                        criteria.tryGetSampleType());
         assert parentColumnsSchema != null : "parentColumnsSchema not set!";
 
         ColumnDefsAndConfigs<Sample> schema =

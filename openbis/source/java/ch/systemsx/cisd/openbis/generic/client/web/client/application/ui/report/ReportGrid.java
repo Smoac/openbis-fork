@@ -213,7 +213,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     }
 
     @Override
-    protected void showEntityViewer(TableModelRow entity, boolean editMode, boolean active)
+    protected void showEntityViewer(TableModelRow entity, boolean editMode, boolean inBackground)
     {
         // do nothing
     }

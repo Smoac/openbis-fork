@@ -204,7 +204,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
     }
 
     @Override
-    protected void showEntityViewer(final Space space, boolean editMode, boolean active)
+    protected void showEntityViewer(final Space space, boolean editMode, boolean inBackground)
     {
         assert false : "not implemented";
     }

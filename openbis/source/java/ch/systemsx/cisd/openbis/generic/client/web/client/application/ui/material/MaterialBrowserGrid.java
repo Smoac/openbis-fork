@@ -47,11 +47,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the materials are displayed.
@@ -230,8 +230,8 @@ public class MaterialBrowserGrid extends
         ColumnDefsAndConfigs<Material> schema =
                 getColumnsFactory().createColumnsSchema(viewContext,
                         criteria.getListCriteria().getMaterialType());
-        schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(), LinkRenderer
-                .createLinkRenderer());
+        schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(),
+                LinkRenderer.createLinkRenderer());
         return schema;
     }
 
@@ -276,9 +276,9 @@ public class MaterialBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(Material material, boolean editMode, boolean active)
+    protected void showEntityViewer(Material material, boolean editMode, boolean inBackground)
     {
-        showEntityInformationHolderViewer(material, editMode, active);
+        showEntityInformationHolderViewer(material, editMode, inBackground);
     }
 
     @Override

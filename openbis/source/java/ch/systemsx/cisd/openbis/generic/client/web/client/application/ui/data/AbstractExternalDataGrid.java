@@ -57,11 +57,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -388,9 +388,9 @@ public abstract class AbstractExternalDataGrid
     }
 
     @Override
-    protected void showEntityViewer(ExternalData dataSet, boolean editMode, boolean active)
+    protected void showEntityViewer(ExternalData dataSet, boolean editMode, boolean inBackground)
     {
-        showEntityInformationHolderViewer(dataSet, editMode, active);
+        showEntityInformationHolderViewer(dataSet, editMode, inBackground);
     }
 
     @Override

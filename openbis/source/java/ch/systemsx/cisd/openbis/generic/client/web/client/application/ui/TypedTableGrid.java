@@ -197,7 +197,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     }
 
     @Override
-    protected void showEntityViewer(TableModelRowWithObject<T> entity, boolean editMode, boolean active)
+    protected void showEntityViewer(TableModelRowWithObject<T> entity, boolean editMode, boolean inBackground)
     {
     }
 

@@ -73,11 +73,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
@@ -127,7 +127,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /**
      * Shows the detail view for the specified entity
      */
-    abstract protected void showEntityViewer(T entity, boolean editMode, boolean active);
+    abstract protected void showEntityViewer(T entity, boolean editMode, boolean inBackground);
 
     abstract protected void listEntities(DefaultResultSetConfig<String, T> resultSetConfig,
             AbstractAsyncCallback<ResultSet<T>> callback);
@@ -788,8 +788,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             // convert the result to the model data for the grid control
             final List<M> models = createModels(rowModels);
             final PagingLoadResult<M> loadResult =
-                    new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(), result
-                            .getTotalLength());
+                    new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(),
+                            result.getTotalLength());
 
             delegate.onSuccess(loadResult);
             pagingToolbar.enableExportButton();
@@ -895,8 +895,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void invoke(M selectedItem, boolean keyPressed)
                 {
-                    MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
-                            .getMessage(Dict.NOT_IMPLEMENTED), null);
+                    MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
+                            viewContext.getMessage(Dict.NOT_IMPLEMENTED), null);
                 }
             };
     }
@@ -1377,8 +1377,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         assert grid != null && grid.getColumnModel() != null : "Grid must be loaded";
         ColumnSettingsConfigurer<T, M> columnSettingsConfigurer =
                 new ColumnSettingsConfigurer<T, M>(this, viewContext, filterToolbar,
-                        customColumnsMetadataProvider, resultSetKeyOrNull, pendingFetchManager
-                                .tryTopPendingFetchConfig());
+                        customColumnsMetadataProvider, resultSetKeyOrNull,
+                        pendingFetchManager.tryTopPendingFetchConfig());
         columnSettingsConfigurer.showDialog();
     }
 
@@ -1747,8 +1747,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         } else
         {
             // > 0 entity selected - show dialog with all/selected radio
-            new ShowRelatedDatasetsDialog(viewContext, selectedEntities, displayedEntities, browser
-                    .getTotalCount()).show();
+            new ShowRelatedDatasetsDialog(viewContext, selectedEntities, displayedEntities,
+                    browser.getTotalCount()).show();
         }
     }
 }

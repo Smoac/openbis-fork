@@ -56,12 +56,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * A {@link LayoutContainer} which contains the grid where the experiments are displayed.
@@ -108,8 +108,8 @@ public class ExperimentBrowserGrid extends
             final ProjectSelectionTreeGridContainer tree, final ExperimentBrowserToolbar toolbar,
             final ExperimentBrowserGrid browserGrid, IMessageProvider messageProvider)
     {
-        return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree, messageProvider
-                .getMessage(Dict.EXPEIRMENTS_GRID_HEADER));
+        return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree,
+                messageProvider.getMessage(Dict.EXPEIRMENTS_GRID_HEADER));
     }
 
     /**
@@ -246,9 +246,9 @@ public class ExperimentBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(Experiment experiment, boolean editMode, boolean active)
+    protected void showEntityViewer(Experiment experiment, boolean editMode, boolean inBackground)
     {
-        showEntityInformationHolderViewer(experiment, editMode, active);
+        showEntityInformationHolderViewer(experiment, editMode, inBackground);
     }
 
     @Override
