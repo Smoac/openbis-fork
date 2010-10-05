@@ -52,11 +52,13 @@ public class NewDataSetPredicate implements
     {
         SpaceIdentifier spaceId = null;
         DataSetOwner owner = newDataSet.getDataSetOwner();
+        String ownerIdentifier = owner.getIdentifier();
         switch (owner.getType())
         {
             case EXPERIMENT:
             {
-                ExperimentIdentifier experimentId = tryExperimentIdentifier(newDataSet);
+                ExperimentIdentifier experimentId =
+                        new ExperimentIdentifierFactory(ownerIdentifier).createIdentifier();
                 spaceId =
                         new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
                                 experimentId.getSpaceCode());
@@ -64,49 +66,13 @@ public class NewDataSetPredicate implements
             }
             case SAMPLE:
             {
-                SampleIdentifier sampleId = trySampleIdentifier(newDataSet);
+                SampleIdentifier sampleId =
+                        new SampleIdentifierFactory(ownerIdentifier).createIdentifier();
                 spaceId = sampleId.getSpaceLevel();
                 break;
             }
         }
         return spaceId;
-    }
-
-    private ExperimentIdentifier tryExperimentIdentifier(NewDataSetDTO newDataSet)
-    {
-        DataSetOwner owner = newDataSet.getDataSetOwner();
-        switch (owner.getType())
-        {
-            case EXPERIMENT:
-            {
-                return new ExperimentIdentifierFactory(owner.getIdentifier()).createIdentifier();
-            }
-            case SAMPLE:
-            {
-                return null;
-            }
-        }
-
-        return null;
-    }
-
-    private SampleIdentifier trySampleIdentifier(NewDataSetDTO newDataSet)
-    {
-        DataSetOwner owner = newDataSet.getDataSetOwner();
-        switch (owner.getType())
-        {
-            case EXPERIMENT:
-            {
-                return null;
-            }
-            case SAMPLE:
-            {
-                return new SampleIdentifierFactory(owner.getIdentifier()).createIdentifier();
-
-            }
-        }
-
-        return null;
     }
 
 }
