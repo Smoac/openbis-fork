@@ -20,11 +20,11 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.api.IRpcService;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSetCodeStringPredicate;
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSetFileDTOPredicate;
-import ch.systemsx.cisd.openbis.dss.generic.server.NewDataSetPredicate;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetCodeStringPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetFileDTOPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.NewDataSetPredicate;
 
 /**
  * Generic functionality for interacting with the DSS.

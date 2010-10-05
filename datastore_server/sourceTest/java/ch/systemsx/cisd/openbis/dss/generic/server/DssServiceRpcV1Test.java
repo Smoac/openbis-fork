@@ -57,6 +57,7 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IDssServiceRpcGenericInternal;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
@@ -499,7 +500,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     private static class TestMethodInterceptor extends DssServiceRpcAuthorizationMethodInterceptor
             implements MethodInterceptor
     {
-        boolean methodInvoked = false;
+        private boolean methodInvoked = false;
 
         @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable

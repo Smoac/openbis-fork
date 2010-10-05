@@ -21,10 +21,22 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Interface for objects that can function as guardClasses in an AuthorizationGuard.
+ * <p>
+ * Predicates should return Status.OK if the user is authorized for the action; they should return a
+ * status with an appropriate error message if the user is not authorized.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IAuthorizationGuardPredicate<T /* Receiver */, D /* Argument */>
 {
+
+    /**
+     * Evaluate the predicate for the receiver object, sessionToken, and predicate argument.
+     * 
+     * @param receiver The object on which the guarded method was called
+     * @param sessionToken A token identifying the user
+     * @param argument The argument to the predicate
+     * @return Status.OK if the action is allowed, Status.createError(<a message>) otherwise.
+     */
     public Status evaluate(T receiver, String sessionToken, D argument) throws UserFailureException;
 }

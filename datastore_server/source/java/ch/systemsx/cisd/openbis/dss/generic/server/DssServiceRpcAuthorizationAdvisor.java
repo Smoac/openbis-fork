@@ -76,17 +76,17 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
      * 
      * @param methodInterceptor
      */
-    DssServiceRpcAuthorizationAdvisor(MethodInterceptor methodInterceptor)
+    public DssServiceRpcAuthorizationAdvisor(MethodInterceptor methodInterceptor)
     {
         super(new AnnotationMatchingPointcut(null, DataSetAccessGuard.class), methodInterceptor);
     }
 
     /**
-     * Package visible class for verifying authorization.
+     * Class for verifying authorization. Made public so it can be extended in tests.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
-    static class DssServiceRpcAuthorizationMethodInterceptor implements MethodInterceptor
+    public static class DssServiceRpcAuthorizationMethodInterceptor implements MethodInterceptor
     {
         /**
          * Get the session token and any guarded parameters and invoke the guards on those
