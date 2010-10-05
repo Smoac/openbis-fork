@@ -772,6 +772,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             refreshCallback.postRefresh(wasSuccessful);
         }
 
+        private List<M> createModels(final GridRowModels<T> gridRowModels)
+        {
+            final List<M> result = new ArrayList<M>();
+            for (final GridRowModel<T> entity : gridRowModels)
+            {
+                M model = createModel(entity);
+                result.add(model);
+            }
+            return result;
+        }
+        
         @Override
         /* Note: we want to differentiate between callbacks in different subclasses of this grid. */
         public String getCallbackId()
@@ -780,16 +791,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private List<M> createModels(final GridRowModels<T> gridRowModels)
-    {
-        final List<M> result = new ArrayList<M>();
-        for (final GridRowModel<T> entity : gridRowModels)
-        {
-            M model = createModel(entity);
-            result.add(model);
-        }
-        return result;
-    }
 
     // wraps this browser into the interface appropriate for the toolbar. If this class would just
     // implement the interface it could be very confusing for the code reader.
