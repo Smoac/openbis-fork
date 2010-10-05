@@ -34,11 +34,12 @@ public class DatasetIdentifierPredicate
 {
 
     public Status evaluate(IDssServiceRpcScreeningInternal receiver, String sessionToken,
-            List<? extends IDatasetIdentifier> featureDatasets) throws UserFailureException
+            List<? extends IDatasetIdentifier> datasetIdentifiers) throws UserFailureException
     {
         try
         {
-            receiver.checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, featureDatasets);
+            receiver.checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken,
+                    datasetIdentifiers);
         } catch (IllegalArgumentException e)
         {
             return Status.createError(e.getMessage());
