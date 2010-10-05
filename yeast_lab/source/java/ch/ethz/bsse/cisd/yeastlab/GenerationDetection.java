@@ -191,7 +191,7 @@ public class GenerationDetection
         final File output = new File(outputFileName);
         // assert output.exists() == false : "File '" + OUTPUT_FILE + "' already exists.";
         File results = null;
-        if (PRODUCTION == false)
+        if (isProduction() == false)
         {
             final String resultsFileName = inputFileName + "." + RESULTS_FILE_EXTENSION;
             results = new File(resultsFileName);
@@ -210,7 +210,7 @@ public class GenerationDetection
             createDataStructures(cells);
             analyzeData();
 
-            if (PRODUCTION)
+            if (isProduction())
             {
                 writer = new PrintWriter(output);
                 writer.append(headerInputRow);
@@ -238,7 +238,7 @@ public class GenerationDetection
             {
                 log(parentInformationProvider.parentInformation(cell));
             }
-            if (PRODUCTION == false && results != null)
+            if (isProduction() == false && results != null)
             {
                 GenerationDetectionAccuracyTester.computeResultsAccuracy(newBornCells);
             }
@@ -273,6 +273,11 @@ public class GenerationDetection
                 ex.printStackTrace();
             }
         }
+    }
+
+    private static boolean isProduction()
+    {
+        return PRODUCTION;
     }
 
     private static void createDataStructures(List<Cell> cells)
@@ -958,7 +963,7 @@ public class GenerationDetection
 
                 private String candidateInformation(ParentCandidate candidate)
                 {
-                    if (PRODUCTION)
+                    if (isProduction())
                     {
                         return Integer.toString(candidate.getParent().getId());
                     } else
