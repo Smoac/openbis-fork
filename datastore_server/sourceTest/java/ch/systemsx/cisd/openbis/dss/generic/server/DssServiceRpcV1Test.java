@@ -54,8 +54,10 @@ import ch.systemsx.cisd.etlserver.SimpleTypeExtractor;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.etlserver.api.v1.TestDataSetTypeToPluginMapper;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
+import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.api.v1.DssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -136,7 +138,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         File incomingDir = new File(workingDirectory, "incoming/");
         initializeDirectories(storeDir, incomingDir);
 
-        setupStandardExpectations();
+        setupGetExpectations();
 
         PutDataSetService putService =
                 new PutDataSetService(openBisService, LogFactory.getLogger(LogCategory.OPERATION,
@@ -204,11 +206,24 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         return homeDatabaseInstance;
     }
 
-    private void setupStandardExpectations()
+    private void setupGetExpectations()
     {
         // Expectations for get
         final DatabaseInstance homeDatabaseInstance = getDatabaseInstance();
 
+        context.checking(new Expectations()
+            {
+                {
+                    // Expectations for getting
+                    allowing(openBisService).checkDataSetAccess(SESSION_TOKEN, DATA_SET_CODE);
+                    allowing(openBisService).getHomeDatabaseInstance();
+                    will(returnValue(homeDatabaseInstance));
+                }
+            });
+    }
+
+    private void setupPutExpectations()
+    {
         // Expectations for put
         final SpaceIdentifier spaceIdentifier =
                 new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, NEW_DATA_SET_SPACE);
@@ -232,17 +247,10 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         registrator.setLastName("Test Last Name");
         experiment.setRegistrator(registrator);
         sample.setExperiment(experiment);
-
         context.checking(new Expectations()
             {
                 {
-                    // Expectations for getting
-                    allowing(openBisService).checkDataSetAccess(SESSION_TOKEN, DATA_SET_CODE);
-                    allowing(openBisService).getHomeDatabaseInstance();
-                    will(returnValue(homeDatabaseInstance));
-
-                    // Expectations for putting
-                    allowing(openBisService).checkSpaceAccess(with(SESSION_TOKEN),
+                    atLeast(1).of(openBisService).checkSpaceAccess(with(SESSION_TOKEN),
                             with(spaceIdentifier));
                     allowing(openBisService).tryGetSession(SESSION_TOKEN);
                     will(returnValue(session));
@@ -257,17 +265,6 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                             with(any(File.class)));
                     allowing(openBisService).registerDataSet(with(any(DataSetInformation.class)),
                             with(any(NewExternalData.class)));
-                }
-            });
-    }
-
-    public void setUpPutExpectations()
-    {
-
-        context.checking(new Expectations()
-            {
-                {
-
                 }
             });
     }
@@ -456,8 +453,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         assertEquals(1, fileInfos.length);
 
         InputStream is =
-                rpcService.getFileForDataSet(SESSION_TOKEN, DATA_SET_CODE, fileInfos[0]
-                        .getPathInDataSet());
+                rpcService.getFileForDataSet(SESSION_TOKEN, DATA_SET_CODE,
+                        fileInfos[0].getPathInDataSet());
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         int readChar;
@@ -477,6 +474,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     @Test
     public void testDataSetUpload() throws IOException
     {
+        setupPutExpectations();
         QueueingPathRemoverService.start();
         File fileToUpload = createDummyFile(workingDirectory, "to-upload.txt", 80);
 
@@ -484,38 +482,60 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 
         NewDataSetDTO newDataSet = getNewDataSet(fileToUpload);
         ConcatenatedContentInputStream fileInputStream =
-                new ConcatenatedContentInputStream(true, getContentForFileInfos(fileToUpload
-                        .getPath(), fileInfos));
+                new ConcatenatedContentInputStream(true, getContentForFileInfos(
+                        fileToUpload.getPath(), fileInfos));
 
-        rpcService.putDataSet(SESSION_TOKEN, newDataSet, fileInputStream);
+        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
+        IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
+
+        service.putDataSet(SESSION_TOKEN, newDataSet, fileInputStream);
+
+        assertTrue("Advice should have been invoked.", testMethodInterceptor.methodInvoked);
 
         context.assertIsSatisfied();
     }
 
     // Used for the authorization test
-    private static class TestMethodInterceptor implements MethodInterceptor
+    private static class TestMethodInterceptor extends DssServiceRpcAuthorizationMethodInterceptor
+            implements MethodInterceptor
     {
         boolean methodInvoked = false;
 
+        @Override
         public Object invoke(MethodInvocation methodInvocation) throws Throwable
         {
+            Object result = super.invoke(methodInvocation);
             methodInvoked = true;
-            return methodInvocation.proceed();
+            return result;
         }
-
     }
 
-    @Test
-    public void testAuthorization()
+    private IDssServiceRpcGenericInternal getAdvisedService(
+            TestMethodInterceptor testMethodInterceptor)
     {
         ProxyFactory pf = new ProxyFactory();
-        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
         pf.addAdvisor(new DssServiceRpcAuthorizationAdvisor(testMethodInterceptor));
         pf.setTarget(rpcService);
         pf.addInterface(IDssServiceRpcGenericInternal.class);
+        return (IDssServiceRpcGenericInternal) pf.getProxy();
+    }
 
-        IDssServiceRpcGenericInternal service = (IDssServiceRpcGenericInternal) pf.getProxy();
+    @Test
+    public void testAuthorizationForStringCode()
+    {
+        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
+        IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
         service.listFilesForDataSet(SESSION_TOKEN, DATA_SET_CODE, "/", false);
+        assertTrue("Advice should have been invoked.", testMethodInterceptor.methodInvoked);
+    }
+
+    @Test
+    public void testAuthorizationDataSetFile()
+    {
+        TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
+        IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
+        DataSetFileDTO dataSetFile = new DataSetFileDTO(DATA_SET_CODE, "/", false);
+        service.listFilesForDataSet(SESSION_TOKEN, dataSetFile);
         assertTrue("Advice should have been invoked.", testMethodInterceptor.methodInvoked);
     }
 

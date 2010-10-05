@@ -200,5 +200,4 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
                         .length()));
         return usersPath.getPath();
     }
-
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * The IDssServiceRpcGeneric interface extended with methods that are internal to the DSS server.
@@ -36,4 +37,6 @@ public interface IDssServiceRpcGenericInternal extends IDssServiceRpcGeneric
     public void setIncomingDirectory(File aFile);
 
     public boolean isDatasetAccessible(String sessionToken, String dataSetCode);
+
+    public boolean isSpaceWriteable(String sessionToken, SpaceIdentifier spaceId);
 }

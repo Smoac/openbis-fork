@@ -20,6 +20,10 @@ import java.io.InputStream;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.api.IRpcService;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetCodeStringPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetFileDTOPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.server.NewDataSetPredicate;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
 
 /**
@@ -40,7 +44,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
     @DataSetAccessGuard
-    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
+    public FileInfoDssDTO[] listFilesForDataSet(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -52,7 +58,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
     @DataSetAccessGuard
-    public InputStream getFileForDataSet(String sessionToken, DataSetFileDTO fileOrFolder)
+    public InputStream getFileForDataSet(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder)
             throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -66,7 +74,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
     @DataSetAccessGuard
-    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
+    public FileInfoDssDTO[] listFilesForDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String path, boolean isRecursive) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
@@ -79,8 +88,9 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
     @DataSetAccessGuard
-    public InputStream getFileForDataSet(String sessionToken, String dataSetCode, String path)
-            throws IOExceptionUnchecked, IllegalArgumentException;
+    public InputStream getFileForDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
+            String path) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Upload a new data set to the DSS.
@@ -92,8 +102,10 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @throws IOExceptionUnchecked Thrown if an IOException occurs when listing the files
      * @throws IllegalArgumentException Thrown if the dataSetCode or startPath are not valid
      */
-    public String putDataSet(String sessionToken, NewDataSetDTO newDataset, InputStream inputStream)
-            throws IOExceptionUnchecked, IllegalArgumentException;
+    @DataSetAccessGuard
+    public String putDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = NewDataSetPredicate.class) NewDataSetDTO newDataset,
+            InputStream inputStream) throws IOExceptionUnchecked, IllegalArgumentException;
 
     /**
      * Get a path to the data set. This can be used by clients that run on the same machine as the
@@ -110,7 +122,8 @@ public interface IDssServiceRpcGeneric extends IRpcService
      * @since 1.1
      */
     @DataSetAccessGuard
-    public String getPathToDataSet(String sessionToken, String dataSetCode,
+    public String getPathToDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeStringPredicate.class) String dataSetCode,
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException;
 }

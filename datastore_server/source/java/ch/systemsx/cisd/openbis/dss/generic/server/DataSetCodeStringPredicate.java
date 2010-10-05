@@ -14,17 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization;
+package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizationGuardPredicate;
 
 /**
- * Interface for objects that can function as guardClasses in an AuthorizationGuard.
+ * Predicate for checking that the current user has access to a data set specified by code.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public interface IAuthorizationGuardPredicate<T /* Receiver */, D /* Argument */>
+public class DataSetCodeStringPredicate implements
+        IAuthorizationGuardPredicate<IDssServiceRpcGenericInternal, String>
 {
-    public Status evaluate(T receiver, String sessionToken, D argument) throws UserFailureException;
+    public Status evaluate(IDssServiceRpcGenericInternal receiver, String sessionToken,
+            String dataSetCode) throws UserFailureException
+    {
+        if (receiver.isDatasetAccessible(sessionToken, dataSetCode))
+        {
+            return Status.OK;
+        } else
+        {
+            return Status.createError("Data set (" + dataSetCode + ") does not exist.");
+        }
+    }
+
 }

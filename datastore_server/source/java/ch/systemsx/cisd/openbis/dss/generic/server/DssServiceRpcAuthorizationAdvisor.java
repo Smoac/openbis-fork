@@ -16,17 +16,24 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.List;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.log4j.Logger;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.AnnotationUtils;
+import ch.systemsx.cisd.common.utilities.AnnotationUtils.Parameter;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizationGuardPredicate;
 
 /**
  * The advisor for authorization in the DSS RPC interfaces.
@@ -61,7 +68,7 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
      */
     public DssServiceRpcAuthorizationAdvisor()
     {
-        this(new TestMethodInterceptor());
+        this(new DssServiceRpcAuthorizationMethodInterceptor());
     }
 
     /**
@@ -74,27 +81,71 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
         super(new AnnotationMatchingPointcut(null, DataSetAccessGuard.class), methodInterceptor);
     }
 
-    private static class TestMethodInterceptor implements MethodInterceptor
+    /**
+     * Package visible class for verifying authorization.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    static class DssServiceRpcAuthorizationMethodInterceptor implements MethodInterceptor
     {
-
+        /**
+         * Get the session token and any guarded parameters and invoke the guards on those
+         * parameters.
+         */
         public Object invoke(MethodInvocation methodInvocation) throws Throwable
         {
             final Object[] args = methodInvocation.getArguments();
             String sessionToken = getSessionToken(args);
-            String dataSetCode = getDataSetCode(args, methodInvocation);
-            IDssServiceRpcGenericInternal recv =
-                    (IDssServiceRpcGenericInternal) methodInvocation.getThis();
-            if (false == recv.isDatasetAccessible(sessionToken, dataSetCode))
-            {
-                authorizationLog.info(String.format(
-                        "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
-                                + "invoking method '%s'", sessionToken, dataSetCode,
-                        MethodUtils.describeMethod(methodInvocation.getMethod())));
+            List<Parameter<AuthorizationGuard>> annotatedParameters =
+                    AnnotationUtils.getAnnotatedParameters(methodInvocation.getMethod(),
+                            AuthorizationGuard.class);
+            // At least one of the parameters must be annotated
+            assert annotatedParameters.size() > 0 : "No guard defined";
 
-                throw new IllegalArgumentException("Data set (" + dataSetCode + ") does not exist.");
+            Object recv = methodInvocation.getThis();
+
+            for (Parameter<AuthorizationGuard> param : annotatedParameters)
+            {
+                Object guarded = args[param.getIndex()];
+                Status status = evaluateGuard(sessionToken, recv, param, guarded);
+                if (status != Status.OK)
+                {
+                    authorizationLog.info(String.format(
+                            "[SESSION:'%s' DATA_SET:%s]: Authorization failure while "
+                                    + "invoking method '%s'", sessionToken, guarded,
+                            MethodUtils.describeMethod(methodInvocation.getMethod())));
+                    String errorMessage = "Data set does not exist.";
+                    if (null != status.tryGetErrorMessage())
+                    {
+                        errorMessage = status.tryGetErrorMessage();
+                    }
+
+                    throw new IllegalArgumentException(errorMessage);
+                }
             }
 
             return methodInvocation.proceed();
+        }
+
+        /**
+         * Because the predicate is being invoked in a context in which its types are not known,
+         * there is no way to do this in a statically type-safe way.
+         */
+        @SuppressWarnings(
+            { "rawtypes", "unchecked" })
+        private Status evaluateGuard(String sessionToken, Object recv,
+                Parameter<AuthorizationGuard> param, Object guarded)
+        {
+            IAuthorizationGuardPredicate predicate = createPredicate(param);
+            return predicate.evaluate(recv, sessionToken, guarded);
+        }
+
+        private IAuthorizationGuardPredicate<?, ?> createPredicate(
+                Parameter<AuthorizationGuard> param)
+        {
+            Class<? extends IAuthorizationGuardPredicate<?, ?>> predicateClass =
+                    param.getAnnotation().guardClass();
+            return ClassUtils.createInstance(predicateClass);
         }
 
         /**
@@ -108,32 +159,6 @@ public class DssServiceRpcAuthorizationAdvisor extends DefaultPointcutAdvisor
             assert firstObject instanceof String : "The session token should be the first argument.";
 
             return (String) firstObject;
-        }
-
-        private static String getDataSetCode(final Object[] args, MethodInvocation methodInvocation)
-        {
-            final int len = args.length;
-            assert len > 1 : "The data set code should be contained in the second argument.";
-            final Object secondObject = args[1];
-            String dataSetCode;
-            if (secondObject instanceof String)
-            {
-                dataSetCode = (String) secondObject;
-            } else if (secondObject instanceof DataSetFileDTO)
-            {
-                DataSetFileDTO dsFile = (DataSetFileDTO) secondObject;
-                dataSetCode = dsFile.getDataSetCode();
-            } else
-            {
-                String methodDesc = MethodUtils.describeMethod(methodInvocation.getMethod());
-                authorizationLog.info(String.format("Authorization failure while "
-                        + "invoking method '%s': %s", methodDesc));
-
-                throw new IllegalArgumentException("Method (" + methodDesc
-                        + ") does not include the data set code as an argument");
-            }
-
-            return dataSetCode;
         }
     }
 
