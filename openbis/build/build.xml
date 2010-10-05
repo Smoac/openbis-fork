@@ -114,8 +114,10 @@
     <fail if="tests.failed" message="At least one of system test suites failed."/>    
   </target>
 
+	<target name="prepare-system-tests" depends="prepare-gwt, compile-tests"/>
+
 	<!--
-  	// Must pass in 'testsuite'. Should be performed after prepare-gwt and compile-tests.
+  	// Must pass in 'testsuite'. Should be performed after prepare-system-tests.
   -->
   <target name="run-single-system-test-suite">
   	<delete dir="${output.test}" />
