@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.screening.server;
+package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 
 import java.util.List;
 

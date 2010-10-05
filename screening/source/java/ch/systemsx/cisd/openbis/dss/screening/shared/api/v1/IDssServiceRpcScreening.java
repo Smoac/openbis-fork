@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
-import ch.systemsx.cisd.openbis.dss.screening.server.DatasetIdentifierPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
