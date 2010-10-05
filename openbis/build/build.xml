@@ -90,7 +90,7 @@
         <sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
         <sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
         <sysproperty key="hibernate.search.indexing_strategy" value="manual" />
-        <sysproperty key="gwt.args" value="-testMethodTimeout 6 -Xtries 1" />
+        <sysproperty key="gwt.args" value="-testMethodTimeout 5 -Xtries 1" />
         <formatter type="xml" />
         <test name="@{testsuite}" todir="${output.test}" />
       </junit>
@@ -98,9 +98,8 @@
 	</macrodef>
 
   <!-- 
-      // Runs system tests
+      // Runs all system tests suite
       -->
-  
   <target name="run-system-tests" depends="prepare-gwt, compile-tests, run-system-tests-no-prep"/>
 
   <target name="run-system-tests-no-prep">
@@ -117,8 +116,8 @@
 	<target name="prepare-system-tests" depends="prepare-gwt, compile-tests"/>
 
 	<!--
-  	// Must pass in 'testsuite'. Should be performed after prepare-system-tests.
-  -->
+  	  // Must pass in 'testsuite'. Should be performed after prepare-system-tests.
+      -->
   <target name="run-single-system-test-suite">
   	<delete dir="${output.test}" />
   	<mkdir dir="${output.test}" />
@@ -129,7 +128,6 @@
   <!-- 
       // Makes a distribution file.
       -->
-
   <target name="dist" description="Makes a distribution file.">
     <antcall target="make-dist">
       <param name="variant" value="" />
