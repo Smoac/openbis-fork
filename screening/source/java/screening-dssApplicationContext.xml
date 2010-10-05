@@ -25,12 +25,31 @@
     <bean id="data-store-rpc-service-screening"
         class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
         <property name="service">
-            <bean class="ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening" >
-               <constructor-arg value="${storeroot-dir}" />
-            </bean>
+            <bean class="org.springframework.aop.framework.ProxyFactoryBean">
+                <property name="proxyInterfaces">
+                    <list>
+                        <value>ch.systemsx.cisd.openbis.dss.screening.server.IDssServiceRpcScreeningInternal</value>
+                    </list>
+                 </property>
+                <property name="interceptorNames">
+                    <list>
+                        <value>screening-rpc-authorization-advisor</value>
+                    </list>
+                </property>
+                <property name="target">
+                  <bean class="ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening" >
+                    <constructor-arg value="${storeroot-dir}" />
+                  </bean>
+                </property>
+             </bean>
         </property>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening" />
     </bean>
-        
+    
+        <!-- 
+        // Authorization
+    -->
+
+    <bean id="screening-rpc-authorization-advisor" class="ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor" />    
     
 </beans>

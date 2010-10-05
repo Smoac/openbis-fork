@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
-import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -78,7 +77,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  * @author Tomasz Pylak
  */
 public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
-        IDssServiceRpcScreening
+        IDssServiceRpcScreeningInternal
 {
 
     /**
@@ -440,7 +439,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return getDAO().listFeatureDefsByDataSetId(dataSet.getId());
     }
 
-    private void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
+    public void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
             List<? extends IDatasetIdentifier> identifiers)
     {
         List<String> dataSetCodes = new ArrayList<String>();

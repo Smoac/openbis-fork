@@ -21,6 +21,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.AuthorizationGuard;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.DataSetAccessGuard;
+import ch.systemsx.cisd.openbis.dss.screening.server.FeatureVectorIdentifierPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
@@ -35,7 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
  * by a code. Previous client code still works but all name will be normalized internally.
  * Normalized means that the original code arguments turn to upper case and any symbol which isn't
  * from A-Z or 0-9 is replaced by an underscore character. {@link FeatureVectorDataset} will provide
- * feature codes and feature labels. 
+ * feature codes and feature labels.
  * 
  * @author Tomasz Pylak
  */
@@ -53,8 +56,10 @@ public interface IDssServiceRpcScreening extends IRpcService
      * available, provide the union of the features of all data sets.
      */
     @Deprecated
-    public List<String> listAvailableFeatureNames(String sessionToken,
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
+    @DataSetAccessGuard
+    public List<String> listAvailableFeatureNames(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = FeatureVectorIdentifierPredicate.class) List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
      * For a given set of feature vector data sets provide the list of all available features. This
@@ -62,9 +67,11 @@ public interface IDssServiceRpcScreening extends IRpcService
      * available, provide the union of the features of all data sets.
      */
     @MinimalMinorVersion(2)
-    public List<String> listAvailableFeatureCodes(String sessionToken,
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
-    
+    @DataSetAccessGuard
+    public List<String> listAvailableFeatureCodes(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = FeatureVectorIdentifierPredicate.class) List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
+
     /**
      * Conceptually, for a given list of data well references (i.e. specified wells on specified
      * feature vector data sets) and a set of features (given by their name) provide the feature
@@ -76,8 +83,11 @@ public interface IDssServiceRpcScreening extends IRpcService
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
-    public List<FeatureVectorDataset> loadFeatures(String sessionToken,
-            List<FeatureVectorDatasetReference> featureDatasets, List<String> featureCodes);
+    @DataSetAccessGuard
+    public List<FeatureVectorDataset> loadFeatures(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = FeatureVectorIdentifierPredicate.class) List<FeatureVectorDatasetReference> featureDatasets,
+            List<String> featureCodes);
 
     /**
      * Conceptually, for a given list of dataset well references (i.e. specified wells on specified
@@ -96,8 +106,10 @@ public interface IDssServiceRpcScreening extends IRpcService
      * @since 1.1
      */
     @MinimalMinorVersion(1)
+    @DataSetAccessGuard
     public List<FeatureVectorWithDescription> loadFeaturesForDatasetWellReferences(
-            String sessionToken, List<FeatureVectorDatasetWellReference> datasetWellReferences,
+            String sessionToken,
+            @AuthorizationGuard(guardClass = FeatureVectorIdentifierPredicate.class) List<FeatureVectorDatasetWellReference> datasetWellReferences,
             List<String> featureCodes);
 
     /**
@@ -107,13 +119,18 @@ public interface IDssServiceRpcScreening extends IRpcService
      * encoded as one long number. The number of blocks is equal to the number of specified
      * references and the order of blocks corresponds to the order of image references.
      */
-    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences);
+    @DataSetAccessGuard
+    public InputStream loadImages(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = FeatureVectorIdentifierPredicate.class) List<PlateImageReference> imageReferences);
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
      * the available (natural) image size(s).
      */
-    public List<ImageDatasetMetadata> listImageMetadata(String sessionToken,
-            List<? extends IImageDatasetIdentifier> imageDatasets);
+    @DataSetAccessGuard
+    public List<ImageDatasetMetadata> listImageMetadata(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = FeatureVectorIdentifierPredicate.class) List<? extends IImageDatasetIdentifier> imageDatasets);
 
 }
