@@ -90,8 +90,7 @@
         <sysproperty key="hibernate.search.index-base" value="sourceTest/lucene/indices" />
         <sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
         <sysproperty key="hibernate.search.indexing_strategy" value="manual" />
-        <sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
-        <sysproperty key="gwt.args" value="-testMethodTimeout 5 -Xtries 1" />
+        <sysproperty key="gwt.args" value="-testMethodTimeout 6 -Xtries 1" />
         <formatter type="xml" />
         <test name="@{testsuite}" todir="${output.test}" />
       </junit>
@@ -113,6 +112,16 @@
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite2"/>
     <run-system-test-suite testsuite="ch.systemsx.cisd.openbis.generic.ViewingTestSuite3"/>
     <fail if="tests.failed" message="At least one of system test suites failed."/>    
+  </target>
+
+	<!--
+  	// Must pass in 'testsuite'. Should be performed after prepare-gwt and compile-tests.
+  -->
+  <target name="run-single-system-test-suite">
+  	<delete dir="${output.test}" />
+  	<mkdir dir="${output.test}" />
+  	<run-system-test-suite testsuite="${testsuite}"/>
+  	<fail if="tests.failed" message="${testsuite} failed."/>    
   </target>
 
   <!-- 
