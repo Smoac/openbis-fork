@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -52,8 +52,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
  * A {@link IResultSetManager} implementation which caches the full data retrieved using
@@ -126,6 +127,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
         private final List<TableModelColumnHeader> headers;
         
+        private final List<IColumnDefinition<T>> headerColumnDefinitions = new ArrayList<IColumnDefinition<T>>();
+        
         private Map<String, Column> calculatedColumns = new HashMap<String, Column>();
 
         TableData(List<T> originalData, List<TableModelColumnHeader> headers, ICustomColumnsProvider customColumnsProvider,
@@ -133,6 +136,43 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             this.originalData = originalData;
             this.headers = headers;
+            for (final TableModelColumnHeader header : headers)
+            {
+                headerColumnDefinitions.add(new IColumnDefinition<T>()
+                    {
+
+                        public String getValue(GridRowModel<T> rowModel)
+                        {
+                            throw new UnsupportedOperationException();
+                        }
+
+                        public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
+                        {
+                            T originalObject = rowModel.getOriginalObject();
+                            if (originalObject instanceof TableModelRow)
+                            {
+                                TableModelRow row = (TableModelRow) originalObject;
+                                return row.getValues().get(header.getIndex());
+                            }
+                            return null;
+                        }
+
+                        public String getHeader()
+                        {
+                            throw new UnsupportedOperationException();
+                        }
+
+                        public String getIdentifier()
+                        {
+                            return header.getId();
+                        }
+
+                        public String tryToGetProperty(String key)
+                        {
+                            throw new UnsupportedOperationException();
+                        }
+                    });
+            }
             this.customColumnsProvider = customColumnsProvider;
             this.columnCalculator = columnCalculator;
         }
@@ -152,7 +192,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 Column column = calculatedColumns.get(code);
                 if (column == null)
                 {
-                    Set<IColumnDefinition<T>> availableColumns = config.getAvailableColumns();
+                    Set<IColumnDefinition<T>> availableColumns = getAvailableColumns(config);
                     boolean errorMessageLong = config.isCustomColumnErrorMessageLong();
                     long time = System.currentTimeMillis();
                     List<PrimitiveValue> values =
@@ -187,6 +227,26 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                     extractColumnInfos(allCustomColumnDefinitions);
 
             return new GridRowModels<T>(rows, headers, customColumnInfos, columnDistinctValues);
+        }
+
+        private Set<IColumnDefinition<T>> getAvailableColumns(IResultSetConfig<?, T> config)
+        {
+            Set<IColumnDefinition<T>> columns = new HashSet<IColumnDefinition<T>>();
+            HashSet<String> columnIDs = new HashSet<String>();
+            for (IColumnDefinition<T> definition : headerColumnDefinitions)
+            {
+                columns.add(definition);
+                columnIDs.add(definition.getIdentifier());
+            }
+            Set<IColumnDefinition<T>> columnsFromConfig = config.getAvailableColumns();
+            for (IColumnDefinition<T> definition : columnsFromConfig)
+            {
+                if (columnIDs.contains(definition.getIdentifier()) == false)
+                {
+                    columns.add(definition);
+                }
+            }
+            return columns;
         }
 
         private List<GridCustomColumn> loadAllCustomColumnDefinitions(String sessionToken,

@@ -165,14 +165,9 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                         @Override
                         protected void process(TypedTableResultSet<T> result)
                         {
-                            boolean undefinedHeaders = headers == null; 
                             headers = result.getResultSet().getList().getColumnHeaders();
                             recreateColumnModelAndRefreshColumnsWithFilters();
                             callback.onSuccess(result.getResultSet());
-                            if (undefinedHeaders)
-                            {
-                                refresh();
-                            }
                         }
 
                         @Override
