@@ -28,7 +28,7 @@
             <bean class="org.springframework.aop.framework.ProxyFactoryBean">
                 <property name="proxyInterfaces">
                     <list>
-                        <value>ch.systemsx.cisd.openbis.dss.screening.server.IDssServiceRpcScreeningInternal</value>
+                        <value>ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreeningInternal</value>
                     </list>
                  </property>
                 <property name="interceptorNames">
