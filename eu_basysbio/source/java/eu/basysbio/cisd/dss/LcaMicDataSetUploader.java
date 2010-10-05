@@ -177,7 +177,7 @@ class LcaMicDataSetUploader extends AbstractDataSetUploader
                 dataSetValidator.assertValidDataSet(dataSetType, new StringReader(
                         timeSeriesDataSet), timeSeriesDataSetName);
                 databaseFeeder.feedDatabase(dataSetInformation,
-                        new StringReader(timeSeriesDataSet), timeSeriesDataSetName);
+                        new StringReader(timeSeriesDataSet), timeSeriesDataSetName, bbaIDOfColumn);
             }
         } catch (Exception ex)
         {

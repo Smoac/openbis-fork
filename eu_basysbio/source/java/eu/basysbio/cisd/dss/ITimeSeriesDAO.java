@@ -17,6 +17,7 @@
 package eu.basysbio.cisd.dss;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
@@ -26,18 +27,16 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ITimeSeriesDAO extends BaseQuery
 {
     @Select("select nextval('time_series_value_group_id_seq')")
     public long getNextValueGroupId();
-    
+
     @Select("select id from data_sets where perm_id = ?{1}")
     public Long tryToGetDataSetIDByPermID(String dataSetID);
-    
+
     @Select("insert into data_sets (perm_id, uploader_email, exp_code, exp_perm_id) "
             + "values (?{1}, ?{2}, ?{3.code}, ?{3.permId}) returning id")
     public long createDataSet(String dataSetPermID, String uploaderEMail, Experiment experiment);
@@ -49,9 +48,13 @@ public interface ITimeSeriesDAO extends BaseQuery
             + "and technical_replicates = ?{1.technicalReplicateCode} and cell_location = ?{1.celLoc} "
             + "and data_set_type = ?{1.timeSeriesDataSetType} "
             + "and value_type = ?{1.valueType} and unit = ?{1.unit} and scale = ?{1.scale})")
-    public DataSet<String> listDataSetsByTimeSeriesDataColumnHeader(
+    public List<String> listDataSetsByTimeSeriesDataColumnHeader(
             DataColumnHeader dataColumnHeader);
-    
+
+    @Select(" select distinct ts.identifier from time_series ts join data_sets ds on ds.id = ts.dase_id "
+            + "where ds.perm_id = ANY(?{1})")
+    public Set<String> getIdentifiersForTimeSeriesDataSet(String[] permId);
+
     @Update(sql = "insert into time_series "
             + "(dase_id, identifier_type, row_index, column_index, value_group_id, "
             + " identifier, identifier_human_readable, bsb_id, confidence_level, "
@@ -69,15 +72,14 @@ public interface ITimeSeriesDAO extends BaseQuery
             + "        ?{3.descriptor.valueType}, ?{3.descriptor.unit}, ?{3.descriptor.scale}, "
             + "        ?{3.value})", batchUpdate = true)
     public void insertTimeSeriesValues(long dataSetID, String identifierType,
-            List<TimeSeriesValue> timeSeriesValues);    
+            List<TimeSeriesValue> timeSeriesValues);
 
     @Select("select perm_id from data_sets where id in (select dase_id from chip_chip_data where "
             + "experiment_type = ?{1.experimentCode} and cultivation_method = ?{1.cultivationMethod} "
             + "and biological_replicates = ?{1.biologicalReplicateCode} "
             + "and technical_replicates = ?{1.technicalReplicateCode} and cell_location = ?{1.celLoc} "
             + "and growth_phase = ?{1.growthPhase} and genotype = ?{1.genotype})")
-    public DataSet<String> listDataSetsByChipChipDataColumnHeader(
-            DataColumnHeader dataColumnHeader);
+    public List<String> listDataSetsByChipChipDataColumnHeader(DataColumnHeader dataColumnHeader);
 
     @Update(sql = "insert into chip_chip_data "
             + "(dase_id, row_index, bsu_identifier, gene_name, gene_function, "
@@ -98,7 +100,7 @@ public interface ITimeSeriesDAO extends BaseQuery
             + "        ?{2.chipScore}, ?{2.chipScoreScale}, "
             + "        ?{2.intergenic}, ?{2.nearbyGeneNames}, ?{2.nearbyGeneIDs}, ?{2.distancesFromStart})", batchUpdate = true)
     public void insertChipChipValues(long dataSetID, List<ChipChipData> dataValues);
-    
+
     @Select("select perm_id from data_sets")
     public DataSet<String> findDataSets();
 

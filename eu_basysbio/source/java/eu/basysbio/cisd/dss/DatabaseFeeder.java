@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.lemnik.eodsql.DataSet;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
@@ -36,47 +34,50 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class DatabaseFeeder implements IDatabaseFeeder
 {
     static final String UPLOADER_EMAIL_KEY = "UPLOADER_EMAIL";
+
     private static final int POSITION_COLUMN_INDEX = 5;
+
     private static final int HEIGHT_COLUMN_INDEX = 6;
+
     private static final int SCORE_COLUMN_INDEX = 7;
-    
+
     private static interface IDataSetProvider
     {
-        DataSet<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader);
+        List<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader);
     }
-    
+
     private final class DataSetProviderForTimeSeriesData implements IDataSetProvider
     {
-        public DataSet<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
+        public List<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
         {
             return dao.listDataSetsByTimeSeriesDataColumnHeader(dataColumnHeader);
         }
     }
-    
+
     private final class DataSetProviderForChipChipData implements IDataSetProvider
     {
-        public DataSet<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
+        public List<String> getDataSetsByDataColumnHeader(DataColumnHeader dataColumnHeader)
         {
             return dao.listDataSetsByChipChipDataColumnHeader(dataColumnHeader);
         }
     }
-    
+
     private final ITimeSeriesDAO dao;
+
     private final IEncapsulatedOpenBISService service;
+
     private final TimeSeriesDataSetUploaderParameters parameters;
+
     private final ValueGroupIdGenerator valueGroupIdGenerator;
 
     private final Map<ExperimentIdentifier, Experiment> experimentCache =
-        new HashMap<ExperimentIdentifier, Experiment>();
+            new HashMap<ExperimentIdentifier, Experiment>();
 
     DatabaseFeeder(ITimeSeriesDAO dao, IEncapsulatedOpenBISService service,
             TimeSeriesDataSetUploaderParameters parameters)
@@ -86,22 +87,30 @@ class DatabaseFeeder implements IDatabaseFeeder
         this.parameters = parameters;
         valueGroupIdGenerator = new ValueGroupIdGenerator(dao);
     }
-    
+
     public void resetValueGroupIDGenerator()
     {
         valueGroupIdGenerator.clear();
     }
-    
-    public void feedDatabase(DataSetInformation dataSetInformation, Reader reader, String nameOfReaderSource)
+
+    public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
+            String nameOfReaderSource)
+    {
+        feedDatabase(dataSetInformation, reader, nameOfReaderSource, null);
+    }
+
+    public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
+            String nameOfReaderSource, String biIdOrNull)
     {
         TabSeparatedValueTable table =
-                new TabSeparatedValueTable(reader, nameOfReaderSource, parameters.isIgnoreEmptyLines(),
-                        true, false);
+                new TabSeparatedValueTable(reader, nameOfReaderSource, parameters
+                        .isIgnoreEmptyLines(), true, false);
         List<Column> columns = table.getColumns();
-        feedDatabase(dataSetInformation, columns);
+        feedDatabase(dataSetInformation, columns, biIdOrNull);
     }
-    
-    public void feedDatabase(DataSetInformation dataSetInformation, List<Column> columns)
+
+    private void feedDatabase(DataSetInformation dataSetInformation, List<Column> columns,
+            String biIdOrNull)
     {
         assertExperiment(dataSetInformation, columns);
         long dataSetID = getOrCreateDataSet(dataSetInformation);
@@ -111,11 +120,12 @@ class DatabaseFeeder implements IDatabaseFeeder
             feedDatabaseWithChipChipData(columns, dataSetID);
         } else
         {
-            feedDatabaseWithTimeSeriesData(columns, dataSetID);
+            feedDatabaseWithTimeSeriesData(columns, dataSetID, biIdOrNull);
         }
     }
 
-    private void feedDatabaseWithTimeSeriesData(List<Column> columns, long dataSetID)
+    private void feedDatabaseWithTimeSeriesData(List<Column> columns, long dataSetID,
+            String biIdOrNull)
     {
         List<IColumnInjection<TimeSeriesValue>> columnInjections =
                 createInjections(columns, TimeSeriesInjectionFactory.values());
@@ -130,7 +140,7 @@ class DatabaseFeeder implements IDatabaseFeeder
                 TimeSeriesValue timeSeriesValue = new TimeSeriesValue();
                 timeSeriesValue.setColumnIndex(colIndex);
                 DataColumnHeader dataColumnHeader = new DataColumnHeader(header);
-                assertUniqueDataColumnHeader(dataColumnHeader, headers,
+                assertUniqueDataColumnHeader(dataColumnHeader, biIdOrNull, headers,
                         new DataSetProviderForTimeSeriesData());
                 ValueGroupDescriptor valueGroupDescriptor =
                         new ValueGroupDescriptor(dataColumnHeader);
@@ -182,14 +192,14 @@ class DatabaseFeeder implements IDatabaseFeeder
     {
         Column column = columns.get(columnIndex);
         DataColumnHeader dataColumnHeader = new DataColumnHeader(column.getHeader());
-        assertUniqueDataColumnHeader(dataColumnHeader, new HashSet<DataColumnHeader>(),
+        assertUniqueDataColumnHeader(dataColumnHeader, null, new HashSet<DataColumnHeader>(),
                 new DataSetProviderForChipChipData());
         ValueGroupDescriptor valueGroupDescriptor = new ValueGroupDescriptor(dataColumnHeader);
         return new TimeSeriesColumnDescriptor(valueGroupDescriptor, dataColumnHeader);
     }
 
-    private <T extends AbstractDataValue> List<IColumnInjection<T>> createInjections(List<Column> columns,
-            IInjectionFactory<T>[] enums)
+    private <T extends AbstractDataValue> List<IColumnInjection<T>> createInjections(
+            List<Column> columns, IInjectionFactory<T>[] enums)
     {
         List<IColumnInjection<T>> columnInjections = new ArrayList<IColumnInjection<T>>();
         for (IInjectionFactory<T> factory : enums)
@@ -202,27 +212,29 @@ class DatabaseFeeder implements IDatabaseFeeder
         }
         return columnInjections;
     }
-    
-    private void assertUniqueDataColumnHeader(DataColumnHeader dataColumnHeader,
+
+    private void assertUniqueDataColumnHeader(DataColumnHeader dataColumnHeader, String biIdOrNull,
             Set<DataColumnHeader> headers, IDataSetProvider dataSetProvider)
     {
-    if (headers.contains(dataColumnHeader))
+        if (headers.contains(dataColumnHeader))
         {
             throw new UserFailureException("Data column '" + dataColumnHeader + "' appears twice.");
         }
-        DataSet<String> permIDs = dataSetProvider.getDataSetsByDataColumnHeader(dataColumnHeader);
-        List<String> dataSets = new ArrayList<String>();
-        try
+        List<String> dataSets = dataSetProvider.getDataSetsByDataColumnHeader(dataColumnHeader);
+        if (biIdOrNull != null)
         {
-            for (String id : permIDs)
+            final Set<String> biIds =
+                    dao.getIdentifiersForTimeSeriesDataSet(dataSets.toArray(new String[dataSets
+                            .size()]));
+            if (biIds.contains(biIdOrNull))
             {
-                dataSets.add(id);
+                throw new UserFailureException("The data sets " + dataSets
+                        + " measure the identifiers " + biIds + " for data column '"
+                        + dataColumnHeader
+                        + "', which duplicates time series measurements for identifier "
+                        + biIdOrNull);
             }
-        } finally
-        {
-            permIDs.close();
-        }
-        if (dataSets.isEmpty() == false)
+        } else
         {
             throw new UserFailureException("For data column '" + dataColumnHeader
                     + "' following data sets have already been registered: " + dataSets);
@@ -265,8 +277,7 @@ class DatabaseFeeder implements IDatabaseFeeder
 
     private long getOrCreateDataSet(DataSetInformation dataSetInformation)
     {
-        ExperimentIdentifier experimentIdentifier =
-                dataSetInformation.getExperimentIdentifier();
+        ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
         Experiment experiment = tryToGetExperiment(experimentIdentifier);
         if (experiment == null)
         {
@@ -281,7 +292,7 @@ class DatabaseFeeder implements IDatabaseFeeder
         }
         return dataSetID;
     }
-    
+
     private String getUploaderEMailAddress(DataSetInformation dataSetInformation)
     {
         List<NewProperty> properties = dataSetInformation.getDataSetProperties();
@@ -292,7 +303,8 @@ class DatabaseFeeder implements IDatabaseFeeder
                 return property.getValue();
             }
         }
-        throw new IllegalArgumentException("No uploader email address specified: " + dataSetInformation);
+        throw new IllegalArgumentException("No uploader email address specified: "
+                + dataSetInformation);
     }
 
     private String createExperimentCode(DataColumnHeader dataColumnHeader)

@@ -17,24 +17,27 @@
 package eu.basysbio.cisd.dss;
 
 import java.io.Reader;
-import java.util.List;
 
-import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
+ * Interface for database feeders.
  *
  * @author Franz-Josef Elmer
  */
 interface IDatabaseFeeder
 {
 
-    public abstract void resetValueGroupIDGenerator();
+    public void resetValueGroupIDGenerator();
 
-    public abstract void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
+    public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
             String nameOfReaderSource);
-
-    public abstract void feedDatabase(DataSetInformation dataSetInformation, List<Column> columns);
+    
+    /**
+     * For LCA Microscopy data types who need to allow uploading of many data sets with the same header
+     * information but different biIds. <code>biId==null</code> stands for a "regular" time seris data set.  
+     */
+    public void feedDatabase(DataSetInformation dataSetInformation, Reader reader,
+            String nameOfReaderSource, String biIdOrNull);
 
 }

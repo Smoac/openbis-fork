@@ -18,6 +18,8 @@ package eu.basysbio.cisd.dss;
 
 import java.util.Properties;
 
+import net.lemnik.eodsql.QueryTool;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
@@ -31,6 +33,11 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
  */
 public class DBUtils
 {
+    static
+    {
+        QueryTool.getTypeMap().put(String[].class, new StringArrayMapper());
+    }
+
     /** Current version of the database. */
     public static final String DATABASE_VERSION = "008";
 
