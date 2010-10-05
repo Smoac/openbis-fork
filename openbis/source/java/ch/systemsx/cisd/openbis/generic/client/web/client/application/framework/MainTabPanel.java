@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -117,6 +118,8 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             final HelpPageIdentifier helpId = tabItemFactory.getHelpPageIdentifier();
             assert helpId != null : "Unspecified help identifier";
             final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId, helpId);
+            // WORKAROUND to fix problems when paging toolbar's layout is performed in a hidden tab
+            newTab.setHideMode(HideMode.OFFSETS); 
             add(newTab);
             openTabs.put(tabId, newTab);
             maybeActivate(newTab, inBackground);
@@ -166,10 +169,10 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                                 new URLMethodWithParameters(
                                         GenericConstants.HELP_REDIRECT_SERVLET_NAME);
                         HelpPageIdentifier helpPageId = selectedTab.getHelpPageIdentifier();
-                        url.addParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY, helpPageId
-                                .getHelpPageTitle(viewContext));
-                        url.addParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY, Boolean
-                                .toString(helpPageId.isSpecific()));
+                        url.addParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY,
+                                helpPageId.getHelpPageTitle(viewContext));
+                        url.addParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY,
+                                Boolean.toString(helpPageId.isSpecific()));
                         WindowUtils.openWindow(URL.encode(url.toString()));
                     }
                 });

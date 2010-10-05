@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
@@ -146,11 +147,12 @@ public class SectionsPanel extends LayoutContainer
                     public void handleEvent(TabPanelEvent be)
                     {
                         tabContent.setContentVisible(true);
-                        layout();
                         viewContext.getDisplaySettingsManager().storeActiveTabSettings(
                                 getDisplayID(), tabContent.getDisplayID(), SectionsPanel.this);
                     }
                 });
+            // WORKAROUND to fix problems when paging toolbar's layout is performed in a hidden tab
+            setHideMode(HideMode.OFFSETS); 
         }
 
         void setTabContent(TabContent tabContent)
