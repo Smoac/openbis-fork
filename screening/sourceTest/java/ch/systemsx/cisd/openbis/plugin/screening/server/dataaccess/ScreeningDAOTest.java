@@ -19,6 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import net.lemnik.eodsql.QueryTool;
+
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.AssertJUnit;
@@ -26,8 +30,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOWithoutContextTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
@@ -43,7 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 @Friend(toClasses =
     { IScreeningQuery.class, WellContent.class })
 @Test(groups =
-    { "db", "screening", "broken" })
+    { "db", "screening"})
 public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
 {
 
@@ -59,12 +63,12 @@ public class ScreeningDAOTest extends AbstractDAOWithoutContextTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        query = createQuery(daoFactory);
-    }
-
-    private static IScreeningQuery createQuery(IDAOFactory daoFactory)
-    {
-        return EntityListingTestUtils.createQuery(daoFactory, IScreeningQuery.class);
+        DataSource dataSource = DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource();
+        // Create query with a connection and not with the data source because otherwise the test
+        // would
+        // fail if run after the tests of the subclasses of
+        // ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest
+        query = QueryTool.getQuery(dataSource.getConnection(), IScreeningQuery.class);
     }
 
     @Test
