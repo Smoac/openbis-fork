@@ -33,7 +33,6 @@ import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -66,11 +65,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
  * The {@link IScreeningClientService} implementation.
@@ -171,29 +170,9 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
-    public ResultSet<WellContent> listPlateWells(
-            DefaultResultSetConfig<String, WellContent> gridCriteria,
-            final PlateMaterialsSearchCriteria materialCriteria)
-    {
-        try
-        {
-            return listEntities(gridCriteria,
-                    new AbstractOriginalDataProviderWithoutHeaders<WellContent>()
-                        {
-                            public List<WellContent> getOriginalData() throws UserFailureException
-                            {
-                                return server.listPlateWells(getSessionToken(), materialCriteria);
-                            }
-                        });
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    public TypedTableResultSet<WellContent> listPlateWells2(
+    public TypedTableResultSet<WellContent> listPlateWells(
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
-            PlateMaterialsSearchCriteria materialCriteria)
+            WellSearchCriteria materialCriteria)
     {
         final WellContentProvider provider =
                 new WellContentProvider(server, getSessionToken(), materialCriteria);

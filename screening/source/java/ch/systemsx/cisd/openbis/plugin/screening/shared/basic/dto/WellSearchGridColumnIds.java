@@ -18,11 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 
 /**
- * 
+ * Fixed column IDs for well search grid.
  *
  * @author Franz-Josef Elmer
  */
-public class PlateMaterialReviewerColumnIds 
+public class WellSearchGridColumnIds 
 {
     public static final String WELL_CONTENT_MATERIAL = "WELL_CONTENT_MATERIAL";
     public static final String WELL_CONTENT_MATERIAL_TYPE = "WELL_CONTENT_MATERIAL_TYPE";

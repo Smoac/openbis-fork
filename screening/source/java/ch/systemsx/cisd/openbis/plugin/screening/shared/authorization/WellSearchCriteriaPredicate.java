@@ -19,16 +19,16 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DelegatedPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * @author Tomasz Pylak
  */
-public final class PlateMaterialsSearchCriteriaPredicate extends
-        DelegatedPredicate<TechId, PlateMaterialsSearchCriteria>
+public final class WellSearchCriteriaPredicate extends
+        DelegatedPredicate<TechId, WellSearchCriteria>
 {
-    public PlateMaterialsSearchCriteriaPredicate()
+    public WellSearchCriteriaPredicate()
     {
         super(new ExperimentTechIdPredicate());
     }
@@ -40,7 +40,7 @@ public final class PlateMaterialsSearchCriteriaPredicate extends
     }
 
     @Override
-    public TechId tryConvert(PlateMaterialsSearchCriteria value)
+    public TechId tryConvert(WellSearchCriteria value)
     {
         SingleExperimentSearchCriteria exp = value.getExperimentCriteria().tryGetExperiment();
         if (exp != null)

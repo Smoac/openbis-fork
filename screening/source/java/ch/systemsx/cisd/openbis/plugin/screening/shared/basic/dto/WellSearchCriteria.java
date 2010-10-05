@@ -24,13 +24,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
 
 /**
- * Describes a list of materials for which we search in the Plate Material Reviewer.
+ * Describes a list of materials for which we search in the {@link WellSearchGrid}.
  * 
  * @author Tomasz Pylak
  */
-public class PlateMaterialsSearchCriteria implements IsSerializable, Serializable
+public class WellSearchCriteria implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -261,11 +262,11 @@ public class PlateMaterialsSearchCriteria implements IsSerializable, Serializabl
 
     // GWT
     @SuppressWarnings("unused")
-    private PlateMaterialsSearchCriteria()
+    private WellSearchCriteria()
     {
     }
 
-    public PlateMaterialsSearchCriteria(ExperimentSearchCriteria experimentCriteria,
+    public WellSearchCriteria(ExperimentSearchCriteria experimentCriteria,
             MaterialSearchCriteria materialCriteria)
     {
         assert experimentCriteria != null;

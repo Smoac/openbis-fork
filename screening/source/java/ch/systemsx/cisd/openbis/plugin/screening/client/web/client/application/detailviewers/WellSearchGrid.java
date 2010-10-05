@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialReviewerColumnIds.WELL;
-import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialReviewerColumnIds.WELL_CONTENT_MATERIAL;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds.WELL;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds.WELL_CONTENT_MATERIAL;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -79,18 +79,18 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialReviewerColumnIds;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
+public class WellSearchGrid extends TypedTableGrid<WellContent>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX
             + "PlateMaterialReviewer2Grid";
@@ -122,7 +122,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
                         protected void process(IEntityInformationHolder experimentIdentifier)
                         {
                             TechId experimentId = new TechId(experimentIdentifier.getId());
-                            PlateMaterialReviewer2.openTab(screeningViewContext, experimentId,
+                            WellSearchGrid.openTab(screeningViewContext, experimentId,
                                     MaterialSearchCriteria.create(materialCodesCriteria));
                         }
                     });
@@ -142,7 +142,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
                             ExperimentSearchCriteria experimentCriteria =
                                     ExperimentSearchCriteria.createExperiment(experiment.getId(),
                                             experiment.getIdentifier());
-                            PlateMaterialReviewer2.openTab(screeningViewContext,
+                            WellSearchGrid.openTab(screeningViewContext,
                                     experimentCriteria, materialSearchCriteria);
                         }
                     });
@@ -158,7 +158,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
                 public ITabItem create()
                 {
                     IDisposableComponent reviewer =
-                            PlateMaterialReviewer2.create(viewContext, experimentCriteria,
+                            WellSearchGrid.create(viewContext, experimentCriteria,
                                     materialCriteria);
                     return DefaultTabItem.create(getTabTitle(), reviewer, viewContext);
                 }
@@ -199,8 +199,8 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
             ExperimentSearchCriteria experimentCriteriaOrNull,
             MaterialSearchCriteria materialCriteria)
     {
-        PlateMaterialReviewer2 reviewer =
-                new PlateMaterialReviewer2(viewContext, experimentCriteriaOrNull, materialCriteria);
+        WellSearchGrid reviewer =
+                new WellSearchGrid(viewContext, experimentCriteriaOrNull, materialCriteria);
         return reviewer.asDisposableWithToolbar(reviewer.createToolbar());
     }
 
@@ -214,7 +214,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
 
     private ChannelComboBox channelChooser;
 
-    private PlateMaterialReviewer2(IViewContext<IScreeningClientServiceAsync> viewContext,
+    private WellSearchGrid(IViewContext<IScreeningClientServiceAsync> viewContext,
             ExperimentSearchCriteria experimentCriteriaOrNull,
             MaterialSearchCriteria materialCriteria)
     {
@@ -266,7 +266,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
 
     private void linkExperiment()
     {
-        registerListenerAndLinkGenerator(PlateMaterialReviewerColumnIds.EXPERIMENT,
+        registerListenerAndLinkGenerator(WellSearchGridColumnIds.EXPERIMENT,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
                         public String tryGetLink(WellContent entity)
@@ -285,7 +285,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
 
     private void linkPlate()
     {
-        registerListenerAndLinkGenerator(PlateMaterialReviewerColumnIds.PLATE,
+        registerListenerAndLinkGenerator(WellSearchGridColumnIds.PLATE,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
                         public String tryGetLink(WellContent entity)
@@ -304,7 +304,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
 
     private void linkWell()
     {
-        registerListenerAndLinkGenerator(PlateMaterialReviewerColumnIds.WELL,
+        registerListenerAndLinkGenerator(WellSearchGridColumnIds.WELL,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
                         public String tryGetLink(WellContent entity)
@@ -323,7 +323,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
 
     private void linkImageDataSet()
     {
-        registerListenerAndLinkGenerator(PlateMaterialReviewerColumnIds.IMAGE_DATA_SET,
+        registerListenerAndLinkGenerator(WellSearchGridColumnIds.IMAGE_DATA_SET,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
                         public String tryGetLink(WellContent entity)
@@ -353,7 +353,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
 
     private void linkImageAnalysisDataSet()
     {
-        registerListenerAndLinkGenerator(PlateMaterialReviewerColumnIds.IMAGE_ANALYSIS_DATA_SET,
+        registerListenerAndLinkGenerator(WellSearchGridColumnIds.IMAGE_ANALYSIS_DATA_SET,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
                         public String tryGetLink(WellContent entity)
@@ -573,7 +573,7 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
                     return ((TableModelRowWithObject<WellContent>) model.getBaseObject());
                 }
             };
-        schema.setGridCellRendererFor(PlateMaterialReviewerColumnIds.WELL_IMAGES, render);
+        schema.setGridCellRendererFor(WellSearchGridColumnIds.WELL_IMAGES, render);
     }
 
     @Override
@@ -583,9 +583,9 @@ public class PlateMaterialReviewer2 extends TypedTableGrid<WellContent>
     {
         assert experimentCriteriaOrNull != null : "experiment not specified";
 
-        PlateMaterialsSearchCriteria searchCriteria =
-                new PlateMaterialsSearchCriteria(experimentCriteriaOrNull, materialCriteria);
-        viewContext.getService().listPlateWells2(resultSetConfig, searchCriteria, callback);
+        WellSearchCriteria searchCriteria =
+                new WellSearchCriteria(experimentCriteriaOrNull, materialCriteria);
+        viewContext.getService().listPlateWells(resultSetConfig, searchCriteria, callback);
     }
 
     @Override

@@ -6,7 +6,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 
 /**
  * Section in material detail view. Presenting wells from selected experiment which contain the
@@ -30,7 +30,7 @@ class PlateLocationsMaterialSection extends TabContent
                 screeningViewContext, materialId);
         setHeaderVisible(false);
         this.reviewer =
-                PlateMaterialReviewer2.create(screeningViewContext, experimentCriteriaOrNull,
+                WellSearchGrid.create(screeningViewContext, experimentCriteriaOrNull,
                         materialId);
         setIds(DisplayTypeIDGenerator.PLATE_LOCATIONS_MATERIAL_SECTION);
     }

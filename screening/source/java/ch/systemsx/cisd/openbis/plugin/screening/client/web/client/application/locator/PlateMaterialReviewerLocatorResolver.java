@@ -6,9 +6,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLListEncoder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateMaterialReviewer2;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
 
 /**
  * Locator resolver for plate metadata browser.
@@ -44,7 +44,7 @@ public class PlateMaterialReviewerLocatorResolver extends AbstractViewLocatorRes
         MaterialSearchCodesCriteria materialCodesCriteria =
                 new MaterialSearchCodesCriteria(decodeList(materialCodesOrProperties),
                         decodeList(materialTypeCodes), exactMatchOnly);
-        PlateMaterialReviewer2.openTab(viewContext, experimentPermId, materialCodesCriteria);
+        WellSearchGrid.openTab(viewContext, experimentPermId, materialCodesCriteria);
     }
 
     private String[] decodeList(String itemsList)

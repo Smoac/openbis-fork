@@ -20,7 +20,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -38,10 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -82,13 +81,9 @@ public interface IScreeningClientService extends IClientService
      * @return well locations which belong to a parent plate connected to a specified experiment(s)
      *         and have specified material(s) inside.
      */
-    public ResultSet<WellContent> listPlateWells(
-            DefaultResultSetConfig<String, WellContent> gridCriteria,
-            PlateMaterialsSearchCriteria materialCriteria) throws UserFailureException;
-
-    public TypedTableResultSet<WellContent> listPlateWells2(
+    public TypedTableResultSet<WellContent> listPlateWells(
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
-            PlateMaterialsSearchCriteria materialCriteria) throws UserFailureException;
+            WellSearchCriteria materialCriteria) throws UserFailureException;
 
     /**
      * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for

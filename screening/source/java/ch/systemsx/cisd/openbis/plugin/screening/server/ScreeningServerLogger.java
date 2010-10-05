@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMate
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -92,7 +92,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     public List<WellContent> listPlateWells(String sessionToken,
-            PlateMaterialsSearchCriteria materialCriteria)
+            WellSearchCriteria materialCriteria)
     {
         logAccess(sessionToken, "getPlateLocations", "criteria(%s)", materialCriteria);
         return null;

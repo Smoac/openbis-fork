@@ -255,7 +255,7 @@ public class ScreeningApiImpl
         final ExperimentIdentifier fullExperimentIdentifier =
                 getExperimentIdentifierFromDB(experimentIdentifier);
         wellContents =
-                PlateMaterialLocationsLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
+                WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
                         new TechId(materialOrNull.getId()), fullExperimentIdentifier.getPermId());
         if (findDatasets)
         {
@@ -302,7 +302,7 @@ public class ScreeningApiImpl
                     materialIdentifier.getAugmentedCode());
         }
         final List<WellContent> wellContent =
-                PlateMaterialLocationsLoader.loadOnlyMetadata(session, businessObjectFactory,
+                WellContentLoader.loadOnlyMetadata(session, businessObjectFactory,
                         daoFactory, new TechId(materialOrNull.getId()));
 
         if (findDatasets)

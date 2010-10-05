@@ -21,7 +21,6 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
@@ -38,10 +37,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -66,18 +65,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     public void getDataSetInfo(TechId datasetTechId, AsyncCallback<ExternalData> callback);
 
     /**
-     * @see IScreeningClientService#listPlateWells(DefaultResultSetConfig,
-     *      PlateMaterialsSearchCriteria)
+     * @see IScreeningClientService#listPlateWells(IResultSetConfig, WellSearchCriteria)
      */
-    public void listPlateWells(DefaultResultSetConfig<String, WellContent> gridCriteria,
-            PlateMaterialsSearchCriteria materialCriteria,
-            AsyncCallback<ResultSet<WellContent>> callback);
-
-    /**
-     * @see IScreeningClientService#listPlateWells2(IResultSetConfig, PlateMaterialsSearchCriteria)
-     */
-    public void listPlateWells2(IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
-            PlateMaterialsSearchCriteria materialCriteria,
+    public void listPlateWells(IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
+            WellSearchCriteria materialCriteria,
             AsyncCallback<TypedTableResultSet<WellContent>> callback);
     
     /**

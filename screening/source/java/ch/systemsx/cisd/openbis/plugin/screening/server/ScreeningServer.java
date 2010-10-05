@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateMaterialLocationsLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
@@ -71,7 +71,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMate
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -151,10 +151,10 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public List<WellContent> listPlateWells(String sessionToken,
-            PlateMaterialsSearchCriteria materialCriteria)
+            WellSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
-        return PlateMaterialLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
+        return WellContentLoader.load(session, businessObjectFactory, getDAOFactory(),
                 materialCriteria);
     }
 

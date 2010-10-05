@@ -67,11 +67,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCodesCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.MaterialSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMaterialsSearchCriteria.SingleExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
@@ -85,10 +85,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
  * @author Tomasz Pylak
  */
 @Friend(toClasses = IScreeningQuery.class)
-public class PlateMaterialLocationsLoader
+public class WellContentLoader
 {
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            PlateMaterialLocationsLoader.class);
+            WellContentLoader.class);
 
     /**
      * Finds wells containing the specified material and belonging to the specified experiment.
@@ -98,7 +98,7 @@ public class PlateMaterialLocationsLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId, String experimentPermId)
     {
-        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
+        return new WellContentLoader(session, businessObjectFactory, daoFactory)
                 .loadLocations(geneMaterialId, experimentPermId);
     }
 
@@ -107,7 +107,7 @@ public class PlateMaterialLocationsLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId)
     {
-        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
+        return new WellContentLoader(session, businessObjectFactory, daoFactory)
                 .loadLocations(geneMaterialId);
     }
 
@@ -118,9 +118,9 @@ public class PlateMaterialLocationsLoader
      */
     public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
-            PlateMaterialsSearchCriteria materialCriteria)
+            WellSearchCriteria materialCriteria)
     {
-        return new PlateMaterialLocationsLoader(session, businessObjectFactory, daoFactory)
+        return new WellContentLoader(session, businessObjectFactory, daoFactory)
                 .loadLocationsAndEnrich(materialCriteria);
     }
 
@@ -130,7 +130,7 @@ public class PlateMaterialLocationsLoader
 
     private final IDAOFactory daoFactory;
 
-    private PlateMaterialLocationsLoader(Session session,
+    private WellContentLoader(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory)
     {
         this.session = session;
@@ -138,7 +138,7 @@ public class PlateMaterialLocationsLoader
         this.daoFactory = daoFactory;
     }
 
-    private List<WellContent> loadLocationsAndEnrich(PlateMaterialsSearchCriteria materialCriteria)
+    private List<WellContent> loadLocationsAndEnrich(WellSearchCriteria materialCriteria)
     {
         List<WellContent> locations = loadLocations(materialCriteria);
         List<WellContent> enriched = enrichWithDatasets(locations);
@@ -536,7 +536,7 @@ public class PlateMaterialLocationsLoader
         return map;
     }
 
-    private List<WellContent> loadLocations(PlateMaterialsSearchCriteria materialCriteria)
+    private List<WellContent> loadLocations(WellSearchCriteria materialCriteria)
     {
         DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations;
         MaterialSearchCriteria materialSearchCriteria =
