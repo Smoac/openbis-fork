@@ -21,19 +21,20 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IAuthorizationGuardPredicate;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 
 /**
+ * Predicate that checks if the user has access to a collection of data set identifiers.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FeatureVectorIdentifierPredicate
+public class DatasetIdentifierPredicate
         implements
-        IAuthorizationGuardPredicate<IDssServiceRpcScreeningInternal, List<? extends IFeatureVectorDatasetIdentifier>>
+        IAuthorizationGuardPredicate<IDssServiceRpcScreeningInternal, List<? extends IDatasetIdentifier>>
 {
 
     public Status evaluate(IDssServiceRpcScreeningInternal receiver, String sessionToken,
-            List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
-            throws UserFailureException
+            List<? extends IDatasetIdentifier> featureDatasets) throws UserFailureException
     {
         try
         {

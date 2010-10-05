@@ -20,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.springframework.aop.framework.ProxyFactory;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -29,6 +32,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
+import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
+import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -114,6 +119,36 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     }
 
     @Test
+    public void testAuthorization()
+    {
+        prepareAssetDataSetsAreAccessible();
+        prepareGetFeatureDefinitions(1, "f1", "f2");
+        prepareGetFeatureDefinitions(2, "f2", "f3");
+
+        // Add the expectation for checkDataSetCollectionAccess again -- we expect it to be invoked
+        // once more from the authorization code.
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
+                            Arrays.asList("ds1", "ds2"));
+                }
+            });
+
+        TestMethodInterceptor interceptor = new TestMethodInterceptor();
+        IDssServiceRpcScreeningInternal serviceInternal = getAdvisedService(interceptor);
+
+        List<String> names =
+                serviceInternal.listAvailableFeatureCodes(SESSION_TOKEN, Arrays.asList(
+                        featureVectorDatasetIdentifier1, featureVectorDatasetIdentifier2));
+
+        assertTrue(interceptor.methodInvoked);
+
+        assertEquals("[f1, f2, f3]", names.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testLoadFeatures()
     {
         prepareAssetDataSetsAreAccessible();
@@ -123,8 +158,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         prepareCreateFeatureVectorDataSet(2, "F2");
 
         List<FeatureVectorDataset> dataSets =
-                screeningService.loadFeatures(SESSION_TOKEN, Arrays.asList(r1, r2), Arrays.asList(
-                        "f1", "f2"));
+                screeningService.loadFeatures(SESSION_TOKEN, Arrays.asList(r1, r2),
+                        Arrays.asList("f1", "f2"));
 
         assertSame(r1, dataSets.get(0).getDataset());
         assertEquals("[F1, F2]", dataSets.get(0).getFeatureCodes().toString());
@@ -228,5 +263,30 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     private FeatureVectorDatasetReference createFeatureVectorDatasetReference(String dataSetCode)
     {
         return new FeatureVectorDatasetReference(dataSetCode, "", null, null, null, null, null);
+    }
+
+    // Used for the authorization test
+    private static class TestMethodInterceptor extends DssServiceRpcAuthorizationMethodInterceptor
+            implements MethodInterceptor
+    {
+        private boolean methodInvoked = false;
+
+        @Override
+        public Object invoke(MethodInvocation methodInvocation) throws Throwable
+        {
+            Object result = super.invoke(methodInvocation);
+            methodInvoked = true;
+            return result;
+        }
+    }
+
+    private IDssServiceRpcScreeningInternal getAdvisedService(
+            TestMethodInterceptor testMethodInterceptor)
+    {
+        ProxyFactory pf = new ProxyFactory();
+        pf.addAdvisor(new DssServiceRpcAuthorizationAdvisor(testMethodInterceptor));
+        pf.setTarget(screeningService);
+        pf.addInterface(IDssServiceRpcScreeningInternal.class);
+        return (IDssServiceRpcScreeningInternal) pf.getProxy();
     }
 }
