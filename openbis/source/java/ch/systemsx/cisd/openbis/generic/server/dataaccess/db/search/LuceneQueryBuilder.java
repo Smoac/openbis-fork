@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.BooleanClause.Occur;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
@@ -36,12 +39,22 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
  */
 public class LuceneQueryBuilder
 {
+    private static final String NOT = "NOT";
+
+    private static final String OR = "OR";
+
+    private static final String AND = "AND";
+
+    private static final char STAR = '*';
+
+    private static final char SPACE = ' ';
+
     /** @throws UserFailureException when some search patterns are incorrect */
     public static Query createDetailedSearchQuery(DetailedSearchCriteria searchCriteria,
             EntityKind entityKind)
     {
-        return DetailedQueryBuilder.createQuery(searchCriteria, DtoConverters
-                .convertEntityKind(entityKind));
+        return DetailedQueryBuilder.createQuery(searchCriteria,
+                DtoConverters.convertEntityKind(entityKind));
     }
 
     private static final char FIELD_SEPARATOR = ':';
@@ -68,9 +81,39 @@ public class LuceneQueryBuilder
         // add '*' wildcard at the beginning and at the end of the query in basic search mode
         if (useWildcardSearchMode == false && isQuoted(result) == false)
         {
-            result = '*' + result + '*';
+            result = addWildcards(result);
         }
         return result;
+    }
+
+    private static String addWildcards(String result)
+    {
+        String[] queryTokens = StringUtils.split(result, SPACE);
+        List<String> transformedTokens = new ArrayList<String>();
+        for (String qt : queryTokens)
+        {
+            if (qt.equals(AND) || qt.equals(OR) || qt.equals(NOT))
+            {
+                transformedTokens.add(qt);
+            } else
+            {
+                transformedTokens.add(addWildcartdsToToken(qt));
+            }
+        }
+        return StringUtils.join(transformedTokens, SPACE);
+    }
+
+    private static String addWildcartdsToToken(String token)
+    {
+        Collection<Character> tokenSeparators = CharacterHelper.getTokenSeparators();
+        tokenSeparators.removeAll(new ArrayList<String>());
+        String[] miniTokens = StringUtils.split(token, StringUtils.join(tokenSeparators, ""));
+        List<String> transformedMiniTokens = new ArrayList<String>();
+        for (String qt : miniTokens)
+        {
+            transformedMiniTokens.add(STAR + qt + STAR);
+        }
+        return '(' + StringUtils.join(transformedMiniTokens, SPACE + AND + SPACE) + ')';
     }
 
     private static boolean isQuoted(String result)

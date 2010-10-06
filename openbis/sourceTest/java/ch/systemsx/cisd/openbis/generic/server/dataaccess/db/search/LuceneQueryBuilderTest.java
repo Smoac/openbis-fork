@@ -33,8 +33,9 @@ public class LuceneQueryBuilderTest extends AssertJUnit
     {
         return new Object[][]
             {
-                { "abc", "*abc*" },
-                { "code:CP registrator:Joe", "*code\\:CP registrator\\:Joe*" } };
+                { "abc", "(*abc*)" },
+                { "code:CP registrator:Joe", "(*code\\:CP*) (*registrator\\:Joe*)" },
+                { "ab#c OR d", "(*ab* AND *c*) OR (*d*)" } };
     }
 
     @DataProvider(name = "wildcardModeQueries")
@@ -43,7 +44,8 @@ public class LuceneQueryBuilderTest extends AssertJUnit
         return new Object[][]
             {
                 { "abc", "abc" },
-                { "code:CP registrator:Joe", "code\\:CP registrator\\:Joe" } };
+                { "code:CP registrator:Joe", "code\\:CP registrator\\:Joe" },
+                { "*ab#c OR d", "*ab#c OR d" } };
     }
 
     @Test(dataProvider = "basicModeQueries")
