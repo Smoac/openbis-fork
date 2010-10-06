@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.CheckTabNotExists;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
@@ -80,6 +81,12 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private static final String EXP_X_PERM_ID = "200811050937246-1031";
 
+    private static final String EXP_TEST_1 = "EXP-TEST-1";
+
+    private static final String EXP_TEST_1_ID = "/CISD/NEMO/EXP-TEST-1";
+
+    private static final String EXP_TEST_1_PERM_ID = "200902091239077-1033";
+
     private static final String A_SIMPLE_EXPERIMENT = "A simple experiment";
 
     private static final String DOE_JOHN = "Doe, John";
@@ -87,6 +94,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     private static final String CISD_CISD_NEMO = "/CISD/NEMO";
 
     private static final String SIRNA_HCS = "SIRNA_HCS";
+
+    private static final String COMPOUND_HCS = "COMPOUND_HCS";
 
     private static final String NEMO = "NEMO (CISD)";
 
@@ -188,6 +197,23 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    public final void testWebConfigurationHidingAttachmentSection()
+    {
+        prepareShowExperiment(NEMO, COMPOUND_HCS, EXP_TEST_1);
+        final CheckExperiment checkExperiment = new CheckExperiment();
+        checkExperiment.property("Experiment").asString(EXP_TEST_1_ID);
+        checkExperiment.property("PermID").matchingPattern(
+                ".*<a href=\".*permId=" + EXP_TEST_1_PERM_ID + ".*>" + EXP_TEST_1_PERM_ID
+                        + "</a>.*");
+        checkExperiment.property("Experiment Type").asCode(COMPOUND_HCS);
+        remoteConsole.prepare(checkExperiment);
+
+        remoteConsole.prepare(new CheckTabNotExists(createSectionsTabPanelId(),
+                createSectionId(DisplayTypeIDGenerator.ATTACHMENT_SECTION)));
+
+        launchTest();
+    }
+
     @DoNotRunWith(Platform.HtmlUnit)
     public final void testListOfAttachments()
     {
@@ -260,8 +286,9 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         final CheckTableCommand datasetTable =
                 checkExperiment.createDataSetTableCheck().expectedSize(2);
         datasetTable.expectedRow(new DataSetRow("20081105092159188-3").valid().derived());
-        datasetTable.expectedRow(new DataSetRow("20081105092158673-1").invalid().withSample(
-                "CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").notDerived().withIsComplete(null));
+        datasetTable.expectedRow(new DataSetRow("20081105092158673-1").invalid()
+                .withSample("CISD:/CISD/3VCP1").withSampleType("CELL_PLATE").notDerived()
+                .withIsComplete(null));
         datasetTable.expectedColumnsNumber(25);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         datasetTable.expectedColumnHidden(commentColIdent, true);

@@ -16,32 +16,40 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import junit.framework.AssertionFailedError;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for activation of the specified tab.
+ * A {@link AbstractDefaultTestCommand} extension that expects tab to not exist.
  * 
  * @author Piotr Buczek
  */
-public class ActivateTab extends AbstractDefaultTestCommand
+public final class CheckTabNotExists extends ActivateTab
 {
-    protected final String tabPanelId;
-
-    protected final String tabItemId;
-
-    public ActivateTab(final String tabPanelId, final String tabItemId)
+    public CheckTabNotExists(final String tabPanelId, final String tabItemId)
     {
-        this.tabPanelId = tabPanelId;
-        this.tabItemId = tabItemId;
+        super(tabPanelId, tabItemId);
     }
 
     //
     // AbstractDefaultTestCommand
     //
 
-    public void execute()
+    @Override
+    public final void execute()
     {
-        GWTTestUtil.selectTabItemWithId(tabPanelId, tabItemId);
+        try
+        {
+            super.execute();
+            fail("Expected AssertionFailedError because tab '" + tabItemId + "' shouldn't exist");
+        } catch (AssertionFailedError e)
+        {
+            assertTrue(
+                    "Unexpected exception message " + e.getMessage(),
+                    e.getMessage().startsWith(
+                            "No tab item with id '" + tabItemId
+                                    + "' could be found in panel with following tabs"));
+        }
     }
 }
