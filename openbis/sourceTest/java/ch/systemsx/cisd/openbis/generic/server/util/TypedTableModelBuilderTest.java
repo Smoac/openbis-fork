@@ -87,7 +87,7 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         List<TableModelColumnHeader> headers = model.getHeader();
         assertHeadersOrder(headers, "A");
         assertEquals("Alpha", headers.get(0).getTitle());
-        assertEquals(null, headers.get(0).getDataType());
+        assertEquals(DataTypeCode.INTEGER, headers.get(0).getDataType());
         List<TableModelRowWithObject<IsSerializable>> rows = model.getRows();
         assertSame(object0, rows.get(0).getObjectOrNull());
         assertEquals(new IntegerTableCell(42), rows.get(0).getValues().get(0));
@@ -95,6 +95,34 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         assertEquals(new StringTableCell(""), rows.get(1).getValues().get(0));
         assertSame(null, rows.get(2).getObjectOrNull());
         assertEquals(new IntegerTableCell(4711), rows.get(2).getValues().get(0));
+        assertEquals(3, rows.size());
+    }
+    
+    @Test
+    public void testAddDoubleValueToColumn()
+    {
+        TypedTableModelBuilder<IsSerializable> builder = new TypedTableModelBuilder<IsSerializable>();
+        MockSerializable object0 = new MockSerializable();
+        builder.addRow(object0);
+        builder.addDoubleValueToColumn("Alpha", "A", 4.25);
+        MockSerializable object1 = new MockSerializable();
+        builder.addRow(object1);
+        builder.addDoubleValueToColumn("A", null);
+        builder.addRow(null);
+        builder.addDoubleValueToColumn("a", "A", 4711.5);
+        
+        TypedTableModel<IsSerializable> model = builder.getModel();
+        List<TableModelColumnHeader> headers = model.getHeader();
+        assertHeadersOrder(headers, "A");
+        assertEquals("Alpha", headers.get(0).getTitle());
+        assertEquals(DataTypeCode.REAL, headers.get(0).getDataType());
+        List<TableModelRowWithObject<IsSerializable>> rows = model.getRows();
+        assertSame(object0, rows.get(0).getObjectOrNull());
+        assertEquals(new DoubleTableCell(4.25), rows.get(0).getValues().get(0));
+        assertSame(object1, rows.get(1).getObjectOrNull());
+        assertEquals(new StringTableCell(""), rows.get(1).getValues().get(0));
+        assertSame(null, rows.get(2).getObjectOrNull());
+        assertEquals(new DoubleTableCell(4711.5), rows.get(2).getValues().get(0));
         assertEquals(3, rows.size());
     }
     

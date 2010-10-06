@@ -151,7 +151,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
      */
     public IColumnMetaData addColumn(String id)
     {
-        Column column = createColumn(null, id);
+        Column column = createColumn(null, null, id);
         String id1 = column.getHeader().getId();
         Column oldColumn = columns.put(id1, column);
         if (oldColumn != null)
@@ -187,7 +187,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
     public void addStringValueToColumn(String title, String id, String valueOrNull)
     {
         StringTableCell value = valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
-        addValueToColumn(title, id, value);
+        addValueToColumn(title, DataTypeCode.VARCHAR, id, value);
     }
     
     /**
@@ -208,7 +208,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
     {
         ISerializableComparable value =
                 valueOrNull == null ? EMPTY_CELL : new IntegerTableCell(valueOrNull);
-        addValueToColumn(title, id, value);
+        addValueToColumn(title, DataTypeCode.INTEGER, id, value);
     }
     
     /**
@@ -229,7 +229,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
     {
         ISerializableComparable value =
                 valueOrNull == null ? EMPTY_CELL : new DoubleTableCell(valueOrNull);
-        addValueToColumn(title, id, value);
+        addValueToColumn(title, DataTypeCode.REAL, id, value);
     }
 
     /**
@@ -237,26 +237,34 @@ public class TypedTableModelBuilder<T extends IsSerializable>
      * does not exist.
      * 
      * @param titleOrNull Title of the column. Will be ignored if the column already exists.
+     * @param dataTypeOrNull Data type of the column. Will be ignored if trhe column already exists.
      */
-    public void addValueToColumn(String titleOrNull, String id, ISerializableComparable value)
+    public void addValueToColumn(String titleOrNull, DataTypeCode dataTypeOrNull, String id,
+            ISerializableComparable value)
     {
-        getOrCreateColumn(titleOrNull, id).insertValueAt(rowObjects.size() - 1, value);
+        getOrCreateColumn(titleOrNull, dataTypeOrNull, id).insertValueAt(rowObjects.size() - 1,
+                value);
     }
     
-    private Column getOrCreateColumn(String titleOrNull, String id)
+    private Column getOrCreateColumn(String titleOrNull, DataTypeCode dataTypeOrNull, String id)
     {
         Column column = columns.get(id);
         if (column == null)
         {
-            column = createColumn(titleOrNull, id);
+            column = createColumn(titleOrNull, dataTypeOrNull, id);
             columns.put(id, column);
         }
         return column;
     }
     
-    private Column createColumn(String titleOrNull, String id)
+    private Column createColumn(String titleOrNull, DataTypeCode dataTypeOrNull, String id)
     {
-        return new Column(createHeader(titleOrNull, id));
+        TableModelColumnHeader header = createHeader(titleOrNull, id);
+        if (dataTypeOrNull != null)
+        {
+            header.setDataType(dataTypeOrNull);
+        }
+        return new Column(header);
     }
 
     private TableModelColumnHeader createHeader(String titleOrNull, String id)
