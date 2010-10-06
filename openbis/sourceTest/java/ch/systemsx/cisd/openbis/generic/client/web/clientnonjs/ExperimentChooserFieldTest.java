@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.test;
+package ch.systemsx.cisd.openbis.generic.client.web.clientnonjs;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

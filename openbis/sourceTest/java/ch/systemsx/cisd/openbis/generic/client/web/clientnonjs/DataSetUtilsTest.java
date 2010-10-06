@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.test;
+package ch.systemsx.cisd.openbis.generic.client.web.clientnonjs;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
