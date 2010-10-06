@@ -317,7 +317,7 @@ public class PlateLayouter
         for (IEntityProperty property : properties)
         {
             PropertyType propertyType = property.getPropertyType();
-            tooltip += "<br>" + propertyType.getLabel() + ": " + property.tryGetAsString();
+            tooltip += "<br>" + propertyType.getLabel() + ": " + getPropertyDisplayText(property);
             Material material = property.getMaterial();
             if (material != null
                     && material.getMaterialType().getCode()
@@ -336,6 +336,18 @@ public class PlateLayouter
         }
         GWTUtils.setToolTip(widget, tooltip);
 
+    }
+
+    private static String getPropertyDisplayText(IEntityProperty property)
+    {
+        Material material = property.getMaterial();
+        if (material != null)
+        {
+            return material.getCode();
+        } else
+        {
+            return property.tryGetAsString();
+        }
     }
 
     private static String getWellDescription(WellMetadata metadata)
