@@ -37,7 +37,7 @@ public class GenericDssLinkReportingPlugin extends AbstractDssLinkReportingPlugi
 
     private static final String MAIN_DATA_SET_PATTERN = "mdsPattern";
 
-    private static final String AUTO_RESOLVE = "autoResolve";
+    private static final String FORCE_AUTO_RESOLVE = "forceAutoResolve";
 
     private static final String SESSION_ID = "sessionID";
 
@@ -86,7 +86,7 @@ public class GenericDssLinkReportingPlugin extends AbstractDssLinkReportingPlugi
                 + dataSet.getDatasetCode());
 
         ArrayList<LinkModel.LinkParameter> parameters = new ArrayList<LinkModel.LinkParameter>();
-        parameters.add(new LinkModel.LinkParameter(AUTO_RESOLVE, Boolean.TRUE.toString()));
+        parameters.add(new LinkModel.LinkParameter(FORCE_AUTO_RESOLVE, Boolean.TRUE.toString()));
         if (regexOrNull != null)
         {
             parameters.add(new LinkModel.LinkParameter(MAIN_DATA_SET_PATTERN, regexOrNull));
