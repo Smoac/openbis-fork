@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.common.utilities;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -31,46 +26,33 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Allows to change all fields of the selected primitive type of a specified object. Traverses the
- * object recursively.
+ * Allows to change all non-final and non-static strings referenced within the specified object.
+ * Traverses the object recursively. Handles lists and sets of strings.
  * 
  * @author Tomasz Pylak
  */
-public class ReflectionPrimitiveFieldTraverser
+public class ReflectionStringTraverser
 {
     public static interface ReflectionFieldVisitor
     {
-        /** @return new value for the field, null if field value should not be changed */
-        <T> T tryVisit(T field);
-
-        /** @return true if visiting objects of the specified classes can change visitor state */
-        boolean isVisiting(Class<?> clazz);
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.FIELD)
-    @Inherited
-    public @interface TraversableStructure
-    {
+        /** @return changed value or null if the value should not be changed */
+        String tryVisit(String value);
     }
 
     /** cannot be called for primitive types or collections */
     public static void traverse(Object object, ReflectionFieldVisitor fieldVisitor)
     {
         Class<?> clazz = object.getClass();
-        new ReflectionPrimitiveFieldTraverser(fieldVisitor).traverseMutable(object, clazz);
+        new ReflectionStringTraverser(fieldVisitor).traverseMutable(object, clazz);
     }
 
-    // mutable classes are arrays and classes which are not collections and not primitives
+    // mutable classes are arrays and classes which are not primitives or collections of primitive
+    // types
     private void traverseMutable(Object object, Class<?> clazz)
     {
-        if (isCollection(object))
+        if (isMutable(object) == false)
         {
-            throw new IllegalStateException("Cannot traverse collection " + object);
-        }
-        if (clazz.isPrimitive())
-        {
-            throw new IllegalStateException("Cannot traverse objects of primitive type " + object);
+            throw createCannotTraverseImmutableObjectException(object);
         }
 
         if (clazz.isArray())
@@ -84,7 +66,7 @@ public class ReflectionPrimitiveFieldTraverser
 
     private final ReflectionFieldVisitor visitor;
 
-    private ReflectionPrimitiveFieldTraverser(ReflectionFieldVisitor fieldVisitor)
+    private ReflectionStringTraverser(ReflectionFieldVisitor fieldVisitor)
     {
         this.visitor = fieldVisitor;
     }
@@ -104,7 +86,6 @@ public class ReflectionPrimitiveFieldTraverser
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields)
         {
-            // field.getAnnotations()[0].
             int modifiers = field.getModifiers();
             if (Modifier.isFinal(modifiers) == false && Modifier.isStatic(modifiers) == false)
             {
@@ -138,7 +119,10 @@ public class ReflectionPrimitiveFieldTraverser
             traverseCollectionField(object, field, (Collection<?>) fieldValue);
         } else if (clazz.isPrimitive())
         {
-            Object newValue = visitor.tryVisit(fieldValue);
+            // do nothing
+        } else if (isString(fieldValue))
+        {
+            String newValue = visitor.tryVisit((String) fieldValue);
             if (newValue != null)
             {
                 field.set(object, newValue);
@@ -147,10 +131,8 @@ public class ReflectionPrimitiveFieldTraverser
         {
             traverseFields(fieldValue, clazz);
         }
-        // TODO 2010-10-05, Tomasz Pylak: handle Map, skip external classes
     }
 
-    // FIXME 2010-10-05, Tomasz Pylak: handle mutable collections like in traverseArray
     private void traverseCollectionField(Object object, Field field, Collection<?> collection)
             throws IllegalArgumentException, IllegalAccessException
     {
@@ -159,89 +141,76 @@ public class ReflectionPrimitiveFieldTraverser
             return;
         }
         Class<?> componentType = figureElementClass(collection);
+
         if (componentType.isPrimitive())
         {
-            if (visitor.isVisiting(componentType))
-            {
-                traversePrimitiveCollection(object, field, collection);
-            }
+            return; // do nothing
+        }
+
+        if (isStringClass(componentType))
+        {
+            Collection<?> newCollection = visitStringCollection(collection);
+            field.set(object, newCollection);
         } else
         {
             for (Object element : collection)
             {
-                traverseMutable(element, componentType);
+                if (isMutable(element))
+                {
+                    traverseMutable(element, componentType);
+                } else
+                {
+                    // NOTE: we do not handle e.g. list of list of Strings
+                    throw createCannotTraverseImmutableObjectException(object);
+                }
             }
         }
     }
 
-    // assumes that all elements are of the same type
-    private static Class<?> figureElementClass(Collection<?> collection)
+    private IllegalStateException createCannotTraverseImmutableObjectException(Object object)
     {
-        Object firstElem = collection.iterator().next();
-        Class<?> componentType = firstElem.getClass();
-        return componentType;
+        return new IllegalStateException("Cannot traverse primitive collections or primitives "
+                + object);
     }
 
-    private <T> void traversePrimitiveCollection(Object object, Field field,
-            Collection<T> collection) throws IllegalArgumentException, IllegalAccessException
+    private boolean isMutable(Object element)
     {
-        Collection<T> newCollection = visitPrimitiveVisitableCollection(collection);
-        field.set(object, newCollection);
+        return isString(element) == false && element.getClass().isPrimitive() == false
+                && isStringCollection(element) == false;
     }
 
-    private <T> Collection<T> visitPrimitiveVisitableCollection(Collection<T> collection)
+    private Collection<String> visitStringCollection(Object collection)
     {
-        Collection<T> newCollection = createEmptyCollection(collection);
-        for (T element : collection)
+        Collection<String> castedSource = asStringCollection(collection);
+        Collection<String> newCollection = createEmptyCollection(castedSource);
+        for (String element : castedSource)
         {
-            T newElement = visitor.tryVisit(element);
+            String newElement = tryVisitString(element);
             newCollection.add(newElement != null ? newElement : element);
         }
         return newCollection;
-    }
-
-    // NOTE: works only for sets and lists
-    private static <T> Collection<T> createEmptyCollection(Collection<T> collection)
-    {
-        if (collection.getClass().isAssignableFrom(List.class))
-        {
-            return new ArrayList<T>();
-        } else if (collection.getClass().isAssignableFrom(Set.class))
-        {
-            return new HashSet<T>();
-        } else
-        {
-            throw new IllegalStateException("Do not know how to create a collection of type "
-                    + collection.getClass().getName());
-        }
     }
 
     private void traverseArray(Object array)
     {
         int length = Array.getLength(array);
         Class<?> componentType = array.getClass().getComponentType();
-        boolean isPrimitive = componentType.isPrimitive();
+        if (componentType.isPrimitive())
+        {
+            return; // do nothing
+        }
 
         for (int index = 0; index < length; ++index)
         {
             Object element = Array.get(array, index);
-            if (isPrimitive)
+            if (isString(element))
             {
-                visitPrimitiveArrayElement(array, index, element, componentType);
+                visitStringArrayElement(array, index, element, componentType);
             } else
             {
-                if (isCollection(element))
+                if (isStringCollection(element))
                 {
-                    Collection<?> collection = (Collection<?>) element;
-                    Class<?> primitiveElementType = tryGetPrimitiveElementType(collection);
-                    if (primitiveElementType != null)
-                    {
-                        visitPrimitiveCollectionArrayElement(array, index, collection,
-                                primitiveElementType);
-                    } else
-                    {
-                        traverseMutable(element, componentType);
-                    }
+                    visitStringCollectionArrayElement(array, index, element);
                 } else
                 {
                     traverseMutable(element, componentType);
@@ -251,40 +220,77 @@ public class ReflectionPrimitiveFieldTraverser
     }
 
     // array[index] contains collection of primitive types which will be modified if necessary
-    private void visitPrimitiveCollectionArrayElement(Object array, int index,
-            Collection<?> collection, Class<?> primitiveElementType)
+    private void visitStringCollectionArrayElement(Object array, int index, Object collection)
     {
-        if (visitor.isVisiting(primitiveElementType))
-        {
-            Collection newCollection = visitPrimitiveVisitableCollection(collection);
-            Array.set(array, index, newCollection);
-        }
+        Collection newCollection = visitStringCollection(collection);
+        Array.set(array, index, newCollection);
     }
 
     // array[index] contains a value of primitive type which will be modified if necessary
-    private void visitPrimitiveArrayElement(Object array, int index, Object element,
+    private void visitStringArrayElement(Object array, int index, Object element,
             Class<?> componentType)
     {
-        if (visitor.isVisiting(componentType))
+        Object newElement = tryVisitString(element);
+        if (newElement != null)
         {
-            Object newElement = visitor.tryVisit(element);
-            if (newElement != null)
-            {
-                Array.set(array, index, newElement);
-            }
+            Array.set(array, index, newElement);
         }
     }
 
-    private Class<?> tryGetPrimitiveElementType(Collection<?> collection)
+    private String tryVisitString(Object element)
     {
-        Class<?> elementClass = figureElementClass(collection);
-        if (elementClass.isPrimitive())
+        return visitor.tryVisit((String) element);
+    }
+
+    // assumes that all elements are of the same type
+    private static Class<?> figureElementClass(Collection<?> collection)
+    {
+        Object firstElem = collection.iterator().next();
+        return firstElem.getClass();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Collection<String> asStringCollection(Object collection)
+    {
+        return (Collection<String>) collection;
+    }
+
+    // NOTE: works only for sets and lists
+    private static <T> Collection<T> createEmptyCollection(Collection<T> collection)
+    {
+        Class<?> clazz = collection.getClass();
+        if (List.class.isAssignableFrom(clazz))
         {
-            return elementClass;
+            return new ArrayList<T>();
+        } else if (Set.class.isAssignableFrom(clazz))
+        {
+            return new HashSet<T>();
         } else
         {
-            return null;
+            throw new IllegalStateException("Do not know how to create a collection of type "
+                    + clazz.getName());
         }
+    }
+
+    private static boolean isString(Object object)
+    {
+        return object instanceof String;
+    }
+
+    private static boolean isStringClass(Class<?> clazz)
+    {
+        return String.class.isAssignableFrom(clazz);
+    }
+
+    private static boolean isStringCollection(Collection<?> collection)
+    {
+        Class<?> elementClass = figureElementClass(collection);
+        return isStringClass(elementClass);
+    }
+
+    private static boolean isStringCollection(final Object o)
+    {
+        return isCollection(o) && isStringCollection(((Collection<?>) o));
     }
 
     private static boolean isCollection(final Object o)
