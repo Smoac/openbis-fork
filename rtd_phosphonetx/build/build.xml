@@ -126,6 +126,7 @@
 			<classes dir="../openbis/${sources}">
 				<include name="**/*.xml" />
 				<exclude name="**/*.gwt.xml" />
+        <include name="**/*.xsd" />
 			</classes>
 			<lib dir="${lib}/jaxb">
 				<include name="*.jar" />
