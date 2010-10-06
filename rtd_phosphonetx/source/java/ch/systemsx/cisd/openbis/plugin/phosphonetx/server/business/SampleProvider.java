@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +61,7 @@ class SampleProvider implements ISampleProvider
             ListOrSearchSampleCriteria criteria)
     {
         List<Sample> list = lister.list(criteria);
-        Set<Long> sampleIDs = new HashSet<Long>();
+        Set<Long> sampleIDs = new LinkedHashSet<Long>();
         for (Sample sample : list)
         {
             samplesByPermIDs.put(sample.getPermId(), sample);
