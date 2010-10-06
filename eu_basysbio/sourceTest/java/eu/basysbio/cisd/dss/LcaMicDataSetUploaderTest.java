@@ -128,7 +128,7 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
         prepareValidatorAndFeeder(dataSetInformation,
                 "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t"
                         + "Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\n"
-                        + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1);
+                        + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1, "BBA9001#A_S20090325-2");
         
         try
         {
@@ -158,15 +158,15 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
         prepareValidatorAndFeeder(dataSetInformation,
                 "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\t"
                         + "Ma::MS::B1::42::EX::T1::NC::LcaMicCfd::Value[um]::LIN::NB::NC\n"
-                        + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1);
+                        + "BBA9001#A_S20090325-2\t2.5\t42.5\n", 1, "BBA9001#A_S20090325-2");
         prepareValidatorAndFeeder(dataSetInformation,
                 "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\t"
                 + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Mean[Au]::LIN::NB::NC\n"
-                + "BBA9001#A_S20090325-2\t5.5\t45.5\n", 2);
+                + "BBA9001#A_S20090325-2\t5.5\t45.5\n", 2, "BBA9001#A_S20090325-2");
         prepareValidatorAndFeeder(dataSetInformation,
                 "BBA ID\tMa::MS::B1::12::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\t"
                 + "Ma::MS::B1::42::EX::T1::NC::LcaMicAbsFl::Std[Au]::LIN::NB::NC\n"
-                + "BBA9001#A_S20090325-2\tN/A\t3.25\n", 3);
+                + "BBA9001#A_S20090325-2\tN/A\t3.25\n", 3, "BBA9001#A_S20090325-2");
         
         uploader.handleTSVFile(tsvFile, dataSetInformation);
         
@@ -183,19 +183,20 @@ public class LcaMicDataSetUploaderTest extends UploaderTestCase
             });
     }
     
-    private void prepareValidatorAndFeeder(final DataSetInformation dataSetInformation, final String content, final int numberOfDataSet)
+    private void prepareValidatorAndFeeder(final DataSetInformation dataSetInformation,
+            final String content, final int numberOfDataSet, final String biIdOrNull)
     {
         context.checking(new Expectations()
+        {
             {
-                {
-                    ReaderMatcher matcher = new ReaderMatcher(content);
-                    String sourceName = LCA_MIC_TIME_SERIES + numberOfDataSet;
-                    one(validator).assertValidDataSet(with(new DataSetType(LCA_MIC_TIME_SERIES)),
-                            with(matcher), with(sourceName));
-                    one(databaseFeeder).feedDatabase(with(dataSetInformation), with(matcher),
-                            with(sourceName));
-                }
-            });
+                ReaderMatcher matcher = new ReaderMatcher(content);
+                String sourceName = LCA_MIC_TIME_SERIES + numberOfDataSet;
+                one(validator).assertValidDataSet(with(new DataSetType(LCA_MIC_TIME_SERIES)),
+                        with(matcher), with(sourceName));
+                one(databaseFeeder).feedDatabase(with(dataSetInformation), with(matcher),
+                        with(sourceName), with(biIdOrNull));
+            }
+        });
     }
-
+    
 }

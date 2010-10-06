@@ -234,7 +234,7 @@ class DatabaseFeeder implements IDatabaseFeeder
                         + "', which duplicates time series measurements for identifier "
                         + biIdOrNull);
             }
-        } else
+        } else if (dataSets.isEmpty() == false)
         {
             throw new UserFailureException("For data column '" + dataColumnHeader
                     + "' following data sets have already been registered: " + dataSets);
