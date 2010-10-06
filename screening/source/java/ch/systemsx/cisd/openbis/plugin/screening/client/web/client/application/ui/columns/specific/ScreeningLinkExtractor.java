@@ -46,7 +46,7 @@ public class ScreeningLinkExtractor extends LinkExtractor
 
     public final static String WELL_SEARCH_MATERIAL_ITEMS_PARAMETER_KEY = "items";
 
-    public static final String extractPlateMetadataBrowserLink(String platePermId)
+    public static final String createPlateMetadataBrowserLink(String platePermId)
     {
         URLMethodWithParameters url = new URLMethodWithParameters("");
         url.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, PLATE_METADATA_BROWSER_ACTION);

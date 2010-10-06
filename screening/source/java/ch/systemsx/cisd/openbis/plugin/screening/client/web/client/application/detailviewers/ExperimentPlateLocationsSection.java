@@ -123,7 +123,7 @@ public class ExperimentPlateLocationsSection extends TabContent
                             materialCriteria);
                 }
             };
-        return LinkRenderer.createLink(searchButton, normalModeAction, urlProvider, viewContext);
+        return LinkRenderer.createButtonLink(searchButton, normalModeAction, urlProvider);
     }
 
     private void showPlateMaterialReviewer()

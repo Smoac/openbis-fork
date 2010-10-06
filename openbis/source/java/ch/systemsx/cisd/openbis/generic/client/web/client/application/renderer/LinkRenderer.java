@@ -32,7 +32,6 @@ import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
@@ -128,12 +127,6 @@ public class LinkRenderer
         return DOM.toString(anchor);
     }
 
-    public static interface IURLProvider
-    {
-        /** @return URL to which redicection should be made or null if no redirection should occur */
-        String tryGetURL();
-    }
-
     /**
      * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var> and
      *         a <var>listener</var> registered on the click event.
@@ -214,30 +207,36 @@ public class LinkRenderer
         return link;
     }
 
+    public static interface IURLProvider
+    {
+        /** @return URL to which redicection should be made or null if no redirection should occur */
+        String tryGetURL();
+    }
+
     /**
-     * Sets the click listener which executes the specified action if we are in normal view mode
-     * when the click occurs and redirects to the provided URL otherwise.
-     * 
-     * @param viewContext
+     * Sets the click listener which executes the specified action when the click occurs if we are
+     * in normal view mode and redirects to the provided URL in simple view mode.
      */
-    public static Widget createLink(Button button, final IDelegatedAction normalModeAction,
-            final IURLProvider urlProvider, final IViewContext<?> viewContext)
+    @SuppressWarnings("deprecation")
+    public static Widget createButtonLink(Button button,
+            final IDelegatedAction normalViewModeAction,
+            final IURLProvider simpleViewModeUrlProvider)
     {
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    if (viewContext.isSimpleMode())
+                    if (ClientStaticState.isSimpleMode())
                     {
-                        String url = urlProvider.tryGetURL();
+                        String url = simpleViewModeUrlProvider.tryGetURL();
                         if (url != null)
                         {
                             History.newItem(url); // redirects
                         }
                     } else
                     {
-                        normalModeAction.execute();
+                        normalViewModeAction.execute();
                     }
                 }
             });

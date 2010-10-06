@@ -480,7 +480,7 @@ public class PlateLayoutSampleSection extends TabContent
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         String plateLinkUrl =
-                ScreeningLinkExtractor.extractPlateMetadataBrowserLink(plate.getPermId());
+                ScreeningLinkExtractor.createPlateMetadataBrowserLink(plate.getPermId());
         return LinkRenderer.getLinkWidget(viewContext.getMessage(Dict.BUTTON_SHOW),
                 new ClickHandler()
                     {
