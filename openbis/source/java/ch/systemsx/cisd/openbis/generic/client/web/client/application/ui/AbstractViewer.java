@@ -168,15 +168,15 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     public static String getTitle(final IMessageProvider messageProvider,
             final String entityKindDictKey, final ICodeHolder codeProvider)
     {
-        return messageProvider.getMessage(Dict.DETAILS_TITLE, messageProvider
-                .getMessage(entityKindDictKey), codeProvider.getCode());
+        return messageProvider.getMessage(Dict.DETAILS_TITLE,
+                messageProvider.getMessage(entityKindDictKey), codeProvider.getCode());
     }
 
     /** Updates data displayed in the browser (needed to open editor view). */
     protected void updateOriginalData(D newData)
     {
         this.originalData = newData;
-        this.displayIdSuffix = newData.getEntityKind() + "_" + newData.getEntityType().getCode();
+        this.displayIdSuffix = newData.getEntityType().getCode();
         updateTitle(getOriginalDataDescription());
         setToolBarButtonsEnabled(true);
     }
