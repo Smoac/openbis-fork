@@ -33,7 +33,6 @@ pg_dump -U $DB_USER_NAME -Fc $IMAGING_DB > $BACKUP_DIR/$IMAGING_DB-${NOW}.dmp
 
 echo Installing openBIS Datastore Server
 unzip $ROOT_DIR/datastore_server-screening*.zip -d $ROOT_DIR
-unzip $ROOT_DIR/datastore_server_plugin*.zip -d $ROOT_DIR
 
 echo Installing openBIS Application Server
 unzip $ROOT_DIR/openBIS-*.zip -d $ROOT_DIR
