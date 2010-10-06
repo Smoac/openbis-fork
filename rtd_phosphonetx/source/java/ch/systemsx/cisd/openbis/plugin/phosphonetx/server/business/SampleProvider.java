@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -59,15 +61,21 @@ class SampleProvider implements ISampleProvider
             ListOrSearchSampleCriteria criteria)
     {
         List<Sample> list = lister.list(criteria);
+        Set<Long> sampleIDs = new HashSet<Long>();
         for (Sample sample : list)
         {
             samplesByPermIDs.put(sample.getPermId(), sample);
-            ListSampleCriteria criteria2 =
-                    ListSampleCriteria.createForChild(new TechId(sample.getId()));
-            ListOrSearchSampleCriteria criteria3 = new ListOrSearchSampleCriteria(criteria2);
-            criteria3.setEnrichDependentSamplesWithProperties(true);
-            gatherSamplesAndAncestorsRecursively(lister, criteria3);
+            sampleIDs.add(sample.getId());
         }
+        if (sampleIDs.isEmpty())
+        {
+            return;
+        }
+        ListSampleCriteria criteria2 =
+            ListSampleCriteria.createForChildren(sampleIDs);
+        ListOrSearchSampleCriteria criteria3 = new ListOrSearchSampleCriteria(criteria2);
+        criteria3.setEnrichDependentSamplesWithProperties(true);
+        gatherSamplesAndAncestorsRecursively(lister, criteria3);
     }
 
     public Sample getSample(String permID)
