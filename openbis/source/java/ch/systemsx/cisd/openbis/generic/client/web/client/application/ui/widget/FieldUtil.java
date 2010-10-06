@@ -158,10 +158,13 @@ public class FieldUtil
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    GWTUtils.executeDelayed(alignInfoIcon);
-                    if (GXT.isIE || GXT.isOpera)
+                    if (field.isRendered())
                     {
                         GWTUtils.executeDelayed(alignInfoIcon);
+                        if (GXT.isIE || GXT.isOpera)
+                        {
+                            GWTUtils.executeDelayed(alignInfoIcon);
+                        }
                     }
                 }
             });
