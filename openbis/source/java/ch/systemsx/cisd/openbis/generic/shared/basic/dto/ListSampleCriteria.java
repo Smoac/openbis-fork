@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -63,6 +64,8 @@ public class ListSampleCriteria implements IsSerializable, Serializable
 
     // --------- filter 5 fields
     private TechId experimentId;
+    
+    private Collection<Long> childrenSampleIds;
 
     // ----
 
@@ -87,6 +90,13 @@ public class ListSampleCriteria implements IsSerializable, Serializable
         return criteria;
     }
 
+    public static ListSampleCriteria createForChildren(final Collection<Long> childrenSampleIds)
+    {
+        final ListSampleCriteria criteria = new ListSampleCriteria();
+        criteria.setChildrenSampleIds(childrenSampleIds);
+        return criteria;
+    }
+    
     public static ListSampleCriteria createForExperiment(final TechId experimentId)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
@@ -122,6 +132,16 @@ public class ListSampleCriteria implements IsSerializable, Serializable
     private final void setChildId(final TechId childSampleId)
     {
         this.childSampleId = childSampleId;
+    }
+
+    public Collection<Long> getChildrenSampleIds()
+    {
+        return childrenSampleIds;
+    }
+
+    public final void setChildrenSampleIds(Collection<Long> childrenSampleIds)
+    {
+        this.childrenSampleIds = childrenSampleIds;
     }
 
     public SampleType getSampleType()

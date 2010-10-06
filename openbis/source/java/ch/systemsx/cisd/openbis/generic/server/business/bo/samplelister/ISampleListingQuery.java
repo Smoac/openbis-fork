@@ -231,9 +231,10 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " WHERE s.id IN "
             + "     (SELECT sample_id_parent FROM sample_relationships "
-            + "      WHERE relationship_id=?{1} AND sample_id_child=?{2})", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getParentSamplesForChild(long relationshipId,
-            long sampleChildId);
+            + "      WHERE relationship_id=?{1} AND sample_id_child = any(?{2}))", parameterBindings =
+        { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getParentSamplesForChildren(long relationshipId,
+            LongSet sampleChildIds);
 
     //
     // New samples of type

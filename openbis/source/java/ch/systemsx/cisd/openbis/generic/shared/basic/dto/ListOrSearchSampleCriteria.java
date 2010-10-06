@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -166,6 +167,29 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     }
 
     @Override
+    public Collection<Long> getChildrenSampleIds()
+    {
+        if (listCriteria == null)
+    {
+            return null;
+    }
+        Collection<Long> childrenSampleIds = listCriteria.getChildrenSampleIds();
+        if (childrenSampleIds != null)
+        {
+            return childrenSampleIds;
+        }
+        TechId childSampleId = listCriteria.getChildSampleId();
+        if (childSampleId == null)
+        {
+            return Collections.<Long>emptySet();
+        }
+        else
+        {
+            return Collections.<Long>singleton(childSampleId.getId());
+        }
+    }
+    
+    @Override
     public TechId getExperimentId()
     {
         return listCriteria == null ? null : listCriteria.getExperimentId();
@@ -210,4 +234,5 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         this.enrichDependentSamplesWithProperties = enrichDependentSamplesWithProperties;
     }
+
 }
