@@ -65,8 +65,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  */
 public class DatasetDownloadServletTest
 {
-    private static final String REQUEST_URI_PREFIX =
-            "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/";
+    private static final String REQUEST_URI_PREFIX = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME
+            + "/";
 
     private static final String EXPIRATION_MESSAGE =
             "<html><body>Download session expired.</body></html>";
@@ -83,8 +83,8 @@ public class DatasetDownloadServletTest
 
     private static final String EXAMPLE_DATA_SET_CODE = "1234-1";
 
-    private static final File EXAMPLE_DATA_SET_FOLDER =
-            getDatasetDirectoryLocation(TEST_FOLDER, EXAMPLE_DATA_SET_CODE);
+    private static final File EXAMPLE_DATA_SET_FOLDER = getDatasetDirectoryLocation(TEST_FOLDER,
+            EXAMPLE_DATA_SET_CODE);
 
     private static final String EXAMPLE_FILE_NAME = "read me @home.txt";
 
@@ -97,8 +97,8 @@ public class DatasetDownloadServletTest
     private static final String ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME =
             encode(EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
 
-    private static final File EXAMPLE_DATA_SET_SUB_FOLDER =
-            new File(EXAMPLE_DATA_SET_FOLDER, EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
+    private static final File EXAMPLE_DATA_SET_SUB_FOLDER = new File(EXAMPLE_DATA_SET_FOLDER,
+            EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
 
     private static final String EXAMPLE_SESSION_ID = "AV76CF";
 
@@ -160,18 +160,18 @@ public class DatasetDownloadServletTest
     @Test
     public void testGetMimetype()
     {
-        assertEquals("image/tiff", DatasetDownloadServlet.getMimeType(new File("/some/image.tiff"),
-                false));
-        assertEquals("binary", DatasetDownloadServlet.getMimeType(new File("/some/image.tiff"),
-                true));
-        assertEquals("image/tiff", DatasetDownloadServlet.getMimeType(new File("/some/image.TIF"),
-                false));
-        assertEquals("binary", DatasetDownloadServlet
-                .getMimeType(new File("/some/image.TIF"), true));
-        assertEquals("application/pdf", DatasetDownloadServlet.getMimeType(new File("doc.pdf"),
-                false));
-        assertEquals("text/plain", DatasetDownloadServlet.getMimeType(new File(
-                "/dir/filewithoutext"), false));
+        assertEquals("image/tiff",
+                DatasetDownloadServlet.getMimeType(new File("/some/image.tiff"), false));
+        assertEquals("binary",
+                DatasetDownloadServlet.getMimeType(new File("/some/image.tiff"), true));
+        assertEquals("image/tiff",
+                DatasetDownloadServlet.getMimeType(new File("/some/image.TIF"), false));
+        assertEquals("binary",
+                DatasetDownloadServlet.getMimeType(new File("/some/image.TIF"), true));
+        assertEquals("application/pdf",
+                DatasetDownloadServlet.getMimeType(new File("doc.pdf"), false));
+        assertEquals("text/plain",
+                DatasetDownloadServlet.getMimeType(new File("/dir/filewithoutext"), false));
     }
 
     @Test
@@ -215,6 +215,9 @@ public class DatasetDownloadServletTest
                     will(returnValue(null));
 
                     one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.FORCE_AUTO_RESOLVE_KEY);
                     will(returnValue(null));
 
                     one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATH_KEY);
@@ -467,7 +470,9 @@ public class DatasetDownloadServletTest
         String[] logContentLines = logContent.split("\n");
         // Skip the first line which has information about session creation
         logContent = logContentLines[1];
-        assertEquals("The following string does not start as expected: " + logContent, true,
+        assertEquals(
+                "The following string does not start as expected: " + logContent,
+                true,
                 logContent.startsWith(LOG_ERROR
                         + "Request requestURL?queryString caused an exception:"));
 
@@ -580,6 +585,8 @@ public class DatasetDownloadServletTest
 
         exp.one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
         exp.will(Expectations.returnValue(null));
+        exp.one(request).getParameter(DatasetDownloadServlet.FORCE_AUTO_RESOLVE_KEY);
+        exp.will(Expectations.returnValue(null));
         exp.one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATH_KEY);
         exp.will(Expectations.returnValue(null));
         exp.one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
@@ -604,6 +611,9 @@ public class DatasetDownloadServletTest
                     will(returnValue("thumbnail" + width + "x" + height));
 
                     one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.FORCE_AUTO_RESOLVE_KEY);
                     will(returnValue(null));
 
                     one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATH_KEY);
