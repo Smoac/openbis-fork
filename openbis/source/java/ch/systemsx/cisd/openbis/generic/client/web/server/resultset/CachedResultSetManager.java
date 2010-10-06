@@ -82,7 +82,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private static <T> String getOriginalValue(IColumnDefinition<T> definition, final GridRowModel<T> row)
     {
         Comparable<?> value = definition.tryGetComparableValue(row);
-        return value == null ? "" : value.toString().toLowerCase();
+        return value == null ? "" : value.toString();
     }
 
     private static final class Column
@@ -481,7 +481,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         public boolean isMatching(final GridRowModel<T> row)
         {
             IColumnDefinition<T> definition = filteredField;
-            String v = getOriginalValue(definition, row);
+            String v = getOriginalValue(definition, row).toLowerCase();
             return filter.passes(v);
         }
 
