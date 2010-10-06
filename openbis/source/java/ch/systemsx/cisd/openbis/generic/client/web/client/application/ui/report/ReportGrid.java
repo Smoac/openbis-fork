@@ -114,7 +114,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
 
         public String tryGetLink(TableModelRow entity)
         {
-            return null;
+            return null; 
         }
 
         // GWT only
@@ -248,7 +248,8 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
                                     {
                                         ISerializableComparable cellValue =
                                                 rowItem.getValues().get(colIndex);
-                                        showEntityViewer(entityKind, cellValue.toString());
+                                        showEntityViewer(entityKind, cellValue.toString(),
+                                                keyPressed);
                                     }
                                 });
                 }
@@ -257,9 +258,9 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
         return definitions;
     }
 
-    private void showEntityViewer(EntityKind entityKind, String permId)
+    private void showEntityViewer(EntityKind entityKind, String permId, boolean keyPressed)
     {
-        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId, false);
+        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId, keyPressed);
     }
 
     private List<ReportColumnUI> createColDefinitions()
