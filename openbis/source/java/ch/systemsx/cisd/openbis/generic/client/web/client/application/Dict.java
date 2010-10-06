@@ -44,7 +44,7 @@ public abstract class Dict
 
     //
     // Common Labels
-    // 
+    //
 
     public static final String ATTACHMENT = "attachment";
 
@@ -368,7 +368,11 @@ public abstract class Dict
 
     public static final String XML_SCHEMA = "xml_schema";
 
+    public static final String XML_SCHEMA_INFO = "xml_schema_info";
+
     public static final String XSLT = "xslt";
+
+    public static final String XSLT_INFO = "xslt_info";
 
     //
     // Property Type Assignment Browser
@@ -728,12 +732,12 @@ public abstract class Dict
 
     public static final String ALLOW_ANY_TYPE = "allow_any_type";
 
-    // 
+    //
     // Material Import
     //
     public static final String MATERIAL_IMPORT = "material_import";
 
-    // 
+    //
     // Material Chooser
     //
 

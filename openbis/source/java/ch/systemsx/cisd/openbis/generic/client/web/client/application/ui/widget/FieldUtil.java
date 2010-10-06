@@ -110,6 +110,12 @@ public class FieldUtil
         field.enableEvents(true);
     }
 
+    //
+    // info icon support
+    // WORKAROUND: Based on GXT functionality for displaying error icon, until there is no
+    // dedicated mechanism for showing info icons in GXT
+    //
+
     /**
      * Adds '?' to the field and allows to display chosen message in the info box.
      * 
@@ -117,51 +123,65 @@ public class FieldUtil
      */
     public static void addInfoIcon(final Field<?> field, final String message, final Image image)
     {
-        // WORKAROUND: Based on GXT functionality for displaying error icon, until there is no
-        // dedicated mechanism for showing info icons in GXT
+        final WidgetComponent infoIcon = createInfoIcon(message, image);
+
+        final IDelegatedAction alignInfoIcon = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    infoIcon.el().alignTo(field.getElement(), INFO_LINK_POSITION,
+                            INFO_LINK_FIELD_OFFSETS);
+                }
+            };
+
         field.addListener(Events.Render, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    final WidgetComponent info = new WidgetComponent(image);
-                    info.setStyleName("hands");
-                    info.setStyleAttribute("cursor", "hand");
-                    GWTUtils.setToolTip(info, message);
-                    info.sinkEvents(Events.OnClick.getEventCode());
-                    info.addListener(Events.OnClick, new Listener<BaseEvent>()
-                        {
-                            public void handleEvent(BaseEvent e)
-                            {
-                                MessageBox.info("Info", message, null);
-                            }
-                        });
-
                     Element parent = field.el().getParent().dom;
-                    info.render(parent);
-                    info.setStyleAttribute("display", "block");
-                    info.el().makePositionable(true);
-                    if (!info.isAttached())
+                    infoIcon.render(parent);
+                    infoIcon.setStyleAttribute("display", "block");
+                    infoIcon.el().makePositionable(true);
+                    if (!infoIcon.isAttached())
                     {
-                        ComponentHelper.doAttach(info);
+                        ComponentHelper.doAttach(infoIcon);
                     }
-                    final IDelegatedAction alignInfo = new IDelegatedAction()
-                        {
-
-                            public void execute()
-                            {
-                                info.el().alignTo(field.getElement(), INFO_LINK_POSITION,
-                                        INFO_LINK_FIELD_OFFSETS);
-                            }
-
-                        };
-                    GWTUtils.executeDelayed(alignInfo);
+                    GWTUtils.executeDelayed(alignInfoIcon);
                     if (GXT.isIE || GXT.isOpera)
                     {
-                        // TODO 2010-07-13, Piotr Buczek: still needed?
-                        GWTUtils.executeDelayed(alignInfo); 
+                        GWTUtils.executeDelayed(alignInfoIcon);
                     }
                     field.el().repaint();
                 }
             });
+        field.addListener(Events.Show, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    GWTUtils.executeDelayed(alignInfoIcon);
+                    if (GXT.isIE || GXT.isOpera)
+                    {
+                        GWTUtils.executeDelayed(alignInfoIcon);
+                    }
+                }
+            });
     }
+
+    private static WidgetComponent createInfoIcon(final String message, final Image image)
+    {
+        final WidgetComponent info = new WidgetComponent(image);
+        info.setStyleName("hands");
+        info.setStyleAttribute("cursor", "hand");
+        GWTUtils.setToolTip(info, message);
+        info.sinkEvents(Events.OnClick.getEventCode());
+        info.addListener(Events.OnClick, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent e)
+                {
+                    MessageBox.info("Info", message, null);
+                }
+            });
+        return info;
+    }
+
 }

@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -83,7 +84,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private PropertyTypeRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, ID);
+        super(viewContext, ID, DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
 
         this.propertyTypeCodeField = createPropertyTypeCodeField();
@@ -114,7 +115,8 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
     {
         String label = viewContext.getMessage(Dict.ALLOW_ANY_TYPE);
         MaterialTypeSelectionWidget chooser =
-                MaterialTypeSelectionWidget.createWithAdditionalOption(viewContext, label, null, ID);
+                MaterialTypeSelectionWidget
+                        .createWithAdditionalOption(viewContext, label, null, ID);
         FieldUtil.markAsMandatory(chooser);
         return chooser;
     }
@@ -142,12 +144,24 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
 
     private final XmlField createXmlSchemaField()
     {
-        return new XmlField(viewContext.getMessage(Dict.XML_SCHEMA), false);
+        final String label = viewContext.getMessage(Dict.XML_SCHEMA);
+        final String description = viewContext.getMessage(Dict.XML_SCHEMA_INFO);
+        final AbstractImagePrototype infoIcon =
+                AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+        final XmlField field = new XmlField(label, false);
+        FieldUtil.addInfoIcon(field, description, infoIcon.createImage());
+        return field;
     }
 
     private final XmlField createXslTransformationsField()
     {
-        return new XmlField(viewContext.getMessage(Dict.XSLT), false);
+        final String label = viewContext.getMessage(Dict.XSLT);
+        final String description = viewContext.getMessage(Dict.XSLT_INFO);
+        final AbstractImagePrototype infoIcon =
+                AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+        final XmlField field = new XmlField(label, false);
+        FieldUtil.addInfoIcon(field, description, infoIcon.createImage());
+        return field;
     }
 
     private final DataTypeSelectionWidget createDataTypeSelectionWidget()
