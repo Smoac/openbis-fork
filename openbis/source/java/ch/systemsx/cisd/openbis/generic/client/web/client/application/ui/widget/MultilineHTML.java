@@ -39,18 +39,24 @@ public final class MultilineHTML extends HTML
         // Another way to implement this would be to preserve white-space:
         // getElement().getStyle().setProperty("whiteSpace", "pre");
         // but then too long lines would not fit in property grid with no word wrapping.
-        // So the only option is to replace newlines with <br/>
-        super(replaceNewlinesWithBRs(html));
+        // So the only option is to replace newlines with <br/> and use '&nbsp;' for other
+        // whitespace characters.
+        super(preserveWhitespace(html));
     }
 
     private static final String BR = DOM.toString(DOM.createElement("br"));
 
-    private static String replaceNewlinesWithBRs(String html)
+    private static String preserveWhitespace(String html)
     {
         String result = html;
         // to be independent of regexp implementation we have to replace newlines in two steps
         result = result.replaceAll("\n\r", BR);
         result = result.replaceAll("[\n\r]", BR);
+        // additionally preserve remaining whitespace (tabs and spaces) using '&nbsp;'
+        // the trick is not to change all whitespace to make word wrapping possible
+        result = result.replaceAll("\t", "&nbsp;&nbsp;&nbsp; ");
+        result = result.replaceAll("[\t]", "&nbsp;&nbsp;&nbsp; ");
+        result = result.replaceAll("  ", "&nbsp; ");
         // result will not be wrapped in AbstractBrowserGrid so we wrap it up in div with tooltip
         return wrapUpInDivWithTooltip(result, html);
     }
