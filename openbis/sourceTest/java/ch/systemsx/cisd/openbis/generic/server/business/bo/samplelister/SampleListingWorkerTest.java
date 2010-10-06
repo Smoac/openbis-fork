@@ -177,6 +177,34 @@ public class SampleListingWorkerTest extends AbstractDAOTest
             checkSpace(s);
         }
     }
+    
+    @Test
+    public void testListSamplesForChildren()
+    {
+        final ListSampleCriteria baseCriteria =
+            ListSampleCriteria.createForChildren(Arrays.asList(CHILDREN_IDS));
+        final ListOrSearchSampleCriteria criteria = new ListOrSearchSampleCriteria(baseCriteria);
+        final SampleListingWorker worker =
+            SampleListingWorker.create(criteria, BASE_INDEX_URL, sampleListerDAO, secondaryDAO);
+        final List<Sample> list = worker.load();
+        assertEquals(2, list.size());
+        for (Sample s : list)
+        {
+            long sId = s.getId().longValue();
+            long pId = s.getGeneratedFrom().getId().longValue();
+            if (sId == PARENT1_ID)
+            {
+                assertTrue(pId == GRANDPARENT1_ID);
+            } else if (sId == PARENT2_ID)
+            {
+                assertTrue(pId == GRANDPARENT2_ID);
+            } else
+            {
+                fail("unexpected parent id " + pId);
+            }
+            checkSpace(s);
+        }
+    }
 
     @Test
     public void testListSamplesForExperiment()

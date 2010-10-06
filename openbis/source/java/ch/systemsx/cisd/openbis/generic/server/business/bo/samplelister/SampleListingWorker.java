@@ -472,6 +472,10 @@ final class SampleListingWorker extends AbstractLister
     private Iterable<SampleRecord> tryGetIteratorForParentSamples()
     {
         Collection<Long> ids = criteria.getChildrenSampleIds();
+        if (ids.isEmpty())
+        {
+            return null;
+        }
         return query.getParentSamplesForChildren(parentRelationhipTypeId, new LongOpenHashSet(ids));
     }
 

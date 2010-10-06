@@ -171,7 +171,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         if (listCriteria == null)
     {
-            return null;
+            return Collections.<Long>emptySet();
     }
         Collection<Long> childrenSampleIds = listCriteria.getChildrenSampleIds();
         if (childrenSampleIds != null)
@@ -183,10 +183,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         {
             return Collections.<Long>emptySet();
         }
-        else
-        {
-            return Collections.<Long>singleton(childSampleId.getId());
-        }
+        return Collections.<Long>singleton(childSampleId.getId());
     }
     
     @Override
