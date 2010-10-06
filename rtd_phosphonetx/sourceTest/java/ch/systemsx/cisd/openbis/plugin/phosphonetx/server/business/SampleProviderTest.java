@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -43,14 +44,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public class SampleProviderTest extends AssertJUnit
 {
-    private static final class MatcherOfSampleCriteriaByChildID extends
+    private static final class MatcherOfSampleCriteriaByChildrenIDs extends
             BaseMatcher<ListOrSearchSampleCriteria>
     {
-        private final Long childID;
+        private final Collection<Long> childrenIDs;
 
-        private MatcherOfSampleCriteriaByChildID(Long childID)
+        private MatcherOfSampleCriteriaByChildrenIDs(Collection<Long> childrenIDs)
         {
-            this.childID = childID;
+            this.childrenIDs = childrenIDs;
         }
 
         public boolean matches(Object item)
@@ -59,7 +60,7 @@ public class SampleProviderTest extends AssertJUnit
             {
                 ListOrSearchSampleCriteria criteria = (ListOrSearchSampleCriteria) item;
                 assertEquals(true, criteria.isEnrichDependentSamplesWithProperties());
-                assertEquals(childID, criteria.getChildSampleId().getId());
+                assertEquals(childrenIDs.toString(), criteria.getChildrenSampleIds().toString());
                 return true;
             }
             return false;
@@ -131,13 +132,13 @@ public class SampleProviderTest extends AssertJUnit
                         }));
                     will(returnValue(Arrays.asList(s1, s2)));
                     
-                    one(sampleLister).list(with(new MatcherOfSampleCriteriaByChildID(s1.getId())));
-                    will(returnValue(Arrays.asList()));
-                    
-                    one(sampleLister).list(with(new MatcherOfSampleCriteriaByChildID(s2.getId())));
+                    one(sampleLister).list(
+                            with(new MatcherOfSampleCriteriaByChildrenIDs(Arrays.asList(s1.getId(),
+                                    s2.getId()))));
                     will(returnValue(Arrays.asList(s3)));
                     
-                    one(sampleLister).list(with(new MatcherOfSampleCriteriaByChildID(s3.getId())));
+                    one(sampleLister).list(
+                            with(new MatcherOfSampleCriteriaByChildrenIDs(Arrays.asList(s3.getId()))));
                     will(returnValue(Arrays.asList()));
                 }
             });
