@@ -142,13 +142,14 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                         for (int i = 1; i <= columnCount; i++)
                         {
                             String columnName = JdbcUtils.lookupColumnName(metaData, i);
+                            String id = columnName;
                             EntityKind entityKindOrNull = tryGetEntityKind(columnName);
                             if (entityKindOrNull != null)
                             {
                                 columnName = entityKindOrNull.getDescription();
+                                id = entityKindOrNull.name(); // id shouldn't contain spaces
                             }
-                            int count = counters.count(columnName);
-                            String id = columnName;
+                            int count = counters.count(id);
                             if (count > 1)
                             {
                                 id += count;
@@ -183,8 +184,7 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                 private TableModelRow createRow(ResultSet resultSet, int columnCount)
                         throws SQLException
                 {
-                    List<ISerializableComparable> cells =
-                            new ArrayList<ISerializableComparable>();
+                    List<ISerializableComparable> cells = new ArrayList<ISerializableComparable>();
                     for (int i = 1; i <= columnCount; i++)
                     {
                         Object value = JdbcUtils.getResultSetValue(resultSet, i);

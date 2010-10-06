@@ -20,6 +20,8 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+
 /**
  * Column header for {@link TableModel}.
  * 
@@ -32,7 +34,7 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     private String title;
 
     private String id;
-    
+
     // allows to fetch the value for this column from the row content
     private int index;
 
@@ -40,16 +42,19 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 
     // if column values contain permIds of certain entities entity kind is stored here
     private EntityKind entityKindOrNull;
-    
+
     private int defaultColumnWidth = 150;
 
     public TableModelColumnHeader(String title, String id, int index)
     {
+        // NOTE: id shouldn't contain spaces or some features of columns (e.g. links) will not work
+        assert StringUtils.isBlank(id) == false;
+        assert id.contains(" ") == false;
         this.title = title;
         this.id = id;
         this.index = index;
     }
-    
+
     public void setDataType(DataTypeCode dataType)
     {
         this.dataType = dataType;
@@ -65,7 +70,6 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
         return title;
     }
 
-    
     public final String getId()
     {
         return id;
@@ -75,12 +79,12 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     {
         return index;
     }
-    
+
     public void setDefaultColumnWidth(int width)
     {
         this.defaultColumnWidth = width;
     }
-    
+
     public int getDefaultColumnWidth()
     {
         return defaultColumnWidth;
