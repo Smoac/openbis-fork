@@ -506,6 +506,7 @@
       <classes dir="${sources}">
         <include name="**/*.xml" />
         <exclude name="**/*.gwt.xml" />
+        <include name="**/*.xsd" />
       </classes>
       <classes dir="${original.server.dist}">
         <include name="etc/log.xml" />
