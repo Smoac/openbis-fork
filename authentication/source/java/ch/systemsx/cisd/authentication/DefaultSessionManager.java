@@ -123,10 +123,22 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     /** The time after which an inactive session will be expired (in milliseconds). */
     private final int sessionExpirationPeriodMillis;
 
+    private final boolean tryEmailAsUserName;
+
     public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
             final ILogMessagePrefixGenerator<T> prefixGenerator,
             final IAuthenticationService authenticationService,
             final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes)
+    {
+        this(sessionFactory, prefixGenerator, authenticationService, remoteHostProvider,
+                sessionExpirationPeriodMinutes, false);
+    }
+
+    public DefaultSessionManager(final ISessionFactory<T> sessionFactory,
+            final ILogMessagePrefixGenerator<T> prefixGenerator,
+            final IAuthenticationService authenticationService,
+            final IRemoteHostProvider remoteHostProvider, final int sessionExpirationPeriodMinutes,
+            final boolean tryEmailAsUserName)
     {
         assert sessionFactory != null : "Missing session factory.";
         assert prefixGenerator != null : "Missing prefix generator";
@@ -139,8 +151,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
         this.prefixGenerator = prefixGenerator;
         this.authenticationService = authenticationService;
         this.remoteHostProvider = remoteHostProvider;
-        sessionExpirationPeriodMillis =
+        this.sessionExpirationPeriodMillis =
                 (int) (sessionExpirationPeriodMinutes * DateUtils.MILLIS_PER_MINUTE);
+        this.tryEmailAsUserName = tryEmailAsUserName;
 
         operationLog.info(String.format("Authentication service: '%s'", authenticationService
                 .getClass().getName()));
@@ -343,11 +356,11 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             {
                 public Principal tryToGetPrincipal(String userID)
                 {
-                    return authenticationService.tryGetAndAuthenticateUser(user, password);
+                    return tryGetAndAuthenticateUser(user, password);
                 }
             });
     }
-    
+
     public String tryToOpenSession(String userID, IPrincipalProvider principalProvider)
     {
         checkIfNotBlank(userID, "user");
@@ -361,7 +374,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             {
                 try
                 {
-                    final T session = createAndStoreSession(userID, principalOrNull, now);
+                    final T session =
+                            createAndStoreSession(principalOrNull.getUserId(), principalOrNull, now);
                     sessionToken = session.getSessionToken();
                     logAuthenticed(session);
                 } catch (final IllegalArgumentException ex)
@@ -380,7 +394,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             logSessionFailure(userID, ex);
             throw ex;
         }
-        
+
     }
 
     public void closeSession(final String sessionToken) throws InvalidSessionException
@@ -396,6 +410,24 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
     public String getRemoteHost()
     {
         return remoteHostProvider.getRemoteHost();
+    }
+
+    private Principal tryGetAndAuthenticateUser(final String user, final String password)
+    {
+        final Principal p = authenticationService.tryGetAndAuthenticateUser(user, password);
+        if (p == null && tryEmailAsUserName && user.contains("@")
+                && authenticationService.supportsListingByEmail())
+        {
+            for (Principal p2 : authenticationService.listPrincipalsByEmail(user))
+            {
+                if (authenticationService.authenticateUser(p2.getUserId(), password))
+                {
+                    p2.setAuthenticated(true);
+                    return p2;
+                }
+            }
+        }
+        return p;
     }
 
 }

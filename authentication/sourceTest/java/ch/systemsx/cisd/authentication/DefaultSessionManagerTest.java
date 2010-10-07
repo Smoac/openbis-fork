@@ -20,6 +20,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -46,7 +48,7 @@ public class DefaultSessionManagerTest
 
     /** Kind of dummy <code>Principal</code> to point out that the login was successful. */
     private static final Principal principal =
-            new Principal(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY,
+            new Principal("bla", StringUtils.EMPTY, StringUtils.EMPTY,
                     StringUtils.EMPTY, true);
 
     private static final int SESSION_EXPIRATION_PERIOD_MINUTES = 1;
@@ -97,7 +99,7 @@ public class DefaultSessionManagerTest
     private ISessionManager<BasicSession> createSessionManager(int sessionExpiration)
     {
         return new DefaultSessionManager(sessionFactory, prefixGenerator, authenticationService,
-                remoteHostProvider, sessionExpiration);
+                remoteHostProvider, sessionExpiration, true);
     }
 
     @AfterMethod
@@ -109,7 +111,8 @@ public class DefaultSessionManagerTest
         context.assertIsSatisfied();
     }
 
-    private void prepareRemoteHostSessionFactoryAndPrefixGenerator(final String user)
+    private void prepareRemoteHostSessionFactoryAndPrefixGenerator(final String user,
+            final Principal sessionPrincipal)
     {
         context.checking(new Expectations()
             {
@@ -118,7 +121,7 @@ public class DefaultSessionManagerTest
                     will(returnValue(REMOTE_HOST));
 
                     one(sessionFactory).create(with(any(String.class)), with(equal(user)),
-                            with(equal(principal)), with(equal(REMOTE_HOST)),
+                            with(equal(sessionPrincipal)), with(equal(REMOTE_HOST)),
                             with(any(Long.class)), with(any(Integer.class)));
                     BasicSession session =
                             new BasicSession(user + "-1", user, principal, REMOTE_HOST, 42L, 0);
@@ -134,7 +137,7 @@ public class DefaultSessionManagerTest
     public void testSuccessfulAuthentication()
     {
         final String user = "bla";
-        prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
+        prepareRemoteHostSessionFactoryAndPrefixGenerator(user, principal);
         context.checking(new Expectations()
             {
                 {
@@ -144,6 +147,42 @@ public class DefaultSessionManagerTest
             });
 
         final String token = sessionManager.tryToOpenSession("bla", "blub");
+        assertEquals("bla-1", token);
+        assertEquals(
+                "INFO  OPERATION.DefaultSessionManager - "
+                        + "LOGIN: User 'bla' has been successfully authenticated from host 'remote-host'. Session token: '"
+                        + token
+                        + "'."
+                        + OSUtilities.LINE_SEPARATOR
+                        + "INFO  AUTH.DefaultSessionManager - [USER:'bla', HOST:'remote-host']: login",
+                logRecorder.getLogContent());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSuccessfulAuthenticationWithEmailAddress()
+    {
+        final String user = "bla";
+        final String userEmail = "bla@blub.com";
+        final Principal sessionPrincipal =
+                new Principal(user, StringUtils.EMPTY, StringUtils.EMPTY, userEmail, false);
+        prepareRemoteHostSessionFactoryAndPrefixGenerator(user, sessionPrincipal);
+        context.checking(new Expectations()
+            {
+                {
+                    one(authenticationService).tryGetAndAuthenticateUser(userEmail, "blub");
+                    will(returnValue(null));
+                    one(authenticationService).supportsListingByEmail();
+                    will(returnValue(true));
+                    one(authenticationService).listPrincipalsByEmail(userEmail);
+                    will(returnValue(Arrays.asList(sessionPrincipal)));
+                    one(authenticationService).authenticateUser(user, "blub");
+                    will(returnValue(true));
+                }
+            });
+
+        final String token = sessionManager.tryToOpenSession(userEmail, "blub");
         assertEquals("bla-1", token);
         assertEquals(
                 "INFO  OPERATION.DefaultSessionManager - "
@@ -211,7 +250,7 @@ public class DefaultSessionManagerTest
     public void testExpirationOfSession()
     {
         final String user = "bla";
-        prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
+        prepareRemoteHostSessionFactoryAndPrefixGenerator(user, principal);
         context.checking(new Expectations()
             {
                 {
@@ -258,7 +297,7 @@ public class DefaultSessionManagerTest
     {
         final String user = "bla";
         final String password = "blub";
-        prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
+        prepareRemoteHostSessionFactoryAndPrefixGenerator(user, principal);
         context.checking(new Expectations()
             {
                 {
@@ -287,12 +326,14 @@ public class DefaultSessionManagerTest
     public void testTryToOpenSessionWithPrincipalProvider()
     {
         final String user = "u1";
-        prepareRemoteHostSessionFactoryAndPrefixGenerator(user);
+        final Principal sessionPrincipal =
+            new Principal(user, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, true);
+        prepareRemoteHostSessionFactoryAndPrefixGenerator(user, sessionPrincipal);
         context.checking(new Expectations()
             {
                 {
                     one(principalProvider).tryToGetPrincipal(user);
-                    will(returnValue(principal));
+                    will(returnValue(sessionPrincipal));
                 }
             });
 
