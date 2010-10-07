@@ -142,14 +142,19 @@ public interface IAuthenticationService extends ISelfTestable
 
     /**
      * Dummy operation, kept for backward compatibility. Don't use.
+     * 
+     * @deprecated This is a no-op.
      */
+    @Deprecated
     public String authenticateApplication();
 
     /**
      * Attempts authentication for the given user credentials.
      * 
      * @return <code>true</code> if the <var>user</var> has been successfully authenticated.
+     * @deprecated Use {@link #authenticateUser(String, String)}
      */
+    @Deprecated
     public boolean authenticateUser(String dummyToken, String user, String password);
 
     /**
@@ -164,7 +169,9 @@ public interface IAuthenticationService extends ISelfTestable
      *         otherwise. You can check with {@link Principal#isAuthenticated()} or
      *         {@link Principal#isAuthenticated(Principal)} whether the authentication request has
      *         been successful.
+     * @deprecated Use {@link #tryGetAndAuthenticateUser(String, String)}
      */
+    @Deprecated
     public Principal tryGetAndAuthenticateUser(String dummyToken, String user, String passwordOrNull);
 
     /**
@@ -173,7 +180,9 @@ public interface IAuthenticationService extends ISelfTestable
      * 
      * @return The <code>Principal</code> object for the given <var>user</var>.
      * @throws IllegalArgumentException If the <var>user</var> cannot be found.
+     * @deprecated Use {@link #getPrincipal(String)}
      */
+    @Deprecated
     public Principal getPrincipal(String dummyToken, String user) throws IllegalArgumentException;
 
     /**
@@ -185,7 +194,9 @@ public interface IAuthenticationService extends ISelfTestable
      *            <code>*</code>).
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
+     * @deprecated Use {@link #listPrincipalsByUserId(String)}
      */
+    @Deprecated
     public List<Principal> listPrincipalsByUserId(String dummyToken, String userIdQuery)
             throws IllegalArgumentException;
 
@@ -207,7 +218,9 @@ public interface IAuthenticationService extends ISelfTestable
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
+     * @deprecated Use {@link #tryGetAndAuthenticateUserByEmail(String, String)}
      */
+    @Deprecated
     public Principal tryGetAndAuthenticateUserByEmail(String dummyToken, String email,
             String passwordOrNull);
 
@@ -220,7 +233,9 @@ public interface IAuthenticationService extends ISelfTestable
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
+     * @deprecated Use {@link #listPrincipalsByEmail(String)}
      */
+    @Deprecated
     public List<Principal> listPrincipalsByEmail(String dummyToken, String emailQuery)
             throws IllegalArgumentException;
 
@@ -233,7 +248,9 @@ public interface IAuthenticationService extends ISelfTestable
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
      * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
+     * @deprecated {@link #listPrincipalsByLastName(String)}
      */
+    @Deprecated
     public List<Principal> listPrincipalsByLastName(String dummyToken, String lastNameQuery)
             throws IllegalArgumentException;
 

@@ -32,8 +32,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class StackedAuthenticationService implements IAuthenticationService
 {
-    private static final String DUMMY_TOKEN_STR = "DUMMY-TOKEN";
-
     private final List<IAuthenticationService> delegates;
 
     private final boolean remote;
@@ -66,14 +64,14 @@ public class StackedAuthenticationService implements IAuthenticationService
 
     public String authenticateApplication()
     {
-        return DUMMY_TOKEN_STR;
+        return "DUMMY-TOKEN";
     }
 
     public boolean authenticateUser(String dummyToken, String user, String password)
     {
         return authenticateUser(user, password);
     }
-    
+
     public boolean authenticateUser(String user, String password)
     {
         final Principal principalOrNull = tryGetAndAuthenticateUser(user, password);
@@ -84,10 +82,10 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         return getPrincipal(user);
     }
-    
+
     public Principal getPrincipal(String user) throws IllegalArgumentException
     {
-        final Principal principalOrNull = tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, null);
+        final Principal principalOrNull = tryGetAndAuthenticateUser(user, null);
         if (principalOrNull == null)
         {
             throw new IllegalArgumentException("Cannot find user '" + user + "'.");
@@ -99,13 +97,12 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         return tryGetAndAuthenticateUser(user, passwordOrNull);
     }
-    
+
     public Principal tryGetAndAuthenticateUser(String user, String passwordOrNull)
     {
         for (IAuthenticationService service : delegates)
         {
-            final Principal principal =
-                    service.tryGetAndAuthenticateUser(DUMMY_TOKEN_STR, user, passwordOrNull);
+            final Principal principal = service.tryGetAndAuthenticateUser(user, passwordOrNull);
             if (principal != null)
             {
                 return principal;
@@ -119,16 +116,13 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         return tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
     }
-    
-    public Principal tryGetAndAuthenticateUserByEmail(String email,
-            String passwordOrNull)
+
+    public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull)
     {
         for (IAuthenticationService service : delegates)
         {
             final Principal principal =
-                    service
-                            .tryGetAndAuthenticateUserByEmail(DUMMY_TOKEN_STR, email,
-                                    passwordOrNull);
+                    service.tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
             if (principal != null)
             {
                 return principal;
@@ -141,7 +135,7 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         return listPrincipalsByEmail(emailQuery);
     }
-    
+
     public List<Principal> listPrincipalsByEmail(String emailQuery)
     {
         if (supportsListingByEmail == false)
@@ -153,7 +147,7 @@ public class StackedAuthenticationService implements IAuthenticationService
         {
             if (service.supportsListingByEmail())
             {
-                principals.addAll(service.listPrincipalsByEmail(DUMMY_TOKEN_STR, emailQuery));
+                principals.addAll(service.listPrincipalsByEmail(emailQuery));
             }
         }
         return principals;
@@ -163,7 +157,7 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         return listPrincipalsByLastName(lastNameQuery);
     }
-    
+
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
     {
         if (supportsListingByLastName == false)
@@ -175,7 +169,7 @@ public class StackedAuthenticationService implements IAuthenticationService
         {
             if (service.supportsListingByLastName())
             {
-                principals.addAll(service.listPrincipalsByLastName(DUMMY_TOKEN_STR, lastNameQuery));
+                principals.addAll(service.listPrincipalsByLastName(lastNameQuery));
             }
         }
         return principals;
@@ -185,7 +179,7 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         return listPrincipalsByUserId(userIdQuery);
     }
-    
+
     public List<Principal> listPrincipalsByUserId(String userIdQuery)
     {
         if (supportsListingByUserId == false)
@@ -197,7 +191,7 @@ public class StackedAuthenticationService implements IAuthenticationService
         {
             if (service.supportsListingByUserId())
             {
-                principals.addAll(service.listPrincipalsByUserId(DUMMY_TOKEN_STR, userIdQuery));
+                principals.addAll(service.listPrincipalsByUserId(userIdQuery));
             }
         }
         return principals;

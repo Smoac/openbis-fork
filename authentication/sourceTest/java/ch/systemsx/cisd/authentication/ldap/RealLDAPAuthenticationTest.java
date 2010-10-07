@@ -60,14 +60,13 @@ public class RealLDAPAuthenticationTest
     @Test(groups = "broken")
     public void testAuthenticateUser()
     {
-        assertTrue(service.authenticateUser("doesntmatter", USER_ID_TO_AUTHENTICATE,
-                USER_PASSWORD_TO_AUTHENTICATE));
+        assertTrue(service.authenticateUser(USER_ID_TO_AUTHENTICATE, USER_PASSWORD_TO_AUTHENTICATE));
     }
 
     @Test(groups = "broken")
     public void testAuthenticateUserByEmailAlias()
     {
         assertTrue(Principal.isAuthenticated(service.tryGetAndAuthenticateUserByEmail(
-                "doesntmatter", MAIL_ALIAS_OF_USER, USER_PASSWORD_TO_AUTHENTICATE)));
+                MAIL_ALIAS_OF_USER, USER_PASSWORD_TO_AUTHENTICATE)));
     }
 }

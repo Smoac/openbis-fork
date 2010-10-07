@@ -45,8 +45,6 @@ import ch.systemsx.cisd.authentication.Principal;
 public class RealCrowdAuthenticationTest
 {
 
-    private static final String DUMMY_TOKEN = "DUMMY";
-    
     private static final String PORT_OF_AUTHENTICATION_SERVICE = null; // FIX!
 
     private static final String HOST_NAME_OF_AUTHENTICATION_SERVICE = null; // FIX!
@@ -66,8 +64,8 @@ public class RealCrowdAuthenticationTest
                 new CrowdAuthenticationService(HOST_NAME_OF_AUTHENTICATION_SERVICE,
                         PORT_OF_AUTHENTICATION_SERVICE, NAME_OF_TEST_APPLICATION,
                         PASSWORD_OF_TEST_APPLICATION);
-        assertTrue(as.authenticateUser(DUMMY_TOKEN, NAME_OF_TEST_USER, PASSWORD_OF_TEST_USER));
-        final Principal p = as.getPrincipal(DUMMY_TOKEN, NAME_OF_TEST_USER);
+        assertTrue(as.authenticateUser(NAME_OF_TEST_USER, PASSWORD_OF_TEST_USER));
+        final Principal p = as.getPrincipal(NAME_OF_TEST_USER);
         assertEquals(NAME_OF_TEST_USER, p.getUserId());
         System.out.println("firstName=" + p.getFirstName());
         System.out.println("lastName=" + p.getLastName());
@@ -86,7 +84,7 @@ public class RealCrowdAuthenticationTest
                         PORT_OF_AUTHENTICATION_SERVICE, NAME_OF_TEST_APPLICATION,
                         PASSWORD_OF_TEST_APPLICATION);
         final Principal principal =
-                as.tryGetAndAuthenticateUser(DUMMY_TOKEN, NAME_OF_TEST_USER, PASSWORD_OF_TEST_USER);
+                as.tryGetAndAuthenticateUser(NAME_OF_TEST_USER, PASSWORD_OF_TEST_USER);
         assertNotNull(principal);
         assertEquals(NAME_OF_TEST_USER, principal.getUserId());
         assertTrue(principal.isAuthenticated());

@@ -51,8 +51,6 @@ public class CrowdAuthenticationServiceTest
 
     private static final String APPLICATION_PASSWORD_ESCAPED = "&lt;password&gt;";
 
-    private static final String APPLICATION_TOKEN = "DUMMY-TOKEN";
-
     private static final String APPLICATION_TOKEN_ESACPED = "application&lt;&amp;&gt;token";
 
     private static final String USER = "<user>";
@@ -115,7 +113,7 @@ public class CrowdAuthenticationServiceTest
                 }
             });
         final boolean result =
-                authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
+                authenticationService.authenticateUser(USER, USER_PASSWORD);
         assertEquals(true, result);
         assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
                 + "' successfully authenticated.")
@@ -150,7 +148,7 @@ public class CrowdAuthenticationServiceTest
                 }
             });
         final boolean result =
-                authenticationService.authenticateUser(APPLICATION_TOKEN, USER, USER_PASSWORD);
+                authenticationService.authenticateUser(USER, USER_PASSWORD);
         assertEquals(false, result);
         assertEquals(createDebugLogEntry("CROWD: application '" + APPLICATION
                 + "' successfully authenticated.")
@@ -199,7 +197,7 @@ public class CrowdAuthenticationServiceTest
                             + value + "</ns1:string></values></SOAPAttribute>";
                 }
             });
-        final Principal result = authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
+        final Principal result = authenticationService.getPrincipal(USER);
         assertEquals("Justen", result.getFirstName());
         assertEquals("Stepka", result.getLastName());
         assertEquals("justen.stepka@atlassian.com", result.getEmail());
@@ -235,7 +233,7 @@ public class CrowdAuthenticationServiceTest
             });
         try
         {
-            authenticationService.getPrincipal(APPLICATION_TOKEN, USER);
+            authenticationService.getPrincipal(USER);
             fail("EnvironmentFailureException expected");
         } catch (final IllegalArgumentException e)
         {

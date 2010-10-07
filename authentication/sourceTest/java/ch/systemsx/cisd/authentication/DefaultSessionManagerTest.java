@@ -138,8 +138,7 @@ public class DefaultSessionManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).tryGetAndAuthenticateUser(null, user,
-                            "blub");
+                    one(authenticationService).tryGetAndAuthenticateUser(user, "blub");
                     will(returnValue(principal));
                 }
             });
@@ -165,7 +164,7 @@ public class DefaultSessionManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).tryGetAndAuthenticateUser(null, user, "blub");
+                    one(authenticationService).tryGetAndAuthenticateUser(user, "blub");
                     will(returnValue(null));
 
                     allowing(remoteHostProvider).getRemoteHost();
@@ -218,8 +217,7 @@ public class DefaultSessionManagerTest
                 {
                     one(authenticationService).check();
 
-                    one(authenticationService).tryGetAndAuthenticateUser(null, user,
-                            "blub");
+                    one(authenticationService).tryGetAndAuthenticateUser(user, "blub");
                     will(returnValue(principal));
                 }
             });
@@ -264,8 +262,7 @@ public class DefaultSessionManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(authenticationService).tryGetAndAuthenticateUser(null, user,
-                            password);
+                    one(authenticationService).tryGetAndAuthenticateUser(user, password);
                     will(returnValue(principal));
                 }
             });
@@ -298,9 +295,9 @@ public class DefaultSessionManagerTest
                     will(returnValue(principal));
                 }
             });
-        
+
         String token = sessionManager.tryToOpenSession(user, principalProvider);
-        
+
         assertEquals(user + "-1", token);
         assertEquals(
                 "INFO  OPERATION.DefaultSessionManager - "

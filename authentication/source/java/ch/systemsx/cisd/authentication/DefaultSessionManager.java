@@ -343,7 +343,7 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             {
                 public Principal tryToGetPrincipal(String userID)
                 {
-                    return authenticationService.tryGetAndAuthenticateUser(null, user, password);
+                    return authenticationService.tryGetAndAuthenticateUser(user, password);
                 }
             });
     }
