@@ -114,7 +114,7 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
 
         public String tryGetLink(TableModelRow entity)
         {
-            return null; 
+            return null;
         }
 
         // GWT only
@@ -200,10 +200,10 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     protected final boolean isRefreshEnabled()
     {
         /**
-         * Refresh is not possible. The reason is that we would have to regenerate the report using
-         * the datasets selected in another tab. But this tab may no longer exist!
+         * The refresh doesn't regenerate the whole report but only refreshes the content of the
+         * table with current filters.
          */
-        return false;
+        return true;
     }
 
     @Override
