@@ -253,7 +253,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         assert persons.size() > 0 : "At least system user should be in the database";
         // If only one user (system user), then this is the first logged user.
         final boolean isFirstLoggedUser = (persons.size() == 1);
-        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(user);
+        PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(session.getUserName());
         if (person == null)
         {
             final PersonPE systemUser = getSystemUser(persons);

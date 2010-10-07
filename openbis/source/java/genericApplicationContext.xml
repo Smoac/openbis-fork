@@ -60,6 +60,8 @@
         </constructor-arg>
         <!-- The time after which an inactive session is expired by the service (in minutes). -->
         <constructor-arg value="${session-timeout}" />
+        <!-- Enable login with email addresses -->
+        <constructor-arg value="true" />
     </bean>
     
     <bean id="remote-host-validator" class="ch.systemsx.cisd.openbis.generic.server.WhiteListBasedRemoteHostValidator">
