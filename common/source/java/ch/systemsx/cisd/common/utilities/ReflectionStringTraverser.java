@@ -222,7 +222,7 @@ public class ReflectionStringTraverser
     // array[index] contains collection of primitive types which will be modified if necessary
     private void visitStringCollectionArrayElement(Object array, int index, Object collection)
     {
-        Collection newCollection = visitStringCollection(collection);
+        Collection<String> newCollection = visitStringCollection(collection);
         Array.set(array, index, newCollection);
     }
 
