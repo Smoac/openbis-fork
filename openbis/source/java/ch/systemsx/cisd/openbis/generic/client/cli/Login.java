@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.cli;
+package ch.systemsx.cisd.openbis.generic.client.cli;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,11 +35,12 @@ import org.apache.log4j.varia.NullAppender;
 import ch.systemsx.cisd.args4j.Argument;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.Option;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * A class to provide a login on an openBIS screening server that can be used by the Matlab API.
+ * A class to provide a login on an openBIS server. The login information will be put into a
+ * sub-directory of the user's home directory.
  * 
  * @author Bernd Rinn
  */
@@ -197,15 +198,20 @@ public class Login
             {
                 throw new RuntimeException("Password empty.");
             }
-            final IScreeningOpenbisServiceFacade service =
-                    ScreeningOpenbisServiceFacadeFactory.tryCreate(params.getUser(), password,
+            ServiceFinder generalInformationServiceFinder =
+                    new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+            IGeneralInformationService service =
+                    generalInformationServiceFinder.createService(IGeneralInformationService.class,
                             params.getServer());
-            if (service == null)
+            // Log in
+            String sessionToken =
+                    service.tryToAuthenticateForAllServices(params.getUser(), password);
+
+            if (sessionToken == null)
             {
                 throw new RuntimeException("Login failed.");
             }
-            final String token = service.getSessionToken();
-            write(params.getServer(), params.getUser(), token);
+            write(params.getServer(), params.getUser(), sessionToken);
         } catch (RuntimeException ex)
         {
             String msg = ex.getMessage();

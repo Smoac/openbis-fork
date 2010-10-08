@@ -29,10 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
-import ch.systemsx.cisd.openbis.plugin.screening.client.cli.Login;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -74,7 +74,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  * 
  * <i>Note: using this login your password will end up in the Matlab command history. An alternative
  * that avoids this is to call the
- * {@link ch.systemsx.cisd.openbis.plugin.screening.client.cli.Login} class. Logging in on the
+ * {@link ch.systemsx.cisd.openbis.generic.client.cli.Login} class. Logging in on the
  * console will grant this class access to the openBIS server.</i>
  * 
  * @author Bernd Rinn

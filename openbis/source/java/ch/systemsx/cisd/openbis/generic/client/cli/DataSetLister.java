@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.api.v1;
+package ch.systemsx.cisd.openbis.generic.client.cli;
 
 import java.io.IOException;
 import java.util.List;

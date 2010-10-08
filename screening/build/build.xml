@@ -17,6 +17,7 @@
   <property name="dist.screening-api.javadoc.zip" value="${dist.screening-api}/openbis_screening_api_javadoc.zip" />
 
 	<property name="classes.screening" value="../screening/targets/ant/classes" />
+	<property name="classes.openbis" value="../openbis/targets/ant/classes" />
 	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
   <property name="classes.common" value="../common/targets/ant/classes" />
 		
@@ -207,11 +208,16 @@
       </manifest>
     </recursive-jar>
   	<jar update="true" destfile="${dist.screening-api.jar}">
+  		<fileset dir="${classes.openbis}">
+  		     	<include name="ch/systemsx/cisd/openbis/generic/client/cli/Login*.class" />
+			     	<include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**/*.class" />
+  		</fileset> 
   		<fileset dir="${classes.common-server}">
   		     	<include name="ch/systemsx/cisd/common/spring/HttpInvokerUtils.class" />
   		</fileset> 
       <fileset dir="${classes.common}">
             <include name="ch/systemsx/cisd/common/exceptions/**/*.class" />
+		        <include name="ch/systemsx/cisd/common/api/*.class" />
             <include name="ch/systemsx/cisd/common/io/ConcatenatedFileOutputStreamWriter.class" />
       </fileset> 
     </jar>
