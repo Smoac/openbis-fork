@@ -78,8 +78,12 @@ public class LuceneQueryBuilder
                 (useWildcardSearchMode == true) ? CHARS_ESCAPED_IN_WILCARD_MODE
                         : CHARS_ESCAPED_IN_BASIC_MODE;
         String result = escapeQuery(userQuery, escapedChars);
-        // add '*' wildcard at the beginning and at the end of the query in basic search mode
-        if (useWildcardSearchMode == false && isQuoted(result) == false)
+        // add '*' wildcard at the beginning and at the end of the query if all conditions are met:
+        // 1. in basic search mode
+        // 2. query is not in quotes
+        // 3. query doesn't contain '*'
+        if (useWildcardSearchMode == false && isQuoted(result) == false
+                && result.contains("*") == false)
         {
             result = addWildcards(result);
         }
