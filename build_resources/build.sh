@@ -1,16 +1,11 @@
 #! /bin/sh
 
 if [ $# -eq 0 ]; then
-    echo "Usage is $0 [--private] [--revision <revision>] <project name> [<version>]"
+    echo "Usage is $0 [--revision <revision>] <project name> [<version>]"
     exit 1
 fi
 
-protocol=http
-if [ "$1" = "--private" ]; then
-	protocol=svn+ssh
-	shift
-fi
-repository=$protocol://svncisd.ethz.ch/repos
+repository=svn+ssh://svncisd.ethz.ch/repos
 if [ "$1" = "--revision" ]; then
 	shift
 	revision="$1"
