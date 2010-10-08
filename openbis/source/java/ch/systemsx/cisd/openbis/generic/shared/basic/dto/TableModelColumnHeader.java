@@ -20,8 +20,6 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-
 /**
  * Column header for {@link TableModel}.
  * 
@@ -48,10 +46,8 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     public TableModelColumnHeader(String title, String id, int index)
     {
         // NOTE: id shouldn't contain spaces or some features of columns (e.g. links) will not work
-        assert StringUtils.isBlank(id) == false;
-        assert id.contains(" ") == false;
+        this.id = id.replaceAll(" ", "_");
         this.title = title;
-        this.id = id;
         this.index = index;
     }
 
