@@ -261,9 +261,9 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    protected Session createSession()
+    protected Session createSession(String user)
     {
-        return new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 2);
+        return new Session(user, SESSION_TOKEN, PRINCIPAL, "remote-host", 2);
     }
 
     protected void prepareGetSession()

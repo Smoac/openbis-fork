@@ -134,7 +134,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testLogout()
     {
-        final Session session = createSession();
+        final Session session = createSession(CommonTestUtils.USER_ID);
         context.checking(new Expectations()
             {
                 {
@@ -153,7 +153,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession();
+        final Session session = createSession(user);
         context.checking(new Expectations()
             {
                 {
@@ -176,7 +176,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession();
+        final Session session = createSession(user);
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -223,7 +223,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession();
+        final Session session = createSession(user);
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -260,7 +260,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final String user = "user";
         final String password = "password";
-        final Session session = createSession();
+        final Session session = createSession(user);
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
@@ -294,7 +294,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
         final GroupPE g1 = CommonTestUtils.createGroup("g1", homeDatabaseInstance);
         final GroupPE g2 = CommonTestUtils.createGroup("g2", homeDatabaseInstance);
-        final Session session = createSession();
+        final Session session = createSession(CommonTestUtils.USER_ID);
         session.setPerson(person);
         person.setHomeGroup(g1);
         g1.setId(42L);
@@ -1365,7 +1365,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    Session session = createSession();
+                    Session session = createSession(CommonTestUtils.USER_ID);
                     session.setPerson(person);
                     will(returnValue(session));
 
@@ -1391,7 +1391,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    Session session = createSession();
+                    Session session = createSession(CommonTestUtils.USER_ID);
                     session.setPerson(person);
                     will(returnValue(session));
 
@@ -1420,7 +1420,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
-                    Session session = createSession();
+                    Session session = createSession(CommonTestUtils.USER_ID);
                     session.setPerson(person);
                     will(returnValue(session));
                 }
