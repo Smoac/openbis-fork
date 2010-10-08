@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
@@ -49,8 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class TypedTableGrid<T extends IsSerializable>
@@ -59,7 +56,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
 {
     private final Map<String, ICellListenerAndLinkGenerator<T>> listenerLinkGenerators =
             new HashMap<String, ICellListenerAndLinkGenerator<T>>();
-    
+
     private List<TableModelColumnHeader> headers;
 
     private Map<String, IColumnDefinition<TableModelRowWithObject<T>>> columnDefinitions;
@@ -75,7 +72,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     {
         super(viewContext, gridId, displayTypeIDGenerator);
     }
-    
+
     /**
      * Lists table rows. Implementations of this method usually call a server method.
      */
@@ -105,7 +102,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 String id = header.getId();
                 if (listenerLinkGenerators.containsKey(id))
                 {
-                    definitions.setGridCellRendererFor(id, LinkRenderer.createLinkRenderer());
+                    definitions.setGridCellRendererFor(id, createInternalLinkCellRenderer());
                 }
                 if (header.getDataType() == DataTypeCode.REAL)
                 {
@@ -122,10 +119,10 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     {
         return new BaseEntityModel<TableModelRowWithObject<T>>(entity, createColDefinitions());
     }
-    
+
     /**
-     * Registers for the specified column a cell listener and link generator.
-     * This method should be called in the constructor. 
+     * Registers for the specified column a cell listener and link generator. This method should be
+     * called in the constructor.
      */
     protected void registerListenerAndLinkGenerator(String columnID,
             final ICellListenerAndLinkGenerator<T> listenerLinkGenerator)
@@ -133,7 +130,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
         listenerLinkGenerators.put(columnID, listenerLinkGenerator);
         registerLinkClickListenerFor(columnID, listenerLinkGenerator);
     }
-    
+
     private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> createColDefinitions()
     {
         List<IColumnDefinitionUI<TableModelRowWithObject<T>>> list =
@@ -147,7 +144,8 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 {
                     title = viewContext.getMessage(header.getId());
                 }
-                ICellListenerAndLinkGenerator<T> linkGeneratorOrNull = listenerLinkGenerators.get(header.getId());
+                ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
+                        listenerLinkGenerators.get(header.getId());
                 list.add(new TypedTableGridColumnDefinitionUI<T>(header, title, linkGeneratorOrNull));
             }
         }
@@ -184,7 +182,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     {
         return true;
     }
-    
+
     @Override
     protected void refresh()
     {
@@ -192,15 +190,17 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     }
 
     @Override
-    protected void showEntityViewer(TableModelRowWithObject<T> entity, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(TableModelRowWithObject<T> entity, boolean editMode,
+            boolean inBackground)
     {
     }
 
     @Override
     protected List<IColumnDefinition<TableModelRowWithObject<T>>> getInitialFilters()
     {
-        
-        List<IColumnDefinition<TableModelRowWithObject<T>>> definitions = new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>();
+
+        List<IColumnDefinition<TableModelRowWithObject<T>>> definitions =
+                new ArrayList<IColumnDefinition<TableModelRowWithObject<T>>>();
         List<String> ids = getColumnIdsOfFilters();
         for (String id : ids)
         {
@@ -212,12 +212,12 @@ public abstract class TypedTableGrid<T extends IsSerializable>
         }
         return definitions;
     }
-    
+
     protected List<String> getColumnIdsOfFilters()
     {
-        return Collections.<String>emptyList();
+        return Collections.<String> emptyList();
     }
-    
+
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[] {};

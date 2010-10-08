@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Matc
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
@@ -52,9 +51,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * A {@link LayoutContainer} extension which displays the matching entities.
@@ -67,8 +66,8 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
 
     static final String GRID_ID = PREFIX + "grid";
 
-    public static final String SHOW_RELATED_DATASETS_BUTTON_ID =
-            GRID_ID + "_show-related-datasets-button";
+    public static final String SHOW_RELATED_DATASETS_BUTTON_ID = GRID_ID
+            + "_show-related-datasets-button";
 
     private final SearchableEntity searchableEntity;
 
@@ -171,10 +170,10 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     protected ColumnDefsAndConfigs<MatchingEntity> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<MatchingEntity> schema =
-                BaseEntityModel.createColumnConfigs(MatchingEntityModel
-                        .getStaticColumnsDefinition(), viewContext);
-        schema.setGridCellRendererFor(MatchingEntityColumnKind.IDENTIFIER.id(), LinkRenderer
-                .createLinkRenderer());
+                BaseEntityModel.createColumnConfigs(
+                        MatchingEntityModel.getStaticColumnsDefinition(), viewContext);
+        schema.setGridCellRendererFor(MatchingEntityColumnKind.IDENTIFIER.id(),
+                createInternalLinkCellRenderer());
         return schema;
     }
 

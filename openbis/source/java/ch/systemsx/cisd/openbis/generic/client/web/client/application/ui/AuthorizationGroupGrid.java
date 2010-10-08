@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AuthorizationGroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
@@ -69,8 +68,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<AuthorizationGroup>
 {
-    public static final String BROWSER_ID =
-            GenericConstants.ID_PREFIX + "authorization-group-browser";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX
+            + "authorization-group-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
@@ -176,7 +175,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
         ColumnDefsAndConfigs<AuthorizationGroup> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(GroupColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
-        schema.setGridCellRendererFor(GroupColDefKind.CODE.id(), LinkRenderer.createLinkRenderer());
+        schema.setGridCellRendererFor(GroupColDefKind.CODE.id(), createInternalLinkCellRenderer());
         return schema;
     }
 

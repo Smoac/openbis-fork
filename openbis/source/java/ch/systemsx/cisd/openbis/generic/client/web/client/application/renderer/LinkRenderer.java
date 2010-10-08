@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
@@ -43,21 +44,38 @@ public class LinkRenderer
 {
     private static final String LINK_STYLE = "link-style";
 
-    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(
+            final boolean renderOriginalValueForEmptyToken)
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
-            {// TODO 2010-05-18, IA: almost the same as
-             // InternalLinkCellRenderer#createLinkRenderer()
+            {
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
                 {
-                    String text = model.get(property).toString();
-                    String tokenOrNull = model.tryGetLink(property);
-                    String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
-                    return LinkRenderer.renderAsLinkWithAnchor(text, href, false);
+                    if (model.get(property) == null)
+                    {
+                        return "";
+                    } else
+                    {
+                        String originalValue = model.get(property).toString();
+                        String tokenOrNull = model.tryGetLink(property);
+                        if (tokenOrNull == null && renderOriginalValueForEmptyToken)
+                        {
+                            return new MultilineHTML(originalValue).toString();
+                        } else
+                        {
+                            String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
+                            return LinkRenderer.renderAsLinkWithAnchor(originalValue, href, false);
+                        }
+                    }
                 }
             };
+    }
+
+    public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
+    {
+        return createLinkRenderer(false);
     }
 
     public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer(final String text)

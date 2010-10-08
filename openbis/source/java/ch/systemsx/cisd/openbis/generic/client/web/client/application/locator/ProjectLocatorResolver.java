@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
@@ -82,7 +83,8 @@ public class ProjectLocatorResolver extends AbstractViewLocatorResolver
         protected final void process(final Project result)
         {
             // TODO 2010-05-03, Piotr Buczek: Project data are loaded twice
-            OpenEntityDetailsTabHelper.open(viewContext, result, false);
+            final String href = LinkExtractor.tryExtract(result);
+            OpenEntityDetailsTabHelper.open(viewContext, result, false, href);
         }
     }
 

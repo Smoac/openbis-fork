@@ -481,15 +481,15 @@ public final class PropertyValueRenderers
         public Widget getAsWidget(final Project project)
         {
             final String displayText = project.getIdentifier();
+            final String href = LinkExtractor.tryExtract(project);
             final ClickHandler listener = new ClickHandler()
                 {
                     public void onClick(ClickEvent event)
                     {
-                        OpenEntityDetailsTabHelper.open(viewContext, project, WidgetUtils
-                                .ifSpecialKeyPressed(event.getNativeEvent()));
+                        OpenEntityDetailsTabHelper.open(viewContext, project,
+                                WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()), href);
                     }
                 };
-            String href = LinkExtractor.tryExtract(project);
             final Widget link = LinkRenderer.getLinkWidget(displayText, listener, href, false);
 
             return link;

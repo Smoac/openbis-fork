@@ -80,7 +80,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InternalLinkCellRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger;
@@ -782,7 +782,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             }
             return result;
         }
-        
+
         @Override
         /* Note: we want to differentiate between callbacks in different subclasses of this grid. */
         public String getCallbackId()
@@ -790,7 +790,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             return grid.getId();
         }
     }
-
 
     // wraps this browser into the interface appropriate for the toolbar. If this class would just
     // implement the interface it could be very confusing for the code reader.
@@ -1409,7 +1408,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected final GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
     {
-        return new InternalLinkCellRenderer();
+        return LinkRenderer.createLinkRenderer();
     }
 
     // ------- generic static helpers

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -151,8 +152,9 @@ public class ExperimentBrowserGrid extends
                     {
                         public void handle(Experiment rowItem, boolean keyPressed)
                         {
-                            OpenEntityDetailsTabHelper.open(viewContext, rowItem.getProject(),
-                                    keyPressed);
+                            final Project project = rowItem.getProject();
+                            final String href = LinkExtractor.tryExtract(project);
+                            OpenEntityDetailsTabHelper.open(viewContext, project, keyPressed, href);
                         }
                     });
         setId(BROWSER_ID);

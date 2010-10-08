@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
@@ -231,7 +230,7 @@ public class MaterialBrowserGrid extends
                 getColumnsFactory().createColumnsSchema(viewContext,
                         criteria.getListCriteria().getMaterialType());
         schema.setGridCellRendererFor(CommonMaterialColDefKind.CODE.id(),
-                LinkRenderer.createLinkRenderer());
+                createInternalLinkCellRenderer());
         return schema;
     }
 

@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -54,8 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.InternalAbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.ProteinColDefKind;
@@ -72,8 +71,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
 {
     private static final String ABUNDANCE_PROPERTY_KEY = "ABUNDANCE";
 
-    private static final String PREFIX =
-            GenericConstants.ID_PREFIX + "protein-by-experiment-browser";
+    private static final String PREFIX = GenericConstants.ID_PREFIX
+            + "protein-by-experiment-browser";
 
     // browser consists of the grid and additional toolbars (paging, filtering)
     public static final String BROWSER_ID = PREFIX + "_main";
@@ -151,8 +150,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     }
 
     private ProteinByExperimentBrowserGrid(
-            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            Experiment experiment)
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, Experiment experiment)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
@@ -165,8 +163,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                         public void handle(ProteinInfo rowItem, boolean keyPressed)
                         {
                             AbstractTabItemFactory tabItemFactory =
-                                    ProteinViewer.createTabItemFactory(viewContext, toolbar
-                                            .getExperimentOrNull(), rowItem);
+                                    ProteinViewer.createTabItemFactory(viewContext,
+                                            toolbar.getExperimentOrNull(), rowItem);
                             tabItemFactory.setInBackground(keyPressed);
                             DispatcherHelper.dispatchNaviEvent(tabItemFactory);
                         }
@@ -229,8 +227,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
             columns.add(columnDefinition);
         }
         definitions.addColumns(columns);
-        definitions.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(), LinkRenderer
-                .createLinkRenderer());
+        definitions.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
+                createInternalLinkCellRenderer());
         RealNumberRenderer renderer =
                 new RealNumberRenderer(viewContext.getDisplaySettingsManager()
                         .getRealNumberFormatingParameters());

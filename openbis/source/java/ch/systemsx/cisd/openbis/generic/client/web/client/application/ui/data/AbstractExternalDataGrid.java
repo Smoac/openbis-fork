@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -321,7 +320,7 @@ public abstract class AbstractExternalDataGrid
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<ExternalData> schema = createColumnsSchema();
-        GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createLinkRenderer();
+        GridCellRenderer<BaseEntityModel<?>> linkRenderer = createInternalLinkCellRenderer();
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
                 linkRenderer);

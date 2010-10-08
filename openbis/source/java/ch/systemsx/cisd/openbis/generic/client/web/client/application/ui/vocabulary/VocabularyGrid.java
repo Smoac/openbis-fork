@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
@@ -61,8 +60,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * Grid displaying vocabularies.
@@ -188,8 +187,8 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     protected ColumnDefsAndConfigs<Vocabulary> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<Vocabulary> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(VocabularyColDefKind.CODE.id(), LinkRenderer
-                .createLinkRenderer());
+        schema.setGridCellRendererFor(VocabularyColDefKind.CODE.id(),
+                createInternalLinkCellRenderer());
         schema.setGridCellRendererFor(VocabularyColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         return schema;
@@ -245,8 +244,8 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 @Override
                 public String getTabTitle()
                 {
-                    return viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER, vocabulary
-                            .getCode());
+                    return viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER,
+                            vocabulary.getCode());
                 }
             };
         tabFactory.setInBackground(inBackground);

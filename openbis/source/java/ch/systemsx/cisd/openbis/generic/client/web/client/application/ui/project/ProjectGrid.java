@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -55,8 +54,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
  * Grid displaying projects.
@@ -159,8 +158,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     protected ColumnDefsAndConfigs<Project> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<Project> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(ProjectColDefKind.CODE.id(), LinkRenderer
-                .createLinkRenderer());
+        schema.setGridCellRendererFor(ProjectColDefKind.CODE.id(), createInternalLinkCellRenderer());
         schema.setGridCellRendererFor(ProjectColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         return schema;

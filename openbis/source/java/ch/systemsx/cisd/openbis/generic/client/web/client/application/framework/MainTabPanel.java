@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -85,7 +87,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         final MainTabItem intro =
                 new MainTabItem(
                         DefaultTabItem.createUnaware(BLANK_TAB_TITLE, mainComponent, false),
-                        mainComponent.getId(), null);
+                        mainComponent.getId(), null, null);
         intro.setClosable(false);
         return intro;
     }
@@ -116,10 +118,12 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             // 'ID_PREFIX'. We want the user to set an unique id.
             assert tabId.startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
             final HelpPageIdentifier helpId = tabItemFactory.getHelpPageIdentifier();
+            final String permlinkOrNull = tabItemFactory.tryGetPermlink();
             assert helpId != null : "Unspecified help identifier";
-            final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId, helpId);
+            final MainTabItem newTab =
+                    new MainTabItem(tabItemFactory.create(), tabId, helpId, permlinkOrNull);
             // WORKAROUND to fix problems when paging toolbar's layout is performed in a hidden tab
-            newTab.setHideMode(HideMode.OFFSETS); 
+            newTab.setHideMode(HideMode.OFFSETS);
             add(newTab);
             openTabs.put(tabId, newTab);
             maybeActivate(newTab, inBackground);
@@ -143,6 +147,12 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         }
     }
 
+    // context menu
+
+    private MenuItem helpMenuItem;
+
+    private MenuItem bookmarkMenuItem;
+
     @Override
     protected void onItemContextMenu(TabItem item, int x, int y)
     {
@@ -159,27 +169,59 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         // refresh the menu
         if (shouldInitializeContextMenu)
         {
-            MenuItem menuItem = new MenuItem("Help", new SelectionListener<MenuEvent>()
-                {
-                    @Override
-                    public void componentSelected(MenuEvent ce)
-                    {
-                        MainTabItem selectedTab = (MainTabItem) ce.getContainer().getData("tab");
-                        URLMethodWithParameters url =
-                                new URLMethodWithParameters(
-                                        GenericConstants.HELP_REDIRECT_SERVLET_NAME);
-                        HelpPageIdentifier helpPageId = selectedTab.getHelpPageIdentifier();
-                        url.addParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY,
-                                helpPageId.getHelpPageTitle(viewContext));
-                        url.addParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY,
-                                Boolean.toString(helpPageId.isSpecific()));
-                        WindowUtils.openWindow(URL.encode(url.toString()));
-                    }
-                });
-            closeContextMenu.add(menuItem);
+            helpMenuItem = createHelpMenuItem();
+            bookmarkMenuItem = createBookmarkMenuItem();
+            closeContextMenu.add(helpMenuItem);
+            closeContextMenu.add(bookmarkMenuItem);
             super.onItemContextMenu(item, x, y);
         }
+        boolean bookmarkNotAvailable = ((MainTabItem) item).getPermlinkOrNull() == null;
+        bookmarkMenuItem.setEnabled(bookmarkNotAvailable == false);
+    }
 
+    private MenuItem createHelpMenuItem()
+    {
+        return new MenuItem("Help", new SelectionListener<MenuEvent>()
+            {
+                @Override
+                public void componentSelected(MenuEvent ce)
+                {
+                    MainTabItem selectedTab = (MainTabItem) ce.getContainer().getData("tab");
+                    URLMethodWithParameters url =
+                            new URLMethodWithParameters(GenericConstants.HELP_REDIRECT_SERVLET_NAME);
+                    HelpPageIdentifier helpPageId = selectedTab.getHelpPageIdentifier();
+                    url.addParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY,
+                            helpPageId.getHelpPageTitle(viewContext));
+                    url.addParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY,
+                            Boolean.toString(helpPageId.isSpecific()));
+                    WindowUtils.openWindow(URL.encode(url.toString()));
+                }
+            });
+    }
+
+    private MenuItem createBookmarkMenuItem()
+    {
+        return new MenuItem(viewContext.getMessage(Dict.PERMLINK),
+                new SelectionListener<MenuEvent>()
+                    {
+                        @Override
+                        public void componentSelected(MenuEvent ce)
+                        {
+                            MainTabItem selectedTab =
+                                    (MainTabItem) ce.getContainer().getData("tab");
+                            String permlinkToken = selectedTab.getPermlinkOrNull();
+                            assert permlinkToken != null;
+                            URLMethodWithParameters permlink = new URLMethodWithParameters("");
+                            permlink.addHistoryToken(permlinkToken);
+                            String link =
+                                    LinkRenderer.renderAsLinkWithAnchor("link",
+                                            permlink.toString(), false);
+                            MessageBox.info(viewContext.getMessage(Dict.PERMLINK), "Copy this "
+                                    + link
+                                    + " and use it to access openBIS with current tab opened.",
+                                    null);
+                        }
+                    });
     }
 
     //
@@ -191,14 +233,17 @@ public class MainTabPanel extends TabPanel implements IMainPanel
 
         private final String idPrefix;
 
+        private final String permlinkOrNull;
+
         private final HelpPageIdentifier helpPageIdentifier;
 
         public MainTabItem(final ITabItem tabItem, final String idPrefix,
-                final HelpPageIdentifier helpPageIdentifier)
+                final HelpPageIdentifier helpPageIdentifier, String permlinkOrNull)
         {
             this.tabItem = tabItem;
             this.idPrefix = idPrefix;
             this.helpPageIdentifier = helpPageIdentifier;
+            this.permlinkOrNull = permlinkOrNull;
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
@@ -217,6 +262,11 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         public HelpPageIdentifier getHelpPageIdentifier()
         {
             return helpPageIdentifier;
+        }
+
+        public String getPermlinkOrNull()
+        {
+            return permlinkOrNull;
         }
 
         @Override

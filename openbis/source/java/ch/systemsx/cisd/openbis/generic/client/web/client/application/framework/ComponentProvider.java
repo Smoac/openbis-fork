@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Authori
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetBatchUpdatePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
@@ -134,6 +135,13 @@ public final class ComponentProvider
                 {
 
                     return getMessage(Dict.SAMPLE_BROWSER);
+                }
+
+                @Override
+                public String tryGetPermlink()
+                {
+                    return LinkExtractor.createSampleBrowserLink(initialGroupOrNull,
+                            initialSampleTypeOrNull);
                 }
             };
     }

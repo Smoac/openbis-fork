@@ -42,9 +42,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InternalLinkCellRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.AbstractParentSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -77,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -357,8 +359,9 @@ public class SampleBrowserGrid extends
                     {
                         public void handle(Sample rowItem, boolean keyPressed)
                         {
-                            OpenEntityDetailsTabHelper.open(viewContext, rowItem.getExperiment()
-                                    .getProject(), keyPressed);
+                            final Project project = rowItem.getExperiment().getProject();
+                            final String href = LinkExtractor.tryExtract(project);
+                            OpenEntityDetailsTabHelper.open(viewContext, project, keyPressed, href);
                         }
                     });
         setId(browserId);
@@ -634,7 +637,7 @@ public class SampleBrowserGrid extends
 
     protected final GridCellRenderer<BaseEntityModel<?>> createParentLinkCellRenderer()
     {
-        return new InternalLinkCellRenderer(true);
+        return LinkRenderer.createLinkRenderer(true);
     }
 
     @Override

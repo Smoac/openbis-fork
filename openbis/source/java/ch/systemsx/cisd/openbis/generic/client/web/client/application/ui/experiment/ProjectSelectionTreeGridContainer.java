@@ -65,9 +65,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * {@link LayoutContainer} containing a {@link TreeGrid} with projects loaded from the server. Main
@@ -174,8 +174,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     private ColumnConfig createCodeColumn()
     {
         final ColumnConfig columnConfig =
-                new ColumnConfig(ModelDataPropertyNames.CODE, viewContext
-                        .getMessage(Dict.PROJECT_SELECTOR_CODE_COLUMN), 1);
+                new ColumnConfig(ModelDataPropertyNames.CODE,
+                        viewContext.getMessage(Dict.PROJECT_SELECTOR_CODE_COLUMN), 1);
 
         columnConfig.setRenderer(new WidgetTreeGridCellRenderer<ModelData>()
             {
@@ -199,8 +199,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 {
                     final Space space = (Space) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(space.getCode());
-                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.GROUP), space
-                            .getCode(), space.getDescription()));
+                    result.setTitle(createTooltipText(viewContext.getMessage(Dict.GROUP),
+                            space.getCode(), space.getDescription()));
                     return result;
                 }
 
@@ -208,15 +208,16 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 {
                     final Project project = (Project) model.get(ModelDataPropertyNames.OBJECT);
 
+                    final String href = LinkExtractor.tryExtract(project);
                     final ClickHandler listener = new ClickHandler()
                         {
                             public void onClick(ClickEvent event)
                             {
-                                OpenEntityDetailsTabHelper.open(viewContext, project, WidgetUtils
-                                        .ifSpecialKeyPressed(event.getNativeEvent()));
+                                OpenEntityDetailsTabHelper.open(viewContext, project,
+                                        WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()),
+                                        href);
                             }
                         };
-                    String href = LinkExtractor.tryExtract(project);
                     // TODO 2010-06-14, IA: try to adjust the size and use the info icon
                     // AbstractImagePrototype infoIcon =
                     // AbstractImagePrototype.create(viewContext.getImageBundle()
@@ -234,8 +235,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                     final FlowPanel panel =
                             new FlowPanelWithLinkAppearingOnMouseOver(project, detailsLink);
-                    panel.setTitle(createTooltipText("Project", project.getCode(), project
-                            .getDescription()));
+                    panel.setTitle(createTooltipText("Project", project.getCode(),
+                            project.getDescription()));
                     panel.add(new InlineHTML(project.getCode() + " "));
                     panel.add(detailsLink);
                     return panel;
@@ -396,8 +397,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private void selectByIdentifierIfPossible(String projectIdentifier)
     {
-        GWTUtils
-                .setSelectedItem(tree, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
+        GWTUtils.setSelectedItem(tree, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
@@ -410,7 +410,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         refreshTree();
     }
 
-    // 
+    //
     // Helper classes
     //
     private final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>

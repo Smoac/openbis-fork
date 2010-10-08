@@ -91,7 +91,7 @@ public class OpenEntityDetailsTabHelper
     }
 
     public static void open(final IViewContext<?> viewContext, final Project project,
-            boolean keyPressed)
+            boolean keyPressed, final String permlinkOrNull)
     {
         AbstractTabItemFactory tabFactory;
         final TechId projectId = TechId.create(project);
@@ -123,9 +123,13 @@ public class OpenEntityDetailsTabHelper
                     return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.VIEW);
                 }
 
+                @Override
+                public String tryGetPermlink()
+                {
+                    return permlinkOrNull;
+                }
             };
         tabFactory.setInBackground(keyPressed);
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
-
 }

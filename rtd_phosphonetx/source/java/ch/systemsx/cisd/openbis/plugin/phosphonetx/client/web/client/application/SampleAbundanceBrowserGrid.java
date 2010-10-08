@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
@@ -48,10 +47,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.SampleAbundanceColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.model.SampleAbundanceModelFactory;
@@ -309,8 +308,8 @@ public class SampleAbundanceBrowserGrid
 
         ColumnDefsAndConfigs<SampleWithPropertiesAndAbundance> schema =
                 SampleAbundanceModelFactory.createColumnsSchema(viewContext, propertyTypes);
-        schema.setGridCellRendererFor(SampleAbundanceColDefKind.CODE.id(), LinkRenderer
-                .createLinkRenderer());
+        schema.setGridCellRendererFor(SampleAbundanceColDefKind.CODE.id(),
+                createInternalLinkCellRenderer());
         schema.setGridCellRendererFor(SampleAbundanceColDefKind.ABUNDANCE.id(),
                 new RealNumberRenderer(viewContext.getDisplaySettingsManager()
                         .getRealNumberFormatingParameters()));

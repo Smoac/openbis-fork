@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.BrowserLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.MaterialLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ProjectLocatorResolver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
@@ -33,6 +35,26 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
  */
 public class LinkExtractor
 {
+
+    // browser links
+
+    public static final String createSampleBrowserLink(String spaceOrNull, String entityTypeOrNull)
+    {
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(ViewLocator.ACTION_PARAMETER, BrowserLocatorResolver.BROWSE_ACTION);
+        url.addParameter(ViewLocator.ENTITY_PARAMETER, EntityKind.SAMPLE.name());
+        if (spaceOrNull != null)
+        {
+            url.addParameter(BrowserLocatorResolver.GROUP_PARAMETER_KEY, spaceOrNull);
+        }
+        if (entityTypeOrNull != null)
+        {
+            url.addParameter(BrowserLocatorResolver.TYPE_PARAMETER_KEY, entityTypeOrNull);
+        }
+        return tryPrint(url);
+    }
+
+    // detail view links
 
     public static String tryExtract(IEntityInformationHolderWithPermId entityOrNull)
     {
