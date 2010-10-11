@@ -40,7 +40,7 @@ public interface ICommand
      * 
      * @return exit code, will be used in <code>System.exit()</code>.
      */
-    public int execute(final String[] arguments) throws UserFailureException,
+    public int execute(final String[] args) throws UserFailureException,
             EnvironmentFailureException;
 
     /**

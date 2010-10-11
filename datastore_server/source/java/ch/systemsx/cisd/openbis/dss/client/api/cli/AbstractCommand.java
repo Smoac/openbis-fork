@@ -51,6 +51,16 @@ abstract public class AbstractCommand<T extends GlobalArguments> implements ICom
                 + parser.printExample(ExampleMode.ALL) + " " + getRequiredArgumentsString());
     }
 
+    public CmdLineParser getParser()
+    {
+        return parser;
+    }
+
+    public T getArguments()
+    {
+        return arguments;
+    }
+
     /**
      * Used for displaying help.
      */
