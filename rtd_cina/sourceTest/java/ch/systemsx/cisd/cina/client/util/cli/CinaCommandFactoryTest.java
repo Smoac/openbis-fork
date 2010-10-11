@@ -42,8 +42,8 @@ public class CinaCommandFactoryTest extends AssertJUnit
         cmd = factory.tryCommandForName("listsamps");
         assertEquals(CommandSampleLister.class, cmd.getClass());
 
-        cmd = factory.tryCommandForName("genid");
-        assertEquals(CommandSampleLister.class, cmd.getClass());
+        cmd = factory.tryCommandForName("gencode");
+        assertEquals(CommandGenerateSampleCode.class, cmd.getClass());
     }
 
     @Test

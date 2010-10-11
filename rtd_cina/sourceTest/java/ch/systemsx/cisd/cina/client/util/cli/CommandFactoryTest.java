@@ -52,8 +52,8 @@ public class CommandFactoryTest extends AssertJUnit
         cmd = factory.tryCommandForName("listsamps");
         assertEquals(CommandSampleLister.class, cmd.getClass());
 
-        cmd = factory.tryCommandForName("genid");
-        assertEquals(CommandSampleLister.class, cmd.getClass());
+        cmd = factory.tryCommandForName("gencode");
+        assertEquals(CommandGenerateSampleCode.class, cmd.getClass());
 
         cmd = factory.tryCommandForName("ls");
         assertNotNull(cmd);
@@ -72,7 +72,7 @@ public class CommandFactoryTest extends AssertJUnit
         cmd.printUsage(out);
         String helpText =
                 "usage: cina_client.sh COMMAND [options...] <command arguments>\n" + "\n"
-                        + "Commands:\n" + " listsamps\n" + " genid\n" + " ls\n" + " get\n"
+                        + "Commands:\n" + " listsamps\n" + " gencode\n" + " ls\n" + " get\n"
                         + " put\n" + "\n" + "Options:\n"
                         + " [-p,--password] VAL        : User login password\n"
                         + " [-s,--server-base-url] VAL : URL for openBIS Server (required)\n"
