@@ -22,22 +22,20 @@ import java.util.List;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandFactory
+class CommandFactory extends AbstractCommandFactory
 {
     private static enum Command
     {
         LS, GET, HELP, PUT
     }
 
-    /**
-     * Find the command that matches the name.
-     */
-    ICommand tryCommandForName(String name)
+    @Override
+    public ICommand tryCommandForName(String name)
     {
-        // special handling of "-h" and "--help"
-        if ("-h".equals(name) || "--help".equals(name))
+        ICommand superCommandOrNull = super.tryCommandForName(name);
+        if (null != superCommandOrNull)
         {
-            return new CommandHelp(this);
+            return superCommandOrNull;
         }
 
         Command command;
@@ -46,7 +44,6 @@ class CommandFactory
             command = Command.valueOf(name.toUpperCase());
         } catch (IllegalArgumentException e)
         {
-
             return null;
         }
 
@@ -60,7 +57,7 @@ class CommandFactory
                 result = new CommandGet();
                 break;
             case HELP:
-                result = new CommandHelp(this);
+                result = getHelpCommand();
                 break;
             case PUT:
                 result = new CommandPut();
@@ -73,7 +70,12 @@ class CommandFactory
         return result;
     }
 
-    List<String> getKnownCommands()
+    public ICommand getHelpCommand()
+    {
+        return new CommandHelp(this);
+    }
+
+    public List<String> getKnownCommands()
     {
         String[] commands =
             { "ls", "get", "put" };

@@ -22,7 +22,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -40,9 +39,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandPut extends AbstractCommand
+class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
 {
-    private static class CommandPutArguments extends GlobalArguments
+    static class CommandPutArguments extends GlobalArguments
     {
         @Option(name = "t", longName = "type", usage = "Set the data set type")
         private String dataSetType;
@@ -128,7 +127,8 @@ class CommandPut extends AbstractCommand
     private static class CommandPutExecutor extends AbstractExecutor<CommandPutArguments>
     {
 
-        CommandPutExecutor(CommandPutArguments arguments, AbstractCommand command)
+        CommandPutExecutor(CommandPutArguments arguments,
+                AbstractDssCommand<CommandPutArguments> command)
         {
             super(arguments, command);
         }
@@ -213,12 +213,9 @@ class CommandPut extends AbstractCommand
         }
     }
 
-    private final CommandPutArguments arguments;
-
     CommandPut()
     {
-        arguments = new CommandPutArguments();
-        parser = new CmdLineParser(arguments);
+        super(new CommandPutArguments());
     }
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException

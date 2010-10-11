@@ -37,7 +37,7 @@ public class CommandGetTest extends AssertJUnit
     private final class MockCommandGet extends CommandGet
     {
         @Override
-        protected IDssComponent login(GlobalArguments arguments)
+        protected IDssComponent login(GlobalArguments args)
         {
             return dssComponent;
         }

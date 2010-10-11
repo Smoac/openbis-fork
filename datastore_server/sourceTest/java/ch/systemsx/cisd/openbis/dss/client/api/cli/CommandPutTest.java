@@ -37,8 +37,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class CommandPutTest extends AbstractFileSystemTestCase
@@ -46,15 +44,18 @@ public class CommandPutTest extends AbstractFileSystemTestCase
     private final class MockCommandPut extends CommandPut
     {
         @Override
-        protected IDssComponent login(GlobalArguments arguments)
+        protected IDssComponent login(GlobalArguments args)
         {
             return dssComponent;
         }
     }
-    
+
     private Mockery context;
+
     private IDssComponent dssComponent;
+
     private IDataSetDss dataSet;
+
     private File dataSetExample;
 
     @BeforeMethod
@@ -101,7 +102,7 @@ public class CommandPutTest extends AbstractFileSystemTestCase
                             }
                         }), with(equal(dataSetExample)));
                     will(returnValue(dataSet));
-                    
+
                     one(dataSet).getCode();
                     will(returnValue("ds1"));
 
@@ -109,12 +110,12 @@ public class CommandPutTest extends AbstractFileSystemTestCase
                 }
             });
         ICommand command = new MockCommandPut();
-        
+
         int exitCode =
                 command.execute(new String[]
                     { "-s", "url", "-u", "user", "-p", "pswd", "-t", "my_type", "EXPERIMENT",
                             "/s/p/e", dataSetExample.getPath() });
-        
+
         assertEquals(0, exitCode);
         context.assertIsSatisfied();
     }

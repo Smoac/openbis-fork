@@ -20,23 +20,23 @@ import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractExecutor<A extends GlobalArguments>
 {
     protected final A arguments;
-    private final CmdLineParser parser;
-    private final AbstractCommand command;
 
-    AbstractExecutor(A arguments, AbstractCommand command)
+    private final CmdLineParser parser;
+
+    private final AbstractDssCommand<A> command;
+
+    AbstractExecutor(A arguments, AbstractDssCommand<A> command)
     {
         this.arguments = arguments;
         this.command = command;
         parser = new CmdLineParser(arguments);
     }
-    
+
     final int execute(String[] args)
     {
         parser.parseArgument(args);
@@ -74,6 +74,6 @@ abstract class AbstractExecutor<A extends GlobalArguments>
         }
 
     }
-    
+
     protected abstract int doExecute(IDssComponent component);
 }

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 import java.io.PrintStream;
 import java.util.List;
 
-import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -28,21 +27,18 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandHelp extends AbstractCommand
+class CommandHelp extends AbstractDssCommand<CommandHelp.CommandHelpArguments>
 {
-    private static class CommandHelpArguments extends GlobalArguments
+    static class CommandHelpArguments extends GlobalArguments
     {
 
     }
 
-    private final CommandHelpArguments arguments;
+    private final ICommandFactory commandFactory;
 
-    private final CommandFactory commandFactory;
-
-    CommandHelp(CommandFactory factory)
+    CommandHelp(ICommandFactory factory)
     {
-        arguments = new CommandHelpArguments();
-        parser = new CmdLineParser(arguments);
+        super(new CommandHelpArguments());
         this.commandFactory = factory;
     }
 
@@ -74,7 +70,8 @@ class CommandHelp extends AbstractCommand
     @Override
     public void printUsage(PrintStream out)
     {
-        out.println("usage: " + getProgramCallString() + " COMMAND [options...] <command arguments>");
+        out.println("usage: " + getProgramCallString()
+                + " COMMAND [options...] <command arguments>");
         List<String> commands = commandFactory.getKnownCommands();
         out.println("\nCommands:");
         for (String cmd : commands)

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
 import java.io.File;
 
-import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -31,9 +30,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandGet extends AbstractCommand
+class CommandGet extends AbstractDssCommand<CommandGet.CommandGetArguments>
 {
-    private static class CommandGetArguments extends DataSetArguments
+    static class CommandGetArguments extends DataSetArguments
     {
         @Option(name = "l", longName = "link", usage = "Try to return a link to the data set in the DSS if possible, download the entire data set otherwise.")
         private boolean link = false;
@@ -81,7 +80,8 @@ class CommandGet extends AbstractCommand
 
     private static class CommandGetExecutor extends AbstractDataSetExecutor<CommandGetArguments>
     {
-        CommandGetExecutor(CommandGetArguments arguments, AbstractCommand command)
+        CommandGetExecutor(CommandGetArguments arguments,
+                AbstractDssCommand<CommandGetArguments> command)
         {
             super(arguments, command);
         }
@@ -144,12 +144,9 @@ class CommandGet extends AbstractCommand
         }
     }
 
-    private final CommandGetArguments arguments;
-
     CommandGet()
     {
-        arguments = new CommandGetArguments();
-        parser = new CmdLineParser(arguments);
+        super(new CommandGetArguments());
     }
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException

@@ -21,18 +21,15 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 abstract class AbstractDataSetExecutor<A extends DataSetArguments> extends AbstractExecutor<A>
 {
 
-    AbstractDataSetExecutor(A arguments, AbstractCommand command)
+    AbstractDataSetExecutor(A arguments, AbstractDssCommand<A> command)
     {
         super(arguments, command);
     }
-
 
     @Override
     protected final int doExecute(IDssComponent component)
@@ -42,12 +39,12 @@ abstract class AbstractDataSetExecutor<A extends DataSetArguments> extends Abstr
         handle(fileInfos, dataSet);
         return 0;
     }
-    
+
     private FileInfoDssDTO[] getFileInfos(IDataSetDss dataSet)
     {
         return dataSet.listFiles(arguments.getRequestedPath(), arguments.isRecursive());
     }
 
     protected abstract void handle(FileInfoDssDTO[] fileInfos, IDataSetDss dataSet);
-    
+
 }

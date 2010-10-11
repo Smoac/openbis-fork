@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
-import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -27,11 +26,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandLs extends AbstractCommand
+class CommandLs extends AbstractDssCommand<DataSetArguments>
 {
     private static class CommandLsExecutor extends AbstractDataSetExecutor<DataSetArguments>
     {
-        CommandLsExecutor(DataSetArguments arguments, AbstractCommand command)
+        CommandLsExecutor(DataSetArguments arguments, AbstractDssCommand<DataSetArguments> command)
         {
             super(arguments, command);
         }
@@ -57,12 +56,9 @@ class CommandLs extends AbstractCommand
 
     }
 
-    private final DataSetArguments arguments;
-
     CommandLs()
     {
-        arguments = new DataSetArguments();
-        parser = new CmdLineParser(arguments);
+        super(new DataSetArguments());
     }
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException

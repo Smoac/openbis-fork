@@ -16,33 +16,26 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
-import ch.systemsx.cisd.args4j.CmdLineParser;
+import java.util.List;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class AbstractCommand<T extends GlobalArguments>
+public interface ICommandFactory
 {
-    protected final T arguments;
-
-    protected final CmdLineParser parser;
 
     /**
-     *
-     *
+     * Find the command that matches the name.
      */
-    public AbstractCommand(T arguments)
-    {
-        this.arguments = arguments;
-        parser = new CmdLineParser(arguments);
-    }
+    public ICommand tryCommandForName(String name);
 
     /**
-     * How is this program invoked from the command line?
+     * List all the commands supported by this command factory.
      */
-    protected String getProgramCallString()
-    {
-        return "dss_client.sh";
-    }
+    public List<String> getKnownCommands();
 
+    /**
+     * Get the help command.
+     */
+    public ICommand getHelpCommand();
 }
