@@ -22,6 +22,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -90,6 +92,10 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
         if (isReal(sqlType))
         {
             return DataTypeCode.REAL;
+        }
+        if (Types.DATE == sqlType || Types.TIMESTAMP == sqlType)
+        {
+            return DataTypeCode.TIMESTAMP;
         }
         return DataTypeCode.VARCHAR;
     }
@@ -195,6 +201,11 @@ class DAO extends SimpleJdbcDaoSupport implements IDAO
                         {
                             Number number = (Number) value;
                             cells.add(new DoubleTableCell(number.doubleValue()));
+                        } else if (value instanceof Date)
+                        {
+                            Date date = (Date) value;
+                            cells.add(new DateTableCell(date));
+
                         } else
                         {
                             String string = value == null ? "" : value.toString();
