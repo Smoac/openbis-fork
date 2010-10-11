@@ -101,9 +101,7 @@ public class XMLPropertyTransformer
             Transformer transformer = cachedTransformers.get(xslt);
             if (transformer == null)
             {
-                long time = System.currentTimeMillis();
                 transformer = TRANSFORMER_FACTORY.newTransformer(new StreamSource(new StringReader(xslt)));
-                System.out.println((System.currentTimeMillis()-time)+ " msec create transformer");
                 cachedTransformers.put(xslt, transformer);
             }
             return transformer;
