@@ -205,6 +205,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
                     SampleType returnSampleType = new SampleType();
                     returnSample.setId(new Long(1));
+                    returnSample.setPermId("permId");
                     returnSample.setCode("code");
                     returnSample.setIdentifier("/space/code");
                     returnSampleType.setId(new Long(1));
