@@ -175,6 +175,7 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
             initializeControllers(openUrlController);
         }
         final ViewLocator locator = createViewLocator(History.getToken());
+        History.addValueChangeHandler(this); // both modes
 
         final IClientServiceAsync service = getServiceForRetrievingApplicationInfo(viewContext);
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
@@ -208,10 +209,6 @@ public class Client implements EntryPoint, ValueChangeHandler<String>
                     viewContext.log("viewMode = " + viewMode);
                     final boolean simpleMode = viewMode == ViewMode.SIMPLE;
                     ClientStaticState.setSimpleMode(simpleMode);
-                    if (simpleMode)
-                    {
-                        History.addValueChangeHandler(Client.this);
-                    }
                 }
 
                 private ViewMode tryGetUrlViewMode()
