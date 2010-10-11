@@ -46,7 +46,19 @@ public interface ICinaUtilities
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server.
      */
-    public List<Sample> searchForSamples(SearchCriteria searchCriteria) throws IllegalStateException,
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria)
+            throws IllegalStateException, EnvironmentFailureException;
+
+    /**
+     * Return a generated sample code for the provided sample type.
+     * 
+     * @param sampleTypeCode The sample type of the sample the generated identifier will belong to.
+     * @return A sample code for the provided sample type.
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
             EnvironmentFailureException;
 
     /**

@@ -30,6 +30,7 @@ import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -39,17 +40,18 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class SampleListerCommandTest extends AssertJUnit
+public class CommandSampleListerTest extends AssertJUnit
 {
     private final class MockCommandSampleLister extends CommandSampleLister
     {
-
         @Override
         protected ICinaUtilities login()
         {
+            facade =
+                    ch.systemsx.cisd.cina.client.util.v1.impl.CinaUtilitiesFacadeTest.createFacade(
+                            service, openbisService, USER_ID, PASSWORD);
             return facade;
         }
-
     }
 
     private final static String USER_ID = "userid";
@@ -64,11 +66,14 @@ public class SampleListerCommandTest extends AssertJUnit
 
     private IGeneralInformationService service;
 
+    private IETLLIMSService openbisService;
+
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
         service = context.mock(IGeneralInformationService.class);
+        openbisService = context.mock(IETLLIMSService.class);
     }
 
     @AfterMethod
@@ -103,9 +108,7 @@ public class SampleListerCommandTest extends AssertJUnit
                     one(service).logout(SESSION_TOKEN);
                 }
             });
-        facade =
-                ch.systemsx.cisd.cina.client.util.v1.impl.CinaUtilitiesFacadeTest.createFacade(
-                        service, USER_ID, PASSWORD);
+
         ICommand command = new MockCommandSampleLister();
 
         int exitCode = command.execute(new String[]
@@ -135,9 +138,7 @@ public class SampleListerCommandTest extends AssertJUnit
                     one(service).logout(SESSION_TOKEN);
                 }
             });
-        facade =
-                ch.systemsx.cisd.cina.client.util.v1.impl.CinaUtilitiesFacadeTest.createFacade(
-                        service, USER_ID, PASSWORD);
+
         ICommand command = new MockCommandSampleLister();
 
         try

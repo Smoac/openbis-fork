@@ -16,14 +16,10 @@
 
 package ch.systemsx.cisd.cina.client.util.cli;
 
-import java.io.PrintStream;
-
-import ch.systemsx.cisd.args4j.CmdLineParser;
-import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.cina.client.util.v1.CinaUtilitiesFacadeFactory;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.AbstractCommand;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.GlobalArguments;
-import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 
 /**
  * Superclass for cina command-line client commands.
@@ -36,54 +32,20 @@ import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractCommand<T extends GlobalArguments> implements ICommand
+abstract class AbstractCinaCommand<T extends GlobalArguments> extends AbstractCommand<T>
 {
-    // The parser for command-line arguments; set by subclasses in the constructor.
-    protected final CmdLineParser parser;
-
-    // The object that describes and receives the value of the arguments
-    protected final T arguments;
-
-    protected AbstractCommand(T arguments)
+    protected AbstractCinaCommand(T arguments)
     {
-        this.parser = new CmdLineParser(arguments);
-        this.arguments = arguments;
-    }
-
-    /**
-     * Print usage information about the command.
-     */
-    public void printUsage(PrintStream out)
-    {
-        out.println(getUsagePrefixString() + " [options]");
-        parser.printUsage(out);
-        out.println("  Example : " + getCommandCallString() + " "
-                + parser.printExample(ExampleMode.ALL) + "");
-    }
-
-    /**
-     * How is this command invoked from the command line? This is the program call string + command
-     * name
-     */
-    protected String getCommandCallString()
-    {
-        return getProgramCallString() + " " + getName();
-    }
-
-    /**
-     * Used for displaying help.
-     */
-    protected String getUsagePrefixString()
-    {
-        return "usage: " + getCommandCallString();
+        super(arguments);
     }
 
     /**
      * How is this program invoked from the command line?
      */
+    @Override
     protected String getProgramCallString()
     {
-        return "cina_client.sh";
+        return CinaCommandFactory.PROGRAM_CALL_STRING;
     }
 
     /**
@@ -99,15 +61,5 @@ abstract class AbstractCommand<T extends GlobalArguments> implements ICommand
             System.out.println("Username / password is invalid");
         }
         return component;
-    }
-
-    CmdLineParser getParser()
-    {
-        return parser;
-    }
-
-    T getArguments()
-    {
-        return arguments;
     }
 }

@@ -24,9 +24,13 @@ import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -34,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 public class CinaUtilitiesFacade implements ICinaUtilities
 {
     /**
-     * Public factory method for creating a DssComponent with a username and password.
+     * Public factory method for creating a CinaUtilitiesFacade with a username and password.
      * 
      * @param user The user name
      * @param password The user's password
@@ -77,8 +81,16 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         return service;
     }
 
+    private static IETLLIMSService createOpenBisService(String openBISURL)
+    {
+        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
+    }
+
     /** The interface for accessing the remote services. */
     private final IGeneralInformationService generalInformationService;
+
+    /** The LIMS service. */
+    private final IETLLIMSService openbisService;
 
     /** The current state of the facade */
     private AbstractCinaFacadeState state;
@@ -95,7 +107,8 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      */
     private CinaUtilitiesFacade(String openBISURL, String sessionTokenOrNull)
     {
-        this(createGeneralInformationService(openBISURL), sessionTokenOrNull);
+        this(createGeneralInformationService(openBISURL), createOpenBisService(openBISURL),
+                sessionTokenOrNull);
     }
 
     /**
@@ -103,20 +116,24 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      * 
      * @param generalInformationService A proxy to the openBIS application server's general
      *            information service
+     * @param openbisService A proxy to the openBIS application server's ETLLIMS Service
      * @param sessionTokenOrNull A session token, if the user has already logged in, or null
      *            otherwise.
      */
     protected CinaUtilitiesFacade(IGeneralInformationService generalInformationService,
-            String sessionTokenOrNull)
+            IETLLIMSService openbisService, String sessionTokenOrNull)
 
     {
         this.generalInformationService = generalInformationService;
+        this.openbisService = openbisService;
         if (sessionTokenOrNull == null)
         {
             this.state = new UnauthenticatedState(generalInformationService);
         } else
         {
-            this.state = new AuthenticatedState(generalInformationService, sessionTokenOrNull);
+            this.state =
+                    new AuthenticatedState(generalInformationService, openbisService,
+                            sessionTokenOrNull);
         }
     }
 
@@ -132,7 +149,9 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     {
         // login and transition to the authenticated state
         state.login(user, password);
-        state = new AuthenticatedState(generalInformationService, state.getSessionToken());
+        state =
+                new AuthenticatedState(generalInformationService, openbisService,
+                        state.getSessionToken());
     }
 
     public void logout()
@@ -151,6 +170,12 @@ public class CinaUtilitiesFacade implements ICinaUtilities
             throws IllegalStateException, EnvironmentFailureException
     {
         return state.searchForSamples(searchCriteria);
+    }
+
+    public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
+            EnvironmentFailureException
+    {
+        return state.generateSampleCode(sampleTypeCode);
     }
 }
 
@@ -178,6 +203,12 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
 
     public List<Sample> searchForSamples(SearchCriteria searchCriteria)
             throws IllegalStateException, EnvironmentFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
+            EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
@@ -252,13 +283,17 @@ class AuthenticatedState extends AbstractCinaFacadeState
 {
     private final String sessionToken;
 
+    private final IETLLIMSService openbisService;
+
     /**
      * @param service
      */
-    AuthenticatedState(IGeneralInformationService service, String sessionToken)
+    AuthenticatedState(IGeneralInformationService service, IETLLIMSService openbisService,
+            String sessionToken)
     {
         super(service);
         this.sessionToken = sessionToken;
+        this.openbisService = openbisService;
     }
 
     @Override
@@ -290,5 +325,16 @@ class AuthenticatedState extends AbstractCinaFacadeState
     public String getSessionToken()
     {
         return sessionToken;
+    }
+
+    @Override
+    public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
+            EnvironmentFailureException
+    {
+        SampleType replicaSampleType = openbisService.getSampleType(sessionToken, sampleTypeCode);
+        long sampleCodeSuffix = openbisService.drawANewUniqueID(sessionToken);
+        String sampleCode =
+                String.format("%s%d", replicaSampleType.getGeneratedCodePrefix(), sampleCodeSuffix);
+        return sampleCode;
     }
 }

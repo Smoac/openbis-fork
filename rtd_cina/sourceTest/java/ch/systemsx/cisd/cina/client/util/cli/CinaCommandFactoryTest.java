@@ -39,7 +39,7 @@ public class CinaCommandFactoryTest extends AssertJUnit
     public void testNameMapping()
     {
         ICommand cmd;
-        cmd = factory.tryCommandForName("preps");
+        cmd = factory.tryCommandForName("listsamps");
         assertEquals(CommandSampleLister.class, cmd.getClass());
 
         cmd = factory.tryCommandForName("genid");

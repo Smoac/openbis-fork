@@ -29,9 +29,9 @@ abstract class AbstractExecutor<A extends GlobalArguments>
 
     private final CmdLineParser parser;
 
-    private final AbstractCommand<A> command;
+    private final AbstractCinaCommand<A> command;
 
-    AbstractExecutor(AbstractCommand<A> command)
+    AbstractExecutor(AbstractCinaCommand<A> command)
     {
         this.command = command;
         arguments = command.getArguments();

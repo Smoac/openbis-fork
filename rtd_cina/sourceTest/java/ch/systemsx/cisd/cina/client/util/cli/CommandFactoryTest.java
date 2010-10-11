@@ -49,7 +49,7 @@ public class CommandFactoryTest extends AssertJUnit
     public void testNameMapping()
     {
         ICommand cmd;
-        cmd = factory.tryCommandForName("preps");
+        cmd = factory.tryCommandForName("listsamps");
         assertEquals(CommandSampleLister.class, cmd.getClass());
 
         cmd = factory.tryCommandForName("genid");
@@ -72,8 +72,8 @@ public class CommandFactoryTest extends AssertJUnit
         cmd.printUsage(out);
         String helpText =
                 "usage: cina_client.sh COMMAND [options...] <command arguments>\n" + "\n"
-                        + "Commands:\n" + " preps\n" + " genid\n" + " ls\n" + " get\n" + " put\n"
-                        + "\n" + "Options:\n"
+                        + "Commands:\n" + " listsamps\n" + " genid\n" + " ls\n" + " get\n"
+                        + " put\n" + "\n" + "Options:\n"
                         + " [-p,--password] VAL        : User login password\n"
                         + " [-s,--server-base-url] VAL : URL for openBIS Server (required)\n"
                         + " [-u,--username] VAL        : User login name\n";
