@@ -60,6 +60,8 @@ public final class SearchFieldConstants
 
     public static final String CODE = "code";
 
+    public static final String PERM_ID = "perm_id";
+
     public static final String IDENTIFIER = "identifier";
 
     public static final String FILE_NAME = "name";

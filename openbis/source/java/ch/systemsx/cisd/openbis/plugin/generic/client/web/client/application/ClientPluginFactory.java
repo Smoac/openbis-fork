@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -144,8 +146,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         // IViewClientPlugin
         //
 
-        public AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
             return new AbstractTabItemFactory()
                 {
@@ -153,7 +155,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent sampleViewer =
-                                GenericSampleViewer.create(getViewContext(), identifiable);
+                                GenericSampleViewer.create(getViewContext(), entity);
                         return DefaultTabItem.create(getTabTitle(), sampleViewer, getViewContext(),
                                 false);
                     }
@@ -161,7 +163,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return GenericSampleViewer.createId(identifiable);
+                        return GenericSampleViewer.createId(entity);
                     }
 
                     @Override
@@ -173,13 +175,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.SAMPLE, identifiable);
+                        return getViewerTitle(Dict.SAMPLE, entity);
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null;
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }
@@ -254,10 +256,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType materialType,
-                final IIdAndCodeHolder identifiable)
+        public final AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
-            final TechId techId = TechId.create(identifiable);
+            final TechId techId = TechId.create(entity);
             return new AbstractTabItemFactory()
                 {
                     @Override
@@ -284,13 +286,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.MATERIAL, identifiable);
+                        return getViewerTitle(Dict.MATERIAL, entity);
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }
@@ -347,7 +349,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(
-                final BasicEntityType experimentType, final IIdAndCodeHolder experimentId)
+                final IEntityInformationHolderWithPermId entity)
         {
             return new AbstractTabItemFactory()
                 {
@@ -355,8 +357,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
-                                GenericExperimentViewer.create(getViewContext(), experimentType,
-                                        experimentId);
+                                GenericExperimentViewer.create(getViewContext(),
+                                        entity.getEntityType(), entity);
                         return DefaultTabItem.create(getTabTitle(), experimentViewer,
                                 getViewContext(), false);
                     }
@@ -364,7 +366,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return GenericExperimentViewer.createId(experimentId);
+                        return GenericExperimentViewer.createId(entity);
                     }
 
                     @Override
@@ -377,13 +379,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.EXPERIMENT, experimentId);
+                        return getViewerTitle(Dict.EXPERIMENT, entity);
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }
@@ -445,8 +447,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
     {
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType dataSetType,
-                final IIdAndCodeHolder identifiable)
+        public final AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
             return new AbstractTabItemFactory()
                 {
@@ -454,7 +456,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent dataSetViewer =
-                                GenericDataSetViewer.create(getViewContext(), identifiable);
+                                GenericDataSetViewer.create(getViewContext(), entity);
                         return DefaultTabItem.create(getTabTitle(), dataSetViewer,
                                 getViewContext(), false);
                     }
@@ -462,7 +464,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getId()
                     {
-                        return GenericDataSetViewer.createId(identifiable);
+                        return GenericDataSetViewer.createId(entity);
                     }
 
                     @Override
@@ -474,13 +476,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.DATA_SET, identifiable);
+                        return getViewerTitle(Dict.DATA_SET, entity);
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }

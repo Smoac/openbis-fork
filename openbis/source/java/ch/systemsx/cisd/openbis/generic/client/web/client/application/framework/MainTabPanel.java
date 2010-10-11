@@ -169,10 +169,10 @@ public class MainTabPanel extends TabPanel implements IMainPanel
         // refresh the menu
         if (shouldInitializeContextMenu)
         {
-            helpMenuItem = createHelpMenuItem();
             bookmarkMenuItem = createBookmarkMenuItem();
-            closeContextMenu.add(helpMenuItem);
             closeContextMenu.add(bookmarkMenuItem);
+            helpMenuItem = createHelpMenuItem();
+            closeContextMenu.add(helpMenuItem);
             super.onItemContextMenu(item, x, y);
         }
         boolean bookmarkNotAvailable = ((MainTabItem) item).getLinkOrNull() == null;
@@ -212,12 +212,11 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                             String linkToken = selectedTab.getLinkOrNull();
                             assert linkToken != null;
                             String link =
-                                    LinkRenderer.renderAsLinkWithAnchor("link",
-                                            "#" + linkToken, false);
-                            MessageBox.info(viewContext.getMessage(Dict.TAB_LINK), "Copy this "
-                                    + link
-                                    + " and use it to access openBIS with current tab opened.",
-                                    null);
+                                    LinkRenderer.renderAsLinkWithAnchor(
+                                            viewContext.getMessage(Dict.URL), "#" + linkToken,
+                                            false);
+                            MessageBox.info(viewContext.getMessage(Dict.TAB_LINK),
+                                    viewContext.getMessage(Dict.TAB_LINK_MESSAGE, link), null);
                         }
                     });
     }

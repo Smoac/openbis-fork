@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
@@ -687,7 +686,7 @@ public interface ICommonClientService extends IClientService
 
     /**
      * For given {@link MaterialIdentifier} returns the corresponding
-     * {@link IEntityInformationHolder}.
+     * {@link IEntityInformationHolderWithPermId}.
      */
     public IEntityInformationHolderWithPermId getMaterialInformationHolder(
             MaterialIdentifier identifier) throws UserFailureException;

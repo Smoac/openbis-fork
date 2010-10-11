@@ -34,13 +34,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -115,7 +115,7 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
     @Override
     protected void showEntityViewer(final GenericTableRow entity, boolean editMode, boolean active)
     {
-        showEntityInformationHolderViewer(new IEntityInformationHolder()
+        showEntityInformationHolderViewer(new IEntityInformationHolderWithPermId()
             {
 
                 public String getCode()
@@ -137,6 +137,12 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
                 {
                     return EntityKind.SAMPLE;
                 }
+
+                public String getPermId()
+                {
+                    return null;
+                }
+
             }, editMode, active);
     }
 }

@@ -21,7 +21,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
  * A {@link ClickHandler} that opens entity details tab on click.
@@ -30,11 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
  */
 public final class OpenEntityDetailsTabClickListener implements ClickHandler
 {
-    private final IEntityInformationHolder entity;
+    private final IEntityInformationHolderWithPermId entity;
 
     private final IViewContext<?> viewContext;
 
-    public OpenEntityDetailsTabClickListener(IEntityInformationHolder entity,
+    public OpenEntityDetailsTabClickListener(IEntityInformationHolderWithPermId entity,
             final IViewContext<?> viewContext)
     {
         super();

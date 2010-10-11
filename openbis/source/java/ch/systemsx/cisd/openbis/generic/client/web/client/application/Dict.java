@@ -848,6 +848,8 @@ public abstract class Dict
 
     public static final String TAB_LINK = "tab_link";
 
+    public static final String TAB_LINK_MESSAGE = "tab_link_message";
+
     public static final String PERMLINK = "permlink_column_name";
 
     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";

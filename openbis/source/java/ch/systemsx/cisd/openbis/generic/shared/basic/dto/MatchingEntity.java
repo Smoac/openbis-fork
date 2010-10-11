@@ -18,8 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
  * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the
@@ -27,11 +26,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntity implements IsSerializable, IEntityInformationHolder
+public final class MatchingEntity implements IsSerializable, IEntityInformationHolderWithPermId
 {
     private Long id;
 
     private String code;
+
+    private String permId;
 
     private String identifier;
 
@@ -137,10 +138,20 @@ public final class MatchingEntity implements IsSerializable, IEntityInformationH
         this.code = code;
     }
 
-    public IIdAndCodeHolder asIdentifiable()
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
+    }
+
+    public IEntityInformationHolderWithPermId asIdentifiable()
     {
         final MatchingEntity entity = this;
-        return new IIdAndCodeHolder()
+        return new IEntityInformationHolderWithPermId()
             {
                 public Long getId()
                 {
@@ -150,6 +161,21 @@ public final class MatchingEntity implements IsSerializable, IEntityInformationH
                 public String getCode()
                 {
                     return entity.getCode();
+                }
+
+                public BasicEntityType getEntityType()
+                {
+                    return entity.getEntityType();
+                }
+
+                public EntityKind getEntityKind()
+                {
+                    return entity.getEntityKind();
+                }
+
+                public String getPermId()
+                {
+                    return entity.getPermId();
                 }
             };
     }

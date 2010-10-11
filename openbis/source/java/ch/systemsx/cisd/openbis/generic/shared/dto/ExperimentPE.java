@@ -523,6 +523,7 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
+    @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.PERM_ID)
     public String getPermId()
     {
         return permId;

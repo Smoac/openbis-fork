@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -105,7 +107,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(
-                final BasicEntityType experimentType, final IIdAndCodeHolder identifiable)
+                final IEntityInformationHolderWithPermId entity)
         {
             return new AbstractTabItemFactory()
                 {
@@ -113,8 +115,8 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent experimentViewer =
-                                ExperimentViewer.create(getViewContext(), experimentType,
-                                        identifiable);
+                                ExperimentViewer.create(getViewContext(), entity.getEntityType(),
+                                        entity);
                         return DefaultTabItem.create(getTabTitle(), experimentViewer,
                                 getViewContext(), false);
                     }
@@ -122,7 +124,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     @Override
                     public String getId()
                     {
-                        return GenericExperimentViewer.createId(identifiable);
+                        return GenericExperimentViewer.createId(entity);
                     }
 
                     @Override
@@ -135,13 +137,13 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.EXPERIMENT, identifiable);
+                        return getViewerTitle(Dict.EXPERIMENT, entity);
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }

@@ -104,8 +104,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
@@ -344,7 +343,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return viewContext.log(message + " [" + getId() + "]");
     }
 
-    protected void showEntityInformationHolderViewer(IEntityInformationHolder entity,
+    protected void showEntityInformationHolderViewer(IEntityInformationHolderWithPermId entity,
             boolean editMode, boolean inBackground)
     {
         final EntityKind entityKind = entity.getEntityKind();
@@ -353,14 +352,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType);
-        final IClientPlugin<BasicEntityType, IIdAndCodeHolder> createClientPlugin =
+        final IClientPlugin<BasicEntityType, IEntityInformationHolderWithPermId> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         if (editMode)
         {
             tabView = createClientPlugin.createEntityEditor(entity);
         } else
         {
-            tabView = createClientPlugin.createEntityViewer(entityType, entity);
+            tabView = createClientPlugin.createEntityViewer(entity);
         }
         tabView.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabView);
@@ -1689,13 +1688,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      */
     // NOTE: This method cannot be externalized from AbstractBrowserGrid because it uses some
     // AbstractBrowserGrid's protected methods
-    protected static final <E extends IEntityInformationHolder> void showRelatedDataSets(
+    protected static final <E extends IEntityInformationHolderWithPermId> void showRelatedDataSets(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final AbstractBrowserGrid<E, ? extends BaseEntityModel<E>> browser)
     {
-        final List<? extends IEntityInformationHolder> selectedEntities =
+        final List<? extends IEntityInformationHolderWithPermId> selectedEntities =
                 browser.getSelectedBaseObjects();
-        final TableExportCriteria<? extends IEntityInformationHolder> displayedEntities =
+        final TableExportCriteria<? extends IEntityInformationHolderWithPermId> displayedEntities =
                 browser.createTableExportCriteria();
         if (selectedEntities.isEmpty())
         {

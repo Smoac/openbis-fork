@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
  * Dialog used to show a tab with Data Sets related to entities like samples and experiments.
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
  * @author Piotr Buczek
  */
 public final class ShowRelatedDatasetsDialog extends
-        AbstractDataConfirmationDialog<List<? extends IEntityInformationHolder>>
+        AbstractDataConfirmationDialog<List<? extends IEntityInformationHolderWithPermId>>
 {
     public static void showRelatedDatasetsTab(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -94,15 +94,15 @@ public final class ShowRelatedDatasetsDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final TableExportCriteria<? extends IEntityInformationHolder> displayedEntities;
+    private final TableExportCriteria<? extends IEntityInformationHolderWithPermId> displayedEntities;
 
     private final int displayedEntitiesCount;
 
     private Radio allOrSelectedRadio;
 
     public ShowRelatedDatasetsDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<? extends IEntityInformationHolder> selectedEntities,
-            TableExportCriteria<? extends IEntityInformationHolder> displayedEntities,
+            List<? extends IEntityInformationHolderWithPermId> selectedEntities,
+            TableExportCriteria<? extends IEntityInformationHolderWithPermId> displayedEntities,
             int displayedEntitiesCount)
     {
         super(viewContext, selectedEntities, viewContext

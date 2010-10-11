@@ -51,8 +51,8 @@ public final class OpenEntityEditorTabClickListener implements ClickHandler
 
     public void onClick(ClickEvent event)
     {
-        showEntityEditor(viewContext, entity, WidgetUtils.ifSpecialKeyPressed(event
-                .getNativeEvent()));
+        showEntityEditor(viewContext, entity,
+                WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent()));
     }
 
     public static void showEntityEditor(IViewContext<?> viewContext,

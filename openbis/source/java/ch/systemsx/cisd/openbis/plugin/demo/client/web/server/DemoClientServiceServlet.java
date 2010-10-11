@@ -29,9 +29,9 @@ import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
 /**
  * The {@link GWTRPCServiceExporter} for the <i>demo</i> service.
  * <p>
- * <i>URL</i> mappings are: <code>/demo</code> and <code>/openbis/demo</code>. The
- * encapsulated {@link ICommonClientService} service implementation is expected to be defined as
- * bean with name <code>demo-service</code>.
+ * <i>URL</i> mappings are: <code>/demo</code> and <code>/openbis/demo</code>. The encapsulated
+ * {@link ICommonClientService} service implementation is expected to be defined as bean with name
+ * <code>demo-service</code>.
  * </p>
  * 
  * @author Christian Ribeaud

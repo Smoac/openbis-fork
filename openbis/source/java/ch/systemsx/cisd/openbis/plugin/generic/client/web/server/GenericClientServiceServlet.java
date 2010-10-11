@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 /**
  * The {@link GWTRPCServiceExporter} for the <i>generic</i> service.
  * <p>
- * <i>URL</i> mappings are: <code>/generic</code> and <code>/openbis/generic</code>.
- * The encapsulated {@link ICommonClientService} service implementation is expected to be defined as
+ * <i>URL</i> mappings are: <code>/generic</code> and <code>/openbis/generic</code>. The
+ * encapsulated {@link ICommonClientService} service implementation is expected to be defined as
  * bean with name <code>generic-service</code>.
  * </p>
  * 

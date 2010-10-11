@@ -21,7 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -33,11 +33,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * @author Franz-Josef Elmer
  */
 public class SampleWithPropertiesAndAbundance implements IsSerializable, Serializable,
-        IEntityInformationHolder, IEntityPropertiesHolder
+        IEntityInformationHolderWithPermId, IEntityPropertiesHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Long id;
+
+    private String permId;
 
     private String identifier;
 
@@ -117,6 +119,16 @@ public class SampleWithPropertiesAndAbundance implements IsSerializable, Seriali
     public final void setAbundance(double abundance)
     {
         this.abundance = abundance;
+    }
+
+    public String getPermId()
+    {
+        return permId;
+    }
+
+    public void setPermId(String permId)
+    {
+        this.permId = permId;
     }
 
 }

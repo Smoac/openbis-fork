@@ -326,6 +326,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             result.setCode(getFieldValue(doc, SearchFieldConstants.CODE));
             result.setId(Long.parseLong(getFieldValue(doc, SearchFieldConstants.ID)));
             result.setIdentifier(getFieldValue(doc, SearchFieldConstants.IDENTIFIER));
+            result.setPermId(tryGetFieldValue(doc, SearchFieldConstants.PERM_ID));
 
             // entity kind
             result.setEntityKind(DtoConverters.convertEntityKind(searchableEntity.getEntityKind()));

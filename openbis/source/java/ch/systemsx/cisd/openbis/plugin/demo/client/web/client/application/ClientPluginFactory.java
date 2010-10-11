@@ -38,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Cli
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -113,10 +115,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         // IViewClientPlugin
         //
 
-        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
-                final IIdAndCodeHolder identifiable)
+        public final AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
-            final TechId sampleId = TechId.create(identifiable);
+            final TechId sampleId = TechId.create(entity);
             return new AbstractTabItemFactory()
                 {
                     @Override
@@ -142,13 +144,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     @Override
                     public String getTabTitle()
                     {
-                        return identifiable.getCode();
+                        return entity.getCode();
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null;
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }
@@ -220,7 +222,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(
-                final BasicEntityType experimentType, final IIdAndCodeHolder identifiable)
+                final IEntityInformationHolderWithPermId entity)
         {
             return new AbstractTabItemFactory()
                 {
@@ -246,13 +248,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     @Override
                     public String getTabTitle()
                     {
-                        return identifiable.getCode();
+                        return entity.getCode();
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null;
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }

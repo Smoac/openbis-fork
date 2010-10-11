@@ -36,8 +36,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -142,10 +144,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType materialType,
-                final IIdAndCodeHolder materialId)
+        public final AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
-            return createPlateLocationsMaterialViewerTabFactory(materialId, null, getViewContext());
+            return createPlateLocationsMaterialViewerTabFactory(entity, null, getViewContext());
         }
     }
 
@@ -153,18 +155,19 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
      * opens material viewer showing wells in which the material is contained, with a selected
      * experiment
      */
-    public static final void openPlateLocationsMaterialViewer(final IIdAndCodeHolder materialId,
+    public static final void openPlateLocationsMaterialViewer(
+            final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         AbstractTabItemFactory tab =
-                createPlateLocationsMaterialViewerTabFactory(materialId, experimentCriteriaOrNull,
+                createPlateLocationsMaterialViewerTabFactory(material, experimentCriteriaOrNull,
                         viewContext);
         DispatcherHelper.dispatchNaviEvent(tab);
     }
 
     private static final AbstractTabItemFactory createPlateLocationsMaterialViewerTabFactory(
-            final IIdAndCodeHolder materialId,
+            final IEntityInformationHolderWithPermId material,
             final ExperimentSearchCriteria experimentCriteriaOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
@@ -175,14 +178,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 {
                     final DatabaseModificationAwareComponent viewer =
                             PlateLocationsMaterialViewer.create(viewContext,
-                                    TechId.create(materialId), experimentCriteriaOrNull);
+                                    TechId.create(material), experimentCriteriaOrNull);
                     return createViewerTab(viewer, getTabTitle(), viewContext);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return PlateLocationsMaterialViewer.createId(TechId.create(materialId));
+                    return PlateLocationsMaterialViewer.createId(TechId.create(material));
                 }
 
                 @Override
@@ -194,13 +197,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 @Override
                 public String getTabTitle()
                 {
-                    return getViewerTitle(Dict.MATERIAL, materialId, viewContext);
+                    return getViewerTitle(Dict.MATERIAL, material, viewContext);
                 }
 
                 @Override
                 public String tryGetLink()
                 {
-                    return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                    return LinkExtractor.tryExtract(material);
                 }
             };
     }
@@ -216,8 +219,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType dataSetType,
-                final IIdAndCodeHolder identifiable)
+        public final AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
             return new AbstractTabItemFactory()
                 {
@@ -225,14 +228,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
-                                PlateDatasetViewer.create(screeningViewContext, identifiable);
+                                PlateDatasetViewer.create(screeningViewContext, entity);
                         return createViewerTab(viewer, getTabTitle(), screeningViewContext);
                     }
 
                     @Override
                     public String getId()
                     {
-                        final TechId sampleId = TechId.create(identifiable);
+                        final TechId sampleId = TechId.create(entity);
                         return PlateDatasetViewer.createId(sampleId);
                     }
 
@@ -245,13 +248,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.DATA_SET, identifiable, screeningViewContext);
+                        return getViewerTitle(Dict.DATA_SET, entity, screeningViewContext);
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }
@@ -268,8 +271,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         }
 
         @Override
-        public final AbstractTabItemFactory createEntityViewer(final BasicEntityType sampleType,
-                final IIdAndCodeHolder identifiable)
+        public final AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
             return new AbstractTabItemFactory()
                 {
@@ -277,14 +280,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
-                                PlateSampleViewer.create(screeningViewContext, identifiable);
+                                PlateSampleViewer.create(screeningViewContext, entity);
                         return createViewerTab(viewer, getTabTitle(), screeningViewContext);
                     }
 
                     @Override
                     public String getId()
                     {
-                        final TechId sampleId = TechId.create(identifiable);
+                        final TechId sampleId = TechId.create(entity);
                         return PlateSampleViewer.createId(sampleId);
                     }
 
@@ -297,13 +300,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.PLATE, identifiable, screeningViewContext);
+                        return getViewerTitle(Dict.PLATE, entity, screeningViewContext);
                     }
 
                     @Override
                     public String tryGetLink()
                     {
-                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                        return LinkExtractor.tryExtract(entity);
                     }
                 };
         }
@@ -356,10 +359,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             return clientPluginFactory;
         }
 
-        public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
-                final IIdAndCodeHolder identifiable)
+        public AbstractTabItemFactory createEntityViewer(
+                final IEntityInformationHolderWithPermId entity)
         {
-            return delegator.createEntityViewer(entityType, identifiable);
+            return delegator.createEntityViewer(entity);
         }
 
         public Widget createBatchRegistrationForEntityType(final T entityType)

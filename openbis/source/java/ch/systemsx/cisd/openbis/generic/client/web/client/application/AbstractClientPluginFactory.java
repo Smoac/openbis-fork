@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * An <i>abstract</i> {@link IClientPluginFactory} implementation.
@@ -54,4 +55,9 @@ public abstract class AbstractClientPluginFactory<V extends IViewContext<? exten
     }
 
     protected abstract IModule maybeCreateModule();
+
+    protected final String getBaseIndexURL()
+    {
+        return GWTUtils.getBaseIndexURL();
+    }
 }

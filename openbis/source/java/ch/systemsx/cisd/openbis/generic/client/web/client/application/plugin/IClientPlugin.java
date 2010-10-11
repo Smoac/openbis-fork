@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
@@ -36,14 +37,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
  * 
  * @author Christian Ribeaud
  */
+// TODO 2010-10-11, Piotr Buczek: change I to IEntityInformationHolderWithPermId
 public interface IClientPlugin<T extends BasicEntityType, I extends IIdAndCodeHolder>
 {
     /**
      * Shows a detailed view of the entity specified by its <var>identifier</var>.
      */
     // NOTE: BasicEntityType is used here to allow viewing entities from MatchingEntitiesPanel
-    public AbstractTabItemFactory createEntityViewer(final BasicEntityType entityType,
-            final IIdAndCodeHolder identifiable);
+    public AbstractTabItemFactory createEntityViewer(final IEntityInformationHolderWithPermId entity);
 
     /**
      * Shows a registration form for entities of given <var>entityType</var>.

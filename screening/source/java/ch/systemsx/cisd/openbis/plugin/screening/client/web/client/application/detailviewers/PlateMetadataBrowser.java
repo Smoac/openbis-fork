@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -219,12 +218,13 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
         return new BasicEntityType(typeCode);
     }
 
-    private static IEntityInformationHolder createEntityInformationHolder(
+    private static IEntityInformationHolderWithPermId createEntityInformationHolder(
             final GenericTableRow entity, final PlateMetadataStaticColumns column,
             final String typeCode, final EntityKind entityKind)
     {
-        return new IEntityInformationHolder()
+        return new IEntityInformationHolderWithPermId()
             {
+
                 public String getCode()
                 {
                     return getColumnAsString(entity, column);
@@ -243,6 +243,11 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
                 public EntityKind getEntityKind()
                 {
                     return entityKind;
+                }
+
+                public String getPermId()
+                {
+                    return null; // TODO 2010-10-11, Piotr Buczek: needed for permlink
                 }
             };
     }

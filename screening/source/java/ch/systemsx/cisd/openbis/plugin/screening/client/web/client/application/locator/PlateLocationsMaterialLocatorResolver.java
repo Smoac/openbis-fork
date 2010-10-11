@@ -6,7 +6,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Ma
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -92,7 +91,8 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
             }
         }
 
-        private void fetchExperimentAndShowLocations(final IEntityInformationHolder material,
+        private void fetchExperimentAndShowLocations(
+                final IEntityInformationHolderWithPermId material,
                 ExperimentIdentifier experimentIdentifier)
         {
             viewContext.getCommonService().getExperimentInfo(experimentIdentifier.getIdentifier(),

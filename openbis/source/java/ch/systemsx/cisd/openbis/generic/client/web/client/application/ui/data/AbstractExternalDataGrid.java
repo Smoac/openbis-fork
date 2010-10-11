@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -97,7 +97,7 @@ public abstract class AbstractExternalDataGrid
                 new OpenEntityDetailsTabCellClickListener()
                     {
                         @Override
-                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        protected IEntityInformationHolderWithPermId getEntity(ExternalData rowItem)
                         {
                             return rowItem.getExperiment();
                         }
@@ -110,7 +110,7 @@ public abstract class AbstractExternalDataGrid
                 new OpenEntityDetailsTabCellClickListener()
                     {
                         @Override
-                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
+                        protected IEntityInformationHolderWithPermId getEntity(ExternalData rowItem)
                         {
                             return rowItem.getSample();
                         }
@@ -228,11 +228,11 @@ public abstract class AbstractExternalDataGrid
     private abstract class OpenEntityDetailsTabCellClickListener implements
             ICellListener<ExternalData>
     {
-        protected abstract IEntityInformationHolder getEntity(ExternalData rowItem);
+        protected abstract IEntityInformationHolderWithPermId getEntity(ExternalData rowItem);
 
         public final void handle(ExternalData rowItem, boolean keyPressed)
         {
-            final IEntityInformationHolder entity = getEntity(rowItem);
+            final IEntityInformationHolderWithPermId entity = getEntity(rowItem);
             new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
         }
 

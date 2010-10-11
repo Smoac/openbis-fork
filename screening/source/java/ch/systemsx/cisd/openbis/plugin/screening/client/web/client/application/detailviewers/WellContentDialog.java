@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -115,7 +115,7 @@ public class WellContentDialog extends Dialog
     {
         WellLocation wellLocation = wellData.getWellLocation();
         WellMetadata wellMetadata = wellData.tryGetMetadata();
-        IEntityInformationHolder wellOrNull = null;
+        IEntityInformationHolderWithPermId wellOrNull = null;
         List<IEntityProperty> wellPropertiesOrNull = null;
         if (wellMetadata != null)
         {
@@ -338,7 +338,7 @@ public class WellContentDialog extends Dialog
 
     // ---------- DIALOG CLASS TO DISPLAY WELL PROPERTIES ------
 
-    private final IEntityInformationHolder wellOrNull;
+    private final IEntityInformationHolderWithPermId wellOrNull;
 
     private final WellLocation wellLocationOrNull;
 
@@ -348,7 +348,7 @@ public class WellContentDialog extends Dialog
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private WellContentDialog(IEntityInformationHolder wellOrNull,
+    private WellContentDialog(IEntityInformationHolderWithPermId wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, WellLocation wellLocationOrNull,
             SingleExperimentSearchCriteria experimentCriteria,
             IViewContext<IScreeningClientServiceAsync> viewContext)
@@ -474,7 +474,7 @@ public class WellContentDialog extends Dialog
         spacer.setWidth(10);
         container.add(spacer);
         container.add(new Text("["));
-        // TODO 2010-10-11, Piotr Buczek: change lins in normal view mode not to change URL
+        // TODO 2010-10-11, Piotr Buczek: change links in normal view mode not to change URL
         if (value != null && StringUtils.isBlank(value) == false)
         {
             String[] symbols = value.split(" ");
@@ -499,7 +499,8 @@ public class WellContentDialog extends Dialog
         return container;
     }
 
-    private Widget createPlateLocationsMaterialViewerLink(final IEntityInformationHolder material)
+    private Widget createPlateLocationsMaterialViewerLink(
+            final IEntityInformationHolderWithPermId material)
     {
         final String href =
                 ScreeningLinkExtractor.tryExtractMaterialWithExperiment(material,
@@ -529,7 +530,7 @@ public class WellContentDialog extends Dialog
         return link;
     }
 
-    private Widget createEntityLink(IEntityInformationHolder entity)
+    private Widget createEntityLink(IEntityInformationHolderWithPermId entity)
     {
         final ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
         return LinkRenderer.getLinkWidget(entity.getCode(), listener);

@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -345,7 +345,7 @@ public class SampleBrowserGrid extends
         ICellListener<Sample> experimentClickListener = new OpenEntityDetailsTabCellClickListener()
             {
                 @Override
-                protected IEntityInformationHolder getEntity(Sample rowItem)
+                protected IEntityInformationHolderWithPermId getEntity(Sample rowItem)
                 {
                     return rowItem.getExperiment();
                 }
@@ -385,13 +385,13 @@ public class SampleBrowserGrid extends
 
     private abstract class OpenEntityDetailsTabCellClickListener implements ICellListener<Sample>
     {
-        protected abstract IEntityInformationHolder getEntity(Sample rowItem);
+        protected abstract IEntityInformationHolderWithPermId getEntity(Sample rowItem);
 
         public final void handle(Sample rowItem, boolean keyPressed)
         {
             // don't need to check whether the value is null
             // because there will not be a link for null value
-            final IEntityInformationHolder entity = getEntity(rowItem);
+            final IEntityInformationHolderWithPermId entity = getEntity(rowItem);
             new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
         }
     }
@@ -625,7 +625,7 @@ public class SampleBrowserGrid extends
                     new OpenEntityDetailsTabCellClickListener()
                         {
                             @Override
-                            protected IEntityInformationHolder getEntity(Sample rowItem)
+                            protected IEntityInformationHolderWithPermId getEntity(Sample rowItem)
                             {
                                 return parentColDef.tryGetParent(rowItem);
                             }

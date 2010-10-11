@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
  * The <i>GWT</i> equivalent to MaterialPE.
@@ -28,9 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
  * @author Izabela Adamczyk
  */
 public class Material extends CodeWithRegistration<Material> implements
-        IEntityInformationHolderWithIdentifier, IEntityPropertiesHolder, IIdAndCodeHolder
+        IEntityInformationHolderWithIdentifier, IEntityPropertiesHolder
 {
-
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private DatabaseInstance databaseInstance;

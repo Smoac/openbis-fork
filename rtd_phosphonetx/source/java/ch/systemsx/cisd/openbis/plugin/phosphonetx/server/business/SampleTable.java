@@ -46,6 +46,7 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
 {
     private List<SampleWithPropertiesAndAbundance> samples =
             new ArrayList<SampleWithPropertiesAndAbundance>();
+
     private SampleIDProvider sampleIDProvider;
 
     SampleTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory, Session session)
@@ -64,9 +65,11 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         samples = new ArrayList<SampleWithPropertiesAndAbundance>();
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
         IDAOFactory daoFactory = getDaoFactory();
-        String experimentPermID = daoFactory.getExperimentDAO().getByTechId(experimentID).getPermId();
+        String experimentPermID =
+                daoFactory.getExperimentDAO().getByTechId(experimentID).getPermId();
         DataSet<SampleAbundance> sampleAbundances =
-                proteinQueryDAO.listSampleAbundanceByProtein(experimentPermID, proteinReferenceID.getId());
+                proteinQueryDAO.listSampleAbundanceByProtein(experimentPermID,
+                        proteinReferenceID.getId());
         try
         {
             ISampleDAO sampleDAO = daoFactory.getSampleDAO();
@@ -90,6 +93,7 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
             final SamplePE samplePE)
     {
         result.setId(HibernateUtils.getId(samplePE));
+        result.setPermId(StringEscapeUtils.escapeHtml(samplePE.getPermId()));
         result.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
         result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getIdentifier()));
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),

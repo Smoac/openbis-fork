@@ -22,8 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -34,19 +33,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 public final class OpenEntityDetailsTabAction implements IDelegatedAction
 {
-    private final IEntityInformationHolder entity;
+    private final IEntityInformationHolderWithPermId entity;
 
     private final IViewContext<?> viewContext;
 
     private final boolean keyPressed;
 
-    public OpenEntityDetailsTabAction(IEntityInformationHolder entity,
+    public OpenEntityDetailsTabAction(IEntityInformationHolderWithPermId entity,
             final IViewContext<?> viewContext)
     {
         this(entity, viewContext, false);
     }
 
-    public OpenEntityDetailsTabAction(IEntityInformationHolder entity,
+    public OpenEntityDetailsTabAction(IEntityInformationHolderWithPermId entity,
             final IViewContext<?> viewContext, boolean keyPressed)
     {
         this.entity = entity;
@@ -61,10 +60,9 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
         final IClientPluginFactory clientPluginFactory =
                 viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
                         entityType);
-        final IClientPlugin<BasicEntityType, IIdAndCodeHolder> createClientPlugin =
+        final IClientPlugin<BasicEntityType, IEntityInformationHolderWithPermId> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
-        final AbstractTabItemFactory tabView =
-                createClientPlugin.createEntityViewer(entityType, entity);
+        final AbstractTabItemFactory tabView = createClientPlugin.createEntityViewer(entity);
         tabView.setInBackground(keyPressed);
 
         DispatcherHelper.dispatchNaviEvent(tabView);

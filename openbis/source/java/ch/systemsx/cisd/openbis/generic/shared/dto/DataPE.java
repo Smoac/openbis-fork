@@ -512,6 +512,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     }
 
     @Transient
+    @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.PERM_ID)
     public String getPermId()
     {
         return code;

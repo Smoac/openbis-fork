@@ -63,7 +63,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -395,7 +394,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                     });
     }
 
-    private void showEntityViewer(IEntityInformationHolder entityOrNull, boolean specialKeyPressed)
+    private void showEntityViewer(IEntityInformationHolderWithPermId entityOrNull,
+            boolean specialKeyPressed)
     {
         if (entityOrNull != null)
         {
