@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManagerTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
@@ -43,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ICustomColum
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -52,8 +52,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -66,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 
@@ -148,7 +152,69 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         commonClientService.setCifexURL(CIFEX_URL);
         commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
     }
+    
+    @Test
+    public void testGetExperimentInfoByIdentifier()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
 
+                    one(commonServer).getExperimentInfo(SESSION_TOKEN,
+                            new ExperimentIdentifier("p1", "exp1"));
+                    Experiment experiment = new Experiment();
+                    experiment.setProperties(Arrays.asList(createXmlProperty()));
+                    will(returnValue(experiment));
+                }
+            });
+        
+        Experiment info = commonClientService.getExperimentInfo("p1/exp1");
+        
+        IEntityProperty transformedXMLProperty = info.getProperties().get(0);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>", transformedXMLProperty.tryGetAsString());
+        assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetExperimentInfoByTechId()
+    {
+        final TechId id = new TechId(4711L);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(commonServer).getExperimentInfo(SESSION_TOKEN, id);
+                    Experiment experiment = new Experiment();
+                    experiment.setProperties(Arrays.asList(createXmlProperty()));
+                    will(returnValue(experiment));
+                }
+            });
+        
+        Experiment info = commonClientService.getExperimentInfo(id);
+        
+        IEntityProperty transformedXMLProperty = info.getProperties().get(0);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>", transformedXMLProperty.tryGetAsString());
+        assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
+        context.assertIsSatisfied();
+    }
+    
+    private IEntityProperty createXmlProperty()
+    {
+        GenericValueEntityProperty property = new GenericValueEntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setDataType(new DataType(DataTypeCode.XML));
+        propertyType
+                .setTransformation(("<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
+                        + "<xsl:template match='/'><b><xsl:value-of select='.'/></b></xsl:template>"
+                        + "</xsl:stylesheet>"));
+        property.setPropertyType(propertyType);
+        property.setValue("<root>hello</root>");
+        return property;
+    }
+    
     @SuppressWarnings("unchecked")
     @Test
     public final void testListSamples()

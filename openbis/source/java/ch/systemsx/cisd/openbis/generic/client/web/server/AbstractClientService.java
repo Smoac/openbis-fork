@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetMa
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -58,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -76,7 +79,7 @@ public abstract class AbstractClientService implements IClientService,
 
     @Resource(name = "common-service")
     protected CommonClientService commonClientService;
-
+    
     private String cifexURL;
 
     private String cifexRecipient;
@@ -98,6 +101,11 @@ public abstract class AbstractClientService implements IClientService,
     protected AbstractClientService(final IRequestContextProvider requestContextProvider)
     {
         this.requestContextProvider = requestContextProvider;
+    }
+    
+    protected void transformXML(IEntityPropertiesHolder propertiesHolder)
+    {
+        new XMLPropertyTransformer().transformXMLProperties(Arrays.asList(propertiesHolder));
     }
 
     @SuppressWarnings("unchecked")

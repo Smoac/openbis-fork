@@ -116,7 +116,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         for (IEntityProperty p : properties)
         {
             result.put(p.getPropertyType().getCode(), StringEscapeUtils.unescapeHtml(p
-                    .tryGetAsString()));
+                    .tryGetOriginalValue()));
         }
         return result;
     }

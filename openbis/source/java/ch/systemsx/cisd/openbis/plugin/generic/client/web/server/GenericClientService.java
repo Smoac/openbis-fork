@@ -121,6 +121,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             final String sessionToken = getSessionToken();
             final SampleParentWithDerived sampleParentWithDerived =
                     genericServer.getSampleInfo(sessionToken, sampleId);
+            transformXML(sampleParentWithDerived.getParent());
             return sampleParentWithDerived;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -188,6 +189,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             final String sessionToken = getSessionToken();
             final Material material = genericServer.getMaterialInfo(sessionToken, materialId);
+            transformXML(material);
             return material;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -201,6 +203,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             final String sessionToken = getSessionToken();
             final ExternalData dataset = genericServer.getDataSetInfo(sessionToken, datasetId);
+            transformXML(dataset);
             return dataset;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

@@ -1780,6 +1780,7 @@ public final class CommonClientService extends AbstractClientService implements
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
             final Experiment experiment = commonServer.getExperimentInfo(sessionToken, identifier);
+            transformXML(experiment);
             return experiment;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -1795,6 +1796,7 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final Experiment experiment =
                     commonServer.getExperimentInfo(sessionToken, experimentId);
+            transformXML(experiment);
             return experiment;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

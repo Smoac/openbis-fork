@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,13 +40,21 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -108,7 +117,110 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         multipartFile = context.mock(MultipartFile.class);
         genericClientService = new GenericClientService(genericServer, requestContextProvider);
     }
+    
+    @Test
+    public void testGetSampleGenerationInfo()
+    {
+        final TechId sampleId = new TechId(4711L);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+                    
+                    one(genericServer).getSampleInfo(SESSION_TOKEN, sampleId);
+                    SampleParentWithDerived parentWithDerived = new SampleParentWithDerived();
+                    Sample sample = new Sample();
+                    sample.setProperties(Arrays.asList(createXmlProperty()));
+                    parentWithDerived.setParent(sample);
+                    will(returnValue(parentWithDerived));
+                }
+            });
 
+        SampleParentWithDerived info = genericClientService.getSampleGenerationInfo(sampleId);
+        
+        IEntityProperty transformedXMLProperty = info.getParent().getProperties().get(0);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>", transformedXMLProperty.tryGetAsString());
+        assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetSampleInfo()
+    {
+        final TechId sampleId = new TechId(4711L);
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    one(genericServer).getSampleInfo(SESSION_TOKEN, sampleId);
+                    SampleParentWithDerived parentWithDerived = new SampleParentWithDerived();
+                    Sample sample = new Sample();
+                    sample.setProperties(Arrays.asList(createXmlProperty()));
+                    parentWithDerived.setParent(sample);
+                    will(returnValue(parentWithDerived));
+                }
+            });
+
+        Sample info = genericClientService.getSampleInfo(sampleId);
+
+        IEntityProperty transformedXMLProperty = info.getProperties().get(0);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
+                transformedXMLProperty.tryGetAsString());
+        assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetDataSetInfo()
+    {
+        final TechId id = new TechId(4711L);
+        context.checking(new Expectations()
+        {
+            {
+                prepareGetSessionToken(this);
+                
+                one(genericServer).getDataSetInfo(SESSION_TOKEN, id);
+                ExternalData dataSet = new ExternalData();
+                dataSet.setDataSetProperties(Arrays.asList(createXmlProperty()));
+                will(returnValue(dataSet));
+            }
+        });
+        
+        ExternalData info = genericClientService.getDataSetInfo(id);
+        
+        IEntityProperty transformedXMLProperty = info.getProperties().get(0);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
+                transformedXMLProperty.tryGetAsString());
+        assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetMaterialInfo()
+    {
+        final TechId id = new TechId(4711L);
+        context.checking(new Expectations()
+        {
+            {
+                prepareGetSessionToken(this);
+                
+                one(genericServer).getMaterialInfo(SESSION_TOKEN, id);
+                Material material = new Material();
+                material.setProperties(Arrays.asList(createXmlProperty()));
+                will(returnValue(material));
+            }
+        });
+        
+        Material info = genericClientService.getMaterialInfo(id);
+        
+        IEntityProperty transformedXMLProperty = info.getProperties().get(0);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
+                transformedXMLProperty.tryGetAsString());
+        assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public final void testRegisterSample()
     {
@@ -400,6 +512,20 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         return new IsAnything<List<NewSamplesWithTypes>>();
     }
 
+    private IEntityProperty createXmlProperty()
+    {
+        GenericValueEntityProperty property = new GenericValueEntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setDataType(new DataType(DataTypeCode.XML));
+        propertyType
+                .setTransformation(("<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
+                        + "<xsl:template match='/'><b><xsl:value-of select='.'/></b></xsl:template>"
+                        + "</xsl:stylesheet>"));
+        property.setPropertyType(propertyType);
+        property.setValue("<root>hello</root>");
+        return property;
+    }
+    
     /**
      * A {@link BaseMatcher} extension for checking the list of {@link NewSample NewSamples}.
      * 
