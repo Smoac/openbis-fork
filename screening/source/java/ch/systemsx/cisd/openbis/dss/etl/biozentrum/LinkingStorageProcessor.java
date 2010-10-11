@@ -19,7 +19,10 @@ package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -28,7 +31,9 @@ import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Creates a symbolic link to original data in directory specified in {@link #TARGET_DIR}.
+ * Creates a symbolic link to original data in directory specified in {@link #TARGET_DIR} and a
+ * marker file ({@link Constants#IS_FINISHED_PREFIX}&lt;filename&gt;) containing the code of
+ * registered data set.
  * 
  * @author Izabela Adamczyk
  */
@@ -68,7 +73,17 @@ public class LinkingStorageProcessor extends AbstractDelegatingStorageProcessor
                 super.storeData(dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
         File source = tryGetProprietaryData(resultFile);
-        SoftLinkMaker.createSymbolicLink(source, targetDir);
+        boolean success = SoftLinkMaker.createSymbolicLink(source, targetDir);
+        if (success)
+        {
+            File markerFile = new File(targetDir, Constants.IS_FINISHED_PREFIX + source.getName());
+            FileUtilities.writeToFile(markerFile, dataSetInformation.getDataSetCode());
+        } else
+        {
+            throw EnvironmentFailureException.fromTemplate(
+                    "Can not create symbolic link to '%s' in '%s'.", source.getPath(),
+                    targetDir.getPath());
+        }
         return resultFile;
     }
 
