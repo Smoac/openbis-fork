@@ -519,37 +519,24 @@ public class OpenBISScreeningML
         {
             throw new RuntimeException("No plate with that code found.");
         }
-        final List<String> imageChannels;
-        if (channels == null || channels.length == 0)
-        {
-            final List<ImageDatasetReference> imageDatasets =
-                    openbis.listImageDatasets(Arrays.asList(plateId));
-            final List<ImageDatasetMetadata> meta = openbis.listImageMetadata(imageDatasets);
-            if (meta.isEmpty())
-            {
-                return new Object[][][]
-                    { new Object[0][], new Object[0][] };
-            }
-            imageChannels = getChannelCodes(meta);
-        } else
-        {
-            imageChannels = Arrays.asList(channels);
-        }
         final List<ImageDatasetReference> imageDatasets =
                 openbis.listImageDatasets(Arrays.asList(plateId));
-        if (imageDatasets.isEmpty())
-        {
-            return new Object[][][]
-                { new Object[0][], new Object[0][] };
-        }
-        final List<PlateImageReference> imageReferences =
-                new ArrayList<PlateImageReference>(imageDatasets.size());
         final List<ImageDatasetMetadata> meta = openbis.listImageMetadata(imageDatasets);
         if (meta.isEmpty())
         {
             return new Object[][][]
                 { new Object[0][], new Object[0][] };
         }
+        final List<String> imageChannels;
+        if (channels == null || channels.length == 0)
+        {
+            imageChannels = getChannelCodes(meta);
+        } else
+        {
+            imageChannels = Arrays.asList(channels);
+        }
+        final List<PlateImageReference> imageReferences =
+            new ArrayList<PlateImageReference>(imageDatasets.size());
         final List<File> imageFiles =
                 new ArrayList<File>(imageDatasets.size() * imageChannels.size()
                         * meta.get(0).getNumberOfTiles());
@@ -625,7 +612,7 @@ public class OpenBISScreeningML
                     {
                         return imageRefToFileMap.get(imageReference);
                     }
-                });
+                }, false);
         } finally
         {
             closeOutputStreams(imageRefToFileMap.values());
