@@ -84,7 +84,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 2;
+    public static final int MINOR_VERSION = 3;
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
@@ -308,7 +308,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 featureTableRow.getFeatureValuesAsDouble());
     }
 
-    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            boolean convertToPng)
     {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageReferences);
         final Map<String, IHCSImageDatasetLoader> imageLoadersMap =
@@ -319,10 +320,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             final IHCSImageDatasetLoader imageAccessor =
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-            IContent content = tryGetImageContent(imageAccessor, imageReference);
+            IContent content = tryGetImageContent(imageAccessor, imageReference, convertToPng);
             imageContents.add(content);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
+    }
+
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
+    {
+        return loadImages(sessionToken, imageReferences, true);
     }
 
     // throws exception if some datasets cannot be found
@@ -353,7 +359,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     }
 
     private IContent tryGetImageContent(IHCSImageDatasetLoader imageAccessor,
-            PlateImageReference imageRef)
+            PlateImageReference imageRef, boolean convertToPng)
     {
         Location wellLocation = asLocation(imageRef.getWellPosition());
         Location tileLocation =
@@ -364,7 +370,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             ImageChannelStackReference channelStackReference =
                     ImageChannelStackReference.createFromLocations(wellLocation, tileLocation);
             return ImageChannelsUtils.getImage(imageAccessor, channelStackReference,
-                    imageRef.getChannel(), null);
+                    imageRef.getChannel(), null, convertToPng);
         } catch (EnvironmentFailureException e)
         {
             operationLog.error("Error reading image.", e);

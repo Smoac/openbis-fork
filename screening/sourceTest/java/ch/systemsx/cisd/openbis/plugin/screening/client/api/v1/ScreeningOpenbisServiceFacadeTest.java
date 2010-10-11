@@ -235,7 +235,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dssService1).loadImages(SESSION_TOKEN, Arrays.asList(r1));
+                    one(dssService1).loadImages(SESSION_TOKEN, Arrays.asList(r1), true);
                     ConcatenatedContentInputStream s1 =
                             new ConcatenatedContentInputStream(true, Arrays
                                     .<IContent> asList(new ByteArrayBasedContent("hello 1"
@@ -245,7 +245,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
                     one(outputStreamProvider).getOutputStream(r1);
                     will(returnValue(stream1));
 
-                    one(dssService2).loadImages(SESSION_TOKEN, Arrays.asList(r2));
+                    one(dssService2).loadImages(SESSION_TOKEN, Arrays.asList(r2), true);
                     ConcatenatedContentInputStream s2 =
                             new ConcatenatedContentInputStream(true, Arrays
                                     .<IContent> asList(new ByteArrayBasedContent("hello 2"

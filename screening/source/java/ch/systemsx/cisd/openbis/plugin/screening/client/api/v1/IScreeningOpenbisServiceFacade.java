@@ -126,7 +126,7 @@ public interface IScreeningOpenbisServiceFacade
     @Deprecated
     public List<String> listAvailableFeatureNames(
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
-    
+
     /**
      * For a given set of feature vector data sets provides the list of all available features. This
      * is just the code of the feature. If for different data sets different sets of features are
@@ -206,8 +206,8 @@ public interface IScreeningOpenbisServiceFacade
 
     /**
      * For the given <var>materialIdentifier</var> find all plate locations that are connected to it
-     * and load the feature vectors for the given feature code if not
-     * <code>null</code>, or all available features otherwise.
+     * and load the feature vectors for the given feature code if not <code>null</code>, or all
+     * available features otherwise.
      * 
      * @param materialIdentifier The identifier of the material contained in the wells to get the
      *            feature vectors for.
@@ -224,7 +224,8 @@ public interface IScreeningOpenbisServiceFacade
     /**
      * Saves images for a given list of image references (given by data set code, well position,
      * channel and tile) in the provided output streams. Output streams will not be closed
-     * automatically.<br>
+     * automatically.<br/>
+     * The images will be converted to PNG format before being shipped.<br/>
      * The number of image references has to be the same as the number of files.
      * 
      * @throws IOException when reading images from the server or writing them to the output streams
@@ -232,6 +233,21 @@ public interface IScreeningOpenbisServiceFacade
      */
     public void loadImages(List<PlateImageReference> imageReferences,
             IImageOutputStreamProvider outputStreamProvider) throws IOException;
+
+    /**
+     * Saves images for a given list of image references (given by data set code, well position,
+     * channel and tile) in the provided output streams. Output streams will not be closed
+     * automatically.<br/>
+     * If <code>convertToPng==true</code>, the images will be converted to PNG format before being
+     * shipped, otherwise they will be shipped in the format that they are stored on the server.<br/>
+     * The number of image references has to be the same as the number of files.
+     * 
+     * @throws IOException when reading images from the server or writing them to the output streams
+     *             fails
+     */
+    public void loadImages(List<PlateImageReference> imageReferences,
+            IImageOutputStreamProvider outputStreamProvider, boolean convertToPNG)
+            throws IOException;
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and

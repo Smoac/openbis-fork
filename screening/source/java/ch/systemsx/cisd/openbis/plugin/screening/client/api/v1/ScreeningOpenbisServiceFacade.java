@@ -48,8 +48,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     static final int MAJOR_VERSION_DSS = 1;
 
-    static final String DSS_SCREENING_API =
-            "/rmi-datastore-server-screening-api-v" + MAJOR_VERSION_DSS + "/";
+    static final String DSS_SCREENING_API = "/rmi-datastore-server-screening-api-v"
+            + MAJOR_VERSION_DSS + "/";
 
     private static final String OPENBIS_SCREENING_API = "/rmi-screening-api-v" + MAJOR_VERSION_AS;
 
@@ -284,14 +284,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      * @return The list of {@link FeatureVectorDataset}s, each element corresponds to one of the
      *         <var>featureDatasets</var>.
      */
-    public List<FeatureVectorDataset> loadFeaturesForPlates(
-            List<? extends PlateIdentifier> plates,
+    public List<FeatureVectorDataset> loadFeaturesForPlates(List<? extends PlateIdentifier> plates,
             final List<String> featureCodesOrNull)
     {
         final List<FeatureVectorDatasetReference> datasets = listFeatureVectorDatasets(plates);
         return loadFeatures(datasets, featureCodesOrNull);
     }
-    
+
     /**
      * For a given set of data sets and a set of features (given by their code), provide all the
      * feature vectors.
@@ -330,8 +329,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             List<PlateWellReferenceWithDatasets> plateWellReferenceWithDataSets)
     {
         final List<FeatureVectorDatasetWellReference> result =
-                new ArrayList<FeatureVectorDatasetWellReference>(plateWellReferenceWithDataSets
-                        .size());
+                new ArrayList<FeatureVectorDatasetWellReference>(
+                        plateWellReferenceWithDataSets.size());
         for (PlateWellReferenceWithDatasets plateWellRef : plateWellReferenceWithDataSets)
         {
             for (FeatureVectorDatasetReference fvdr : plateWellRef
@@ -346,9 +345,9 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     private FeatureVectorDatasetWellReference createFVDatasetReference(
             FeatureVectorDatasetReference fvdr, WellPosition wellPosition)
     {
-        return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(), fvdr
-                .getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getExperimentIdentifier(), fvdr
-                .getPlateGeometry(), fvdr.getRegistrationDate(), fvdr.getParentImageDataset(),
+        return new FeatureVectorDatasetWellReference(fvdr.getDatasetCode(),
+                fvdr.getDatastoreServerUrl(), fvdr.getPlate(), fvdr.getExperimentIdentifier(),
+                fvdr.getPlateGeometry(), fvdr.getRegistrationDate(), fvdr.getParentImageDataset(),
                 wellPosition);
     }
 
@@ -443,12 +442,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     /**
      * Saves images for a given list of image references (given by data set code, well position,
      * channel and tile) in the provided output streams. Output streams will not be closed
-     * automatically.<br>
+     * automatically.<br/>
      * <p>
      * If there is an image reference specified which is not referring to the existing image on the
      * server, nothing will be written to the output stream returned by the output streams provider.
      * No exception will be thrown.
      * </p>
+     * The images will be converted to PNG format before being shipped.<br/>
      * The number of image references has to be the same as the number of files.
      * 
      * @throws IOException when reading images from the server or writing them to the output streams
@@ -456,6 +456,29 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
      */
     public void loadImages(List<PlateImageReference> imageReferences,
             final IImageOutputStreamProvider outputStreamProvider) throws IOException
+    {
+        loadImages(imageReferences, outputStreamProvider, true);
+    }
+
+    /**
+     * Saves images for a given list of image references (given by data set code, well position,
+     * channel and tile) in the provided output streams. Output streams will not be closed
+     * automatically.<br/>
+     * <p>
+     * If there is an image reference specified which is not referring to the existing image on the
+     * server, nothing will be written to the output stream returned by the output streams provider.
+     * No exception will be thrown.
+     * </p>
+     * If <code>convertToPng==true</code>, the images will be converted to PNG format before being
+     * shipped, otherwise they will be shipped in the format that they are stored on the server.<br/>
+     * The number of image references has to be the same as the number of files.
+     * 
+     * @throws IOException when reading images from the server or writing them to the output streams
+     *             fails
+     */
+    public void loadImages(final List<PlateImageReference> imageReferences,
+            final IImageOutputStreamProvider outputStreamProvider, final boolean convertToPNG)
+            throws IOException
     {
         try
         {
@@ -465,10 +488,22 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                             public void handle(DssServiceRpcScreeningHolder dssService,
                                     List<PlateImageReference> references)
                             {
-                                checkDSSMinimalMinorVersion(dssService, "loadImages", List.class);
-                                final InputStream stream =
-                                        dssService.getService()
-                                                .loadImages(sessionToken, references);
+                                final InputStream stream;
+                                if (hasDSSMethod(dssService, "loadImages", List.class,
+                                        boolean.class))
+                                {
+                                    // Only available since v1.3
+                                    stream =
+                                        dssService.getService().loadImages(sessionToken,
+                                                references, convertToPNG);
+                                } else
+                                {
+                                    checkDSSMinimalMinorVersion(dssService, "loadImages",
+                                            List.class);
+                                    stream =
+                                            dssService.getService().loadImages(sessionToken,
+                                                    references);
+                                }
                                 try
                                 {
                                     final ConcatenatedFileOutputStreamWriter imagesWriter =
@@ -608,13 +643,13 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         final int minimalMinorVersion =
                 getMinimalMinorVersion(IDssServiceRpcScreening.class, methodName, parameterTypes);
-        if (serviceHolder.getMinorVersion() < minimalMinorVersion)
+        if (hasDSSMethod(serviceHolder, methodName, parameterTypes) == false)
         {
             final String paramString = Arrays.asList(parameterTypes).toString();
             throw new UnsupportedOperationException(String.format(
                     "Method '%s(%s)' requires minor version %d, "
-                            + "but server '%s' has only minor version %d.", methodName, paramString
-                            .substring(1, paramString.length() - 1), minimalMinorVersion,
+                            + "but server '%s' has only minor version %d.", methodName,
+                    paramString.substring(1, paramString.length() - 1), minimalMinorVersion,
                     serviceHolder.getServerUrl(), serviceHolder.getMinorVersion()));
         }
     }
@@ -629,10 +664,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             final String paramString = Arrays.asList(parameterTypes).toString();
             throw new UnsupportedOperationException(String.format(
                     "Method '%s(%s)' requires minor version %d, "
-                            + "but server has only minor version %d.", methodName, paramString
-                            .substring(1, paramString.length() - 1), minimalMinorVersion,
+                            + "but server has only minor version %d.", methodName,
+                    paramString.substring(1, paramString.length() - 1), minimalMinorVersion,
                     minorVersionApplicationServer));
         }
+    }
+
+    private boolean hasDSSMethod(final DssServiceRpcScreeningHolder serviceHolder,
+            final String methodName, final Class<?>... parameterTypes)
+    {
+        final int minimalMinorVersion =
+                getMinimalMinorVersion(IDssServiceRpcScreening.class, methodName, parameterTypes);
+        return serviceHolder.getMinorVersion() >= minimalMinorVersion;
     }
 
     private static int getMinimalMinorVersion(final Class<?> clazz, final String methodName,

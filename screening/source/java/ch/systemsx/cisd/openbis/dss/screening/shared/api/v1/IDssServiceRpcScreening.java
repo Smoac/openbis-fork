@@ -116,7 +116,26 @@ public interface IDssServiceRpcScreening extends IRpcService
      * channel and tile). The result is encoded into one stream, which consist of multiple blocks in
      * a format: (<block-size><block-of-bytes>)*, where block-size is the block size in bytes
      * encoded as one long number. The number of blocks is equal to the number of specified
-     * references and the order of blocks corresponds to the order of image references.
+     * references and the order of blocks corresponds to the order of image references. If
+     * <code>convertToPng==true</code>, the images will be converted to PNG format before being
+     * shipped, otherwise they will be shipped in the format that they are stored on the server.
+     * 
+     * @since 1.3
+     */
+    @MinimalMinorVersion(3)
+    @DataSetAccessGuard
+    public InputStream loadImages(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences,
+            boolean convertToPng);
+
+    /**
+     * Provide images for a given list of image references (given by data set code, well position,
+     * channel and tile). The result is encoded into one stream, which consist of multiple blocks in
+     * a format: (<block-size><block-of-bytes>)*, where block-size is the block size in bytes
+     * encoded as one long number. The number of blocks is equal to the number of specified
+     * references and the order of blocks corresponds to the order of image references. The images
+     * will be converted to PNG format before being shipped.
      */
     @DataSetAccessGuard
     public InputStream loadImages(
