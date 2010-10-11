@@ -59,8 +59,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -593,7 +593,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
 
     @Override
     protected void listTableRows(
-            IResultSetConfig<String, TableModelRowWithObject<WellContent>> resultSetConfig,
+            DefaultResultSetConfig<String, TableModelRowWithObject<WellContent>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<WellContent>> callback)
     {
         assert experimentCriteriaOrNull != null : "experiment not specified";
