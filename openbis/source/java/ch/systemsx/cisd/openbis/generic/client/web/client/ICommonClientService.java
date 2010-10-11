@@ -88,7 +88,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -728,22 +727,16 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of report rows.
      */
-    public ResultSet<TableModelRow> listReport(
-            DefaultResultSetConfig<String, TableModelRow> resultSetConfig)
-            throws UserFailureException;
-
-    public TypedTableResultSet<Null> listReport2(
+    public TypedTableResultSet<Null> listReport(
             IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig)
             throws UserFailureException;
     
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for TableModelRow.
      */
-    public String prepareExportReport(TableExportCriteria<TableModelRow> exportCriteria)
+    public String prepareExportReport(
+            TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria)
             throws UserFailureException;
-
-    public String prepareExportReport2(TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria)
-    throws UserFailureException;
     
     /**
      * Uses the specified datastore service to schedule processing of the specified datasets.

@@ -30,17 +30,18 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
@@ -197,7 +198,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         bindings.addBinding("id", "1");
         TableModelReference table =
                 queryClientService.createQueryResultsReport(database,
-                        "select id, code from sample_types where id = ${id}", bindings);
+                        "select id, code, modification_timestamp from sample_types where id = ${id}", bindings);
         checkTable(table);
     }
 
@@ -207,7 +208,7 @@ public class QueryEditingTest extends QuerySystemTestCase
         logIntoCommonClientService();
 
         NewQuery query =
-                createQuery("query", "select id, code from sample_types where id = ${id}", true,
+                createQuery("query", "select id, code, modification_timestamp from sample_types where id = ${id}", true,
                         DATABASE, QueryType.GENERIC, null);
         queryClientService.registerQuery(query);
 
@@ -281,16 +282,6 @@ public class QueryEditingTest extends QuerySystemTestCase
         List<QueryExpression> queriesCellPlate =
                 queryClientService.listQueries(QueryType.SAMPLE, new BasicEntityType("CELL_PLATE"));
         assertEquals(1, queriesCellPlate.size());
-
-        // QueryExpression actualQuery = queries.get(0);
-        // QueryParameterBindings bindings = new QueryParameterBindings();
-        // bindings.addBinding("id", "1");
-        //
-        // TableModelReference table =
-        // queryClientService.createQueryResultsReport(new TechId(actualQuery.getId()),
-        // bindings);
-        //
-        // checkTable(table);
     }
 
     private void checkTable(TableModelReference table)
@@ -302,15 +293,16 @@ public class QueryEditingTest extends QuerySystemTestCase
         assertEquals("code", headers.get(1).getTitle());
         assertEquals(DataTypeCode.VARCHAR, headers.get(1).getDataType());
         assertEquals(false, headers.get(1).isNumeric());
-        assertEquals(2, headers.size());
+        assertEquals(DataTypeCode.TIMESTAMP, headers.get(2).getDataType());
+        assertEquals(3, headers.size());
 
-        DefaultResultSetConfig<String, TableModelRow> config =
-                new DefaultResultSetConfig<String, TableModelRow>();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Null>> config =
+                new DefaultResultSetConfig<String, TableModelRowWithObject<Null>>();
         config.setCacheConfig(ResultSetFetchConfig.createFetchFromCache(table.getResultSetKey()));
-        ResultSet<TableModelRow> rs = commonClientService.listReport(config);
-        GridRowModels<TableModelRow> l = rs.getList();
-        assertEquals("[1, MASTER_PLATE]", l.get(0).getOriginalObject().getValues().toString());
-        assertEquals(1, rs.getTotalLength());
+        TypedTableResultSet<Null> rs = commonClientService.listReport(config);
+        GridRowModels<TableModelRowWithObject<Null>> l = rs.getResultSet().getList();
+        assertEquals("[1, MASTER_PLATE, Mon Mar 23 15:34:44 CET 2009]", l.get(0).getOriginalObject().getValues().toString());
+        assertEquals(1, rs.getResultSet().getTotalLength());
     }
 
     private NewQuery createQuery(String name, String expression, boolean isPublic,

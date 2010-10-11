@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,61 +16,38 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetReportColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * Grid displaying reporting results. This grid is special comparing to other grids, because it
- * cannot be refreshed and it is ensured, that the data for the grid are cached before it is
- * created.
  * 
- * @author Tomasz Pylak
+ *
+ * @author Franz-Josef Elmer
  */
-public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityModel<TableModelRow>>
+public class ReportGrid extends TypedTableGrid<Null>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "DataSetReporterGrid";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
-
-    /**
-     * Do not display more than this amount of columns in the report, web browsers have problem with
-     * it
-     */
-    private static final int MAX_SHOWN_COLUMNS = 200;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -81,70 +58,22 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
                         infoProvider.getDownloadURL());
         return grid.asDisposableWithoutToolbar();
     }
-
-    public static class ReportColumnUI extends DataSetReportColumnDefinition implements
-            IColumnDefinitionUI<TableModelRow>
-    {
-        private boolean isHidden;
-
-        private int defaultColumnWidth;
-
-        public ReportColumnUI(TableModelColumnHeader columnHeader, String downloadURL,
-                String sessionID, int defaultColumnWidth, boolean isHidden)
-        {
-            super(columnHeader, downloadURL, sessionID);
-            this.isHidden = isHidden;
-            this.defaultColumnWidth = defaultColumnWidth;
-        }
-
-        public int getWidth()
-        {
-            return defaultColumnWidth;
-        }
-
-        public boolean isHidden()
-        {
-            return isHidden;
-        }
-
-        public boolean isLink()
-        {
-            return false;
-        }
-
-        public String tryGetLink(TableModelRow entity)
-        {
-            return null;
-        }
-
-        // GWT only
-        @SuppressWarnings("unused")
-        private ReportColumnUI()
-        {
-            this(null, null, null, 0, false);
-        }
-    }
-
+    
     public static String createId(String idSuffix)
     {
         return BROWSER_ID + "_" + idSuffix;
     }
-
-    private final List<TableModelColumnHeader> tableHeader;
-
+    
     private final String resultSetKey;
 
     private final String reportKind;
-
-    private final String downloadURL;
 
     private ReportGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, String reportKind, String downloadURL)
     {
         super(viewContext, GRID_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
-        this.downloadURL = downloadURL;
+        setDownloadURL(downloadURL);
         setId(BROWSER_ID);
-        this.tableHeader = tableModelReference.getHeader();
         this.resultSetKey = tableModelReference.getResultSetKey();
         this.reportKind = reportKind;
         updateDefaultRefreshButton();
@@ -157,14 +86,9 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     }
 
     @Override
-    protected BaseEntityModel<TableModelRow> createModel(GridRowModel<TableModelRow> entity)
-    {
-        return new BaseEntityModel<TableModelRow>(entity, createColDefinitions());
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, TableModelRow> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<TableModelRow>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Null>> callback)
     {
         // In all cases the data should be taken from the cache, and we know the key already.
         // The custom columns should be recomputed.
@@ -174,107 +98,17 @@ public class ReportGrid extends AbstractBrowserGrid<TableModelRow, BaseEntityMod
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRow> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportReport(exportCriteria, callback);
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        // do noting
-    }
-
-    @Override
-    protected List<IColumnDefinition<TableModelRow>> getInitialFilters()
-    {
-        return Collections.emptyList();
-    }
-
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        return new DatabaseModificationKind[] {};
-    }
-
-    @Override
-    protected final boolean isRefreshEnabled()
-    {
-        /**
-         * The refresh doesn't regenerate the whole report but only refreshes the content of the
-         * table with current filters.
-         */
-        return true;
-    }
-
-    @Override
-    protected void refresh()
-    {
-        refresh(false);
-    }
-
-    @Override
-    protected void showEntityViewer(TableModelRow entity, boolean editMode, boolean inBackground)
     {
         // do nothing
     }
 
-    @Override
-    protected ColumnDefsAndConfigs<TableModelRow> createColumnsDefinition()
-    {
-        List<ReportColumnUI> colDefinitions = createColDefinitions();
-        ColumnDefsAndConfigs<TableModelRow> definitions =
-                ColumnDefsAndConfigs.create(colDefinitions);
-        GridCellRenderer<BaseEntityModel<?>> realNumberRenderer =
-                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
-                        .getRealNumberFormatingParameters());
-        for (final ReportColumnUI colDefinition : colDefinitions)
-        {
-            final int colIndex = colDefinition.getIndex();
-            if (colDefinition.getDataType() == DataTypeCode.REAL)
-            {
-                definitions.setGridCellRendererFor(colDefinition.getIdentifier(),
-                        realNumberRenderer);
-            } else if (colDefinition.tryGetEntityKind() != null)
-            {
-                final EntityKind entityKind = colDefinition.tryGetEntityKind();
-                if (entityKind != EntityKind.MATERIAL)
-                {
-                    definitions.setGridCellRendererFor(colDefinition.getIdentifier(),
-                            createInternalLinkCellRenderer());
-                    registerLinkClickListenerFor(colDefinition.getIdentifier(),
-                            new ICellListener<TableModelRow>()
-                                {
-                                    public void handle(TableModelRow rowItem, boolean keyPressed)
-                                    {
-                                        ISerializableComparable cellValue =
-                                                rowItem.getValues().get(colIndex);
-                                        showEntityViewer(entityKind, cellValue.toString(),
-                                                keyPressed);
-                                    }
-                                });
-                }
-            }
-        }
-        return definitions;
-    }
-
-    private void showEntityViewer(EntityKind entityKind, String permId, boolean keyPressed)
-    {
-        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permId, keyPressed);
-    }
-
-    private List<ReportColumnUI> createColDefinitions()
-    {
-        String sessionID = viewContext.getModel().getSessionContext().getSessionID();
-        List<ReportColumnUI> columns = new ArrayList<ReportColumnUI>();
-        for (int i = 0; i < tableHeader.size(); i++)
-        {
-            TableModelColumnHeader columnHeader = tableHeader.get(i);
-            boolean isHidden = (i > MAX_SHOWN_COLUMNS);
-            int defaultColumnWidth = columnHeader.getDefaultColumnWidth();
-            columns.add(new ReportColumnUI(columnHeader, downloadURL, sessionID,
-                    defaultColumnWidth, isHidden));
-        }
-        return columns;
-    }
 }

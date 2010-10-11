@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGrid2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -93,7 +93,7 @@ public class DataSetReportGenerator
                             public String getId()
                             {
                                 final String reportKey = service.getKey();
-                                return ReportGrid2.createId(reportKey + "_" + reportDate);
+                                return ReportGrid.createId(reportKey + "_" + reportDate);
                             }
 
                             @Override

@@ -79,12 +79,12 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
         assertColumnHeader("id", DataTypeCode.INTEGER, headers.get(0));
         assertColumnHeader("Data Set", DataTypeCode.VARCHAR, headers.get(1));
         assertEquals(EntityKind.DATA_SET, headers.get(1).tryGetEntityKind());
-        assertColumnHeader("registration_timestamp", DataTypeCode.VARCHAR, headers.get(2));
+        assertColumnHeader("registration_timestamp", DataTypeCode.TIMESTAMP, headers.get(2));
         assertColumnHeader("is_valid", DataTypeCode.VARCHAR, headers.get(3));
         assertEquals(4, headers.size());
         List<TableModelRow> rows = model.getRows();
-        assertRow("2\t20081105092158673-1\t2008-11-05 09:21:58.798\ttrue", rows.get(0));
-        assertRow("4\t20081105092159188-3\t2008-11-05 09:21:59.313\ttrue", rows.get(1));
+        assertRow("2\t20081105092158673-1\tWed Nov 05 09:21:58 CET 2008\ttrue", rows.get(0));
+        assertRow("4\t20081105092159188-3\tWed Nov 05 09:21:59 CET 2008\ttrue", rows.get(1));
         assertEquals(2, rows.size());
     }
 

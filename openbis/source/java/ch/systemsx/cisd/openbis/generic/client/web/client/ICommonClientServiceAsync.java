@@ -89,7 +89,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -630,24 +629,15 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TableModelReference> callback);
 
     /**
-     * @see ICommonClientService#listReport(DefaultResultSetConfig)
+     * @see ICommonClientService#listReport(IResultSetConfig)
      */
-    public void listReport(DefaultResultSetConfig<String, TableModelRow> resultSetConfig,
-            AsyncCallback<ResultSet<TableModelRow>> callback);
-
-    /**
-     * @see ICommonClientService#listReport2(IResultSetConfig)
-     */
-    public void listReport2(IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
+    public void listReport(IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<Null>> callback);
     
     /**
      * @see ICommonClientService#prepareExportReport(TableExportCriteria)
      */
-    public void prepareExportReport(TableExportCriteria<TableModelRow> exportCriteria,
-            AsyncCallback<String> callback);
-
-    public void prepareExportReport2(TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
+    public void prepareExportReport(TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
             AsyncCallback<String> callback);
     
     /**

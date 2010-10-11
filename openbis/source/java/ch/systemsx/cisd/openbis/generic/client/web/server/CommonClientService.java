@@ -131,7 +131,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -2045,38 +2044,27 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<TableModelRow> listReport(
-            DefaultResultSetConfig<String, TableModelRow> resultSetConfig)
-    {
-        IOriginalDataProvider<TableModelRow> dummyDataProvider = createDummyDataProvider();
-        return listEntities(resultSetConfig, dummyDataProvider);
-    }
-
-    public TypedTableResultSet<Null> listReport2(
+    public TypedTableResultSet<Null> listReport(
             IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig)
     {
-        IOriginalDataProvider<TableModelRowWithObject<Null>> dataProvider = new IOriginalDataProvider<TableModelRowWithObject<Null>>()
-        {
-            public List<TableModelRowWithObject<Null>> getOriginalData() throws UserFailureException
-            {
-                throw new IllegalStateException("Data not found in the cache");
-            }
+        IOriginalDataProvider<TableModelRowWithObject<Null>> dataProvider =
+                new IOriginalDataProvider<TableModelRowWithObject<Null>>()
+                    {
+                        public List<TableModelRowWithObject<Null>> getOriginalData()
+                                throws UserFailureException
+                        {
+                            throw new IllegalStateException("Data not found in the cache");
+                        }
 
-            public List<TableModelColumnHeader> getHeaders()
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        };
+                        public List<TableModelColumnHeader> getHeaders()
+                        {
+                            return null;
+                        }
+                    };
         return new TypedTableResultSet<Null>(listEntities(resultSetConfig, dataProvider));
     }
 
-    public String prepareExportReport(TableExportCriteria<TableModelRow> criteria)
-    {
-        return prepareExportEntities(criteria);
-    }
-
-    public String prepareExportReport2(TableExportCriteria<TableModelRowWithObject<Null>> criteria)
+    public String prepareExportReport(TableExportCriteria<TableModelRowWithObject<Null>> criteria)
     {
         return prepareExportEntities(criteria);
     }
