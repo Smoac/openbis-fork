@@ -64,6 +64,12 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
                 return QueryViewer.create(viewContext, RunCannedQueryToolbar.createGeneric(
                         viewContext, null, new HashMap<String, QueryParameterValue>(0)));
             }
+
+            @Override
+            public String tryGetLink()
+            {
+                return null; // TODO 2010-10-11, Piotr Buczek: return link to queries
+            }
         },
         RUN_CUSTOM_QUERY("Run Custom SQL Query")
         {
@@ -97,6 +103,11 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
         public String getName()
         {
             return name();
+        }
+
+        public String tryGetLink()
+        {
+            return null;
         }
     }
 

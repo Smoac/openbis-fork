@@ -55,13 +55,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
 
 /**
  * A dialog which shows the content of the well (static or a timepoints movie).
@@ -313,14 +313,15 @@ public class WellContentDialog extends Dialog
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
     {
         Experiment experiment = wellData.getExperiment();
-        return new SingleExperimentSearchCriteria(experiment.getId(), experiment.getIdentifier());
+        return new SingleExperimentSearchCriteria(experiment.getId(), experiment.getPermId(),
+                experiment.getIdentifier());
     }
 
     private static SingleExperimentSearchCriteria getExperiment(
             ExperimentReference experimentReference)
     {
         return new SingleExperimentSearchCriteria(experimentReference.getId(),
-                experimentReference.getExperimentIdentifier());
+                experimentReference.getPermId(), experimentReference.getExperimentIdentifier());
     }
 
     private static float getImageSizeMultiplyFactor(WellImages images)
@@ -473,6 +474,7 @@ public class WellContentDialog extends Dialog
         spacer.setWidth(10);
         container.add(spacer);
         container.add(new Text("["));
+        // TODO 2010-10-11, Piotr Buczek: change lins in normal view mode not to change URL
         if (value != null && StringUtils.isBlank(value) == false)
         {
             String[] symbols = value.split(" ");
@@ -484,6 +486,7 @@ public class WellContentDialog extends Dialog
                     container.add(new Text(","));
                 }
                 String message = viewContext.getMessage(Dict.GENE_LIBRARY_URL, symbol);
+
                 String link = LinkRenderer.renderAsLinkWithAnchor(symbol, message, true);
                 container.add(new Html(link));
             }

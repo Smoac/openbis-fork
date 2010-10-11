@@ -49,6 +49,7 @@ public class LinkRenderer
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
+                @SuppressWarnings("deprecation")
                 public Object render(BaseEntityModel<?> model, String property, ColumnData config,
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
@@ -65,8 +66,15 @@ public class LinkRenderer
                             return new MultilineHTML(originalValue).toString();
                         } else
                         {
-                            String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
-                            return LinkRenderer.renderAsLinkWithAnchor(originalValue, href, false);
+                            if (ClientStaticState.isSimpleMode())
+                            {
+                                String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
+                                return LinkRenderer.renderAsLinkWithAnchor(originalValue, href,
+                                        false);
+                            } else
+                            {
+                                return LinkRenderer.renderAsLinkWithAnchor(originalValue);
+                            }
                         }
                     }
                 }
@@ -181,30 +189,6 @@ public class LinkRenderer
         return getLinkAnchor(text, listener, historyHref, false);
     }
 
-    @SuppressWarnings("deprecation")
-    private static void setHrefOrListener(final ClickHandler listener, final String historyHref,
-            Anchor link)
-    {
-        if (historyHref != null && ClientStaticState.isSimpleMode())
-        {
-            link.setHref("#" + historyHref);
-        } else if (listener != null)
-        {
-            link.addClickHandler(listener);
-        }
-    }
-
-    /**
-     * It is suggested to use {@link #getLinkWidget} method instead of this one.
-     * 
-     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>.
-     *         If <var>historyHref</var> is not null and simple view mode is active
-     *         <var>historyHref</var> will be appended to the link after '#'. Otherwise if
-     *         <var>listener</var> is not null it will be registered on the click event.
-     *         <p>
-     *         The link display style is based on <var>invalidate</var> (default style is for
-     *         false).
-     */
     public static Widget getLinkWidget(final String text, final ClickHandler listener,
             final String historyHref, final boolean invalidate)
     {
@@ -223,6 +207,19 @@ public class LinkRenderer
             link.addStyleName("invalid");
         }
         return link;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void setHrefOrListener(final ClickHandler listener, final String historyHref,
+            Anchor link)
+    {
+        if (historyHref != null && ClientStaticState.isSimpleMode())
+        {
+            link.setHref("#" + historyHref);
+        } else if (listener != null)
+        {
+            link.addClickHandler(listener);
+        }
     }
 
     public static interface IURLProvider

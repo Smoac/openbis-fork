@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
@@ -68,8 +67,7 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
             if (column instanceof IColumnDefinitionUI<?>)
             {
                 set(ModelDataPropertyNames.link(column.getIdentifier()),
-                        ((IColumnDefinitionUI<T>) column).tryGetLink(entity
-                                .getOriginalObject()));
+                        ((IColumnDefinitionUI<T>) column).tryGetLink(entity.getOriginalObject()));
             }
         }
         addCustomColumns(entity.getCalculatedColumnValues());
@@ -147,10 +145,10 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
                     && originalRecord instanceof IInvalidationProvider
                     && column instanceof AbstractColumnDefinition<?>)
             {
-                value =
-                        InvalidableWithCodeRenderer.render((IInvalidationProvider) originalRecord,
-                                value, ((AbstractColumnDefinition<T>) column)
-                                        .tryGetLink(originalRecord));
+                String linkHref = ((AbstractColumnDefinition<T>) column).tryGetLink(originalRecord);
+                boolean invalidate =
+                        ((IInvalidationProvider) originalRecord).getInvalidation() != null;
+                value = LinkRenderer.getLinkWidget(value, null, linkHref, invalidate).toString();
             }
         }
         return value;

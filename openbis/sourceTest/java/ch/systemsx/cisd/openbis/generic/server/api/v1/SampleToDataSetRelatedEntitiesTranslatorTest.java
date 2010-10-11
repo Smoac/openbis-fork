@@ -38,6 +38,8 @@ public class SampleToDataSetRelatedEntitiesTranslatorTest extends AssertJUnit
 
     private static final Long SAMPLE_ID = new Long(1);
 
+    private static final String SAMPLE_PERM_ID = "perm-id";
+
     private static final String SAMPLE_CODE = "sample-code";
 
     private static final String SAMPLE_IDENTIFIER = "/space/sample-code";
@@ -59,6 +61,7 @@ public class SampleToDataSetRelatedEntitiesTranslatorTest extends AssertJUnit
         ArrayList<Sample> samples = new ArrayList<Sample>();
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(SAMPLE_ID);
+        initializer.setPermId(SAMPLE_PERM_ID);
         initializer.setCode(SAMPLE_CODE);
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);

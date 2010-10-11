@@ -144,6 +144,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     {
                         return identifiable.getCode();
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
+                    }
                 };
         }
 
@@ -193,6 +199,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     {
                         return identifiable.getCode();
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
+                    }
                 };
         }
 
@@ -235,6 +247,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
                     public String getTabTitle()
                     {
                         return identifiable.getCode();
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
                     }
                 };
         }

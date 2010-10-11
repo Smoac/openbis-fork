@@ -32,8 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback.IOnReportComponentGeneratedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -107,6 +107,12 @@ public class DataSetReportGenerator
                             public String getTabTitle()
                             {
                                 return service.getLabel() + " (" + reportDate + ")";
+                            }
+
+                            @Override
+                            public String tryGetLink()
+                            {
+                                return null;
                             }
 
                         };

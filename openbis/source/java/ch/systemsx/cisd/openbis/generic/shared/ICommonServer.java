@@ -26,13 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdCollectionPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomColumnPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomFilterPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomColumnPredicate;
@@ -41,6 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.SpaceTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdCollectionPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -92,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -99,8 +102,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -857,11 +858,11 @@ public interface ICommonServer extends IServer
 
     /**
      * For given {@link EntityKind} and permanent <var>identifier</var> returns the corresponding
-     * {@link IEntityInformationHolder}.
+     * {@link IEntityInformationHolderWithPermId}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
+    public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             EntityKind entityKind, String permId);
 
     /**
@@ -870,7 +871,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public IEntityInformationHolder getMaterialInformationHolder(String sessionToken,
+    public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
             MaterialIdentifier identifier);
 
     /**
@@ -1103,7 +1104,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<VocabularyTerm> terms); 
+            List<VocabularyTerm> terms);
 
     /**
      * Deletes specified materials.

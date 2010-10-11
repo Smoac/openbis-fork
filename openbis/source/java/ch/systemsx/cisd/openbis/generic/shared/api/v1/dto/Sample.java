@@ -48,6 +48,8 @@ public final class Sample implements Serializable
     {
         private Long id;
 
+        private String permId;
+
         private String code;
 
         private String identifier;
@@ -66,6 +68,16 @@ public final class Sample implements Serializable
         public Long getId()
         {
             return id;
+        }
+
+        public void setPermId(String permId)
+        {
+            this.permId = permId;
+        }
+
+        public String getPermId()
+        {
+            return permId;
         }
 
         public void setCode(String code)
@@ -117,9 +129,12 @@ public final class Sample implements Serializable
         {
             properties.put(propCode, value);
         }
+
     }
 
     private final Long id;
+
+    private final String permId;
 
     private final String code;
 
@@ -140,6 +155,9 @@ public final class Sample implements Serializable
     {
         checkValidLong(initializer.getId(), "Unspecified id.");
         this.id = initializer.getId();
+
+        checkValidString(initializer.getPermId(), "Unspecified permanent id.");
+        this.permId = initializer.getPermId();
 
         checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
@@ -178,6 +196,14 @@ public final class Sample implements Serializable
     public Long getId()
     {
         return id;
+    }
+
+    /**
+     * Returns the sample permanent id.
+     */
+    public String getPermId()
+    {
+        return permId;
     }
 
     /**

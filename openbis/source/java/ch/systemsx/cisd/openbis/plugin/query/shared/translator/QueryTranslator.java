@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
@@ -50,10 +51,12 @@ public final class QueryTranslator
         {
             final String dbKey = query.getQueryDatabaseKey();
             final DatabaseDefinition database = definitions.get(dbKey);
-            // FIXME silent error
             if (database != null)
             {
                 result.add(QueryTranslator.translate(query, database));
+            } else
+            {
+                UserFailureException.fromTemplate("Query database '%s' is not defined.", dbKey);
             }
         }
         return result;

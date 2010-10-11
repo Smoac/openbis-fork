@@ -73,6 +73,12 @@ public class TopMenuItemDemoModuleMenu extends MenuItem
         {
             return viewContext.getMessage(Dict.STATISTICS_DEMO_TAB_HEADER);
         }
+
+        @Override
+        public String tryGetLink()
+        {
+            return null;
+        }
     }
 
     public static enum ActionMenuKind implements IActionMenuItem

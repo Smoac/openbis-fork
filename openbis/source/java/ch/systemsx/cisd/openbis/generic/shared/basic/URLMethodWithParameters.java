@@ -65,16 +65,6 @@ public class URLMethodWithParameters implements IsSerializable
     }
 
     /**
-     * Adds history token (prepends '#' prefix, no encoding)
-     */
-    public void addHistoryToken(String historyToken)
-    {
-        startHistoryToken();
-        builder.append(historyToken);
-        delim = '&';
-    }
-
-    /**
      * Adds a parameter with specified name and value with optional encoding.
      */
     private void addParameter(String parameterName, Object value, boolean withEncoding)

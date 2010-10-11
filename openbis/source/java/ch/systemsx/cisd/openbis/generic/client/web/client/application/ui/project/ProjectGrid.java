@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -226,6 +227,11 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.VIEW);
                     }
 
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return LinkExtractor.tryExtract(project);
+                    }
                 };
         } else
         {
@@ -256,6 +262,12 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
                         return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.EDIT);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
                     }
                 };
         }

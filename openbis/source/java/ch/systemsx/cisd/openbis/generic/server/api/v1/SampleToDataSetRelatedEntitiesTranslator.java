@@ -95,7 +95,7 @@ class SampleToDataSetRelatedEntitiesTranslator
         }
         BasicEntityInformationHolder holder =
                 new BasicEntityInformationHolder(EntityKind.SAMPLE, entityType, sample.getCode(),
-                        sample.getId());
+                        sample.getId(), sample.getPermId());
         return holder;
     }
 }

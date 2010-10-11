@@ -29,8 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Piotr Buczek
  */
-public class BasicEntityInformationHolder implements IEntityInformationHolder, IsSerializable,
-        Serializable
+public class BasicEntityInformationHolder implements IEntityInformationHolderWithPermId,
+        IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -42,6 +42,8 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
 
     private Long id;
 
+    private String permId;
+
     @SuppressWarnings("unused")
     private BasicEntityInformationHolder()
     {
@@ -49,12 +51,13 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
     }
 
     public BasicEntityInformationHolder(EntityKind entityKind, BasicEntityType entityType,
-            String code, Long id)
+            String code, Long id, String permId)
     {
         this.entityKind = entityKind;
         this.entityType = entityType;
         this.code = code;
         this.id = id;
+        this.permId = permId;
     }
 
     public EntityKind getEntityKind()
@@ -75,5 +78,10 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
     public Long getId()
     {
         return id;
+    }
+
+    public String getPermId()
+    {
+        return permId;
     }
 }

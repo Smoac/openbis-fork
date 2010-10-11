@@ -144,8 +144,8 @@ public final class SearchWidget extends LayoutContainer
         }
         if (hasOnlyWildcards(queryText))
         {
-            MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
-                    .getMessage(Dict.TOO_GENERIC, queryText), null);
+            MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
+                    viewContext.getMessage(Dict.TOO_GENERIC, queryText), null);
             return;
         }
         enableSearch(false);
@@ -227,6 +227,12 @@ public final class SearchWidget extends LayoutContainer
                 public String getTabTitle()
                 {
                     return title;
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
                 }
             };
     }

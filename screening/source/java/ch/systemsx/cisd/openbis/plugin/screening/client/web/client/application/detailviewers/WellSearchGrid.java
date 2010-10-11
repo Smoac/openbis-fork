@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -79,13 +80,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchGridColumnIds;
 
 /**
  * @author Franz-Josef Elmer
@@ -100,7 +101,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     private static final String CHANNEL_CHOOSER_LABEL = "Channel:";
 
     private static final String SINGLE_EXPERIMENT_TEXT = "Single experiment";
-    
+
     private static final String ALL_EXPERIMENTS_TEXT = "All experiments";
 
     private static final String CHOOSE_ONE_EXPERIMENT_TEXT = "Choose one experiment...";
@@ -116,10 +117,11 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.EXPERIMENT,
                 experimentPermId,
-                new AbstractAsyncCallback<IEntityInformationHolder>(screeningViewContext)
+                new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(screeningViewContext)
                     {
                         @Override
-                        protected void process(IEntityInformationHolder experimentIdentifier)
+                        protected void process(
+                                IEntityInformationHolderWithPermId experimentIdentifier)
                         {
                             TechId experimentId = new TechId(experimentIdentifier.getId());
                             WellSearchGrid.openTab(screeningViewContext, experimentId,
@@ -141,9 +143,9 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                         {
                             ExperimentSearchCriteria experimentCriteria =
                                     ExperimentSearchCriteria.createExperiment(experiment.getId(),
-                                            experiment.getIdentifier());
-                            WellSearchGrid.openTab(screeningViewContext,
-                                    experimentCriteria, materialSearchCriteria);
+                                            experiment.getPermId(), experiment.getIdentifier());
+                            WellSearchGrid.openTab(screeningViewContext, experimentCriteria,
+                                    materialSearchCriteria);
                         }
                     });
     }
@@ -158,8 +160,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                 public ITabItem create()
                 {
                     IDisposableComponent reviewer =
-                            WellSearchGrid.create(viewContext, experimentCriteria,
-                                    materialCriteria);
+                            WellSearchGrid
+                                    .create(viewContext, experimentCriteria, materialCriteria);
                     return DefaultTabItem.create(getTabTitle(), reviewer, viewContext);
                 }
 
@@ -181,6 +183,17 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                 public String getTabTitle()
                 {
                     return viewContext.getMessage(Dict.PLATE_MATERIAL_REVIEWER_TITLE);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    SingleExperimentSearchCriteria experimentCriteriaOrNull =
+                            experimentCriteria.tryGetExperiment();
+                    return ScreeningLinkExtractor.createWellsSearchLink(
+                            (experimentCriteriaOrNull != null ? experimentCriteriaOrNull
+                                    .getExperimentPermId() : null), materialCriteria
+                                    .tryGetMaterialCodesOrProperties());
                 }
             };
         DispatcherHelper.dispatchNaviEvent(tabFactory);
@@ -256,6 +269,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                                     wellContent.getObjectOrNull().getExperiment();
                             ExperimentSearchCriteria experimentCriteria =
                                     ExperimentSearchCriteria.createExperiment(experiment.getId(),
+                                            experiment.getPermId(),
                                             experiment.getExperimentIdentifier());
 
                             ClientPluginFactory.openPlateLocationsMaterialViewer(contentMaterial,
@@ -451,7 +465,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             Experiment experiment)
     {
         SingleExperimentSearchCriteria singleExperiment =
-                new SingleExperimentSearchCriteria(experiment.getId(), experiment.getIdentifier());
+                new SingleExperimentSearchCriteria(experiment.getId(), experiment.getPermId(),
+                        experiment.getIdentifier());
         updateSingleExperimentChooser(chooserField, singleExperiment);
         this.experimentCriteriaOrNull = ExperimentSearchCriteria.createExperiment(singleExperiment);
         refresh();

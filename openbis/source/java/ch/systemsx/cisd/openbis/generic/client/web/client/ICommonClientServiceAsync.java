@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -590,13 +590,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#getEntityInformationHolder(EntityKind, String)
      */
     public void getEntityInformationHolder(EntityKind entityKind, String permId,
-            AsyncCallback<IEntityInformationHolder> callback);
+            AsyncCallback<IEntityInformationHolderWithPermId> callback);
 
     /**
      * @see ICommonClientService#getMaterialInformationHolder(MaterialIdentifier)
      */
     public void getMaterialInformationHolder(MaterialIdentifier materialIdentifier,
-            AsyncCallback<IEntityInformationHolder> openEntityDetailsTabCallback);
+            AsyncCallback<IEntityInformationHolderWithPermId> openEntityDetailsTabCallback);
 
     /**
      * @see ICommonClientService#getTemplate(EntityKind, String, boolean,boolean,BatchOperationKind)

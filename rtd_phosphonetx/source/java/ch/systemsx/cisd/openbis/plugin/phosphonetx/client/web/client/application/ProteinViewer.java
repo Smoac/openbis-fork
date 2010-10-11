@@ -116,6 +116,12 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
                     return viewContext.getMessage(Dict.PROTEIN_IN_EXPERIMENT_TAB_LABEL,
                             description, identifier);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 
@@ -280,8 +286,8 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
         if (experimentOrNull != null)
         {
             properties.put(viewContext.getMessage(Dict.EXPERIMENT_LABEL), experimentOrNull);
-            propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
-                    .createExperimentPropertyValueRenderer(viewContext));
+            propertyGrid.registerPropertyValueRenderer(Experiment.class,
+                    PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
         }
         properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), protein);
         propertyGrid.registerPropertyValueRenderer(ProteinByExperiment.class,
@@ -301,16 +307,16 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
     private void addProteinDetails(Map<String, Object> properties, PropertyGrid propertyGrid,
             ProteinDetails proteinDetails)
     {
-        properties.put(viewContext.getMessage(Dict.DATABASE_NAME_AND_VERSION), proteinDetails
-                .getDatabaseNameAndVersion());
+        properties.put(viewContext.getMessage(Dict.DATABASE_NAME_AND_VERSION),
+                proteinDetails.getDatabaseNameAndVersion());
         String markedSequence =
                 markPeptides(proteinDetails.getSequence(), proteinDetails.getPeptides());
         properties.put(viewContext.getMessage(Dict.SEQUENCE_NAME), markedSequence);
 
         properties.put(viewContext.getMessage(Dict.COVERAGE), proteinDetails.getCoverage());
 
-        propertyGrid.registerPropertyValueRenderer(Peptide.class, PropertyValueRenderers
-                .createPeptideRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Peptide.class,
+                PropertyValueRenderers.createPeptideRenderer(viewContext));
         properties.put(viewContext.getMessage(Dict.PEPTIDES, proteinDetails.getPeptides().size()),
                 proteinDetails.getPeptides().toArray());
 

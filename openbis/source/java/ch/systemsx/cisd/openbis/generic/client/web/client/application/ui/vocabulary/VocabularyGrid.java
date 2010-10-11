@@ -247,6 +247,12 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     return viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER,
                             vocabulary.getCode());
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
         tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);

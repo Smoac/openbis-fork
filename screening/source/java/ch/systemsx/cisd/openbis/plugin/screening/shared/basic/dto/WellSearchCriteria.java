@@ -43,6 +43,8 @@ public class WellSearchCriteria implements IsSerializable, Serializable
 
         private TechId experimentId;
 
+        private String experimentPermId;
+
         private String experimentIdentifier; // for display purposes and links in simple view mode
 
         // GWT only
@@ -51,15 +53,22 @@ public class WellSearchCriteria implements IsSerializable, Serializable
         {
         }
 
-        public SingleExperimentSearchCriteria(long experimentId, String experimentIdentifier)
+        public SingleExperimentSearchCriteria(long experimentId, String experimentPermId,
+                String experimentIdentifier)
         {
             this.experimentId = new TechId(experimentId);
+            this.experimentPermId = experimentPermId;
             this.experimentIdentifier = experimentIdentifier;
         }
 
         public TechId getExperimentId()
         {
             return experimentId;
+        }
+
+        public String getExperimentPermId()
+        {
+            return experimentPermId;
         }
 
         public String getExperimentIdentifier()
@@ -96,10 +105,10 @@ public class WellSearchCriteria implements IsSerializable, Serializable
         }
 
         public static final ExperimentSearchCriteria createExperiment(long experimentId,
-                String experimentIdentifier)
+                String experimentPermId, String experimentIdentifier)
         {
             return new ExperimentSearchCriteria(new SingleExperimentSearchCriteria(experimentId,
-                    experimentIdentifier));
+                    experimentPermId, experimentIdentifier));
         }
 
         // GWT only

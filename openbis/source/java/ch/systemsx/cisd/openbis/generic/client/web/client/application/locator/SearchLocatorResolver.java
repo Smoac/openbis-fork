@@ -37,7 +37,7 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
     protected static final SearchCriteriaConnection DEFAULT_MATCH_CONNECTION =
             SearchCriteriaConnection.MATCH_ALL;
 
-    protected static final boolean DEFAULT_USE_WILDCARDS = true;
+    protected static final boolean DEFAULT_USE_WILDCARDS = false;
 
     public SearchLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -57,11 +57,11 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
         if (EntityKind.SAMPLE == entityKind)
         {
             SampleSearchLocatorResolver resolver = new SampleSearchLocatorResolver(viewContext);
-            resolver.openEntitySearch(searchCriteria);
+            resolver.openEntitySearch(searchCriteria, locator.getHistoryToken());
         } else if (EntityKind.DATA_SET == entityKind)
         {
             DataSetSearchLocatorResolver resolver = new DataSetSearchLocatorResolver(viewContext);
-            resolver.openEntitySearch(searchCriteria);
+            resolver.openEntitySearch(searchCriteria, locator.getHistoryToken());
         } else
         {
             throw new UserFailureException(
@@ -121,8 +121,8 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
             if (criterionList.isEmpty())
             {
                 DetailedSearchCriterion searchCriterion =
-                        new DetailedSearchCriterion(DetailedSearchField
-                                .createAttributeField(AttributeSearchFieldKindProvider
+                        new DetailedSearchCriterion(
+                                DetailedSearchField.createAttributeField(AttributeSearchFieldKindProvider
                                         .getAttributeFieldKind(entityKind, "CODE")),
                                 SearchLocatorResolver.DEFAULT_SEARCH_STRING);
                 criterionList.add(searchCriterion);
@@ -144,8 +144,8 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
             try
             {
                 IAttributeSearchFieldKind searchFieldKind =
-                        AttributeSearchFieldKindProvider.getAttributeFieldKind(entityKind, key
-                                .toUpperCase());
+                        AttributeSearchFieldKindProvider.getAttributeFieldKind(entityKind,
+                                key.toUpperCase());
                 field = DetailedSearchField.createAttributeField(searchFieldKind);
             } catch (IllegalArgumentException ex)
             {

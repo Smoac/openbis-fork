@@ -137,6 +137,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     {
                         return getViewerTitle(Dict.EXPERIMENT, identifiable);
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                    }
                 };
         }
 
@@ -183,6 +189,12 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
                     public String getTabTitle()
                     {
                         return getEditorTitle(Dict.EXPERIMENT, identifiable);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
                     }
                 };
         }

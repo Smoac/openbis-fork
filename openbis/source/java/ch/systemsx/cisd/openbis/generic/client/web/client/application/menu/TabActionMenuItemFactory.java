@@ -57,8 +57,8 @@ public class TabActionMenuItemFactory
                 @Override
                 public ITabItem create()
                 {
-                    return DefaultTabItem.create(getTabTitle(), definition
-                            .createComponent(viewContext), viewContext, false);
+                    return DefaultTabItem.create(getTabTitle(),
+                            definition.createComponent(viewContext), viewContext, false);
                 }
 
                 @Override
@@ -71,6 +71,12 @@ public class TabActionMenuItemFactory
                 public String getTabTitle()
                 {
                     return viewContext.getMessage(tabLabelKey);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return definition.tryGetLink();
                 }
             });
 

@@ -52,12 +52,9 @@ public abstract class AbstractTabItemFactory
     public abstract String getTabTitle();
 
     /**
-     * Returns a permlink for this tab item or null if we don't support such a link.
+     * Returns a 'permlink' for this tab item or null if we don't support such a link.
      */
-    public String tryGetPermlink()
-    {
-        return null;
-    }
+    public abstract String tryGetLink();
 
     /**
      * True if the tab should become active.

@@ -69,6 +69,11 @@ public class PhosphoNetXModule implements IModule
                         {
                             return RawDataSampleGrid.create(context);
                         }
+
+                        public String tryGetLink()
+                        {
+                            return null;
+                        }
                     }));
     }
 

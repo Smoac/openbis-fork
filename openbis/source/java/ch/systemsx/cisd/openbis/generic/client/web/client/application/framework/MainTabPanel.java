@@ -118,10 +118,10 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             // 'ID_PREFIX'. We want the user to set an unique id.
             assert tabId.startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
             final HelpPageIdentifier helpId = tabItemFactory.getHelpPageIdentifier();
-            final String permlinkOrNull = tabItemFactory.tryGetPermlink();
+            final String linkOrNull = tabItemFactory.tryGetLink();
             assert helpId != null : "Unspecified help identifier";
             final MainTabItem newTab =
-                    new MainTabItem(tabItemFactory.create(), tabId, helpId, permlinkOrNull);
+                    new MainTabItem(tabItemFactory.create(), tabId, helpId, linkOrNull);
             // WORKAROUND to fix problems when paging toolbar's layout is performed in a hidden tab
             newTab.setHideMode(HideMode.OFFSETS);
             add(newTab);
@@ -175,7 +175,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             closeContextMenu.add(bookmarkMenuItem);
             super.onItemContextMenu(item, x, y);
         }
-        boolean bookmarkNotAvailable = ((MainTabItem) item).getPermlinkOrNull() == null;
+        boolean bookmarkNotAvailable = ((MainTabItem) item).getLinkOrNull() == null;
         bookmarkMenuItem.setEnabled(bookmarkNotAvailable == false);
     }
 
@@ -201,7 +201,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
 
     private MenuItem createBookmarkMenuItem()
     {
-        return new MenuItem(viewContext.getMessage(Dict.PERMLINK),
+        return new MenuItem(viewContext.getMessage(Dict.TAB_LINK),
                 new SelectionListener<MenuEvent>()
                     {
                         @Override
@@ -209,14 +209,12 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                         {
                             MainTabItem selectedTab =
                                     (MainTabItem) ce.getContainer().getData("tab");
-                            String permlinkToken = selectedTab.getPermlinkOrNull();
-                            assert permlinkToken != null;
-                            URLMethodWithParameters permlink = new URLMethodWithParameters("");
-                            permlink.addHistoryToken(permlinkToken);
+                            String linkToken = selectedTab.getLinkOrNull();
+                            assert linkToken != null;
                             String link =
                                     LinkRenderer.renderAsLinkWithAnchor("link",
-                                            permlink.toString(), false);
-                            MessageBox.info(viewContext.getMessage(Dict.PERMLINK), "Copy this "
+                                            "#" + linkToken, false);
+                            MessageBox.info(viewContext.getMessage(Dict.TAB_LINK), "Copy this "
                                     + link
                                     + " and use it to access openBIS with current tab opened.",
                                     null);
@@ -233,17 +231,17 @@ public class MainTabPanel extends TabPanel implements IMainPanel
 
         private final String idPrefix;
 
-        private final String permlinkOrNull;
+        private final String linkOrNull;
 
         private final HelpPageIdentifier helpPageIdentifier;
 
         public MainTabItem(final ITabItem tabItem, final String idPrefix,
-                final HelpPageIdentifier helpPageIdentifier, String permlinkOrNull)
+                final HelpPageIdentifier helpPageIdentifier, String linkOrNull)
         {
             this.tabItem = tabItem;
             this.idPrefix = idPrefix;
             this.helpPageIdentifier = helpPageIdentifier;
-            this.permlinkOrNull = permlinkOrNull;
+            this.linkOrNull = linkOrNull;
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
@@ -264,9 +262,9 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             return helpPageIdentifier;
         }
 
-        public String getPermlinkOrNull()
+        public String getLinkOrNull()
         {
-            return permlinkOrNull;
+            return linkOrNull;
         }
 
         @Override

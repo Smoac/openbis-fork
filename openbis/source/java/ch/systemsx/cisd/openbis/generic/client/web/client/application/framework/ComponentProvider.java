@@ -138,7 +138,7 @@ public final class ComponentProvider
                 }
 
                 @Override
-                public String tryGetPermlink()
+                public String tryGetLink()
                 {
                     return LinkExtractor.createSampleBrowserLink(initialGroupOrNull,
                             initialSampleTypeOrNull);
@@ -187,6 +187,12 @@ public final class ComponentProvider
                     return getMessage(Dict.MATERIAL_BROWSER);
                 }
 
+                @Override
+                public String tryGetLink()
+                {
+                    return LinkExtractor.createMaterialBrowserLink(initialMaterialTypeOrNull);
+                }
+
             };
     }
 
@@ -218,6 +224,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.GROUP_BROWSER);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -250,6 +263,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.AUTHORIZATION_GROUP_BROWSER);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -281,6 +301,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.ROLE_ASSIGNMENT_BROWSER);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -312,6 +339,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.PERSON_BROWSER);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -344,6 +378,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.SAMPLE_REGISTRATION);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -382,6 +423,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.EXPERIMENT_REGISTRATION);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -420,6 +468,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.SAMPLE_BATCH_REGISTRATION);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -455,6 +510,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.SAMPLE_BATCH_UPDATE);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -488,6 +550,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.DATA_SET_BATCH_UPDATE);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -520,6 +589,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.MATERIAL_IMPORT);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -552,6 +628,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.VOCABULARY_REGISTRATION);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -584,6 +667,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.PROJECT_REGISTRATION);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -615,6 +705,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.VOCABULARY_BROWSER);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -646,6 +743,13 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.PROJECT_BROWSER);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
             };
     }
 
@@ -680,6 +784,14 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.EXPERIMENT_BROWSER);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return LinkExtractor.createExperimentBrowserLink(initialProjectOrNull,
+                            initialExperimentTypeOrNull);
+                }
+
             };
     }
 
@@ -717,6 +829,12 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.PROPERTY_TYPES);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 
@@ -750,6 +868,12 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.PROPERTY_TYPE_REGISTRATION);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 
@@ -780,6 +904,12 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.PROPERTY_TYPE_ASSIGNMENTS);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
                 }
             };
     }
@@ -838,6 +968,12 @@ public final class ComponentProvider
                 {
                     return getMessage(tabTitleMessageKey);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 
@@ -868,6 +1004,12 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.DATA_SET_SEARCH);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return LinkExtractor.createSearchLink(EntityKind.DATA_SET);
                 }
             };
     }
@@ -900,6 +1042,12 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.SAMPLE_SEARCH);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return LinkExtractor.createSearchLink(EntityKind.SAMPLE);
+                }
             };
     }
 
@@ -930,6 +1078,12 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.SAMPLE_TYPES);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
                 }
 
             };
@@ -964,6 +1118,12 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.MATERIAL_TYPES);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 
@@ -995,6 +1155,12 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.EXPERIMENT_TYPES);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
                 }
             };
     }
@@ -1028,6 +1194,12 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.DATA_SET_TYPES);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 
@@ -1060,6 +1232,12 @@ public final class ComponentProvider
                 {
                     return getMessage(Dict.DATA_SET_UPLOAD);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
     }
 
@@ -1090,6 +1268,12 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.FILE_FORMAT_TYPES);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
                 }
             };
     }
@@ -1132,6 +1316,12 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.LOGGING_CONSOLE);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
                 }
 
             };

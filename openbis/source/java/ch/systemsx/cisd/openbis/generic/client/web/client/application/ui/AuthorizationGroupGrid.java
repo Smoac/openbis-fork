@@ -232,6 +232,12 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                 {
                     return viewContext.getMessage(Dict.AUTHORIZATION_GROUP_USERS, group.getCode());
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
         tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);

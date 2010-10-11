@@ -318,6 +318,12 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 {
                     return helper.createTabTitle();
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
         tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);

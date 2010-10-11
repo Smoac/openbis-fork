@@ -174,8 +174,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 public ITabItem create()
                 {
                     final DatabaseModificationAwareComponent viewer =
-                            PlateLocationsMaterialViewer.create(viewContext, TechId
-                                    .create(materialId), experimentCriteriaOrNull);
+                            PlateLocationsMaterialViewer.create(viewContext,
+                                    TechId.create(materialId), experimentCriteriaOrNull);
                     return createViewerTab(viewer, getTabTitle(), viewContext);
                 }
 
@@ -197,6 +197,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     return getViewerTitle(Dict.MATERIAL, materialId, viewContext);
                 }
 
+                @Override
+                public String tryGetLink()
+                {
+                    return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                }
             };
     }
 
@@ -241,6 +246,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getTabTitle()
                     {
                         return getViewerTitle(Dict.DATA_SET, identifiable, screeningViewContext);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
                     }
                 };
         }
@@ -287,6 +298,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getTabTitle()
                     {
                         return getViewerTitle(Dict.PLATE, identifiable, screeningViewContext);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
                     }
                 };
         }

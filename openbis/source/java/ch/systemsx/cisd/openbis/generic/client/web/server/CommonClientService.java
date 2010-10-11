@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
@@ -1900,7 +1901,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public IEntityInformationHolder getEntityInformationHolder(EntityKind entityKind, String permId)
+    public IEntityInformationHolderWithPermId getEntityInformationHolder(EntityKind entityKind,
+            String permId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
@@ -1913,7 +1915,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public IEntityInformationHolder getMaterialInformationHolder(MaterialIdentifier identifier)
+    public IEntityInformationHolderWithPermId getMaterialInformationHolder(
+            MaterialIdentifier identifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();

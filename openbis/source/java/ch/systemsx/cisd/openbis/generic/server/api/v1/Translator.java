@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server.api.v1;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -47,6 +47,7 @@ class Translator
     {
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(privateSample.getId());
+        initializer.setPermId(privateSample.getPermId());
         initializer.setCode(privateSample.getCode());
         initializer.setIdentifier(privateSample.getIdentifier());
         initializer.setSampleTypeId(privateSample.getSampleType().getId());

@@ -52,7 +52,8 @@ public class SampleSearchLocatorResolver
         this.viewContext = viewContext;
     }
 
-    public void openEntitySearch(DetailedSearchCriteria searchCriteria) throws UserFailureException
+    public void openEntitySearch(DetailedSearchCriteria searchCriteria, String historyToken)
+            throws UserFailureException
     {
         // Create a display criteria object for the search string
         ListSampleDisplayCriteria displayCriteria = ListSampleDisplayCriteria.createForSearch();
@@ -61,7 +62,7 @@ public class SampleSearchLocatorResolver
         // Do a search first and based on the results of the search, open either the details view or
         // the search view
         viewContext.getCommonService().listSamples(displayCriteria,
-                new OpenEntitySearchTabCallback(displayCriteria));
+                new OpenEntitySearchTabCallback(displayCriteria, historyToken));
     }
 
     private class OpenEntitySearchTabCallback implements
@@ -69,9 +70,13 @@ public class SampleSearchLocatorResolver
     {
         private final ListSampleDisplayCriteria displayCriteria;
 
-        private OpenEntitySearchTabCallback(ListSampleDisplayCriteria displayCriteria)
+        private final String historyToken;
+
+        private OpenEntitySearchTabCallback(ListSampleDisplayCriteria displayCriteria,
+                String historyToken)
         {
             this.displayCriteria = displayCriteria;
+            this.historyToken = historyToken;
         }
 
         public final void onFailure(Throwable caught)
@@ -103,7 +108,8 @@ public class SampleSearchLocatorResolver
                 // Multiple results found -- show them in a grid
                 default:
                     OpenEntitySearchGridTabAction searchAction =
-                            new OpenEntitySearchGridTabAction(displayCriteria, viewContext);
+                            new OpenEntitySearchGridTabAction(displayCriteria, viewContext,
+                                    historyToken);
                     DispatcherHelper.dispatchNaviEvent(searchAction);
 
                     break;
@@ -117,11 +123,14 @@ public class SampleSearchLocatorResolver
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+        private final String historyToken;
+
         private OpenEntitySearchGridTabAction(ListSampleDisplayCriteria displayCriteria,
-                IViewContext<ICommonClientServiceAsync> viewContext)
+                IViewContext<ICommonClientServiceAsync> viewContext, String historyToken)
         {
             this.displayCriteria = displayCriteria;
             this.viewContext = viewContext;
+            this.historyToken = historyToken;
         }
 
         private String getMessage(String key)
@@ -160,6 +169,12 @@ public class SampleSearchLocatorResolver
         public String getTabTitle()
         {
             return getMessage(Dict.SAMPLE_SEARCH);
+        }
+
+        @Override
+        public String tryGetLink()
+        {
+            return historyToken;
         }
     }
 }

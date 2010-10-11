@@ -7,6 +7,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -55,7 +56,7 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
     }
 
     private static class OpenEntityDetailsTabCallback extends
-            AbstractAsyncCallback<IEntityInformationHolder>
+            AbstractAsyncCallback<IEntityInformationHolderWithPermId>
     {
         private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
@@ -80,7 +81,7 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
          * Opens the tab with <var>result</var> entity details.
          */
         @Override
-        protected final void process(final IEntityInformationHolder material)
+        protected final void process(final IEntityInformationHolderWithPermId material)
         {
             if (experimentIdentifierOrNull == null)
             {
@@ -102,7 +103,8 @@ public class PlateLocationsMaterialLocatorResolver extends MaterialLocatorResolv
                             {
                                 ExperimentSearchCriteria experimentCriteria =
                                         ExperimentSearchCriteria.createExperiment(
-                                                experiment.getId(), experiment.getIdentifier());
+                                                experiment.getId(), experiment.getPermId(),
+                                                experiment.getIdentifier());
                                 ClientPluginFactory.openPlateLocationsMaterialViewer(material,
                                         experimentCriteria,
                                         OpenEntityDetailsTabCallback.this.viewContext);

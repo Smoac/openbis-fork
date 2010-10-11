@@ -45,11 +45,12 @@ public class DataSetSearchLocatorResolver
         this.viewContext = viewContext;
     }
 
-    public void openEntitySearch(DetailedSearchCriteria searchCriteria) throws UserFailureException
+    public void openEntitySearch(DetailedSearchCriteria searchCriteria, String historyToken)
+            throws UserFailureException
     {
         // Open the search view using the provided criteria
         OpenEntitySearchGridTabAction searchAction =
-                new OpenEntitySearchGridTabAction(searchCriteria, viewContext);
+                new OpenEntitySearchGridTabAction(searchCriteria, historyToken, viewContext);
         DispatcherHelper.dispatchNaviEvent(searchAction);
     }
 
@@ -59,10 +60,13 @@ public class DataSetSearchLocatorResolver
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+        private final String historyToken;
+
         private OpenEntitySearchGridTabAction(DetailedSearchCriteria searchCriteria,
-                IViewContext<ICommonClientServiceAsync> viewContext)
+                String historyToken, IViewContext<ICommonClientServiceAsync> viewContext)
         {
             this.searchCriteria = searchCriteria;
+            this.historyToken = historyToken;
             this.viewContext = viewContext;
         }
 
@@ -102,6 +106,12 @@ public class DataSetSearchLocatorResolver
         public String getTabTitle()
         {
             return getMessage(Dict.DATA_SET_SEARCH);
+        }
+
+        @Override
+        public String tryGetLink()
+        {
+            return historyToken;
         }
     }
 }

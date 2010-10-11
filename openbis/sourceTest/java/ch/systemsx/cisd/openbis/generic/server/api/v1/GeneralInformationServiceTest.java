@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -36,17 +36,17 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -92,8 +92,8 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         assertNamedRoles("INSTANCE_ADMIN", "[ADMIN(instance)]", entries.get(0));
         assertNamedRoles("INSTANCE_ETL_SERVER", "[ADMIN(instance), " + "ETL_SERVER(instance)]",
                 entries.get(1));
-        assertNamedRoles("INSTANCE_OBSERVER", "[ADMIN(instance), OBSERVER(instance)]", entries
-                .get(2));
+        assertNamedRoles("INSTANCE_OBSERVER", "[ADMIN(instance), OBSERVER(instance)]",
+                entries.get(2));
         assertNamedRoles("SPACE_ADMIN", "[ADMIN(instance), ADMIN(space)]", entries.get(3));
         assertNamedRoles("SPACE_ETL_SERVER", "[ADMIN(instance), "
                 + "ETL_SERVER(instance), ETL_SERVER(space)]", entries.get(4));
@@ -244,6 +244,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(new Long(1));
+        initializer.setPermId("permId");
         initializer.setCode("code");
         initializer.setIdentifier("/space/code");
         initializer.setSampleTypeId(new Long(1));

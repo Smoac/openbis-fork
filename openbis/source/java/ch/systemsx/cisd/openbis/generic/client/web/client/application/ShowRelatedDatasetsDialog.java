@@ -78,6 +78,12 @@ public final class ShowRelatedDatasetsDialog extends
                     return new HelpPageIdentifier(HelpPageDomain.RELATED_DATA_SETS,
                             HelpPageAction.BROWSE);
                 }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
             };
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
@@ -131,9 +137,9 @@ public final class ShowRelatedDatasetsDialog extends
         final String selectedLabel = viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data.size());
         final String allLabel = viewContext.getMessage(Dict.ALL_RADIO, displayedEntitiesCount);
 
-        return WidgetUtils.createAllOrSelectedRadioGroup(allOrSelectedRadio =
-                WidgetUtils.createRadio(selectedLabel), WidgetUtils.createRadio(allLabel),
-                radioGroupLabel, data.size());
+        return WidgetUtils.createAllOrSelectedRadioGroup(
+                allOrSelectedRadio = WidgetUtils.createRadio(selectedLabel),
+                WidgetUtils.createRadio(allLabel), radioGroupLabel, data.size());
     }
 
     private boolean getSelected()

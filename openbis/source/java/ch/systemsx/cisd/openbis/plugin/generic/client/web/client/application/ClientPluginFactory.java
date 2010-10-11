@@ -175,6 +175,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return getViewerTitle(Dict.SAMPLE, identifiable);
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
+                    }
                 };
         }
 
@@ -226,6 +232,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return getEditorTitle(Dict.SAMPLE, identifiable);
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
+                    }
                 };
         }
 
@@ -274,6 +286,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return getViewerTitle(Dict.MATERIAL, identifiable);
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                    }
                 };
         }
 
@@ -308,6 +326,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public String getTabTitle()
                     {
                         return getEditorTitle(Dict.MATERIAL, identifiable);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
                     }
                 };
         }
@@ -355,6 +379,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return getViewerTitle(Dict.EXPERIMENT, experimentId);
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                    }
                 };
         }
 
@@ -400,6 +430,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return getEditorTitle(Dict.EXPERIMENT, identifiable);
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
+                    }
                 };
         }
     }
@@ -440,6 +476,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     {
                         return getViewerTitle(Dict.DATA_SET, identifiable);
                     }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null; // TODO 2010-11-10, Piotr Buczek: return permlink
+                    }
                 };
         }
 
@@ -473,6 +515,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
                     public String getTabTitle()
                     {
                         return getEditorTitle(Dict.DATA_SET, identifiable);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return null;
                     }
                 };
         }

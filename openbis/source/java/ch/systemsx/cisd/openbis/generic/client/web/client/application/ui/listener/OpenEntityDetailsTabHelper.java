@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -59,7 +59,7 @@ public class OpenEntityDetailsTabHelper
     }
 
     private static class OpenEntityDetailsTabCallback extends
-            AbstractAsyncCallback<IEntityInformationHolder>
+            AbstractAsyncCallback<IEntityInformationHolderWithPermId>
     {
 
         private final boolean keyPressed;
@@ -84,7 +84,7 @@ public class OpenEntityDetailsTabHelper
          * Opens the tab with <var>result</var> entity details.
          */
         @Override
-        protected final void process(final IEntityInformationHolder result)
+        protected final void process(final IEntityInformationHolderWithPermId result)
         {
             new OpenEntityDetailsTabAction(result, viewContext, keyPressed).execute();
         }
@@ -124,7 +124,7 @@ public class OpenEntityDetailsTabHelper
                 }
 
                 @Override
-                public String tryGetPermlink()
+                public String tryGetLink()
                 {
                     return permlinkOrNull;
                 }

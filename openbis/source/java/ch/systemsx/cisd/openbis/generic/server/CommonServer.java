@@ -73,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -120,6 +121,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -128,7 +130,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -172,6 +173,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
@@ -182,7 +184,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -1344,7 +1345,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ProjectTranslator.translate(project);
     }
 
-    public IEntityInformationHolder getMaterialInformationHolder(String sessionToken,
+    public IEntityInformationHolderWithPermId getMaterialInformationHolder(String sessionToken,
             final MaterialIdentifier identifier)
     {
         checkSession(sessionToken);
@@ -1352,7 +1353,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 .tryFindMaterial(identifier));
     }
 
-    public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
+    public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
             final EntityKind entityKind, final String permId)
     {
         checkSession(sessionToken);
@@ -1372,7 +1373,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 + entityKind.getDescription() + "s");
     }
 
-    private IEntityInformationHolder createInformationHolder(
+    private IEntityInformationHolderWithPermId createInformationHolder(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind, final String permId,
             IEntityInformationHolderDTO entityOrNull)
     {
@@ -1384,7 +1385,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return createInformationHolder(kind, entityOrNull);
     }
 
-    private IEntityInformationHolder createMaterialInformationHolder(
+    private IEntityInformationHolderWithPermId createMaterialInformationHolder(
             final MaterialIdentifier identifier, IEntityInformationHolderDTO entityOrNull)
     {
         if (entityOrNull == null)
@@ -1396,7 +1397,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return createInformationHolder(EntityKind.MATERIAL, entityOrNull);
     }
 
-    private IEntityInformationHolder createInformationHolder(
+    private IEntityInformationHolderWithPermId createInformationHolder(
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind,
             IEntityInformationHolderDTO entity)
     {
@@ -1405,7 +1406,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 EntityHelper.createEntityType(kind, entity.getEntityType().getCode());
         final String code = entity.getCode();
         final Long id = HibernateUtils.getId(entity);
-        return new BasicEntityInformationHolder(kind, entityType, code, id);
+        final String permId = entity.getPermId();
+        return new BasicEntityInformationHolder(kind, entityType, code, id, permId);
     }
 
     public String generateCode(String sessionToken, String prefix)

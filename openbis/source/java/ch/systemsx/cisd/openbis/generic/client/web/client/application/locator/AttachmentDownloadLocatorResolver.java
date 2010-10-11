@@ -7,6 +7,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachm
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
@@ -95,7 +96,7 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
     }
 
     private static class AttachmentDownloadCallback extends
-            AbstractAsyncCallback<IEntityInformationHolder>
+            AbstractAsyncCallback<IEntityInformationHolderWithPermId>
     {
 
         private final AttachmentHolderKind attachmentHolderKind;
@@ -114,7 +115,7 @@ public class AttachmentDownloadLocatorResolver extends AbstractViewLocatorResolv
         }
 
         @Override
-        public void process(final IEntityInformationHolder result)
+        public void process(final IEntityInformationHolderWithPermId result)
         {
             AttachmentDownloadHelper.download(fileName, version, createAttachmentHolder(result));
         }

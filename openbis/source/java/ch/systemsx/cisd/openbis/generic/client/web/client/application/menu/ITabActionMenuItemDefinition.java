@@ -33,6 +33,8 @@ public interface ITabActionMenuItemDefinition<S extends IClientServiceAsync>
 
     public String getHelpPageTitle();
 
+    public String tryGetLink();
+
     public DatabaseModificationAwareComponent createComponent(IViewContext<S> viewContext);
 
 }

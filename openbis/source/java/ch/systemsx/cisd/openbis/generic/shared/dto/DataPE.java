@@ -94,7 +94,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     private boolean isDerived;
 
     private PersonPE registrator;
-    
+
     /** Registration date of the database instance. */
     private Date registrationDate;
 
@@ -141,7 +141,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     {
         this.registrator = registrator;
     }
-    
+
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
     public Date getRegistrationDate()
@@ -509,5 +509,11 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     public String getIdentifier()
     {
         return getCode();
+    }
+
+    @Transient
+    public String getPermId()
+    {
+        return code;
     }
 }

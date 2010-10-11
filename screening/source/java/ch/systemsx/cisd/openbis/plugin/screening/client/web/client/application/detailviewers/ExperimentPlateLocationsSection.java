@@ -141,7 +141,7 @@ public class ExperimentPlateLocationsSection extends TabContent
     private ExperimentSearchCriteria getExperimentSearchCriteria()
     {
         return ExperimentSearchCriteria.createExperiment(experiment.getId(),
-                experiment.getIdentifier());
+                experiment.getPermId(), experiment.getIdentifier());
     }
 
     private MaterialSearchCodesCriteria tryGetMaterialSearchCriteria()

@@ -68,7 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * A <i>Persistent Entity</i> which is a material.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 @Entity
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
@@ -345,6 +345,12 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     public final EntityKind getEntityKind()
     {
         return EntityKind.MATERIAL;
+    }
+
+    @Transient
+    public String getPermId()
+    {
+        return code + " (" + materialType.getCode() + ")";
     }
 
 }

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -677,17 +678,17 @@ public interface ICommonClientService extends IClientService
 
     /**
      * For given {@link EntityKind} and <var>permId</var> returns the corresponding
-     * {@link IEntityInformationHolder}.
+     * {@link IEntityInformationHolderWithPermId}.
      */
-    public IEntityInformationHolder getEntityInformationHolder(EntityKind entityKind, String permId)
-            throws UserFailureException;
+    public IEntityInformationHolderWithPermId getEntityInformationHolder(EntityKind entityKind,
+            String permId) throws UserFailureException;
 
     /**
      * For given {@link MaterialIdentifier} returns the corresponding
      * {@link IEntityInformationHolder}.
      */
-    public IEntityInformationHolder getMaterialInformationHolder(MaterialIdentifier identifier)
-            throws UserFailureException;
+    public IEntityInformationHolderWithPermId getMaterialInformationHolder(
+            MaterialIdentifier identifier) throws UserFailureException;
 
     /**
      * Returns example file format for batch operation on entities.

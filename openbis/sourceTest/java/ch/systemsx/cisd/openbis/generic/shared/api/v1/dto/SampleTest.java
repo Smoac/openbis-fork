@@ -29,6 +29,8 @@ public class SampleTest extends AssertJUnit
 {
     private static final Long SAMPLE_ID = new Long(1);
 
+    private static final String SAMPLE_PERM_ID = "perm-id";
+
     private static final String SAMPLE_CODE = "sample-code";
 
     private static final String SAMPLE_IDENTIFIER = "/space/sample-code";
@@ -44,6 +46,7 @@ public class SampleTest extends AssertJUnit
     {
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(SAMPLE_ID);
+        initializer.setPermId(SAMPLE_PERM_ID);
         initializer.setCode(SAMPLE_CODE);
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
@@ -66,6 +69,7 @@ public class SampleTest extends AssertJUnit
     {
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(SAMPLE_ID);
+        initializer.setPermId(SAMPLE_PERM_ID);
         initializer.setCode(SAMPLE_CODE);
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);
@@ -77,6 +81,7 @@ public class SampleTest extends AssertJUnit
 
         initializer = new SampleInitializer();
         initializer.setId(SAMPLE_ID);
+        initializer.setPermId(SAMPLE_PERM_ID);
         initializer.setCode("different-code");
         initializer.setIdentifier("/a/different-identifier");
         initializer.setSampleTypeId(new Long(2));
@@ -87,6 +92,7 @@ public class SampleTest extends AssertJUnit
 
         initializer = new SampleInitializer();
         initializer.setId(new Long(2));
+        initializer.setPermId(SAMPLE_PERM_ID);
         initializer.setCode(SAMPLE_CODE);
         initializer.setIdentifier(SAMPLE_IDENTIFIER);
         initializer.setSampleTypeId(SAMPLE_TYPE_ID);

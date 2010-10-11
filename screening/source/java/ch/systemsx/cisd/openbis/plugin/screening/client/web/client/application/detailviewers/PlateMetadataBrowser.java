@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResult
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataStaticColumns;
 
 /**
@@ -67,17 +68,17 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
     {
         screeningViewContext.getCommonService().getEntityInformationHolder(EntityKind.SAMPLE,
                 platePermId,
-                new AbstractAsyncCallback<IEntityInformationHolder>(screeningViewContext)
+                new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(screeningViewContext)
                     {
                         @Override
-                        protected void process(IEntityInformationHolder plate)
+                        protected void process(IEntityInformationHolderWithPermId plate)
                         {
                             PlateMetadataBrowser.openTab(plate, screeningViewContext);
                         }
                     });
     }
 
-    public static void openTab(final IIdAndCodeHolder plate,
+    public static void openTab(final IEntityInformationHolderWithPermId plate,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         AbstractTabItemFactory factory = createPlateMetadataTabFactory(plate, viewContext);
@@ -85,7 +86,7 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
     }
 
     private static AbstractTabItemFactory createPlateMetadataTabFactory(
-            final IIdAndCodeHolder plate,
+            final IEntityInformationHolderWithPermId plate,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         return new AbstractTabItemFactory()
@@ -114,6 +115,12 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
                 public String getTabTitle()
                 {
                     return "Plate Report: " + plate.getCode();
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return ScreeningLinkExtractor.createPlateMetadataBrowserLink(plate.getPermId());
                 }
             };
     }

@@ -425,7 +425,7 @@ public class DisplaySettingsManager
         displaySettings.getTabSettings().put(tabGroupDisplayID, selectedTabDisplayID);
     }
 
-    // FIXME 2010-09-27, Piotr Buczek: store is not invoked
+    // TODO 2010-09-27, Piotr Buczek: store is not invoked
     /**
      * @return True if the given section is collapsed
      */

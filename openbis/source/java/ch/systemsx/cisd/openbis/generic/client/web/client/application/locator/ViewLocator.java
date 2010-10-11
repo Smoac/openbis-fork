@@ -61,15 +61,23 @@ public class ViewLocator
     // A map of all parameters, excluding action and entity
     private final Map<String, String> parameters = new HashMap<String, String>();
 
+    /** token used to initialize the locator */
+    private final String historyToken;
+
     // Public API
     /**
      * Create a ViewLocator initialized from the history token
-     * 
-     * @param token
      */
-    public ViewLocator(String token)
+    public ViewLocator(String historyToken)
     {
-        initializeFromHistoryToken(token);
+        this.historyToken = historyToken;
+        initializeFromHistoryToken();
+    }
+
+    /** Returns the history token that can be used to initialize this locator. */
+    public String getHistoryToken()
+    {
+        return historyToken;
     }
 
     /**
@@ -119,13 +127,13 @@ public class ViewLocator
     /**
      * Extract the information for locating a view from the history token
      */
-    private void initializeFromHistoryToken(String token)
+    private void initializeFromHistoryToken()
     {
-        if (StringUtils.isBlank(token))
+        if (StringUtils.isBlank(historyToken))
         {
             return;
         }
-        final String[] params = token.split(PARAMETER_SEPARATOR);
+        final String[] params = historyToken.split(PARAMETER_SEPARATOR);
         for (int i = 0; i < params.length; i++)
         {
             final String[] paramPair = params[i].split(KEY_VALUE_SEPARATOR);
