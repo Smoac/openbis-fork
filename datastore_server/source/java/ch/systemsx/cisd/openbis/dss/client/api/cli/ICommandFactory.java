@@ -30,7 +30,7 @@ public interface ICommandFactory
     public ICommand tryCommandForName(String name);
 
     /**
-     * List all the commands supported by this command factory.
+     * List all the commands supported by this command factory (not including help).
      */
     public List<String> getKnownCommands();
 

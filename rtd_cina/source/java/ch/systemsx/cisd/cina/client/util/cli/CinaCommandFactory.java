@@ -14,28 +14,45 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.cli;
+package ch.systemsx.cisd.cina.client.util.cli;
 
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.client.api.cli.AbstractCommandFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandHelp;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
+
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandFactory extends AbstractCommandFactory
+public class CinaCommandFactory extends AbstractCommandFactory
 {
+    static final String PROGRAM_CALL_STRING = "cina_client.sh";
+
     private static enum Command
     {
-        LS, GET, HELP, PUT
+        PREPS, GENID, HELP
     }
 
-    @Override
+    public List<String> getKnownCommands()
+    {
+        String[] commands =
+            { "preps", "genid" };
+        return Arrays.asList(commands);
+    }
+
+    public ICommand getHelpCommand()
+    {
+        return new CommandHelp(this, PROGRAM_CALL_STRING);
+    }
+
     public ICommand tryCommandForName(String name)
     {
-        ICommand superCommandOrNull = super.tryCommandForName(name);
-        if (null != superCommandOrNull)
+        ICommand helpCommandOrNull = tryHelpCommandForName(name);
+        if (null != helpCommandOrNull)
         {
-            return superCommandOrNull;
+            return helpCommandOrNull;
         }
 
         Command command;
@@ -50,17 +67,14 @@ class CommandFactory extends AbstractCommandFactory
         ICommand result;
         switch (command)
         {
-            case LS:
-                result = new CommandLs();
+            case PREPS:
+                result = new CommandSampleLister();
                 break;
-            case GET:
-                result = new CommandGet();
+            case GENID:
+                result = new CommandSampleLister();
                 break;
             case HELP:
-                result = getHelpCommand();
-                break;
-            case PUT:
-                result = new CommandPut();
+                result = new CommandHelp(this, PROGRAM_CALL_STRING);
                 break;
             default:
                 result = null;
@@ -70,15 +84,4 @@ class CommandFactory extends AbstractCommandFactory
         return result;
     }
 
-    public ICommand getHelpCommand()
-    {
-        return new CommandHelp(this);
-    }
-
-    public List<String> getKnownCommands()
-    {
-        String[] commands =
-            { "ls", "get", "put" };
-        return Arrays.asList(commands);
-    }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.client.cli.util;
+package ch.systemsx.cisd.cina.client.util.cli;
 
 import java.util.ArrayList;
 

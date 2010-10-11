@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
-import java.io.PrintStream;
-
-import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 
@@ -33,8 +30,7 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractDssCommand<T extends GlobalArguments> extends AbstractCommand<T> implements
-        ICommand
+abstract class AbstractDssCommand<T extends GlobalArguments> extends AbstractCommand<T>
 {
     /**
      * @param arguments
@@ -45,36 +41,18 @@ abstract class AbstractDssCommand<T extends GlobalArguments> extends AbstractCom
     }
 
     /**
-     * Print usage information about the command.
+     * How is this program invoked from the command line?
      */
-    public void printUsage(PrintStream out)
+    @Override
+    protected String getProgramCallString()
     {
-        out.println(getUsagePrefixString() + " [options] " + getRequiredArgumentsString());
-        parser.printUsage(out);
-        out.println("  Example : " + getCommandCallString() + " "
-                + parser.printExample(ExampleMode.ALL) + " " + getRequiredArgumentsString());
+        return DssCommandFactory.PROGRAM_CALL_STRING;
     }
 
+    @Override
     protected String getRequiredArgumentsString()
     {
         return "<data set code> <path>";
-    }
-
-    /**
-     * How is this command invoked from the command line? This is the program call string + command
-     * name
-     */
-    protected String getCommandCallString()
-    {
-        return getProgramCallString() + " " + getName();
-    }
-
-    /**
-     * Used for displaying help.
-     */
-    protected String getUsagePrefixString()
-    {
-        return "usage: " + getCommandCallString();
     }
 
     /**

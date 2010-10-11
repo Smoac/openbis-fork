@@ -36,16 +36,14 @@ public class CinaBundleDataSetHandler implements IDataSetHandler
 {
     private final IDataSetHandler delegator;
 
-    private final IEncapsulatedOpenBISService openbisService;
-
     private final BundleRegistrationGlobalState bundleRegistrationGlobalState;
 
     public CinaBundleDataSetHandler(Properties parentProperties, IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService)
     {
         this.delegator = delegator;
-        this.openbisService = openbisService;
-        this.bundleRegistrationGlobalState = createBundleRegistrationGlobalState();
+        this.bundleRegistrationGlobalState =
+                createBundleRegistrationGlobalState(delegator, openbisService);
     }
 
     public List<DataSetInformation> handleDataSet(File dataSet)
@@ -63,7 +61,8 @@ public class CinaBundleDataSetHandler implements IDataSetHandler
         return helper.getDataSetInformation();
     }
 
-    private BundleRegistrationGlobalState createBundleRegistrationGlobalState()
+    private static BundleRegistrationGlobalState createBundleRegistrationGlobalState(
+            IDataSetHandler delegator, IEncapsulatedOpenBISService openbisService)
     {
         SampleType replicaSampleType =
                 openbisService.getSampleType(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);

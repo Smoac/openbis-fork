@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.cli;
+package ch.systemsx.cisd.cina.client.util.cli;
 
-
-
+import java.util.ArrayList;
 
 import ch.systemsx.cisd.common.utilities.SystemExit;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.AbstractClient;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.CompositeCommandFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.DssCommandFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommandFactory;
 
 /**
- * The dss command which supports
- * <ul>
- * <li>ls &mdash; list files in a data set</li>
- * <li>get &mdash; get files in a data set</li>
- * <li>put &mdash; upload a new data set</li>
- * </ul>
- * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssClient extends AbstractClient
+public class CinaClient extends AbstractClient
 {
     private final static boolean ENABLE_LOGGING = false;
 
@@ -44,15 +40,22 @@ public class DssClient extends AbstractClient
             disableLogging();
     }
 
-    private DssClient()
+    private CinaClient()
     {
-        super(SystemExit.SYSTEM_EXIT, new DssCommandFactory());
+        super(SystemExit.SYSTEM_EXIT, createCommandFactory());
+    }
+
+    private static CompositeCommandFactory createCommandFactory()
+    {
+        ArrayList<ICommandFactory> factories = new ArrayList<ICommandFactory>(2);
+        factories.add(new CinaCommandFactory());
+        factories.add(new DssCommandFactory());
+        return new CompositeCommandFactory(CinaCommandFactory.PROGRAM_CALL_STRING, factories);
     }
 
     public static void main(String[] args)
     {
-        DssClient newMe = new DssClient();
+        CinaClient newMe = new CinaClient();
         newMe.runWithArgs(args);
     }
-
 }

@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.dss.client.api.cli;
 
+import java.io.PrintStream;
+
 import ch.systemsx.cisd.args4j.CmdLineParser;
+import ch.systemsx.cisd.args4j.ExampleMode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class AbstractCommand<T extends GlobalArguments>
+abstract public class AbstractCommand<T extends GlobalArguments> implements ICommand
 {
     protected final T arguments;
 
@@ -38,11 +41,41 @@ public class AbstractCommand<T extends GlobalArguments>
     }
 
     /**
+     * Print usage information about the command.
+     */
+    public void printUsage(PrintStream out)
+    {
+        out.println(getUsagePrefixString() + " [options] " + getRequiredArgumentsString());
+        parser.printUsage(out);
+        out.println("  Example : " + getCommandCallString() + " "
+                + parser.printExample(ExampleMode.ALL) + " " + getRequiredArgumentsString());
+    }
+
+    /**
+     * Used for displaying help.
+     */
+    protected String getUsagePrefixString()
+    {
+        return "usage: " + getCommandCallString();
+    }
+
+    /**
+     * How is this command invoked from the command line? This is the program call string + command
+     * name
+     */
+    protected String getCommandCallString()
+    {
+        return getProgramCallString() + " " + getName();
+    }
+
+    /**
      * How is this program invoked from the command line?
      */
-    protected String getProgramCallString()
-    {
-        return "dss_client.sh";
-    }
+    abstract protected String getProgramCallString();
+
+    /**
+     * What are the required arguments?
+     */
+    abstract protected String getRequiredArgumentsString();
 
 }

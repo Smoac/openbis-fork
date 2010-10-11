@@ -31,7 +31,7 @@ abstract public class AbstractCommandFactory implements ICommandFactory
         super();
     }
 
-    public ICommand tryCommandForName(String name)
+    public ICommand tryHelpCommandForName(String name)
     {
         // special handling of "-h" and "--help"
         if ("-h".equals(name) || "--help".equals(name))

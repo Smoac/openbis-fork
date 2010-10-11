@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class CommandHelp extends AbstractDssCommand<CommandHelp.CommandHelpArguments>
+public class CommandHelp extends AbstractCommand<CommandHelp.CommandHelpArguments>
 {
     static class CommandHelpArguments extends GlobalArguments
     {
@@ -36,10 +36,13 @@ class CommandHelp extends AbstractDssCommand<CommandHelp.CommandHelpArguments>
 
     private final ICommandFactory commandFactory;
 
-    CommandHelp(ICommandFactory factory)
+    private final String programCallString;
+
+    public CommandHelp(ICommandFactory factory, String programCallString)
     {
         super(new CommandHelpArguments());
         this.commandFactory = factory;
+        this.programCallString = programCallString;
     }
 
     public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
@@ -82,5 +85,17 @@ class CommandHelp extends AbstractDssCommand<CommandHelp.CommandHelpArguments>
         out.print("\n");
         out.println("Options:");
         parser.printUsage(out);
+    }
+
+    @Override
+    protected String getProgramCallString()
+    {
+        return programCallString;
+    }
+
+    @Override
+    protected String getRequiredArgumentsString()
+    {
+        return "";
     }
 }

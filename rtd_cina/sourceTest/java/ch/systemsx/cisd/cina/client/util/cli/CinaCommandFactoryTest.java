@@ -14,39 +14,36 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.client.api.cli;
+package ch.systemsx.cisd.cina.client.util.cli;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandFactory;
-import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandGet;
-import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandLs;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CommandFactoryTest extends AssertJUnit
+public class CinaCommandFactoryTest extends AssertJUnit
 {
-    CommandFactory factory;
+    CinaCommandFactory factory;
 
     @BeforeMethod
     public void setUp()
     {
-        factory = new CommandFactory();
+        factory = new CinaCommandFactory();
     }
 
     @Test
     public void testNameMapping()
     {
         ICommand cmd;
-        cmd = factory.tryCommandForName("ls");
-        assertEquals(CommandLs.class, cmd.getClass());
+        cmd = factory.tryCommandForName("preps");
+        assertEquals(CommandSampleLister.class, cmd.getClass());
 
-        cmd = factory.tryCommandForName("get");
-        assertEquals(CommandGet.class, cmd.getClass());
+        cmd = factory.tryCommandForName("genid");
+        assertEquals(CommandSampleLister.class, cmd.getClass());
     }
 
     @Test
@@ -60,13 +57,13 @@ public class CommandFactoryTest extends AssertJUnit
         System.out.print("\n");
         cmd = factory.tryCommandForName("help");
         String[] lsArgs =
-            { "ls" };
+            { "preps" };
         cmd.execute(lsArgs);
 
         System.out.print("\n");
         cmd = factory.tryCommandForName("help");
         String[] getArgs =
-            { "get" };
+            { "genid" };
         cmd.execute(getArgs);
     }
 }
