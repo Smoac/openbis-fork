@@ -6,7 +6,7 @@ export SERVER=`uname -n`
 
 export SPRINT=sprint-openbis
 export DEMO=cisd-tongariro
-export YEASTX=imsb-us-openbis.ethz.ch
+export YEASTX=obis.ethz.ch
 export PHOSPHONETX=openbis-phosphonetx.ethz.ch
 export LIVERX=openbis-liverx.ethz.ch
 export AGRONOMICS=bs-dsvr11.ethz.ch
