@@ -36,14 +36,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -54,10 +56,43 @@ public abstract class TypedTableGrid<T extends IsSerializable>
         extends
         AbstractBrowserGrid<TableModelRowWithObject<T>, BaseEntityModel<TableModelRowWithObject<T>>>
 {
+    /**
+     * Do not display more than this amount of columns in the report, web browsers have problem with
+     * it
+     */
+    private static final int MAX_SHOWN_COLUMNS = 200;
+    
+    private final class CellListenerAndLinkGenerator implements ICellListenerAndLinkGenerator<T>
+    {
+        private final EntityKind entityKind;
+
+        private final TableModelColumnHeader header;
+
+        private CellListenerAndLinkGenerator(EntityKind entityKind, TableModelColumnHeader header)
+        {
+            this.entityKind = entityKind;
+            this.header = header;
+        }
+
+        public String tryGetLink(T entity)
+        {
+            return null;
+        }
+
+        public void handle(TableModelRowWithObject<T> rowItem, boolean specialKeyPressed)
+        {
+            ISerializableComparable cellValue = rowItem.getValues().get(header.getIndex());
+            OpenEntityDetailsTabHelper.open(viewContext, entityKind, cellValue.toString(),
+                    specialKeyPressed);
+        }
+    }
+
     private final Map<String, ICellListenerAndLinkGenerator<T>> listenerLinkGenerators =
             new HashMap<String, ICellListenerAndLinkGenerator<T>>();
 
     private List<TableModelColumnHeader> headers;
+    
+    private String downloadURL;
 
     private Map<String, IColumnDefinition<TableModelRowWithObject<T>>> columnDefinitions;
 
@@ -72,12 +107,17 @@ public abstract class TypedTableGrid<T extends IsSerializable>
     {
         super(viewContext, gridId, displayTypeIDGenerator);
     }
+    
+    protected void setDownloadURL(String downloadURL)
+    {
+        this.downloadURL = downloadURL;
+    }
 
     /**
      * Lists table rows. Implementations of this method usually call a server method.
      */
     protected abstract void listTableRows(
-            IResultSetConfig<String, TableModelRowWithObject<T>> resultSetConfig,
+            DefaultResultSetConfig<String, TableModelRowWithObject<T>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<T>> callback);
 
     @Override
@@ -137,7 +177,8 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 new ArrayList<IColumnDefinitionUI<TableModelRowWithObject<T>>>();
         if (headers != null)
         {
-            for (TableModelColumnHeader header : headers)
+            String sessionID = viewContext.getModel().getSessionContext().getSessionID();
+            for (final TableModelColumnHeader header : headers)
             {
                 String title = header.getTitle();
                 if (title == null)
@@ -146,7 +187,18 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 }
                 ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
                         listenerLinkGenerators.get(header.getId());
-                list.add(new TypedTableGridColumnDefinitionUI<T>(header, title, linkGeneratorOrNull));
+                final EntityKind entityKind = header.tryGetEntityKind();
+                if (linkGeneratorOrNull == null && entityKind != null
+                        && entityKind != EntityKind.MATERIAL)
+                {
+                    linkGeneratorOrNull = new CellListenerAndLinkGenerator(entityKind, header);
+                    registerListenerAndLinkGenerator(header.getId(), linkGeneratorOrNull);
+                }
+                TypedTableGridColumnDefinitionUI<T> definition =
+                        new TypedTableGridColumnDefinitionUI<T>(header, title, downloadURL,
+                                sessionID, linkGeneratorOrNull);
+                definition.setHidden(list.size() > MAX_SHOWN_COLUMNS);
+                list.add(definition);
             }
         }
         return list;

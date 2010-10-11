@@ -34,10 +34,13 @@ public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
         TypedTableGridColumnDefinition<T> implements IColumnDefinitionUI<TableModelRowWithObject<T>>
 {
     private transient final ILinkGenerator<T> linkGeneratorOrNull;
+    
+    private boolean hidden;
 
-    public TypedTableGridColumnDefinitionUI(TableModelColumnHeader header, String title, ILinkGenerator<T> linkGeneratorOrNull)
+    public TypedTableGridColumnDefinitionUI(TableModelColumnHeader header, String title,
+            String downloadURL, String sessionID, ILinkGenerator<T> linkGeneratorOrNull)
     {
-        super(header, title);
+        super(header, title, downloadURL, sessionID);
         this.linkGeneratorOrNull = linkGeneratorOrNull;
     }
 
@@ -45,7 +48,7 @@ public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
     @SuppressWarnings("unused")
     private TypedTableGridColumnDefinitionUI()
     {
-        this(null, null, null);
+        this(null, null, null, null, null);
     }
     
     public int getWidth()
@@ -53,9 +56,14 @@ public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
         return header.getDefaultColumnWidth();
     }
 
+    public final void setHidden(boolean hidden)
+    {
+        this.hidden = hidden;
+    }
+
     public boolean isHidden()
     {
-        return false;
+        return hidden;
     }
 
     public boolean isLink()

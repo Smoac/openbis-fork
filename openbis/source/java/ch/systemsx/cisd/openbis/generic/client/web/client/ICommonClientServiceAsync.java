@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -78,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
@@ -88,6 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -633,11 +636,20 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ResultSet<TableModelRow>> callback);
 
     /**
+     * @see ICommonClientService#listReport2(IResultSetConfig)
+     */
+    public void listReport2(IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Null>> callback);
+    
+    /**
      * @see ICommonClientService#prepareExportReport(TableExportCriteria)
      */
     public void prepareExportReport(TableExportCriteria<TableModelRow> exportCriteria,
             AsyncCallback<String> callback);
 
+    public void prepareExportReport2(TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
+            AsyncCallback<String> callback);
+    
     /**
      * @see ICommonClientService#processDatasets(DatastoreServiceDescription,
      *      DisplayedOrSelectedDatasetCriteria)

@@ -2,8 +2,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DssLinkTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -19,10 +25,17 @@ public class TypedTableGridColumnDefinition<T extends IsSerializable> implements
 
     private String title;
 
-    public TypedTableGridColumnDefinition(TableModelColumnHeader header, String title)
+    private String downloadURL;
+
+    private String sessionID;
+
+    public TypedTableGridColumnDefinition(TableModelColumnHeader header, String title,
+            String downloadURL, String sessionID)
     {
         this.header = header;
         this.title = title;
+        this.downloadURL = downloadURL;
+        this.sessionID = sessionID;
     }
     
 
@@ -49,7 +62,29 @@ public class TypedTableGridColumnDefinition<T extends IsSerializable> implements
 
     public String getValue(GridRowModel<TableModelRowWithObject<T>> rowModel)
     {
-        return rowModel.getOriginalObject().getValues().get(header.getIndex()).toString();
+        Comparable<?> cell = tryGetComparableValue(rowModel);
+        if (cell instanceof ImageTableCell)
+        {
+            ImageTableCell imageCell = (ImageTableCell) cell;
+            int width = imageCell.getMaxThumbnailWidth();
+            int height = imageCell.getMaxThumbnailHeight();
+            String imagePath = imageCell.getPath();
+            return SimpleImageHtmlRenderer.createEmbededDatastoreImageHtml(imagePath, width,
+                    height, downloadURL, sessionID);
+        }
+        if (cell instanceof DateTableCell)
+        {
+            return SimpleDateRenderer.renderDate(((DateTableCell) cell).getDateTime());
+        }
+        if (cell instanceof GeneratedImageTableCell)
+        {
+            return ((GeneratedImageTableCell) cell).getHTMLString(downloadURL, sessionID);
+        }
+        if (cell instanceof DssLinkTableCell)
+        {
+            return ((DssLinkTableCell) cell).getHtmlString(sessionID);
+        }
+        return cell.toString();
     }
 
     public Comparable<?> tryGetComparableValue(GridRowModel<TableModelRowWithObject<T>> rowModel)

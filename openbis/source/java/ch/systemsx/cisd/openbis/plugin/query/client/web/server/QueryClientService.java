@@ -143,7 +143,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
 
     private TableModelReference createTableModelReference(TableModel tableModel)
     {
-        String resultSetKey = saveInCache(tableModel.getRows());
+        String resultSetKey = saveInCache(tableModel);
         return new TableModelReference(resultSetKey, tableModel.getHeader(),
                 tableModel.tryGetMessage());
     }

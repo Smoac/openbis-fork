@@ -67,7 +67,7 @@ public class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelRef
     protected void process(final TableModelReference tableModelReference)
     {
         final IDisposableComponent reportComponent =
-                ReportGrid.create(viewContext, tableModelReference, reportInformationProvider);
+                ReportGrid2.create(viewContext, tableModelReference, reportInformationProvider);
         action.execute(reportComponent);
         if (StringUtils.isBlank(tableModelReference.tryGetMessage()) == false)
         {

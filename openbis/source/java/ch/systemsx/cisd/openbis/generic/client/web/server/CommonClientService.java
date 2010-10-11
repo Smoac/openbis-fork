@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
@@ -117,6 +118,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
@@ -128,7 +130,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -2033,7 +2037,7 @@ public final class CommonClientService extends AbstractClientService implements
             final TableModel tableModel =
                     commonServer.createReportFromDatasets(sessionToken, serviceDescription,
                             datasetCodes);
-            String resultSetKey = saveInCache(tableModel.getRows());
+            String resultSetKey = saveInCache(tableModel);
             return new TableModelReference(resultSetKey, tableModel.getHeader());
         } catch (final UserFailureException e)
         {
@@ -2048,11 +2052,35 @@ public final class CommonClientService extends AbstractClientService implements
         return listEntities(resultSetConfig, dummyDataProvider);
     }
 
+    public TypedTableResultSet<Null> listReport2(
+            IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig)
+    {
+        IOriginalDataProvider<TableModelRowWithObject<Null>> dataProvider = new IOriginalDataProvider<TableModelRowWithObject<Null>>()
+        {
+            public List<TableModelRowWithObject<Null>> getOriginalData() throws UserFailureException
+            {
+                throw new IllegalStateException("Data not found in the cache");
+            }
+
+            public List<TableModelColumnHeader> getHeaders()
+            {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        };
+        return new TypedTableResultSet<Null>(listEntities(resultSetConfig, dataProvider));
+    }
+
     public String prepareExportReport(TableExportCriteria<TableModelRow> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportReport2(TableExportCriteria<TableModelRowWithObject<Null>> criteria)
+    {
+        return prepareExportEntities(criteria);
+    }
+    
     private List<String> extractDatasetCodes(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {

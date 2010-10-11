@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -44,12 +45,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ICustomColumnsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
@@ -61,6 +62,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -349,17 +355,32 @@ public abstract class AbstractClientService implements IClientService,
 
     // Saves the specified rows in the cache.
     // Returns a key in the cache where the data were saved.
-    protected <T> String saveInCache(final List<T> tableModelRows)
+    protected String saveInCache(final TableModel tableModel)
     {
-        DefaultResultSetConfig<String, T> criteria = new DefaultResultSetConfig<String, T>();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Null>> criteria =
+                new DefaultResultSetConfig<String, TableModelRowWithObject<Null>>();
         criteria.setLimit(0); // we do not need any data now, just a key
-        ResultSet<T> resultSet = listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<T>()
-            {
-                public List<T> getOriginalData() throws UserFailureException
-                {
-                    return tableModelRows;
-                }
-            });
+        ResultSet<TableModelRowWithObject<Null>> resultSet =
+                listEntities(criteria, new IOriginalDataProvider<TableModelRowWithObject<Null>>()
+                    {
+                        public List<TableModelRowWithObject<Null>> getOriginalData()
+                                throws UserFailureException
+                        {
+                            List<TableModelRow> rows = tableModel.getRows();
+                            List<TableModelRowWithObject<Null>> result = new ArrayList<TableModelRowWithObject<Null>>();
+                            Null nullObject = new Null();
+                            for (TableModelRow row : rows)
+                            {
+                                result.add(new TableModelRowWithObject<Null>(nullObject, row.getValues()));
+                            }
+                            return result;
+                        }
+
+                        public List<TableModelColumnHeader> getHeaders()
+                        {
+                            return tableModel.getHeader();
+                        }
+                    });
         return resultSet.getResultSetKey();
     }
 
