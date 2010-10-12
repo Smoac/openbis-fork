@@ -20,13 +20,13 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
+import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryDatabaseDefinitionProvider;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryDatabase;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.QueryExpression;
 
@@ -44,13 +44,13 @@ public final class QueryTranslator
     }
 
     public final static List<QueryExpression> translate(final List<QueryPE> queries,
-            Map<String, DatabaseDefinition> definitions)
+            IQueryDatabaseDefinitionProvider dbDefinitionProvider)
     {
         final List<QueryExpression> result = new ArrayList<QueryExpression>();
         for (final QueryPE query : queries)
         {
             final String dbKey = query.getQueryDatabaseKey();
-            final DatabaseDefinition database = definitions.get(dbKey);
+            final DatabaseDefinition database = dbDefinitionProvider.getDefinition(dbKey);
             if (database != null)
             {
                 result.add(QueryTranslator.translate(query, database));

@@ -34,9 +34,9 @@ import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 public class MaintenanceTaskStarterRunnable implements Runnable, ApplicationContextAware
 {
 
-    @Resource(name = "propertyConfigurer")
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
-    
+
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
     {
         CommonServiceProvider.setApplicationContext(applicationContext);

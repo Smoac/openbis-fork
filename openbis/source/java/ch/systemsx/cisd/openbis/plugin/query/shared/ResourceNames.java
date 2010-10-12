@@ -32,6 +32,8 @@ public class ResourceNames
 
     public final static String QUERY_PLUGIN_SERVER = "query-plugin-server";
 
+    public final static String QUERY_DATABASE_DEFINITION_PROVIDER = "query-db-definition-provider";
+
     private ResourceNames()
     {
     }

@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -83,13 +84,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public abstract class AbstractServerTestCase extends AssertJUnit
 {
-    protected static final Principal PRINCIPAL =
-            new Principal(CommonTestUtils.USER_ID, "john", "doe", "j@d");
+    protected static final Principal PRINCIPAL = new Principal(CommonTestUtils.USER_ID, "john",
+            "doe", "j@d");
 
     protected static final String SESSION_TOKEN = "session-token";
 
-    protected static final Session SESSION =
-            new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
+    protected static final Session SESSION = new Session(CommonTestUtils.USER_ID, SESSION_TOKEN,
+            PRINCIPAL, "remote-host", 1);
 
     protected BufferedAppender logRecorder;
 
@@ -169,6 +170,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected ISampleLister sampleLister;
 
+    protected IQueryDAO queryDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -197,6 +200,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         dataSetTypeDAO = context.mock(IDataSetTypeDAO.class);
         vocabularyDAO = context.mock(IVocabularyDAO.class);
         dataStoreDAO = context.mock(IDataStoreDAO.class);
+        queryDAO = context.mock(IQueryDAO.class);
         // BO
         groupBO = context.mock(IGroupBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);

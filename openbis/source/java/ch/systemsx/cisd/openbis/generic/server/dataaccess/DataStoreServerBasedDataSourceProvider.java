@@ -36,21 +36,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 
 /**
  * Data source provider based on configuration per Data Store Server.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvider, InitializingBean
+public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvider,
+        InitializingBean
 {
     private static final String ROOT_KEY = "dss-based-data-source-provider";
+
     private static final String DATA_STORE_SERVERS_KEY = "data-store-servers";
 
-    @Resource(name = "propertyConfigurer")
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
     private ExposablePropertyPlaceholderConfigurer configurer;
-    
+
     private final IDAOFactory daoFactory;
-    
+
     private Map<String, DataSource> dataSources;
-    
+
     public DataStoreServerBasedDataSourceProvider(IDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
@@ -83,7 +85,7 @@ public class DataStoreServerBasedDataSourceProvider implements IDataSourceProvid
         }
         return getDataSourceByDataStoreServerCode(dataSet.getDataStore().getCode(), technology);
     }
-    
+
     public DataSource getDataSourceByDataStoreServerCode(String dssCode, String technology)
     {
         DataSource dataSource = dataSources.get(dssCode);

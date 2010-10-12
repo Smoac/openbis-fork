@@ -49,10 +49,14 @@ public class QueryDAOTest extends AbstractDAOTest
                 createQuery("qs", "sample query", "select * from blabla", true, getSystemPerson(),
                         QueryType.SAMPLE, null, DATABASE_KEY);
         queryDAO.createQuery(qs);
-        QueryPE qst =
-                createQuery("qst", "sample query for CELL_PLATE", "select * from blabla", true,
+        QueryPE qst1 =
+                createQuery("qst1", "sample query for CELL_PLATE", "select * from blabla", true,
                         getSystemPerson(), QueryType.SAMPLE, "CELL_PLATE", DATABASE_KEY);
-        queryDAO.createQuery(qst);
+        queryDAO.createQuery(qst1);
+        QueryPE qst2 =
+                createQuery("qst2", "sample query for CONTROL_LAYOUT", "select * from blabla",
+                        true, getSystemPerson(), QueryType.SAMPLE, "CONTROL_LAYOUT", DATABASE_KEY);
+        queryDAO.createQuery(qst2);
         QueryPE qe =
                 createQuery("qe", "experiment query", "select * from blabla", true,
                         getSystemPerson(), QueryType.EXPERIMENT, null, DATABASE_KEY);
@@ -83,9 +87,10 @@ public class QueryDAOTest extends AbstractDAOTest
         assertQueryEquality(qg, queries.get(0));
 
         queries = queryDAO.listQueries(QueryType.SAMPLE);
-        assertEquals(2, queries.size());
+        assertEquals(3, queries.size());
         assertQueryEquality(qs, queries.get(0));
-        assertQueryEquality(qst, queries.get(1));
+        assertQueryEquality(qst1, queries.get(1));
+        assertQueryEquality(qst2, queries.get(1));
 
         queries = queryDAO.listQueries(QueryType.EXPERIMENT);
         assertEquals(2, queries.size());

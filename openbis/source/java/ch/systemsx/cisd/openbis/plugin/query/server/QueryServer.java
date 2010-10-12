@@ -19,12 +19,9 @@ package ch.systemsx.cisd.openbis.plugin.query.server;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -32,14 +29,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -49,12 +42,11 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
+import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryDatabaseDefinitionProvider;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.QueryAccessController;
@@ -71,23 +63,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.translator.QueryTranslator;
 @Component(ResourceNames.QUERY_PLUGIN_SERVER)
 public class QueryServer extends AbstractServer<IQueryServer> implements IQueryServer
 {
-    /** property with database keys/names separated by delimiter */
-    private static final String DATABASE_KEYS = "query-databases";
-
-    private static final String LABEL_PROPERTY_KEY = "label";
-
-    private static final String CREATOR_MINIMAL_ROLE_KEY = "creator-minimal-role";
-
-    private static final String DEFAULT_CREATOR_MINIMAL_ROLE_SPACE =
-            RoleWithHierarchy.SPACE_POWER_USER.name();
-
-    private static final String DEFAULT_CREATOR_MINIMAL_ROLE_INSTANCE =
-            RoleWithHierarchy.INSTANCE_OBSERVER.name();
-
-    private static final String DATA_SPACE_KEY = "data-space";
-
-    @Resource(name = "propertyConfigurer")
-    private ExposablePropertyPlaceholderConfigurer configurer;
+    @Resource(name = ResourceNames.QUERY_DATABASE_DEFINITION_PROVIDER)
+    private IQueryDatabaseDefinitionProvider dbDefinitionProvider;
 
     /**
      * map from dbKey to IDAO
@@ -97,20 +74,18 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     @Deprecated
     private final Map<String, IDAO> daos = new HashMap<String, IDAO>();
 
-    /**
-     * map from dbKey to DatabaseDefinition
-     */
-    private Map<String, DatabaseDefinition> definitions;
-
     public QueryServer()
     {
     }
 
+    @Private
     QueryServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
-            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin, IDAO dao)
+            final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin,
+            IQueryDatabaseDefinitionProvider dbDefinitionProvider)
     {
         super(sessionManager, daoFactory, sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        this.dbDefinitionProvider = dbDefinitionProvider;
     }
 
     public IQueryServer createLogger(IInvocationLoggerContext context)
@@ -121,8 +96,8 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     public int initDatabases(String sessionToken)
     {
         checkSession(sessionToken);
-        initDatabaseDefinitions();
-        return getDatabaseDefinitions().size();
+        dbDefinitionProvider.initDatabaseDefinitions();
+        return dbDefinitionProvider.getAllDefinitions().size();
     }
 
     public List<QueryDatabase> listQueryDatabases(String sessionToken)
@@ -130,7 +105,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         checkSession(sessionToken);
 
         final List<QueryDatabase> results = new ArrayList<QueryDatabase>();
-        for (DatabaseDefinition definition : getDatabaseDefinitions().values())
+        for (DatabaseDefinition definition : dbDefinitionProvider.getAllDefinitions())
         {
             results.add(new QueryDatabase(definition.getKey(), definition.getLabel()));
         }
@@ -162,7 +137,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                     }
                 }
             }
-            return QueryTranslator.translate(queries, getDatabaseDefinitions());
+            return QueryTranslator.translate(queries, dbDefinitionProvider);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
@@ -287,7 +262,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         IDAO result = daos.get(dbKey);
         if (result == null)
         {
-            DatabaseDefinition definition = getDatabaseDefinitions().get(dbKey);
+            DatabaseDefinition definition = dbDefinitionProvider.getDefinition(dbKey);
             if (definition == null)
             {
                 throw new UnsupportedOperationException("Undefined query database '" + dbKey + "'");
@@ -297,88 +272,4 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return result;
     }
 
-    private Map<String, DatabaseDefinition> getDatabaseDefinitions()
-    {
-        if (definitions == null)
-        {
-            initDatabaseDefinitions();
-        }
-        return definitions;
-    }
-
-    private void initDatabaseDefinitions()
-    {
-        if (definitions != null)
-        {
-            return;
-        }
-
-        definitions = new HashMap<String, DatabaseDefinition>();
-        Properties resolvedProps = configurer.getResolvedProps();
-        SectionProperties[] sectionsProperties =
-                PropertyParametersUtil
-                        .extractSectionProperties(resolvedProps, DATABASE_KEYS, false);
-        Set<String> labels = new HashSet<String>();
-        for (int i = 0; i < sectionsProperties.length; i++)
-        {
-            final String databaseKey = sectionsProperties[i].getKey();
-            final Properties databaseProperties = sectionsProperties[i].getProperties();
-
-            final SimpleDatabaseConfigurationContext configurationContext =
-                    new SimpleDatabaseConfigurationContext(databaseProperties);
-            final String label =
-                    PropertyUtils.getMandatoryProperty(databaseProperties, LABEL_PROPERTY_KEY);
-            final String dataSpaceOrNullString =
-                    PropertyUtils.getProperty(databaseProperties, DATA_SPACE_KEY);
-            final String creatorMinimalRoleString =
-                    PropertyUtils.getProperty(databaseProperties, CREATOR_MINIMAL_ROLE_KEY,
-                            getDefaultRoleForDataSource(dataSpaceOrNullString));
-
-            if (labels.contains(label))
-            {
-                throw new UnsupportedOperationException(
-                        "Query databases need to have unique labels but '" + label
-                                + "' label is used more than once.");
-            }
-            labels.add(label);
-            GroupPE dataSpaceOrNull = null;
-            if (dataSpaceOrNullString != null)
-            {
-                dataSpaceOrNull =
-                        getDAOFactory().getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(
-                                dataSpaceOrNullString, getDAOFactory().getHomeDatabaseInstance());
-                if (dataSpaceOrNull == null)
-                {
-                    throw new UnsupportedOperationException("Query database '" + databaseKey
-                            + "' is not defined properly. Space '" + dataSpaceOrNullString
-                            + "' doesn't exist.");
-                }
-            }
-            try
-            {
-                final RoleWithHierarchy creatorMinimalRole =
-                        RoleWithHierarchy.valueOf(creatorMinimalRoleString);
-                definitions.put(databaseKey, new DatabaseDefinition(configurationContext,
-                        databaseKey, label, creatorMinimalRole, dataSpaceOrNull));
-            } catch (IllegalArgumentException ex)
-            {
-                throw new UnsupportedOperationException("Query database '" + databaseKey
-                        + "' is not defined properly. '" + creatorMinimalRoleString
-                        + "' is not a valid role.");
-            }
-
-        }
-        QueryAccessController.initialize(definitions);
-    }
-
-    private String getDefaultRoleForDataSource(final String dataSpaceOrNull)
-    {
-        if (dataSpaceOrNull == null) // database contains data for the whole instance
-        {
-            return DEFAULT_CREATOR_MINIMAL_ROLE_INSTANCE;
-        } else
-        {
-            return DEFAULT_CREATOR_MINIMAL_ROLE_SPACE;
-        }
-    }
 }
