@@ -30,20 +30,18 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSea
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.ITableModelProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.server.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
  * 
@@ -94,17 +92,10 @@ public class WellContentProvider implements ITableModelProvider<WellContent>
                 builder.addRow(well);
                 Material material = well.getMaterialContent();
                 String value = material.getCode();
-                builder.addStringValueToColumn(WELL_CONTENT_MATERIAL, value);
-                builder.addStringValueToColumn(WELL_CONTENT_MATERIAL_TYPE, material.getEntityType()
+                builder.column(WELL_CONTENT_MATERIAL).addString(value);
+                builder.column(WELL_CONTENT_MATERIAL_TYPE).addString(material.getEntityType()
                         .getCode());
-                List<IEntityProperty> properties = material.getProperties();
-                for (IEntityProperty property : properties)
-                {
-                    PropertyType propertyType = property.getPropertyType();
-                    String code = propertyType.getCode();
-                    builder.addStringValueToColumn(propertyType.getLabel(),
-                            WELL_CONTENT_PROPERTY_ID_PREFIX + code, property.tryGetAsString());
-                }
+                builder.columnGroup(WELL_CONTENT_PROPERTY_ID_PREFIX).addProperties(material.getProperties());
                 NamedFeatureVector featureVector = well.tryGetFeatureVectorValues();
                 if (featureVector != null)
                 {
@@ -113,28 +104,27 @@ public class WellContentProvider implements ITableModelProvider<WellContent>
                     String[] codes = featureVector.getFeatureCodes();
                     for (int i = 0; i < values.length; i++)
                     {
-                        builder.addDoubleValueToColumn(labels[i],
-                                WELL_CONTENT_FEATURE_VECTOR_PREFIX + codes[i],
-                                new Double(values[i]));
+                        builder.column(WELL_CONTENT_FEATURE_VECTOR_PREFIX + codes[i])
+                                .withTitle(labels[i]).addDouble(new Double(values[i]));
                     }
                 }
-                builder.addStringValueToColumn(EXPERIMENT, well.getExperiment().toString());
-                builder.addStringValueToColumn(PLATE, well.getPlate().getCode());
-                builder.addStringValueToColumn(WELL, well.getWell().getCode());
+                builder.column(EXPERIMENT).addString(well.getExperiment().toString());
+                builder.column(PLATE).addString(well.getPlate().getCode());
+                builder.column(WELL).addString( well.getWell().getCode());
                 WellLocation location = well.tryGetLocation();
-                builder.addIntegerValueToColumn(WELL_ROW, location == null ? null : new Long(
+                builder.column(WELL_ROW).addInteger(location == null ? null : new Long(
                         location.getRow()));
-                builder.addIntegerValueToColumn(WELL_COLUMN, location == null ? null : new Long(
+                builder.column(WELL_COLUMN).addInteger(location == null ? null : new Long(
                         location.getColumn()));
                 DatasetImagesReference imageDataset = well.tryGetImageDataset();
-                builder.addStringValueToColumn(IMAGE_DATA_SET, imageDataset == null ? null
+                builder.column(IMAGE_DATA_SET).addString(imageDataset == null ? null
                         : imageDataset.getDatasetCode());
                 DatasetReference dataset = well.tryGetFeatureVectorDataset();
-                builder.addStringValueToColumn(IMAGE_ANALYSIS_DATA_SET, dataset == null ? null
+                builder.column(IMAGE_ANALYSIS_DATA_SET).addString(dataset == null ? null
                         : dataset.getCode());
-                builder.addStringValueToColumn(FILE_FORMAT_TYPE, imageDataset == null ? null
+                builder.column(FILE_FORMAT_TYPE).addString(imageDataset == null ? null
                         : imageDataset.getDatasetReference().getFileTypeCode());
-                builder.addStringValueToColumn(WELL_IMAGES, well.tryGetImageDataset() == null ? ""
+                builder.column(WELL_IMAGES).addString(well.tryGetImageDataset() == null ? ""
                         : "[images]");
             }
             model = builder.getModel();

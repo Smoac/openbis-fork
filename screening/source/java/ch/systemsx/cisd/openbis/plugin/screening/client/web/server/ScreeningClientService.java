@@ -43,7 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -173,22 +174,10 @@ public final class ScreeningClientService extends AbstractClientService implemen
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
             WellSearchCriteria materialCriteria)
     {
-        final WellContentProvider provider =
+        final ITableModelProvider<WellContent> provider =
                 new WellContentProvider(server, getSessionToken(), materialCriteria);
         ResultSet<TableModelRowWithObject<WellContent>> resultSet =
-                listEntities(gridCriteria,
-                        new IOriginalDataProvider<TableModelRowWithObject<WellContent>>()
-                            {
-                                public List<TableModelRowWithObject<WellContent>> getOriginalData()
-                                {
-                                    return provider.getTableModel().getRows();
-                                }
-
-                                public List<TableModelColumnHeader> getHeaders()
-                                {
-                                    return provider.getTableModel().getHeader();
-                                }
-                            });
+                listEntities(gridCriteria, new DataProviderAdapter<WellContent>(provider));
         return new TypedTableResultSet<WellContent>(resultSet);
     }
 
