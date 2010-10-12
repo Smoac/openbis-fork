@@ -50,15 +50,15 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         builder.addColumn("B").withDataType(DataTypeCode.REAL).withDefaultWidth(500);
         MockSerializable object = new MockSerializable();
         builder.addRow(object);
-        builder.addStringValueToColumn("A", "hello");
-        builder.addDoubleValueToColumn("B", 42.5);
+        builder.column("A").addString("hello");
+        builder.column("B").addDouble(42.5);
         
         TypedTableModel<IsSerializable> model = builder.getModel();
         List<TableModelColumnHeader> headers = model.getHeader();
         assertHeadersOrder(headers, "A", "B");
         assertEquals("Alpha", headers.get(0).getTitle());
         assertEquals(150, headers.get(0).getDefaultColumnWidth());
-        assertEquals(null, headers.get(0).getDataType());
+        assertEquals(DataTypeCode.VARCHAR, headers.get(0).getDataType());
         assertEquals(null, headers.get(1).getTitle());
         assertEquals(500, headers.get(1).getDefaultColumnWidth());
         assertEquals(DataTypeCode.REAL, headers.get(1).getDataType());
@@ -76,17 +76,17 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         TypedTableModelBuilder<IsSerializable> builder = new TypedTableModelBuilder<IsSerializable>();
         MockSerializable object0 = new MockSerializable();
         builder.addRow(object0);
-        builder.addIntegerValueToColumn("Alpha", "A", 42L);
+        builder.column("A").withTitle("Alpha").addInteger(42L);
         MockSerializable object1 = new MockSerializable();
         builder.addRow(object1);
-        builder.addIntegerValueToColumn("A", null);
+        builder.column("A").addInteger(null);
         builder.addRow(null);
-        builder.addIntegerValueToColumn("a", "A", 4711L);
+        builder.column("A").withTitle("a").addInteger(4711L);
         
         TypedTableModel<IsSerializable> model = builder.getModel();
         List<TableModelColumnHeader> headers = model.getHeader();
         assertHeadersOrder(headers, "A");
-        assertEquals("Alpha", headers.get(0).getTitle());
+        assertEquals("a", headers.get(0).getTitle());
         assertEquals(DataTypeCode.INTEGER, headers.get(0).getDataType());
         List<TableModelRowWithObject<IsSerializable>> rows = model.getRows();
         assertSame(object0, rows.get(0).getObjectOrNull());
@@ -104,17 +104,17 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         TypedTableModelBuilder<IsSerializable> builder = new TypedTableModelBuilder<IsSerializable>();
         MockSerializable object0 = new MockSerializable();
         builder.addRow(object0);
-        builder.addDoubleValueToColumn("Alpha", "A", 4.25);
+        builder.column("A").withTitle("Alpha").addDouble(4.25);
         MockSerializable object1 = new MockSerializable();
         builder.addRow(object1);
-        builder.addDoubleValueToColumn("A", null);
+        builder.column("A").addDouble(null);
         builder.addRow(null);
-        builder.addDoubleValueToColumn("a", "A", 4711.5);
+        builder.column("A").withTitle("a").addDouble(4711.5);
         
         TypedTableModel<IsSerializable> model = builder.getModel();
         List<TableModelColumnHeader> headers = model.getHeader();
         assertHeadersOrder(headers, "A");
-        assertEquals("Alpha", headers.get(0).getTitle());
+        assertEquals("a", headers.get(0).getTitle());
         assertEquals(DataTypeCode.REAL, headers.get(0).getDataType());
         List<TableModelRowWithObject<IsSerializable>> rows = model.getRows();
         assertSame(object0, rows.get(0).getObjectOrNull());
@@ -131,9 +131,9 @@ public class TypedTableModelBuilderTest extends AssertJUnit
     {
         TypedTableModelBuilder<IsSerializable> builder = new TypedTableModelBuilder<IsSerializable>();
         builder.addRow(null);
-        builder.addStringValueToColumn("A", "a");
+        builder.column("A").addString("a");
         builder.addRow(null);
-        builder.addStringValueToColumn("B", "b");
+        builder.column("B").addString("b");
         TypedTableModel<IsSerializable> model = builder.getModel();
         
         assertHeadersOrder(model.getHeader(), "A", "B");

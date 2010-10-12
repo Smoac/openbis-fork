@@ -96,13 +96,13 @@ public abstract class TypedTableGrid<T extends IsSerializable>
 
     private Map<String, IColumnDefinition<TableModelRowWithObject<T>>> columnDefinitions;
 
-    public TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
+    protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
         super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
     }
 
-    public TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
+    protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
         super(viewContext, gridId, displayTypeIDGenerator);

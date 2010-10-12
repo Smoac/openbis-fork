@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.TableModelUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -65,7 +65,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -366,14 +365,7 @@ public abstract class AbstractClientService implements IClientService,
                         public List<TableModelRowWithObject<Null>> getOriginalData()
                                 throws UserFailureException
                         {
-                            List<TableModelRow> rows = tableModel.getRows();
-                            List<TableModelRowWithObject<Null>> result = new ArrayList<TableModelRowWithObject<Null>>();
-                            Null nullObject = new Null();
-                            for (TableModelRow row : rows)
-                            {
-                                result.add(new TableModelRowWithObject<Null>(nullObject, row.getValues()));
-                            }
-                            return result;
+                            return TableModelUtils.asTableModelRowsWithNullObject(tableModel.getRows());
                         }
 
                         public List<TableModelColumnHeader> getHeaders()

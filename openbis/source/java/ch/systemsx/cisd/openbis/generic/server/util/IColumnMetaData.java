@@ -35,7 +35,7 @@ public interface IColumnMetaData
      */
     public IColumnMetaData withDefaultWidth(int width);
 
-    /*
+    /**
      * Sets the data type.
      */
     public IColumnMetaData withDataType(DataTypeCode dataType);

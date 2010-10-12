@@ -17,22 +17,33 @@
 package ch.systemsx.cisd.openbis.generic.server.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Builder class for creating an instance of {@link TypedTableModel}.
@@ -71,14 +82,70 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         }
     }
     
-    private static final class Column
+    private static interface IIndexProvider
+    {
+        public int getIndex();
+    }
+    
+    private static interface IColumnItem
+    {
+        public List<Column> getColumns();
+    }
+    
+    private final class ColumnGroup implements IColumnGroup, IColumnItem
+    {
+        private final String groupKey;
+        
+        private final Set<Column> cols = new LinkedHashSet<TypedTableModelBuilder.Column>();
+
+        private ColumnGroup(String groupKey)
+        {
+            this.groupKey = groupKey;
+        }
+
+        public List<Column> getColumns()
+        {
+            return new ArrayList<TypedTableModelBuilder.Column>(cols);
+        }
+
+        public IColumn column(String id)
+        {
+            Column column = getOrCreateColumn(id);
+            cols.add(column);
+            return column;
+        }
+
+        public void addProperties(Collection<IEntityProperty> properties)
+        {
+            addProperties(groupKey, properties);
+        }
+
+        public void addProperties(String idPrefix,
+                Collection<IEntityProperty> properties)
+        {
+            for (IEntityProperty property : properties)
+            {
+                PropertyType propertyType = property.getPropertyType();
+                String label = propertyType.getLabel();
+                String code = idPrefix + propertyType.getCode();
+                IColumn column = column(code).withTitle(label);
+                DataTypeCode dataType = propertyType.getDataType().getCode();
+                ISerializableComparable value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
+                column.withDataType(dataType).addValue(value);
+            }
+        }
+    }
+
+    private static final class Column implements IColumn, IColumnItem
     {
         private final TableModelColumnHeader header;
         private final List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
+        private final IIndexProvider indexProvider;
 
-        Column(TableModelColumnHeader header)
+        Column(String id, IIndexProvider indexProvider)
         {
-            this.header = header;
+            header = new TableModelColumnHeader(null, id, 0);
+            this.indexProvider = indexProvider;
         }
         
         public TableModelColumnHeader getHeader()
@@ -91,17 +158,81 @@ public class TypedTableModelBuilder<T extends IsSerializable>
             return index < values.size() ? values.get(index) : EMPTY_CELL;
         }
 
-        public void insertValueAt(int index, ISerializableComparable value)
+        public List<Column> getColumns()
         {
+            return new ArrayList<TypedTableModelBuilder.Column>(Arrays.asList(this));
+        }
+
+        public IColumn withTitle(String title)
+        {
+            header.setTitle(title);
+            return this;
+        }
+
+        public IColumn withDefaultWidth(int width)
+        {
+            header.setDefaultColumnWidth(width);
+            return this;
+        }
+
+        public IColumn withDataType(DataTypeCode dataType)
+        {
+            header.setDataType(dataType);
+            return this;
+        }
+
+        public void addValue(ISerializableComparable valueOrNull)
+        {
+            int index = indexProvider.getIndex();
             while (index > values.size())
             {
                 values.add(EMPTY_CELL);
             }
-            values.add(index, value);
+            values.add(index, valueOrNull);
+        }
+
+        public void addString(String valueOrNull)
+        {
+            setDataType(DataTypeCode.VARCHAR);
+            StringTableCell value = valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
+            addValue(value);
+        }
+
+        public void addInteger(Long valueOrNull)
+        {
+            setDataType(DataTypeCode.INTEGER);
+            ISerializableComparable value =
+                valueOrNull == null ? EMPTY_CELL : new IntegerTableCell(valueOrNull);
+            addValue(value);
+        }
+
+        public void addDouble(Double valueOrNull)
+        {
+            setDataType(DataTypeCode.REAL);
+            ISerializableComparable value =
+                valueOrNull == null ? EMPTY_CELL : new DoubleTableCell(valueOrNull);
+            addValue(value);
+        }
+
+        public void addDate(Date valueOrNull)
+        {
+            setDataType(DataTypeCode.TIMESTAMP);
+            ISerializableComparable value =
+                    valueOrNull == null ? EMPTY_CELL : new DateTableCell(valueOrNull);
+            addValue(value);
+        }
+        
+        private void setDataType(DataTypeCode dataType)
+        {
+            header.setDataType(DataTypeUtils.getCompatibleDataType(header.getDataType(), dataType));
         }
     }
     
     private final Map<String, Column> columns = new HashMap<String, Column>();
+    
+    private final Map<String, IColumnGroup> columnGroups = new HashMap<String, IColumnGroup>();
+    
+    private final List<IColumnItem> columnItems = new ArrayList<IColumnItem>();
     
     private final List<T> rowObjects = new ArrayList<T>();
     
@@ -110,16 +241,28 @@ public class TypedTableModelBuilder<T extends IsSerializable>
      */
     public TypedTableModel<T> getModel()
     {
-        List<Column> cols = new ArrayList<Column>(columns.values());
-        Collections.sort(cols, new Comparator<Column>()
-            {
-                public int compare(Column c1, Column c2)
+        List<Column> orderedColumns = new ArrayList<Column>();
+        for (IColumnItem item : columnItems)
+        {
+            List<Column> itemColumns = item.getColumns();
+            Collections.sort(itemColumns, new Comparator<Column>()
                 {
-                    return c1.getHeader().getIndex() - c2.getHeader().getIndex();
-                }
-            });
+                    public int compare(Column c1, Column c2)
+                    {
+                        String t1 = StringUtils.trimToEmpty(c1.getHeader().getTitle());
+                        String t2 = StringUtils.trimToEmpty(c2.getHeader().getTitle());
+                        return t1.compareTo(t2);
+                    }
+                });
+            orderedColumns.addAll(itemColumns);
+        }
+        for (int i = 0; i < orderedColumns.size(); i++)
+        {
+            TableModelColumnHeader header = orderedColumns.get(i).getHeader();
+            header.setIndex(i);
+        }
         List<TableModelColumnHeader> headers = new ArrayList<TableModelColumnHeader>();
-        for (Column column : cols)
+        for (Column column : orderedColumns)
         {
             headers.add(column.getHeader());
         }
@@ -128,14 +271,9 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         {
             T object = rowObjects.get(i);
             List<ISerializableComparable> rowValues = new ArrayList<ISerializableComparable>(headers.size());
-            for (int j = 0, m = headers.size(); j < m; j++)
+            for (Column column : orderedColumns)
             {
-                rowValues.add(null);
-            }
-            for (int j = 0, m = headers.size(); j < m; j++)
-            {
-                int index = headers.get(j).getIndex();
-                rowValues.set(index, cols.get(index).getValue(i));
+                rowValues.add(column.getValue(i));
             }
             rows.add(new TableModelRowWithObject<T>(object, rowValues));
         }
@@ -151,13 +289,11 @@ public class TypedTableModelBuilder<T extends IsSerializable>
      */
     public IColumnMetaData addColumn(String id)
     {
-        Column column = createColumn(null, null, id);
-        String id1 = column.getHeader().getId();
-        Column oldColumn = columns.put(id1, column);
-        if (oldColumn != null)
+        if (columns.containsKey(id))
         {
-            throw new IllegalArgumentException("There is already a column with id '" + id1 + "'.");
+            throw new IllegalArgumentException("There is already a column with id '" + id + "'.");
         }
+        Column column = getOrCreateColumnAsColumnItem(id);
         return new ColumnMetaData(column);
     }
     
@@ -170,106 +306,51 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         rowObjects.add(objectOrNull);
     }
 
-    /**
-     * Adds a string value to specified column. The column will be created if it does not exist.
-     */
-    public void addStringValueToColumn(String id, String valueOrNull)
+    public IColumnGroup columnGroup(final String groupKey)
     {
-        addStringValueToColumn(null, id, valueOrNull);
-    }
-
-    /**
-     * Adds a string value to the column specified by its id. The column will be created if it does
-     * not exist.
-     * 
-     * @param title Title of the column. Will be ignored if the column already exists.
-     */
-    public void addStringValueToColumn(String title, String id, String valueOrNull)
-    {
-        StringTableCell value = valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
-        addValueToColumn(title, DataTypeCode.VARCHAR, id, value);
-    }
-    
-    /**
-     * Adds an integer value to specified column. The column will be created if it does not exist.
-     */
-    public void addIntegerValueToColumn(String id, Long valueOrNull)
-    {
-        addIntegerValueToColumn(null, id, valueOrNull);
-    }
-
-    /**
-     * Adds an integer value to the column specified by its id. The column will be created if it
-     * does not exist.
-     * 
-     * @param title Title of the column. Will be ignored if the column already exists.
-     */
-    public void addIntegerValueToColumn(String title, String id, Long valueOrNull)
-    {
-        ISerializableComparable value =
-                valueOrNull == null ? EMPTY_CELL : new IntegerTableCell(valueOrNull);
-        addValueToColumn(title, DataTypeCode.INTEGER, id, value);
-    }
-    
-    /**
-     * Adds a double value to specified column. The column will be created if it does not exist.
-     */
-    public void addDoubleValueToColumn(String id, Double valueOrNull)
-    {
-        addDoubleValueToColumn(null, id, valueOrNull);
-    }
-    
-    /**
-     * Adds a double value to the column specified by its id. The column will be created if it
-     * does not exist.
-     * 
-     * @param title Title of the column. Will be ignored if the column already exists.
-     */
-    public void addDoubleValueToColumn(String title, String id, Double valueOrNull)
-    {
-        ISerializableComparable value =
-                valueOrNull == null ? EMPTY_CELL : new DoubleTableCell(valueOrNull);
-        addValueToColumn(title, DataTypeCode.REAL, id, value);
-    }
-
-    /**
-     * Adds specified value to the column specified by its id. The column will be created if it
-     * does not exist.
-     * 
-     * @param titleOrNull Title of the column. Will be ignored if the column already exists.
-     * @param dataTypeOrNull Data type of the column. Will be ignored if trhe column already exists.
-     */
-    public void addValueToColumn(String titleOrNull, DataTypeCode dataTypeOrNull, String id,
-            ISerializableComparable value)
-    {
-        getOrCreateColumn(titleOrNull, dataTypeOrNull, id).insertValueAt(rowObjects.size() - 1,
-                value);
-    }
-    
-    private Column getOrCreateColumn(String titleOrNull, DataTypeCode dataTypeOrNull, String id)
-    {
-        Column column = columns.get(id);
-        if (column == null)
+        IColumnGroup columnGroup = columnGroups.get(groupKey);
+        if (columnGroup == null)
         {
-            column = createColumn(titleOrNull, dataTypeOrNull, id);
-            columns.put(id, column);
+            ColumnGroup group = new ColumnGroup(groupKey);
+            columnItems.add(group);
+            columnGroup = group;
+            columnGroups.put(groupKey, columnGroup);
+        }
+        return columnGroup;
+    }
+    
+    public IColumn column(String id)
+    {
+        return getOrCreateColumnAsColumnItem(id);
+    }
+
+    private Column getOrCreateColumnAsColumnItem(String id)
+    {
+        boolean knownColumn = columns.containsKey(id);
+        Column column = getOrCreateColumn(id);
+        if (knownColumn == false)
+        {
+            columnItems.add(column);
         }
         return column;
     }
     
-    private Column createColumn(String titleOrNull, DataTypeCode dataTypeOrNull, String id)
+    private Column getOrCreateColumn(String id)
     {
-        TableModelColumnHeader header = createHeader(titleOrNull, id);
-        if (dataTypeOrNull != null)
+        Column column = columns.get(id);
+        if (column == null)
         {
-            header.setDataType(dataTypeOrNull);
+            column = new Column(id, new IIndexProvider()
+                {
+                    public int getIndex()
+                    {
+                        return rowObjects.size() - 1;
+                    }
+                });
+            columns.put(id, column);
         }
-        return new Column(header);
-    }
+        return column;
 
-    private TableModelColumnHeader createHeader(String titleOrNull, String id)
-    {
-        return new TableModelColumnHeader(titleOrNull, id, columns.size());
     }
 
 }

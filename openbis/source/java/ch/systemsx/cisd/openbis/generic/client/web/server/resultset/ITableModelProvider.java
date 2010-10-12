@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server;
+package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
