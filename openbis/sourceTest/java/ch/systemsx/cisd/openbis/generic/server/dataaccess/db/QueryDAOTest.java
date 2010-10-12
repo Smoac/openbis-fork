@@ -90,7 +90,7 @@ public class QueryDAOTest extends AbstractDAOTest
         assertEquals(3, queries.size());
         assertQueryEquality(qs, queries.get(0));
         assertQueryEquality(qst1, queries.get(1));
-        assertQueryEquality(qst2, queries.get(1));
+        assertQueryEquality(qst2, queries.get(2));
 
         queries = queryDAO.listQueries(QueryType.EXPERIMENT);
         assertEquals(2, queries.size());
