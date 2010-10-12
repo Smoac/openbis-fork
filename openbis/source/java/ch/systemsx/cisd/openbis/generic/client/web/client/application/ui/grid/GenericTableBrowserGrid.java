@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
  * Implementation of a table browser grid for {@link GenericTableRow} data.
@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
  * @author Franz-Josef Elmer
  */
 public abstract class GenericTableBrowserGrid extends
-        AbstractBrowserGrid<GenericTableRow, BaseEntityModel<GenericTableRow>>
+        AbstractBrowserGrid<TableModelRow, BaseEntityModel<TableModelRow>>
 {
     private static final int TIMSTAMP_COLUMN_WIDTH = 190;
 
@@ -82,13 +82,13 @@ public abstract class GenericTableBrowserGrid extends
      * Lists table rows. Implementations of this method usually call a server method.
      */
     protected abstract void listTableRows(
-            IResultSetConfig<String, GenericTableRow> resultSetConfig,
+            IResultSetConfig<String, TableModelRow> resultSetConfig,
             AsyncCallback<GenericTableResultSet> callback);
 
     @Override
-    protected ColumnDefsAndConfigs<GenericTableRow> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRow> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<GenericTableRow> definitions =
+        ColumnDefsAndConfigs<TableModelRow> definitions =
                 ColumnDefsAndConfigs.create(createColDefinitions());
         if (headers != null)
         {
@@ -107,15 +107,15 @@ public abstract class GenericTableBrowserGrid extends
     }
 
     @Override
-    protected BaseEntityModel<GenericTableRow> createModel(GridRowModel<GenericTableRow> entity)
+    protected BaseEntityModel<TableModelRow> createModel(GridRowModel<TableModelRow> entity)
     {
-        return new BaseEntityModel<GenericTableRow>(entity, createColDefinitions());
+        return new BaseEntityModel<TableModelRow>(entity, createColDefinitions());
     }
 
-    private List<IColumnDefinitionUI<GenericTableRow>> createColDefinitions()
+    private List<IColumnDefinitionUI<TableModelRow>> createColDefinitions()
     {
-        List<IColumnDefinitionUI<GenericTableRow>> list =
-                new ArrayList<IColumnDefinitionUI<GenericTableRow>>();
+        List<IColumnDefinitionUI<TableModelRow>> list =
+                new ArrayList<IColumnDefinitionUI<TableModelRow>>();
         if (headers != null)
         {
             for (final GenericTableColumnHeader header : headers)
@@ -142,8 +142,8 @@ public abstract class GenericTableBrowserGrid extends
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, GenericTableRow> resultSetConfig,
-            final AbstractAsyncCallback<ResultSet<GenericTableRow>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, TableModelRow> resultSetConfig,
+            final AbstractAsyncCallback<ResultSet<TableModelRow>> callback)
     {
         AbstractAsyncCallback<GenericTableResultSet> extendedCallback =
                 new AbstractAsyncCallback<GenericTableResultSet>(viewContext)
@@ -188,12 +188,12 @@ public abstract class GenericTableBrowserGrid extends
     }
 
     @Override
-    protected void showEntityViewer(GenericTableRow entity, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(TableModelRow entity, boolean editMode, boolean inBackground)
     {
     }
 
     @Override
-    protected List<IColumnDefinition<GenericTableRow>> getInitialFilters()
+    protected List<IColumnDefinition<TableModelRow>> getInitialFilters()
     {
         return Collections.emptyList();
     }

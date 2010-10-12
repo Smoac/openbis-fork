@@ -39,9 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
@@ -150,9 +150,9 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
     private void registerLinkClickListeners()
     {
         registerLinkClickListenerFor(PlateMetadataStaticColumns.WELL.getColumnId(),
-                new ICellListener<GenericTableRow>()
+                new ICellListener<TableModelRow>()
                     {
-                        public void handle(GenericTableRow rowItem, boolean keyPressed)
+                        public void handle(TableModelRow rowItem, boolean keyPressed)
                         {
                             showEntityViewer(rowItem, false, keyPressed);
                         }
@@ -160,7 +160,7 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
     }
 
     @Override
-    protected void listTableRows(IResultSetConfig<String, GenericTableRow> resultSetConfig,
+    protected void listTableRows(IResultSetConfig<String, TableModelRow> resultSetConfig,
             AsyncCallback<GenericTableResultSet> callback)
     {
         screeningViewContext.getService().listPlateMetadata(resultSetConfig, sampleId, callback);
@@ -168,7 +168,7 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<GenericTableRow> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRow> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         screeningViewContext.getService().prepareExportPlateMetadata(exportCriteria, callback);
@@ -179,7 +179,7 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
         return new DatabaseModificationKind[] {};
     }
 
-    private void showEntityInformationHolderViewer(final GenericTableRow entity,
+    private void showEntityInformationHolderViewer(final TableModelRow entity,
             final PlateMetadataStaticColumns column, final String typeCode,
             final EntityKind entityKind, boolean editMode, boolean active)
     {
@@ -189,25 +189,25 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
     }
 
     @Override
-    protected void showEntityViewer(final GenericTableRow entity, boolean editMode, boolean active)
+    protected void showEntityViewer(final TableModelRow entity, boolean editMode, boolean active)
     {
         showEntityInformationHolderViewer(entity, PlateMetadataStaticColumns.WELL, "UNDEFINED",
                 EntityKind.SAMPLE, editMode, active);
     }
 
-    private static ISerializableComparable getColumn(final GenericTableRow entity,
+    private static ISerializableComparable getColumn(final TableModelRow entity,
             PlateMetadataStaticColumns column)
     {
-        return entity.tryToGetValue(column.ordinal());
+        return entity.getValues().get(column.ordinal());
     }
 
-    private static String getColumnAsString(GenericTableRow entity,
+    private static String getColumnAsString(TableModelRow entity,
             PlateMetadataStaticColumns column)
     {
         return getColumn(entity, column).toString();
     }
 
-    private static Long extractTechIdFromColumn(final GenericTableRow entity,
+    private static Long extractTechIdFromColumn(final TableModelRow entity,
             PlateMetadataStaticColumns column)
     {
         return ((SerializableComparableIDDecorator) getColumn(entity, column)).getID();
@@ -219,7 +219,7 @@ public class PlateMetadataBrowser extends GenericTableBrowserGrid
     }
 
     private static IEntityInformationHolderWithPermId createEntityInformationHolder(
-            final GenericTableRow entity, final PlateMetadataStaticColumns column,
+            final TableModelRow entity, final PlateMetadataStaticColumns column,
             final String typeCode, final EntityKind entityKind)
     {
         return new IEntityInformationHolderWithPermId()

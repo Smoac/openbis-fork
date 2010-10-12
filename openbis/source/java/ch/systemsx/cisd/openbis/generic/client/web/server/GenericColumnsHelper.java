@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
@@ -146,5 +147,23 @@ public class GenericColumnsHelper
         {
             return columns.values();
         }
+    }
+
+    public static List<TableModelRow> createTableRows(List<Column> columns)
+    {
+        int numberOfRows = columns.get(0).getValues().size();
+        List<TableModelRow> result = new ArrayList<TableModelRow>(numberOfRows);
+        for (int i = 0; i < numberOfRows; i++)
+        {
+            List<ISerializableComparable> row = new ArrayList<ISerializableComparable>(columns.size());
+            for (int j = 0; j < row.size(); j++)
+            {
+                Column column = columns.get(j);
+                List<ISerializableComparable> values = column.getValues();
+                row.add(i < values.size() ? values.get(i) : null);
+            }
+            result.add(new TableModelRow(row));
+        }
+        return result;
     }
 }

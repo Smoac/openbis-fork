@@ -29,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -86,13 +86,13 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     /**
      * @see IScreeningClientService#listPlateMetadata(IResultSetConfig, TechId)
      */
-    public void listPlateMetadata(IResultSetConfig<String, GenericTableRow> resultSetConfig,
+    public void listPlateMetadata(IResultSetConfig<String, TableModelRow> resultSetConfig,
             TechId sampleId, AsyncCallback<GenericTableResultSet> callback);
 
     /**
      * @see IScreeningClientService#prepareExportPlateMetadata(TableExportCriteria)
      */
-    public void prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> exportCriteria,
+    public void prepareExportPlateMetadata(TableExportCriteria<TableModelRow> exportCriteria,
             AsyncCallback<String> callback);
 
     /**

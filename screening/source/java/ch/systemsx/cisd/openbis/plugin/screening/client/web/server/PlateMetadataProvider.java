@@ -21,14 +21,14 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
+import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataStaticColumns;
@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  * 
  * @author Izabela Adamczyk
  */
-class PlateMetadataProvider extends AbstractOriginalDataProviderWithoutHeaders<GenericTableRow>
+class PlateMetadataProvider extends AbstractOriginalDataProviderWithoutHeaders<TableModelRow>
 {
 
     private final List<WellMetadata> wells;
@@ -50,23 +50,9 @@ class PlateMetadataProvider extends AbstractOriginalDataProviderWithoutHeaders<G
         this.wells = plateContent.getPlateMetadata().getWells();
     }
 
-    public List<GenericTableRow> getOriginalData() throws UserFailureException
+    public List<TableModelRow> getOriginalData() throws UserFailureException
     {
-        List<Column> columns = getColumns();
-        int numberOfRows = columns.get(0).getValues().size();
-        List<GenericTableRow> result = new ArrayList<GenericTableRow>(numberOfRows);
-        for (int i = 0; i < numberOfRows; i++)
-        {
-            ISerializableComparable[] row = new ISerializableComparable[columns.size()];
-            for (int j = 0; j < row.length; j++)
-            {
-                Column column = columns.get(j);
-                List<ISerializableComparable> values = column.getValues();
-                row[j] = i < values.size() ? values.get(i) : null;
-            }
-            result.add(new GenericTableRow(row));
-        }
-        return result;
+        return GenericColumnsHelper.createTableRows(getColumns());
     }
 
     public List<GenericTableColumnHeader> getGenericHeaders()

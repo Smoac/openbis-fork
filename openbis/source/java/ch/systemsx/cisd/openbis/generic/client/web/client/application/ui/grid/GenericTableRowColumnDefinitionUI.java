@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
  * UI extension of {@link GenericTableRowColumnDefinition}.
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
  * @author Franz-Josef Elmer
  */
 public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefinition implements
-        IColumnDefinitionUI<GenericTableRow>
+        IColumnDefinitionUI<TableModelRow>
 {
     private int width;
 
@@ -72,7 +72,7 @@ public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefi
         return header.isLinkable();
     }
 
-    public String tryGetLink(GenericTableRow entity)
+    public String tryGetLink(TableModelRow entity)
     {
         return null;
     }

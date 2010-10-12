@@ -39,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -56,7 +56,7 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         RawDataSampleGrid grid = new RawDataSampleGrid(viewContext);
-        DisposableEntityChooser<GenericTableRow> disposable = grid.asDisposableWithoutToolbar();
+        DisposableEntityChooser<TableModelRow> disposable = grid.asDisposableWithoutToolbar();
         return new DatabaseModificationAwareComponent(disposable.getComponent(), disposable);
     }
 
@@ -67,9 +67,9 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.RAW_DATA_SAMPLE_BROWSER_GRID);
         specificViewContext = viewContext;
-        registerLinkClickListenerFor("CODE", new ICellListener<GenericTableRow>()
+        registerLinkClickListenerFor("CODE", new ICellListener<TableModelRow>()
             {
-                public void handle(GenericTableRow rowItem, boolean keyPressed)
+                public void handle(TableModelRow rowItem, boolean keyPressed)
                 {
                     showEntityViewer(rowItem, false, keyPressed);
                 }
@@ -78,9 +78,9 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
         addEntityOperationsLabel();
         RawDataProcessingMenu button =
                 new RawDataProcessingMenu(viewContext,
-                        new IDelegatedActionWithResult<List<GenericTableRow>>()
+                        new IDelegatedActionWithResult<List<TableModelRow>>()
                             {
-                                public List<GenericTableRow> execute()
+                                public List<TableModelRow> execute()
                                 {
                                     return getSelectedBaseObjects();
                                 }
@@ -90,14 +90,14 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
     }
 
     @Override
-    protected void listTableRows(IResultSetConfig<String, GenericTableRow> resultSetConfig,
+    protected void listTableRows(IResultSetConfig<String, TableModelRow> resultSetConfig,
             AsyncCallback<GenericTableResultSet> callback)
     {
         specificViewContext.getService().listRawDataSamples(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<GenericTableRow> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRow> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         specificViewContext.getService().prepareExportRawDataSamples(exportCriteria, callback);
@@ -113,19 +113,19 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
     }
 
     @Override
-    protected void showEntityViewer(final GenericTableRow entity, boolean editMode, boolean active)
+    protected void showEntityViewer(final TableModelRow entity, boolean editMode, boolean active)
     {
         showEntityInformationHolderViewer(new IEntityInformationHolderWithPermId()
             {
 
                 public String getCode()
                 {
-                    return entity.tryToGetValue(0).toString();
+                    return entity.getValues().get(0).toString();
                 }
 
                 public Long getId()
                 {
-                    return ((SerializableComparableIDDecorator) entity.tryToGetValue(0)).getID();
+                    return ((SerializableComparableIDDecorator) entity.getValues().get(0)).getID();
                 }
 
                 public BasicEntityType getEntityType()

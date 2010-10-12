@@ -23,21 +23,21 @@ import java.util.List;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
+import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * @author Franz-Josef Elmer
  */
-class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<GenericTableRow>
+class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<TableModelRow>
 {
 
     @Private
@@ -62,23 +62,9 @@ class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<G
         this.sessionToken = sessionToken;
     }
 
-    public List<GenericTableRow> getOriginalData() throws UserFailureException
+    public List<TableModelRow> getOriginalData() throws UserFailureException
     {
-        List<Column> columns = getColumns();
-        int numberOfRows = columns.get(0).getValues().size();
-        List<GenericTableRow> result = new ArrayList<GenericTableRow>(numberOfRows);
-        for (int i = 0; i < numberOfRows; i++)
-        {
-            ISerializableComparable[] row = new ISerializableComparable[columns.size()];
-            for (int j = 0; j < row.length; j++)
-            {
-                Column column = columns.get(j);
-                List<ISerializableComparable> values = column.getValues();
-                row[j] = i < values.size() ? values.get(i) : null;
-            }
-            result.add(new GenericTableRow(row));
-        }
-        return result;
+        return GenericColumnsHelper.createTableRows(getColumns());
     }
 
     public List<GenericTableColumnHeader> getGenericHeaders()

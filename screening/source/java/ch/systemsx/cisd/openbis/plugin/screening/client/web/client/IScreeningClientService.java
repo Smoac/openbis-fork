@@ -29,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -100,7 +100,7 @@ public interface IScreeningClientService extends IClientService
      * Returns {@link GenericTableResultSet} containing plate metadata.
      */
     public GenericTableResultSet listPlateMetadata(
-            IResultSetConfig<String, GenericTableRow> resultSetConfig, TechId sampleId)
+            IResultSetConfig<String, TableModelRow> resultSetConfig, TechId sampleId)
             throws UserFailureException;
 
     /**
@@ -113,7 +113,7 @@ public interface IScreeningClientService extends IClientService
      * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
      * GenericTableRow.
      */
-    public String prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> exportCriteria)
+    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRow> exportCriteria)
             throws UserFailureException;
 
     /** Lists all images for a given well in the given dataset */

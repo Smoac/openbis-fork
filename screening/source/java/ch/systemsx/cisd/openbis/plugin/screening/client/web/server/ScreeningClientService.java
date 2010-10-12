@@ -50,10 +50,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -205,7 +205,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     public GenericTableResultSet listPlateMetadata(
-            IResultSetConfig<String, GenericTableRow> criteria, TechId sampleId)
+            IResultSetConfig<String, TableModelRow> criteria, TechId sampleId)
     {
         PlateMetadataProvider dataProvider =
                 new PlateMetadataProvider(server, getSessionToken(), sampleId);
@@ -213,7 +213,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         // are available -- the provider does. Thus, inform the criteria which columns are
         // available.
         updateResultSetColumnsFromProvider(criteria, dataProvider);
-        ResultSet<GenericTableRow> resultSet = listEntities(criteria, dataProvider);
+        ResultSet<TableModelRow> resultSet = listEntities(criteria, dataProvider);
         return new GenericTableResultSet(resultSet, dataProvider.getGenericHeaders());
     }
 
@@ -223,9 +223,9 @@ public final class ScreeningClientService extends AbstractClientService implemen
      * provider.
      */
     private void updateResultSetColumnsFromProvider(
-            IResultSetConfig<String, GenericTableRow> criteria, PlateMetadataProvider dataProvider)
+            IResultSetConfig<String, TableModelRow> criteria, PlateMetadataProvider dataProvider)
     {
-        Set<IColumnDefinition<GenericTableRow>> columns = criteria.getAvailableColumns();
+        Set<IColumnDefinition<TableModelRow>> columns = criteria.getAvailableColumns();
         Set<String> availableColumnIdentifiers = extractColumnIdentifiers(columns);
 
         List<GenericTableColumnHeader> headers = dataProvider.getGenericHeaders();
@@ -240,17 +240,17 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     private static Set<String> extractColumnIdentifiers(
-            Set<IColumnDefinition<GenericTableRow>> columns)
+            Set<IColumnDefinition<TableModelRow>> columns)
     {
         Set<String> availableColumnIdentifiers = new HashSet<String>();
-        for (IColumnDefinition<GenericTableRow> colDef : columns)
+        for (IColumnDefinition<TableModelRow> colDef : columns)
         {
             availableColumnIdentifiers.add(colDef.getIdentifier());
         }
         return availableColumnIdentifiers;
     }
 
-    public String prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> criteria)
+    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRow> criteria)
     {
         return prepareExportEntities(criteria);
     }

@@ -21,13 +21,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class GenericTableRowColumnDefinition implements IColumnDefinition<GenericTableRow>
+public class GenericTableRowColumnDefinition implements IColumnDefinition<TableModelRow>
 {
     protected GenericTableColumnHeader header;
 
@@ -46,7 +46,7 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<Generi
         this(null, null);
     }
 
-    public Comparable<?> tryGetComparableValue(GridRowModel<GenericTableRow> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<TableModelRow> rowModel)
     {
         return getCellValue(rowModel);
     }
@@ -61,7 +61,7 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<Generi
         return header.getCode();
     }
 
-    public String getValue(GridRowModel<GenericTableRow> rowModel)
+    public String getValue(GridRowModel<TableModelRow> rowModel)
     {
         ISerializableComparable value = getCellValue(rowModel);
         if (value instanceof DateTableCell)
@@ -71,9 +71,9 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<Generi
         return value == null ? "" : value.toString();
     }
 
-    private ISerializableComparable getCellValue(GridRowModel<GenericTableRow> rowModel)
+    private ISerializableComparable getCellValue(GridRowModel<TableModelRow> rowModel)
     {
-        return rowModel.getOriginalObject().tryToGetValue(header.getIndex());
+        return rowModel.getOriginalObject().getValues().get(header.getIndex());
     }
 
     public String tryToGetProperty(String key)

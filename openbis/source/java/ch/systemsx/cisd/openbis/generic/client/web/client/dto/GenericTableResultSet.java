@@ -22,20 +22,20 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
- * Class for the {@link ResultSet} of {@link GenericTableRow}. It also contains the
+ * Class for the {@link ResultSet} of {@link TableModelRow}. It also contains the
  * {@link GenericTableRowColumnDefinition}s.
  * 
  * @author Franz-Josef Elmer
  */
 public class GenericTableResultSet implements IsSerializable
 {
-    private ResultSet<GenericTableRow> resultSet;
+    private ResultSet<TableModelRow> resultSet;
     private List<GenericTableColumnHeader> headers;
 
-    public GenericTableResultSet(ResultSet<GenericTableRow> resultSet, List<GenericTableColumnHeader> headers)
+    public GenericTableResultSet(ResultSet<TableModelRow> resultSet, List<GenericTableColumnHeader> headers)
     {
         this.resultSet = resultSet;
         this.headers = headers;
@@ -47,7 +47,7 @@ public class GenericTableResultSet implements IsSerializable
     {
     }
 
-    public ResultSet<GenericTableRow> getResultSet()
+    public ResultSet<TableModelRow> getResultSet()
     {
         return resultSet;
     }

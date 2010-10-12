@@ -34,11 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
@@ -92,7 +92,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         prepareListRawDataSamples();
         
-        List<GenericTableRow> data = provider.getOriginalData();
+        List<TableModelRow> data = provider.getOriginalData();
         
         assertEquals(0, data.size());
         context.assertIsSatisfied();
@@ -110,7 +110,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms3 = sample("MS3", parent, "2");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
-        List<GenericTableRow> data = provider.getOriginalData();
+        List<TableModelRow> data = provider.getOriginalData();
         
         assertEquals(3, data.size());
         assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, null, null, 3.0, 6, 4, null", data.get(0));
@@ -119,7 +119,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
     
-    private void assertRow(String expectedRow, GenericTableRow row)
+    private void assertRow(String expectedRow, TableModelRow row)
     {
         StringBuilder builder = new StringBuilder();
         int length = expectedRow.split(",").length;
@@ -129,7 +129,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
             {
                 builder.append(", ");
             }
-            builder.append(row.tryToGetValue(i));
+            builder.append(row.getValues().get(i));
         }
         assertEquals(expectedRow, builder.toString());
     }

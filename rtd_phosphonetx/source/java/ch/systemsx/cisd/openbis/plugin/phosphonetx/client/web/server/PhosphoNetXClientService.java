@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
@@ -211,16 +211,16 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public GenericTableResultSet listRawDataSamples(
-            IResultSetConfig<String, GenericTableRow> criteria)
+            IResultSetConfig<String, TableModelRow> criteria)
     {
         final String sessionToken = getSessionToken();
         RawDataSampleProvider rawDataSampleProvider =
                 new RawDataSampleProvider(proteomicsDataService, sessionToken);
-        ResultSet<GenericTableRow> resultSet = listEntities(criteria, rawDataSampleProvider);
+        ResultSet<TableModelRow> resultSet = listEntities(criteria, rawDataSampleProvider);
         return new GenericTableResultSet(resultSet, rawDataSampleProvider.getGenericHeaders());
     }
 
-    public String prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria)
+    public String prepareExportRawDataSamples(TableExportCriteria<TableModelRow> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
