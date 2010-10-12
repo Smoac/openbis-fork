@@ -17,11 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
@@ -116,101 +114,6 @@ public class QueryDAOTest extends AbstractDAOTest
         assertEquals(expectedQuery.getEntityTypeCodePattern(),
                 actualQuery.getEntityTypeCodePattern());
         assertEquals(getTestPerson().getDatabaseInstance(), actualQuery.getDatabaseInstance());
-    }
-
-    @Test
-    public void testCreateGenericQueryFailsWithEntityTypeSpecified() throws Exception
-    {
-        IQueryDAO queryDAO = daoFactory.getQueryDAO();
-        assertEquals(0, queryDAO.listAllEntities().size());
-        QueryPE query =
-                createQuery("qg", "test query", "select * from blabla", true, getSystemPerson(),
-                        QueryType.GENERIC, "fake", DATABASE_KEY);
-        try
-        {
-            queryDAO.createQuery(query);
-            fail("DataIntegrityViolationException expected");
-        } catch (DataIntegrityViolationException e)
-        {
-            assertEquals("ERROR: Insert/Update of Query (Name: qg) failed because "
-                    + "entity_type has to be null for GENERIC queries.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreateSampleQueryFailsWithFakeEntityType() throws Exception
-    {
-        IQueryDAO queryDAO = daoFactory.getQueryDAO();
-        assertEquals(0, queryDAO.listAllEntities().size());
-        QueryPE query =
-                createQuery("qs", "test query", "select * from blabla", true, getSystemPerson(),
-                        QueryType.SAMPLE, "FAKE_SAMPLE", DATABASE_KEY);
-        try
-        {
-            queryDAO.createQuery(query);
-            fail("DataIntegrityViolationException expected");
-        } catch (DataIntegrityViolationException e)
-        {
-            assertEquals("ERROR: Insert/Update of Query (Name: qs) failed because "
-                    + "SAMPLE Type (Code: FAKE_SAMPLE) does not exist.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreateMaterialQueryFailsWithFakeEntityType() throws Exception
-    {
-        IQueryDAO queryDAO = daoFactory.getQueryDAO();
-        assertEquals(0, queryDAO.listAllEntities().size());
-        QueryPE query =
-                createQuery("qm", "test query", "select * from blabla", true, getSystemPerson(),
-                        QueryType.MATERIAL, "FAKE_MATERIAL", DATABASE_KEY);
-        try
-        {
-            queryDAO.createQuery(query);
-            fail("DataIntegrityViolationException expected");
-        } catch (DataIntegrityViolationException e)
-        {
-            assertEquals("ERROR: Insert/Update of Query (Name: qm) failed because "
-                    + "MATERIAL Type (Code: FAKE_MATERIAL) does not exist.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreateDataSetQueryFailsWithFakeEntityType() throws Exception
-    {
-        IQueryDAO queryDAO = daoFactory.getQueryDAO();
-        assertEquals(0, queryDAO.listAllEntities().size());
-        QueryPE query =
-                createQuery("qd", "test query", "select * from blabla", true, getSystemPerson(),
-                        QueryType.DATA_SET, "FAKE_DATA_SET", DATABASE_KEY);
-        try
-        {
-            queryDAO.createQuery(query);
-            fail("DataIntegrityViolationException expected");
-        } catch (DataIntegrityViolationException e)
-        {
-            assertEquals("ERROR: Insert/Update of Query (Name: qd) failed because "
-                    + "DATA_SET Type (Code: FAKE_DATA_SET) does not exist.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreateExperimentQueryFailsWithFakeEntityType() throws Exception
-    {
-        IQueryDAO queryDAO = daoFactory.getQueryDAO();
-        assertEquals(0, queryDAO.listAllEntities().size());
-        QueryPE query =
-                createQuery("qe", "test query", "select * from blabla", true, getSystemPerson(),
-                        QueryType.EXPERIMENT, "FAKE_EXP", DATABASE_KEY);
-        try
-        {
-            queryDAO.createQuery(query);
-            fail("DataIntegrityViolationException expected");
-        } catch (DataIntegrityViolationException e)
-        {
-            assertEquals("ERROR: Insert/Update of Query (Name: qe) failed because "
-                    + "EXPERIMENT Type (Code: FAKE_EXP) does not exist.", e.getMessage());
-        }
     }
 
     private QueryPE createQuery(String name, String description, String expression,
