@@ -51,7 +51,7 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
 
     private QueryType queryType;
 
-    private String entityTypeCode;
+    private String entityTypeCodePattern; // can be a regexp
 
     @SequenceGenerator(name = SequenceNames.QUERY_SEQUENCE, sequenceName = SequenceNames.QUERY_SEQUENCE, allocationSize = 1)
     @Id
@@ -101,14 +101,14 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
     }
 
     @Column(name = ColumnNames.QUERY_ENTITY_TYPE_CODE_COLUMN)
-    public String getEntityTypeCode()
+    public String getEntityTypeCodePattern()
     {
-        return entityTypeCode;
+        return entityTypeCodePattern;
     }
 
-    public void setEntityTypeCode(String entityTypeCode)
+    public void setEntityTypeCodePattern(String entityTypeCodePattern)
     {
-        this.entityTypeCode = entityTypeCode;
+        this.entityTypeCodePattern = entityTypeCodePattern;
     }
 
     @Override

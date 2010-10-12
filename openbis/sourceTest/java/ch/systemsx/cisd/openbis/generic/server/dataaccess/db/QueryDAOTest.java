@@ -113,7 +113,8 @@ public class QueryDAOTest extends AbstractDAOTest
         assertEquals(expectedQuery.isPublic(), actualQuery.isPublic());
         assertEquals(expectedQuery.getRegistrator(), actualQuery.getRegistrator());
         assertEquals(expectedQuery.getQueryType(), actualQuery.getQueryType());
-        assertEquals(expectedQuery.getEntityTypeCode(), actualQuery.getEntityTypeCode());
+        assertEquals(expectedQuery.getEntityTypeCodePattern(),
+                actualQuery.getEntityTypeCodePattern());
         assertEquals(getTestPerson().getDatabaseInstance(), actualQuery.getDatabaseInstance());
     }
 
@@ -223,7 +224,7 @@ public class QueryDAOTest extends AbstractDAOTest
         query.setPublic(isPublic);
         query.setRegistrator(registrator);
         query.setQueryType(type);
-        query.setEntityTypeCode(entityTypeCodeOrNull);
+        query.setEntityTypeCodePattern(entityTypeCodeOrNull);
         query.setQueryDatabaseKey(databaseKey);
         return query;
     }

@@ -153,9 +153,10 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
                 for (Iterator<QueryPE> iterator = queries.iterator(); iterator.hasNext();)
                 {
                     final QueryPE query = iterator.next();
-                    final String queryEntityTypeCodeOrNull = query.getEntityTypeCode();
-                    if (queryEntityTypeCodeOrNull != null
-                            && entityTypeCode.equals(queryEntityTypeCodeOrNull) == false)
+                    final String queryEntityTypeCodePatternOrNull =
+                            query.getEntityTypeCodePattern();
+                    if (queryEntityTypeCodePatternOrNull != null
+                            && entityTypeCode.matches(queryEntityTypeCodePatternOrNull) == false)
                     {
                         iterator.remove();
                     }
@@ -181,7 +182,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         query.setPublic(expression.isPublic());
         query.setRegistrator(session.tryGetPerson());
         query.setQueryType(expression.getQueryType());
-        query.setEntityTypeCode(expression.getEntityTypeCode());
+        query.setEntityTypeCodePattern(expression.getEntityTypeCode());
         query.setQueryDatabaseKey(expression.getQueryDatabase().getKey());
         try
         {
@@ -229,7 +230,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
             query.setExpression(updates.getExpression());
             query.setPublic(updates.isPublic());
             query.setQueryType(updates.getQueryType());
-            query.setEntityTypeCode(updates.getEntityTypeCode());
+            query.setEntityTypeCodePattern(updates.getEntityTypeCode());
             query.setQueryDatabaseKey(updates.getQueryDatabase().getKey());
 
             queryDAO.validateAndSaveUpdatedEntity(query);

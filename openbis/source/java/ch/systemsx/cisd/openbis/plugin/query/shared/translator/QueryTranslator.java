@@ -73,7 +73,7 @@ public final class QueryTranslator
         result.setName(escapeHtml(original.getName()));
         result.setQueryDatabase(new QueryDatabase(database.getKey(), database.getLabel()));
         result.setQueryType(original.getQueryType());
-        result.setEntityTypeCode(escapeHtml(original.getEntityTypeCode()));
+        result.setEntityTypeCode(escapeHtml(original.getEntityTypeCodePattern()));
         result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
         GridCustomExpressionTranslator.translateExpression(original, result);
