@@ -40,6 +40,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * Helper class for processing bundle data sets.
+ * <p>
+ * This helper registers the entire bundle as one data set, generates samples for each replica, and
+ * registers each file as a data set associated with the sample.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -89,7 +92,7 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
 
         BundleMetadataExtractor bundleMetadata = new BundleMetadataExtractor(bundle);
         bundleMetadata.prepare();
-        for (ReplicaMetadataExtractor replicaMetadata : bundleMetadata.getMetadataExtractors())
+        for (ReplicaMetadataExtractor replicaMetadata : bundleMetadata.getReplicaMetadataExtractors())
         {
             handleDerivedDataSets(replicaMetadata);
         }
@@ -100,7 +103,7 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
         SampleIdentifier sampleId = registerReplicaSample();
 
         // Register all the data sets derived from this sample
-        for (ImageMetadataExtractor imageMetadata : replicaMetadata.getMetadataExtractors())
+        for (ImageMetadataExtractor imageMetadata : replicaMetadata.getImageMetadataExtractors())
         {
             handleDerivedDataSet(sampleId, imageMetadata);
         }
@@ -135,7 +138,6 @@ class BundleDataSetHelperRpc extends BundleDataSetHelper
             sample.setExperimentIdentifier(parentSample.getExperiment().getIdentifier());
         } else if (experimentIdOrNull != null)
         {
-            // experimentIdOrNull cannot be null here, but the compiler doesn't realize it
             SpaceIdentifier spaceId =
                     new SpaceIdentifier(experimentIdOrNull.getDatabaseInstanceCode(),
                             experimentIdOrNull.getSpaceCode());

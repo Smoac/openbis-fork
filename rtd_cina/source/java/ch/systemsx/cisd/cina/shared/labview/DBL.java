@@ -23,15 +23,15 @@ import javax.xml.bind.annotation.XmlElement;
  */
 public class DBL extends AbstractLVDataElement
 {
-    private Float value;
+    private Double value;
 
     @XmlElement(name = "Val", namespace = "http://www.ni.com/LVData")
-    public void setValue(Float value)
+    public void setValue(Double value)
     {
         this.value = value;
     }
 
-    public Float getValue()
+    public Double getValue()
     {
         return value;
     }

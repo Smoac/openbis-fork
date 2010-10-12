@@ -18,7 +18,11 @@ package ch.systemsx.cisd.cina.shared.metadata;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import ch.systemsx.cisd.cina.shared.labview.LVData;
+import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -27,9 +31,19 @@ public class BundleMetadataExtractor
 {
     private static final String METADATA_FOLDER_NAME = "Annotations";
 
-    private final ArrayList<ReplicaMetadataExtractor> metadataExtractors;
+    private static final String BUNDLE_METADATA_FILE_NAME = "BundleMetadata.xml";
+
+    private static final String GRID_PREP_SAMPLE_CODE_KEY = "database link information";
+
+    private final ArrayList<ReplicaMetadataExtractor> replicaMetadataExtractors;
+
+    private final File bundleMetadataFile;
+
+    private final HashMap<String, String> metadataMap;
 
     private final File bundle;
+
+    private LVData lvdata;
 
     private boolean hasBeenPrepared = false;
 
@@ -41,7 +55,9 @@ public class BundleMetadataExtractor
     public BundleMetadataExtractor(File bundle)
     {
         this.bundle = bundle;
-        metadataExtractors = new ArrayList<ReplicaMetadataExtractor>();
+        replicaMetadataExtractors = new ArrayList<ReplicaMetadataExtractor>();
+        bundleMetadataFile = new File(bundle, BUNDLE_METADATA_FILE_NAME);
+        this.metadataMap = new HashMap<String, String>();
     }
 
     /**
@@ -55,19 +71,8 @@ public class BundleMetadataExtractor
             return;
         }
 
-        File metadataFolder = new File(bundle, METADATA_FOLDER_NAME);
-
-        // Then get the replica metadata
-        File[] replicaContents = metadataFolder.listFiles();
-        for (File replicaFile : replicaContents)
-        {
-            if (false == replicaFile.isDirectory())
-            {
-                continue;
-            }
-
-            processDirectory(replicaFile);
-        }
+        parseBundleMetadata();
+        prepareReplicaMetadataExtractors();
 
         hasBeenPrepared = true;
     }
@@ -76,10 +81,21 @@ public class BundleMetadataExtractor
      * Get the metadata extractors for each of the replica files in this bundle. The method
      * {@link #prepare} must be called before getting the metadata extractors.
      */
-    public List<ReplicaMetadataExtractor> getMetadataExtractors()
+    public List<ReplicaMetadataExtractor> getReplicaMetadataExtractors()
     {
-        assert hasBeenPrepared;
-        return metadataExtractors;
+        checkPrepared();
+        return replicaMetadataExtractors;
+    }
+
+    /**
+     * Return the sample code for the grid preparation sample.
+     * 
+     * @return Return the code, or null if none was found
+     */
+    public String tryGridPrepSampleCode()
+    {
+        checkPrepared();
+        return metadataMap.get(GRID_PREP_SAMPLE_CODE_KEY);
     }
 
     private void processDirectory(File file)
@@ -97,7 +113,39 @@ public class BundleMetadataExtractor
         ReplicaMetadataExtractor replicaMetadataExtractor = new ReplicaMetadataExtractor(file);
         replicaMetadataExtractor.prepare();
 
-        metadataExtractors.add(replicaMetadataExtractor);
+        replicaMetadataExtractors.add(replicaMetadataExtractor);
     }
 
+    private void checkPrepared()
+    {
+        assert hasBeenPrepared;
+    }
+
+    private void prepareReplicaMetadataExtractors()
+    {
+        File metadataFolder = new File(bundle, METADATA_FOLDER_NAME);
+
+        // Then get the replica metadata
+        File[] replicaContents = metadataFolder.listFiles();
+        for (File replicaFile : replicaContents)
+        {
+            if (false == replicaFile.isDirectory())
+            {
+                continue;
+            }
+
+            processDirectory(replicaFile);
+        }
+    }
+
+    private void parseBundleMetadata()
+    {
+        lvdata = LVDataParser.parse(bundleMetadataFile);
+        if (null == lvdata)
+        {
+            throw new IllegalArgumentException("Could not parse metadata in file "
+                    + bundleMetadataFile.getAbsolutePath());
+        }
+        new LabViewXMLToHashMap(lvdata, metadataMap).appendIntoMap();
+    }
 }

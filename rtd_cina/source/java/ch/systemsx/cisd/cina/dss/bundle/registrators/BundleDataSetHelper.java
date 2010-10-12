@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.dss.bundle;
+package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.etlserver.IDataSetHandler;
+import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * Helper to help registering bundle data sets.
- * <p>
- * This helper registers the entire bundle as one data set.
+ * Helper to aid registering bundle data sets.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class BundleDataSetHelper
+abstract class BundleDataSetHelper
 {
-
-    static class BundleRegistrationGlobalState
+    static class BundleRegistrationState
     {
-        private final IDataSetHandler delegator;
+        private final IDataSetHandlerRpc delegator;
+
+        private final SessionContextDTO sessionContext;
 
         private final IEncapsulatedOpenBISService openbisService;
 
@@ -46,19 +46,25 @@ class BundleDataSetHelper
 
         private final DataSetTypeWithVocabularyTerms imageDataSetType;
 
-        BundleRegistrationGlobalState(IDataSetHandler delegator,
+        BundleRegistrationState(IDataSetHandlerRpc delegator,
                 IEncapsulatedOpenBISService openbisService, SampleType replicaSampleType,
                 DataSetTypeWithVocabularyTerms imageDataSetType)
         {
             this.delegator = delegator;
+            sessionContext = delegator.getSessionContext();
             this.openbisService = openbisService;
             this.replicaSampleType = replicaSampleType;
             this.imageDataSetType = imageDataSetType;
         }
 
-        IDataSetHandler getDelegator()
+        IDataSetHandlerRpc getDelegator()
         {
             return delegator;
+        }
+
+        SessionContextDTO getSessionContext()
+        {
+            return sessionContext;
         }
 
         IEncapsulatedOpenBISService getOpenbisService()
@@ -77,29 +83,31 @@ class BundleDataSetHelper
         }
     }
 
-    protected final BundleRegistrationGlobalState globalState;
+    protected final BundleRegistrationState globalState;
 
     protected final File dataSet;
 
-    protected final ArrayList<DataSetInformation> dataSetInformation;
+    protected final ArrayList<DataSetInformation> registeredDataSets;
 
-    BundleDataSetHelper(BundleRegistrationGlobalState globalState, File dataSet)
+    BundleDataSetHelper(BundleRegistrationState globalState, File dataSet)
     {
         this.globalState = globalState;
         this.dataSet = dataSet;
-        this.dataSetInformation = new ArrayList<DataSetInformation>();
+        this.registeredDataSets = new ArrayList<DataSetInformation>();
     }
 
-    public void process()
+    /**
+     * Register the provided file as a data set and add it to the dataSetInformation collection.
+     * 
+     * @param dataSetFile The file to register as a data set
+     * @return A collection of data set information objects for each data set just registered
+     */
+    public List<DataSetInformation> registerDataSet(File dataSetFile)
     {
-        // Register the bundle as one data set
-        List<DataSetInformation> bigDataSet = getDelegator().handleDataSet(dataSet);
-        dataSetInformation.addAll(bigDataSet);
-    }
-
-    protected IDataSetHandler getDelegator()
-    {
-        return globalState.getDelegator();
+        // Register the given file
+        List<DataSetInformation> bigDataSet = getDelegator().handleDataSet(dataSetFile);
+        registeredDataSets.addAll(bigDataSet);
+        return bigDataSet;
     }
 
     protected IEncapsulatedOpenBISService getOpenbisService()
@@ -107,13 +115,23 @@ class BundleDataSetHelper
         return globalState.getOpenbisService();
     }
 
+    protected IDataSetHandlerRpc getDelegator()
+    {
+        return globalState.getDelegator();
+    }
+
+    protected SessionContextDTO getSessionContext()
+    {
+        return globalState.getSessionContext();
+    }
+
     /**
-     * Get all the data set information that has been created as a result of {@link #process}. Only
-     * makes sense to invoke after process has been called
+     * Get all the data set information that has been created as a result of
+     * {@link #registerDataSet}. Only makes sense to invoke after registerDataSet has been called
      */
     public ArrayList<DataSetInformation> getDataSetInformation()
     {
-        return dataSetInformation;
+        return registeredDataSets;
     }
 
 }

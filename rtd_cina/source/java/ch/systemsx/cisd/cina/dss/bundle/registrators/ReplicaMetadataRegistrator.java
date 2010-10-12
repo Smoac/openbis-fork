@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.shared.metadata;
+package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.io.File;
-import java.util.List;
-
-import org.testng.AssertJUnit;
-import org.testng.annotations.Test;
 
 /**
+ * Registers a metadata data set.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class BundleMetadataExtractorTest extends AssertJUnit
+public class ReplicaMetadataRegistrator extends BundleDataSetHelper
 {
-    @Test
-    public void testMetadataExtraction()
-    {
-        File folder =
-                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
-        BundleMetadataExtractor metadata = new BundleMetadataExtractor(folder);
-        metadata.prepare();
 
-        List<ReplicaMetadataExtractor> extractors = metadata.getReplicaMetadataExtractors();
-        assertEquals(1, extractors.size());
+    /**
+     * @param globalState
+     * @param dataSet
+     */
+    ReplicaMetadataRegistrator(BundleRegistrationState globalState, File dataSet)
+    {
+        super(globalState, dataSet);
+        // TODO Auto-generated constructor stub
     }
+
 }

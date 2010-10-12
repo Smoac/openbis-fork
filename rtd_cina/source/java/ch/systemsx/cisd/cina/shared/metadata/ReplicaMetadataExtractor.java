@@ -30,6 +30,10 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
  */
 public class ReplicaMetadataExtractor
 {
+    private static final String METADATA_FILE_NAME = "ReplicaMetadata.xml";
+
+    private static final String REPLICA_SAMPLE_CODE_KEY = "database id (replica)";
+
     private final ArrayList<ImageMetadataExtractor> metadataExtractors;
 
     private final File folder;
@@ -37,8 +41,6 @@ public class ReplicaMetadataExtractor
     private final HashMap<String, String> metadataMap;
 
     private LVData lvdata;
-
-    private static final String METADATA_FILE_NAME = "ReplicaMetadata.xml";
 
     public static boolean doesFolderContainReplicaMetadata(File folder)
     {
@@ -64,7 +66,7 @@ public class ReplicaMetadataExtractor
             return;
         }
 
-        // Firse parse the metadata for the replica
+        // First parse the metadata for the replica
         File metadataFile = new File(folder, METADATA_FILE_NAME);
         lvdata = LVDataParser.parse(metadataFile);
         if (null == lvdata)
@@ -84,17 +86,7 @@ public class ReplicaMetadataExtractor
                 continue;
             }
 
-            // The folders containing the metadata are two levels down
-            File[] imageContents = replicaFile.listFiles();
-            for (File imageFolder : imageContents)
-            {
-                if (false == imageFolder.isDirectory())
-                {
-                    continue;
-                }
-
-                processDirectory(imageFolder);
-            }
+            processDirectory(replicaFile);
         }
     }
 
@@ -112,10 +104,21 @@ public class ReplicaMetadataExtractor
      * Get the metadata extractors for each of the image files for this replica. The method
      * {@link #prepare} must be called before getting the metadata extractors.
      */
-    public List<ImageMetadataExtractor> getMetadataExtractors()
+    public List<ImageMetadataExtractor> getImageMetadataExtractors()
     {
         checkPrepared();
         return metadataExtractors;
+    }
+
+    /**
+     * Return the sample code for the replica sample.
+     * 
+     * @return Return the code, or null if none was found
+     */
+    public String tryReplicaSampleCode()
+    {
+        checkPrepared();
+        return metadataMap.get(REPLICA_SAMPLE_CODE_KEY);
     }
 
     public File getFolder()

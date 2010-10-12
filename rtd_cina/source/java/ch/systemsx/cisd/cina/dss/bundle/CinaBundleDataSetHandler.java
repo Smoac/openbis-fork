@@ -30,20 +30,67 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabula
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
+ * CINA registers data in the form of a bundle. A bundle contains several different kinds data sets.
+ * The CinaBundleDataSetHandler breaks apart the data into several pieces and takes action on each
+ * of those pieces.
+ * <p>
+ * The structure of the bundle mirrors the structure of CINA experiments and is made up of the
+ * following pieces:
+ * <ul>
+ * <li>Grid Preparation (a template for grids which are imaged by microscopes)</li>
+ * <ul>
+ * <li>Replica (a grid derived from the grid preparation)
+ * <ul>
+ * <li>Images (the images made from a replica)</li>
+ * </ul>
+ * </li>
+ * </ul>
+ * </li> </ul>
+ * <p>
+ * A bundle is broken down into the following pieces:
+ * <ul>
+ * <li>Grid Preparation Metadata</li>
+ * <li>Replica
+ * <ul>
+ * <li>Replica Metadata
+ * <ul>
+ * <li>Individual Image Metadata</li>
+ * <li>Individual Image Thumbnails</li>
+ * </ul>
+ * </li>
+ * <li>Replica Original Images</li>
+ * </ul>
+ * </li>
+ * </ul>
+ * <p>
+ * This data set handler does the following:
+ * <ul>
+ * <li>Create a grid preparation sample if one does not exist</li>
+ * <li>For each replica:
+ * <ul>
+ * <li>If the replica sample does not exist, create it and register an original images data set</li>
+ * <li>Create a metadata data set and associate it with the replica; update the replica's metadata</li>
+ * <li>Create datasets for each of the annotated images in the data set</li>
+ * </ul>
+ * </li>
+ * <li>Create a bundle data set which points to the metadata and original data sets we registered
+ * above</li>
+ * <li>Update the grid preparation's metadata</li>
+ * </ul>
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class CinaBundleDataSetHandler implements IDataSetHandler
 {
     private final IDataSetHandler delegator;
 
-    private final BundleRegistrationGlobalState bundleRegistrationGlobalState;
+    private final BundleRegistrationGlobalState bundleRegistrationState;
 
     public CinaBundleDataSetHandler(Properties parentProperties, IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService)
     {
         this.delegator = delegator;
-        this.bundleRegistrationGlobalState =
-                createBundleRegistrationGlobalState(delegator, openbisService);
+        this.bundleRegistrationState = createBundleRegistrationState(delegator, openbisService);
     }
 
     public List<DataSetInformation> handleDataSet(File dataSet)
@@ -51,17 +98,19 @@ public class CinaBundleDataSetHandler implements IDataSetHandler
         BundleDataSetHelper helper;
         if (delegator instanceof IDataSetHandlerRpc)
         {
-            helper = new BundleDataSetHelperRpc(bundleRegistrationGlobalState, dataSet);
+            helper = new BundleDataSetHelperRpc(bundleRegistrationState, dataSet);
+            helper.process();
+            return helper.getDataSetInformation();
         } else
         {
-            helper = new BundleDataSetHelper(bundleRegistrationGlobalState, dataSet);
+            // We are not being invoked from the command line, so we don't have enough contextual
+            // information to do the additional processing associated with these data sets. We need
+            // to know who the user is to do the additional processing.
+            return delegator.handleDataSet(dataSet);
         }
-
-        helper.process();
-        return helper.getDataSetInformation();
     }
 
-    private static BundleRegistrationGlobalState createBundleRegistrationGlobalState(
+    private static BundleRegistrationGlobalState createBundleRegistrationState(
             IDataSetHandler delegator, IEncapsulatedOpenBISService openbisService)
     {
         SampleType replicaSampleType =
