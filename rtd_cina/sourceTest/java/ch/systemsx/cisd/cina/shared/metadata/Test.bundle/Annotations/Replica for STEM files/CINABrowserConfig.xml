@@ -1,1 +1,0 @@
-<?xml version='1.0' standalone='yes' ?><LVData xmlns="http://www.ni.com/LVData"><Version>9.0</Version><String><Name></Name><Val>1.0</Val></String><EW><Name>Value</Name><Choice>STEM raw file</Choice><Choice>TIF Grayscale</Choice><Choice>MRC flat file</Choice><Val>0</Val></EW><String><Name>File extension</Name><Val>*.imag</Val></String></LVData>
