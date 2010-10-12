@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -59,4 +60,14 @@ public interface IDataSetHandlerRpc extends IDataSetHandler
      * Get the file for an external data from the data store.
      */
     public File getFileForExternalData(ExternalData data);
+
+    /**
+     * Get the owner information provided by the caller.
+     */
+    public DataSetOwner getDataSetOwner();
+    
+    /**
+     * Get the data set information provided by the caller
+     */
+    public DataSetInformation getCallerDataSetInformation();
 }

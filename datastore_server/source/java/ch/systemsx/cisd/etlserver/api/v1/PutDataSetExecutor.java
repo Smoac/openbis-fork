@@ -125,8 +125,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     }
 
     /**
-     * Run the put command; does *not* close the input stream &mdash; clients are expected to close
-     * the input stream when appropriate.
+     * Run the put command; does *not* close the input stream &mdash; clients of the executor are
+     * expected to close the input stream when appropriate.
      * 
      * @throws IOException
      */
@@ -232,10 +232,21 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         return service.getDataStoreCode();
     }
 
+    public DataSetOwner getDataSetOwner()
+    {
+        DataSetOwner owner = newDataSet.getDataSetOwner();
+        return owner;
+    }
+
+    public DataSetInformation getCallerDataSetInformation()
+    {
+        return override;
+    }
+
     private void createDefaultOverride()
     {
         override = new DataSetInformation();
-        DataSetOwner owner = newDataSet.getDataSetOwner();
+        DataSetOwner owner = getDataSetOwner();
         switch (owner.getType())
         {
             case EXPERIMENT:
@@ -325,15 +336,15 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
     private SpaceIdentifier getSpaceIdentifierForNewDataSet()
     {
         SpaceIdentifier spaceId = null;
-        DataSetOwner owner = newDataSet.getDataSetOwner();
+        DataSetOwner owner = getDataSetOwner();
         switch (owner.getType())
         {
             case EXPERIMENT:
             {
                 ExperimentIdentifier experimentId = tryExperimentIdentifier();
                 spaceId =
-                        new SpaceIdentifier(experimentId.getDatabaseInstanceCode(), experimentId
-                                .getSpaceCode());
+                        new SpaceIdentifier(experimentId.getDatabaseInstanceCode(),
+                                experimentId.getSpaceCode());
                 break;
             }
             case SAMPLE:
@@ -348,7 +359,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     private ExperimentIdentifier tryExperimentIdentifier()
     {
-        DataSetOwner owner = newDataSet.getDataSetOwner();
+        DataSetOwner owner = getDataSetOwner();
         switch (owner.getType())
         {
             case EXPERIMENT:
@@ -366,7 +377,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
 
     private SampleIdentifier trySampleIdentifier()
     {
-        DataSetOwner owner = newDataSet.getDataSetOwner();
+        DataSetOwner owner = getDataSetOwner();
         switch (owner.getType())
         {
             case EXPERIMENT:
