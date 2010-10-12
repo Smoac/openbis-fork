@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.query.server;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -121,23 +120,26 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         try
         {
             List<QueryPE> queries = getDAOFactory().getQueryDAO().listQueries(queryType);
+            List<QueryPE> filtered = new ArrayList<QueryPE>();
             // filter queries by entity type if one was specified
             if (entityTypeOrNull != null)
             {
                 final String entityTypeCode = entityTypeOrNull.getCode();
-                for (Iterator<QueryPE> iterator = queries.iterator(); iterator.hasNext();)
+                for (QueryPE query : queries)
                 {
-                    final QueryPE query = iterator.next();
                     final String queryEntityTypeCodePatternOrNull =
                             query.getEntityTypeCodePattern();
-                    if (queryEntityTypeCodePatternOrNull != null
-                            && entityTypeCode.matches(queryEntityTypeCodePatternOrNull) == false)
+                    if (queryEntityTypeCodePatternOrNull == null
+                            || entityTypeCode.matches(queryEntityTypeCodePatternOrNull))
                     {
-                        iterator.remove();
+                        filtered.add(query);
                     }
                 }
+            } else
+            {
+                filtered.addAll(queries);
             }
-            return QueryTranslator.translate(queries, dbDefinitionProvider);
+            return QueryTranslator.translate(filtered, dbDefinitionProvider);
         } catch (DataAccessException ex)
         {
             throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
