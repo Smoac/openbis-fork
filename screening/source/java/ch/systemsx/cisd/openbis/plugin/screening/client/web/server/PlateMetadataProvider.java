@@ -25,9 +25,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -55,11 +55,11 @@ class PlateMetadataProvider extends AbstractOriginalDataProviderWithoutHeaders<T
         return GenericColumnsHelper.createTableRows(getColumns());
     }
 
-    public List<GenericTableColumnHeader> getGenericHeaders()
+    public List<TableModelColumnHeader> getGenericHeaders()
     {
         List<Column> columns = getColumns();
-        List<GenericTableColumnHeader> headers =
-                new ArrayList<GenericTableColumnHeader>(columns.size());
+        List<TableModelColumnHeader> headers =
+                new ArrayList<TableModelColumnHeader>(columns.size());
         for (Column column : columns)
         {
             headers.add(column.getHeader());
@@ -71,13 +71,13 @@ class PlateMetadataProvider extends AbstractOriginalDataProviderWithoutHeaders<T
     {
         List<Column> columns = new ArrayList<Column>();
         Column codeColumn =
-                new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
+                new Column(TableModelColumnHeader.untitledLinkableStringHeader(
                         PlateMetadataStaticColumns.WELL.ordinal(),
                         PlateMetadataStaticColumns.WELL.getColumnId()));
         columns.add(codeColumn);
 
         Column typeColumn =
-                new Column(GenericTableColumnHeader.untitledStringHeader(
+                new Column(TableModelColumnHeader.untitledStringHeader(
                         PlateMetadataStaticColumns.TYPE.ordinal(),
                         PlateMetadataStaticColumns.TYPE.getColumnId()));
         columns.add(typeColumn);

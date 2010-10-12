@@ -38,11 +38,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
- * Implementation of a table browser grid for {@link GenericTableRow} data.
+ * Implementation of a table browser grid for {@link TableModelRow} data.
  * 
  * @author Franz-Josef Elmer
  */
@@ -53,7 +53,7 @@ public abstract class GenericTableBrowserGrid extends
 
     private static final String BROWSER_ID_PATTERN = "[a-z0-9_]*";
 
-    private List<GenericTableColumnHeader> headers;
+    private List<TableModelColumnHeader> headers;
 
     /**
      * Creates an instane for specified view context, browserID, gridID, and display type ID
@@ -95,11 +95,11 @@ public abstract class GenericTableBrowserGrid extends
             RealNumberRenderer realNumberRenderer =
                     new RealNumberRenderer(viewContext.getDisplaySettingsManager()
                             .getRealNumberFormatingParameters());
-            for (GenericTableColumnHeader header : headers)
+            for (TableModelColumnHeader header : headers)
             {
-                if (header.getType() == DataTypeCode.REAL)
+                if (header.getDataType() == DataTypeCode.REAL)
                 {
-                    definitions.setGridCellRendererFor(header.getCode(), realNumberRenderer);
+                    definitions.setGridCellRendererFor(header.getId(), realNumberRenderer);
                 }
             }
         }
@@ -118,15 +118,15 @@ public abstract class GenericTableBrowserGrid extends
                 new ArrayList<IColumnDefinitionUI<TableModelRow>>();
         if (headers != null)
         {
-            for (final GenericTableColumnHeader header : headers)
+            for (final TableModelColumnHeader header : headers)
             {
                 String title = header.getTitle();
                 if (title == null)
                 {
-                    title = viewContext.getMessage(getId() + "_" + header.getCode());
+                    title = viewContext.getMessage(getId() + "_" + header.getId());
                 }
                 GenericTableRowColumnDefinitionUI columnDef;
-                if (header.getType() == DataTypeCode.TIMESTAMP)
+                if (header.getDataType() == DataTypeCode.TIMESTAMP)
                 {
                     columnDef =
                             new GenericTableRowColumnDefinitionUI(header, title,

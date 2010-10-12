@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
 import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
@@ -67,11 +67,11 @@ class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<T
         return GenericColumnsHelper.createTableRows(getColumns());
     }
 
-    public List<GenericTableColumnHeader> getGenericHeaders()
+    public List<TableModelColumnHeader> getGenericHeaders()
     {
         List<Column> columns = getColumns();
-        List<GenericTableColumnHeader> headers =
-                new ArrayList<GenericTableColumnHeader>(columns.size());
+        List<TableModelColumnHeader> headers =
+                new ArrayList<TableModelColumnHeader>(columns.size());
         for (Column column : columns)
         {
             headers.add(column.getHeader());
@@ -83,11 +83,11 @@ class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<T
     {
         List<MsInjectionSample> samples = service.listRawDataSamples(sessionToken);
         Column codeColumn =
-                new Column(GenericTableColumnHeader.untitledLinkableStringHeader(0, CODE));
+                new Column(TableModelColumnHeader.untitledLinkableStringHeader(0, CODE));
         Column dateColumn =
-                new Column(GenericTableColumnHeader.untitledStringHeader(1, REGISTRATION_DATE));
-        Column parentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(2, PARENT));
-        Column experimentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(3, EXPERIMENT));
+                new Column(TableModelColumnHeader.untitledStringHeader(1, REGISTRATION_DATE));
+        Column parentColumn = new Column(TableModelColumnHeader.untitledStringHeader(2, PARENT));
+        Column experimentColumn = new Column(TableModelColumnHeader.untitledStringHeader(3, EXPERIMENT));
         List<Column> columns = new ArrayList<Column>();
         columns.add(codeColumn);
         columns.add(dateColumn);

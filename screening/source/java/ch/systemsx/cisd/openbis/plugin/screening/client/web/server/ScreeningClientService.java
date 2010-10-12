@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -228,11 +227,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
         Set<IColumnDefinition<TableModelRow>> columns = criteria.getAvailableColumns();
         Set<String> availableColumnIdentifiers = extractColumnIdentifiers(columns);
 
-        List<GenericTableColumnHeader> headers = dataProvider.getGenericHeaders();
-        for (GenericTableColumnHeader header : headers)
+        List<TableModelColumnHeader> headers = dataProvider.getGenericHeaders();
+        for (TableModelColumnHeader header : headers)
         {
             // the header's code is the same as the definition's identifier
-            if (!availableColumnIdentifiers.contains(header.getCode()))
+            if (!availableColumnIdentifiers.contains(header.getId()))
             {
                 columns.add(new GenericTableRowColumnDefinition(header, header.getTitle()));
             }

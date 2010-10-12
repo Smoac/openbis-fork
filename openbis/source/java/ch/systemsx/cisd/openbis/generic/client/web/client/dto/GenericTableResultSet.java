@@ -21,7 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
@@ -33,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 public class GenericTableResultSet implements IsSerializable
 {
     private ResultSet<TableModelRow> resultSet;
-    private List<GenericTableColumnHeader> headers;
+    private List<TableModelColumnHeader> headers;
 
-    public GenericTableResultSet(ResultSet<TableModelRow> resultSet, List<GenericTableColumnHeader> headers)
+    public GenericTableResultSet(ResultSet<TableModelRow> resultSet, List<TableModelColumnHeader> headers)
     {
         this.resultSet = resultSet;
         this.headers = headers;
@@ -52,7 +52,7 @@ public class GenericTableResultSet implements IsSerializable
         return resultSet;
     }
 
-    public List<GenericTableColumnHeader> getHeaders()
+    public List<TableModelColumnHeader> getHeaders()
     {
         return headers;
     }

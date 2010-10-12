@@ -33,11 +33,11 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
@@ -67,7 +67,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         prepareListRawDataSamples();
         
-        List<GenericTableColumnHeader> headers = provider.getGenericHeaders();
+        List<TableModelColumnHeader> headers = provider.getGenericHeaders();
         
         assertColumns(headers);
         context.assertIsSatisfied();
@@ -81,7 +81,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms3 = sample("MS3", sample("DE", "gamma", "alpha"), "two");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
-        List<GenericTableColumnHeader> headers = provider.getGenericHeaders();
+        List<TableModelColumnHeader> headers = provider.getGenericHeaders();
         
         assertColumns(headers, "one", "two", "alpha", "beta", "gamma");
         context.assertIsSatisfied();
@@ -134,7 +134,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         assertEquals(expectedRow, builder.toString());
     }
     
-    private void assertColumns(List<GenericTableColumnHeader> headers,
+    private void assertColumns(List<TableModelColumnHeader> headers,
             String... expectedTitles)
     {
         assertFixedColumns(headers);
@@ -145,7 +145,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         assertEquals(expectedTitles.length + 4, headers.size());
     }
     
-    private void assertFixedColumns(List<GenericTableColumnHeader> headers)
+    private void assertFixedColumns(List<TableModelColumnHeader> headers)
     {
         assertUntitledHeader(CODE, 0, true, DataTypeCode.VARCHAR, headers.get(0));
         assertUntitledHeader(REGISTRATION_DATE, 1, false, DataTypeCode.VARCHAR, headers.get(1));
@@ -153,27 +153,27 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     }
     
     private void assertUntitledHeader(String expectedCode, int expectedIndex,
-            boolean expectedlinkableFlag, DataTypeCode expectedType, GenericTableColumnHeader header)
+            boolean expectedlinkableFlag, DataTypeCode expectedType, TableModelColumnHeader header)
     {
         assertHeader(null, expectedCode, expectedIndex, expectedlinkableFlag, expectedType,
                 header);
     }
 
-    private void assertPropertyHeader(String expectedLabel, int index, List<GenericTableColumnHeader> headers)
+    private void assertPropertyHeader(String expectedLabel, int index, List<TableModelColumnHeader> headers)
     {
         DataTypeCode type = DataTypeCode.values()[expectedLabel.length()];
-        GenericTableColumnHeader header = headers.get(index);
+        TableModelColumnHeader header = headers.get(index);
         assertHeader(expectedLabel, expectedLabel.toUpperCase(), index, false, type, header);
     }
     
     private void assertHeader(String expectedTitle, String expectedCode, int expectedIndex,
-            boolean expectedlinkableFlag, DataTypeCode expectedType, GenericTableColumnHeader header)
+            boolean expectedlinkableFlag, DataTypeCode expectedType, TableModelColumnHeader header)
     {
         assertEquals(expectedTitle, header.getTitle());
-        assertEquals(expectedCode, header.getCode());
+        assertEquals(expectedCode, header.getId());
         assertEquals(expectedIndex, header.getIndex());
         assertEquals(expectedlinkableFlag, header.isLinkable());
-        assertEquals(expectedType, header.getType());
+        assertEquals(expectedType, header.getDataType());
     }
     
     private Sample sample(String code, Sample parent, String...properties)

@@ -26,12 +26,12 @@ import java.util.TreeMap;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
@@ -45,14 +45,14 @@ public class GenericColumnsHelper
         private final List<ISerializableComparable> values =
                 new ArrayList<ISerializableComparable>();
 
-        private final GenericTableColumnHeader header;
+        private final TableModelColumnHeader header;
 
-        public Column(GenericTableColumnHeader header)
+        public Column(TableModelColumnHeader header)
         {
             this.header = header;
         }
 
-        public GenericTableColumnHeader getHeader()
+        public TableModelColumnHeader getHeader()
         {
             return header;
         }
@@ -88,7 +88,7 @@ public class GenericColumnsHelper
 
         void addPrefixToColumnHeaderCodes(String prefix)
         {
-            header.setCode(prefix + header.getCode());
+            header.setId(prefix + header.getId());
         }
 
         void setIndex(int index)
@@ -109,11 +109,11 @@ public class GenericColumnsHelper
             Column column = columns.get(key);
             if (column == null)
             {
-                GenericTableColumnHeader header = new GenericTableColumnHeader();
-                header.setCode(key);
+                TableModelColumnHeader header = new TableModelColumnHeader();
+                header.setId(key);
                 header.setIndex(columns.size());
                 header.setTitle(propertyType.getLabel());
-                header.setType(dataType);
+                header.setDataType(dataType);
                 column = new Column(header);
                 columns.put(key, column);
             }
@@ -156,9 +156,8 @@ public class GenericColumnsHelper
         for (int i = 0; i < numberOfRows; i++)
         {
             List<ISerializableComparable> row = new ArrayList<ISerializableComparable>(columns.size());
-            for (int j = 0; j < row.size(); j++)
+            for (Column column : columns)
             {
-                Column column = columns.get(j);
                 List<ISerializableComparable> values = column.getValues();
                 row.add(i < values.size() ? values.get(i) : null);
             }

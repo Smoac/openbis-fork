@@ -32,9 +32,9 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     /**
      * Creates a header without a title.
      */
-    public static TableModelColumnHeader untitledStringHeader(int index, String code)
+    public static TableModelColumnHeader untitledStringHeader(int index, String id)
     {
-        TableModelColumnHeader header = new TableModelColumnHeader(null, code, index);
+        TableModelColumnHeader header = new TableModelColumnHeader(null, id, index);
         header.setDataType(DataTypeCode.VARCHAR);
         return header;
     }
@@ -42,9 +42,9 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     /**
      * Creates a header without a title and <code>linkable</code> flag set <code>true</code>..
      */
-    public static TableModelColumnHeader untitledLinkableStringHeader(int index, String code)
+    public static TableModelColumnHeader untitledLinkableStringHeader(int index, String id)
     {
-        TableModelColumnHeader header = untitledStringHeader(index, code);
+        TableModelColumnHeader header = untitledStringHeader(index, id);
         header.setLinkable(true);
         return header;
     }
@@ -64,12 +64,15 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     
     private int defaultColumnWidth = 150;
 
+    public TableModelColumnHeader()
+    {
+    }
+
     public TableModelColumnHeader(String title, String id, int index)
     {
-        // NOTE: id shouldn't contain spaces or some features of columns (e.g. links) will not work
-        this.id = id.replaceAll(" ", "_");
-        this.title = title;
-        this.index = index;
+        setId(id);
+        setTitle(title);
+        setIndex(index);
     }
 
     public void setDataType(DataTypeCode dataType)
@@ -87,11 +90,22 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
         return title;
     }
 
+    public void setId(String id)
+    {
+        // NOTE: id shouldn't contain spaces or some features of columns (e.g. links) will not work
+        this.id = id.replaceAll(" ", "_");
+    }
+    
     public final String getId()
     {
         return id;
     }
 
+    public void setIndex(int index)
+    {
+        this.index = index;
+    }
+    
     public int getIndex()
     {
         return index;
@@ -112,22 +126,9 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
         return dataType == DataTypeCode.REAL || dataType == DataTypeCode.INTEGER;
     }
 
-    // GWT only
-    @SuppressWarnings("unused")
-    private TableModelColumnHeader()
-    {
-    }
-
     public void setTitle(String title)
     {
         this.title = title;
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setIndex(int index)
-    {
-        this.index = index;
     }
 
     public EntityKind tryGetEntityKind()

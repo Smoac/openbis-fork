@@ -20,8 +20,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
@@ -29,11 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
  */
 public class GenericTableRowColumnDefinition implements IColumnDefinition<TableModelRow>
 {
-    protected GenericTableColumnHeader header;
+    protected TableModelColumnHeader header;
 
     private String title;
 
-    public GenericTableRowColumnDefinition(GenericTableColumnHeader header, String title)
+    public GenericTableRowColumnDefinition(TableModelColumnHeader header, String title)
     {
         this.header = header;
         this.title = title;
@@ -58,7 +58,7 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<TableM
 
     public String getIdentifier()
     {
-        return header.getCode();
+        return header.getId();
     }
 
     public String getValue(GridRowModel<TableModelRow> rowModel)

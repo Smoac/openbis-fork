@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
@@ -33,12 +33,12 @@ public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefi
 {
     private int width;
 
-    public GenericTableRowColumnDefinitionUI(GenericTableColumnHeader header, String title)
+    public GenericTableRowColumnDefinitionUI(TableModelColumnHeader header, String title)
     {
         this(header, title, 100);
     }
 
-    public GenericTableRowColumnDefinitionUI(GenericTableColumnHeader header, String title, int width)
+    public GenericTableRowColumnDefinitionUI(TableModelColumnHeader header, String title, int width)
     {
         super(header, title);
         this.width = width;
@@ -63,7 +63,7 @@ public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefi
 
     public boolean isNumeric()
     {
-        DataTypeCode type = header.getType();
+        DataTypeCode type = header.getDataType();
         return type == DataTypeCode.INTEGER || type == DataTypeCode.REAL;
     }
 
