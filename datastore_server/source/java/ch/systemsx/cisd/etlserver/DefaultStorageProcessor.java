@@ -64,19 +64,8 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
             throw new EnvironmentFailureException(String.format(NO_RENAME,
                     incomingDataSetDirectory, targetFile));
         }
-        transform(targetFile, rootDir);
+        unzipIfMatching(targetFile, originalDir);
         return rootDir;
-    }
-
-    /**
-     * Transforms the specified original data set and stores it in the specified folder. Note, that
-     * the target folder is the rootDir argument of
-     * {@link IStorageProcessor#storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)}.
-     * This implementation does nothing. 
-     */
-    protected void transform(File originalDataSet, File targetFolderForTransformedDataSet)
-    {
-        
     }
 
     public UnstoreDataAction rollback(final File incomingDataSetDirectory,
@@ -84,8 +73,8 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     {
         checkParameters(incomingDataSetDirectory, storedDataDirectory);
         File targetFile =
-                new File(getOriginalDirectory(storedDataDirectory), incomingDataSetDirectory
-                        .getName());
+                new File(getOriginalDirectory(storedDataDirectory),
+                        incomingDataSetDirectory.getName());
         // Note that this will move back <code>targetFilePath</code> to its original place but the
         // directory structure will persist. Right now, we consider this is fine as these empty
         // directories will not disturb the running application.
@@ -112,8 +101,8 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         if (files.size() != 1)
         {
             throw EnvironmentFailureException.fromTemplate(
-                    "Exactly one file expected in '%s' directory, but %d found.", originalDir
-                            .getPath(), files.size());
+                    "Exactly one file expected in '%s' directory, but %d found.",
+                    originalDir.getPath(), files.size());
         }
         return files.get(0);
     }
