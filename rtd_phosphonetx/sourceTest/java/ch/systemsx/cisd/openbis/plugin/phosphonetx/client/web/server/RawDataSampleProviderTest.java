@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
 
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.RawDataSampleProvider.CODE;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.RawDataSampleProvider.PARENT;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server.RawDataSampleProvider.REGISTRATION_DATE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.CODE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.PARENT;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.REGISTRATION_DATE;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
@@ -67,9 +69,10 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         prepareListRawDataSamples();
         
-        List<TableModelColumnHeader> headers = provider.getGenericHeaders();
+        List<TableModelColumnHeader> headers = provider.getTableModel().getHeader();
         
-        assertColumns(headers);
+        assertFixedColumns(headers);
+        assertEquals(4, headers.size());
         context.assertIsSatisfied();
     }
 
@@ -81,9 +84,15 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms3 = sample("MS3", sample("DE", "gamma", "alpha"), "two");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
-        List<TableModelColumnHeader> headers = provider.getGenericHeaders();
+        List<TableModelColumnHeader> headers = provider.getTableModel().getHeader();
         
-        assertColumns(headers, "one", "two", "alpha", "beta", "gamma");
+        assertFixedColumns(headers);
+        assertPropertyHeader("one", "ONE", 4, headers);
+        assertPropertyHeader("two", "TWO", 5, headers);
+        assertPropertyHeader("alpha", "BIO_ALPHA", 6, headers);
+        assertPropertyHeader("beta", "BIO_BETA", 7, headers);
+        assertPropertyHeader("gamma", "BIO_GAMMA", 8, headers);
+        assertEquals(9, headers.size());
         context.assertIsSatisfied();
     }
     
@@ -92,7 +101,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     {
         prepareListRawDataSamples();
         
-        List<TableModelRow> data = provider.getOriginalData();
+        List<TableModelRowWithObject<Sample>> data = provider.getTableModel().getRows();
         
         assertEquals(0, data.size());
         context.assertIsSatisfied();
@@ -110,12 +119,14 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         Sample ms3 = sample("MS3", parent, "2");
         prepareListRawDataSamples(ms1, ms2, ms3);
         
-        List<TableModelRow> data = provider.getOriginalData();
+        TypedTableModel<Sample> tableModel = provider.getTableModel();
+        List<TableModelRowWithObject<Sample>> data = tableModel.getRows();
         
         assertEquals(3, data.size());
-        assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, null, null, 3.0, 6, 4, null", data.get(0));
-        assertRow("MS2, Mon Mar 30 17:20:00 CET 1970, /G/DE, null, null, 3.0, null, 5, 5", data.get(1));
-        assertRow("MS3, Mon Mar 30 17:21:40 CET 1970, /G/FG, /G/P/E1, 1, null, 5, null, 6", data.get(2));
+        assertEquals("[null, null, null, null, 2, one, alpha, beta, gamma]", tableModel.getHeader().toString());
+        assertRow("MS1, Mon Mar 30 17:18:20 CET 1970, /G/ABC, , , 3.0, 6, 4, ", data.get(0));
+        assertRow("MS2, Mon Mar 30 17:20:00 CET 1970, /G/DE, , , 3.0, , 5, 5", data.get(1));
+        assertRow("MS3, Mon Mar 30 17:21:40 CET 1970, /G/FG, /G/P/E1, 1, , 5, , 6", data.get(2));
         context.assertIsSatisfied();
     }
     
@@ -134,45 +145,32 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         assertEquals(expectedRow, builder.toString());
     }
     
-    private void assertColumns(List<TableModelColumnHeader> headers,
-            String... expectedTitles)
-    {
-        assertFixedColumns(headers);
-        for (int i = 0; i < expectedTitles.length; i++)
-        {
-            assertPropertyHeader(expectedTitles[i], i + 4, headers);
-        }
-        assertEquals(expectedTitles.length + 4, headers.size());
-    }
-    
     private void assertFixedColumns(List<TableModelColumnHeader> headers)
     {
-        assertUntitledHeader(CODE, 0, true, DataTypeCode.VARCHAR, headers.get(0));
-        assertUntitledHeader(REGISTRATION_DATE, 1, false, DataTypeCode.VARCHAR, headers.get(1));
-        assertUntitledHeader(PARENT, 2, false, DataTypeCode.VARCHAR, headers.get(2));
+        assertUntitledHeader(CODE, 0, DataTypeCode.VARCHAR, headers.get(0));
+        assertUntitledHeader(REGISTRATION_DATE, 1, DataTypeCode.TIMESTAMP, headers.get(1));
+        assertUntitledHeader(PARENT, 2, DataTypeCode.VARCHAR, headers.get(2));
     }
     
     private void assertUntitledHeader(String expectedCode, int expectedIndex,
-            boolean expectedlinkableFlag, DataTypeCode expectedType, TableModelColumnHeader header)
+            DataTypeCode expectedType, TableModelColumnHeader header)
     {
-        assertHeader(null, expectedCode, expectedIndex, expectedlinkableFlag, expectedType,
-                header);
+        assertHeader(null, expectedCode, expectedIndex, expectedType, header);
     }
 
-    private void assertPropertyHeader(String expectedLabel, int index, List<TableModelColumnHeader> headers)
+    private void assertPropertyHeader(String expectedLabel, String expectedCode, int index, List<TableModelColumnHeader> headers)
     {
         DataTypeCode type = DataTypeCode.values()[expectedLabel.length()];
         TableModelColumnHeader header = headers.get(index);
-        assertHeader(expectedLabel, expectedLabel.toUpperCase(), index, false, type, header);
+        assertHeader(expectedLabel, expectedCode, index, type, header);
     }
     
     private void assertHeader(String expectedTitle, String expectedCode, int expectedIndex,
-            boolean expectedlinkableFlag, DataTypeCode expectedType, TableModelColumnHeader header)
+            DataTypeCode expectedType, TableModelColumnHeader header)
     {
         assertEquals(expectedTitle, header.getTitle());
         assertEquals(expectedCode, header.getId());
         assertEquals(expectedIndex, header.getIndex());
-        assertEquals(expectedlinkableFlag, header.isLinkable());
         assertEquals(expectedType, header.getDataType());
     }
     

@@ -16,45 +16,32 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.CODE;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.EXPERIMENT;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.PARENT;
+import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.REGISTRATION_DATE;
+
 import java.util.List;
 
-import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
-import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
-import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
+import ch.systemsx.cisd.openbis.generic.server.util.TypedTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
 /**
  * @author Franz-Josef Elmer
  */
-class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<TableModelRow>
+class RawDataSampleProvider implements ITableModelProvider<Sample>
 {
-
-    @Private
-    static final String EXPERIMENT = "EXPERIMENT";
-    
-    @Private
-    static final String PARENT = "PARENT";
-
-    @Private
-    static final String REGISTRATION_DATE = "REGISTRATION_DATE";
-
-    @Private
-    static final String CODE = "CODE";
-
     private final IProteomicsDataServiceInternal service;
 
     private final String sessionToken;
+
+    private TypedTableModel<Sample> model;
 
     RawDataSampleProvider(IProteomicsDataServiceInternal service, String sessionToken)
     {
@@ -62,74 +49,35 @@ class RawDataSampleProvider extends AbstractOriginalDataProviderWithoutHeaders<T
         this.sessionToken = sessionToken;
     }
 
-    public List<TableModelRow> getOriginalData() throws UserFailureException
+    public TypedTableModel<Sample> getTableModel()
     {
-        return GenericColumnsHelper.createTableRows(getColumns());
-    }
-
-    public List<TableModelColumnHeader> getGenericHeaders()
-    {
-        List<Column> columns = getColumns();
-        List<TableModelColumnHeader> headers =
-                new ArrayList<TableModelColumnHeader>(columns.size());
-        for (Column column : columns)
+        if (model == null)
         {
-            headers.add(column.getHeader());
-        }
-        return headers;
-    }
-
-    private List<Column> getColumns()
-    {
-        List<MsInjectionSample> samples = service.listRawDataSamples(sessionToken);
-        Column codeColumn =
-                new Column(TableModelColumnHeader.untitledLinkableStringHeader(0, CODE));
-        Column dateColumn =
-                new Column(TableModelColumnHeader.untitledStringHeader(1, REGISTRATION_DATE));
-        Column parentColumn = new Column(TableModelColumnHeader.untitledStringHeader(2, PARENT));
-        Column experimentColumn = new Column(TableModelColumnHeader.untitledStringHeader(3, EXPERIMENT));
-        List<Column> columns = new ArrayList<Column>();
-        columns.add(codeColumn);
-        columns.add(dateColumn);
-        columns.add(parentColumn);
-        columns.add(experimentColumn);
-        int fixedColumns = columns.size();
-        PropertyColumns samplePropertyColumns = new PropertyColumns();
-        PropertyColumns parentPropertyColumns = new PropertyColumns();
-        for (int i = 0; i < samples.size(); i++)
-        {
-            Sample sample = samples.get(i).getSample();
-            codeColumn.addStringWithID(i, sample.getCode(), sample.getId());
-            dateColumn.addDate(i, sample.getRegistrationDate());
-            Sample parent = sample.getGeneratedFrom();
-            parentColumn.addStringWithID(i, parent.getIdentifier(), parent.getId());
-            Experiment experiment = parent.getExperiment();
-            if (experiment != null)
+            List<MsInjectionSample> samples = service.listRawDataSamples(sessionToken);
+            TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();
+            builder.addColumn(CODE).withDataType(DataTypeCode.VARCHAR);
+            builder.addColumn(REGISTRATION_DATE).withDataType(DataTypeCode.TIMESTAMP).withDefaultWidth(190);
+            builder.addColumn(PARENT).withDataType(DataTypeCode.VARCHAR);
+            builder.addColumn(EXPERIMENT).withDataType(DataTypeCode.VARCHAR);
+            for (MsInjectionSample msInjectionSample : samples)
             {
-                experimentColumn.addStringWithID(i, experiment.getIdentifier(), experiment.getId());
+                Sample sample = msInjectionSample.getSample();
+                builder.addRow(sample);
+                builder.column(CODE).addString(sample.getCode());
+                builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
+                Sample parent = sample.getGeneratedFrom();
+                builder.column(PARENT).addString(parent.getIdentifier());
+                Experiment experiment = parent.getExperiment();
+                if (experiment != null)
+                {
+                    builder.column(EXPERIMENT).addString(experiment.getIdentifier());
+                }
+                builder.columnGroup("MS").addProperties("", sample.getProperties());
+                builder.columnGroup("BIO_").addProperties(parent.getProperties());
             }
-            addPropertyTypes(samplePropertyColumns, i, sample);
-            addPropertyTypes(parentPropertyColumns, i, sample.getGeneratedFrom());
+            model = builder.getModel();
         }
-        int nextIndex = samplePropertyColumns.reindexColumns(fixedColumns);
-        parentPropertyColumns.reindexColumns(nextIndex);
-        HashSet<String> commonColumns = new HashSet<String>(samplePropertyColumns.getColumnCodes());
-        commonColumns.retainAll(parentPropertyColumns.getColumnCodes());
-        if (commonColumns.isEmpty() == false)
-        {
-            parentPropertyColumns.addPrefixToColumnHeaderCodes("BIO_");
-        }
-        columns.addAll(samplePropertyColumns.getColumns());
-        columns.addAll(parentPropertyColumns.getColumns());
-        return columns;
-    }
-
-    private void addPropertyTypes(PropertyColumns columns, int index, Sample sample)
-    {
-        for (IEntityProperty property : sample.getProperties())
-        {
-            columns.add(index, property);
-        }
+        return model;
     }
 
 }

@@ -25,15 +25,17 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
@@ -210,17 +212,20 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
-    public GenericTableResultSet listRawDataSamples(
-            IResultSetConfig<String, TableModelRow> criteria)
+    public TypedTableResultSet<Sample> listRawDataSamples(
+            IResultSetConfig<String, TableModelRowWithObject<Sample>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         RawDataSampleProvider rawDataSampleProvider =
                 new RawDataSampleProvider(proteomicsDataService, sessionToken);
-        ResultSet<TableModelRow> resultSet = listEntities(criteria, rawDataSampleProvider);
-        return new GenericTableResultSet(resultSet, rawDataSampleProvider.getGenericHeaders());
+        DataProviderAdapter<Sample> dataProvider =
+                new DataProviderAdapter<Sample>(rawDataSampleProvider);
+        ResultSet<TableModelRowWithObject<Sample>> resultSet = listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<Sample>(resultSet);
     }
 
-    public String prepareExportRawDataSamples(TableExportCriteria<TableModelRow> exportCriteria)
+    public String prepareExportRawDataSamples(TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }

@@ -37,9 +37,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -50,11 +50,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
 public class RawDataProcessingMenu extends TextToolItem
 {
     private static final class CopyConfirmationDialog extends
-            AbstractDataConfirmationDialog<List<TableModelRow>>
+            AbstractDataConfirmationDialog<List<TableModelRowWithObject<Sample>>>
     {
         private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
 
-        private final List<TableModelRow> samples;
+        private final List<TableModelRowWithObject<Sample>> samples;
 
         private final DatastoreServiceDescription datastoreServiceDescription;
 
@@ -63,7 +63,7 @@ public class RawDataProcessingMenu extends TextToolItem
         private CopyConfirmationDialog(
                 IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext,
                 DatastoreServiceDescription datastoreServiceDescription,
-                List<TableModelRow> samples, String title)
+                List<TableModelRowWithObject<Sample>> samples, String title)
         {
             super(specificViewContext, samples, title);
             this.specificViewContext = specificViewContext;
@@ -93,13 +93,7 @@ public class RawDataProcessingMenu extends TextToolItem
             long[] rawDataSampleIDs = new long[samples.size()];
             for (int i = 0; i < samples.size(); i++)
             {
-                TableModelRow row = samples.get(i);
-                ISerializableComparable c = row.getValues().get(0);
-                if (c instanceof SerializableComparableIDDecorator == false)
-                {
-                    throw new IllegalArgumentException("Missing id: " + c);
-                }
-                rawDataSampleIDs[i] = ((SerializableComparableIDDecorator) c).getID();
+                rawDataSampleIDs[i] = samples.get(i).getObjectOrNull().getId();
             }
             specificViewContext.getService().processRawData(datastoreServiceDescription.getKey(),
                     rawDataSampleIDs, dataSetTypeField.getValue(),
@@ -120,10 +114,10 @@ public class RawDataProcessingMenu extends TextToolItem
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-    private final IDelegatedActionWithResult<List<TableModelRow>> selectedDataProvider;
+    private final IDelegatedActionWithResult<List<TableModelRowWithObject<Sample>>> selectedDataProvider;
     
     public RawDataProcessingMenu(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            IDelegatedActionWithResult<List<TableModelRow>> selectedDataProvider)
+            IDelegatedActionWithResult<List<TableModelRowWithObject<Sample>>> selectedDataProvider)
     {
         super(viewContext.getMessage(Dict.COPY_DATA_SETS_BUTTON_LABEL));
         this.viewContext = viewContext;
@@ -166,7 +160,7 @@ public class RawDataProcessingMenu extends TextToolItem
                     public void execute()
                     {
                         String title = viewContext.getMessage(COPY_DATA_SETS_TITLE);
-                        List<TableModelRow> selectedSamples = selectedDataProvider.execute();
+                        List<TableModelRowWithObject<Sample>> selectedSamples = selectedDataProvider.execute();
                         new CopyConfirmationDialog(viewContext, datastoreServiceDescription,
                                 selectedSamples, title).show();
                     }
