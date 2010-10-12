@@ -65,6 +65,16 @@ public class SimpleDatabaseConfigurationContext implements DisposableBean
 
     private final String password;
 
+    // for testing
+    public SimpleDatabaseConfigurationContext(String driverClassName, String url, String username,
+            String password)
+    {
+        this.driverClassName = driverClassName;
+        this.url = url;
+        this.username = username;
+        this.password = password;
+    }
+
     public SimpleDatabaseConfigurationContext(Properties properties)
     {
         this.driverClassName = PropertyUtils.getMandatoryProperty(properties, DRIVER_KEY);
