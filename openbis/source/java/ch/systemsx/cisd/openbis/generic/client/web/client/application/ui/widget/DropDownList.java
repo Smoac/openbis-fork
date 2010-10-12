@@ -70,6 +70,8 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     private final IViewContext<?> viewContextOrNull;
 
+    protected boolean allowValueNotFromList = false;
+
     public String callbackIdOrNull;
 
     private final List<IDataRefreshCallback> dataRefreshCallbacks;
@@ -175,6 +177,14 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     public void setAutoSelectFirst(boolean autoSelectFirst)
     {
         this.autoSelectFirst = autoSelectFirst;
+    }
+
+    /**
+     * if <var>allowValueNotFromList</var> and value not from list is selected it can still be valid
+     */
+    public void setAllowValueNotFromList(boolean allowValueNotFromList)
+    {
+        this.allowValueNotFromList = allowValueNotFromList;
     }
 
     public void update(Set<DatabaseModificationKind> observedModifications)
@@ -422,14 +432,6 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         return GWTUtils.tryGetSingleSelectedCode(this) != null;
     }
 
-    private void markInvalidIfNotFromList()
-    {
-        if (valueNotInTheList())
-        {
-            forceInvalid(valueNotInListMsg);
-        }
-    }
-
     private boolean valueNotInTheList()
     {
         return isEnabled() && getValue() == null && getRawValue() != null
@@ -437,20 +439,29 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 && getRawValue().equals(getEmptyText()) == false && optionNoneSelected() == false;
     }
 
+    private boolean clearInvalidAndCheckValueFromList()
+    {
+        clearInvalid();
+        if (allowValueNotFromList == false && valueNotInTheList())
+        {
+            forceInvalid(valueNotInListMsg);
+            return false;
+        } else
+        {
+            return true;
+        }
+    }
+
     @Override
     public boolean isValid()
     {
-        clearInvalid();
-        markInvalidIfNotFromList();
-        return super.isValid() && valueNotInTheList() == false;
+        return clearInvalidAndCheckValueFromList() && super.isValid();
     }
 
     @Override
     public boolean validate()
     {
-        clearInvalid();
-        markInvalidIfNotFromList();
-        return super.validate() && valueNotInTheList() == false;
+        return clearInvalidAndCheckValueFromList() && super.validate();
     }
 
     @Override

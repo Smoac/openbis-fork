@@ -147,7 +147,13 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
     {
         if (initialCodeOrNull != null)
         {
-            trySelectByCode(initialCodeOrNull);
+            if (allowValueNotFromList)
+            {
+                setRawValue(initialCodeOrNull);
+            } else
+            {
+                trySelectByCode(initialCodeOrNull);
+            }
             updateOriginalValue();
         }
     }

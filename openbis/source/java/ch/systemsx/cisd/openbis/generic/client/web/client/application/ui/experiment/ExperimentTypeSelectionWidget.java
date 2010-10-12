@@ -33,8 +33,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 
 /**
  * {@link ComboBox} containing list of experiment types loaded from the server.
@@ -102,7 +102,7 @@ public final class ExperimentTypeSelectionWidget extends
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
-    // 
+    //
     // initial value support
     //
 
@@ -110,7 +110,13 @@ public final class ExperimentTypeSelectionWidget extends
     {
         if (initialCodeOrNull != null)
         {
-            trySelectByCode(initialCodeOrNull);
+            if (allowValueNotFromList)
+            {
+                setRawValue(initialCodeOrNull);
+            } else
+            {
+                trySelectByCode(initialCodeOrNull);
+            }
             updateOriginalValue();
         }
     }

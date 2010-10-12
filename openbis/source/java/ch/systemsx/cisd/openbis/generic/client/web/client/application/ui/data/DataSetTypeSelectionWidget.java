@@ -112,7 +112,13 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
     {
         if (initialCodeOrNull != null)
         {
-            trySelectByCode(initialCodeOrNull);
+            if (allowValueNotFromList)
+            {
+                setRawValue(initialCodeOrNull);
+            } else
+            {
+                trySelectByCode(initialCodeOrNull);
+            }
             updateOriginalValue();
         }
     }

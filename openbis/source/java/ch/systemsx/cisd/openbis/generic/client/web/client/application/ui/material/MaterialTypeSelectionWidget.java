@@ -182,7 +182,13 @@ public final class MaterialTypeSelectionWidget extends
     {
         if (initialCodeOrNull != null)
         {
-            trySelectByCode(initialCodeOrNull);
+            if (allowValueNotFromList)
+            {
+                setRawValue(initialCodeOrNull);
+            } else
+            {
+                trySelectByCode(initialCodeOrNull);
+            }
             updateOriginalValue();
         }
     }

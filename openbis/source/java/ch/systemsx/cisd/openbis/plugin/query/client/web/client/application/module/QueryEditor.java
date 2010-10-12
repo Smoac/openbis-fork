@@ -43,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -283,21 +284,25 @@ public class QueryEditor extends Dialog
         materialTypeField =
                 MaterialTypeSelectionWidget.createWithAdditionalOption(commonViewContext,
                         EntityType.ALL_TYPES_CODE, materialTypeInitialCodeOrNull, ID);
+        materialTypeField.setAllowValueNotFromList(true);
         materialTypeField.setAllowBlank(false);
 
         sampleTypeField =
                 new SampleTypeSelectionWidget(commonViewContext, ID, false, true, false,
                         sampleTypeInitialCodeOrNull, SampleTypeDisplayID.SAMPLE_QUERY);
+        sampleTypeField.setAllowValueNotFromList(true);
         sampleTypeField.setAllowBlank(false);
 
         dataSetTypeField =
                 new DataSetTypeSelectionWidget(commonViewContext, ID, true,
                         dataSetTypeInitialCodeOrNull);
+        dataSetTypeField.setAllowValueNotFromList(true);
         dataSetTypeField.setAllowBlank(false);
 
         experimentTypeField =
                 new ExperimentTypeSelectionWidget(commonViewContext, ID, true,
                         experimentTypeInitialCodeOrNull);
+        experimentTypeField.setAllowValueNotFromList(true);
         experimentTypeField.setAllowBlank(false);
     }
 
@@ -356,8 +361,14 @@ public class QueryEditor extends Dialog
         } else
         {
             EntityType entityTypeOrNull = entityTypeFieldOrNull.tryGetSelected();
-            return (entityTypeOrNull == null || entityTypeOrNull.isAllTypesCode()) ? null
-                    : entityTypeOrNull.getCode();
+            if (entityTypeOrNull == null)
+            {
+                String rawValue = entityTypeFieldOrNull.getRawValue();
+                return StringUtils.isBlank(rawValue) ? null : rawValue;
+            } else
+            {
+                return entityTypeOrNull.isAllTypesCode() ? null : entityTypeOrNull.getCode();
+            }
         }
     }
 
