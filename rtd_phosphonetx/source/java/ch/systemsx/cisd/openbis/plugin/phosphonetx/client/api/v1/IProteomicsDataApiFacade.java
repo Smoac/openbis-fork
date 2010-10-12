@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
- * Facade for openBIS proteomics data service.
+ * Facade for openBIS proteomics data service to be used by a proteomics pipeline server like p-grade.
  * 
  * @author Franz-Josef Elmer
  */
