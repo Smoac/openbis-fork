@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TextColumnFilterWidget;
@@ -57,6 +59,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private final ContentPanel filterContainer;
 
+    private final Collection<IParameterField> parameterFields; // parameters of custom filter
+
     private final FilterSelectionWidget filterSelectionWidget;
 
     private final IDelegatedAction applyFiltersAction;
@@ -85,6 +89,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         filterSelectionWidget =
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
         filterContainer = new ButtonGroup(MAX_FILTER_FIELDS_COLUMNS);
+        parameterFields = new HashSet<IParameterField>();
         add(filterSelectionWidget);
         add(filterContainer);
         applyTool = new TextToolItem(messageProvider.getMessage(Dict.APPLY_FILTER));
@@ -181,9 +186,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             CustomFilterInfo<T> info = new CustomFilterInfo<T>();
             info.setExpression(selected.getExpression());
             Set<ParameterWithValue> parameters = new HashSet<ParameterWithValue>();
-            for (Component field : filterContainer.getItems())
+            for (IParameterField parameterField : parameterFields)
             {
-                parameters.add(((ParameterField) field).getParameterWithValue());
+                parameters.add(parameterField.getParameterWithValue());
             }
             info.setParameters(parameters);
             return info;
@@ -246,11 +251,14 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 {
                     updateApplyToolEnabledState();
                 }
-
             };
+        parameterFields.clear();
         for (String parameter : filter.getParameters())
         {
-            filterWidgets.add(new ParameterField(parameter, updateApplyButtonAction));
+            IParameterField parameterField =
+                    ParameterField.create(parameter, updateApplyButtonAction, null);
+            parameterFields.add(parameterField);
+            filterWidgets.add(parameterField.asWidget());
         }
         return filterWidgets;
     }
@@ -340,10 +348,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         if (isCustomFilterSelected())
         {
             boolean valid = true;
-            for (Component field : filterContainer.getItems())
+            for (IParameterField parameterField : parameterFields)
             {
-                ParameterField f = (ParameterField) field;
-                valid = f.isValid() && valid;
+                valid = parameterField.asWidget().isValid() && valid;
             }
             return valid;
         } else

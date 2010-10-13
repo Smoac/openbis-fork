@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -82,7 +83,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     private final Button resetButton;
 
-    private final Collection<ParameterField> parameterFields;
+    private final Collection<IParameterField> parameterFields;
 
     // <name, value> where name starts with additional INITIAL_PARAMETER_NAME_PREFIX
     private final Map<String, QueryParameterValue> initialParameterValues;
@@ -100,7 +101,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
                 new QuerySelectionWidget(viewContext, initialQueryNameOrNull, queryType,
                         entityTypeOrNull);
         parameterContainer = new ButtonGroup(MAX_PARAMETER_COLUMNS);
-        parameterFields = new HashSet<ParameterField>();
+        parameterFields = new HashSet<IParameterField>();
         resetButton = new Button(viewContext.getMessage(Dict.BUTTON_RESET));
         add(new LabelToolItem(viewContext.getMessage(Dict.QUERY) + ": "));
         add(querySelectionWidget);
@@ -182,7 +183,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
                 addInitialBinding(parameter, initialValueOrNull.getValue());
             } else
             {
-                addParameterField(new ParameterField(parameter, updateExecuteButtonAction,
+                addParameterField(ParameterField.create(parameter, updateExecuteButtonAction,
                         initialValueOrNull == null ? null : initialValueOrNull.getValue()));
             }
         }
@@ -199,10 +200,10 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
         return initialParameterValues.get(INITIAL_PARAMETER_NAME_PREFIX + parameter);
     }
 
-    private void addParameterField(ParameterField parameterField)
+    private void addParameterField(IParameterField parameterField)
     {
         parameterFields.add(parameterField);
-        parameterContainer.add(parameterField);
+        parameterContainer.add(parameterField.asWidget());
     }
 
     private void removeAllParameterFields()
@@ -218,9 +219,9 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     private void resetParameterFields()
     {
-        for (ParameterField field : parameterFields)
+        for (IParameterField field : parameterFields)
         {
-            field.reset();
+            field.asWidget().reset();
         }
         updateExecuteButtonEnabledState();
     }
@@ -234,9 +235,9 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
         } else
         {
             boolean valid = true;
-            for (ParameterField field : parameterFields)
+            for (IParameterField field : parameterFields)
             {
-                valid = field.isValid() && valid;
+                valid = field.asWidget().isValid() && valid;
             }
             return valid;
         }
@@ -271,7 +272,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
         {
             bindings.addBinding(key, initialFixedParameters.get(key));
         }
-        for (ParameterField field : parameterFields)
+        for (IParameterField field : parameterFields)
         {
             ParameterWithValue parameterWithValue = field.getParameterWithValue();
             bindings.addBinding(parameterWithValue.getParameter(), parameterWithValue.getValue());

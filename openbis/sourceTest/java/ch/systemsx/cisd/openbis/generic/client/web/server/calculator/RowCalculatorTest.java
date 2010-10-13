@@ -237,7 +237,7 @@ public class RowCalculatorTest extends AssertJUnit
         calculator = createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
         assertEquals(-3.0, calculator.evalToDouble());
 
-        calculator = createCalculator(parameters, "minOrDefault([], 38.6)");
+        calculator = createCalculator(null, "minOrDefault([], 38.6)");
         assertEquals(38.6, calculator.evalToDouble());
 
     }
@@ -260,14 +260,20 @@ public class RowCalculatorTest extends AssertJUnit
         calculator = createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
         assertEquals(0.0, calculator.evalToDouble());
 
-        calculator = createCalculator(parameters, "maxOrDefault([], 38.6)");
+        calculator = createCalculator(null, "maxOrDefault([], 38.6)");
         assertEquals(38.6, calculator.evalToDouble());
     }
 
     private RowCalculator<Data> createCalculator(Set<ParameterWithValue> parameters,
             String expression)
     {
-        return new RowCalculator<Data>(availableColumns, expression, parameters);
+        if (parameters != null)
+        {
+            return new RowCalculator<Data>(availableColumns, expression, parameters);
+        } else
+        {
+            return new RowCalculator<Data>(availableColumns, expression);
+        }
     }
 
     private Set<ParameterWithValue> createParameters(String name, String value)

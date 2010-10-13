@@ -19,11 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -34,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
  */
 class RowCalculator<T>
 {
-    private static final String INITIAL_SCRIPT =
-            "from " + StandardFunctions.class.getCanonicalName() + " import *\n"
-                    + "def int(x):return toInt(x)\n" + "def float(x):return toFloat(x)\n";
+    private static final String INITIAL_SCRIPT = "from "
+            + StandardFunctions.class.getCanonicalName() + " import *\n"
+            + "def int(x):return toInt(x)\n" + "def float(x):return toFloat(x)\n";
 
     private final Evaluator evaluator;
 
@@ -109,14 +108,12 @@ class RowCalculator<T>
     private String substitudeParameters(String originalExpression,
             Set<ParameterWithValue> parameters)
     {
-        String expression = originalExpression;
+        Template template = new Template(originalExpression);
         for (ParameterWithValue pw : parameters)
         {
-            String substParameter = "${" + pw.getParameter() + "}";
-            String quotedParameter = Pattern.quote(substParameter);
-            String quotedReplacement = Matcher.quoteReplacement(pw.getValue());
-            expression = expression.replaceAll(quotedParameter, quotedReplacement);
+            template.bind(pw.getParameter(), pw.getValue());
         }
-        return expression;
+        return template.createText();
     }
+
 }
