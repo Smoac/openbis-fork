@@ -95,7 +95,7 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
         {
             NewSample newSample =
                     NewSample.createWithParent(gridPrepSampleId.toString(),
-                            globalState.getReplicaSampleType(), null, null);
+                            globalState.getGridPrepSampleType(), null, null);
             newSample.setExperimentIdentifier(expId.toString());
 
             String userId = getSessionContext().getUserName();

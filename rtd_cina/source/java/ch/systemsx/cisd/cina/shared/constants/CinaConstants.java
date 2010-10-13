@@ -23,7 +23,13 @@ public class CinaConstants
 {
     public static final String BUNDLE_DATA_SET_TYPE_CODE = "BUNDLE";
 
+    public static final String RAW_IMAGES_DATA_SET_TYPE_CODE = "RAW_IMAGES";
+
+    public static final String METADATA_DATA_SET_TYPE_CODE = "METADATA";
+
     public static final String IMAGE_DATA_SET_TYPE_CODE = "IMAGE";
+
+    public static final String GRID_PREP_SAMPLE_TYPE_CODE = "GRID_PREP";
 
     public final static String REPLICA_SAMPLE_TYPE_CODE = "GRID_REPLICA";
 

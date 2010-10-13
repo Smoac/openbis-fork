@@ -28,9 +28,9 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaMetadataExtractor
+public class ReplicaMetadataExtractor implements IMetadataExtractor
 {
-    private static final String METADATA_FILE_NAME = "ReplicaMetadata.xml";
+    private static final String REPLICA_METADATA_FILE_NAME = "ReplicaMetadata.xml";
 
     private static final String REPLICA_SAMPLE_CODE_KEY = "database id (replica)";
 
@@ -44,7 +44,7 @@ public class ReplicaMetadataExtractor
 
     public static boolean doesFolderContainReplicaMetadata(File folder)
     {
-        File metadataFile = new File(folder, METADATA_FILE_NAME);
+        File metadataFile = new File(folder, REPLICA_METADATA_FILE_NAME);
         return metadataFile.exists();
     }
 
@@ -67,7 +67,7 @@ public class ReplicaMetadataExtractor
         }
 
         // First parse the metadata for the replica
-        File metadataFile = new File(folder, METADATA_FILE_NAME);
+        File metadataFile = new File(folder, REPLICA_METADATA_FILE_NAME);
         lvdata = LVDataParser.parse(metadataFile);
         if (null == lvdata)
         {

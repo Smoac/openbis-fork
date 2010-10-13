@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -49,6 +50,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
 {
+    private static final String TEST_USER_NAME = "test";
+
+    private static final String SESSION_TOKEN = "session-token";
+
+    private static final String RAW_IMAGES_DATA_SET_CODE = "RAW_IMAGES_DATA_SET_CODE";
+
+    private static final String METADATA_DATA_SET_CODE = "METADATA_DATA_SET_CODE";
+
     // Constants used in the test
     private static final String DB_CODE = "DB";
 
@@ -66,6 +75,16 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
 
     private static final String REPLICA_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
             + REPLICA_SAMPLE_CODE;
+
+    private static abstract class MatcherNoDesc<T> extends BaseMatcher<T>
+    {
+
+        public void describeTo(Description description)
+        {
+
+        }
+
+    }
 
     private Mockery context;
 
@@ -136,21 +155,6 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
 
         context.checking(new Expectations()
             {
-                // private long uniqueId = 1;
-                //
-                // private void delegatorHandleDataSetExpectation(final String path)
-                // {
-                // final DataSetInformation dataSetInformation = new DataSetInformation();
-                // dataSetInformation.setDataSetCode("Derived");
-                // dataSetInformation.setSampleCode("" + uniqueId++);
-                // dataSetInformation.setSpaceCode(SPACE_CODE);
-                // dataSetInformation.setInstanceCode("Test");
-                //
-                // allowing(delegator).linkAndHandleDataSet(with(new File(path)),
-                // with(any(DataSetInformation.class)));
-                // will(returnValue(Collections.singletonList(dataSetInformation)));
-                // }
-
                 {
                     // The Grid Prep does not yet exist
                     one(openbisService).tryGetSampleWithExperiment(
@@ -178,7 +182,7 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
                             public void describeTo(Description description)
                             {
                             }
-                        }), with("test"));
+                        }), with(TEST_USER_NAME));
                     will(returnValue(new Long(1)));
 
                     // The Replica does not yet exist
@@ -188,7 +192,7 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
 
                     // Create the Replica
-                    one(openbisService).registerSample(with(new BaseMatcher<NewSample>()
+                    one(openbisService).registerSample(with(new MatcherNoDesc<NewSample>()
                         {
                             public boolean matches(Object item)
                             {
@@ -205,21 +209,15 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
                                 }
                                 return false;
                             }
-
-                            public void describeTo(Description description)
-                            {
-                            }
-                        }), with("test"));
+                        }), with(TEST_USER_NAME));
                     will(returnValue(new Long(2)));
-
-                    // delegatorHandleDataSetExpectation("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for MRC files/MRC for Thomas/test20090422_BacklashRef.mrc");
-                    // delegatorHandleDataSetExpectation("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for MRC files/MRC for Thomas/test20090424_TrackAtZeroRef.mrc");
-                    // delegatorHandleDataSetExpectation("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for STEM files/STEM/stem_134588_1.imag");
                 }
             });
 
         setupExistingGridPrepExpectations();
         setupExistingReplicaExpectations();
+        setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/RawData/ReplicTest");
+        setupHandleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
 
         createRegistrator(dataSetFile);
         registrator.register();
@@ -229,15 +227,30 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
 
     private void setupOpenBisExpectations()
     {
-        final SampleType sampleType = new SampleType();
-        sampleType.setCode(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
-        sampleType.setAutoGeneratedCode(true);
-        sampleType.setGeneratedCodePrefix("Replica-");
+        final SampleType gridPrepSampleType = new SampleType();
+        gridPrepSampleType.setCode(CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE);
+        gridPrepSampleType.setAutoGeneratedCode(true);
+        gridPrepSampleType.setGeneratedCodePrefix("GridPrep-");
+
+        final SampleType replicaSampleType = new SampleType();
+        replicaSampleType.setCode(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
+        replicaSampleType.setAutoGeneratedCode(true);
+        replicaSampleType.setGeneratedCodePrefix("Replica-");
 
         DataSetType dataSetType = new DataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-        final DataSetTypeWithVocabularyTerms dataSetTypeWithTerms =
+        final DataSetTypeWithVocabularyTerms rawImagesDataSetTypeWithTerms =
                 new DataSetTypeWithVocabularyTerms();
-        dataSetTypeWithTerms.setDataSetType(dataSetType);
+        rawImagesDataSetTypeWithTerms.setDataSetType(dataSetType);
+
+        dataSetType = new DataSetType(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+        final DataSetTypeWithVocabularyTerms metadataDataSetTypeWithTerms =
+                new DataSetTypeWithVocabularyTerms();
+        metadataDataSetTypeWithTerms.setDataSetType(dataSetType);
+
+        dataSetType = new DataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
+        final DataSetTypeWithVocabularyTerms imageDataSetTypeWithTerms =
+                new DataSetTypeWithVocabularyTerms();
+        imageDataSetTypeWithTerms.setDataSetType(dataSetType);
 
         externalData = new ExternalData();
         externalData.setCode("1");
@@ -246,10 +259,16 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
+                    one(openbisService).getSampleType(CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE);
+                    will(returnValue(gridPrepSampleType));
                     one(openbisService).getSampleType(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
-                    will(returnValue(sampleType));
+                    will(returnValue(replicaSampleType));
+                    one(openbisService).getDataSetType(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
+                    will(returnValue(rawImagesDataSetTypeWithTerms));
+                    one(openbisService).getDataSetType(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                    will(returnValue(metadataDataSetTypeWithTerms));
                     one(openbisService).getDataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-                    will(returnValue(dataSetTypeWithTerms));
+                    will(returnValue(imageDataSetTypeWithTerms));
                     // one(openbisService).tryGetDataSet("session-token", externalData.getCode());
                     // will(returnValue(externalData));
                 }
@@ -296,40 +315,87 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
             });
     }
 
+    private void setupHandleRawDataSetExpectations(final String path)
+    {
+        // Create the Raw Images Data Set
+        final DataSetInformation dataSetInformation = new DataSetInformation();
+        dataSetInformation.setDataSetCode(RAW_IMAGES_DATA_SET_CODE);
+        dataSetInformation.setSampleCode(REPLICA_SAMPLE_CODE);
+        dataSetInformation.setSpaceCode(SPACE_CODE);
+        dataSetInformation.setInstanceCode(DB_CODE);
+
+        // set up the expectations
+        context.checking(new Expectations()
+            {
+                {
+                    one(delegator).handleDataSet(with(new File(path)),
+                            with(new MatcherNoDesc<DataSetInformation>()
+                                {
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataSetInformation)
+                                        {
+                                            DataSetInformation dataSetInfo =
+                                                    (DataSetInformation) item;
+                                            assertEquals(REPLICA_SAMPLE_CODE,
+                                                    dataSetInfo.getSampleCode());
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                }));
+                    will(returnValue(Collections.singletonList(dataSetInformation)));
+                }
+            });
+    }
+
+    private void setupHandleMetadataDataSetExpectations(final String path)
+    {
+        // Create the Raw Images Data Set
+        final DataSetInformation dataSetInformation = new DataSetInformation();
+        dataSetInformation.setDataSetCode(METADATA_DATA_SET_CODE);
+        dataSetInformation.setSampleCode(REPLICA_SAMPLE_CODE);
+        dataSetInformation.setSpaceCode(SPACE_CODE);
+        dataSetInformation.setInstanceCode(DB_CODE);
+
+        externalData = new ExternalData();
+        externalData.setCode("1");
+
+        final File dataSetFile = new File(path);
+
+        // set up the expectations
+        context.checking(new Expectations()
+            {
+                {
+                    one(delegator).handleDataSet(with(dataSetFile),
+                            with(new MatcherNoDesc<DataSetInformation>()
+                                {
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataSetInformation)
+                                        {
+                                            DataSetInformation dataSetInfo =
+                                                    (DataSetInformation) item;
+                                            assertEquals(REPLICA_SAMPLE_CODE,
+                                                    dataSetInfo.getSampleCode());
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                }));
+                    will(returnValue(Collections.singletonList(dataSetInformation)));
+                    one(openbisService).tryGetDataSet(SESSION_TOKEN, METADATA_DATA_SET_CODE);
+                    will(returnValue(externalData));
+                    one(delegator).getFileForExternalData(externalData);
+                    will(returnValue(dataSetFile.getParentFile()));
+                }
+            });
+    }
+
     private void createRegistrator(final File dataSet)
     {
         registrator = new GridPreparationRegistrator(createBundleRegistrationState(), dataSet);
     }
-
-    // private void setupNewSampleExpectations(final File dataSet)
-    // {
-    // setupSessionContextExpectations();
-    //
-    // final DataSetInformation dataSetInformation = new DataSetInformation();
-    // dataSetInformation.setDataSetCode(externalData.getCode());
-    // dataSetInformation.setSampleCode("GRID-1");
-    // dataSetInformation.setSpaceCode(SPACE_CODE);
-    // dataSetInformation.setInstanceCode("Test");
-    //
-    // final Sample sample = new Sample();
-    // Experiment exp = new Experiment();
-    // exp.setIdentifier("/Space/Exp-1");
-    // sample.setExperiment(exp);
-    // sample.setIdentifier(dataSetInformation.getSampleIdentifier().toString());
-    //
-    // // set up the expectations
-    // context.checking(new Expectations()
-    // {
-    // {
-    // one(delegator).handleDataSet(dataSet);
-    // will(returnValue(Collections.singletonList(dataSetInformation)));
-    // one(delegator).getFileForExternalData(externalData);
-    // will(returnValue(dataSet.getParentFile()));
-    // }
-    // });
-    //
-    // createRegistrator(dataSet);
-    // }
 
     private void setupCallerDataSetInfoExpectations()
     {
@@ -353,9 +419,9 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
     private void setupSessionContextExpectations()
     {
         final SessionContextDTO sessionContext = new SessionContextDTO();
-        sessionContext.setSessionToken("session-token");
+        sessionContext.setSessionToken(SESSION_TOKEN);
         sessionContext.setUserEmail("test@test.bar");
-        sessionContext.setUserName("test");
+        sessionContext.setUserName(TEST_USER_NAME);
 
         // set up the expectations
         context.checking(new Expectations()
@@ -370,12 +436,7 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
 
     private BundleRegistrationState createBundleRegistrationState()
     {
-        SampleType replicaSampleType =
-                openbisService.getSampleType(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
-        DataSetTypeWithVocabularyTerms imageDataSetType =
-                openbisService.getDataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-        return new BundleRegistrationState(delegator, openbisService, replicaSampleType,
-                imageDataSetType);
+        return new BundleRegistrationState(delegator, openbisService);
     }
 
 }

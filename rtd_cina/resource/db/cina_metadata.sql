@@ -18,7 +18,7 @@ SET search_path = public, pg_catalog;
 -- Dependencies: 1704
 -- Data for Name: experiment_types; Type: TABLE DATA; Schema: public; Owner: cramakri
 --
-INSERT INTO experiment_types (id, code, description, dbin_id, modification_timestamp) VALUES (1, 'CINA_EXP_TYPE', 'CINA Generic Experiment Type', 1, '2010-03-18 08:37:38.173356+01');
+INSERT INTO experiment_types (id, code, description, dbin_id, modification_timestamp) VALUES (1, 'CINA_EXP_TYPE', 'Generic Experiment Type', 1, '2010-03-18 08:37:38.173356+01');
 -- Completed on 2010-08-18 10:19:08 CEST
 
 --
@@ -27,8 +27,8 @@ INSERT INTO experiment_types (id, code, description, dbin_id, modification_times
 -- Data for Name: sample_types; Type: TABLE DATA; Schema: public; Owner: cramakri
 --
 INSERT INTO sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix, is_subcode_unique) VALUES (1, 'ORIGINAL', 'The sample for an experiment', 1, true, 1, 0, '2010-03-18 10:09:48.073644+01', false, 'ORIGINAL', false);
+INSERT INTO sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix, is_subcode_unique) VALUES (2, 'GRID_PREP', 'Grid biochemistry and preparation', 1, true, 1, 0, '2010-06-04 14:44:53.706263+02', false, 'EM-PREP', false);
 INSERT INTO sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix, is_subcode_unique) VALUES (3, 'GRID_REPLICA', 'A replica of a grid template', 1, true, 1, 0, '2010-06-04 14:46:38.886039+02', false, 'REPLICA', false);
-INSERT INTO sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix, is_subcode_unique) VALUES (2, 'GRID_TEMPLATE', 'Grid biochemistry and preparation', 1, true, 1, 0, '2010-06-04 14:44:53.706263+02', false, 'EM-PREP', false);
 -- Completed on 2010-08-18 10:13:10 CEST
 
 --
@@ -37,9 +37,11 @@ INSERT INTO sample_types (id, code, description, dbin_id, is_listable, generated
 -- Data for Name: data_set_types; Type: TABLE DATA; Schema: public; Owner: cramakri
 --
 INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (1, 'UNKNOWN', 'Unknown', 1, '2010-03-18 08:33:32.470674+01', NULL, NULL);
-INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (3, 'BUNDLE', 'CINA Bundle Data Set', 1, '2010-06-04 15:40:58.882161+02', '.*.bundle', NULL);
-INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (5, 'ANALYSIS', 'CINA Analysis', 1, '2010-06-04 16:07:04.556718+02', NULL, NULL);
-INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (4, 'IMAGE', 'CINA Image', 1, '2010-06-04 16:06:40.980157+02', '.*.png', 'original/Representations');
+INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (2, 'BUNDLE', 'Bundle Data Set', 1, '2010-06-04 15:40:58.882161+02', '.*.bundle', NULL);
+INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (3, 'RAW_IMAGES', 'Raw Images', 1, '2010-06-04 16:08:40.980157+02', NULL, NULL);
+INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (4, 'METADATA', 'Metadata', 1, '2010-06-04 16:08:40.980157+02', 'metadata.xml', 'original');
+INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (5, 'IMAGE', 'Image', 1, '2010-06-04 16:06:40.980157+02', '.*.png', 'original/Representations');
+INSERT INTO data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path) VALUES (6, 'ANALYSIS', 'Analysis', 1, '2010-06-04 16:07:04.556718+02', NULL, NULL);
 -- Completed on 2010-08-18 10:19:39 CEST
 
 

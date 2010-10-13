@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.dss.bundle.registrators;
+package ch.systemsx.cisd.cina.shared.metadata;
 
-import java.io.File;
+import java.util.Map;
 
 /**
- * Registers a replica's original image data set.
- * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaOriginalImagesRegistrator extends BundleDataSetHelper
+public interface IMetadataExtractor
 {
-
     /**
-     * @param globalState
-     * @param dataSet
+     * Get the metadata extracted from the file in the form of a map.
      */
-    ReplicaOriginalImagesRegistrator(BundleRegistrationState globalState, File dataSet)
-    {
-        super(globalState, dataSet);
-        // TODO Auto-generated constructor stub
-    }
-
+    public Map<String, String> getMetadataMap();
 }

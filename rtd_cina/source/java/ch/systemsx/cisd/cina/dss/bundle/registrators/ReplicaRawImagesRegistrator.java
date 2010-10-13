@@ -16,56 +16,57 @@
 
 package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
+import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * Registers annotated image data sets.
+ * Registers a replica's raw image data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReplicaAnnotatedImagesRegistrator extends BundleDataSetHelper
+public class ReplicaRawImagesRegistrator extends BundleDataSetHelper
 {
-    private final ImageMetadataExtractor imageMetadataExtractor;
+    private final ReplicaMetadataExtractor replicaMetadataExtractor;
 
     private final SampleIdentifier replicaSampleId;
 
-    ReplicaAnnotatedImagesRegistrator(BundleRegistrationState globalState,
-            ImageMetadataExtractor imageMetadataExtractor, Sample replicaSample,
-            SampleIdentifier replicaSampleId)
+    ReplicaRawImagesRegistrator(BundleRegistrationState globalState,
+            ReplicaMetadataExtractor replicaMetadataExtractor, Sample replicaSample,
+            SampleIdentifier replicaSampleId, File dataSet)
     {
-        super(globalState, imageMetadataExtractor.getFolder());
-        this.imageMetadataExtractor = imageMetadataExtractor;
+        super(globalState, dataSet);
+        this.replicaMetadataExtractor = replicaMetadataExtractor;
         this.replicaSampleId = replicaSampleId;
     }
 
     public List<DataSetInformation> register()
     {
         // Create a DataSetInformation
-        DataSetInformation metadataDataSetInfo = createDataSetInformation();
+        DataSetInformation imagesDataSetInfo = createDataSetInformation();
 
         // Import the metadata
-        ArrayList<NewProperty> properties = createDataSetProperties(imageMetadataExtractor);
-        metadataDataSetInfo.setDataSetProperties(properties);
-        registerDataSet(dataSet, metadataDataSetInfo);
+        ArrayList<NewProperty> properties = createDataSetProperties(replicaMetadataExtractor);
+        imagesDataSetInfo.setDataSetProperties(properties);
+        registerDataSet(dataSet, imagesDataSetInfo);
 
         return getDataSetInformation();
     }
 
     private DataSetInformation createDataSetInformation()
     {
-        DataSetInformation metadataDataSetInfo = new DataSetInformation();
-        metadataDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
-        metadataDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
-        metadataDataSetInfo.setInstanceCode(replicaSampleId.getSpaceLevel()
-                .getDatabaseInstanceCode());
-        metadataDataSetInfo.setDataSetType(globalState.getImageDataSetType().getDataSetType());
-        return metadataDataSetInfo;
+        DataSetInformation imagesDataSetInfo = new DataSetInformation();
+        imagesDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
+        imagesDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
+        imagesDataSetInfo
+                .setInstanceCode(replicaSampleId.getSpaceLevel().getDatabaseInstanceCode());
+        imagesDataSetInfo.setDataSetType(globalState.getRawImagesDataSetType().getDataSetType());
+        return imagesDataSetInfo;
     }
 }

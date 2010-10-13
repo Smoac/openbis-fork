@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ImageMetadataExtractor
+public class ImageMetadataExtractor implements IMetadataExtractor
 {
     private final HashMap<String, String> metadataMap;
 

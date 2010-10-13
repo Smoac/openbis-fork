@@ -17,6 +17,15 @@
 package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * Registers a metadata data set.
@@ -25,15 +34,67 @@ import java.io.File;
  */
 public class ReplicaMetadataRegistrator extends BundleDataSetHelper
 {
+    private final ReplicaMetadataExtractor replicaMetadataExtractor;
 
-    /**
-     * @param globalState
-     * @param dataSet
-     */
-    ReplicaMetadataRegistrator(BundleRegistrationState globalState, File dataSet)
+    private final SampleIdentifier replicaSampleId;
+
+    private File metadataDataSetFile = null;
+
+    ReplicaMetadataRegistrator(BundleRegistrationState globalState,
+            ReplicaMetadataExtractor replicaMetadataExtractor, Sample replicaSample,
+            SampleIdentifier replicaSampleId)
     {
-        super(globalState, dataSet);
-        // TODO Auto-generated constructor stub
+        super(globalState, replicaMetadataExtractor.getFolder());
+        this.replicaMetadataExtractor = replicaMetadataExtractor;
+        this.replicaSampleId = replicaSampleId;
     }
 
+    /**
+     * Register the metadata data set. Initialize the file object for the data set in the store.
+     */
+    public List<DataSetInformation> register()
+    {
+        String dataSetFileName = dataSet.getName();
+
+        // Create a DataSetInformation
+        DataSetInformation metadataDataSetInfo = createDataSetInformation();
+
+        // Import the metadata
+        ArrayList<NewProperty> properties = createDataSetProperties(replicaMetadataExtractor);
+        metadataDataSetInfo.setDataSetProperties(properties);
+        registerDataSet(dataSet, metadataDataSetInfo);
+
+        // Get the data set information for the data set we just registered
+        DataSetInformation registeredDataSetInformation = getDataSetInformation().get(0);
+        initializeMetadataDataSetFile(registeredDataSetInformation, dataSetFileName);
+
+        return getDataSetInformation();
+    }
+
+    public File getMetadataDataSetFile()
+    {
+        assert metadataDataSetFile != null : "Can get metadataDataSetFile only after calling register";
+        return metadataDataSetFile;
+    }
+
+    private DataSetInformation createDataSetInformation()
+    {
+        DataSetInformation metadataDataSetInfo = new DataSetInformation();
+        metadataDataSetInfo.setSampleCode(replicaSampleId.getSampleCode());
+        metadataDataSetInfo.setSpaceCode(replicaSampleId.getSpaceLevel().getSpaceCode());
+        metadataDataSetInfo.setInstanceCode(replicaSampleId.getSpaceLevel()
+                .getDatabaseInstanceCode());
+        metadataDataSetInfo.setDataSetType(globalState.getMetadataDataSetType().getDataSetType());
+        return metadataDataSetInfo;
+    }
+
+    private void initializeMetadataDataSetFile(DataSetInformation registeredDataSetInformation,
+            String dataSetFileName)
+    {
+        ExternalData metadataExternalData =
+                getOpenbisService().tryGetDataSet(getSessionContext().getSessionToken(),
+                        registeredDataSetInformation.getDataSetCode());
+        File containerFile = getDelegator().getFileForExternalData(metadataExternalData);
+        metadataDataSetFile = new File(containerFile, dataSetFileName);
+    }
 }

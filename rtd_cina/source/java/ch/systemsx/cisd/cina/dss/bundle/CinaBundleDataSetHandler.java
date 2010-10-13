@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * <li>Individual Image Thumbnails</li>
  * </ul>
  * </li>
- * <li>Replica Original Images</li>
+ * <li>Replica Raw Images</li>
  * </ul>
  * </li>
  * </ul>
@@ -68,7 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * <li>Create a grid preparation sample if one does not exist</li>
  * <li>For each replica:
  * <ul>
- * <li>If the replica sample does not exist, create it and register an original images data set</li>
+ * <li>If the replica sample does not exist, create it and register a raw images data set</li>
  * <li>Create a metadata data set and associate it with the replica; update the replica's metadata</li>
  * <li>Create datasets for each of the annotated images in the data set</li>
  * </ul>
