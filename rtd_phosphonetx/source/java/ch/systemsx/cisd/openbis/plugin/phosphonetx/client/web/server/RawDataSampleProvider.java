@@ -23,7 +23,7 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDa
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
 import ch.systemsx.cisd.openbis.generic.server.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -35,13 +35,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 /**
  * @author Franz-Josef Elmer
  */
-class RawDataSampleProvider implements ITableModelProvider<Sample>
+class RawDataSampleProvider extends AbstractTableModelProvider<Sample>
 {
     private final IProteomicsDataServiceInternal service;
 
     private final String sessionToken;
-
-    private TypedTableModel<Sample> model;
 
     RawDataSampleProvider(IProteomicsDataServiceInternal service, String sessionToken)
     {
@@ -49,35 +47,33 @@ class RawDataSampleProvider implements ITableModelProvider<Sample>
         this.sessionToken = sessionToken;
     }
 
-    public TypedTableModel<Sample> getTableModel()
+    @Override
+    public TypedTableModel<Sample> createTableModel()
     {
-        if (model == null)
+        List<MsInjectionSample> samples = service.listRawDataSamples(sessionToken);
+        TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();
+        builder.addColumn(CODE).withDataType(DataTypeCode.VARCHAR);
+        builder.addColumn(REGISTRATION_DATE).withDataType(DataTypeCode.TIMESTAMP)
+                .withDefaultWidth(190);
+        builder.addColumn(PARENT).withDataType(DataTypeCode.VARCHAR);
+        builder.addColumn(EXPERIMENT).withDataType(DataTypeCode.VARCHAR);
+        for (MsInjectionSample msInjectionSample : samples)
         {
-            List<MsInjectionSample> samples = service.listRawDataSamples(sessionToken);
-            TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();
-            builder.addColumn(CODE).withDataType(DataTypeCode.VARCHAR);
-            builder.addColumn(REGISTRATION_DATE).withDataType(DataTypeCode.TIMESTAMP).withDefaultWidth(190);
-            builder.addColumn(PARENT).withDataType(DataTypeCode.VARCHAR);
-            builder.addColumn(EXPERIMENT).withDataType(DataTypeCode.VARCHAR);
-            for (MsInjectionSample msInjectionSample : samples)
+            Sample sample = msInjectionSample.getSample();
+            builder.addRow(sample);
+            builder.column(CODE).addString(sample.getCode());
+            builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
+            Sample parent = sample.getGeneratedFrom();
+            builder.column(PARENT).addString(parent.getIdentifier());
+            Experiment experiment = parent.getExperiment();
+            if (experiment != null)
             {
-                Sample sample = msInjectionSample.getSample();
-                builder.addRow(sample);
-                builder.column(CODE).addString(sample.getCode());
-                builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
-                Sample parent = sample.getGeneratedFrom();
-                builder.column(PARENT).addString(parent.getIdentifier());
-                Experiment experiment = parent.getExperiment();
-                if (experiment != null)
-                {
-                    builder.column(EXPERIMENT).addString(experiment.getIdentifier());
-                }
-                builder.columnGroup("MS").addProperties("", sample.getProperties());
-                builder.columnGroup("BIO_").addProperties(parent.getProperties());
+                builder.column(EXPERIMENT).addString(experiment.getIdentifier());
             }
-            model = builder.getModel();
+            builder.columnGroup("MS").addProperties("", sample.getProperties());
+            builder.columnGroup("BIO_").addProperties(parent.getProperties());
         }
-        return model;
+        return builder.getModel();
     }
 
 }

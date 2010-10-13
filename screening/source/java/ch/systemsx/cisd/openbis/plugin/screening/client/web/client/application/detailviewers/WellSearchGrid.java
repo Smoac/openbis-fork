@@ -95,8 +95,6 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX
             + "PlateMaterialReviewer2Grid";
 
-    public static final String GRID_ID = BROWSER_ID + "-grid";
-
     private static final String CHANNEL_CHOOSER_LABEL = "Channel:";
 
     private static final String SINGLE_EXPERIMENT_TEXT = "Single experiment";
@@ -230,12 +228,11 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             ExperimentSearchCriteria experimentCriteriaOrNull,
             MaterialSearchCriteria materialCriteria)
     {
-        super(viewContext.getCommonViewContext(), GRID_ID, experimentCriteriaOrNull != null,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, experimentCriteriaOrNull != null,
                 DisplayTypeIDGenerator.PLATE_MATERIAL_REVIEWER);
         this.viewContext = viewContext;
         this.experimentCriteriaOrNull = experimentCriteriaOrNull;
         this.materialCriteria = materialCriteria;
-        setId(BROWSER_ID);
         channelChooser = new ChannelComboBox();
         linkWellContent();
         linkExperiment();
@@ -543,6 +540,12 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                 super.createColumnsDefinition();
         setImageRenderer(columnDefs);
         return columnDefs;
+    }
+
+    @Override
+    protected String translateColumnIdToDictonaryKey(String columnID)
+    {
+        return columnID;
     }
 
     private void setImageRenderer(ColumnDefsAndConfigs<TableModelRowWithObject<WellContent>> schema)

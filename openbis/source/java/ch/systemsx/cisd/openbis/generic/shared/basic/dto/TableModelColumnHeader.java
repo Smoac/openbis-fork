@@ -29,25 +29,6 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    /**
-     * Creates a header without a title.
-     */
-    public static TableModelColumnHeader untitledStringHeader(int index, String id)
-    {
-        TableModelColumnHeader header = new TableModelColumnHeader(null, id, index);
-        header.setDataType(DataTypeCode.VARCHAR);
-        return header;
-    }
-
-    /**
-     * Creates a header without a title and <code>linkable</code> flag set <code>true</code>..
-     */
-    public static TableModelColumnHeader untitledLinkableStringHeader(int index, String id)
-    {
-        TableModelColumnHeader header = untitledStringHeader(index, id);
-        header.setLinkable(true);
-        return header;
-    }
     private String title;
 
     private String id;
@@ -60,8 +41,6 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     // if column values contain permIds of certain entities entity kind is stored here
     private EntityKind entityKindOrNull;
 
-    private boolean linkable;
-    
     private int defaultColumnWidth = 150;
 
     public TableModelColumnHeader()
@@ -141,16 +120,6 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
         this.entityKindOrNull = entityKind;
     }
 
-    public void setLinkable(boolean linkable)
-    {
-        this.linkable = linkable;
-    }
-
-    public boolean isLinkable()
-    {
-        return linkable;
-    }
-    
     @Override
     public String toString()
     {

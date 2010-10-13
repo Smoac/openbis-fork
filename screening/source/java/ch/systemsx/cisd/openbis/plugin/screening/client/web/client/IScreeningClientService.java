@@ -20,7 +20,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -40,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -97,10 +96,10 @@ public interface IScreeningClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Returns {@link GenericTableResultSet} containing plate metadata.
+     * Returns {@link TypedTableResultSet} containing plate metadata.
      */
-    public GenericTableResultSet listPlateMetadata(
-            IResultSetConfig<String, TableModelRow> resultSetConfig, TechId sampleId)
+    public TypedTableResultSet<WellMetadata> listPlateMetadata(
+            IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> resultSetConfig, TechId sampleId)
             throws UserFailureException;
 
     /**
@@ -111,9 +110,9 @@ public interface IScreeningClientService extends IClientService
 
     /**
      * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
-     * GenericTableRow.
+     * TypedTableResultSet.
      */
-    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRow> exportCriteria)
+    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria)
             throws UserFailureException;
 
     /** Lists all images for a given well in the given dataset */

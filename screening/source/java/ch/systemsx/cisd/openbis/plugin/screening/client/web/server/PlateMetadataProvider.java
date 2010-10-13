@@ -16,89 +16,56 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
-import java.util.ArrayList;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataGridIDs.CODE;
+import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataGridIDs.TYPE;
+
 import java.util.List;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractOriginalDataProviderWithoutHeaders;
-import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.Column;
-import ch.systemsx.cisd.openbis.generic.client.web.server.GenericColumnsHelper.PropertyColumns;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.AbstractTableModelProvider;
+import ch.systemsx.cisd.openbis.generic.server.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataStaticColumns;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
  * Original data provider for plate content.
  * 
  * @author Izabela Adamczyk
+ * @author Franz-Josef Elmer
  */
-class PlateMetadataProvider extends AbstractOriginalDataProviderWithoutHeaders<TableModelRow>
+class PlateMetadataProvider extends AbstractTableModelProvider<WellMetadata>
 {
-
-    private final List<WellMetadata> wells;
-
+    private final IScreeningServer server;
+    private final String sessionToken;
+    private final TechId plateId;
+    
     public PlateMetadataProvider(IScreeningServer server, String sessionToken, TechId plateId)
     {
+        this.server = server;
+        this.sessionToken = sessionToken;
+        this.plateId = plateId;
+    }
+
+    @Override
+    public TypedTableModel<WellMetadata> createTableModel()
+    {
+        TypedTableModelBuilder<WellMetadata> builder = new TypedTableModelBuilder<WellMetadata>();
         PlateContent plateContent = server.getPlateContent(sessionToken, plateId);
-        this.wells = plateContent.getPlateMetadata().getWells();
-    }
-
-    public List<TableModelRow> getOriginalData() throws UserFailureException
-    {
-        return GenericColumnsHelper.createTableRows(getColumns());
-    }
-
-    public List<TableModelColumnHeader> getGenericHeaders()
-    {
-        List<Column> columns = getColumns();
-        List<TableModelColumnHeader> headers =
-                new ArrayList<TableModelColumnHeader>(columns.size());
-        for (Column column : columns)
+        List<WellMetadata> wells = plateContent.getPlateMetadata().getWells();
+        builder.addColumn(CODE);
+        builder.addColumn(TYPE);
+        for (WellMetadata wellMetadata : wells)
         {
-            headers.add(column.getHeader());
+            builder.addRow(wellMetadata);
+            Sample well = wellMetadata.getWellSample();
+            builder.column(CODE).addString(well.getCode());
+            builder.column(TYPE).addString(well.getSampleType().getCode());
+            builder.columnGroup("CONTENT_PROPERTY__").addProperties(well.getProperties());
         }
-        return headers;
+        return builder.getModel();
     }
 
-    private List<Column> getColumns()
-    {
-        List<Column> columns = new ArrayList<Column>();
-        Column codeColumn =
-                new Column(TableModelColumnHeader.untitledLinkableStringHeader(
-                        PlateMetadataStaticColumns.WELL.ordinal(),
-                        PlateMetadataStaticColumns.WELL.getColumnId()));
-        columns.add(codeColumn);
-
-        Column typeColumn =
-                new Column(TableModelColumnHeader.untitledStringHeader(
-                        PlateMetadataStaticColumns.TYPE.ordinal(),
-                        PlateMetadataStaticColumns.TYPE.getColumnId()));
-        columns.add(typeColumn);
-
-        int fixedColumns = columns.size();
-        PropertyColumns propertyColumns = new PropertyColumns();
-        for (int i = 0; i < wells.size(); i++)
-        {
-            WellMetadata metadata = wells.get(i);
-            Sample well = metadata.getWellSample();
-            codeColumn.addStringWithID(i, well.getCode(), well.getId());
-            typeColumn.addString(i, well.getSampleType().getCode());
-
-            for (IEntityProperty wellProperty : well.getProperties())
-            {
-                propertyColumns.add(i, wellProperty);
-            }
-        }
-        propertyColumns.reindexColumns(fixedColumns);
-        propertyColumns.addPrefixToColumnHeaderCodes("CONTENT_PROPERTY__");
-        columns.addAll(propertyColumns.getColumns());
-        return columns;
-    }
 }

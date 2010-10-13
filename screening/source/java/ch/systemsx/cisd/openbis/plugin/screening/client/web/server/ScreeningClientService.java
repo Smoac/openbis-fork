@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +30,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -47,13 +43,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProvider
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -69,6 +62,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -192,53 +186,19 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return prepareExportEntities(criteria);
     }
 
-    public GenericTableResultSet listPlateMetadata(
-            IResultSetConfig<String, TableModelRow> criteria, TechId sampleId)
+    public TypedTableResultSet<WellMetadata> listPlateMetadata(
+            IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> criteria, TechId sampleId)
     {
-        PlateMetadataProvider dataProvider =
+        PlateMetadataProvider metaDataProvider =
                 new PlateMetadataProvider(server, getSessionToken(), sampleId);
-        // This is a different kind of query because the criteria does not define which columns
-        // are available -- the provider does. Thus, inform the criteria which columns are
-        // available.
-        updateResultSetColumnsFromProvider(criteria, dataProvider);
-        ResultSet<TableModelRow> resultSet = listEntities(criteria, dataProvider);
-        return new GenericTableResultSet(resultSet, dataProvider.getGenericHeaders());
+        DataProviderAdapter<WellMetadata> dataProvider =
+                new DataProviderAdapter<WellMetadata>(metaDataProvider);
+        ResultSet<TableModelRowWithObject<WellMetadata>> resultSet =
+                listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<WellMetadata>(resultSet);
     }
 
-    /**
-     * In the plate metadata query, the result set does not define which columns are available --
-     * the provider does. This method informs the result set about the columns available in the
-     * provider.
-     */
-    private void updateResultSetColumnsFromProvider(
-            IResultSetConfig<String, TableModelRow> criteria, PlateMetadataProvider dataProvider)
-    {
-        Set<IColumnDefinition<TableModelRow>> columns = criteria.getAvailableColumns();
-        Set<String> availableColumnIdentifiers = extractColumnIdentifiers(columns);
-
-        List<TableModelColumnHeader> headers = dataProvider.getGenericHeaders();
-        for (TableModelColumnHeader header : headers)
-        {
-            // the header's code is the same as the definition's identifier
-            if (!availableColumnIdentifiers.contains(header.getId()))
-            {
-                columns.add(new GenericTableRowColumnDefinition(header, header.getTitle()));
-            }
-        }
-    }
-
-    private static Set<String> extractColumnIdentifiers(
-            Set<IColumnDefinition<TableModelRow>> columns)
-    {
-        Set<String> availableColumnIdentifiers = new HashSet<String>();
-        for (IColumnDefinition<TableModelRow> colDef : columns)
-        {
-            availableColumnIdentifiers.add(colDef.getIdentifier());
-        }
-        return availableColumnIdentifiers;
-    }
-
-    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRow> criteria)
+    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRowWithObject<WellMetadata>> criteria)
     {
         return prepareExportEntities(criteria);
     }

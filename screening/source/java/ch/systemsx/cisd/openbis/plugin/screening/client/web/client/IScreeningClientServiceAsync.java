@@ -21,7 +21,6 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
@@ -40,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
@@ -86,13 +85,13 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     /**
      * @see IScreeningClientService#listPlateMetadata(IResultSetConfig, TechId)
      */
-    public void listPlateMetadata(IResultSetConfig<String, TableModelRow> resultSetConfig,
-            TechId sampleId, AsyncCallback<GenericTableResultSet> callback);
+    public void listPlateMetadata(IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> resultSetConfig,
+            TechId sampleId, AsyncCallback<TypedTableResultSet<WellMetadata>> callback);
 
     /**
      * @see IScreeningClientService#prepareExportPlateMetadata(TableExportCriteria)
      */
-    public void prepareExportPlateMetadata(TableExportCriteria<TableModelRow> exportCriteria,
+    public void prepareExportPlateMetadata(TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**

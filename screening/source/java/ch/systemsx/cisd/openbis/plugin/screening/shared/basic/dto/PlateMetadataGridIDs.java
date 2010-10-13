@@ -16,28 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateMetadataBrowser;
+
 /**
- * Defines static columns of plate metadata row.
- * 
- * @author Izabela Adamczyk
+ * Defines IDs of {@link PlateMetadataBrowser}.
  */
-public enum PlateMetadataStaticColumns
+public class PlateMetadataGridIDs
 {
-    WELL("CODE"),
-
-    TYPE("TYPE"),
-
-    THUMBNAIL("THUMBNAIL");
-
-    private final String id;
-
-    private PlateMetadataStaticColumns(String id)
-    {
-        this.id = id;
-    }
-
-    public String getColumnId()
-    {
-        return id;
-    }
+    public static final String CODE = "CODE"; 
+    public static final String TYPE = "TYPE"; 
 }

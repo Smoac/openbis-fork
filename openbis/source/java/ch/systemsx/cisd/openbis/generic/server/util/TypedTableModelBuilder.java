@@ -184,6 +184,11 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         public void addValue(ISerializableComparable valueOrNull)
         {
             int index = indexProvider.getIndex();
+            if (index < 0)
+            {
+                throw new IllegalStateException(
+                        "Row index is < 0: This is most likely caused by missing invocation of builder.addRow().");
+            }
             while (index > values.size())
             {
                 values.add(EMPTY_CELL);

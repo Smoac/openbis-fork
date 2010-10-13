@@ -48,14 +48,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
+ * Abstract superclass of all grids based on {@link TypedTableModel}.
+ * 
  * @author Franz-Josef Elmer
  */
 public abstract class TypedTableGrid<T extends IsSerializable>
         extends
         AbstractBrowserGrid<TableModelRowWithObject<T>, BaseEntityModel<TableModelRowWithObject<T>>>
 {
+    public static final String GRID_POSTFIX = "-grid";
+
     /**
      * Do not display more than this amount of columns in the report, web browsers have problem with
      * it
@@ -96,16 +101,18 @@ public abstract class TypedTableGrid<T extends IsSerializable>
 
     private Map<String, IColumnDefinition<TableModelRowWithObject<T>>> columnDefinitions;
 
-    protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
+    protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String browserId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, refreshAutomatically, displayTypeIDGenerator);
+        super(viewContext, browserId + GRID_POSTFIX, refreshAutomatically, displayTypeIDGenerator);
+        setId(browserId);
     }
 
-    protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
+    protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String browserId,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, displayTypeIDGenerator);
+        super(viewContext, browserId + GRID_POSTFIX, displayTypeIDGenerator);
+        setId(browserId);
     }
     
     protected void setDownloadURL(String downloadURL)
@@ -183,7 +190,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 String title = header.getTitle();
                 if (title == null)
                 {
-                    title = viewContext.getMessage(header.getId());
+                    title = viewContext.getMessage(translateColumnIdToDictonaryKey(header.getId()));
                 }
                 ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
                         listenerLinkGenerators.get(header.getId());
@@ -202,6 +209,17 @@ public abstract class TypedTableGrid<T extends IsSerializable>
             }
         }
         return list;
+    }
+    
+    /**
+     * Translates a column ID to a key used to get title of the column from a dictionary.
+     * This method can be overridden by subclasses.
+     * 
+     * @return <code>getId() + "_" + columnID</code>
+     */
+    protected String translateColumnIdToDictonaryKey(String columnID)
+    {
+        return getId() + "_" + columnID;
     }
 
     @Override

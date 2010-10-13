@@ -47,8 +47,6 @@ public class ReportGrid extends TypedTableGrid<Null>
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "DataSetReporterGrid";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
-
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, IReportInformationProvider infoProvider)
@@ -71,7 +69,7 @@ public class ReportGrid extends TypedTableGrid<Null>
     private ReportGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, String reportKind, String downloadURL)
     {
-        super(viewContext, GRID_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
         setDownloadURL(downloadURL);
         setId(BROWSER_ID);
         this.resultSetKey = tableModelReference.getResultSetKey();

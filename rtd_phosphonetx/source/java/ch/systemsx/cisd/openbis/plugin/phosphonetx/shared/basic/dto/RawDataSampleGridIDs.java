@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 
 
 /**
@@ -26,15 +25,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
  */
 public class RawDataSampleGridIDs
 {
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "raw_data_sample_browser";
-
-    public static final String EXPERIMENT = BROWSER_ID + "_" + "EXPERIMENT";
+    public static final String EXPERIMENT = "EXPERIMENT";
     
-    public static final String PARENT = BROWSER_ID + "_" + "PARENT";
+    public static final String PARENT = "PARENT";
 
-    public static final String REGISTRATION_DATE = BROWSER_ID + "_" + "REGISTRATION_DATE";
+    public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
-    public static final String CODE = BROWSER_ID + "_" + "CODE";
+    public static final String CODE = "CODE";
 
 
 }

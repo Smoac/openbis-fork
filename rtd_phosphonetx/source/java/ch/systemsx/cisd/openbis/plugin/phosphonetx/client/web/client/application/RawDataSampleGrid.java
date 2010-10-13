@@ -24,6 +24,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
@@ -46,7 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampl
  */
 class RawDataSampleGrid extends TypedTableGrid<Sample>
 {
-    public static final String GRID_ID = RawDataSampleGridIDs.BROWSER_ID + "-grid";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "raw_data_sample_browser";
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
@@ -60,7 +61,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
 
     RawDataSampleGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), GRID_ID, true,
+        super(viewContext.getCommonViewContext(), BROWSER_ID, true,
                 PhosphoNetXDisplayTypeIDGenerator.RAW_DATA_SAMPLE_BROWSER_GRID);
         specificViewContext = viewContext;
         allowMultipleSelection();
