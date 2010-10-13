@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.api.v1;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
@@ -137,8 +139,16 @@ public class PutDataSetService
         {
             String dataSetTypeOrNull = newDataSet.tryDataSetType();
             IETLServerPlugin thePlugin = pluginMap.getPluginForType(dataSetTypeOrNull);
-            return new PutDataSetExecutor(this, thePlugin, sessionToken, newDataSet, inputStream)
-                    .execute();
+            List<DataSetInformation> infos =
+                    new PutDataSetExecutor(this, thePlugin, sessionToken, newDataSet, inputStream)
+                            .execute();
+            if (infos.isEmpty())
+            {
+                return "";
+            } else
+            {
+                return infos.get(0).getDataSetCode();
+            }
         } catch (UserFailureException e)
         {
             throw new IllegalArgumentException(e);

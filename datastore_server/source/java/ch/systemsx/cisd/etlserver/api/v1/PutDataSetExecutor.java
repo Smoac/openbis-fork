@@ -130,7 +130,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
      * 
      * @throws IOException
      */
-    public String execute() throws UserFailureException, IOException
+    public List<DataSetInformation> execute() throws UserFailureException, IOException
     {
         // Check that the session owner has at least user access to the space the new data
         // set should belongs to
@@ -143,14 +143,7 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         // Register the data set
         try
         {
-            List<DataSetInformation> infos = handler.handleDataSet(dataSetDir);
-            if (infos.isEmpty())
-            {
-                return "";
-            } else
-            {
-                return infos.get(0).getDataSetCode();
-            }
+            return handler.handleDataSet(dataSetDir);
         } finally
         {
             deleteDataSetDir();
