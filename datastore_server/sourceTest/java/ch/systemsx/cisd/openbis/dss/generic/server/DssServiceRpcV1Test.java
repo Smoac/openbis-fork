@@ -489,8 +489,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
         TestMethodInterceptor testMethodInterceptor = new TestMethodInterceptor();
         IDssServiceRpcGenericInternal service = getAdvisedService(testMethodInterceptor);
 
-        service.putDataSet(SESSION_TOKEN, newDataSet, fileInputStream);
-
+        String result = service.putDataSet(SESSION_TOKEN, newDataSet, fileInputStream);
+        assertEquals(NEW_DATA_SET_CODE, result);
         assertTrue("Advice should have been invoked.", testMethodInterceptor.methodInvoked);
 
         context.assertIsSatisfied();
