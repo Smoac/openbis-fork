@@ -20,14 +20,12 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.cina.dss.bundle.BundleDataSetHelper.BundleRegistrationGlobalState;
-import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
+import ch.systemsx.cisd.cina.dss.bundle.registrators.BundleRegistrationState;
+import ch.systemsx.cisd.cina.dss.bundle.registrators.GridPreparationRegistrator;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * CINA registers data in the form of a bundle. A bundle contains several different kinds data sets.
@@ -84,23 +82,30 @@ public class CinaBundleDataSetHandler implements IDataSetHandler
 {
     private final IDataSetHandler delegator;
 
-    private final BundleRegistrationGlobalState bundleRegistrationState;
+    private final BundleRegistrationState bundleRegistrationState;
 
     public CinaBundleDataSetHandler(Properties parentProperties, IDataSetHandler delegator,
             IEncapsulatedOpenBISService openbisService)
     {
         this.delegator = delegator;
-        this.bundleRegistrationState = createBundleRegistrationState(delegator, openbisService);
+        if (delegator instanceof IDataSetHandlerRpc)
+        {
+            this.bundleRegistrationState =
+                    createBundleRegistrationState((IDataSetHandlerRpc) delegator, openbisService);
+        } else
+        {
+            this.bundleRegistrationState = null;
+        }
     }
 
     public List<DataSetInformation> handleDataSet(File dataSet)
     {
-        BundleDataSetHelper helper;
         if (delegator instanceof IDataSetHandlerRpc)
         {
-            helper = new BundleDataSetHelperRpc(bundleRegistrationState, dataSet);
-            helper.process();
-            return helper.getDataSetInformation();
+            GridPreparationRegistrator registrator =
+                    new GridPreparationRegistrator(bundleRegistrationState, dataSet);
+            registrator.register();
+            return registrator.getDataSetInformation();
         } else
         {
             // We are not being invoked from the command line, so we don't have enough contextual
@@ -110,14 +115,9 @@ public class CinaBundleDataSetHandler implements IDataSetHandler
         }
     }
 
-    private static BundleRegistrationGlobalState createBundleRegistrationState(
-            IDataSetHandler delegator, IEncapsulatedOpenBISService openbisService)
+    private static BundleRegistrationState createBundleRegistrationState(
+            IDataSetHandlerRpc delegator, IEncapsulatedOpenBISService openbisService)
     {
-        SampleType replicaSampleType =
-                openbisService.getSampleType(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
-        DataSetTypeWithVocabularyTerms imageDataSetType =
-                openbisService.getDataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-        return new BundleRegistrationGlobalState(delegator, openbisService, replicaSampleType,
-                imageDataSetType);
+        return new BundleRegistrationState(delegator, openbisService);
     }
 }

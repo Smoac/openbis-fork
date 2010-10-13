@@ -17,104 +17,66 @@
 package ch.systemsx.cisd.cina.dss.bundle;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.Properties;
 
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
-import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.cina.dss.bundle.registrators.CinaBundleRegistrationTest;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CinaBundleDataSetHandlerTest extends AbstractFileSystemTestCase
+public class CinaBundleDataSetHandlerTest extends CinaBundleRegistrationTest
 {
-    private Mockery context;
-
-    private IEncapsulatedOpenBISService openbisService;
-
     private CinaBundleDataSetHandler handler;
 
-    private IDataSetHandlerRpc delegator;
-
-    private ExternalData externalData;
-
-    @Override
-    @BeforeMethod
-    public void setUp() throws IOException
+    /**
+     * First set up expectations for the case that the entities do not exist, then set up the
+     * expectations for existing entities to simulate registering new entities.
+     */
+    @Test
+    public void testHandlingWithCreationOfNewEntities()
     {
-        super.setUp();
-
-        context = new Mockery();
-        openbisService = context.mock(IEncapsulatedOpenBISService.class);
         setupOpenBisExpectations();
+        setupSessionContextExpectations();
+        setupCallerDataSetInfoExpectations();
 
-        delegator = context.mock(IDataSetHandlerRpc.class);
+        File dataSetFile =
+                new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
+
+        setupNewEntititesExpectations();
+
+        setupExistingGridPrepExpectations();
+        setupExistingReplicaExpectations();
+        setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/RawData/ReplicTest");
+        setupHandleReplicaMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
+        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");
 
         initializeDataSetHandler();
-    }
+        handler.handleDataSet(dataSetFile);
 
-    @AfterMethod
-    public void tearDown()
-    {
         context.assertIsSatisfied();
     }
 
-    // TODO: Changing the code used by this test; once finished, I'll fix the test to match the new
-    // code.
-    @Test(groups = "broken")
-    public void testHandling()
+    /**
+     * Set up the expectations for existing entities to simulate registering updating entities.
+     */
+    @Test
+    public void testRegistratorForExistingEntities()
     {
+        setupOpenBisExpectations();
+        setupSessionContextExpectations();
+        setupCallerDataSetInfoExpectations();
+
         File dataSetFile =
                 new File("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/");
-        setupDataSetHandlerExpectations(dataSetFile);
 
-        context.checking(new Expectations()
-            {
-                private long uniqueId = 1;
+        setupExistingGridPrepExpectations();
+        setupExistingReplicaExpectations();
+        setupHandleReplicaMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
+        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");
 
-                private void delegatorHandleDataSetExpectation(final String path)
-                {
-                    final DataSetInformation dataSetInformation = new DataSetInformation();
-                    dataSetInformation.setDataSetCode("Derived");
-                    dataSetInformation.setSampleCode("" + uniqueId++);
-                    dataSetInformation.setSpaceCode("Space");
-                    dataSetInformation.setInstanceCode("Test");
-
-                    allowing(delegator).linkAndHandleDataSet(with(new File(path)),
-                            with(any(DataSetInformation.class)));
-                    will(returnValue(Collections.singletonList(dataSetInformation)));
-                }
-
-                {
-                    allowing(openbisService).drawANewUniqueID();
-                    will(returnValue(uniqueId++));
-                    allowing(openbisService).registerSample(with(any(NewSample.class)),
-                            with("test"));
-                    will(returnValue(new Long(1)));
-                    delegatorHandleDataSetExpectation("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for MRC files/MRC for Thomas/test20090422_BacklashRef.mrc");
-                    delegatorHandleDataSetExpectation("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for MRC files/MRC for Thomas/test20090424_TrackAtZeroRef.mrc");
-                    delegatorHandleDataSetExpectation("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/Replica for STEM files/STEM/stem_134588_1.imag");
-                }
-            });
-
+        initializeDataSetHandler();
         handler.handleDataSet(dataSetFile);
 
         context.assertIsSatisfied();
@@ -131,68 +93,4 @@ public class CinaBundleDataSetHandlerTest extends AbstractFileSystemTestCase
         handler = new CinaBundleDataSetHandler(props, delegator, openbisService);
     }
 
-    private void setupOpenBisExpectations()
-    {
-        final SampleType sampleType = new SampleType();
-        sampleType.setCode(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
-        sampleType.setAutoGeneratedCode(true);
-        sampleType.setGeneratedCodePrefix("Replica-");
-
-        DataSetType dataSetType = new DataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-        final DataSetTypeWithVocabularyTerms dataSetTypeWithTerms =
-                new DataSetTypeWithVocabularyTerms();
-        dataSetTypeWithTerms.setDataSetType(dataSetType);
-
-        externalData = new ExternalData();
-        externalData.setCode("1");
-
-        // set up the expectations
-        context.checking(new Expectations()
-            {
-                {
-                    one(openbisService).getSampleType(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
-                    will(returnValue(sampleType));
-                    one(openbisService).getDataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-                    will(returnValue(dataSetTypeWithTerms));
-                    one(openbisService).tryGetDataSet("session-token", externalData.getCode());
-                    will(returnValue(externalData));
-                }
-            });
-    }
-
-    private void setupDataSetHandlerExpectations(final File dataSet)
-    {
-        final DataSetInformation dataSetInformation = new DataSetInformation();
-        dataSetInformation.setDataSetCode(externalData.getCode());
-        dataSetInformation.setSampleCode("GRID-1");
-        dataSetInformation.setSpaceCode("Space");
-        dataSetInformation.setInstanceCode("Test");
-
-        final Sample sample = new Sample();
-        Experiment exp = new Experiment();
-        exp.setIdentifier("/Space/Exp-1");
-        sample.setExperiment(exp);
-        sample.setIdentifier(dataSetInformation.getSampleIdentifier().toString());
-
-        final SessionContextDTO sessionContext = new SessionContextDTO();
-        sessionContext.setSessionToken("session-token");
-        sessionContext.setUserEmail("test@test.bar");
-        sessionContext.setUserName("test");
-
-        // set up the expectations
-        context.checking(new Expectations()
-            {
-                {
-                    one(delegator).handleDataSet(dataSet);
-                    will(returnValue(Collections.singletonList(dataSetInformation)));
-                    allowing(delegator).getSessionContext();
-                    will(returnValue(sessionContext));
-                    one(delegator).getFileForExternalData(externalData);
-                    will(returnValue(dataSet.getParentFile()));
-                    allowing(openbisService).tryGetSampleWithExperiment(
-                            dataSetInformation.getSampleIdentifier());
-                    will(returnValue(sample));
-                }
-            });
-    }
 }
