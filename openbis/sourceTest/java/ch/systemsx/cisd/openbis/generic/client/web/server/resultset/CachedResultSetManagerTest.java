@@ -576,6 +576,28 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     }
 
     @Test
+    public void testCustomColumnWithExpressionBasedOnColumnProperties()
+    {
+        final GridCustomColumn c1 = customColumn("$c1", "toInt(row.colDefs('a')[0].property('a'))/6");
+        prepareDataAndCustomColumnDefinitions(3, c1);
+        ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
+        builder.displayID(GRID_DISPLAY_ID).visibleColumns("$c1");
+        
+        IResultSet<Long, String> resultSet =
+            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+        
+        GridRowModels<String> list = resultSet.getList();
+        assertEquals(3, list.size());
+        assertEquals("0-a0 7", render(list.get(0)));
+        assertEquals("1-a1 7", render(list.get(1)));
+        assertEquals("2-a0 7", render(list.get(2)));
+        assertEquals(DataTypeCode.INTEGER, list.getCustomColumnsMetadata().get(0).getDataType());
+        assertEquals("[$c1]", columnCalculator.toString());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testSortCustomColumn()
     {
         final GridCustomColumn c1 = customColumn("$c1", "toInt(row.col('col1')) * 2");
@@ -909,7 +931,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                 public String tryToGetProperty(String key)
                 {
-                    return null; // unused
+                    return "a".equals(key) ? "42" : null;
                 }
 
             };
