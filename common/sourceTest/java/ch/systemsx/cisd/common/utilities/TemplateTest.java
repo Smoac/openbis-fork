@@ -51,6 +51,17 @@ public class TemplateTest
     }
 
     @Test
+    public void testWithPlaceholderMetadata()
+    {
+        Template template =
+                new Template("hello ${name::some metadata} - welcome to ${CISD:shortcut}!");
+        template.bind("name", "world");
+        template.bind("CISD:shortcut", "Center for Sciences and Databases");
+        assertEquals("hello world - welcome to Center for Sciences and Databases!",
+                template.createText());
+    }
+
+    @Test
     public void testWithTwiceTheSamePlaceholder()
     {
         Template template = new Template("hello ${name}${name}");

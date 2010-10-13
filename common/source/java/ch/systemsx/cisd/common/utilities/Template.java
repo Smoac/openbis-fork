@@ -58,6 +58,8 @@ public class Template
 
     private static final char PLACEHOLDER_START_CHARACTER = '{';
 
+    private static final char PLACEHOLDER_METADATA_SEPARATOR = ':';
+
     private static final char PLACEHOLDER_END_CHARACTER = '}';
 
     private static final String createPlaceholder(String variableName)
@@ -166,9 +168,43 @@ public class Template
                 {
                     tokenBuilder.finishPlaceholder();
                     return PLAIN;
+                } else if (character == PLACEHOLDER_METADATA_SEPARATOR)
+                {
+                    return STARTING_PLACEHOLDER_METADATA;
                 }
                 tokenBuilder.addCharacter(character);
                 return PLACEHOLDER;
+            }
+        },
+
+        STARTING_PLACEHOLDER_METADATA()
+        {
+            @Override
+            State next(char character, TokenBuilder tokenBuilder)
+            {
+                if (character == PLACEHOLDER_METADATA_SEPARATOR)
+                {
+                    return PLACEHOLDER_METADATA;
+                } else
+                {
+                    tokenBuilder.addCharacter(PLACEHOLDER_METADATA_SEPARATOR);
+                    tokenBuilder.addCharacter(character);
+                    return PLACEHOLDER;
+                }
+            }
+        },
+
+        PLACEHOLDER_METADATA()
+        {
+            @Override
+            State next(char character, TokenBuilder tokenBuilder)
+            {
+                if (character == PLACEHOLDER_END_CHARACTER)
+                {
+                    tokenBuilder.finishPlaceholder();
+                    return PLAIN;
+                }
+                return PLACEHOLDER_METADATA;
             }
         };
 
@@ -281,7 +317,7 @@ public class Template
         }
         return new Template(map, list);
     }
-    
+
     /**
      * Returns all placeholder names.
      */
@@ -368,7 +404,7 @@ public class Template
             throw new IllegalStateException("The following variables are not bound: " + builder);
         }
     }
-    
+
     /**
      * Returns <code>true</code> if all variables are bound, <code>false</code> otherwise.
      */
