@@ -38,6 +38,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 class PlateMetadataProvider extends AbstractTableModelProvider<WellMetadata>
 {
+    static final String CONTENT_PROPERTY_PREFIX = "CONTENT_PROPERTY__";
+    
     private final IScreeningServer server;
     private final String sessionToken;
     private final TechId plateId;
@@ -63,7 +65,7 @@ class PlateMetadataProvider extends AbstractTableModelProvider<WellMetadata>
             Sample well = wellMetadata.getWellSample();
             builder.column(CODE).addString(well.getCode());
             builder.column(TYPE).addString(well.getSampleType().getCode());
-            builder.columnGroup("CONTENT_PROPERTY__").addProperties(well.getProperties());
+            builder.columnGroup(CONTENT_PROPERTY_PREFIX).addProperties(well.getProperties());
         }
         return builder.getModel();
     }
