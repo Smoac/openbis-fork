@@ -137,6 +137,7 @@
         <property name="indexBase" value="${hibernate.search.index-base}" />
         <property name="indexMode" value="${hibernate.search.index-mode}" />
         <property name="batchSize" value="${hibernate.search.batch-size}" />
+        <property name="maxResults" value="${hibernate.search.maxResults}" />
     </bean>
 
     <bean id="full-text-index-updater"

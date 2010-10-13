@@ -54,8 +54,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
  */
 public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AuthorizationDAOFactory.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AuthorizationDAOFactory.class);
 
     private final IDatabaseInstanceDAO databaseInstancesDAO;
 

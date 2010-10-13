@@ -41,8 +41,8 @@ import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
  */
 public final class HibernateSearchContext implements InitializingBean
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, HibernateSearchContext.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            HibernateSearchContext.class);
 
     private IndexMode indexMode = IndexMode.SKIP_IF_MARKER_FOUND;
 
@@ -52,6 +52,21 @@ public final class HibernateSearchContext implements InitializingBean
      * 0 means no limit.
      */
     private int batchSize = 1000;
+
+    private int maxResults = 100000;
+
+    public int getMaxResults()
+    {
+        return maxResults;
+    }
+
+    public void setMaxResults(int maxResults)
+    {
+        if (maxResults > 0)
+        {
+            this.maxResults = maxResults;
+        }
+    }
 
     public final String getIndexBase()
     {

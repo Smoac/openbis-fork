@@ -515,8 +515,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             {
                 HibernateSearchDataProvider dataProvider =
                         new HibernateSearchDataProvider(getDAOFactory());
-                list.addAll(getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                        searchableEntity, queryText, dataProvider, useWildcardSearchMode));
+                List<MatchingEntity> entities =
+                        getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                                searchableEntity, queryText, dataProvider, useWildcardSearchMode,
+                                list.size());
+                list.addAll(entities);
             }
         } catch (final DataAccessException ex)
         {

@@ -41,7 +41,7 @@ public interface IHibernateSearchDAO
      */
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
             final String searchTerm, final HibernateSearchDataProvider dataProvider,
-            boolean useWildcardSearchMode) throws DataAccessException;
+            boolean useWildcardSearchMode, int alreadyFoundEntities) throws DataAccessException;
 
     /** search for entity ids using the specified criteria */
     public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind);

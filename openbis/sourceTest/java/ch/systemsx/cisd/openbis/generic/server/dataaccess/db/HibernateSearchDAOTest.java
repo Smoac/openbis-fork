@@ -118,7 +118,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true);
+            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true, 0);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -128,7 +128,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         try
         {
             hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, "",
-                    createDataProvider(), true);
+                    createDataProvider(), true, 0);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -148,13 +148,13 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final String lastName = "John";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.SAMPLE, term,
-                        createDataProvider(), false);
+                        createDataProvider(), false, 0);
         assertTrue(hits.size() > 0);
         for (MatchingEntity matchingEntity : hits)
         {
             assertEquals(lastName, matchingEntity.getRegistrator().getFirstName());
-            AssertionUtil.assertContains("registrator First Name", matchingEntity
-                    .getFieldDescription());
+            AssertionUtil.assertContains("registrator First Name",
+                    matchingEntity.getFieldDescription());
         }
     }
 
@@ -174,7 +174,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
-                        createDataProvider(), useWildcardMode);
+                        createDataProvider(), useWildcardMode, 0);
         assertEquals(5, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
@@ -190,7 +190,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         String propertyValue = "adenovirus";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, propertyValue,
-                        createDataProvider(), true);
+                        createDataProvider(), true, 0);
         assertEquals(2, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
@@ -261,8 +261,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         List<Long> datasetIds =
-                hibernateSearchDAO.searchForEntityIds(criteria, DtoConverters
-                        .convertEntityKind(EntityKind.DATA_SET));
+                hibernateSearchDAO.searchForEntityIds(criteria,
+                        DtoConverters.convertEntityKind(EntityKind.DATA_SET));
         final List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
         for (Long datasetId : datasetIds)
         {
@@ -339,8 +339,9 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     private DetailedSearchCriterion createSimpleFieldCriterion()
     {
-        return mkCriterion(DetailedSearchField
-                .createAttributeField(DataSetAttributeSearchFieldKind.FILE_TYPE), "TIFF");
+        return mkCriterion(
+                DetailedSearchField.createAttributeField(DataSetAttributeSearchFieldKind.FILE_TYPE),
+                "TIFF");
     }
 
     @Test
