@@ -142,13 +142,19 @@ public class PutDataSetService
             List<DataSetInformation> infos =
                     new PutDataSetExecutor(this, thePlugin, sessionToken, newDataSet, inputStream)
                             .execute();
-            if (infos.isEmpty())
+            StringBuilder sb = new StringBuilder();
+            for (DataSetInformation info : infos)
             {
-                return "";
-            } else
-            {
-                return infos.get(0).getDataSetCode();
+                sb.append(info.getDataSetCode());
+                sb.append(",");
             }
+
+            // Remove the trailing comma
+            if (sb.length() > 0)
+            {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            return sb.toString();
         } catch (UserFailureException e)
         {
             throw new IllegalArgumentException(e);
