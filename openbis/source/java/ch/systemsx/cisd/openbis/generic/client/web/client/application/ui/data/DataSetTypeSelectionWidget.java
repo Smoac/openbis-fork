@@ -21,7 +21,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -112,25 +111,9 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
     {
         if (initialCodeOrNull != null)
         {
-            if (allowValueNotFromList)
-            {
-                setRawValue(initialCodeOrNull);
-            } else
-            {
-                trySelectByCode(initialCodeOrNull);
-            }
+            trySelectByPropertyValue(ModelDataPropertyNames.CODE, initialCodeOrNull,
+                    "Data Set Type '" + initialCodeOrNull + "' doesn't exist.");
             updateOriginalValue();
-        }
-    }
-
-    private void trySelectByCode(String code)
-    {
-        try
-        {
-            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, code);
-        } catch (IllegalArgumentException ex)
-        {
-            MessageBox.alert("Error", "Data Set Type '" + code + "' doesn't exist.", null);
         }
     }
 

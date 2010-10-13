@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreFilter;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
@@ -484,4 +485,20 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         setOriginalValue(getValue());
     }
 
+    protected void trySelectByPropertyValue(String property, String propertyValue, String errorMsg)
+    {
+        if (allowValueNotFromList && GWTUtils.isPropertyNotInList(this, property, propertyValue))
+        {
+            setRawValue(propertyValue);
+        } else
+        {
+            try
+            {
+                GWTUtils.setSelectedItem(this, property, propertyValue);
+            } catch (IllegalArgumentException ex)
+            {
+                MessageBox.alert("Error", errorMsg, null);
+            }
+        }
+    }
 }

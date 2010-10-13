@@ -23,7 +23,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -147,25 +146,9 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
     {
         if (initialCodeOrNull != null)
         {
-            if (allowValueNotFromList)
-            {
-                setRawValue(initialCodeOrNull);
-            } else
-            {
-                trySelectByCode(initialCodeOrNull);
-            }
+            trySelectByPropertyValue(ModelDataPropertyNames.CODE, initialCodeOrNull,
+                    "Sample Type '" + initialCodeOrNull + "' doesn't exist.");
             updateOriginalValue();
-        }
-    }
-
-    private void trySelectByCode(String code)
-    {
-        try
-        {
-            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, code);
-        } catch (IllegalArgumentException ex)
-        {
-            MessageBox.alert("Error", "Sample Type '" + code + "' doesn't exist.", null);
         }
     }
 

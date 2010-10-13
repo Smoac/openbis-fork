@@ -193,6 +193,20 @@ public final class GWTUtils
     }
 
     /**
+     * Returns true if given <var>value</var> is in given <var>comboBox</var> list.
+     */
+    public final static <T extends ModelData> boolean isPropertyNotInList(
+            final ComboBox<T> comboBox, final String property, final String value)
+    {
+        assert comboBox != null : "Unspecified combo box.";
+        assert property != null : "Unspecified model property.";
+        assert value != null : "Unspecified model property value.";
+        final ListStore<T> store = comboBox.getStore();
+        final List<T> list = store.findModels(property, value);
+        return list.size() == 0;
+    }
+
+    /**
      * Unselects given <var>comboBox</var>.
      */
     public final static <T extends ModelData> void unselect(final ComboBox<T> comboBox)
@@ -332,8 +346,8 @@ public final class GWTUtils
 
     public final static String escapeToFormId(final String original)
     {
-        return original.toLowerCase().replace(".", "-DOT-").replace("_", "-UNDERSCORE-").replace(
-                "$", "-DOLLAR-");
+        return original.toLowerCase().replace(".", "-DOT-").replace("_", "-UNDERSCORE-")
+                .replace("$", "-DOLLAR-");
     }
 
     // confirm on exit message
