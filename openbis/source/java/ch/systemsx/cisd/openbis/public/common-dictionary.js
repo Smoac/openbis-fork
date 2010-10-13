@@ -266,7 +266,8 @@ var common = {
   //
   // Property Type Assignments Browser
   //
-  
+  is_dynamic: "Dynamic?",
+  script: "Script",
   unassign_button_label: "Release Assignment",
   unassignment_confirmation_dialog_title: "Unassignment Confirmation",
   unassignment_confirmation_template_without_properties: "Removing assignment between {0} type {1} and property type {2}. This can be safely done because no {0} has this property filled in.<br><br>Do you want to remove the assignment?",

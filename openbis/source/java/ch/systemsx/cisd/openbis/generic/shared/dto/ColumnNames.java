@@ -30,6 +30,8 @@ public final class ColumnNames
 
     public static final String EXPRESSION_COLUMN = "expression";
 
+    public static final String SCRIPT_COLUMN = "script";
+
     public final static String CODE_COLUMN = "code";
 
     public static final String NAME_COLUMN = "name";
@@ -59,7 +61,7 @@ public final class ColumnNames
     public static final String DATA_STORE_SERVICE_KEY_COLUMN = "key";
 
     public static final String DATA_STORE_SERVICE_LABEL_COLUMN = "label";
-    
+
     public static final String DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE = "REPORTING_PLUGIN_TYPE";
 
     public static final String DATA_STORE_SERVICES_DATASET_TYPES_CHILDREN_COLUMN =
@@ -131,6 +133,8 @@ public final class ColumnNames
     public static final String IS_MANAGED_INTERNALLY = "is_managed_internally";
 
     public static final String IS_MANDATORY = "is_mandatory";
+
+    public static final String IS_DYNAMIC = "is_dynamic";
 
     public static final String IS_ARCHIVER_CONFIGURED = "is_archiver_configured";
 
@@ -219,6 +223,8 @@ public final class ColumnNames
     public static final String VERSION_COLUMN = "version";
 
     public static final String VOCABULARY_TERM_COLUMN = "cvte_id";
+
+    public static final String SCRIPT_ID_COLUMN = "script_id";
 
     public static final String MODIFICATION_TIMESTAMP_COLUMN = "modification_timestamp";
 

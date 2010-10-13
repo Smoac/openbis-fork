@@ -118,6 +118,8 @@ public final class TableNames
 
     public static final String QUERIES_TABLE = "queries";
 
+    public static final String SCRIPTS_TABLE = "scripts";
+
     private TableNames()
     {
         // This class can not be instantiated.

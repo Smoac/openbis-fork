@@ -429,7 +429,10 @@ CREATE TABLE data_set_type_property_types (
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     section description_2000,
-    ordinal ordinal_int NOT NULL
+    ordinal ordinal_int NOT NULL,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT dstpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 CREATE TABLE data_set_types (
     id tech_id NOT NULL,
@@ -585,7 +588,10 @@ CREATE TABLE experiment_type_property_types (
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     section description_2000,
-    ordinal ordinal_int NOT NULL
+    ordinal ordinal_int NOT NULL,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT etpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 CREATE TABLE experiment_types (
     id tech_id NOT NULL,
@@ -751,7 +757,10 @@ CREATE TABLE material_type_property_types (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     section description_2000,
-    ordinal ordinal_int NOT NULL
+    ordinal ordinal_int NOT NULL,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT mtpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 CREATE TABLE material_types (
     id tech_id NOT NULL,
@@ -958,7 +967,10 @@ CREATE TABLE sample_type_property_types (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     is_displayed boolean_char DEFAULT true NOT NULL,
     section description_2000,
-    ordinal ordinal_int NOT NULL
+    ordinal ordinal_int NOT NULL,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT stpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 CREATE TABLE sample_types (
     id tech_id NOT NULL,
@@ -987,6 +999,22 @@ CREATE TABLE samples (
     expe_id tech_id,
     perm_id code NOT NULL,
     CONSTRAINT samp_dbin_grou_arc_ck CHECK ((((dbin_id IS NOT NULL) AND (grou_id IS NULL)) OR ((dbin_id IS NULL) AND (grou_id IS NOT NULL))))
+);
+CREATE SEQUENCE script_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+SELECT pg_catalog.setval('script_id_seq', 1, false);
+CREATE TABLE scripts (
+    id tech_id NOT NULL,
+    dbin_id tech_id NOT NULL,
+    name character varying(200) NOT NULL,
+    description description_2000,
+    script text_value NOT NULL,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    pers_id_registerer tech_id NOT NULL
 );
 CREATE SEQUENCE stpt_id_seq
     START WITH 1

@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
  * @author Tomasz Pylak
@@ -108,6 +109,29 @@ public enum PropertyTypeAssignmentColDefKind implements
             public String tryGetValue(EntityTypePropertyType<?> entity)
             {
                 return entity.getSection();
+            }
+        }),
+
+    IS_DYNAMIC(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.IS_DYNAMIC)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isDynamic());
+            }
+        }),
+
+    SCRIPT(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.SCRIPT)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                Script script = entity.getScript();
+                if (script != null)
+                {
+                    return script.getName();
+                }
+                return null;
             }
         }),
 

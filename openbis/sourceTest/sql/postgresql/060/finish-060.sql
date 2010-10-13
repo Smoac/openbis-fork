@@ -160,6 +160,10 @@ ALTER TABLE ONLY sample_types
     ADD CONSTRAINT saty_bk_uk UNIQUE (code, dbin_id);
 ALTER TABLE ONLY sample_types
     ADD CONSTRAINT saty_pk PRIMARY KEY (id);
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_pk PRIMARY KEY (id);
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_uk UNIQUE (name, dbin_id);
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_bk_uk UNIQUE (saty_id, prty_id);
 ALTER TABLE ONLY sample_type_property_types
@@ -247,6 +251,8 @@ CREATE INDEX sapr_stpt_fk_i ON sample_properties USING btree (stpt_id);
 CREATE INDEX sare_data_fk_i_child ON sample_relationships USING btree (sample_id_child);
 CREATE INDEX sare_data_fk_i_parent ON sample_relationships USING btree (sample_id_parent);
 CREATE INDEX sare_data_fk_i_relationship ON sample_relationships USING btree (relationship_id);
+CREATE INDEX script_dbin_fk_i ON scripts USING btree (dbin_id);
+CREATE INDEX script_pers_fk_i ON scripts USING btree (pers_id_registerer);
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
@@ -346,6 +352,8 @@ ALTER TABLE ONLY data_set_type_property_types
     ADD CONSTRAINT dstpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY data_set_type_property_types
     ADD CONSTRAINT dstpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT dstpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
 ALTER TABLE ONLY data_set_types
     ADD CONSTRAINT dsty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY experiment_type_property_types
@@ -354,6 +362,8 @@ ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
+ALTER TABLE ONLY experiment_type_property_types
+    ADD CONSTRAINT etpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
 ALTER TABLE ONLY events
     ADD CONSTRAINT evnt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY external_data
@@ -428,6 +438,8 @@ ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
+ALTER TABLE ONLY material_type_property_types
+    ADD CONSTRAINT mtpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
 ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY persons
@@ -496,12 +508,18 @@ ALTER TABLE ONLY sample_relationships
     ADD CONSTRAINT sare_data_fk_relationship FOREIGN KEY (relationship_id) REFERENCES relationship_types(id);
 ALTER TABLE ONLY sample_types
     ADD CONSTRAINT saty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_saty_fk FOREIGN KEY (saty_id) REFERENCES sample_types(id) ON DELETE CASCADE;
+ALTER TABLE ONLY sample_type_property_types
+    ADD CONSTRAINT stpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;

@@ -328,6 +328,10 @@ public abstract class Dict
 
     public static final String IS_MANDATORY = "is_mandatory";
 
+    public static final String IS_DYNAMIC = "is_dynamic";
+
+    public static final String SCRIPT = "script";
+
     public static final String PROPERTY_TYPE = "property_type";
 
     public static final String PROPERTY_TYPE_CODE = "property_type_code";

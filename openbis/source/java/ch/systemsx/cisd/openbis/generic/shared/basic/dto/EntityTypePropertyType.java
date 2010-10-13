@@ -30,7 +30,7 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private EntityKind entityKind;
+    private final EntityKind entityKind;
 
     private boolean mandatory;
 
@@ -44,6 +44,20 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
 
     private T entityType;
 
+    private boolean dynamic;
+
+    private Script script;
+
+    public Script getScript()
+    {
+        return script;
+    }
+
+    public void setScript(Script script)
+    {
+        this.script = script;
+    }
+
     public EntityTypePropertyType(EntityKind entityKind)
     {
         this.entityKind = entityKind;
@@ -52,6 +66,16 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
     public EntityKind getEntityKind()
     {
         return entityKind;
+    }
+
+    public final boolean isDynamic()
+    {
+        return dynamic;
+    }
+
+    public final void setDynamic(final boolean dynamic)
+    {
+        this.dynamic = dynamic;
     }
 
     public final boolean isMandatory()

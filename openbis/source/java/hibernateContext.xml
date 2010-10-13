@@ -82,6 +82,7 @@
                 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE</value>
             </list>
         </property>
         <!-- 

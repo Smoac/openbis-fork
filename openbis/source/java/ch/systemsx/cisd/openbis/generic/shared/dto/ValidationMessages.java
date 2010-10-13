@@ -44,6 +44,9 @@ public final class ValidationMessages
             "Given expression '%s' is either too short (minimal length: {min} character) "
                     + "or too long (maximal length: {max} characters).";
 
+    public static final String SCRIPT_LENGTH_MESSAGE =
+            "Given script '%s' is too short (minimal length: {min} character) ";
+
     public static final String GRID_ID_LENGTH_MESSAGE =
             "Given grid ID '%s' is either too short (minimal length: {min} character) "
                     + "or too long (maximal length: {max} characters).";
@@ -66,6 +69,8 @@ public final class ValidationMessages
 
     public static final String EXPRESSION_NOT_NULL_MESSAGE = "Expression" + CAN_NOT_BE_NULL;
 
+    public static final String SCRIPT_NOT_NULL_MESSAGE = "Script" + CAN_NOT_BE_NULL;
+
     public static final String GRID_ID_NOT_NULL_MESSAGE = "Grid ID" + CAN_NOT_BE_NULL;
 
     public static final String CODE_NOT_NULL_MESSAGE = "Code" + CAN_NOT_BE_NULL;
@@ -74,8 +79,8 @@ public final class ValidationMessages
 
     public static final String NAME_NOT_NULL_MESSAGE = "Name" + CAN_NOT_BE_NULL;
 
-    public static final String QUERY_DATABASE_KEY_NOT_NULL_MESSAGE =
-            "Query Database Key" + CAN_NOT_BE_NULL;
+    public static final String QUERY_DATABASE_KEY_NOT_NULL_MESSAGE = "Query Database Key"
+            + CAN_NOT_BE_NULL;
 
     public static final String CODE_PATTERN_MESSAGE =
             "Given code '%s' contains illegal characters (allowed: A-Z, a-z, 0-9 and _, -, .)";
@@ -85,8 +90,8 @@ public final class ValidationMessages
 
     public static final String DATA_STORE_NOT_NULL_MESSAGE = "Data store" + CAN_NOT_BE_NULL;
 
-    public static final String DATA_STORE_SERVICES_NOT_NULL_MESSAGE =
-            "Data store services" + CAN_NOT_BE_NULL;
+    public static final String DATA_STORE_SERVICES_NOT_NULL_MESSAGE = "Data store services"
+            + CAN_NOT_BE_NULL;
 
     public static final String DATA_STORE_SERVICE_KIND_NOT_NULL_MESSAGE =
             "Data Store Service Kind " + CAN_NOT_BE_NULL;
@@ -95,11 +100,11 @@ public final class ValidationMessages
 
     public static final String DATA_TYPE_NOT_NULL_MESSAGE = "Data type" + CAN_NOT_BE_NULL;
 
-    public static final String DATABASE_INSTANCE_NOT_NULL_MESSAGE =
-            "Database instance" + CAN_NOT_BE_NULL;
+    public static final String DATABASE_INSTANCE_NOT_NULL_MESSAGE = "Database instance"
+            + CAN_NOT_BE_NULL;
 
-    public final static String DESCRIPTION_LENGTH_MESSAGE =
-            LENGTH_PREFIX + "description" + LENGTH_SUFFIX;
+    public final static String DESCRIPTION_LENGTH_MESSAGE = LENGTH_PREFIX + "description"
+            + LENGTH_SUFFIX;
 
     public final static String SECTION_LENGTH_MESSAGE = LENGTH_PREFIX + "section" + LENGTH_SUFFIX;
 
@@ -113,29 +118,29 @@ public final class ValidationMessages
 
     public static final String EMAIL_EMAIL_MESSAGE = "Given email address '%s' is not a valid one.";
 
-    public static final String EMAIL_LENGTH_MESSAGE =
-            LENGTH_PREFIX + "email address" + LENGTH_SUFFIX;
+    public static final String EMAIL_LENGTH_MESSAGE = LENGTH_PREFIX + "email address"
+            + LENGTH_SUFFIX;
 
     public static final String EXPERIMENT_NOT_NULL_MESSAGE = "Experiment " + CAN_NOT_BE_NULL;
 
-    public static final String EXPERIMENT_TYPE_NOT_NULL_MESSAGE =
-            "Experiment type" + CAN_NOT_BE_NULL;
+    public static final String EXPERIMENT_TYPE_NOT_NULL_MESSAGE = "Experiment type"
+            + CAN_NOT_BE_NULL;
 
     public static final String EXPERIMENT_TYPE_PROPERTY_TYPE_NOT_NULL_MESSAGE =
             "Experiment type - property type" + CAN_NOT_BE_NULL;
 
-    public static final String FILE_FORMAT_TYPE_NOT_NULL_MESSAGE =
-            "File format type" + CAN_NOT_BE_NULL;
+    public static final String FILE_FORMAT_TYPE_NOT_NULL_MESSAGE = "File format type"
+            + CAN_NOT_BE_NULL;
 
-    public static final String FILE_NAME_LENGTH_MESSAGE =
-            LENGTH_PREFIX + "file name" + LENGTH_SUFFIX;
+    public static final String FILE_NAME_LENGTH_MESSAGE = LENGTH_PREFIX + "file name"
+            + LENGTH_SUFFIX;
 
     public static final String FILE_NAME_NOT_NULL_MESSAGE = "File name" + CAN_NOT_BE_NULL;
 
     public static final String TITLE_LENGTH_MESSAGE = LENGTH_PREFIX + "title" + LENGTH_SUFFIX;
 
-    public static final String FIRST_NAME_LENGTH_MESSAGE =
-            LENGTH_PREFIX + "first name" + LENGTH_SUFFIX;
+    public static final String FIRST_NAME_LENGTH_MESSAGE = LENGTH_PREFIX + "first name"
+            + LENGTH_SUFFIX;
 
     public static final String GROUP_NOT_NULL_MESSAGE = "Space" + CAN_NOT_BE_NULL;
 
@@ -145,8 +150,8 @@ public final class ValidationMessages
 
     public static final String LABEL_NOT_NULL_MESSAGE = "Label" + CAN_NOT_BE_NULL;
 
-    public static final String LAST_NAME_LENGTH_MESSAGE =
-            LENGTH_PREFIX + "last name" + LENGTH_SUFFIX;
+    public static final String LAST_NAME_LENGTH_MESSAGE = LENGTH_PREFIX + "last name"
+            + LENGTH_SUFFIX;
 
     public static final String LOCATION_LENGTH_MESSAGE = LENGTH_PREFIX + "location" + LENGTH_SUFFIX;
 
@@ -154,8 +159,8 @@ public final class ValidationMessages
 
     public static final String LOCATION_NOT_RELATIVE = "Location is not relative";
 
-    public static final String CODE_IN_INTERNAL_NAMESPACE =
-            "Code contains '" + BasicConstant.INTERNAL_NAMESPACE_PREFIX + "' prefix.";
+    public static final String CODE_IN_INTERNAL_NAMESPACE = "Code contains '"
+            + BasicConstant.INTERNAL_NAMESPACE_PREFIX + "' prefix.";
 
     public static final String LOCATOR_TYPE_NOT_NULL_MESSAGE = "Locator type" + CAN_NOT_BE_NULL;
 
@@ -213,8 +218,8 @@ public final class ValidationMessages
 
     public static final String IDENTIFIER_NOT_NULL_MESSAGE = "Identifier" + CAN_NOT_BE_NULL;
 
-    public static final String IDENTIFIER_LENGTH_MESSAGE =
-            LENGTH_PREFIX + "identifier" + LENGTH_SUFFIX;
+    public static final String IDENTIFIER_LENGTH_MESSAGE = LENGTH_PREFIX + "identifier"
+            + LENGTH_SUFFIX;
 
     public static final String DATA_NOT_NULL_MESSAGE = "Data " + CAN_NOT_BE_NULL;
 
