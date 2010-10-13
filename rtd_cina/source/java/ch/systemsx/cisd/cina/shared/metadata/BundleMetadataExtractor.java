@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.labview.LVData;
 import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 
@@ -29,11 +30,14 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
  */
 public class BundleMetadataExtractor
 {
-    private static final String METADATA_FOLDER_NAME = "Annotations";
+    private static final String METADATA_FOLDER_NAME =
+            BundleStructureConstants.METADATA_FOLDER_NAME;
 
-    private static final String BUNDLE_METADATA_FILE_NAME = "BundleMetadata.xml";
+    private static final String BUNDLE_METADATA_FILE_NAME =
+            BundleStructureConstants.BUNDLE_METADATA_FILE_NAME;
 
-    private static final String GRID_PREP_SAMPLE_CODE_KEY = "database link information";
+    private static final String GRID_PREP_SAMPLE_CODE_KEY =
+            BundleStructureConstants.GRID_PREP_SAMPLE_CODE_KEY;
 
     private final ArrayList<ReplicaMetadataExtractor> replicaMetadataExtractors;
 

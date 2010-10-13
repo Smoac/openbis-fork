@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.labview.LVData;
 import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
 
@@ -30,9 +31,11 @@ import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
  */
 public class ReplicaMetadataExtractor implements IMetadataExtractor
 {
-    private static final String REPLICA_METADATA_FILE_NAME = "ReplicaMetadata.xml";
+    private static final String REPLICA_METADATA_FILE_NAME =
+            BundleStructureConstants.REPLICA_METADATA_FILE_NAME;
 
-    private static final String REPLICA_SAMPLE_CODE_KEY = "database id (replica)";
+    private static final String REPLICA_SAMPLE_CODE_KEY =
+            BundleStructureConstants.REPLICA_SAMPLE_CODE_KEY;
 
     private final ArrayList<ImageMetadataExtractor> metadataExtractors;
 

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cina.dss.bundle.registrators;
 import java.io.File;
 import java.util.List;
 
+import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -33,7 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 public class ReplicaRegistrator extends BundleDataSetHelper
 {
-    private static final String RAW_IMAGES_FOLDER_NAME = "RawData";
+    private static final String RAW_IMAGES_FOLDER_NAME =
+            BundleStructureConstants.RAW_IMAGES_FOLDER_NAME;
 
     private final ReplicaMetadataExtractor replicaMetadataExtractor;
 

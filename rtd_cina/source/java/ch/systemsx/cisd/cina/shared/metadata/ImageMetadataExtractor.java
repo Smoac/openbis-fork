@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.cina.shared.labview.LVData;
 import ch.systemsx.cisd.cina.shared.labview.LVDataParser;
@@ -37,7 +38,8 @@ public class ImageMetadataExtractor implements IMetadataExtractor
 
     private LVData lvdata;
 
-    private final static String METADATA_FILE_NAME = "metadata.xml";
+    private final static String IMAGE_METADATA_FILE_NAME =
+            BundleStructureConstants.IMAGE_METADATA_FILE_NAME;
 
     private final static HashMap<String, String> prefixMap;
     static
@@ -49,7 +51,7 @@ public class ImageMetadataExtractor implements IMetadataExtractor
 
     public static boolean doesFolderContainImageMetadata(File folder)
     {
-        File metadataFile = new File(folder, METADATA_FILE_NAME);
+        File metadataFile = new File(folder, IMAGE_METADATA_FILE_NAME);
         return metadataFile.exists();
     }
 
@@ -88,7 +90,7 @@ public class ImageMetadataExtractor implements IMetadataExtractor
                     + " is not an image metadata file");
         }
 
-        File metadataFile = new File(folder, METADATA_FILE_NAME);
+        File metadataFile = new File(folder, IMAGE_METADATA_FILE_NAME);
         lvdata = LVDataParser.parse(metadataFile);
         if (null == lvdata)
         {
