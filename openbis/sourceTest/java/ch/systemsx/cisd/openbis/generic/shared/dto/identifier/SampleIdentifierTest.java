@@ -89,6 +89,14 @@ public final class SampleIdentifierTest
         assertEquals(Arrays.asList(expectedOrder), Arrays.asList(idents));
     }
 
+    @Test
+    public void testEquals()
+    {
+        SampleIdentifier id1 = new SampleIdentifierFactory("DB:/SPACE/SAMP").createIdentifier();
+        SampleIdentifier id2 = new SampleIdentifierFactory("DB:/SPACE/SAMP").createIdentifier();
+        assertEquals(id1, id2);
+    }
+
     private static SampleIdentifier[] revert(SampleIdentifier[] expectedOrder)
     {
         SampleIdentifier[] idents = new SampleIdentifier[expectedOrder.length];
