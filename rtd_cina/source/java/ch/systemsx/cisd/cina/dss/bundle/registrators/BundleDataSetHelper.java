@@ -20,14 +20,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.cina.shared.metadata.IMetadataExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
@@ -39,83 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 abstract class BundleDataSetHelper
 {
     private static final String MISC_DATA_SET_PROPERTY_CODE = "MISC";
-
-    static class BundleRegistrationState
-    {
-        private final IDataSetHandlerRpc delegator;
-
-        private final SessionContextDTO sessionContext;
-
-        private final IEncapsulatedOpenBISService openbisService;
-
-        private final SampleType gridPrepSampleType;
-
-        private final SampleType replicaSampleType;
-
-        private final DataSetTypeWithVocabularyTerms rawImagesDataSetType;
-
-        private final DataSetTypeWithVocabularyTerms metadataDataSetType;
-
-        private final DataSetTypeWithVocabularyTerms imageDataSetType;
-
-        BundleRegistrationState(IDataSetHandlerRpc delegator,
-                IEncapsulatedOpenBISService openbisService)
-        {
-            this.delegator = delegator;
-            sessionContext = delegator.getSessionContext();
-            this.openbisService = openbisService;
-            this.gridPrepSampleType =
-                    openbisService.getSampleType(CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE);
-            this.replicaSampleType =
-                    openbisService.getSampleType(CinaConstants.REPLICA_SAMPLE_TYPE_CODE);
-            this.rawImagesDataSetType =
-                    openbisService.getDataSetType(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
-            this.metadataDataSetType =
-                    openbisService.getDataSetType(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-            this.imageDataSetType =
-                    openbisService.getDataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-        }
-
-        IDataSetHandlerRpc getDelegator()
-        {
-            return delegator;
-        }
-
-        SessionContextDTO getSessionContext()
-        {
-            return sessionContext;
-        }
-
-        IEncapsulatedOpenBISService getOpenbisService()
-        {
-            return openbisService;
-        }
-
-        SampleType getGridPrepSampleType()
-        {
-            return gridPrepSampleType;
-        }
-
-        SampleType getReplicaSampleType()
-        {
-            return replicaSampleType;
-        }
-
-        DataSetTypeWithVocabularyTerms getRawImagesDataSetType()
-        {
-            return rawImagesDataSetType;
-        }
-
-        DataSetTypeWithVocabularyTerms getMetadataDataSetType()
-        {
-            return metadataDataSetType;
-        }
-
-        DataSetTypeWithVocabularyTerms getImageDataSetType()
-        {
-            return imageDataSetType;
-        }
-    }
 
     protected final BundleRegistrationState globalState;
 
@@ -151,6 +71,25 @@ abstract class BundleDataSetHelper
         // Register the given file
         List<DataSetInformation> bigDataSet =
                 getDelegator().handleDataSet(dataSetFile, dataSetInfo);
+        registeredDataSets.addAll(bigDataSet);
+        return bigDataSet;
+    }
+
+    /**
+     * Register a file which is already in the store as a data set and add it to the
+     * dataSetInformation collection.
+     * <p>
+     * Since the file is already in the store, the new data set contains a (hard) link to it.
+     * 
+     * @param dataSetFile A file which is already in the store
+     * @return A collection of data set information objects for each data set just registered
+     */
+    protected List<DataSetInformation> registerLinkedDataSet(File dataSetFile,
+            DataSetInformation dataSetInfo)
+    {
+        // Register the given file
+        List<DataSetInformation> bigDataSet =
+                getDelegator().linkAndHandleDataSet(dataSetFile, dataSetInfo);
         registeredDataSets.addAll(bigDataSet);
         return bigDataSet;
     }

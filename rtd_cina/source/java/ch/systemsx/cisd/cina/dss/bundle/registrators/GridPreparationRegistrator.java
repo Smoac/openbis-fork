@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.io.File;
+import java.util.List;
 
+import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.metadata.BundleMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -70,10 +72,17 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
         for (ReplicaMetadataExtractor replicaMetadataExtractor : bundleMetadataExtractor
                 .getReplicaMetadataExtractors())
         {
-            new ReplicaRegistrator(globalState, replicaMetadataExtractor, gridPrepSample,
-                    gridPrepSampleId, dataSet).register();
+            List<DataSetInformation> childRegisteredDataSets =
+                    new ReplicaRegistrator(globalState, replicaMetadataExtractor, gridPrepSample,
+                            gridPrepSampleId, dataSet).register();
+            getDataSetInformation().addAll(childRegisteredDataSets);
         }
-        // getDataSetInformation\
+
+        // Create a DataSetInformation
+        DataSetInformation metadataDataSetInfo = createDataSetInformation();
+
+        File metadataFile = new File(dataSet, BundleStructureConstants.BUNDLE_METADATA_FILE_NAME);
+        registerDataSet(metadataFile, metadataDataSetInfo);
     }
 
     private void retrieveOrCreateGridPrepSample()
@@ -104,5 +113,16 @@ public class GridPreparationRegistrator extends BundleDataSetHelper
         }
 
         assert gridPrepSample != null;
+    }
+
+    private DataSetInformation createDataSetInformation()
+    {
+        DataSetInformation metadataDataSetInfo = new DataSetInformation();
+        metadataDataSetInfo.setSampleCode(gridPrepSampleId.getSampleCode());
+        metadataDataSetInfo.setSpaceCode(gridPrepSampleId.getSpaceLevel().getSpaceCode());
+        metadataDataSetInfo.setInstanceCode(gridPrepSampleId.getSpaceLevel()
+                .getDatabaseInstanceCode());
+        metadataDataSetInfo.setDataSetType(globalState.getMetadataDataSetType().getDataSetType());
+        return metadataDataSetInfo;
     }
 }

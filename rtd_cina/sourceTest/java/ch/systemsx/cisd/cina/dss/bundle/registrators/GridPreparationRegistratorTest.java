@@ -29,7 +29,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.cina.dss.bundle.registrators.BundleDataSetHelper.BundleRegistrationState;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.etlserver.IDataSetHandlerRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -76,6 +75,8 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
     private static final String REPLICA_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
             + REPLICA_SAMPLE_CODE;
 
+    private static final String BUNDLE_METADATA_DATA_SET_CODE = null;
+
     private static abstract class MatcherNoDesc<T> extends BaseMatcher<T>
     {
 
@@ -95,6 +96,12 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
     private ExternalData externalData;
 
     private GridPreparationRegistrator registrator;
+
+    private DataSetTypeWithVocabularyTerms rawImagesDataSetTypeWithTerms;
+
+    private DataSetTypeWithVocabularyTerms metadataDataSetTypeWithTerms;
+
+    private DataSetTypeWithVocabularyTerms imageDataSetTypeWithTerms;
 
     @Override
     @BeforeMethod
@@ -217,7 +224,8 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
         setupExistingGridPrepExpectations();
         setupExistingReplicaExpectations();
         setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/RawData/ReplicTest");
-        setupHandleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
+        setupHandleReplicaMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
+        setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");
 
         createRegistrator(dataSetFile);
         registrator.register();
@@ -238,18 +246,15 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
         replicaSampleType.setGeneratedCodePrefix("Replica-");
 
         DataSetType dataSetType = new DataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-        final DataSetTypeWithVocabularyTerms rawImagesDataSetTypeWithTerms =
-                new DataSetTypeWithVocabularyTerms();
+        rawImagesDataSetTypeWithTerms = new DataSetTypeWithVocabularyTerms();
         rawImagesDataSetTypeWithTerms.setDataSetType(dataSetType);
 
         dataSetType = new DataSetType(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-        final DataSetTypeWithVocabularyTerms metadataDataSetTypeWithTerms =
-                new DataSetTypeWithVocabularyTerms();
+        metadataDataSetTypeWithTerms = new DataSetTypeWithVocabularyTerms();
         metadataDataSetTypeWithTerms.setDataSetType(dataSetType);
 
         dataSetType = new DataSetType(CinaConstants.IMAGE_DATA_SET_TYPE_CODE);
-        final DataSetTypeWithVocabularyTerms imageDataSetTypeWithTerms =
-                new DataSetTypeWithVocabularyTerms();
+        imageDataSetTypeWithTerms = new DataSetTypeWithVocabularyTerms();
         imageDataSetTypeWithTerms.setDataSetType(dataSetType);
 
         externalData = new ExternalData();
@@ -337,6 +342,9 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
                                         {
                                             DataSetInformation dataSetInfo =
                                                     (DataSetInformation) item;
+                                            assertEquals(
+                                                    rawImagesDataSetTypeWithTerms.getDataSetType(),
+                                                    dataSetInfo.getDataSetType());
                                             assertEquals(REPLICA_SAMPLE_CODE,
                                                     dataSetInfo.getSampleCode());
                                             return true;
@@ -349,7 +357,7 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
             });
     }
 
-    private void setupHandleMetadataDataSetExpectations(final String path)
+    private void setupHandleReplicaMetadataDataSetExpectations(final String path)
     {
         // Create the Raw Images Data Set
         final DataSetInformation dataSetInformation = new DataSetInformation();
@@ -359,14 +367,16 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
         dataSetInformation.setInstanceCode(DB_CODE);
 
         externalData = new ExternalData();
-        externalData.setCode("1");
+        externalData.setCode(METADATA_DATA_SET_CODE);
 
         final File dataSetFile = new File(path);
+        final File imageDataSetFile = new File(dataSetFile, "stem_134629_1.imag");
 
         // set up the expectations
         context.checking(new Expectations()
             {
                 {
+                    // Register the metadata data set
                     one(delegator).handleDataSet(with(dataSetFile),
                             with(new MatcherNoDesc<DataSetInformation>()
                                 {
@@ -376,6 +386,9 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
                                         {
                                             DataSetInformation dataSetInfo =
                                                     (DataSetInformation) item;
+                                            assertEquals(
+                                                    metadataDataSetTypeWithTerms.getDataSetType(),
+                                                    dataSetInfo.getDataSetType());
                                             assertEquals(REPLICA_SAMPLE_CODE,
                                                     dataSetInfo.getSampleCode());
                                             return true;
@@ -384,10 +397,75 @@ public class GridPreparationRegistratorTest extends AbstractFileSystemTestCase
                                     }
                                 }));
                     will(returnValue(Collections.singletonList(dataSetInformation)));
+
+                    // Retrieve the registered data set from openBIS
                     one(openbisService).tryGetDataSet(SESSION_TOKEN, METADATA_DATA_SET_CODE);
                     will(returnValue(externalData));
+                    // Retrieve the registered data set from the store
                     one(delegator).getFileForExternalData(externalData);
                     will(returnValue(dataSetFile.getParentFile()));
+
+                    // Register the images data set
+                    one(delegator).linkAndHandleDataSet(with(imageDataSetFile),
+                            with(new MatcherNoDesc<DataSetInformation>()
+                                {
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataSetInformation)
+                                        {
+                                            DataSetInformation dataSetInfo =
+                                                    (DataSetInformation) item;
+                                            assertEquals(
+                                                    imageDataSetTypeWithTerms.getDataSetType(),
+                                                    dataSetInfo.getDataSetType());
+                                            assertEquals(REPLICA_SAMPLE_CODE,
+                                                    dataSetInfo.getSampleCode());
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                }));
+                    will(returnValue(Collections.singletonList(dataSetInformation)));
+                }
+            });
+    }
+
+    private void setupHandleBundleMetadataDataSetExpectations(final String path)
+    {
+        // Create the Raw Images Data Set
+        final DataSetInformation dataSetInformation = new DataSetInformation();
+        dataSetInformation.setDataSetCode(BUNDLE_METADATA_DATA_SET_CODE);
+        dataSetInformation.setSampleCode(GRID_SAMPLE_CODE);
+        dataSetInformation.setSpaceCode(SPACE_CODE);
+        dataSetInformation.setInstanceCode(DB_CODE);
+
+        final File dataSetFile = new File(path);
+
+        // set up the expectations
+        context.checking(new Expectations()
+            {
+                {
+                    // Register the metadata data set
+                    one(delegator).handleDataSet(with(dataSetFile),
+                            with(new MatcherNoDesc<DataSetInformation>()
+                                {
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof DataSetInformation)
+                                        {
+                                            DataSetInformation dataSetInfo =
+                                                    (DataSetInformation) item;
+                                            assertEquals(
+                                                    metadataDataSetTypeWithTerms.getDataSetType(),
+                                                    dataSetInfo.getDataSetType());
+                                            assertEquals(GRID_SAMPLE_CODE,
+                                                    dataSetInfo.getSampleCode());
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                }));
+                    will(returnValue(Collections.singletonList(dataSetInformation)));
                 }
             });
     }

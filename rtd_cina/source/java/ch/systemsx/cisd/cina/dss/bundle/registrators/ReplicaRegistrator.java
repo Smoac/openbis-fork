@@ -73,7 +73,8 @@ public class ReplicaRegistrator extends BundleDataSetHelper
         {
             registerRawImages();
         }
-        registerMetadata();
+        File registeredDataSetFile = registerMetadata();
+        registerAnnotatedImages(registeredDataSetFile);
 
         return getDataSetInformation();
     }
@@ -129,7 +130,6 @@ public class ReplicaRegistrator extends BundleDataSetHelper
         return registrator.getMetadataDataSetFile();
     }
 
-    @SuppressWarnings("unused")
     private void registerAnnotatedImages(File registeredMetadataFile)
     {
         // Create a metadata extractor on the data set in the store (the ivar is a replica metadata

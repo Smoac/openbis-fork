@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cina.shared.metadata;
+package ch.systemsx.cisd.cina.shared.constants;
 
 /**
  * Constants that describe the structure fo the CINA bundle files.
