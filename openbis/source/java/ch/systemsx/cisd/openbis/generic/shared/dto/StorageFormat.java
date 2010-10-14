@@ -34,7 +34,11 @@ public enum StorageFormat
      * The standardized data according to the Biological Data Standard format, using a directory
      * container.
      */
-    BDS_DIRECTORY("BDS_DIRECTORY");
+    BDS_DIRECTORY("BDS_DIRECTORY"),
+    /**
+     * Data stored in an HDF5 container.
+     */
+    HDF5("HDF5");
 
     private static final Map<String, StorageFormat> codeMap = new HashMap<String, StorageFormat>();
 
