@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.URLListEncoder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
@@ -57,6 +56,8 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
     private static String PARAMETER_NAME_SEPARATOR = "::";
 
     private static String ENUM_LIST_EXPRESSION_PREFIX = "list=";
+
+    private static String ENUM_LIST_SEPARATOR = ",";
 
     private static String QUERY_LIST_EXPRESSION_PREFIX = "query=";
 
@@ -78,7 +79,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             if (expressionPart.startsWith(ENUM_LIST_EXPRESSION_PREFIX))
             {
                 String itemList = expressionPart.substring(ENUM_LIST_EXPRESSION_PREFIX.length());
-                String[] values = URLListEncoder.decodeItemList(itemList, false);
+                String[] values = itemList.split(ENUM_LIST_SEPARATOR);
                 return createSelectionField(namePart, Arrays.asList(values), initialValueOrNull,
                         onValueChangeAction);
             } else if (expressionPart.startsWith(QUERY_LIST_EXPRESSION_PREFIX))
@@ -102,9 +103,10 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             String parameterName, String queryExpression, IParameterValuesLoader loaderOrNull,
             String initialValueOrNull, IDelegatedAction onValueChangeAction)
     {
-        return ParameterSelectionDropDownList.create(parameterName, queryExpression, parameterName.replaceAll(" ", "_"),
-                parameterName, viewContextOrNull, loaderOrNull, true, initialValueOrNull);
-        // TODO onValueChangeAction
+        final String idSuffix = parameterName.replaceAll(" ", "_");
+        return ParameterSelectionDropDownList.create(parameterName, queryExpression, idSuffix,
+                parameterName, viewContextOrNull, loaderOrNull, true, initialValueOrNull,
+                onValueChangeAction);
     }
 
     private ParameterField(String parameterName, IDelegatedAction onValueChangeAction,
@@ -251,16 +253,22 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
 
         private final String queryExpressionOrNull;
 
+        private final IDelegatedAction onValueChangeAction;
+
         /**
          * Allows to choose one of the specified values, is able to refresh the available values by
          * calling the server.
+         * 
+         * @param onValueChangeAction
          */
         public static IParameterField create(final String parameterName, String queryExpression,
                 String idSuffix, String label, IViewContext<?> viewContextOrNull,
-                IParameterValuesLoader loader, final boolean mandatory, String initialValueOrNull)
+                IParameterValuesLoader loader, final boolean mandatory, String initialValueOrNull,
+                IDelegatedAction onValueChangeAction)
         {
             return new ParameterSelectionDropDownList(parameterName, idSuffix, label, mandatory,
-                    loader, queryExpression, viewContextOrNull, null, initialValueOrNull);
+                    loader, queryExpression, viewContextOrNull, null, initialValueOrNull,
+                    onValueChangeAction);
         }
 
         /**
@@ -272,13 +280,14 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                 String initialValueOrNull)
         {
             this(parameterName, idSuffix, label, mandatory, null, null, null, initialValuesOrNull,
-                    initialValueOrNull);
+                    initialValueOrNull, null);
         }
 
         protected ParameterSelectionDropDownList(final String parameterName, String idSuffix,
                 String label, boolean mandatory, IParameterValuesLoader loaderOrNull,
                 String queryExpressionOrNull, IViewContext<?> viewContextOrNull,
-                List<ParameterValue> valuesOrNull, String initialValueOrNull)
+                List<ParameterValue> valuesOrNull, String initialValueOrNull,
+                final IDelegatedAction onValueChangeAction)
         {
             super(idSuffix, ModelDataPropertyNames.CODE, label, CHOOSE_MSG, EMPTY_MSG,
                     VALUE_NOT_IN_LIST_MSG, mandatory, viewContextOrNull, valuesOrNull == null);
@@ -287,6 +296,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             this.viewContextOrNull = viewContextOrNull;
             this.loaderOrNull = loaderOrNull;
             this.initialValueOrNull = initialValueOrNull;
+            this.onValueChangeAction = onValueChangeAction;
             FieldUtil.setMandatoryFlag(this, mandatory);
             setAllowBlank(mandatory == false);
             if (valuesOrNull != null)
@@ -297,6 +307,15 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                     ModelDataPropertyNames.TOOLTIP));
             setWidth(100);
             setAllowValueNotFromList(true);
+
+            addSelectionChangedListener(new SelectionChangedListener<ParameterValueModel>()
+                {
+                    @Override
+                    public void selectionChanged(SelectionChangedEvent<ParameterValueModel> se)
+                    {
+                        onValueChangeAction.execute();
+                    }
+                });
         }
 
         private void setValues(List<ParameterValue> values)
@@ -371,5 +390,11 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             return this;
         }
 
+        @Override
+        protected void onKeyUp(FieldEvent fe)
+        {
+            super.onKeyUp(fe);
+            onValueChangeAction.execute();
+        }
     }
 }
