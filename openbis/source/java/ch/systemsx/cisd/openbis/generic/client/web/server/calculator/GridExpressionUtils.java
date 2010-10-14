@@ -17,9 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -31,8 +29,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -48,8 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 // the functions should become ivars.
 public class GridExpressionUtils
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, GridExpressionUtils.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            GridExpressionUtils.class);
 
     private static final String FILTER_EVALUATION_ERROR_MSG =
             "Problem occured during applying the filter.<br><br>Check that all provided parameter values are correct. "
@@ -57,8 +53,8 @@ public class GridExpressionUtils
 
     private static final String EVALUATION_SERIOUS_ERROR_MSG = "Serious problem occured during ";
 
-    private static final String FILTER_EVALUATION_SERIOUS_ERROR_MSG =
-            EVALUATION_SERIOUS_ERROR_MSG + "applying the filter: ";
+    private static final String FILTER_EVALUATION_SERIOUS_ERROR_MSG = EVALUATION_SERIOUS_ERROR_MSG
+            + "applying the filter: ";
 
     private static final String COLUMN_EVALUATION_ERROR_TEMPLATE_SHORT =
             "Error. Please contact '%s', who defined this column.";
@@ -67,24 +63,27 @@ public class GridExpressionUtils
 
     /**
      * Applies the filter described by <code>customFilterInfo</code> to
-     * <code>allRows<code> and returns the result.
+     * all rows and returns indices of all rows passing the filter.
+     * 
+     * @param dataProvider Provider of data and meta-data
      */
-    public static <T> List<GridRowModel<T>> applyCustomFilter(final List<GridRowModel<T>> rows,
-            Set<IColumnDefinition<T>> availableColumns, CustomFilterInfo<T> customFilterInfo)
+    public static List<Integer> applyCustomFilter(ITableDataProvider dataProvider,
+            CustomFilterInfo<?> customFilterInfo)
     {
-        List<GridRowModel<T>> filtered = new ArrayList<GridRowModel<T>>();
+        List<Integer> filtered = new ArrayList<Integer>();
         String expression = StringEscapeUtils.unescapeHtml(customFilterInfo.getExpression());
         Set<ParameterWithValue> parameters = customFilterInfo.getParameters();
         try
         {
-            RowCalculator<T> calculator =
-                    new RowCalculator<T>(availableColumns, expression, parameters);
-            for (GridRowModel<T> rowData : rows)
+            RowCalculator calculator = new RowCalculator(dataProvider, expression, parameters);
+            List<List<? extends Comparable<?>>> rows = dataProvider.getRows();
+            for (int i = 0; i < rows.size(); i++)
             {
-                calculator.setRowData(rowData);
+                List<? extends Comparable<?>> row = rows.get(i);
+                calculator.setRowData(row);
                 if (calculator.evalToBoolean())
                 {
-                    filtered.add(rowData);
+                    filtered.add(i);
                 }
             }
         } catch (Exception ex)
@@ -110,73 +109,36 @@ public class GridExpressionUtils
         return new UserFailureException(msg, details);
     }
 
-    /**
-     * Evaluate custom columns using the data from the other columns
-     */
-    public static <T> ArrayList<GridRowModel<T>> evalCustomColumns(final List<T> allRows,
-            List<GridCustomColumn> customColumns, Set<IColumnDefinition<T>> availableColumns,
-            boolean errorMessagesAreLong)
-    {
-        ArrayList<GridRowModel<T>> result = new ArrayList<GridRowModel<T>>();
-        Map<String, RowCalculator<T>> calculators = new HashMap<String, RowCalculator<T>>();
-        for (GridCustomColumn customColumn : customColumns)
-        {
-            RowCalculator<T> rowCalculator =
-                    createRowCalculator(availableColumns, customColumn, errorMessagesAreLong);
-            calculators.put(customColumn.getCode(), rowCalculator);
-        }
-        for (T rowData : allRows)
-        {
-            HashMap<String, PrimitiveValue> customColumnValues =
-                    new HashMap<String, PrimitiveValue>();
-            for (GridCustomColumn customColumn : customColumns)
-            {
-                String columnId = customColumn.getCode();
-                RowCalculator<T> calculator = calculators.get(columnId);
-                PrimitiveValue value =
-                        evalCustomColumn(rowData, customColumn, calculator, errorMessagesAreLong);
-                if (value != PrimitiveValue.NULL)
-                {
-                    customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
-                            .getDataType(), value.getDataType()));
-                }
-                customColumnValues.put(columnId, value);
-            }
-            result.add(new GridRowModel<T>(rowData, customColumnValues));
-        }
-        return result;
-    }
-    
     // Side effect: data type of customColumn is set
-    public static <T> List<PrimitiveValue> evalCustomColumn(List<T> rows,
-            GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
+    public static List<PrimitiveValue> evalCustomColumn(ITableDataProvider dataProvider,
+            GridCustomColumn customColumn,
             boolean errorMessagesAreLong)
     {
-        RowCalculator<T> calculator =
-                createRowCalculator(availableColumns, customColumn, errorMessagesAreLong);
+        RowCalculator calculator =
+                createRowCalculator(dataProvider, customColumn, errorMessagesAreLong);
         List<PrimitiveValue> values = new ArrayList<PrimitiveValue>();
-        for (T rowData : rows)
+        List<List<? extends Comparable<?>>> rows = dataProvider.getRows();
+        for (List<? extends Comparable<?>> row : rows)
         {
             PrimitiveValue value =
-                    evalCustomColumn(rowData, customColumn, calculator, errorMessagesAreLong);
+                    evalCustomColumn(row, customColumn, calculator, errorMessagesAreLong);
             if (value != PrimitiveValue.NULL)
             {
-                customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
-                        .getDataType(), value.getDataType()));
+                customColumn.setDataType(DataTypeUtils.getCompatibleDataType(
+                        customColumn.getDataType(), value.getDataType()));
             }
             values.add(value);
         }
         return values;
     }
 
-    private static <T> RowCalculator<T> createRowCalculator(
-            Set<IColumnDefinition<T>> availableColumns, GridCustomColumn customColumn,
-            boolean errorMessagesAreLong)
+    private static RowCalculator createRowCalculator(ITableDataProvider dataProvider,
+            GridCustomColumn customColumn, boolean errorMessagesAreLong)
     {
         String expression = StringEscapeUtils.unescapeHtml(customColumn.getExpression());
         try
         {
-            return new RowCalculator<T>(availableColumns, expression);
+            return new RowCalculator(dataProvider, expression);
         } catch (Exception ex)
         {
             // if a column definition is faulty than we replace the original expression with the one
@@ -184,23 +146,16 @@ public class GridExpressionUtils
             String msg =
                     createCustomColumnErrorMessage(customColumn, errorMessagesAreLong, ex).replace(
                             "'", "\\'");
-            return new RowCalculator<T>(availableColumns, "'" + msg + "'");
+            return new RowCalculator(dataProvider, "'" + msg + "'");
         }
     }
 
-    private static <T> PrimitiveValue evalCustomColumn(T rowData, GridCustomColumn customColumn,
-            RowCalculator<T> calculator, boolean errorMessagesAreLong)
+    private static PrimitiveValue evalCustomColumn(List<? extends Comparable<?>> rowData, GridCustomColumn customColumn,
+            RowCalculator calculator, boolean errorMessagesAreLong)
     {
-        // NOTE: we do not allow a calculated column to reference other calculated columns. It's
-        // a simplest way to ensure that there are no cyclic dependencies between custom
-        // columns. To allow custom columns dependencies we would have to ensure that
-        // dependencies create a DAG. Then the columns should be evaluated in a topological
-        // order.
-        GridRowModel<T> rowDataWithEmptyCustomColumns =
-                GridRowModel.createWithoutCustomColumns(rowData);
         try
         {
-            calculator.setRowData(rowDataWithEmptyCustomColumns);
+            calculator.setRowData(rowData);
 
             return calculator.getTypedResult();
         } catch (Exception ex)
@@ -210,7 +165,7 @@ public class GridExpressionUtils
         }
     }
 
-    private static <T> String createCustomColumnErrorMessage(GridCustomColumn customColumn,
+    private static String createCustomColumnErrorMessage(GridCustomColumn customColumn,
             boolean errorMessagesAreLong, Exception ex)
     {
         String msg;

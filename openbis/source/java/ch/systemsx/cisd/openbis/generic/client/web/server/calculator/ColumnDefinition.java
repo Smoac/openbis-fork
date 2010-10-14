@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+
 
 /**
  * Definition of column used in jython. 
@@ -27,11 +27,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
  */
 class ColumnDefinition
 {
-    private final IColumnDefinition<?> definition;
+    private final String columnID;
+    private final ITableDataProvider provider;
 
-    ColumnDefinition(IColumnDefinition<?> definition)
+    ColumnDefinition(String columnID, ITableDataProvider provider)
     {
-        this.definition = definition;
+        this.columnID = columnID;
+        this.provider = provider;
     }
     
     /**
@@ -39,7 +41,7 @@ class ColumnDefinition
      */
     public String id()
     {
-        return definition.getIdentifier();
+        return columnID;
     }
     
     /**
@@ -49,7 +51,7 @@ class ColumnDefinition
      */
     public String property(String key)
     {
-        return definition.tryToGetProperty(key);
+        return provider.tryToGetProperty(columnID, key);
     }
 
 }

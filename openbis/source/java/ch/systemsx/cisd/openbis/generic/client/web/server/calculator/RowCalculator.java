@@ -18,20 +18,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
  * @author Franz-Josef Elmer
  */
-class RowCalculator<T>
+class RowCalculator
 {
     private static final String INITIAL_SCRIPT = "from "
             + StandardFunctions.class.getCanonicalName() + " import *\n"
@@ -39,26 +38,26 @@ class RowCalculator<T>
 
     private final Evaluator evaluator;
 
-    private final Row<T> row;
+    private final Row row;
 
-    public RowCalculator(Set<IColumnDefinition<T>> availableColumns, String expression)
+    public RowCalculator(ITableDataProvider provider, String expression)
     {
-        this(availableColumns, expression, Collections.<ParameterWithValue> emptySet());
+        this(provider, expression, Collections.<ParameterWithValue> emptySet());
     }
 
-    public RowCalculator(Set<IColumnDefinition<T>> availableColumns, String expression,
+    public RowCalculator(ITableDataProvider provider, String expression,
             Set<ParameterWithValue> parameters)
     {
         evaluator =
                 new Evaluator(substitudeParameters(expression, parameters), Math.class,
                         INITIAL_SCRIPT);
-        row = new Row<T>(availableColumns);
+        row = new Row(provider);
         evaluator.set("row", row);
     }
 
-    public void setRowData(GridRowModel<T> rowData)
+    public void setRowData(List<? extends Comparable<?>> rowValues)
     {
-        row.setRowData(rowData);
+        row.setRowData(rowValues);
     }
 
     public PrimitiveValue getTypedResult()

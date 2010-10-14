@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -97,6 +98,18 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             }
             resultSetConfig = new DefaultResultSetConfig<Long, String>();
             columnFilters = new ArrayList<GridColumnFilterInfo<String>>();
+        }
+        
+        ResultSetConfigBuilder customColumn(String code, DataTypeCode dataType)
+        {
+            return column(new GridCustomColumnDefinition<String>(new GridCustomColumnInfo(code,
+                    code, "", dataType)));
+        }
+        
+        ResultSetConfigBuilder column(IColumnDefinition<String> colDef)
+        {
+            cols.put(colDef.getIdentifier(), colDef);
+            return this;
         }
 
         IResultSetConfig<Long, String> get()
@@ -227,7 +240,8 @@ public final class CachedResultSetManagerTest extends AssertJUnit
             IColumnDefinition<String> def = cols.get(id);
             if (def == null)
             {
-                def = createCustomColDef(id, 0);
+                def = new GridCustomColumnDefinition<String>(new GridCustomColumnInfo(id,
+                        id, "", DataTypeCode.VARCHAR));
                 cols.put(id, def);
             }
             return def;
@@ -255,8 +269,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                 boolean errorMessagesAreLong)
         {
             recordedColumnCodes.add(customColumn.getCode());
-            return GridExpressionUtils.evalCustomColumn(data, customColumn, availableColumns,
-                    errorMessagesAreLong);
+            return GridExpressionUtils.evalCustomColumn(
+                    TableDataProviderFactory.createDataProvider(data, availableColumns),
+                    customColumn, errorMessagesAreLong);
         }
 
         @Override
@@ -512,7 +527,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals("12-a0", list.get(2).getOriginalObject());
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testDistinctValues()
     {
@@ -659,6 +674,31 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testCustomFilterBasedOnNonVisibleCustomColumnWithNotUsedSecondCustomColumn()
+    {
+        final GridCustomColumn c1 = customColumn("$c1", "toInt(row.col('col1')) * 2");
+        final GridCustomColumn c2 = customColumn("$c2", "toInt(row.col('col1')) * 3");
+        prepareDataAndCustomColumnDefinitions(3, c1, c2);
+        ResultSetConfigBuilder builder =
+            new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
+        builder.customColumn("$c1", DataTypeCode.INTEGER);
+        builder.customColumn("$c2", DataTypeCode.INTEGER);
+        builder.visibleColumns(); // creating an available column
+        builder.customFilter("toInt(row.col('$c1')) < ${threshold}", "threshold=3");
+        
+        IResultSet<Long, String> resultSet =
+            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+        
+        GridRowModels<String> list = resultSet.getList();
+        assertEquals(2, list.size());
+        assertEquals("0-a0 0", render(list.get(0)));
+        assertEquals("1-a1 2", render(list.get(1)));
+        assertEquals("[$c1]", columnCalculator.toString());
+        
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testCustomColumnCalculationAndCaching()
@@ -750,7 +790,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals(1, list.size());
         assertEquals("0-a0 Error: (Error evaluating 'row.col('blabla')': "
                 + "java.lang.IllegalArgumentException: "
-                + "java.lang.IllegalArgumentException: Undefined column: blabla).", render(list
+                + "java.lang.IllegalArgumentException: Unknown column ID: blabla).", render(list
                 .get(0)));
 
         context.assertIsSatisfied();
@@ -932,40 +972,6 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                 public String tryToGetProperty(String key)
                 {
                     return "a".equals(key) ? "42" : null;
-                }
-
-            };
-    }
-
-    private static IColumnDefinition<String> createCustomColDef(final String identifier,
-            final int tokenIndex)
-    {
-        return new IColumnDefinition<String>()
-            {
-                public String getValue(GridRowModel<String> rowModel)
-                {
-                    return rowModel.getCalculatedColumnValues().get(tokenIndex).getValue()
-                            .toString();
-                }
-
-                public String getIdentifier()
-                {
-                    return identifier;
-                }
-
-                public Comparable<?> tryGetComparableValue(GridRowModel<String> rowModel)
-                {
-                    return getValue(rowModel);
-                }
-
-                public String getHeader()
-                {
-                    return null; // unused
-                }
-
-                public String tryToGetProperty(String key)
-                {
-                    return null; // unused
                 }
 
             };

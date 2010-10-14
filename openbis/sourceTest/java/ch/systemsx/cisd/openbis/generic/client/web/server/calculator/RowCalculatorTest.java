@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.testng.AssertJUnit;
@@ -26,71 +28,64 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class RowCalculatorTest extends AssertJUnit
 {
-    private Set<IColumnDefinition<Data>> availableColumns;
-
-    private static final class Data
+    private static final class MockDataProvider implements ITableDataProvider
     {
-        private double value;
+        private final String expectedColumnID;
 
-        public void setValue(double value)
+        MockDataProvider(String expectedColumnID)
         {
-            this.value = value;
+            this.expectedColumnID = expectedColumnID;
         }
 
-        public double getValue()
+        public List<List<? extends Comparable<?>>> getRows()
         {
-            return value;
+            return null;
+        }
+
+        public Comparable<?> getValue(String columnID, List<? extends Comparable<?>> rowValues)
+        {
+            assertEquals(expectedColumnID, columnID);
+            assertEquals(1, rowValues.size());
+            return rowValues.get(0);
+        }
+
+        public Collection<String> getAllColumnIDs()
+        {
+            return null;
+        }
+
+        public String tryToGetProperty(String columnID, String key)
+        {
+            return null;
         }
     }
+    
+    private ITableDataProvider dataProvider;
 
     @BeforeMethod
     public void setUp()
     {
-        availableColumns = new LinkedHashSet<IColumnDefinition<Data>>();
-        availableColumns.add(new AbstractColumnDefinition<Data>("header", 100, true, false)
-            {
-
-                public String getIdentifier()
-                {
-                    return "VALUE";
-                }
-
-                @Override
-                protected String tryGetValue(Data entity)
-                {
-                    return Double.toString(entity.getValue());
-                }
-
-                @Override
-                public Comparable<?> tryGetComparableValue(GridRowModel<Data> rowModel)
-                {
-                    return rowModel.getOriginalObject().getValue();
-                }
-
-            });
+        dataProvider = new MockDataProvider("VALUE");
     }
 
     @Test
     public void testEvalToDoubleWithStrangeParameterName()
     {
         Set<ParameterWithValue> parameters = createParameters("f.*r", "42");
-        RowCalculator<Data> calculator = createCalculator(parameters, "row.col('VALUE') * ${f.*r}");
+        RowCalculator calculator = createCalculator(parameters, "row.col('VALUE') * ${f.*r}");
 
-        calculator.setRowData(createData(2.5));
+        calculator.setRowData(Arrays.asList(2.5));
         assertEquals(105.0, calculator.evalToDouble());
 
-        calculator.setRowData(createData(10));
-        assertEquals(420.0, calculator.evalToDouble());
+        calculator.setRowData(Arrays.asList(10));
+        assertEquals(420, calculator.evalToInt());
     }
 
     @Test
@@ -98,26 +93,26 @@ public class RowCalculatorTest extends AssertJUnit
     {
         Set<ParameterWithValue> parameters = createParameters("x", "10");
         parameters.addAll(createParameters("y", "1"));
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "${x} * row.col('VALUE') + ${y}");
 
-        calculator.setRowData(createData(2.5));
+        calculator.setRowData(Arrays.asList(2.5));
         assertEquals(26.0, calculator.evalToDouble());
 
-        calculator.setRowData(createData(10));
-        assertEquals(101.0, calculator.evalToDouble());
+        calculator.setRowData(Arrays.asList(10));
+        assertEquals(101, calculator.evalToInt());
     }
 
     @Test
     public void testEvalToBoolean()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "42");
-        RowCalculator<Data> calculator = createCalculator(parameters, "row.col('VALUE') < ${x}");
+        RowCalculator calculator = createCalculator(parameters, "row.col('VALUE') < ${x}");
 
-        calculator.setRowData(createData(2.5));
+        calculator.setRowData(Arrays.asList(2.5));
         assertEquals(true, calculator.evalToBoolean());
 
-        calculator.setRowData(createData(43));
+        calculator.setRowData(Arrays.asList(43));
         assertEquals(false, calculator.evalToBoolean());
     }
 
@@ -125,13 +120,13 @@ public class RowCalculatorTest extends AssertJUnit
     public void testEvalToInt()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "42");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "int(row.col('VALUE') * ${x})");
 
-        calculator.setRowData(createData(2.5));
+        calculator.setRowData(Arrays.asList(2.5));
         assertEquals(105, calculator.evalToInt());
 
-        calculator.setRowData(createData(10));
+        calculator.setRowData(Arrays.asList(10));
         assertEquals(420, calculator.evalToInt());
     }
 
@@ -139,10 +134,10 @@ public class RowCalculatorTest extends AssertJUnit
     public void testEvalToBigInt()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "10");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "${x} ** int(row.col('VALUE'))");
 
-        calculator.setRowData(createData(10));
+        calculator.setRowData(Arrays.asList(10));
         assertEquals(new BigInteger("10000000000"), calculator.evalToBigInt());
     }
 
@@ -150,27 +145,27 @@ public class RowCalculatorTest extends AssertJUnit
     public void testEvalAsString()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "42");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "str(${x} + row.col('VALUE'))");
 
-        calculator.setRowData(createData(10));
-        assertEquals("52.0", calculator.evalAsString());
+        calculator.setRowData(Arrays.asList(10));
+        assertEquals("52", calculator.evalAsString());
 
-        calculator.setRowData(createData(-10));
-        assertEquals("32.0", calculator.evalAsString());
+        calculator.setRowData(Arrays.asList((-10)));
+        assertEquals("32", calculator.evalAsString());
     }
 
     @Test
     public void testMathFunctionAndStandardFunction()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "choose(row.col('VALUE') < PI, cos(${x}), ${x})");
 
-        calculator.setRowData(createData(3.14));
+        calculator.setRowData(Arrays.asList(3.14));
         assertEquals(1.0, calculator.evalToDouble());
 
-        calculator.setRowData(createData(3.15));
+        calculator.setRowData(Arrays.asList(3.15));
         assertEquals(0.0, calculator.evalToDouble());
     }
 
@@ -178,7 +173,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testIntFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "map(int, [${x},'  ',2,2.5,'3'])");
 
         assertEquals("[0, -2147483648, 2, 2, 3]", calculator.evalAsString());
@@ -189,7 +184,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testFloatFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "map(float, [${x},'  ',2,2.5,'3'])");
 
         assertEquals("[0.0, -1.7976931348623157E308, 2.0, 2.5, 3.0]", calculator.evalAsString());
@@ -200,7 +195,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testMinFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "min([${x},None,'  ',-2,'-3'])");
 
         assertEquals(-3.0, calculator.evalToDouble());
@@ -211,7 +206,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testMaxFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "max([${x},None,'  ',-2,'-3'])");
 
         assertEquals(0.0, calculator.evalToDouble());
@@ -222,7 +217,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testMinOrDefaultFunction()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'])");
 
         try
@@ -231,7 +226,8 @@ public class RowCalculatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException e)
         {
-            // do nothing -- this is expected
+            assertEquals("Error evaluating 'minOrDefault([0.0,None,'  ',-2,'-3'])': "
+                    + "TypeError: minOrDefault(): expected 2 args; got 1", e.getMessage());
         }
 
         calculator = createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
@@ -246,7 +242,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testMaxOrDefaultFunction()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator<Data> calculator =
+        RowCalculator calculator =
                 createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'])");
         try
         {
@@ -254,7 +250,8 @@ public class RowCalculatorTest extends AssertJUnit
             fail("EvaluatorException expected");
         } catch (EvaluatorException e)
         {
-            // do nothing -- this is expected
+            assertEquals("Error evaluating 'maxOrDefault([0.0,None,'  ',-2,'-3'])': "
+                    + "TypeError: maxOrDefault(): expected 2 args; got 1", e.getMessage());
         }
 
         calculator = createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
@@ -264,15 +261,15 @@ public class RowCalculatorTest extends AssertJUnit
         assertEquals(38.6, calculator.evalToDouble());
     }
 
-    private RowCalculator<Data> createCalculator(Set<ParameterWithValue> parameters,
+    private RowCalculator createCalculator(Set<ParameterWithValue> parameters,
             String expression)
     {
         if (parameters != null)
         {
-            return new RowCalculator<Data>(availableColumns, expression, parameters);
+            return new RowCalculator(dataProvider, expression, parameters);
         } else
         {
-            return new RowCalculator<Data>(availableColumns, expression);
+            return new RowCalculator(dataProvider, expression);
         }
     }
 
@@ -282,12 +279,5 @@ public class RowCalculatorTest extends AssertJUnit
         parameter.setParameter(name);
         parameter.setValue(value);
         return new LinkedHashSet<ParameterWithValue>(Arrays.asList(parameter));
-    }
-
-    private GridRowModel<Data> createData(double value)
-    {
-        Data data = new Data();
-        data.setValue(value);
-        return GridRowModel.createWithoutCustomColumns(data);
     }
 }

@@ -16,92 +16,82 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class FilterUtilsTest extends AssertJUnit
 {
-    private static final class Data
+    private static final class MockDataProvider implements ITableDataProvider
     {
-        private double value;
+        private final String expectedColumnID;
+        private final List<List<? extends Comparable<?>>> rows;
 
-        public void setValue(double value)
+        MockDataProvider(String expectedColumnID, List<? extends Comparable<?>>... rows)
         {
-            this.value = value;
+            this.expectedColumnID = expectedColumnID;
+            this.rows = Arrays.asList(rows);
         }
 
-        public double getValue()
+        public List<List<? extends Comparable<?>>> getRows()
         {
-            return value;
+            return rows;
+        }
+
+        public Comparable<?> getValue(String columnID, List<? extends Comparable<?>> rowValues)
+        {
+            assertEquals(expectedColumnID, columnID);
+            assertEquals(1, rowValues.size());
+            return rowValues.get(0);
+        }
+
+        public Collection<String> getAllColumnIDs()
+        {
+            return null;
+        }
+
+        public String tryToGetProperty(String columnID, String key)
+        {
+            return null;
         }
     }
+    
+    private ITableDataProvider dataProvider;
 
+    @SuppressWarnings("unchecked")
+    @BeforeMethod
+    public void setUp()
+    {
+        dataProvider = new MockDataProvider("VALUE", Arrays.asList(50), Arrays.asList(40));
+    }
+
+    @SuppressWarnings("unchecked")
     @Test
     public void test()
     {
-        CustomFilterInfo<Data> filterInfo = new CustomFilterInfo<Data>();
+        CustomFilterInfo<?> filterInfo = new CustomFilterInfo();
         filterInfo.setExpression("row.col('VALUE') < ${threshold}");
         ParameterWithValue parameter = new ParameterWithValue();
         parameter.setParameter("threshold");
         parameter.setValue("42");
         filterInfo.setParameters(new LinkedHashSet<ParameterWithValue>(Arrays.asList(parameter)));
-        Set<IColumnDefinition<Data>> availableColumns =
-                new LinkedHashSet<IColumnDefinition<Data>>();
-        availableColumns.add(new AbstractColumnDefinition<Data>("header", 100, true, false)
-            {
 
-                public String getIdentifier()
-                {
-                    return "VALUE";
-                }
+        List<Integer> indices = GridExpressionUtils.applyCustomFilter(dataProvider, filterInfo);
 
-                @Override
-                protected String tryGetValue(Data entity)
-                {
-                    return Double.toString(entity.getValue());
-                }
-
-                @Override
-                public Comparable<?> tryGetComparableValue(GridRowModel<Data> rowModel)
-                {
-                    return rowModel.getOriginalObject().getValue();
-                }
-            });
-
-        List<GridRowModel<Data>> filterdList =
-                GridExpressionUtils.applyCustomFilter(createData(57, 34), availableColumns,
-                        filterInfo);
-
-        assertEquals(1, filterdList.size());
-        assertEquals(34.0, filterdList.get(0).getOriginalObject().getValue());
-    }
-
-    private List<GridRowModel<Data>> createData(double... values)
-    {
-        List<Data> list = new ArrayList<Data>();
-        for (double value : values)
-        {
-            Data data = new Data();
-            data.setValue(value);
-            list.add(data);
-        }
-        return TSVRendererTest.asRowModel(list);
+        assertEquals("[1]", indices.toString());
     }
 
 }

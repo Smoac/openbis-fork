@@ -17,18 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
@@ -37,54 +36,51 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  */
 public class CustomColumnUtilsTest extends AssertJUnit
 {
-    // Simple data classs to use in the tests
-    private static final class Data
+    private static final class MockDataProvider implements ITableDataProvider
     {
-        private double value;
+        private final String expectedColumnID;
+        private final List<List<? extends Comparable<?>>> rows;
 
-        public void setValue(double value)
+        MockDataProvider(String expectedColumnID, List<? extends Comparable<?>>... rows)
         {
-            this.value = value;
+            this.expectedColumnID = expectedColumnID;
+            this.rows = Arrays.asList(rows);
         }
 
-        public double getValue()
+        public List<List<? extends Comparable<?>>> getRows()
         {
-            return value;
+            return rows;
+        }
+
+        public Comparable<?> getValue(String columnID, List<? extends Comparable<?>> rowValues)
+        {
+            assertEquals(expectedColumnID, columnID);
+            assertEquals(1, rowValues.size());
+            return rowValues.get(0);
+        }
+
+        public Collection<String> getAllColumnIDs()
+        {
+            return null;
+        }
+
+        public String tryToGetProperty(String columnID, String key)
+        {
+            return null;
         }
     }
-
-    Set<IColumnDefinition<Data>> availableColumns;
-
+    
     GridCustomColumn customColumn;
 
     List<GridCustomColumn> customColumns;
 
+    private ITableDataProvider dataProvider;
+
+    @SuppressWarnings("unchecked")
     @BeforeMethod
     public void setUp()
     {
-        // Define a column to use to get data for the custom columns
-        availableColumns = new LinkedHashSet<IColumnDefinition<Data>>();
-        availableColumns.add(new AbstractColumnDefinition<Data>("header", 100, true, false)
-            {
-
-                public String getIdentifier()
-                {
-                    return "VALUE";
-                }
-
-                @Override
-                protected String tryGetValue(Data entity)
-                {
-                    return Double.toString(entity.getValue());
-                }
-
-                @Override
-                public Comparable<?> tryGetComparableValue(GridRowModel<Data> rowModel)
-                {
-                    return rowModel.getOriginalObject().getValue();
-                }
-            });
-
+        dataProvider = new MockDataProvider("VALUE", Arrays.asList(42));
         // Define a custom column
         customColumn = new GridCustomColumn();
         customColumn.setCode("TEST");
@@ -104,17 +100,10 @@ public class CustomColumnUtilsTest extends AssertJUnit
     public void testCorrectExpression()
     {
         customColumn.setExpression("row.col('VALUE') + 10");
-
-        ArrayList<GridRowModel<Data>> processedList =
-                GridExpressionUtils.evalCustomColumns(createData(57, 34), customColumns,
-                        availableColumns, false);
-
-        assertEquals(2, processedList.size());
-        assertEquals(57.0, processedList.get(0).getOriginalObject().getValue());
-        assertEquals(34.0, processedList.get(1).getOriginalObject().getValue());
-
-        assertEquals(67.0, processedList.get(0).findColumnValue("TEST").getComparableValue());
-        assertEquals(44.0, processedList.get(1).findColumnValue("TEST").getComparableValue());
+        
+        List<PrimitiveValue> values = GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, false);
+        
+        assertEquals("[52]", values.toString());
 
     }
 
@@ -126,17 +115,9 @@ public class CustomColumnUtilsTest extends AssertJUnit
         // incorrect expression
         customColumn.setExpression("junk + 10");
 
-        ArrayList<GridRowModel<Data>> processedList =
-                GridExpressionUtils.evalCustomColumns(createData(57, 34), customColumns,
-                        availableColumns, false);
-
-        assertEquals(2, processedList.size());
-        assertEquals(
-                "Error. Please contact 'Jane Doe <jane.doe@nowhere.com>', who defined this column.",
-                processedList.get(0).findColumnValue("TEST").getComparableValue());
-        assertEquals(
-                "Error. Please contact 'Jane Doe <jane.doe@nowhere.com>', who defined this column.",
-                processedList.get(1).findColumnValue("TEST").getComparableValue());
+        List<PrimitiveValue> values = GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, false);
+        
+        assertEquals("[Error. Please contact 'Jane Doe <jane.doe@nowhere.com>', who defined this column.]", values.toString());
     }
 
     @Test
@@ -145,27 +126,10 @@ public class CustomColumnUtilsTest extends AssertJUnit
         // incorrect expression
         customColumn.setExpression("junk + 10");
 
-        ArrayList<GridRowModel<Data>> processedList =
-                GridExpressionUtils.evalCustomColumns(createData(57, 34), customColumns,
-                        availableColumns, true);
+        List<PrimitiveValue> values = GridExpressionUtils.evalCustomColumn(dataProvider, customColumn, true);
 
-        assertEquals(2, processedList.size());
-        assertEquals("Error: (Error evaluating 'junk + 10': NameError: junk).", processedList
-                .get(0).findColumnValue("TEST").getComparableValue());
-        assertEquals("Error: (Error evaluating 'junk + 10': NameError: junk).", processedList
-                .get(1).findColumnValue("TEST").getComparableValue());
+        assertEquals("[Error: (Error evaluating 'junk + 10': NameError: junk).]", values.toString());
     }
 
-    private List<Data> createData(double... values)
-    {
-        List<Data> list = new ArrayList<Data>();
-        for (double value : values)
-        {
-            Data data = new Data();
-            data.setValue(value);
-            list.add(data);
-        }
-        return list;
-    }
 
 }

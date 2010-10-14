@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -27,82 +26,48 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-
 /**
  * @author Franz-Josef Elmer
  */
 public class RowTest extends AssertJUnit
 {
+    private static final List<Comparable<?>> EXAMPLE_ROW = Arrays.<Comparable<?>>asList("hello", new Double(42.5));
+
+    private static final String COL1 = "col1";
+
+    private static final String COL2 = "col2";
+    
     private static final String PROPERTY_KEY = "key";
 
     private static final String PROPERTY_VALUE = "value";
 
     private static final String PROPERTY_VALUE2 = "value2";
 
-    private static final class Data
-    {
-        private final double value;
-
-        Data(double value)
-        {
-            this.value = value;
-        }
-
-        public double getValue()
-        {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            return obj == this || (obj instanceof Data && ((Data) obj).value == value);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return (int) Double.doubleToRawLongBits(value);
-        }
-
-        @Override
-        public String toString()
-        {
-            return Double.toString(value);
-        }
-
-    }
 
     private Mockery context;
 
-    private IColumnDefinition<Data> def1;
+    private Row row;
 
-    private IColumnDefinition<Data> def2;
+    private ITableDataProvider dataProvider;
 
-    private Row<Data> row;
-
-    @SuppressWarnings("unchecked")
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
-        def1 = context.mock(IColumnDefinition.class, "def1");
-        def2 = context.mock(IColumnDefinition.class, "def2");
+        dataProvider = context.mock(ITableDataProvider.class);
         context.checking(new Expectations()
+        {
             {
-                {
-                    allowing(def1).getIdentifier();
-                    will(returnValue("def1"));
+                allowing(dataProvider).getValue(COL1, EXAMPLE_ROW);
+                will(returnValue(EXAMPLE_ROW.get(0)));
 
-                    allowing(def2).getIdentifier();
-                    will(returnValue("def2"));
-                }
-            });
-        row =
-                new Row<Data>(new LinkedHashSet<IColumnDefinition<Data>>(Arrays
-                        .<IColumnDefinition<Data>> asList(def1, def2)));
+                allowing(dataProvider).getValue(COL2, EXAMPLE_ROW);
+                will(returnValue(EXAMPLE_ROW.get(1)));
+            }
+        });
+
+        row = new Row(dataProvider);
+        row.setRowData(EXAMPLE_ROW);
     }
 
     @AfterMethod
@@ -116,46 +81,10 @@ public class RowTest extends AssertJUnit
     @Test
     public void testCol()
     {
-        final GridRowModel<Data> data1 = createData();
-        final GridRowModel<Data> data2 = createData(4711.25);
-        context.checking(new Expectations()
-            {
-                {
-                    one(def1).tryGetComparableValue(data1);
-                    will(returnValue(getVal(data1)));
+        row.setRowData(EXAMPLE_ROW);
 
-                    one(def2).tryGetComparableValue(data2);
-                    will(returnValue(getVal(data2)));
-                }
-            });
-
-        row.setRowData(data1);
-
-        assertEquals(getVal(data1), ((Number) row.col("def1")).doubleValue());
-
-        row.setRowData(data2);
-
-        assertEquals(getVal(data2), ((Number) row.col("def2")).doubleValue());
-
-        context.assertIsSatisfied();
-    }
-
-    private double getVal(final GridRowModel<Data> data1)
-    {
-        return data1.getOriginalObject().getValue();
-    }
-
-    @Test
-    public void testColForUnknownID()
-    {
-        try
-        {
-            row.col("unknown");
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex)
-        {
-            assertEquals("Undefined column: unknown", ex.getMessage());
-        }
+        assertSame(EXAMPLE_ROW.get(0), row.col(COL1));
+        assertSame(EXAMPLE_ROW.get(1), row.col(COL2));
 
         context.assertIsSatisfied();
     }
@@ -171,13 +100,13 @@ public class RowTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(def2).tryToGetProperty(PROPERTY_KEY);
+                    one(dataProvider).tryToGetProperty(COL2, PROPERTY_KEY);
                     will(returnValue(PROPERTY_VALUE));
                 }
             });
 
         assertEquals(1, defs.size());
-        assertEquals("def2", defs.get(0).id());
+        assertEquals(COL2, defs.get(0).id());
         assertEquals(PROPERTY_VALUE, defs.get(0).property(PROPERTY_KEY));
         assertUnmodifiable(defs);
 
@@ -187,6 +116,8 @@ public class RowTest extends AssertJUnit
     @Test
     public void testColDefsWithNullArgument()
     {
+        prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE2, 0);
+        
         List<ColumnDefinition> defs = row.colDefs(null);
 
         assertEquals(2, defs.size());
@@ -198,45 +129,29 @@ public class RowTest extends AssertJUnit
     @Test
     public void testCols()
     {
-        final GridRowModel<Data> data = createData();
         prepareColDefs(null, PROPERTY_VALUE);
         context.checking(new Expectations()
             {
                 {
-                    one(def2).tryToGetProperty(PROPERTY_KEY);
+                    one(dataProvider).tryToGetProperty(COL2, PROPERTY_KEY);
                     will(returnValue(PROPERTY_VALUE));
-
-                    one(def2).tryGetComparableValue(data);
-                    will(returnValue(getVal(data)));
                 }
             });
-        row.setRowData(data);
+        row.setRowData(EXAMPLE_ROW);
 
         List<Object> values = row.cols(PROPERTY_KEY, PROPERTY_VALUE);
 
         assertEquals(1, values.size());
-        assertEquals(42.25, ((Double) values.get(0)).doubleValue());
+        assertSame(EXAMPLE_ROW.get(1), values.get(0));
         assertUnmodifiable(values);
 
         context.assertIsSatisfied();
-    }
-
-    private GridRowModel<Data> createData()
-    {
-        return createData(42.25);
-    }
-
-    private GridRowModel<Data> createData(double value)
-    {
-        Data originalObject = new Data(value);
-        return GridRowModel.createWithoutCustomColumns(originalObject);
     }
 
     @Test
     public void testColsNoMatchingPropertyKey()
     {
         prepareColDefs(null, null);
-        row.setRowData(createData());
 
         List<Object> values = row.cols(PROPERTY_KEY, "unknown");
 
@@ -253,11 +168,10 @@ public class RowTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(def2).tryToGetProperty(PROPERTY_KEY);
+                    one(dataProvider).tryToGetProperty(COL2, PROPERTY_KEY);
                     will(returnValue(PROPERTY_VALUE));
                 }
             });
-        row.setRowData(createData());
 
         List<Object> values = row.cols(PROPERTY_KEY, "unknown");
 
@@ -283,28 +197,15 @@ public class RowTest extends AssertJUnit
     @Test
     public void testColsGroupedByWithOneGroup()
     {
-        prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE);
-        prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE);
-        final GridRowModel<Data> data = createData();
-        context.checking(new Expectations()
-            {
-                {
-                    one(def1).tryGetComparableValue(data);
-                    will(returnValue(getVal(data)));
-
-                    one(def2).tryGetComparableValue(data);
-                    will(returnValue(2 * getVal(data)));
-                }
-            });
-
-        row.setRowData(data);
+        prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE, 2);
+        
         List<ColumnGroup> groups = row.colsGroupedBy(PROPERTY_KEY);
 
         assertEquals(1, groups.size());
         assertEquals(PROPERTY_VALUE, groups.get(0).propertyValue());
         assertEquals(2, groups.get(0).values().size());
-        assertEquals(new Double(getVal(data)), groups.get(0).values().get(0));
-        assertEquals(new Double(2 * getVal(data)), groups.get(0).values().get(1));
+        assertEquals(EXAMPLE_ROW.get(0), groups.get(0).values().get(0));
+        assertEquals(EXAMPLE_ROW.get(1), groups.get(0).values().get(1));
         assertUnmodifiable(groups);
 
         context.assertIsSatisfied();
@@ -313,30 +214,17 @@ public class RowTest extends AssertJUnit
     @Test
     public void testColsGroupedByWithTwoGroups()
     {
-        prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE2);
-        prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE2);
-        final GridRowModel<Data> data = createData();
-        context.checking(new Expectations()
-            {
-                {
-                    one(def1).tryGetComparableValue(data);
-                    will(returnValue(getVal(data)));
+        prepareColDefs(PROPERTY_VALUE, PROPERTY_VALUE2, 2);
 
-                    one(def2).tryGetComparableValue(data);
-                    will(returnValue(2 * getVal(data)));
-                }
-            });
-
-        row.setRowData(data);
         List<ColumnGroup> groups = row.colsGroupedBy(PROPERTY_KEY);
 
         assertEquals(2, groups.size());
         assertEquals(PROPERTY_VALUE, groups.get(0).propertyValue());
         assertEquals(1, groups.get(0).values().size());
-        assertEquals(new Double(getVal(data)), groups.get(0).values().get(0));
+        assertEquals(EXAMPLE_ROW.get(0), groups.get(0).values().get(0));
         assertEquals(PROPERTY_VALUE2, groups.get(1).propertyValue());
         assertEquals(1, groups.get(1).values().size());
-        assertEquals(new Double(2 * getVal(data)), groups.get(1).values().get(0));
+        assertEquals(EXAMPLE_ROW.get(1), groups.get(1).values().get(0));
         assertUnmodifiable(groups);
 
         context.assertIsSatisfied();
@@ -345,13 +233,22 @@ public class RowTest extends AssertJUnit
     private void prepareColDefs(final String propertyValueOfFirstDefinition,
             final String propertyValueOfSecondDefinition)
     {
+        prepareColDefs(propertyValueOfFirstDefinition, propertyValueOfSecondDefinition, 1);
+    }
+    
+    private void prepareColDefs(final String propertyValueOfFirstDefinition,
+            final String propertyValueOfSecondDefinition, final int numberOfTryToGetPropertyInvocations)
+    {
         context.checking(new Expectations()
             {
                 {
-                    one(def1).tryToGetProperty(PROPERTY_KEY);
+                    one(dataProvider).getAllColumnIDs();
+                    will(returnValue(Arrays.asList(COL1, COL2)));
+                    
+                    exactly(numberOfTryToGetPropertyInvocations).of(dataProvider).tryToGetProperty(COL1, PROPERTY_KEY);
                     will(returnValue(propertyValueOfFirstDefinition));
-
-                    one(def2).tryToGetProperty(PROPERTY_KEY);
+                    
+                    exactly(numberOfTryToGetPropertyInvocations).of(dataProvider).tryToGetProperty(COL2, PROPERTY_KEY);
                     will(returnValue(propertyValueOfSecondDefinition));
                 }
             });

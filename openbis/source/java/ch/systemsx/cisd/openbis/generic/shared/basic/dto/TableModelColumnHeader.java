@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -40,6 +42,8 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 
     // if column values contain permIds of certain entities entity kind is stored here
     private EntityKind entityKindOrNull;
+    
+    private Map<String, String> properties;
 
     private int defaultColumnWidth = 150;
 
@@ -118,6 +122,20 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     public void setEntityKind(EntityKind entityKind)
     {
         this.entityKindOrNull = entityKind;
+    }
+    
+    public void setProperty(String key, String value)
+    {
+        if (properties == null)
+        {
+            properties = new HashMap<String, String>();
+        }
+        properties.put(key, value);
+    }
+    
+    public String tryToGetProperty(String key)
+    {
+        return properties == null ? null : properties.get(key);
     }
 
     @Override

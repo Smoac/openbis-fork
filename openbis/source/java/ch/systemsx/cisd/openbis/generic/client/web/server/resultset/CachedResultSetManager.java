@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConf
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig.ResultSetFetchMode;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.IColumnCalculator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -423,8 +424,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                         GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
                         boolean errorMessagesAreLong)
                 {
-                    return GridExpressionUtils.evalCustomColumn(data, customColumn,
-                            availableColumns, errorMessagesAreLong);
+                    return GridExpressionUtils.evalCustomColumn(
+                            TableDataProviderFactory.createDataProvider(data, availableColumns),
+                            customColumn, errorMessagesAreLong);
                 }
             });
     }
@@ -495,8 +497,13 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         if (customFilterInfo != null)
         {
             long time = System.currentTimeMillis();
-            filteredRows =
-                    GridExpressionUtils.applyCustomFilter(rows, availableColumns, customFilterInfo);
+            ITableDataProvider dataProvider = TableDataProviderFactory.createDataProvider(rows, availableColumns);
+            List<Integer> indices = GridExpressionUtils.applyCustomFilter(dataProvider, customFilterInfo);
+            filteredRows = new ArrayList<GridRowModel<T>>();
+            for (Integer index : indices)
+            {
+                filteredRows.add(rows.get(index));
+            }
             operationLog.info((System.currentTimeMillis() - time) + "ms for filtering "
                     + rows.size() + " rows with custom filter '" + customFilterInfo.getName()
                     + "'.");

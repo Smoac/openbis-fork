@@ -17,16 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 
 /**
@@ -36,28 +35,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
  * 
  * @author Franz-Josef Elmer
  */
-final class Row<T>
+final class Row
 {
-
-    private final Map<String, IColumnDefinition<T>> definitionsByID =
-            new LinkedHashMap<String, IColumnDefinition<T>>();
-
     private final Map<String, List<ColumnDefinition>> definitionsByProperties =
-            new HashMap<String, List<ColumnDefinition>>();
+        new HashMap<String, List<ColumnDefinition>>();
+    private final ITableDataProvider provider;
+    
+    private List<? extends Comparable<?>> rowValues;
 
-    private GridRowModel<T> row;
-
-    Row(Set<IColumnDefinition<T>> availableColumns)
+    Row(ITableDataProvider provider)
     {
-        for (IColumnDefinition<T> columnDefinition : availableColumns)
-        {
-            definitionsByID.put(columnDefinition.getIdentifier(), columnDefinition);
-        }
+        this.provider = provider;
     }
 
-    void setRowData(GridRowModel<T> row)
+    void setRowData(List<? extends Comparable<?>> rowValues)
     {
-        this.row = row;
+        this.rowValues = rowValues;
     }
 
     /**
@@ -67,13 +60,7 @@ final class Row<T>
      */
     public Object col(String columnID)
     {
-        IColumnDefinition<T> columnDefinition = definitionsByID.get(columnID);
-        if (columnDefinition == null)
-        {
-            throw new IllegalArgumentException("Undefined column: " + columnID);
-        }
-
-        Comparable<?> value = columnDefinition.tryGetComparableValue(row);
+        Comparable<?> value = provider.getValue(columnID, rowValues);
         if (value instanceof ISerializableComparable)
         {
             return ComparableCellValueHelper.unwrap((ISerializableComparable) value);
@@ -96,14 +83,13 @@ final class Row<T>
         if (definitions == null)
         {
             definitions = new ArrayList<ColumnDefinition>();
-            Set<Entry<String, IColumnDefinition<T>>> entries = definitionsByID.entrySet();
-            for (Entry<String, IColumnDefinition<T>> entry : entries)
+            Collection<String> columnIDs = provider.getAllColumnIDs();
+            for (String columnID : columnIDs)
             {
-                IColumnDefinition<T> columnDefinition = entry.getValue();
                 if (propertyKeyOrNull == null
-                        || columnDefinition.tryToGetProperty(propertyKeyOrNull) != null)
+                        || provider.tryToGetProperty(columnID, propertyKeyOrNull) != null)
                 {
-                    definitions.add(new ColumnDefinition(columnDefinition));
+                    definitions.add(new ColumnDefinition(columnID, provider));
                 }
             }
             definitionsByProperties.put(propertyKeyOrNull, definitions);
