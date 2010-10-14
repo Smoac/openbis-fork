@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.modu
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,14 +32,17 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IParameterField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IParameterValuesLoader;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
@@ -165,7 +169,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
         layout();
     }
 
-    private void createAndAddQueryParameterFields(QueryExpression query)
+    private void createAndAddQueryParameterFields(final QueryExpression query)
     {
         parameterContainer.hide();
         IDelegatedAction updateExecuteButtonAction = new IDelegatedAction()
@@ -183,8 +187,20 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
                 addInitialBinding(parameter, initialValueOrNull.getValue());
             } else
             {
-                addParameterField(ParameterField.create(parameter, updateExecuteButtonAction,
-                        initialValueOrNull == null ? null : initialValueOrNull.getValue()));
+                addParameterField(ParameterField.create(viewContext, parameter,
+                        updateExecuteButtonAction, initialValueOrNull == null ? null
+                                : initialValueOrNull.getValue(), new IParameterValuesLoader()
+                            {
+
+                                public void loadData(
+                                        String queryExpression,
+                                        AbstractAsyncCallback<List<ParameterValue>> listParameterValuesCallback)
+                                {
+                                    viewContext.getService().listParameterValues(
+                                            query.getQueryDatabase(), queryExpression,
+                                            listParameterValuesCallback);
+                                }
+                            }));
             }
         }
     }

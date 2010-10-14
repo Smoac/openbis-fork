@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.server;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.annotation.Resource;
 
@@ -35,8 +38,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
@@ -115,6 +120,30 @@ public class QueryClientService extends AbstractClientService implements IQueryC
             final TableModel tableModel =
                     queryServer.queryDatabase(sessionToken, database, sqlQuery, bindingsOrNull);
             return createTableModelReference(tableModel);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public List<ParameterValue> listParameterValues(QueryDatabase database, String sqlQuery)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final TableModel tableModel =
+                    queryServer.queryDatabase(sessionToken, database, sqlQuery, null);
+            // TreeSet is used because we want distinct values and we want them to be sorted
+            Set<ParameterValue> valuesSet = new TreeSet<ParameterValue>();
+            boolean withDescription = tableModel.getHeader().size() > 1;
+            for (TableModelRow row : tableModel.getRows())
+            {
+                final String value = row.getValues().get(0).toString();
+                final String description =
+                        withDescription ? row.getValues().get(1).toString() : null;
+                valuesSet.add(new ParameterValue(value, description));
+            }
+            return new ArrayList<ParameterValue>(valuesSet);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

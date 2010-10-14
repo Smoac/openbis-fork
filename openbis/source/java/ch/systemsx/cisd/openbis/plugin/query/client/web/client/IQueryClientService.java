@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
@@ -59,6 +60,10 @@ public interface IQueryClientService extends IClientService
     /** Returns results of the specified SQL query. */
     public TableModelReference createQueryResultsReport(QueryDatabase queryDatabase,
             String sqlQuery, QueryParameterBindings bindingsOrNull) throws UserFailureException;
+
+    /** Returns a list of {@link ParameterValue}s from the specified SQL query. */
+    public List<ParameterValue> listParameterValues(QueryDatabase queryDatabase, String sqlQuery)
+            throws UserFailureException;
 
     /** Returns a list of all the canned custom queries created so far. */
     public List<QueryExpression> listQueries(QueryType queryType, BasicEntityType entityTypeOrNull)

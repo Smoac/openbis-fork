@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.IQueryUpdates;
 import ch.systemsx.cisd.openbis.plugin.query.shared.basic.dto.NewQuery;
@@ -57,6 +58,12 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
      */
     public void createQueryResultsReport(QueryDatabase queryDatabase, String sqlQuery,
             QueryParameterBindings bindingsOrNull, AsyncCallback<TableModelReference> callback);
+
+    /**
+     * @see IQueryClientService#listParameterValues(QueryDatabase, String)
+     */
+    public void listParameterValues(QueryDatabase queryDatabase, String sqlQuery,
+            AsyncCallback<List<ParameterValue>> listParameterValuesCallback);
 
     /** @see IQueryClientService#listQueries(IResultSetConfig) */
     public void listQueries(IResultSetConfig<String, QueryExpression> resultSetConfig,

@@ -256,7 +256,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         for (String parameter : filter.getParameters())
         {
             IParameterField parameterField =
-                    ParameterField.create(parameter, updateApplyButtonAction, null);
+                    ParameterField.create(null, parameter, updateApplyButtonAction, null, null);
             parameterFields.add(parameterField);
             filterWidgets.add(parameterField.asWidget());
         }
