@@ -43,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.IColumnCalculator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRendererTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridCustomColumnValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -255,12 +253,12 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         ArrayList<ColumnDistinctValues> columnDistinctValues =
                 new ArrayList<ColumnDistinctValues>();
         GridRowModels<T> rowModels =
-                new GridRowModels<T>(TSVRendererTest.asRowModel(entities), null,
+                new GridRowModels<T>(CachedResultSetManagerTest.asRowModel(entities), null,
                         customColumnsMetadata, columnDistinctValues);
         return rowModels;
     }
 
-    private static final class ColumnCalculatorProxy implements IColumnCalculator
+    private static final class ColumnCalculatorProxy implements CachedResultSetManager.IColumnCalculator
     {
         private List<String> recordedColumnCodes = new ArrayList<String>();
 
@@ -270,8 +268,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         {
             recordedColumnCodes.add(customColumn.getCode());
             return GridExpressionUtils.evalCustomColumn(
-                    TableDataProviderFactory.createDataProvider(data, availableColumns),
-                    customColumn, errorMessagesAreLong);
+                    TableDataProviderFactory.createDataProvider(data,
+                            new ArrayList<IColumnDefinition<T>>(availableColumns)), customColumn,
+                    errorMessagesAreLong);
         }
 
         @Override
@@ -937,6 +936,16 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         ResultSetConfigBuilder builder =
                 new ResultSetConfigBuilder(COL_DEFS).displayID(GRID_DISPLAY_ID);
         return resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+    }
+
+    public static <T> List<GridRowModel<T>> asRowModel(List<T> entities)
+    {
+        List<GridRowModel<T>> list = new ArrayList<GridRowModel<T>>();
+        for (T entity : entities)
+        {
+            list.add(GridRowModel.createWithoutCustomColumns(entity));
+        }
+        return list;
     }
 
     @SuppressWarnings("unchecked")

@@ -20,8 +20,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 
 /**
  * Creates list of lines with tab separated columns;
@@ -35,24 +34,22 @@ public class TSVRenderer
     private final String lineSeparator;
 
     /**
-     * @param entities list of entities which will be exported
-     * @param list column definitions. Each definition know column's header and is able to extract
-     *            an appropriate value from the entity.
+     * @param dataProvider Provider of headers and values
      * @param lineSeparator character used as a lineSeparator separator
      */
-    public static <T> String createTable(List<GridRowModel<T>> entities,
-            List<IColumnDefinition<T>> list, String lineSeparator)
+    public static String createTable(ITableDataProvider dataProvider, String lineSeparator)
     {
-        return new TSVRenderer(lineSeparator).createTable(entities, list);
+        return new TSVRenderer(lineSeparator).createTable(dataProvider);
     }
 
-    private <T> String createTable(List<GridRowModel<T>> entities, List<IColumnDefinition<T>> list)
+    private String createTable(ITableDataProvider dataProvider)
     {
         StringBuffer sb = new StringBuffer();
-        appendHeader(list, sb);
-        for (GridRowModel<T> entity : entities)
+        appendHeader(dataProvider.getAllColumnTitles(), sb);
+        List<List<? extends Comparable<?>>> rows = dataProvider.getRows();
+        for (List<? extends Comparable<?>> row : rows)
         {
-            appendEntity(entity, list, sb);
+            appendEntity(row, sb);
         }
         return sb.toString();
     }
@@ -62,11 +59,10 @@ public class TSVRenderer
         this.lineSeparator = lineSeparator;
     }
 
-    private <T> void appendEntity(GridRowModel<T> entity, List<IColumnDefinition<T>> list,
-            StringBuffer sb)
+    private void appendEntity(List<? extends Comparable<?>> row, StringBuffer sb)
     {
         boolean isFirst = true;
-        for (IColumnDefinition<T> column : list)
+        for (Comparable<?> value : row)
         {
             if (isFirst == false)
             {
@@ -75,7 +71,6 @@ public class TSVRenderer
             {
                 isFirst = false;
             }
-            Comparable<?> value = column.tryGetComparableValue(entity);
             sb.append(cleanWhitespaces(value == null ? "" : value.toString()));
         }
         sb.append(lineSeparator);
@@ -92,10 +87,10 @@ public class TSVRenderer
         return result;
     }
 
-    private <T> void appendHeader(List<IColumnDefinition<T>> columnDefs, StringBuffer sb)
+    private void appendHeader(List<String> headers, StringBuffer sb)
     {
         boolean isFirst = true;
-        for (IColumnDefinition<T> column : columnDefs)
+        for (String header : headers)
         {
             if (isFirst == false)
             {
@@ -104,7 +99,7 @@ public class TSVRenderer
             {
                 isFirst = false;
             }
-            sb.append(column.getHeader());
+            sb.append(header);
         }
         sb.append(lineSeparator);
     }

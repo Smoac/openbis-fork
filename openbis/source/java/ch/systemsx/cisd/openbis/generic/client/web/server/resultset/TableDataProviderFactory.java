@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
@@ -35,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
  *
  * @author Franz-Josef Elmer
  */
-class TableDataProviderFactory
+public class TableDataProviderFactory
 {
     private static final class TableDataProviderForTableModel<T> implements ITableDataProvider
     {
@@ -92,15 +91,25 @@ class TableDataProviderFactory
             }
             return result;
         }
+
+        public List<String> getAllColumnTitles()
+        {
+            List<String> result = new ArrayList<String>();
+            for (TableModelColumnHeader header : columnHeaders)
+            {
+                result.add(header.getTitle());
+            }
+            return result;
+        }
     }
     
     private abstract static class AbstractTableDataProvider<T> implements ITableDataProvider
     {
-        protected final Set<IColumnDefinition<T>> availableColumns;
+        protected final List<IColumnDefinition<T>> availableColumns;
         
         protected Map<String, Integer> indexMap;
 
-        public AbstractTableDataProvider(Set<IColumnDefinition<T>> availableColumns)
+        public AbstractTableDataProvider(List<IColumnDefinition<T>> availableColumns)
         {
             this.availableColumns = availableColumns;
         }
@@ -126,6 +135,17 @@ class TableDataProviderFactory
             for (IColumnDefinition<T> columnDefinition : availableColumns)
             {
                 result.add(columnDefinition.getIdentifier());
+            }
+            return result;
+        }
+        
+
+        public List<String> getAllColumnTitles()
+        {
+            List<String> result = new ArrayList<String>();
+            for (IColumnDefinition<T> columnDefinition : availableColumns)
+            {
+                result.add(columnDefinition.getHeader());
             }
             return result;
         }
@@ -157,7 +177,7 @@ class TableDataProviderFactory
     {
         private final GridRowModels<T> rows;
 
-        private TableDataProviderForGridRowModles(Set<IColumnDefinition<T>> availableColumns,
+        private TableDataProviderForGridRowModles(List<IColumnDefinition<T>> availableColumns,
                 GridRowModels<T> rows)
         {
             super(availableColumns);
@@ -205,7 +225,7 @@ class TableDataProviderFactory
     {
         private final List<T> rows;
 
-        private TableDataProviderForListOfRows(Set<IColumnDefinition<T>> availableColumns,
+        private TableDataProviderForListOfRows(List<IColumnDefinition<T>> availableColumns,
                 List<T> rows)
         {
             super(availableColumns);
@@ -241,13 +261,13 @@ class TableDataProviderFactory
     }
 
     static <T> ITableDataProvider createDataProvider(final List<T> rows,
-            final Set<IColumnDefinition<T>> availableColumns)
+            final List<IColumnDefinition<T>> availableColumns)
     {
         return new TableDataProviderForListOfRows<T>(availableColumns, rows);
     }
     
-    static <T> ITableDataProvider createDataProvider(final GridRowModels<T> rows,
-            final Set<IColumnDefinition<T>> availableColumns)
+    public static <T> ITableDataProvider createDataProvider(final GridRowModels<T> rows,
+            final List<IColumnDefinition<T>> availableColumns)
     {
         final List<TableModelColumnHeader> columnHeaders = rows.getColumnHeaders();
 //        if (columnHeaders.isEmpty())

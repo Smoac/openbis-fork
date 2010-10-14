@@ -17,94 +17,94 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
-
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 
 /**
  * Tests of {@link TSVRenderer}
  * 
  * @author Tomasz Pylak
  */
-public class TSVRendererTest
+public class TSVRendererTest extends AssertJUnit
 {
+    private Mockery context;
+
+    private ITableDataProvider dataProvider;
+
+    @BeforeMethod
+    public void setUp()
+    {
+        context = new Mockery();
+        dataProvider = context.mock(ITableDataProvider.class);
+    }
+
+    @AfterMethod
+    public void tearDown()
+    {
+        // To following line of code should also be called at the end of each test method.
+        // Otherwise one does not known which test failed.
+        context.assertIsSatisfied();
+    }
+
     @Test
     public void testRenderer()
     {
-        List<IColumnDefinition<String[]>> columnDefs = createColumnDefs(2);
-        List<String[]> entities = new ArrayList<String[]>();
-        entities.add(new String[]
-            { "x", "y" });
-        entities.add(new String[]
-            { "a", "b" });
-        String content = TSVRenderer.createTable(asRowModel(entities), columnDefs, "#");
-        Assert.assertEquals("h0\th1#x\ty#a\tb#", content);
+        prepareGetAllColumnTitles("h0", "h1");
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataProvider).getRows();
+                    List<List<String>> entities = new ArrayList<List<String>>();
+                    entities.add(Arrays.asList("x", "y"));
+                    entities.add(Arrays.asList("a", "b"));
+                    will(returnValue(entities));
+                }
+            });
+        
+        String content = TSVRenderer.createTable(dataProvider, "#");
+        
+        assertEquals("h0\th1#x\ty#a\tb#", content);
+        context.assertIsSatisfied();
     }
-
-    public static <T> List<GridRowModel<T>> asRowModel(List<T> entities)
-    {
-        List<GridRowModel<T>> list = new ArrayList<GridRowModel<T>>();
-        for (T entity : entities)
-        {
-            list.add(GridRowModel.createWithoutCustomColumns(entity));
-        }
-        return list;
-    }
-
-    private static List<IColumnDefinition<String[]>> createColumnDefs(int colNum)
-    {
-        List<IColumnDefinition<String[]>> columnDefs = new ArrayList<IColumnDefinition<String[]>>();
-        for (int i = 0; i < colNum; i++)
-        {
-            columnDefs.add(createColDef(i));
-        }
-        return columnDefs;
-    }
-
+    
     @Test
     public void testRendererNoRows()
     {
-        List<IColumnDefinition<String[]>> columnDefs = createColumnDefs(2);
-        List<String[]> entities = new ArrayList<String[]>();
-        String content = TSVRenderer.createTable(asRowModel(entities), columnDefs, "\n");
-        Assert.assertEquals("h0\th1\n", content);
-    }
-
-    private static IColumnDefinition<String[]> createColDef(final int colIx)
-    {
-        return new IColumnDefinition<String[]>()
+        prepareGetAllColumnTitles("h0", "h1");
+        context.checking(new Expectations()
             {
-
-                public String getHeader()
                 {
-                    return "h" + colIx;
+                    one(dataProvider).getRows();
+                    List<List<String>> entities = new ArrayList<List<String>>();
+                    will(returnValue(entities));
                 }
-
-                public String getIdentifier()
-                {
-                    return null;
-                }
-
-                public String getValue(GridRowModel<String[]> rowModel)
-                {
-                    return rowModel.getOriginalObject()[colIx];
-                }
-
-                public Comparable<?> tryGetComparableValue(GridRowModel<String[]> rowModel)
-                {
-                    return getValue(rowModel);
-                }
-
-                public String tryToGetProperty(String key)
-                {
-                    return null;
-                }
-
-            };
+            });
+        
+        String content = TSVRenderer.createTable(dataProvider, "\n");
+        
+        assertEquals("h0\th1\n", content);
+        context.assertIsSatisfied();
     }
+
+    private void prepareGetAllColumnTitles(final String... titles)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(dataProvider).getAllColumnTitles();
+                will(returnValue(Arrays.asList(titles)));
+            }
+        });
+        
+    }
+
 }

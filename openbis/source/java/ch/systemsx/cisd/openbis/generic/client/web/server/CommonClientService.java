@@ -62,9 +62,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -228,10 +230,12 @@ public final class CommonClientService extends AbstractClientService implements
             getSessionToken();
             final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
             final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
-            return TSVRenderer.createTable(entities, exportCriteria.getColumnDefs(), lineSeparator);
+            ITableDataProvider dataProvider =
+                    TableDataProviderFactory.createDataProvider(entities, exportCriteria.getColumnDefs());
+            return TSVRenderer.createTable(dataProvider, lineSeparator);
         } catch (final UserFailureException e)
         {
-            throw UserFailureExceptionTranslator.translate(e);
+   throw UserFailureExceptionTranslator.translate(e);
         }
     }
 

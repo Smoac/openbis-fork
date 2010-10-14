@@ -61,6 +61,12 @@ public class RowCalculatorTest extends AssertJUnit
             return null;
         }
 
+        public List<String> getAllColumnTitles()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
         public String tryToGetProperty(String columnID, String key)
         {
             return null;

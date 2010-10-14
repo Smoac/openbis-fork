@@ -64,6 +64,11 @@ public class CustomColumnUtilsTest extends AssertJUnit
             return null;
         }
 
+        public List<String> getAllColumnTitles()
+        {
+            return null;
+        }
+
         public String tryToGetProperty(String columnID, String key)
         {
             return null;

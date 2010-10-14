@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig.ResultSetFetchMode;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.IColumnCalculator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -86,6 +85,19 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return value == null ? "" : value.toString();
     }
 
+    static interface IColumnCalculator
+    {
+        /**
+         * Calculates the values of the specified custom column definition by using specified data and
+         * specified column definitions. In case of an error the column value is an error message.
+         * 
+         * @param errorMessagesAreLong if <code>true</code> a long error message will be created.
+         */
+        public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
+                GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
+                boolean errorMessagesAreLong);   
+    }
+    
     private static final class Column
     {
         private final GridCustomColumn columnDefinition;
@@ -424,9 +436,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                         GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
                         boolean errorMessagesAreLong)
                 {
-                    return GridExpressionUtils.evalCustomColumn(
-                            TableDataProviderFactory.createDataProvider(data, availableColumns),
-                            customColumn, errorMessagesAreLong);
+                    return GridExpressionUtils.evalCustomColumn(TableDataProviderFactory
+                            .createDataProvider(data, new ArrayList<IColumnDefinition<T>>(
+                                    availableColumns)), customColumn, errorMessagesAreLong);
                 }
             });
     }
@@ -497,7 +509,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         if (customFilterInfo != null)
         {
             long time = System.currentTimeMillis();
-            ITableDataProvider dataProvider = TableDataProviderFactory.createDataProvider(rows, availableColumns);
+            ITableDataProvider dataProvider =
+                    TableDataProviderFactory.createDataProvider(rows,
+                            new ArrayList<IColumnDefinition<T>>(availableColumns));
             List<Integer> indices = GridExpressionUtils.applyCustomFilter(dataProvider, customFilterInfo);
             filteredRows = new ArrayList<GridRowModel<T>>();
             for (Integer index : indices)

@@ -45,6 +45,12 @@ public interface ITableDataProvider
     public Collection<String> getAllColumnIDs();
     
     /**
+     * Returns a list of column titles. The order is the same as the order of row values returned
+     * by {@link #getRows()}.
+     */
+    public List<String> getAllColumnTitles();
+    
+    /**
      * Returns the property of specified key for specified column.
      */
     public String tryToGetProperty(String columnID, String key);
