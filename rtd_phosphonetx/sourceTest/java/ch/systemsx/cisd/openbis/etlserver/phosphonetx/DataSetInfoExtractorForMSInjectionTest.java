@@ -321,7 +321,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         dataSetProperties.setProperty("CENTROID", "true");
         dataSetProperties.setProperty("BLABLA", "blub");
         save(dataSetProperties, DATA_SET_PROPERTIES_FILE);
-        prepareGetExperimentAndGetSampleType(false);
+        prepareGetExperimentAndGetSampleType(false, createPropertyType(SAMPLE_PROPERTY, true));
         prepareUpdateSample("Isaac");
         prepareGetDataSetType("RAW_DATA", createDataSetPropertyType("CENTROID", false));
 
