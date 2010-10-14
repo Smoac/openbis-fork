@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnIn
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.IColumnCalculator;
@@ -52,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
@@ -255,8 +255,8 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         ArrayList<ColumnDistinctValues> columnDistinctValues =
                 new ArrayList<ColumnDistinctValues>();
         GridRowModels<T> rowModels =
-                new GridRowModels<T>(TSVRendererTest.asRowModel(entities), null, customColumnsMetadata,
-                        columnDistinctValues);
+                new GridRowModels<T>(TSVRendererTest.asRowModel(entities), null,
+                        customColumnsMetadata, columnDistinctValues);
         return rowModels;
     }
 
@@ -412,7 +412,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Arrays.asList()));
-                    
+
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
                 }
@@ -593,14 +593,15 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     @Test
     public void testCustomColumnWithExpressionBasedOnColumnProperties()
     {
-        final GridCustomColumn c1 = customColumn("$c1", "toInt(row.colDefs('a')[0].property('a'))/6");
+        final GridCustomColumn c1 =
+                customColumn("$c1", "toInt(row.colDefs('a')[0].property('a'))/6");
         prepareDataAndCustomColumnDefinitions(3, c1);
         ResultSetConfigBuilder builder = new ResultSetConfigBuilder(COL_DEFS);
         builder.displayID(GRID_DISPLAY_ID).visibleColumns("$c1");
-        
+
         IResultSet<Long, String> resultSet =
-            resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
-        
+                resultSetManager.getResultSet(SESSION_TOKEN, builder.get(), originalDataProvider);
+
         GridRowModels<String> list = resultSet.getList();
         assertEquals(3, list.size());
         assertEquals("0-a0 7", render(list.get(0)));
@@ -608,10 +609,10 @@ public final class CachedResultSetManagerTest extends AssertJUnit
         assertEquals("2-a0 7", render(list.get(2)));
         assertEquals(DataTypeCode.INTEGER, list.getCustomColumnsMetadata().get(0).getDataType());
         assertEquals("[$c1]", columnCalculator.toString());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSortCustomColumn()
     {
@@ -808,7 +809,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(data));
-                    
+
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
                 }
@@ -839,7 +840,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Arrays.asList("alpha", "beta")));
-                    
+
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
                 }
@@ -864,7 +865,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
 
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Arrays.asList("a", "b")));
-                    
+
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
                 }
@@ -898,7 +899,7 @@ public final class CachedResultSetManagerTest extends AssertJUnit
                         rows[i] = i + "-a" + i % 2;
                     }
                     will(returnValue(Arrays.asList(rows)));
-                    
+
                     one(originalDataProvider).getHeaders();
                     will(returnValue(Arrays.asList()));
 

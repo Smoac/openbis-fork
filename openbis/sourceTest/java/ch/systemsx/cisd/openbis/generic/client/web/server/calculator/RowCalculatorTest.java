@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * @author Franz-Josef Elmer

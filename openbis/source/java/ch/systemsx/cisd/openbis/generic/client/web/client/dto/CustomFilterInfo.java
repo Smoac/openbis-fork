@@ -20,6 +20,8 @@ import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
+
 /**
  * Stores information about selected custom filter.
  * 
@@ -28,7 +30,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class CustomFilterInfo<T> implements IsSerializable
 {
     private String name;
-    
+
     private String expression;
 
     private Set<ParameterWithValue> parameters;

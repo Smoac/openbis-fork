@@ -26,5 +26,12 @@ import com.google.gwt.user.client.Command;
  */
 public interface IDelegatedAction extends Command
 {
+    public static IDelegatedAction DO_NOTHING = new IDelegatedAction()
+        {
+            public void execute()
+            {
+            }
+        };
+
     void execute();
 }

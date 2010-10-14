@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -49,6 +50,11 @@ public class QueryParameterBindings implements IsSerializable, Serializable
     public void addBinding(String parameter, String value)
     {
         bindings.put(parameter, value);
+    }
+
+    public void addBinding(ParameterWithValue parameterWithValue)
+    {
+        bindings.put(parameterWithValue.getParameter(), parameterWithValue.getValue());
     }
 
     public String tryGetParameterValue(String parameter)

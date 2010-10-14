@@ -24,8 +24,8 @@ import java.util.Set;
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * @author Franz-Josef Elmer

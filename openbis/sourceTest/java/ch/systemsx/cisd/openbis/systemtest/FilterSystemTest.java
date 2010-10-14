@@ -29,11 +29,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * @author Franz-Josef Elmer
@@ -57,8 +57,8 @@ public class FilterSystemTest extends SystemTestCase
         assertEquals(1, filters.size());
         assertEquals(filter.getName(), filters.get(0).getName());
         assertEquals(filter.getDescription(), filters.get(0).getDescription());
-        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0)
-                .getExpression()));
+        assertEquals(filter.getExpression(),
+                StringEscapeUtils.unescapeHtml(filters.get(0).getExpression()));
         assertEquals(filter.isPublic(), filters.get(0).isPublic());
         assertEquals("[threshold]", filters.get(0).getParameters().toString());
 
@@ -84,8 +84,8 @@ public class FilterSystemTest extends SystemTestCase
         assertEquals(1, filters.size());
         assertEquals(filter.getName(), filters.get(0).getName());
         assertEquals(filter.getDescription(), filters.get(0).getDescription());
-        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0)
-                .getExpression()));
+        assertEquals(filter.getExpression(),
+                StringEscapeUtils.unescapeHtml(filters.get(0).getExpression()));
         assertEquals(filter.isPublic(), filters.get(0).isPublic());
         List<String> parameters = new ArrayList<String>(filters.get(0).getParameters());
         Collections.sort(parameters);

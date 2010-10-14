@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog.createTextField;
-
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -52,6 +49,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IParameterField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IParameterValuesLoader;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.ReportGeneratedCallback;
@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.QueryType;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
@@ -105,12 +106,13 @@ public class QueryEditor extends Dialog
 
     private static final class BindingsDialog extends Dialog
     {
-        private final Map<String, TextField<String>> parameterFields;
+        private final List<IParameterField> parameterFields;
 
         private final QueryExecutor queryExecutor;
 
-        public BindingsDialog(IViewContext<IQueryClientServiceAsync> viewContext,
-                List<String> parameters, QueryExecutor queryExecutor)
+        public BindingsDialog(final IViewContext<IQueryClientServiceAsync> viewContext,
+                final List<String> parameters, final QueryDatabase queryDatabase,
+                final QueryExecutor queryExecutor)
         {
             this.queryExecutor = queryExecutor;
             setHeading(viewContext.getMessage(Dict.QUERY_PARAMETERS_BINDINGS_DIALOG_TITLE));
@@ -125,13 +127,25 @@ public class QueryEditor extends Dialog
             form.setLabelWidth(150);
             form.setFieldWidth(250);
 
-            parameterFields = new HashMap<String, TextField<String>>();
+            parameterFields = new ArrayList<IParameterField>();
+            final IParameterValuesLoader parameterValuesloader = new IParameterValuesLoader()
+                {
+                    public void loadData(String queryExpression,
+                            AbstractAsyncCallback<List<ParameterValue>> listParameterValuesCallback)
+                    {
+                        viewContext.getService().listParameterValues(queryDatabase,
+                                queryExpression, listParameterValuesCallback);
+                    }
+                };
             for (String parameter : parameters)
             {
-                TextField<String> field = createTextField(parameter, true);
-                parameterFields.put(parameter, field);
-                form.add(field);
+                final IParameterField parameterField =
+                        ParameterField.create(viewContext, parameter, null,
+                                IDelegatedAction.DO_NOTHING, parameterValuesloader);
+                parameterFields.add(parameterField);
+                form.add(parameterField.asWidget());
             }
+
             add(form, new BorderLayoutData(LayoutRegion.CENTER));
             addButton(new Button(viewContext.getMessage(Dict.BUTTON_SUBMIT),
                     new SelectionListener<ButtonEvent>()
@@ -153,9 +167,9 @@ public class QueryEditor extends Dialog
         private void prepareBindingsAndExecuteQuery()
         {
             QueryParameterBindings bindings = new QueryParameterBindings();
-            for (Map.Entry<String, TextField<String>> entry : parameterFields.entrySet())
+            for (IParameterField field : parameterFields)
             {
-                bindings.addBinding(entry.getKey(), entry.getValue().getValue());
+                bindings.addBinding(field.getParameterWithValue());
             }
             queryExecutor.execute(bindings);
         }
@@ -430,18 +444,21 @@ public class QueryEditor extends Dialog
                 {
                     if (form.isValid())
                     {
+                        QueryDatabase queryDatabase = queryDatabaseSelectionWidget.tryGetSelected();
                         List<String> parameters =
                                 ExpressionUtil.extractParameters(statementField.getValue());
                         parameters = ExpressionUtil.createDistinctParametersList(parameters);
                         if (parameters.size() > 0)
                         {
-                            new BindingsDialog(viewContext, parameters, new QueryExecutor()
-                                {
-                                    public void execute(QueryParameterBindings parameterBindings)
-                                    {
-                                        runQuery(parameterBindings);
-                                    }
-                                }).show();
+                            new BindingsDialog(viewContext, parameters, queryDatabase,
+                                    new QueryExecutor()
+                                        {
+                                            public void execute(
+                                                    QueryParameterBindings parameterBindings)
+                                            {
+                                                runQuery(parameterBindings);
+                                            }
+                                        }).show();
                         } else
                         {
                             runQuery(new QueryParameterBindings());

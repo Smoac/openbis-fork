@@ -26,9 +26,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * @author Franz-Josef Elmer

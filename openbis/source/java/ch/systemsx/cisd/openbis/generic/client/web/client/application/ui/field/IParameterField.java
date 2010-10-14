@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * @author Piotr Buczek

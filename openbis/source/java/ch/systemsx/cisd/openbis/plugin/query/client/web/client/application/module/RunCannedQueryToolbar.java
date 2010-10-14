@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.I
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ParameterField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
@@ -172,11 +171,20 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
     private void createAndAddQueryParameterFields(final QueryExpression query)
     {
         parameterContainer.hide();
-        IDelegatedAction updateExecuteButtonAction = new IDelegatedAction()
+        final IDelegatedAction updateExecuteButtonAction = new IDelegatedAction()
             {
                 public void execute()
                 {
                     updateExecuteButtonEnabledState();
+                }
+            };
+        final IParameterValuesLoader parameterValuesloader = new IParameterValuesLoader()
+            {
+                public void loadData(String queryExpression,
+                        AbstractAsyncCallback<List<ParameterValue>> listParameterValuesCallback)
+                {
+                    viewContext.getService().listParameterValues(query.getQueryDatabase(),
+                            queryExpression, listParameterValuesCallback);
                 }
             };
         for (String parameter : query.getParameters())
@@ -188,19 +196,8 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
             } else
             {
                 addParameterField(ParameterField.create(viewContext, parameter,
-                        updateExecuteButtonAction, initialValueOrNull == null ? null
-                                : initialValueOrNull.getValue(), new IParameterValuesLoader()
-                            {
-
-                                public void loadData(
-                                        String queryExpression,
-                                        AbstractAsyncCallback<List<ParameterValue>> listParameterValuesCallback)
-                                {
-                                    viewContext.getService().listParameterValues(
-                                            query.getQueryDatabase(), queryExpression,
-                                            listParameterValuesCallback);
-                                }
-                            }));
+                        initialValueOrNull == null ? null : initialValueOrNull.getValue(),
+                        updateExecuteButtonAction, parameterValuesloader));
             }
         }
     }
@@ -290,8 +287,7 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
         }
         for (IParameterField field : parameterFields)
         {
-            ParameterWithValue parameterWithValue = field.getParameterWithValue();
-            bindings.addBinding(parameterWithValue.getParameter(), parameterWithValue.getValue());
+            bindings.addBinding(field.getParameterWithValue());
         }
         return bindings;
     }

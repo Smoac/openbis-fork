@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * {@link TriggerField} extension for providing values for parameters.
@@ -68,7 +68,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
     private final String initialValueOrNull;
 
     public static IParameterField create(IViewContext<?> viewContextOrNull, String parameterName,
-            IDelegatedAction onValueChangeAction, String initialValueOrNull,
+            String initialValueOrNull, IDelegatedAction onValueChangeAction,
             IParameterValuesLoader loaderOrNull)
     {
         String[] split = parameterName.split(PARAMETER_NAME_SEPARATOR);
@@ -190,6 +190,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             setValidateOnBlur(true);
             setWidth(100);
             add(values);
+            getPropertyEditor().setList(store.getModels());
 
             addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
                 {

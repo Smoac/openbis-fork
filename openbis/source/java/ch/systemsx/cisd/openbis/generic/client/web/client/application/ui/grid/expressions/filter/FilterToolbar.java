@@ -36,10 +36,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValu
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * Toolbar with filters.
@@ -256,7 +256,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         for (String parameter : filter.getParameters())
         {
             IParameterField parameterField =
-                    ParameterField.create(null, parameter, updateApplyButtonAction, null, null);
+                    ParameterField.create(null, parameter, null, updateApplyButtonAction, null);
             parameterFields.add(parameterField);
             filterWidgets.add(parameterField.asWidget());
         }
