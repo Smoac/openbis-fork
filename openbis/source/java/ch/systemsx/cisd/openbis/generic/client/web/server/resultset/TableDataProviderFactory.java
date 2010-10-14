@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -177,10 +176,11 @@ class TableDataProviderFactory
                 for (IColumnDefinition<T> definition : definitions)
                 {
                     Comparable<?> v = null;
-                    if (definition instanceof GridCustomColumnDefinition)
+                    // Dependency checker not allow code like
+                    // if (definition instanceof GridCustomColumnDefinition)
+                    if (definition.getClass().getSimpleName().contains("CustomColumn"))
                     {
-                        GridCustomColumnDefinition<T> d = (GridCustomColumnDefinition<T>) definition;
-                        String identifier = d.getIdentifier();
+                        String identifier = definition.getIdentifier();
                         try
                         {
                             v = row.findColumnValue(identifier);
@@ -254,6 +254,9 @@ class TableDataProviderFactory
         {
             return new TableDataProviderForGridRowModles<T>(availableColumns, rows);
         }
+        // TODO, 2010-10-14, Franz-Josef Elmer: The ITableDataProvider implementation based on
+        // TableModel can not be used be cause it doesn't contains calculated columns
+        // which would lead to error in case of custom filters based on calculated columns.
 //        return new TableDataProviderForTableModel<T>(columnHeaders, rows);
     }
 }
