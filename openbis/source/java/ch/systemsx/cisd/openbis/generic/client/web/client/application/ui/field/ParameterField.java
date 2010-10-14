@@ -109,6 +109,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
         this.initialValueOrNull = initialValueOrNull;
         setEmptyText(parameterName);
         setToolTip(parameterName);
+        setFieldLabel(parameterName); // used in custom query testing dialog
         setTriggerStyle("x-form-clear-trigger");
         setWidth(100);
         setAllowBlank(false);
