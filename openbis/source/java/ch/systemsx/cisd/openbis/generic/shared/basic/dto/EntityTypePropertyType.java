@@ -30,7 +30,7 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private final EntityKind entityKind;
+    private EntityKind entityKind;
 
     private boolean mandatory;
 
