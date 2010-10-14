@@ -19,12 +19,10 @@ package ch.systemsx.cisd.etlserver.hdf5;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.hdf5.IHDF5Reader;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 
 /**
@@ -53,7 +51,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     @Test
     public void testBasicDuplicationNoCompression()
     {
-        File sourceFolder = getSourceFolder("basic-file-structure");
+        File sourceFolder = getTestData("basic-file-structure");
         HierarchicalStructureDuplicatorFileToHdf5 duplicator =
                 new HierarchicalStructureDuplicatorFileToHdf5(sourceFolder, createWriter(false));
         duplicator.makeDuplicate();
@@ -67,7 +65,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     @Test
     public void testBasicDuplicationCompression()
     {
-        File sourceFolder = getSourceFolder("basic-file-structure");
+        File sourceFolder = getTestData("basic-file-structure");
         HierarchicalStructureDuplicatorFileToHdf5 duplicator =
                 new HierarchicalStructureDuplicatorFileToHdf5(sourceFolder, createWriter(true));
         duplicator.makeDuplicate();
@@ -80,7 +78,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     @Test
     public void testIndividualFileDuplicationCompression()
     {
-        File sourceFolder = getSourceFolder("basic-file-structure/file0.txt");
+        File sourceFolder = getTestData("basic-file-structure/file0.txt");
         HierarchicalStructureDuplicatorFileToHdf5 duplicator =
                 new HierarchicalStructureDuplicatorFileToHdf5(sourceFolder, createWriter(true));
         duplicator.makeDuplicate();
@@ -94,7 +92,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
         { IllegalArgumentException.class })
     public void testSymbolicLinks()
     {
-        File sourceFolder = getSourceFolder("file-structure-with-links");
+        File sourceFolder = getTestData("file-structure-with-links");
         HierarchicalStructureDuplicatorFileToHdf5 duplicator =
                 new HierarchicalStructureDuplicatorFileToHdf5(sourceFolder, createWriter(false));
         duplicator.makeDuplicate();
@@ -104,15 +102,15 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
         { IllegalArgumentException.class })
     public void testNonexistentFile()
     {
-        File sourceFolder = getSourceFolder("does-not-exist");
+        File sourceFolder = getTestData("does-not-exist");
         HierarchicalStructureDuplicatorFileToHdf5 duplicator =
                 new HierarchicalStructureDuplicatorFileToHdf5(sourceFolder, createWriter(false));
         duplicator.makeDuplicate();
     }
 
-    private File getSourceFolder(String folderName)
+    private File getTestData(String folderOrFile)
     {
-        return new File("sourceTest/java/ch/systemsx/cisd/etlserver/hdf5/", folderName);
+        return new File("sourceTest/java/ch/systemsx/cisd/etlserver/hdf5/", folderOrFile);
     }
 
     private IHDF5SimpleWriter createWriter(boolean isContentCompressed)
@@ -122,55 +120,8 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
 
     private void verifyDuplicate(File sourceFolderOrFile)
     {
-        assertTrue(container.getHdf5File().length() > 0);
-
-        IHDF5Reader reader = container.createReader();
-
-        if (sourceFolderOrFile.isFile())
-        {
-            // Check that the HDF5 container is contains the same file as the provided file
-            String name = sourceFolderOrFile.getName();
-            String hdf5Path = "/" + name;
-            verifyDataSet(sourceFolderOrFile, reader, hdf5Path);
-            return;
-        }
-
-        verifyGroup(sourceFolderOrFile, reader, "/", null);
-    }
-
-    private void verifyGroup(File directory, IHDF5Reader reader, String groupPath,
-            String parentPathOrNull)
-    {
-        File[] files = directory.listFiles();
-        for (File fileOrDirectory : files)
-        {
-            if (fileOrDirectory.isDirectory())
-            {
-                // recursively verify the directory
-                verifyGroup(fileOrDirectory, reader, fileOrDirectory.getName(), parentPathOrNull
-                        + groupPath + "/");
-            } else
-            {
-                // verify the data set
-                verifyDataSet(fileOrDirectory, reader, groupPath + fileOrDirectory.getName());
-            }
-
-        }
-    }
-
-    private void verifyDataSet(File file, IHDF5Reader reader, String hdf5Path)
-    {
-        assertTrue(reader.exists(hdf5Path));
-        try
-        {
-            byte[] fileContent = FileUtils.readFileToByteArray(file);
-            byte[] content = reader.readByteArray(hdf5Path);
-            assertEquals(fileContent, content);
-        } catch (IOException ex)
-        {
-            // This should not happen
-            fail("Could not read file content " + file);
-        }
-
+        FileToHdf5DuplicationVerifier verifier =
+                new FileToHdf5DuplicationVerifier(sourceFolderOrFile, container);
+        verifier.verifyDuplicate();
     }
 }
