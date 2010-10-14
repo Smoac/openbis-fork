@@ -142,7 +142,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
     {
         return new DatabaseModificationKind[]
             { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
-                    createOrDelete(ObjectKind.SPACE),
+                    edit(ObjectKind.SAMPLE), createOrDelete(ObjectKind.SPACE),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
