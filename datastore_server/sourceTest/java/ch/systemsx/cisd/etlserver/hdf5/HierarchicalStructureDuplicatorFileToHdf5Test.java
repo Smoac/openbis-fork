@@ -86,6 +86,25 @@ public class HierarchicalStructureDuplicatorFileToHdf5Test extends AbstractFileS
     }
 
     /**
+     * Convert a portion of the files, then re-convert.
+     */
+    @Test
+    public void testAbortAndContinue()
+    {
+        File sourceFile = getTestData("basic-file-structure/file0.txt");
+        HierarchicalStructureDuplicatorFileToHdf5 duplicator1 =
+                new HierarchicalStructureDuplicatorFileToHdf5(sourceFile, createWriter(true));
+        duplicator1.makeDuplicate();
+
+        File sourceFolder = getTestData("basic-file-structure");
+        HierarchicalStructureDuplicatorFileToHdf5 duplicator2 =
+                new HierarchicalStructureDuplicatorFileToHdf5(sourceFolder, createWriter(true));
+        duplicator2.makeDuplicate();
+
+        verifyDuplicate(sourceFolder);
+    }
+
+    /**
      * Symbolic links are not supported
      */
     @Test(expectedExceptions =

@@ -116,7 +116,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
      */
     public StorageFormat getStorageFormat()
     {
-        return StorageFormat.HDF5;
+        return StorageFormat.PROPRIETARY;
     }
 
     /**
