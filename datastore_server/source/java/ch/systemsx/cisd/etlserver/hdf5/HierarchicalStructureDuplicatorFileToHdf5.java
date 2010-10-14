@@ -65,26 +65,26 @@ public class HierarchicalStructureDuplicatorFileToHdf5
         } else
         {
             // Mirror the whole file structure
-            mirrorGroup(file, "/", null);
+            mirrorGroup(file, "/");
         }
 
         writer.close();
     }
 
-    private void mirrorGroup(File directory, String groupPath, String parentPathOrNull)
+    private void mirrorGroup(File directory, String groupPath)
     {
         File[] files = directory.listFiles();
         for (File fileOrDirectory : files)
         {
+            String childPath = groupPath + fileOrDirectory.getName();
             if (fileOrDirectory.isDirectory())
             {
                 // recursively mirror the directory
-                mirrorGroup(fileOrDirectory, fileOrDirectory.getName(), parentPathOrNull
-                        + groupPath + "/");
+                mirrorGroup(fileOrDirectory, childPath + "/");
             } else
             {
                 // mirror the data set
-                mirrorDataSet(fileOrDirectory, groupPath + fileOrDirectory.getName());
+                mirrorDataSet(fileOrDirectory, childPath);
             }
 
         }

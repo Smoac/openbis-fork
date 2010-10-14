@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.hdf5;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
@@ -39,7 +40,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
 {
     private static final String HDF5_CONTAINER_FILE_NAME = "container.h5";
 
-    private final static String COMPRESS_DATA_PROPERTY = "compress-data";
+    public final static String COMPRESS_DATA_PROPERTY = "compress-data";
 
     private final boolean isDataCompressed;
 
@@ -79,7 +80,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
 
         fileBeingProcessed = incomingDataSetDirectory;
 
-        return container.getHdf5File();
+        return rootDir;
     }
 
     @Override
@@ -88,7 +89,7 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
         super.commit();
 
         // fileBeingProcessed cannot be null at this point
-        fileBeingProcessed.delete();
+        FileUtilities.deleteRecursively(fileBeingProcessed);
         fileBeingProcessed = null;
     }
 

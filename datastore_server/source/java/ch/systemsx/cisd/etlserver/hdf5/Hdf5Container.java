@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.hdf5;
 import java.io.File;
 
 import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
-import ch.systemsx.cisd.hdf5.IHDF5Reader;
+import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 
 /**
@@ -52,9 +52,9 @@ public class Hdf5Container
     /**
      * Create a new simple reader on the HDF5 container.
      * 
-     * @return A new IHDF5Reader
+     * @return A new IHDF5SimpleReader
      */
-    public IHDF5Reader createReader()
+    public IHDF5SimpleReader createSimpleReader()
     {
         return HDF5FactoryProvider.get().openForReading(hdf5Container);
     }

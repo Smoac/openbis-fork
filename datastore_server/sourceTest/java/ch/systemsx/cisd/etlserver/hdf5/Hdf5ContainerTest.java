@@ -49,7 +49,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
         writer.writeByteArray("/test-bytes", byteArray);
         writer.close();
 
-        IHDF5SimpleReader reader = hdf5Content.createReader();
+        IHDF5SimpleReader reader = hdf5Content.createSimpleReader();
         byte[] readData = reader.readAsByteArray("/test-bytes");
         assertEquals(byteArray, readData);
     }
@@ -64,7 +64,7 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
         writer.writeByteArray("/test-bytes", byteArray);
         writer.close();
 
-        IHDF5SimpleReader reader = hdf5Content.createReader();
+        IHDF5SimpleReader reader = hdf5Content.createSimpleReader();
         byte[] readData = reader.readAsByteArray("/test-bytes");
         assertEquals(byteArray, readData);
     }

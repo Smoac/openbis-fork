@@ -22,7 +22,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
-import ch.systemsx.cisd.hdf5.IHDF5Reader;
+import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * Helper class that verifies that a file structure is matched by the HDF5 structure.
@@ -36,13 +36,13 @@ class FileToHdf5DuplicationVerifier extends AssertJUnit
 
     private final Hdf5Container container;
 
-    private final IHDF5Reader reader;
+    private final IHDF5SimpleReader reader;
 
     public FileToHdf5DuplicationVerifier(File sourceFolderOrFile, Hdf5Container container)
     {
         this.sourceFolderOrFile = sourceFolderOrFile;
         this.container = container;
-        this.reader = container.createReader();
+        this.reader = container.createSimpleReader();
     }
 
     public void verifyDuplicate()
@@ -58,28 +58,23 @@ class FileToHdf5DuplicationVerifier extends AssertJUnit
             return;
         }
 
-        verifyGroup(sourceFolderOrFile, "/", null);
+        verifyGroup(sourceFolderOrFile, "/");
     }
 
-    private void verifyGroup(File directory, String groupPath, String parentPathOrNull)
+    private void verifyGroup(File directory, String groupPath)
     {
         File[] files = directory.listFiles();
         for (File fileOrDirectory : files)
         {
-            // Skip the subversion folders
-            if (".svn".matches(fileOrDirectory.getName()))
-            {
-                continue;
-            }
+            String childPath = groupPath + fileOrDirectory.getName();
             if (fileOrDirectory.isDirectory())
             {
                 // recursively verify the directory
-                verifyGroup(fileOrDirectory, fileOrDirectory.getName(), parentPathOrNull
-                        + groupPath + "/");
+                verifyGroup(fileOrDirectory, childPath + "/");
             } else
             {
                 // verify the data set
-                verifyDataSet(fileOrDirectory, groupPath + fileOrDirectory.getName());
+                verifyDataSet(fileOrDirectory, childPath);
             }
 
         }
@@ -87,37 +82,17 @@ class FileToHdf5DuplicationVerifier extends AssertJUnit
 
     private void verifyDataSet(File file, String hdf5Path)
     {
-        assertTrue(reader.exists(hdf5Path));
+        assertTrue(hdf5Path + " does not exist", reader.exists(hdf5Path));
         try
         {
             byte[] fileContent = FileUtils.readFileToByteArray(file);
-            byte[] content = reader.readByteArray(hdf5Path);
-            assertEquals(fileContent, content);
+            byte[] content = reader.readAsByteArray(hdf5Path);
+            assertEquals(file.getAbsolutePath() + " does not equal " + hdf5Path, fileContent,
+                    content);
         } catch (IOException ex)
         {
             // This should not happen
             fail("Could not read file content " + file);
         }
-    }
-
-    @SuppressWarnings("unused")
-    private void printData(byte[] fileContent, byte[] content)
-    {
-        for (int i = 0; i < fileContent.length; ++i)
-        {
-            System.out.print(fileContent[i]);
-            System.out.print(" ");
-        }
-        System.out.print("\n");
-        for (int i = 0; i < content.length; ++i)
-        {
-            System.out.print(content[i]);
-            System.out.print(" ");
-        }
-        System.out.print("\n");
-        System.out.println("O: " + fileContent + "\n" + "N: " + content);
-
-        System.out.println(new String(fileContent));
-        System.out.println(new String(content));
     }
 }
