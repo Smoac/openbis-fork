@@ -50,5 +50,6 @@
 	<classpathentry kind="lib" path="/libraries/jai/jai_codec.jar"/>
 	<classpathentry kind="lib" path="/libraries/jai/jai_core.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-aop.jar" sourcepath="/libraries/spring/src.jar"/>
+	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" sourcepath="/libraries/jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
