@@ -219,13 +219,19 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     }
 
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
-            QueryParameterBindings bindings)
+            QueryParameterBindings bindings, boolean onlyPerform)
     {
         Session session = getSession(sessionToken);
         try
         {
             String dbKey = database.getKey();
-            QueryAccessController.checkWriteAccess(session, dbKey, "create and perform");
+            if (onlyPerform)
+            {
+                QueryAccessController.checkReadAccess(session, dbKey);
+            } else
+            {
+                QueryAccessController.checkWriteAccess(session, dbKey, "create and perform");
+            }
             return QueryAccessController.filterResults(session.tryGetPerson(), dbKey,
                     getDAOFactory(), queryDatabaseWithKey(dbKey, sqlQuery, bindings));
         } catch (DataAccessException ex)

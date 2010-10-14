@@ -118,7 +118,8 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         {
             final String sessionToken = getSessionToken();
             final TableModel tableModel =
-                    queryServer.queryDatabase(sessionToken, database, sqlQuery, bindingsOrNull);
+                    queryServer.queryDatabase(sessionToken, database, sqlQuery, bindingsOrNull,
+                            false);
             return createTableModelReference(tableModel);
         } catch (final UserFailureException e)
         {
@@ -132,7 +133,7 @@ public class QueryClientService extends AbstractClientService implements IQueryC
         {
             final String sessionToken = getSessionToken();
             final TableModel tableModel =
-                    queryServer.queryDatabase(sessionToken, database, sqlQuery, null);
+                    queryServer.queryDatabase(sessionToken, database, sqlQuery, null, true);
             // TreeSet is used because we want distinct values and we want them to be sorted
             Set<ParameterValue> valuesSet = new TreeSet<ParameterValue>();
             boolean withDescription = tableModel.getHeader().size() > 1;

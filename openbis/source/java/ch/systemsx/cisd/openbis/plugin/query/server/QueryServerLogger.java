@@ -93,10 +93,10 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
     }
 
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
-            QueryParameterBindings bindings)
+            QueryParameterBindings bindings, boolean onlyPerform)
     {
-        logAccess(sessionToken, "query_database", "DB(%s) SQL(%s) BINDINGS(%s)", database,
-                sqlQuery, bindings);
+        logAccess(sessionToken, "query_database", "DB(%s) SQL(%s) BINDINGS(%s) ACTION(%s)",
+                database, sqlQuery, bindings, onlyPerform ? "perform" : "create & perform");
         return null;
 
     }

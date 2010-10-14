@@ -66,7 +66,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
         {
             final String namePart = split[0];
             final String expressionPart = split[1];
-            final String idSuffix = parameterName.replaceAll(" ", "_");
+            final String idSuffix = namePart.replaceAll(" ", "_");
             if (expressionPart.startsWith(ENUM_LIST_EXPRESSION_PREFIX))
             {
                 String itemList = expressionPart.substring(ENUM_LIST_EXPRESSION_PREFIX.length());
@@ -76,19 +76,20 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                 {
                     parameterValues.add(new ParameterValue(value, null));
                 }
-                return ParameterSelectionDropDownList.createWithValues(parameterName, idSuffix,
+                return ParameterSelectionField.createWithValues(namePart, idSuffix,
                         parameterValues, initialValueOrNull, onValueChangeAction);
             } else if (expressionPart.startsWith(QUERY_LIST_EXPRESSION_PREFIX))
             {
                 String queryExpression =
                         expressionPart.substring(QUERY_LIST_EXPRESSION_PREFIX.length());
-                return ParameterSelectionDropDownList.createWithLoader(parameterName,
-                        queryExpression, idSuffix, viewContextOrNull, loaderOrNull,
-                        initialValueOrNull, onValueChangeAction);
+                return ParameterSelectionField.createWithLoader(namePart, queryExpression,
+                        idSuffix, viewContextOrNull, loaderOrNull, initialValueOrNull,
+                        onValueChangeAction);
             } else
             {
                 MessageBox.alert("Error", "Filter parameter '" + namePart
                         + "' is not defined properly.", null);
+                return new ParameterField(namePart, onValueChangeAction, initialValueOrNull);
             }
         }
         return new ParameterField(parameterName, onValueChangeAction, initialValueOrNull);
@@ -147,8 +148,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
         onValueChangeAction.execute();
     }
 
-    // TODO 2010-10-13, Piotr Buczek: extract common code with ParameterField
-    private static class ParameterSelectionDropDownList extends
+    private static class ParameterSelectionField extends
             DropDownList<ParameterValueModel, ParameterValue> implements IParameterField
     {
 
@@ -178,8 +178,8 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                 IParameterValuesLoader loader, String initialValueOrNull,
                 IDelegatedAction onValueChangeAction)
         {
-            return new ParameterSelectionDropDownList(parameterName, idSuffix, viewContextOrNull,
-                    loader, queryExpression, null, initialValueOrNull, onValueChangeAction);
+            return new ParameterSelectionField(parameterName, idSuffix, viewContextOrNull, loader,
+                    queryExpression, null, initialValueOrNull, onValueChangeAction);
         }
 
         /**
@@ -189,11 +189,11 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                 List<ParameterValue> initialValues, String initialValueOrNull,
                 IDelegatedAction onValueChangeAction)
         {
-            return new ParameterSelectionDropDownList(parameterName, idSuffix, null, null, null,
+            return new ParameterSelectionField(parameterName, idSuffix, null, null, null,
                     initialValues, initialValueOrNull, onValueChangeAction);
         }
 
-        protected ParameterSelectionDropDownList(final String parameterName, String idSuffix,
+        protected ParameterSelectionField(final String parameterName, String idSuffix,
                 IViewContext<?> viewContextOrNull, IParameterValuesLoader loaderOrNull,
                 String queryExpressionOrNull, List<ParameterValue> valuesOrNull,
                 String initialValueOrNull, final IDelegatedAction onValueChangeAction)
@@ -271,8 +271,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             GWTUtils.setSelectedItem(this, ModelDataPropertyNames.CODE, parameterValue);
         }
 
-        private class ListParameterValuesCallback extends
-                ParameterSelectionDropDownList.ListItemsCallback
+        private class ListParameterValuesCallback extends ParameterSelectionField.ListItemsCallback
         {
 
             protected ListParameterValuesCallback(IViewContext<?> viewContext)

@@ -57,7 +57,7 @@ public interface IQueryServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public TableModel queryDatabase(String sessionToken, QueryDatabase database, String sqlQuery,
-            QueryParameterBindings bindings);
+            QueryParameterBindings bindings, boolean onlyPerform);
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
