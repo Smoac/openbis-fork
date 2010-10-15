@@ -57,9 +57,13 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
             {
                 value = property.getValue();
             }
-            propertiesByCode.put(propertyTypeCode, new BasicPropertyAdaptor(propertyTypeCode,
-                    value, property));
+            addProperty(new BasicPropertyAdaptor(propertyTypeCode, value, property));
         }
+    }
+
+    public void addProperty(IEntityPropertyAdaptor property)
+    {
+        propertiesByCode.put(property.getPropertyTypeCode(), property);
     }
 
     public String getCode()
@@ -74,7 +78,8 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
 
     public String getPropertyValueByCode(String propertyTypeCode)
     {
-        return propertiesByCode.get(propertyTypeCode).getValueAsString();
+        final IEntityPropertyAdaptor propertyOrNull = getPropertyByCode(propertyTypeCode);
+        return propertyOrNull == null ? "" : propertyOrNull.getValueAsString();
     }
 
     public Collection<IEntityPropertyAdaptor> getProperties()

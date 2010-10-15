@@ -39,6 +39,11 @@ class BasicPropertyAdaptor implements IEntityPropertyAdaptor
         this.propertyPE = propertyPE;
     }
 
+    public BasicPropertyAdaptor(String code, String value)
+    {
+        this(code, value, null);
+    }
+
     public String getPropertyTypeCode()
     {
         return code;
@@ -52,6 +57,16 @@ class BasicPropertyAdaptor implements IEntityPropertyAdaptor
     public EntityPropertyPE getPropertyPE()
     {
         return propertyPE;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public String toString()
+    {
+        return getPropertyTypeCode() + " " + getValueAsString();
     }
 
 }

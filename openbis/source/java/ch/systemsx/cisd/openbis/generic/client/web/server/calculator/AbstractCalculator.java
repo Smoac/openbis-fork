@@ -82,4 +82,9 @@ public class AbstractCalculator
         return evaluator.evalAsString();
     }
 
+    public Object eval() throws EvaluatorException
+    {
+        return evaluator.eval();
+    }
+
 }
