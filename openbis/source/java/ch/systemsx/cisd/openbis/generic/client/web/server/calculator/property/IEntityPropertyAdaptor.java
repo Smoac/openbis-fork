@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.dynamic;
+package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
 
 /**
+ * Interface implemented by all entity properties
+ * 
  * @author Piotr Buczek
  */
-public class DynamicPropertyCalculator
+public interface IEntityPropertyAdaptor
 {
-    // TODO
+    /** Returns the code of property type. */
+    public String getPropertyTypeCode();
+
+    /** Returns the property value as string. */
+    public String getValueAsString();
+
 }

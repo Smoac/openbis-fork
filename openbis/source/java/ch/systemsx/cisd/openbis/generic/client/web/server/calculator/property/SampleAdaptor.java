@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.dynamic;
+package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
 
 import java.util.Collection;
 import java.util.HashMap;
