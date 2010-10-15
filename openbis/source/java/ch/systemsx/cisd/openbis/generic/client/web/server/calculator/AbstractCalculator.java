@@ -29,8 +29,7 @@ public class AbstractCalculator
 {
     protected static final String BASIC_INITIAL_SCRIPT = "from "
             + StandardFunctions.class.getCanonicalName() + " import *\n"
-            + "def int(x):return toInt(x)\n                            "
-            + "def float(x):return toFloat(x)\n                        ";
+            + "def int(x):return toInt(x)\n" + "def float(x):return toFloat(x)\n";
 
     protected final Evaluator evaluator;
 
