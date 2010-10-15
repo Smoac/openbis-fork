@@ -228,7 +228,7 @@ public class SampleDetailsTest extends GenericSystemTestCase
                         INDIRECTLY_CONNECTED_DATA_SET_CODE);
         checkDataSet(indirectlyConnectedDataSet, INDIRECTLY_CONNECTED_DATA_SET_CODE, null,
                 CELL_PLATE_EXAMPLE_EXPERIMENT_ID, "3VPROPRIETARY", "analysis/result");
-        // TODO 2010-21-09, Piotr Buczek: check datasets connected to a different experiment
+        // TODO 2010-09-21, Piotr Buczek: check datasets connected to a different experiment
     }
 
     private void checkUserProperty(List<IEntityProperty> properties, String propertyCode,

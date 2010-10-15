@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServi
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryModule;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryParameterValue;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.locator.QueryLocatorResolver;
 
 /**
  * Main menu of {@link QueryModule}.
@@ -68,7 +69,7 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             @Override
             public String tryGetLink()
             {
-                return null; // TODO 2010-10-11, Piotr Buczek: return link to queries
+                return QueryLocatorResolver.createQueryBrowserLink();
             }
         },
         RUN_CUSTOM_QUERY("Run Custom SQL Query")
