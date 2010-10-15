@@ -24,16 +24,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property.IE
  */
 public class DynamicPropertyCalculator extends AbstractCalculator
 {
-    private static final String INITIAL_SCRIPT = "from "
-            + StandardFunctions.class.getCanonicalName() + " import *\n"
-            + "def int(x):return toInt(x)\n                            "
-            + "def float(x):return toFloat(x)\n                        ";
-
     private static final String ENTITY_VARIABLE_NAME = "entity";
 
     public DynamicPropertyCalculator(String expression)
     {
-        super(new Evaluator(expression, Math.class, INITIAL_SCRIPT));
+        super(new Evaluator(expression, Math.class, BASIC_INITIAL_SCRIPT));
     }
 
     public void setEntity(IEntityAdaptor entity)

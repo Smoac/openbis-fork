@@ -29,11 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
  */
 class RowCalculator extends AbstractCalculator
 {
-    private static final String INITIAL_SCRIPT = "from "
-            + StandardFunctions.class.getCanonicalName() + " import *\n"
-            + "def int(x):return toInt(x)\n                            "
-            + "def float(x):return toFloat(x)\n                        ";
-
     private final Row row;
 
     public RowCalculator(ITableDataProvider provider, String expression)
@@ -45,7 +40,7 @@ class RowCalculator extends AbstractCalculator
             Set<ParameterWithValue> parameters)
     {
         super(new Evaluator(substitudeParameters(expression, parameters), Math.class,
-                INITIAL_SCRIPT));
+                BASIC_INITIAL_SCRIPT));
         row = new Row(provider);
         evaluator.set("row", row);
     }
