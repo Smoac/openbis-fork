@@ -187,15 +187,16 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
                             queryExpression, listParameterValuesCallback);
                 }
             };
-        for (String parameter : query.getParameters())
+        for (String parameterName : query.getParameters())
         {
-            final QueryParameterValue initialValueOrNull = tryGetInitialValue(parameter);
+            final QueryParameterValue initialValueOrNull =
+                    tryGetInitialValue(stripMetadata(parameterName));
             if (initialValueOrNull != null && initialValueOrNull.isFixed())
             {
-                addInitialBinding(parameter, initialValueOrNull.getValue());
+                addInitialBinding(parameterName, initialValueOrNull.getValue());
             } else
             {
-                addParameterField(ParameterField.create(viewContext, parameter,
+                addParameterField(ParameterField.create(viewContext, parameterName,
                         initialValueOrNull == null ? null : initialValueOrNull.getValue(),
                         updateExecuteButtonAction, parameterValuesloader));
             }
@@ -204,7 +205,6 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
 
     private void addInitialBinding(String parameter, String value)
     {
-
         initialFixedParameters.put(parameter, value);
     }
 
@@ -302,6 +302,14 @@ public class RunCannedQueryToolbar extends AbstractQueryProviderToolbar
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         querySelectionWidget.update(observedModifications);
+    }
+
+    // helpers
+
+    private static String stripMetadata(String parameterName)
+    {
+        int indexOfSeparator = parameterName.indexOf(ParameterField.PARAMETER_METADATA_SEPARATOR);
+        return indexOfSeparator > -1 ? parameterName.substring(0, indexOfSeparator) : parameterName;
     }
 
 }

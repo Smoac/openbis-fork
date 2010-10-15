@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 public class ParameterField extends TriggerField<ModelData> implements IParameterField
 {
 
-    private static String PARAMETER_NAME_SEPARATOR = "::";
+    public static String PARAMETER_METADATA_SEPARATOR = "::";
 
     private static String ENUM_LIST_EXPRESSION_PREFIX = "list=";
 
@@ -61,7 +61,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
             String initialValueOrNull, IDelegatedAction onValueChangeAction,
             IParameterValuesLoader loaderOrNull)
     {
-        String[] split = parameterName.split(PARAMETER_NAME_SEPARATOR);
+        String[] split = parameterName.split(PARAMETER_METADATA_SEPARATOR);
         if (split.length == 2)
         {
             final String namePart = split[0];
@@ -111,10 +111,10 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
         setToolTip(parameterName);
         setFieldLabel(parameterName); // used in custom query testing dialog
         setTriggerStyle("x-form-clear-trigger");
-        setWidth(100);
-        setAllowBlank(false);
+        FieldUtil.setMandatoryFlag(this, true);
         setAutoValidate(true);
         setValidateOnBlur(true);
+        setWidth(100);
     }
 
     public ParameterWithValue getParameterWithValue()
@@ -152,8 +152,6 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
     private static class ParameterSelectionField extends
             DropDownList<ParameterValueModel, ParameterValue> implements IParameterField
     {
-
-        private static final String CHOOSE_MSG = "Choose...";
 
         private static final String VALUE_NOT_IN_LIST_MSG = "Value not in the list";
 
@@ -199,7 +197,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                 String queryExpressionOrNull, List<ParameterValue> valuesOrNull,
                 String initialValueOrNull, final IDelegatedAction onValueChangeAction)
         {
-            super(idSuffix, ModelDataPropertyNames.CODE, parameterName, CHOOSE_MSG, EMPTY_MSG,
+            super(idSuffix, ModelDataPropertyNames.CODE, parameterName, parameterName, EMPTY_MSG,
                     VALUE_NOT_IN_LIST_MSG, true, viewContextOrNull, valuesOrNull == null);
             this.parameterName = parameterName;
             this.queryExpressionOrNull = queryExpressionOrNull;
@@ -215,6 +213,7 @@ public class ParameterField extends TriggerField<ModelData> implements IParamete
                     ModelDataPropertyNames.TOOLTIP));
             FieldUtil.setMandatoryFlag(this, true);
             setAllowValueNotFromList(true);
+            setToolTip(parameterName);
             setWidth(100);
 
             addSelectionChangedListener(new SelectionChangedListener<ParameterValueModel>()
