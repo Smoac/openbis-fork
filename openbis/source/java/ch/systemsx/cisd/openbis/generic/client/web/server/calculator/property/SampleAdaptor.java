@@ -16,74 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 
 /**
  * {@link IEntityAdaptor} implementation for {@link SamplePE}.
  * 
  * @author Piotr Buczek
  */
-public class SampleAdaptor implements IEntityAdaptor
+public class SampleAdaptor extends AbstractEntityAdaptor
 {
-    private final Map<String, IEntityPropertyAdaptor> propertiesByCode =
-            new HashMap<String, IEntityPropertyAdaptor>();
-
-    private final String code;
-
     private final SamplePE samplePE;
 
     public SampleAdaptor(SamplePE samplePE)
     {
+        super(samplePE.getCode());
+        initProperties(samplePE);
         this.samplePE = samplePE;
-        this.code = samplePE.getCode();
-        for (SamplePropertyPE property : samplePE.getProperties())
-        {
-            final String propertyTypeCode =
-                    property.getEntityTypePropertyType().getPropertyType().getCode();
-            final String value;
-            if (property.getMaterialValue() != null)
-            {
-                value = property.getMaterialValue().getCode();
-            } else if (property.getVocabularyTerm() != null)
-            {
-                value = property.getVocabularyTerm().getCode();
-            } else
-            {
-                value = property.getValue();
-            }
-            propertiesByCode.put(propertyTypeCode, new BasicPropertyAdaptor(propertyTypeCode,
-                    value, property));
-        }
     }
 
     public SamplePE getSamplePE()
     {
         return samplePE;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-
-    public IEntityPropertyAdaptor getPropertyByCode(String propertyTypeCode)
-    {
-        return propertiesByCode.get(propertyTypeCode);
-    }
-
-    public String getPropertyValueByCode(String propertyTypeCode)
-    {
-        return propertiesByCode.get(propertyTypeCode).getValueAsString();
-    }
-
-    public Collection<IEntityPropertyAdaptor> getProperties()
-    {
-        return propertiesByCode.values();
     }
 
 }

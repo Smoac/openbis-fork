@@ -16,42 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
- * Simple {@link IEntityPropertyAdaptor} implementation
+ * {@link IEntityAdaptor} implementation for {@link ExternalDataPE}.
  * 
  * @author Piotr Buczek
  */
-class BasicPropertyAdaptor implements IEntityPropertyAdaptor
+public class ExternalDataAdaptor extends AbstractEntityAdaptor
 {
+    private final ExternalDataPE externalDataPE;
 
-    private final String code;
-
-    private final String value;
-
-    private final EntityPropertyPE propertyPE;
-
-    public BasicPropertyAdaptor(String code, String value, EntityPropertyPE propertyPE)
+    public ExternalDataAdaptor(ExternalDataPE externalDataPE)
     {
-        this.code = code;
-        this.value = value;
-        this.propertyPE = propertyPE;
+        super(externalDataPE.getCode());
+        initProperties(externalDataPE);
+        this.externalDataPE = externalDataPE;
     }
 
-    public String getPropertyTypeCode()
+    public ExternalDataPE getExternalDataPE()
     {
-        return code;
-    }
-
-    public String getValueAsString()
-    {
-        return value;
-    }
-
-    public EntityPropertyPE getPropertyPE()
-    {
-        return propertyPE;
+        return externalDataPE;
     }
 
 }

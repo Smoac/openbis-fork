@@ -16,42 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
- * Simple {@link IEntityPropertyAdaptor} implementation
+ * {@link IEntityAdaptor} implementation for {@link MaterialPE}.
  * 
  * @author Piotr Buczek
  */
-class BasicPropertyAdaptor implements IEntityPropertyAdaptor
+public class MaterialAdaptor extends AbstractEntityAdaptor
 {
+    private final MaterialPE MaterialPE;
 
-    private final String code;
-
-    private final String value;
-
-    private final EntityPropertyPE propertyPE;
-
-    public BasicPropertyAdaptor(String code, String value, EntityPropertyPE propertyPE)
+    public MaterialAdaptor(MaterialPE MaterialPE)
     {
-        this.code = code;
-        this.value = value;
-        this.propertyPE = propertyPE;
+        super(MaterialPE.getCode());
+        initProperties(MaterialPE);
+        this.MaterialPE = MaterialPE;
     }
 
-    public String getPropertyTypeCode()
+    public MaterialPE getMaterialPE()
     {
-        return code;
-    }
-
-    public String getValueAsString()
-    {
-        return value;
-    }
-
-    public EntityPropertyPE getPropertyPE()
-    {
-        return propertyPE;
+        return MaterialPE;
     }
 
 }

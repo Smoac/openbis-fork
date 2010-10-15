@@ -16,42 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
- * Simple {@link IEntityPropertyAdaptor} implementation
+ * {@link IEntityAdaptor} implementation for {@link ExperimentPE}.
  * 
  * @author Piotr Buczek
  */
-class BasicPropertyAdaptor implements IEntityPropertyAdaptor
+public class ExperimentAdaptor extends AbstractEntityAdaptor
 {
+    private final ExperimentPE experimentPE;
 
-    private final String code;
-
-    private final String value;
-
-    private final EntityPropertyPE propertyPE;
-
-    public BasicPropertyAdaptor(String code, String value, EntityPropertyPE propertyPE)
+    public ExperimentAdaptor(ExperimentPE experimentPE)
     {
-        this.code = code;
-        this.value = value;
-        this.propertyPE = propertyPE;
+        super(experimentPE.getCode());
+        initProperties(experimentPE);
+        this.experimentPE = experimentPE;
     }
 
-    public String getPropertyTypeCode()
+    public ExperimentPE getExperimentPE()
     {
-        return code;
-    }
-
-    public String getValueAsString()
-    {
-        return value;
-    }
-
-    public EntityPropertyPE getPropertyPE()
-    {
-        return propertyPE;
+        return experimentPE;
     }
 
 }
