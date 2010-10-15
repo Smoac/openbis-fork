@@ -16,27 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ParameterWithValue;
 
 /**
  * @author Franz-Josef Elmer
  */
-class RowCalculator
+class RowCalculator extends AbstractCalculator
 {
     private static final String INITIAL_SCRIPT = "from "
             + StandardFunctions.class.getCanonicalName() + " import *\n"
-            + "def int(x):return toInt(x)\n" + "def float(x):return toFloat(x)\n";
-
-    private final Evaluator evaluator;
+            + "def int(x):return toInt(x)\n                            "
+            + "def float(x):return toFloat(x)\n                        ";
 
     private final Row row;
 
@@ -48,9 +44,8 @@ class RowCalculator
     public RowCalculator(ITableDataProvider provider, String expression,
             Set<ParameterWithValue> parameters)
     {
-        evaluator =
-                new Evaluator(substitudeParameters(expression, parameters), Math.class,
-                        INITIAL_SCRIPT);
+        super(new Evaluator(substitudeParameters(expression, parameters), Math.class,
+                INITIAL_SCRIPT));
         row = new Row(provider);
         evaluator.set("row", row);
     }
@@ -60,51 +55,7 @@ class RowCalculator
         row.setRowData(rowValues);
     }
 
-    public PrimitiveValue getTypedResult()
-    {
-        Object value = evaluator.eval();
-        if (value == null)
-        {
-            return PrimitiveValue.NULL;
-        }
-        if (value instanceof Long)
-        {
-            return new PrimitiveValue((Long) value);
-        } else if (value instanceof Double)
-        {
-            return new PrimitiveValue((Double) value);
-        } else
-        {
-            return new PrimitiveValue(value.toString());
-        }
-    }
-
-    public boolean evalToBoolean() throws EvaluatorException
-    {
-        return evaluator.evalToBoolean();
-    }
-
-    public int evalToInt() throws EvaluatorException
-    {
-        return evaluator.evalToInt();
-    }
-
-    public BigInteger evalToBigInt() throws EvaluatorException
-    {
-        return evaluator.evalToBigInt();
-    }
-
-    public double evalToDouble() throws EvaluatorException
-    {
-        return evaluator.evalToDouble();
-    }
-
-    public String evalAsString() throws EvaluatorException
-    {
-        return evaluator.evalAsString();
-    }
-
-    private String substitudeParameters(String originalExpression,
+    private static String substitudeParameters(String originalExpression,
             Set<ParameterWithValue> parameters)
     {
         Template template = new Template(originalExpression);

@@ -37,7 +37,7 @@ public class SampleAdaptor implements IEntityAdaptor
 
     private final SamplePE samplePE;
 
-    SampleAdaptor(SamplePE samplePE)
+    public SampleAdaptor(SamplePE samplePE)
     {
         this.samplePE = samplePE;
         this.code = samplePE.getCode();
