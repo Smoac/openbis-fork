@@ -38,8 +38,8 @@ public class BatchOperationExecutor
         {
             final List<S> batch = allEntities.subList(startIndex, endIndex);
             strategy.execute(batch);
-            operationLog.info(String.format("%s %s progress: %d-%d/%d", strategy.getEntityName(),
-                    strategy.getOperationName(), startIndex, endIndex, maxIndex));
+            operationLog.info(String.format("%s %s progress: %d/%d", strategy.getEntityName(),
+                    strategy.getOperationName(), endIndex, maxIndex));
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug(getMemoryUsageMessage());
