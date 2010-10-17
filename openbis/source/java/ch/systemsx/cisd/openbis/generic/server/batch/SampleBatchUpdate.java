@@ -40,7 +40,7 @@ public class SampleBatchUpdate implements IBatchOperation<SampleBatchUpdatesDTO>
 
     public void execute(List<SampleBatchUpdatesDTO> updates)
     {
-        businessTable.update(updates);
+        businessTable.prepareForUpdate(updates);
         businessTable.save();
     }
 

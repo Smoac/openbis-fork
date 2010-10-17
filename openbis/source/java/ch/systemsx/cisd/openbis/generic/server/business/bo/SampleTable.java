@@ -83,8 +83,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             {
                 foundSamples =
                         filterSamplesByExperiment(foundSamples, criteria.getProjectIdentifier(),
-                                experimentPropertyCode, localExperimentIdentifier
-                                        .getPropertyValue());
+                                experimentPropertyCode,
+                                localExperimentIdentifier.getPropertyValue());
             } else
             {
                 ExperimentIdentifier ident =
@@ -161,7 +161,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         return samples;
     }
 
-    public void set(List<NewSample> newSamples) throws UserFailureException
+    public void prepareForRegistration(List<NewSample> newSamples) throws UserFailureException
     {
         onlyNewSamples = true;
         samples = new ArrayList<SamplePE>();
@@ -216,7 +216,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    public SamplePE prepareBatchUpdate(SampleBatchUpdatesDTO updates,
+    private SamplePE prepareBatchUpdate(SampleBatchUpdatesDTO updates,
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
             Map<String, ExperimentPE> experimentCache)
     {
@@ -239,13 +239,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
         if (details.isParentUpdateRequested())
         {
-            setGeneratedFrom(updates.getSampleIdentifier(), sample, updates
-                    .getParentIdentifierOrNull());
+            setGeneratedFrom(updates.getSampleIdentifier(), sample,
+                    updates.getParentIdentifierOrNull());
         }
         if (details.isContainerUpdateRequested())
         {
-            setContainer(updates.getSampleIdentifier(), sample, updates
-                    .getContainerIdentifierOrNull());
+            setContainer(updates.getSampleIdentifier(), sample,
+                    updates.getContainerIdentifierOrNull());
         }
         return sample;
     }
@@ -260,15 +260,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 properties, registrator, propertiesToUpdate));
     }
 
-    public void update(List<SampleBatchUpdatesDTO> updates)
+    public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates)
     {
         assert updates != null : "Unspecified samples.";
-        setBatchUpdateMode(true);
 
-        if (samples == null)
-        {
-            samples = new ArrayList<SamplePE>();
-        }
+        setBatchUpdateMode(true);
+        samples = new ArrayList<SamplePE>();
         final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
                 new HashMap<SampleOwnerIdentifier, SampleOwner>();
         final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();

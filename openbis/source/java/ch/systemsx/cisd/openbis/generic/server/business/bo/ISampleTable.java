@@ -45,16 +45,19 @@ public interface ISampleTable
     List<SamplePE> getSamples();
 
     /**
-     * Sets given samples to be handled by this table.
+     * Prepares given samples for registration and stores them in this table.
      */
-    public void set(List<NewSample> newSamples) throws UserFailureException;
+    public void prepareForRegistration(List<NewSample> newSamples) throws UserFailureException;
 
     /**
-     * Writes changed are added data to the Data Access Layers.
+     * Prepares given samples for update and stores them in this table.
+     */
+    public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates) throws UserFailureException;
+
+    /**
+     * Writes changed or added data to the Data Access Layers.
      */
     public void save() throws UserFailureException;
-
-    void update(List<SampleBatchUpdatesDTO> updates);
 
     /**
      * Deletes samples for specified reason.

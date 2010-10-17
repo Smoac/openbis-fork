@@ -302,10 +302,11 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
             operationLog.info(String.format("ADD: %d samples.", samples.size()));
         }
 
-        // TODO 2010-06-16, Piotr Buczek: is memory usage increasing without clear of session?
-
         // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(getHibernateTemplate());
+
+        // if session is not cleared registration of many samples slows down after each batch
+        hibernateTemplate.clear();
     }
 
     public final void updateSample(final SamplePE sample) throws DataAccessException
