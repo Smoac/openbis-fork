@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -88,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -97,6 +99,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -124,6 +127,15 @@ public interface ICommonServer extends IServer
     public void keepSessionAlive(String sessionToken);
 
     /**
+     * Returns all scripts.
+     * 
+     * @return a sorted list of {@link Script}s.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<Script> listScripts(String sessionToken);
+
+    /**
      * Returns all spaces which belong to the specified database instance. *
      * 
      * @return a sorted list of {@link Space}.
@@ -142,6 +154,14 @@ public interface ICommonServer extends IServer
     public void registerSpace(String sessionToken, String spaceCode, String descriptionOrNull);
 
     /**
+     * Updates a script.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.SCRIPT)
+    public void updateScript(final String sessionToken, final IScriptUpdates updates);
+
+    /**
      * Updates a property type.
      */
     @Transactional
@@ -157,6 +177,14 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.AUTHORIZATION_GROUP)
     public void registerAuthorizationGroup(String sessionToken,
             NewAuthorizationGroup newAuthorizationGroup);
+
+    /**
+     * Registers a new script.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SCRIPT)
+    public void registerScript(String sessionToken, Script script);
 
     /**
      * Deletes selected authorization groups.
@@ -394,9 +422,7 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
-    public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
-            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
-            final String defaultValue, final String section, final Long previousETPTOrdinal);
+    public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment);
 
     /**
      * Update property type assignment to entity type.
@@ -470,6 +496,14 @@ public interface ICommonServer extends IServer
     public void deleteSpaces(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceTechIdPredicate.class) List<TechId> spaceIds,
             String reason);
+
+    /**
+     * Deletes specified scripts.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SCRIPT)
+    public void deleteScripts(String sessionToken, List<TechId> scriptIds);
 
     /**
      * Adds new terms to a vocabulary starting from specified ordinal + 1.

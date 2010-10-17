@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.MaterialBO;
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.PropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.DatasetLister;
@@ -92,6 +94,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     public final IGroupBO createGroupBO(final Session session)
     {
         return new GroupBO(getDaoFactory(), session);
+    }
+
+    public final IScriptBO createScriptBO(final Session session)
+    {
+        return new ScriptBO(getDaoFactory(), session);
     }
 
     public final IRoleAssignmentTable createRoleAssignmentTable(final Session session)

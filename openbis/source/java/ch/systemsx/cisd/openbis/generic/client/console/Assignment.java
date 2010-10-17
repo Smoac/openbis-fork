@@ -18,10 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.console;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class Assignment implements ICommand
@@ -29,7 +28,8 @@ class Assignment implements ICommand
 
     private static final String MANDATORY = "mandatory";
 
-    public void execute(ICommonServer server, String sessionToken, ScriptContext context, String argument)
+    public void execute(ICommonServer server, String sessionToken, ScriptContext context,
+            String argument)
     {
         String[] arguments = argument.split(" ");
         String[] entityKindAndType = arguments[0].split(":");
@@ -46,8 +46,10 @@ class Assignment implements ICommand
             }
             isMandatory = true;
         }
-        server.assignPropertyType(sessionToken, entityKind, propertyTypeCode, entityTypeCode,
-                isMandatory, null, null, 0L);
+        NewETPTAssignment newAssignment =
+                new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode, isMandatory,
+                        null, null, 0L, false, null);
+        server.assignPropertyType(sessionToken, newAssignment);
 
     }
 

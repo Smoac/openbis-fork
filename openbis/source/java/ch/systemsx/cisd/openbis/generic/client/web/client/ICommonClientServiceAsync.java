@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -78,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -88,6 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -109,6 +112,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listGroups(DefaultResultSetConfig<String, Space> criteria,
             final AsyncCallback<ResultSet<Space>> asyncCallback);
 
+    /** @see ICommonClientService#listScripts(DefaultResultSetConfig) */
+    public void listScripts(DefaultResultSetConfig<String, Script> criteria,
+            final AsyncCallback<ResultSet<Script>> asyncCallback);
+
+    /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
+    public void prepareExportScripts(TableExportCriteria<Script> exportCriteria,
+            AsyncCallback<String> callback);
+
     /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */
     public void prepareExportGroups(TableExportCriteria<Space> exportCriteria,
             AsyncCallback<String> callback);
@@ -116,6 +127,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#registerGroup(String, String) */
     public void registerGroup(String groupCode, String descriptionOrNull,
             AsyncCallback<Void> callback);
+
+    /** @see ICommonClientService#registerScript(Script) */
+    public void registerScript(Script newScript, AsyncCallback<Void> callback);
+
+    /** @see ICommonClientService#updateScript(IScriptUpdates) */
+    public void updateScript(final IScriptUpdates updates, final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#updateGroup(ISpaceUpdates) */
     public void updateGroup(final ISpaceUpdates updates, final AsyncCallback<Void> asyncCallback);
@@ -366,12 +383,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
     /**
-     * @see ICommonClientService#assignPropertyType(EntityKind, String, String, boolean, String,
-     *      String, Long)
+     * @see ICommonClientService#assignPropertyType(NewETPTAssignment assignment)
      */
-    public void assignPropertyType(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue, String section,
-            Long previousETPTOrdinal, AsyncCallback<String> process);
+    public void assignPropertyType(NewETPTAssignment assignment, AsyncCallback<String> process);
 
     /**
      * @see ICommonClientService#updatePropertyTypeAssignment(EntityKind, String, String, boolean,
@@ -511,6 +525,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteGroups(List, String) */
     public void deleteGroups(List<TechId> groupIds, String value, AsyncCallback<Void> asyncCallback);
 
+    /** @see ICommonClientService#deleteScripts(List) */
+    public void deleteScripts(List<TechId> scriptIds, AsyncCallback<Void> asyncCallback);
+
     /** @see ICommonClientService#deleteVocabularies(List, String) */
     public void deleteVocabularies(List<TechId> vocabularyIds, String value,
             AsyncCallback<Void> asyncCallback);
@@ -633,13 +650,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listReport(IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<Null>> callback);
-    
+
     /**
      * @see ICommonClientService#prepareExportReport(TableExportCriteria)
      */
-    public void prepareExportReport(TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
+    public void prepareExportReport(
+            TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria,
             AsyncCallback<String> callback);
-    
+
     /**
      * @see ICommonClientService#processDatasets(DatastoreServiceDescription,
      *      DisplayedOrSelectedDatasetCriteria)

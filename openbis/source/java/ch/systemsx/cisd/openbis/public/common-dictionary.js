@@ -266,6 +266,7 @@ var common = {
   //
   // Property Type Assignments Browser
   //
+  dynamic: "Dynamic",
   is_dynamic: "Dynamic?",
   script: "Script",
   unassign_button_label: "Release Assignment",
@@ -675,6 +676,13 @@ default_group: "Default Space",
  add_new_column: "Add a New Column",
  how_to_address: "How To Address", 
  insert_columns: "Insert Columns", 
+
+
+//
+// Script Browser
+//
+add_script_title: "Add a new script",
+title_choose_script: "Choose a Script",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

@@ -60,6 +60,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     GROUPS_BROWSER_GRID("group-browser-grid"),
 
+    SCRIPTS_BROWSER_GRID("script-browser-grid"),
+
     ROLE_ASSIGNMENT_BROWSER_GRID("role-assignment-browser-grid"),
 
     PROPERTY_TYPE_BROWSER_GRID("property-type-browser-grid"),

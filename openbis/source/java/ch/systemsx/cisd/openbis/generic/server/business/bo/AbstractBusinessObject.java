@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -160,6 +161,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final IGroupDAO getGroupDAO()
     {
         return daoFactory.getGroupDAO();
+    }
+
+    public final IScriptDAO getScriptDAO()
+    {
+        return daoFactory.getScriptDAO();
     }
 
     public final IPersonDAO getPersonDAO()

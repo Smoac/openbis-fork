@@ -25,6 +25,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -139,8 +140,12 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 }
             });
         final EntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(EntityKind.EXPERIMENT);
-        bo.createAssignment(propertyType.getCode(), experimentType.getCode(), mandatory,
-                defaultValue, section, 1L);
+        NewETPTAssignment newAssignment =
+                new NewETPTAssignment(
+                        ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.EXPERIMENT,
+                        propertyType.getCode(), experimentType.getCode(), mandatory, defaultValue,
+                        section, 1L, false, null);
+        bo.createAssignment(newAssignment);
 
         context.assertIsSatisfied();
     }

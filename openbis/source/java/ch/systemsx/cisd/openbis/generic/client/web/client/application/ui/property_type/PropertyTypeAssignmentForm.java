@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -61,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -115,6 +117,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private CheckBox mandatoryCheckbox;
 
+    private CheckBox dynamicCheckbox;
+
     private SectionSelectionWidget sectionSelectionWidget;
 
     private EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
@@ -128,6 +132,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     private final CompositeDatabaseModificationObserver modificationManager;
 
     private final EntityKind entityKind;
+
+    private final ScriptChooserField scriptChooser;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKind)
@@ -147,6 +153,17 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         setScrollMode(Scroll.AUTO);
         add(infoBox = createInfoBox());
         add(formPanel = createFormPanel());
+        scriptChooser = createScriptChooserField(viewContext);
+    }
+
+    private static ScriptChooserField createScriptChooserField(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        ScriptChooserField field =
+                ScriptChooserField.create(viewContext.getMessage(Dict.SCRIPT), true, null,
+                        viewContext);
+        FieldUtil.setVisibility(false, field);
+        return field;
     }
 
     public static final String createId(EntityKind entityKind)
@@ -251,6 +268,36 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         return result;
     }
 
+    private CheckBox getDynamicCheckbox()
+    {
+        if (dynamicCheckbox == null)
+        {
+            dynamicCheckbox = new CheckBoxField(viewContext.getMessage(Dict.DYNAMIC), false);
+            dynamicCheckbox.setValue(false);
+            dynamicCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        updateVisibilityOfDynamicRelatedFields(dynamicCheckbox.getValue());
+                    }
+                });
+        }
+        return dynamicCheckbox;
+    }
+
+    private void updateVisibilityOfDynamicRelatedFields(Boolean isDynmic)
+    {
+        FieldUtil.setVisibility(isDynmic, scriptChooser);
+        if (defaultValueField != null)
+        {
+            FieldUtil.setVisibility(isDynmic == false, defaultValueField.get());
+        }
+        if (mandatoryCheckbox != null)
+        {
+            FieldUtil.setVisibility(isDynmic == false, mandatoryCheckbox);
+        }
+    }
+
     private CheckBox getMandatoryCheckbox()
     {
         if (mandatoryCheckbox == null)
@@ -260,6 +307,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             mandatoryCheckbox.setFireChangeEventOnSetValue(false);
             mandatoryCheckbox.setValue(false);
             mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
+            FieldUtil.setVisibility(dynamicCheckbox.getValue() == false, mandatoryCheckbox);
         }
         return mandatoryCheckbox;
     }
@@ -351,6 +399,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         DropDownList<?, ?> typeSelectionWidget = getTypeSelectionWidget();
         formPanel.add(propertyTypeWidget);
         formPanel.add(typeSelectionWidget);
+        formPanel.add(getDynamicCheckbox());
+        formPanel.add(scriptChooser);
         formPanel.add(getMandatoryCheckbox());
         updatePropertyTypeRelatedFields();
 
@@ -403,12 +453,13 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                     createChildId(DEFAULT_VALUE_ID_PART
                             + GWTUtils.escapeToFormId(propertyType.getSimpleCode()));
             DatabaseModificationAwareField<?> fieldHolder =
-                    PropertyFieldFactory.createField(propertyType, false, viewContext
-                            .getMessage(Dict.DEFAULT_VALUE), fieldId, null, viewContext);
-            GWTUtils.setToolTip(fieldHolder.get(), viewContext
-                    .getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
+                    PropertyFieldFactory.createField(propertyType, false,
+                            viewContext.getMessage(Dict.DEFAULT_VALUE), fieldId, null, viewContext);
+            GWTUtils.setToolTip(fieldHolder.get(),
+                    viewContext.getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
             defaultValueField = fieldHolder;
             defaultValueField.get().show();
+            FieldUtil.setVisibility(dynamicCheckbox.getValue() == false, defaultValueField.get());
             formPanel.add(defaultValueField.get());
         }
         updateEntityTypePropertyTypeRelatedFields();
@@ -483,10 +534,15 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     {
         if (formPanel.isValid())
         {
-            viewContext.getService().assignPropertyType(entityKind,
-                    propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
-                    getSelectedEntityCode(), getMandatoryCheckbox().getValue(), getDefaultValue(),
-                    getSectionValue(), getPreviousETPTOrdinal(),
+            boolean dynamic = dynamicCheckbox.getValue();
+            String scriptOrNull = scriptChooser != null ? scriptChooser.getValue() : null;
+            NewETPTAssignment newAssignment =
+                    new NewETPTAssignment(entityKind,
+                            propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
+                            getSelectedEntityCode(), getMandatoryCheckbox().getValue(),
+                            getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
+                            dynamic, scriptOrNull);
+            viewContext.getService().assignPropertyType(newAssignment,
                     new AssignPropertyTypeCallback(viewContext));
         }
     }

@@ -31,6 +31,8 @@ public abstract class Dict
 
     public static final String ADD_GROUP_TITLE = "add_group_title";
 
+    public static final String ADD_SCRIPT_TITLE = "add_script_title";
+
     protected Dict()
     {
         // Can not be instantiated.
@@ -330,6 +332,7 @@ public abstract class Dict
 
     public static final String IS_DYNAMIC = "is_dynamic";
 
+    // TODO 2010-10-14, IA: would PYTHON_SCRIPT be more self explanatory?? Will it always be python?
     public static final String SCRIPT = "script";
 
     public static final String PROPERTY_TYPE = "property_type";
@@ -359,6 +362,8 @@ public abstract class Dict
             "confirm_vocabulary_show_available_terms_in_chooosers_msg";
 
     public static final String MANDATORY = "mandatory";
+
+    public static final String DYNAMIC = "dynamic";
 
     public static final String SECTION_TOOLTIP = "section_tooltip";
 
@@ -746,6 +751,8 @@ public abstract class Dict
     //
 
     public static final String TITLE_CHOOSE_MATERIAL = "title_choose_material";
+
+    public static final String TITLE_CHOOSE_SCRIPT = "title_choose_script";
 
     public static final String CHOOSE_ANY_MATERIAL = "choose_any_material";
 

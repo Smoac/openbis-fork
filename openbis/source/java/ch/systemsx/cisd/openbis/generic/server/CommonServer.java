@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
@@ -98,6 +99,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -114,6 +116,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -124,6 +127,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
@@ -156,6 +160,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -181,6 +186,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ScriptTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
@@ -276,6 +282,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
         groupBO.define(spaceCode, descriptionOrNull);
         groupBO.save();
+    }
+
+    public final void updateScript(final String sessionToken, final IScriptUpdates updates)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert updates != null : "Unspecified updates";
+
+        final Session session = getSession(sessionToken);
+        final IScriptBO bo = businessObjectFactory.createScriptBO(session);
+        bo.update(updates);
     }
 
     public final void updateSpace(final String sessionToken, final ISpaceUpdates updates)
@@ -623,22 +639,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         HibernateUtils.initialize(vocabularyPE.getTerms());
     }
 
-    public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
-            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
-            final String defaultValue, final String section, final Long previousETPTOrdinal)
+    public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment)
     {
         assert sessionToken != null : "Unspecified session token";
         Session session = getSession(sessionToken);
 
         final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind kind =
-                DtoConverters.convertEntityKind(entityKind);
+                DtoConverters.convertEntityKind(assignment.getEntityKind());
         IEntityTypePropertyTypeBO etptBO =
                 businessObjectFactory.createEntityTypePropertyTypeBO(session, kind);
-        etptBO.createAssignment(propertyTypeCode, entityTypeCode, isMandatory, defaultValue,
-                section, previousETPTOrdinal);
+        etptBO.createAssignment(assignment);
         return String.format("%s property type '%s' successfully assigned to %s type '%s'",
-                isMandatory ? "Mandatory" : "Optional", propertyTypeCode, kind.getLabel(),
-                entityTypeCode);
+                assignment.isMandatory() ? "Mandatory" : "Optional",
+                assignment.getPropertyTypeCode(), kind.getLabel(), assignment.getEntityTypeCode());
     }
 
     public void updatePropertyTypeAssignment(final String sessionToken,
@@ -1122,6 +1135,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             for (TechId id : groupIds)
             {
                 groupBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void deleteScripts(String sessionToken, List<TechId> scriptIds)
+    {
+        Session session = getSession(sessionToken);
+        try
+        {
+            IScriptBO scriptBO = businessObjectFactory.createScriptBO(session);
+            for (TechId id : scriptIds)
+            {
+                scriptBO.deleteByTechId(id);
             }
         } catch (final DataAccessException ex)
         {
@@ -1741,6 +1770,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    public void registerScript(String sessionToken, Script script)
+    {
+        Session session = getSession(sessionToken);
+        try
+        {
+            IScriptBO bo = businessObjectFactory.createScriptBO(session);
+            bo.define(script);
+            bo.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> groupIds, String reason)
     {
         Session session = getSession(sessionToken);
@@ -1765,6 +1808,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 getDAOFactory().getAuthorizationGroupDAO().list();
         Collections.sort(persons);
         return AuthorizationGroupTranslator.translate(persons);
+    }
+
+    public List<Script> listScripts(String sessionToken)
+    {
+        checkSession(sessionToken);
+        // FIXME: list only from current database instance
+        final List<ScriptPE> scripts = getDAOFactory().getScriptDAO().listAllEntities();
+        Collections.sort(scripts);
+        return ScriptTranslator.translate(scripts);
     }
 
     public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates)

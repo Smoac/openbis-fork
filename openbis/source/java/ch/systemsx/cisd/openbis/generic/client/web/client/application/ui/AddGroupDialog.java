@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -44,7 +44,8 @@ public class AddGroupDialog extends AbstractRegistrationDialog
     public AddGroupDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, viewContext.getMessage(Dict.ADD_GROUP_TITLE), postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.ADD_GROUP_TITLE),
+                postRegistrationCallback);
         this.viewContext = viewContext;
         this.codeField = createCodeField(viewContext);
         addField(codeField);

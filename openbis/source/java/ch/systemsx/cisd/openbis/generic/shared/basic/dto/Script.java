@@ -23,7 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Izabela Adamczyk
  */
-public class Script extends AbstractRegistrationHolder implements Comparable<Script>, IIdHolder
+public class Script extends AbstractRegistrationHolder implements Comparable<Script>, IIdHolder,
+        IScriptUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

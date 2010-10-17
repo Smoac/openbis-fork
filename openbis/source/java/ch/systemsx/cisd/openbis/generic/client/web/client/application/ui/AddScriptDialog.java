@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -24,39 +24,49 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
- * {@link Window} containing group registration form.
+ * {@link Window} containing script registration form.
  * 
- * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
-public class AddGroupDialog extends AbstractRegistrationDialog
+public class AddScriptDialog extends AbstractRegistrationDialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final TextField<String> codeField;
+    private final TextField<String> nameField;
 
     private final DescriptionField descriptionField;
 
-    public AddGroupDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
+    private final MultilineVarcharField scriptField;
+
+    public AddScriptDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback)
     {
-        super(viewContext, viewContext.getMessage(Dict.ADD_GROUP_TITLE), postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.ADD_SCRIPT_TITLE), postRegistrationCallback);
         this.viewContext = viewContext;
-        this.codeField = createCodeField(viewContext);
-        addField(codeField);
+        this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
+        addField(nameField);
 
         this.descriptionField = createDescriptionField(viewContext);
         addField(descriptionField);
+
+        this.scriptField = new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
+        addField(scriptField);
     }
 
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
-        viewContext.getService().registerGroup(codeField.getValue(), descriptionField.getValue(),
-                registrationCallback);
+        Script newScript = new Script();
+        newScript.setDescription(descriptionField.getValue());
+        newScript.setName(nameField.getValue());
+        newScript.setScript(scriptField.getValue());
+        viewContext.getService().registerScript(newScript, registrationCallback);
     }
 }

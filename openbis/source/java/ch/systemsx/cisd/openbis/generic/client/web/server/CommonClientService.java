@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -119,6 +120,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyTyp
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -130,6 +132,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -287,6 +290,20 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.updateSpace(sessionToken, updates);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public final void updateScript(final IScriptUpdates updates)
+    {
+        assert updates != null : "Unspecified updates.";
+
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.updateScript(sessionToken, updates);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -451,6 +468,11 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportScripts(TableExportCriteria<Script> criteria)
+    {
+        return prepareExportEntities(criteria);
+    }
+
     public String prepareExportGroups(TableExportCriteria<Space> criteria)
     {
         return prepareExportEntities(criteria);
@@ -596,6 +618,31 @@ public final class CommonClientService extends AbstractClientService implements
                     return listGroups();
                 }
             });
+    }
+
+    public ResultSet<Script> listScripts(DefaultResultSetConfig<String, Script> criteria)
+    {
+        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Script>()
+            {
+                public List<Script> getOriginalData() throws UserFailureException
+                {
+                    return listScripts();
+                }
+            });
+    }
+
+    private List<Script> listScripts()
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<Script> scripts = commonServer.listScripts(sessionToken);
+            return scripts;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
     private List<Space> listGroups()
@@ -945,16 +992,13 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public String assignPropertyType(final EntityKind entityKind, final String propertyTypeCode,
-            final String entityTypeCode, final boolean isMandatory, final String defaultValue,
-            final String section, final Long previousETPTOrdinal)
+    public String assignPropertyType(NewETPTAssignment assignment)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            return commonServer.assignPropertyType(sessionToken, entityKind, propertyTypeCode,
-                    entityTypeCode, isMandatory, defaultValue, section, previousETPTOrdinal);
+            return commonServer.assignPropertyType(sessionToken, assignment);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1670,6 +1714,19 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void deleteScripts(List<TechId> scriptIds)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteScripts(sessionToken, scriptIds);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public void deleteAttachments(TechId holderId, AttachmentHolderKind holderKind,
             List<String> fileNames, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2072,7 +2129,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         return prepareExportEntities(criteria);
     }
-    
+
     private List<String> extractDatasetCodes(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
     {
@@ -2209,6 +2266,19 @@ public final class CommonClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             commonServer.registerAuthorizationGroup(sessionToken, newAuthorizationGroup);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
+    }
+
+    public void registerScript(Script script)
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.registerScript(sessionToken, script);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

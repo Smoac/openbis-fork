@@ -34,6 +34,8 @@ public interface ICommonBusinessObjectFactory
 
     public IGroupBO createGroupBO(final Session session);
 
+    public IScriptBO createScriptBO(final Session session);
+
     public IRoleAssignmentTable createRoleAssignmentTable(final Session session);
 
     public ISampleTable createSampleTable(final Session session);

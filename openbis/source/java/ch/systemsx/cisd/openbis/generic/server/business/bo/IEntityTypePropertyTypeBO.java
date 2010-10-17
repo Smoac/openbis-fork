@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 
 /**
@@ -29,8 +30,7 @@ public interface IEntityTypePropertyTypeBO
     /**
      * Create a new Entity Type - Property Type relation.
      */
-    void createAssignment(String propertyTypeCode, String entityTypeCode, boolean isMandatory,
-            String defaultValue, String section, Long previousETPTOrdinal);
+    void createAssignment(NewETPTAssignment newAssignment);
 
     /**
      * Loads assignments between specified property type and entity type.

@@ -28,11 +28,13 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -45,8 +47,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         IEntityTypePropertyTypeBO
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, EntityTypePropertyTypeBO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            EntityTypePropertyTypeBO.class);
 
     private EntityKind entityKind;
 
@@ -103,16 +105,18 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         return entityPropertyTypeDAO.countAssignmentValues(entityTypeCode, propertyTypeCode);
     }
 
-    public void createAssignment(String propertyTypeCode, String entityTypeCode,
-            boolean isMandatory, String defaultValue, String section, Long previousETPTOrdinal)
+    public void createAssignment(NewETPTAssignment newAssignment)
     {
-        EntityTypePE entityType = findEntityType(entityTypeCode);
-        PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
+        EntityTypePE entityType = findEntityType(newAssignment.getEntityTypeCode());
+        PropertyTypePE propertyType = findPropertyType(newAssignment.getPropertyTypeCode());
+        ScriptPE scriptOrNull = tryFindScript(newAssignment);
         assignment =
-                createAssignment(isMandatory, section, previousETPTOrdinal, entityType,
-                        propertyType);
+                createAssignment(newAssignment.isMandatory(), newAssignment.getSection(),
+                        newAssignment.getOrdinal(), entityType, propertyType,
+                        newAssignment.isDynamic(), scriptOrNull);
+        String defaultValue = newAssignment.getDefaultValue();
         // fill default property values
-        if (isMandatory)
+        if (newAssignment.isMandatory())
         {
             String errorMsgTemplate =
                     "Cannot create mandatory assignment. "
@@ -125,6 +129,17 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         {
             List<Long> entityIds = getAllEntityIds(entityType);
             addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entityIds, null);
+        }
+    }
+
+    private ScriptPE tryFindScript(NewETPTAssignment newAssignment)
+    {
+        if (newAssignment.isDynamic() == false)
+        {
+            return null;
+        } else
+        {
+            return getScriptDAO().tryFindByName(newAssignment.getScriptName());
         }
     }
 
@@ -146,8 +161,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             }
             if (StringUtils.isEmpty(defaultValue))
             {
-                throw new UserFailureException(String.format(errorMsgTemplate, size, entityKind
-                        .getLabel(), createPlural(size), entityType.getCode()));
+                throw new UserFailureException(String.format(errorMsgTemplate, size,
+                        entityKind.getLabel(), createPlural(size), entityType.getCode()));
             }
             PersonPE registrator = findRegistrator();
             String validatedValue =
@@ -219,7 +234,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private EntityTypePropertyTypePE createAssignment(final boolean mandatory,
             final String section, final Long previousETPTOrdinal, final EntityTypePE entityType,
-            final PropertyTypePE propertyType)
+            final PropertyTypePE propertyType, boolean dynamic, ScriptPE scriptOrNull)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
         // need to shift existing etpts to create space for new one
@@ -234,6 +249,8 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setMandatory(mandatory);
         etpt.setSection(section);
         etpt.setOrdinal(currentOrdinal);
+        etpt.setDynamic(dynamic);
+        etpt.setScript(scriptOrNull);
 
         try
         {

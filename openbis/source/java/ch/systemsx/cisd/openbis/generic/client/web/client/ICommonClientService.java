@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -76,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -86,6 +88,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -119,6 +122,18 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of all scripts.
+     */
+    public ResultSet<Script> listScripts(DefaultResultSetConfig<String, Script> criteria)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.
+     */
+    public String prepareExportScripts(final TableExportCriteria<Script> criteria)
+            throws UserFailureException;
+
+    /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for groups.
      */
     public String prepareExportGroups(final TableExportCriteria<Space> criteria)
@@ -129,6 +144,11 @@ public interface ICommonClientService extends IClientService
      */
     public void registerGroup(String groupCode, String descriptionOrNull)
             throws UserFailureException;
+
+    /**
+     * Updates script.
+     */
+    public void updateScript(final IScriptUpdates updates) throws UserFailureException;
 
     /**
      * Updates group.
@@ -436,9 +456,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Assigns property type to entity type.
      */
-    public String assignPropertyType(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue, String section,
-            Long previousETPTOrdinal) throws UserFailureException;
+    public String assignPropertyType(NewETPTAssignment assignment) throws UserFailureException;
 
     /**
      * Unassigns property type to entity type.
@@ -596,6 +614,9 @@ public interface ICommonClientService extends IClientService
     /** Deletes the specified groups. */
     public void deleteGroups(List<TechId> groupIds, String reason) throws UserFailureException;
 
+    /** Deletes the specified scripts. */
+    public void deleteScripts(List<TechId> scriptIds) throws UserFailureException;
+
     /** Deletes the specified vocabularies. */
     public void deleteVocabularies(List<TechId> vocabualryIds, String reason)
             throws UserFailureException;
@@ -729,14 +750,14 @@ public interface ICommonClientService extends IClientService
     public TypedTableResultSet<Null> listReport(
             IResultSetConfig<String, TableModelRowWithObject<Null>> resultSetConfig)
             throws UserFailureException;
-    
+
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for TableModelRow.
      */
     public String prepareExportReport(
             TableExportCriteria<TableModelRowWithObject<Null>> exportCriteria)
             throws UserFailureException;
-    
+
     /**
      * Uses the specified datastore service to schedule processing of the specified datasets.
      */
@@ -784,6 +805,11 @@ public interface ICommonClientService extends IClientService
      */
     public void registerAuthorizationGroup(NewAuthorizationGroup newAuthorizationGroup)
             throws UserFailureException;
+
+    /**
+     * Creates a new script.
+     */
+    public void registerScript(Script newScript) throws UserFailureException;
 
     /**
      * Returns a list persons belonging to given authorization group.

@@ -49,17 +49,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -422,8 +423,8 @@ public final class CommonServerTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (final UserFailureException e)
         {
-            assertEquals("Following persons already exist: [" + CommonTestUtils.USER_ID + "]", e
-                    .getMessage());
+            assertEquals("Following persons already exist: [" + CommonTestUtils.USER_ID + "]",
+                    e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -594,7 +595,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         final ExperimentTypePE experimentTypePE = CommonTestUtils.createExperimentType();
-        final ExperimentType experimentType = ExperimentTranslator.translate(experimentTypePE, new HashMap<PropertyTypePE, PropertyType>());
+        final ExperimentType experimentType =
+                ExperimentTranslator.translate(experimentTypePE,
+                        new HashMap<PropertyTypePE, PropertyType>());
         types.add(experimentTypePE);
         context.checking(new Expectations()
             {
@@ -1134,6 +1137,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         final boolean mandatory = true;
         final String value = "50m";
         final String section = "section 1";
+        final NewETPTAssignment newAssignment =
+                new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode, mandatory,
+                        value, section, 1L, false, null);
         context.checking(new Expectations()
             {
                 {
@@ -1141,14 +1147,12 @@ public final class CommonServerTest extends AbstractServerTestCase
                             DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
-                    one(entityTypePropertyTypeBO).createAssignment(propertyTypeCode,
-                            entityTypeCode, mandatory, value, section, 1L);
+                    one(entityTypePropertyTypeBO).createAssignment(newAssignment);
                 }
             });
         assertEquals(
                 "Mandatory property type 'USER.DISTANCE' successfully assigned to experiment type 'ARCHERY'",
-                createServer().assignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode,
-                        entityTypeCode, mandatory, value, section, 1L));
+                createServer().assignPropertyType(SESSION_TOKEN, newAssignment));
         context.assertIsSatisfied();
     }
 

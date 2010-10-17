@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 /**
  * A <i>Data Access Object</i> factory.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IDAOFactory extends IAuthorizationDAOFactory
 {
@@ -77,6 +77,11 @@ public interface IDAOFactory extends IAuthorizationDAOFactory
      * Returns the {@link IMaterialDAO} implementation.
      */
     public IMaterialDAO getMaterialDAO();
+
+    /**
+     * Returns the {@link IScriptDAO} implementation.
+     */
+    public IScriptDAO getScriptDAO();
 
     /** Returns an implementation of {@link ICodeSequenceDAO} */
     public ICodeSequenceDAO getCodeSequenceDAO();

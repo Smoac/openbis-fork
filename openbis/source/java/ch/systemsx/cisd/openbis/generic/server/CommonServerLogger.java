@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -72,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -138,6 +141,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             final String descriptionOrNull)
     {
         logTracking(sessionToken, "register_space", "CODE(%s)", groupCode);
+    }
+
+    public void updateScript(String sessionToken, IScriptUpdates updates)
+    {
+        logTracking(sessionToken, "update_script", "SCRIPT(%s)", updates.getId());
     }
 
     public void updateSpace(String sessionToken, ISpaceUpdates updates)
@@ -312,6 +320,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public final List<Script> listScripts(final String sessionToken)
+    {
+        logAccess(sessionToken, "list_scripts");
+        return null;
+    }
+
     public List<FileFormatType> listFileFormatTypes(String sessionToken)
     {
         logAccess(sessionToken, "list_file_format_types");
@@ -325,14 +339,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
-            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
-            final String defaultValue, final String section, final Long previousETPTOrdinal)
+    public String assignPropertyType(final String sessionToken, NewETPTAssignment assignment)
     {
-        final String entityTypeFormat = entityKind.name() + "_TYPE(%S)";
+        final String entityTypeFormat = assignment.getEntityKind().name() + "_TYPE(%S)";
         logTracking(sessionToken, "assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
-                + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)", propertyTypeCode,
-                entityTypeCode, isMandatory, defaultValue, section, previousETPTOrdinal);
+                + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
+                assignment.getPropertyTypeCode(), assignment.getEntityTypeCode(),
+                assignment.isMandatory(), assignment.getDefaultValue(), assignment.getSection(),
+                assignment.getOrdinal());
         return null;
     }
 
@@ -547,6 +561,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "delete_spaces", "IDS(%s) REASON(%s)", abbreviate(groupIds),
                 reason);
+    }
+
+    public void deleteScripts(String sessionToken, List<TechId> scriptIds)
+    {
+        logTracking(sessionToken, "delete_scripts", "IDS(%s)", abbreviate(scriptIds));
     }
 
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
@@ -767,6 +786,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "registerAuthorizationGroup", "CODE(%s)",
                 newAuthorizationGroup.getCode());
+
+    }
+
+    public void registerScript(String sessionToken, Script script)
+    {
+        logTracking(sessionToken, "registerScript", "NAME(%s)", script.getName());
 
     }
 
