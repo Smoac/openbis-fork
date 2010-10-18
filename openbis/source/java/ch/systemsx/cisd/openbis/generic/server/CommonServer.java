@@ -1631,7 +1631,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         List<T> sortedPropertyTypes = asSortedList(propertyTypes);
         for (EntityTypePropertyTypePE etpt : sortedPropertyTypes)
         {
-            columns.add(etpt.getPropertyType().getCode());
+            if (etpt.isDynamic() == false)
+            {
+                columns.add(etpt.getPropertyType().getCode());
+            }
         }
     }
 
