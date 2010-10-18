@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -115,8 +116,8 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         Map<String, String> result = new HashMap<String, String>();
         for (IEntityProperty p : properties)
         {
-            result.put(p.getPropertyType().getCode(), StringEscapeUtils.unescapeHtml(p
-                    .tryGetOriginalValue()));
+            result.put(p.getPropertyType().getCode(),
+                    StringEscapeUtils.unescapeHtml(p.tryGetOriginalValue()));
         }
         return result;
     }
@@ -159,7 +160,17 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         {
             Object value = field.get().getValue();
             final S etpt = field.get().getData(ETPT); // null for section labels
-            if (etpt != null && value != null && PropertyFieldFactory.valueToString(value) != null)
+
+            // dynamic property should always have a placeholder value
+            // that will be filled later by by calculator
+            if (etpt != null && etpt.isDynamic())
+            {
+                final IEntityProperty entityProperty = createEntityProperty();
+                entityProperty.setValue(BasicConstant.PLACEHOLDER_PROPERTY_VALUE);
+                entityProperty.setPropertyType(etpt.getPropertyType());
+                properties.add(entityProperty);
+            } else if (etpt != null && value != null
+                    && PropertyFieldFactory.valueToString(value) != null)
             {
                 final IEntityProperty entityProperty = createEntityProperty();
                 entityProperty.setValue(PropertyFieldFactory.valueToString(value));

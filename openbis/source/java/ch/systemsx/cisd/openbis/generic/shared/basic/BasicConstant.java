@@ -38,6 +38,16 @@ public class BasicConstant
     /** Prefix of internal namespace vocabulary code. */
     public static final String INTERNAL_NAMESPACE_PREFIX = "$";
 
+    private static final int UNI_REPLACEMENT_CHAR = 0xFFFD;
+
+    /** Prefix of property value that contains error message. */
+    public static final String ERROR_PROPERTY_PREFIX = "" + (char) UNI_REPLACEMENT_CHAR;
+
+    // placeholder
+    /** Prefix of property value that contains error message. */
+    public static final String PLACEHOLDER_PROPERTY_VALUE = ERROR_PROPERTY_PREFIX
+            + "(pending evaluation)";
+
     /** Template part of Vocabulary URL that that is replaced with vocabulary term code. */
     public static final String VOCABULARY_URL_TEMPLATE_TERM_PART = "$term$";
 

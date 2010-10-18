@@ -20,7 +20,10 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -97,14 +100,26 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     @Override
     protected final String tryGetValue(T entity)
     {
+        String result = null;
         for (IEntityProperty prop : getProperties(entity))
         {
             if (isMatching(prop))
             {
-                return prop.tryGetAsString();
+                result = prop.tryGetAsString();
+                break;
             }
         }
-        return null;
+        if (StringUtils.isBlank(result) == false)
+        {
+            if (StringEscapeUtils.unescapeHtml(result).startsWith(
+                    BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                result =
+                        StringEscapeUtils.unescapeHtml(result).substring(
+                                BasicConstant.ERROR_PROPERTY_PREFIX.length());
+            }
+        }
+        return result;
     }
 
     @Override
@@ -112,6 +127,15 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     {
         IEntityProperty property = tryGetProperty(rowModel.getOriginalObject());
         String valueAsString = property == null ? null : property.tryGetOriginalValue();
+        // treat error message as null
+        if (StringUtils.isBlank(valueAsString) == false)
+        {
+            if (StringEscapeUtils.unescapeHtml(valueAsString).startsWith(
+                    BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                valueAsString = null;
+            }
+        }
         DataTypeCode dataType = getDataTypeCode();
         switch (dataType)
         {

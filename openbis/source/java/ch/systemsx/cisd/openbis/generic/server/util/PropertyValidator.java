@@ -133,6 +133,12 @@ public final class PropertyValidator implements IPropertyValueValidator
     {
         assert propertyType != null : "Unspecified property type.";
         assert value != null : "Unspecified value.";
+
+        // don't validate error messages and placeholders
+        if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+        {
+            return value;
+        }
         final DataTypeCode entityDataType = propertyType.getType().getCode();
         final IDataTypeValidator dataTypeValidator = dataTypeValidators.get(entityDataType);
         assert dataTypeValidator != null : String.format("No IDataTypeValidator implementation "
@@ -216,8 +222,8 @@ public final class PropertyValidator implements IPropertyValueValidator
             {
                 Date date = DateUtils.parseDate(value, DATE_PATTERNS);
                 // we store date in CANONICAL_DATE_PATTERN
-                return DateFormatUtils.format(date, SupportedDatePattern.CANONICAL_DATE_PATTERN
-                        .getPattern());
+                return DateFormatUtils.format(date,
+                        SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern());
             } catch (final ParseException ex)
             {
                 throw UserFailureException.fromTemplate(
@@ -306,8 +312,8 @@ public final class PropertyValidator implements IPropertyValueValidator
                 return upperCaseValue;
             }
             throw UserFailureException.fromTemplate("Vocabulary value '%s' is not valid. "
-                    + "It must exist in '%s' controlled vocabulary %s", upperCaseValue, vocabulary
-                    .getCode(), getVocabularyDetails());
+                    + "It must exist in '%s' controlled vocabulary %s", upperCaseValue,
+                    vocabulary.getCode(), getVocabularyDetails());
         }
 
         /**
@@ -434,8 +440,8 @@ public final class PropertyValidator implements IPropertyValueValidator
                     // instance document is invalid!
                     throw UserFailureException.fromTemplate(
                             "Provided value doesn't validate against schema "
-                                    + "of property type '%s'. %s", propertyTypeLabel, e
-                                    .getMessage());
+                                    + "of property type '%s'. %s", propertyTypeLabel,
+                            e.getMessage());
                 }
             }
 

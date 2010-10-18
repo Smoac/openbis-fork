@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
@@ -267,6 +270,16 @@ public final class PropertyValueRenderers
 
         public Widget getAsWidget(IEntityProperty object)
         {
+            // strip error prefix from error message
+            String value = object.getValue();
+            if (StringUtils.isBlank(value) == false
+                    && StringEscapeUtils.unescapeHtml(value).startsWith(
+                            BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                return createHtmlWidget(StringEscapeUtils.unescapeHtml(value).substring(
+                        BasicConstant.ERROR_PROPERTY_PREFIX.length()));
+            }
+            // handle normal values
             switch (getDataTypeCode(object))
             {
                 case MATERIAL:
