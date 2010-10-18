@@ -528,6 +528,17 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         return SectionSelectionWidget.create(viewContext, etpts);
     }
 
+    String tryGetScriptNameValue()
+    {
+        if (dynamicCheckbox.getValue() == false || scriptChooser == null)
+        {
+            return null;
+        } else
+        {
+            return scriptChooser.getValue();
+        }
+    }
+
     //
 
     private final void submitForm()
@@ -535,13 +546,12 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         if (formPanel.isValid())
         {
             boolean dynamic = dynamicCheckbox.getValue();
-            String scriptOrNull = scriptChooser != null ? scriptChooser.getValue() : null;
             NewETPTAssignment newAssignment =
                     new NewETPTAssignment(entityKind,
                             propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
                             getSelectedEntityCode(), getMandatoryCheckbox().getValue(),
                             getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
-                            dynamic, scriptOrNull);
+                            dynamic, tryGetScriptNameValue());
             viewContext.getService().assignPropertyType(newAssignment,
                     new AssignPropertyTypeCallback(viewContext));
         }

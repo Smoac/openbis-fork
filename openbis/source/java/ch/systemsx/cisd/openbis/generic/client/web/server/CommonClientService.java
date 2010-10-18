@@ -234,11 +234,12 @@ public final class CommonClientService extends AbstractClientService implements
             final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
             final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
             ITableDataProvider dataProvider =
-                    TableDataProviderFactory.createDataProvider(entities, exportCriteria.getColumnDefs());
+                    TableDataProviderFactory.createDataProvider(entities,
+                            exportCriteria.getColumnDefs());
             return TSVRenderer.createTable(dataProvider, lineSeparator);
         } catch (final UserFailureException e)
         {
-   throw UserFailureExceptionTranslator.translate(e);
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
@@ -1005,16 +1006,13 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updatePropertyTypeAssignment(final EntityKind entityKind,
-            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
-            final String defaultValue, final String section, final Long previousETPTOrdinal)
+    public void updatePropertyTypeAssignment(NewETPTAssignment assignmentUpdates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.updatePropertyTypeAssignment(sessionToken, entityKind, propertyTypeCode,
-                    entityTypeCode, isMandatory, defaultValue, section, previousETPTOrdinal);
+            commonServer.updatePropertyTypeAssignment(sessionToken, assignmentUpdates);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

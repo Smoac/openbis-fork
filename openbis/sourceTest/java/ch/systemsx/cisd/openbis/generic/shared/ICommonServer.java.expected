@@ -431,9 +431,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseUpdateModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
     public void updatePropertyTypeAssignment(final String sessionToken,
-            final EntityKind entityKind, final String propertyTypeCode,
-            final String entityTypeCode, final boolean isMandatory, final String defaultValue,
-            final String section, final Long previousETPTOrdinal);
+            NewETPTAssignment assignmentUpdates);
 
     /**
      * Unassigns property type to entity type.

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -59,10 +61,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
  * Grid with 'entity type' - 'property type' assignments.
@@ -73,8 +77,8 @@ public class PropertyTypeAssignmentGrid extends
         AbstractSimpleBrowserGrid<EntityTypePropertyType<?>>
 {
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID =
-            GenericConstants.ID_PREFIX + "property-type-assignment-browser";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX
+            + "property-type-assignment-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
@@ -236,20 +240,47 @@ public class PropertyTypeAssignmentGrid extends
         addEntityOperationsSeparator();
     }
 
+    private static ScriptChooserField createScriptChooserField(
+            final IViewContext<ICommonClientServiceAsync> viewContext, String initialValue,
+            boolean visible)
+    {
+        ScriptChooserField field =
+                ScriptChooserField.create(viewContext.getMessage(Dict.SCRIPT), true, initialValue,
+                        viewContext);
+        FieldUtil.setVisibility(visible, field);
+        return field;
+    }
+
+    private CheckBox createDynamicCheckbox(boolean initialValue)
+    {
+        final CheckBoxField dynamicCheckbox =
+                new CheckBoxField(viewContext.getMessage(Dict.DYNAMIC), false);
+        dynamicCheckbox.setValue(initialValue);
+        return dynamicCheckbox;
+    }
+
     private Window createEditDialog(final EntityTypePropertyType<?> etpt)
     {
         final EntityKind entityKind = etpt.getEntityKind();
         final String entityTypeCode = etpt.getEntityType().getCode();
         final String propertyTypeCode = etpt.getPropertyType().getCode();
+
         final String title =
-                viewContext.getMessage(Dict.EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE, entityKind
-                        .getDescription(), entityTypeCode, propertyTypeCode);
+                viewContext.getMessage(Dict.EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE,
+                        entityKind.getDescription(), entityTypeCode, propertyTypeCode);
 
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
                 {
                     setScrollMode(Scroll.NONE);
                 }
+
+                final CheckBox dynamicCheckbox = createDynamicCheckbox(etpt.isDynamic());
+
+                Script script = etpt.getScript();
+
+                final ScriptChooserField scriptChooser = createScriptChooserField(viewContext,
+                        script != null ? script.getName() : null, etpt.isDynamic());
 
                 private final boolean originalIsMandatory;
 
@@ -269,6 +300,10 @@ public class PropertyTypeAssignmentGrid extends
                     mandatoryCheckbox.setValue(originalIsMandatory);
                     addField(mandatoryCheckbox);
 
+                    addField(dynamicCheckbox);
+
+                    addField(scriptChooser);
+
                     // default value needs to be specified only if currently property is optional
                     if (originalIsMandatory == false)
                     {
@@ -284,14 +319,33 @@ public class PropertyTypeAssignmentGrid extends
                             {
                                 public void handleEvent(FieldEvent be)
                                 {
-                                    defaultValueField.setVisible(getMandatoryValue());
+                                    defaultValueField.setVisible(getMandatoryValue()
+                                            && dynamicCheckbox.getValue() == false);
                                 }
                             });
                         mandatoryCheckbox.fireEvent(Events.Change);
+                        dynamicCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+                            {
+                                public void handleEvent(BaseEvent be)
+                                {
+                                    defaultValueField.setVisible(getMandatoryValue()
+                                            && dynamicCheckbox.getValue() == false);
+
+                                }
+                            });
+
                     } else
                     {
                         defaultValueField = null;
                     }
+
+                    dynamicCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+                        {
+                            public void handleEvent(BaseEvent be)
+                            {
+                                FieldUtil.setVisibility(dynamicCheckbox.getValue(), scriptChooser);
+                            }
+                        });
 
                     final List<EntityTypePropertyType<?>> etpts =
                             getEntityTypePropertyTypes(etpt.getEntityType());
@@ -357,6 +411,17 @@ public class PropertyTypeAssignmentGrid extends
                     return etptSelectionWidget.getSelectedEntityTypePropertyTypeOrdinal();
                 }
 
+                private String tryGetScriptNameValue()
+                {
+                    if (dynamicCheckbox.getValue() == false || scriptChooser == null)
+                    {
+                        return null;
+                    } else
+                    {
+                        return scriptChooser.getValue();
+                    }
+                }
+
                 private String getDefaultValue()
                 {
                     if (defaultValueField != null)
@@ -374,10 +439,11 @@ public class PropertyTypeAssignmentGrid extends
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    viewContext.getService().updatePropertyTypeAssignment(entityKind,
-                            propertyTypeCode, entityTypeCode, getMandatoryValue(),
-                            getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
-                            registrationCallback);
+                    viewContext.getService().updatePropertyTypeAssignment(
+                            new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
+                                    getMandatoryValue(), getDefaultValue(), getSectionValue(),
+                                    getPreviousETPTOrdinal(), dynamicCheckbox.getValue(),
+                                    tryGetScriptNameValue()), registrationCallback);
                 }
 
                 private HelpPageIdentifier createHelpPageIdentifier()

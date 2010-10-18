@@ -388,12 +388,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void assignPropertyType(NewETPTAssignment assignment, AsyncCallback<String> process);
 
     /**
-     * @see ICommonClientService#updatePropertyTypeAssignment(EntityKind, String, String, boolean,
-     *      String, String, Long)
+     * @see ICommonClientService#updatePropertyTypeAssignment(NewETPTAssignment)
      */
-    public void updatePropertyTypeAssignment(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue, String section,
-            Long previousETPTOrdinal, AsyncCallback<Void> callback);
+    public void updatePropertyTypeAssignment(NewETPTAssignment assignmentUpdates,
+            AsyncCallback<Void> callback);
 
     /**
      * @see ICommonClientService#unassignPropertyType(EntityKind, String, String)

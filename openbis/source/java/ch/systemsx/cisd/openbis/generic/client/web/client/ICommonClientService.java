@@ -467,9 +467,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates specified property type assignment.
      */
-    public void updatePropertyTypeAssignment(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue, String section,
-            Long previousETPTOrdinal) throws UserFailureException;
+    public void updatePropertyTypeAssignment(NewETPTAssignment assignmentUpdates)
+            throws UserFailureException;
 
     /**
      * Registers given {@link PropertyType}.

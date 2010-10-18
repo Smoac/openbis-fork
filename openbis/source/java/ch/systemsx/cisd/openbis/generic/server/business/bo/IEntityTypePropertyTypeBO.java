@@ -56,7 +56,6 @@ public interface IEntityTypePropertyTypeBO
     /**
      * Updates loaded assignment. Does nothing if no assignment loaded.
      */
-    void updateLoadedAssignment(final boolean isMandatory, final String defaultValue,
-            final String section, final Long previousETPTOrdinal);
+    void updateLoadedAssignment(NewETPTAssignment assignmentUpdates);
 
 }

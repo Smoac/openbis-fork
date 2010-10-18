@@ -191,19 +191,18 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         return "MEMORY (in MB): free:" + freeMemory + " total:" + totalMemory + " max:" + maxMemory;
     }
 
-    public void updateLoadedAssignment(final boolean isMandatory, final String defaultValue,
-            final String section, final Long previousETPTOrdinal)
+    public void updateLoadedAssignment(NewETPTAssignment assignmentUpdates)
     {
         // if ordinal was changed some etpts need to be shifted by 1
-        final Long currentOrdinal = previousETPTOrdinal + 1;
+        final Long currentOrdinal = assignmentUpdates.getOrdinal() + 1;
         if (assignment.getOrdinal().equals(currentOrdinal) == false)
         {
             increaseOrdinals(assignment.getEntityType(), currentOrdinal, 1);
         }
         assignment.setOrdinal(currentOrdinal);
-        assignment.setSection(section);
+        assignment.setSection(assignmentUpdates.getSection());
         // fill missing property values if we change from optional to mandatory
-        if (isMandatory && (assignment.isMandatory() == false))
+        if (assignmentUpdates.isMandatory() && (assignment.isMandatory() == false))
         {
             final EntityTypePE entityType = assignment.getEntityType();
             final PropertyTypePE propertyType = assignment.getPropertyType();
@@ -215,10 +214,19 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             List<Long> entityIds =
                     getEntityPropertyTypeDAO(entityKind).listIdsOfEntitiesWithoutPropertyValue(
                             assignment);
-            addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entityIds,
-                    errorMsgTemplate);
+            addPropertyWithDefaultValue(entityType, propertyType,
+                    assignmentUpdates.getDefaultValue(), entityIds, errorMsgTemplate);
         }
-        assignment.setMandatory(isMandatory);
+        assignment.setMandatory(assignmentUpdates.isMandatory());
+        assignment.setDynamic(assignmentUpdates.isDynamic());
+        if (assignmentUpdates.isDynamic())
+        {
+            ScriptPE script = getScriptDAO().tryFindByName(assignmentUpdates.getScriptName());
+            assignment.setScript(script);
+        } else
+        {
+            assignment.setScript(null);
+        }
         validateAndSave();
     }
 
