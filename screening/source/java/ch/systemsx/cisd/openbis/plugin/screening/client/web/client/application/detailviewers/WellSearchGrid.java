@@ -543,7 +543,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     }
 
     @Override
-    protected String translateColumnIdToDictonaryKey(String columnID)
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
         return columnID;
     }

@@ -190,7 +190,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 String title = header.getTitle();
                 if (title == null)
                 {
-                    title = viewContext.getMessage(translateColumnIdToDictonaryKey(header.getId()));
+                    title = viewContext.getMessage(translateColumnIdToDictionaryKey(header.getId()));
                 }
                 ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
                         listenerLinkGenerators.get(header.getId());
@@ -217,7 +217,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
      * 
      * @return <code>getId() + "_" + columnID</code>
      */
-    protected String translateColumnIdToDictonaryKey(String columnID)
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
         return getId() + "_" + columnID;
     }
