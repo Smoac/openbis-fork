@@ -24,6 +24,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5WriterClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 
@@ -44,14 +46,25 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
     {
         File hdf5File = new File(workingDirectory, "test.h5");
         Hdf5Container hdf5Content = new Hdf5Container(hdf5File);
-        IHDF5SimpleWriter writer = hdf5Content.createSimpleWriter(false);
-        byte[] byteArray = createByteArray();
-        writer.writeByteArray("/test-bytes", byteArray);
-        writer.close();
+        final byte[] byteArray = createByteArray();
 
-        IHDF5SimpleReader reader = hdf5Content.createSimpleReader();
-        byte[] readData = reader.readAsByteArray("/test-bytes");
-        assertEquals(byteArray, readData);
+        hdf5Content.runWriterClient(false, new IHdf5WriterClient()
+            {
+                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                {
+                    writer.writeByteArray("/test-bytes", byteArray);
+
+                }
+            });
+
+        hdf5Content.runReaderClient(new IHdf5ReaderClient()
+            {
+                public void runWithSimpleReader(IHDF5SimpleReader reader)
+                {
+                    byte[] readData = reader.readAsByteArray("/test-bytes");
+                    assertEquals(byteArray, readData);
+                }
+            });
     }
 
     @Test
@@ -59,32 +72,53 @@ public class Hdf5ContainerTest extends AbstractFileSystemTestCase
     {
         File hdf5File = new File(workingDirectory, "test.h5");
         Hdf5Container hdf5Content = new Hdf5Container(hdf5File);
-        IHDF5SimpleWriter writer = hdf5Content.createSimpleWriter(true);
-        byte[] byteArray = createByteArray();
-        writer.writeByteArray("/test-bytes", byteArray);
-        writer.close();
+        final byte[] byteArray = createByteArray();
 
-        IHDF5SimpleReader reader = hdf5Content.createSimpleReader();
-        byte[] readData = reader.readAsByteArray("/test-bytes");
-        assertEquals(byteArray, readData);
+        hdf5Content.runWriterClient(true, new IHdf5WriterClient()
+            {
+                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                {
+                    writer.writeByteArray("/test-bytes", byteArray);
+
+                }
+            });
+
+        hdf5Content.runReaderClient(new IHdf5ReaderClient()
+            {
+                public void runWithSimpleReader(IHDF5SimpleReader reader)
+                {
+                    byte[] readData = reader.readAsByteArray("/test-bytes");
+                    assertEquals(byteArray, readData);
+                }
+            });
     }
 
     @Test
     public void testSizeComparison()
     {
-        byte[] byteArray = createByteArray();
+        final byte[] byteArray = createByteArray();
 
         File hdf5FileUncompressed = new File(workingDirectory, "test-uncompressed.h5");
         Hdf5Container hdf5ContentUncompressed = new Hdf5Container(hdf5FileUncompressed);
-        IHDF5SimpleWriter writerUncompressed = hdf5ContentUncompressed.createSimpleWriter(false);
-        writerUncompressed.writeByteArray("/test-bytes", byteArray);
-        writerUncompressed.close();
+        hdf5ContentUncompressed.runWriterClient(false, new IHdf5WriterClient()
+            {
+                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                {
+                    writer.writeByteArray("/test-bytes", byteArray);
+
+                }
+            });
 
         File hdf5FileCompressed = new File(workingDirectory, "test-compressed.h5");
         Hdf5Container hdf5ContentCompressed = new Hdf5Container(hdf5FileCompressed);
-        IHDF5SimpleWriter writerCompressed = hdf5ContentCompressed.createSimpleWriter(true);
-        writerCompressed.writeByteArray("/test-bytes", byteArray);
-        writerCompressed.close();
+        hdf5ContentCompressed.runWriterClient(true, new IHdf5WriterClient()
+            {
+                public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+                {
+                    writer.writeByteArray("/test-bytes", byteArray);
+
+                }
+            });
 
         long uncompressedLength = hdf5FileUncompressed.length();
         long compressedLength = hdf5FileCompressed.length();

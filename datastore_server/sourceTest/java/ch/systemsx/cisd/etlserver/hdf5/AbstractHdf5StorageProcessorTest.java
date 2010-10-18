@@ -21,6 +21,8 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5ReaderClient;
+import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * Tests for {@link Hdf5StorageProcessor}.
@@ -48,7 +50,7 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
 
     protected void testStoreData()
     {
-        File incomingDataSetDirectory = createDirectory("incoming");
+        final File incomingDataSetDirectory = createDirectory("incoming");
         FileUtilities.writeToFile(new File(incomingDataSetDirectory, "read.me"), "hello world");
         File rootDir = createDirectory("root");
         File storeData =
@@ -60,11 +62,19 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
         assertTrue(hdf5ContainerFile.exists());
         assertTrue(hdf5ContainerFile.isFile());
 
-        Hdf5Container container = Hdf5StorageProcessor.getHdf5Container(rootDir);
+        final Hdf5Container container = Hdf5StorageProcessor.getHdf5Container(rootDir);
 
-        FileToHdf5DuplicationVerifier verifier =
-                new FileToHdf5DuplicationVerifier(incomingDataSetDirectory, container);
-        verifier.verifyDuplicate();
+        container.runReaderClient(new IHdf5ReaderClient()
+            {
+
+                public void runWithSimpleReader(IHDF5SimpleReader reader)
+                {
+                    FileToHdf5DuplicationVerifier verifier =
+                            new FileToHdf5DuplicationVerifier(incomingDataSetDirectory, container,
+                                    reader);
+                    verifier.verifyDuplicate();
+                }
+            });
 
         storageProcessor.commit();
 

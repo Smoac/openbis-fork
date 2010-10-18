@@ -37,6 +37,29 @@ public class HierarchicalStructureDuplicatorFileToHdf5
 
     private final IHDF5SimpleWriter writer;
 
+    /**
+     * Utility class that adapts to the IHdf5WriterClient interface
+     *
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static class DuplicatorWriterClient implements Hdf5Container.IHdf5WriterClient
+    {
+        private final File file;
+
+        public DuplicatorWriterClient(File file)
+        {
+            this.file = file;
+        }
+
+        public void runWithSimpleWriter(IHDF5SimpleWriter writer)
+        {
+            HierarchicalStructureDuplicatorFileToHdf5 duplicator =
+                    new HierarchicalStructureDuplicatorFileToHdf5(file, writer);
+            duplicator.makeDuplicate();
+        }
+
+    }
+
     public HierarchicalStructureDuplicatorFileToHdf5(File file, IHDF5SimpleWriter writer)
     {
         this.file = file;
@@ -44,6 +67,9 @@ public class HierarchicalStructureDuplicatorFileToHdf5
     }
 
     /**
+     * Makes a duplicate; does not close the writer when finished it is expected that users of this
+     * method close the writer.
+     * 
      * @throws IllegalArgumentException Thrown if one of the files to duplicate is a symbolic link
      *             or the file does not exist
      * @throws CheckedExceptionTunnel Thrown if an underlying error occurs
@@ -53,8 +79,10 @@ public class HierarchicalStructureDuplicatorFileToHdf5
     {
         if (false == file.exists())
         {
+            writer.close();
             throw new IllegalArgumentException("File does not exist " + file);
         }
+
         if (file.isFile())
         {
             // If there the file is a normal file, create an HDF5 container with the file in the
@@ -68,7 +96,6 @@ public class HierarchicalStructureDuplicatorFileToHdf5
             mirrorGroup(file, "/");
         }
 
-        writer.close();
     }
 
     private void mirrorGroup(File directory, String groupPath)

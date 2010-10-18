@@ -20,26 +20,26 @@ import java.io.File;
 
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
-import ch.systemsx.cisd.hdf5.IHDF5Reader;
+import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
+import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class Hdf5BasedContentRepository implements IContentRepository
 {
-    private final File hdf5Container;
+    private final Hdf5Container hdf5Container;
 
-    private IHDF5Reader reader;
+    private IHDF5SimpleReader reader;
 
-    public Hdf5BasedContentRepository(File hdf5Container)
+    public Hdf5BasedContentRepository(File hdf5ContainerFile)
     {
-        this.hdf5Container = hdf5Container;
+        this.hdf5Container = new Hdf5Container(hdf5ContainerFile);
     }
 
     public void open()
     {
-        reader = HDF5FactoryProvider.get().openForReading(hdf5Container);
+        reader = hdf5Container.createSimpleReader();
     }
 
     public IContent getContent(String path)

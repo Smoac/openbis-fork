@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.hdf5.IHDF5SimpleWriter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
@@ -72,11 +71,9 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
         checkParameters(incomingDataSetDirectory, rootDir);
 
         Hdf5Container container = getHdf5Container(rootDir);
-        IHDF5SimpleWriter writer = container.createSimpleWriter(isDataCompressed);
-        HierarchicalStructureDuplicatorFileToHdf5 duplicator =
-                new HierarchicalStructureDuplicatorFileToHdf5(incomingDataSetDirectory, writer);
-
-        duplicator.makeDuplicate();
+        container.runWriterClient(isDataCompressed,
+                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(
+                        incomingDataSetDirectory));
 
         fileBeingProcessed = incomingDataSetDirectory;
 

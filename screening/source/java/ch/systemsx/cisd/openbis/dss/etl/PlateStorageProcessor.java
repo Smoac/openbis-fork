@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +24,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.imageio.ImageIO;
 import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
@@ -35,7 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.bds.hcs.Channel;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
@@ -57,14 +53,12 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.hdf5.HDF5FactoryProvider;
-import ch.systemsx.cisd.hdf5.IHDF5Writer;
+import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
@@ -79,6 +73,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
  * <li>generate-thumbnails - should the thumbnails be generated? It slows down the dataset
  * registration, but increases the performance when the user wants to see the image. Can be 'true'
  * or 'false', 'false' is the default value
+ * <li>compress-thumbnails - should the thumbnails be compressed? Used if generate-thumbnails is
+ * true, otherwise ignored
  * <li>thumbnail-max-width, thumbnail-max-height - thumbnails size in pixels
  * <li>[deprecated] channel-names - names of the channels in which images have been acquired
  * <li>channel-codes - codes of the channels in which images have been acquired
@@ -111,6 +107,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     private static final String SPOT_GEOMETRY_PROPERTY = "well_geometry";
 
     private static final String GENERATE_THUMBNAILS_PROPERTY = "generate-thumbnails";
+
+    private final static String COMPRESS_THUMBNAILS_PROPERTY = "compress-thumbnails";
 
     private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
 
@@ -147,6 +145,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final boolean generateThumbnails;
 
+    private final boolean areThumbnailsCmpressed;
+
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
 
@@ -170,6 +170,8 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                         DEFAULT_THUMBNAIL_MAX_HEIGHT);
         generateThumbnails =
                 PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
+        areThumbnailsCmpressed =
+                PropertyUtils.getBoolean(properties, COMPRESS_THUMBNAILS_PROPERTY, false);
 
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
         if (fileExtractorClass != null)
@@ -376,13 +378,13 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         return rootDirectory;
     }
 
-    private void createThumbnails(final File rootDirectory, File imagesInStoreFolder,
-            List<AcquiredPlateImage> plateImages)
+    private void createThumbnails(final File rootDirectory, final File imagesInStoreFolder,
+            final List<AcquiredPlateImage> plateImages)
     {
-        File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
-        String relativeImagesDirectory =
+        final File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
+        final String relativeImagesDirectory =
                 getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
-        String relativeThumbnailFilePath =
+        final String relativeThumbnailFilePath =
                 getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
         if (generateThumbnails == false)
         {
@@ -394,42 +396,10 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
             return;
         }
 
-        IHDF5Writer writer = HDF5FactoryProvider.get().open(thumbnailsFile);
-        for (AcquiredPlateImage plateImage : plateImages)
-        {
-            RelativeImageReference imageReference = plateImage.getImageReference();
-            String imagePath = imageReference.getRelativeImagePath();
-            imageReference.setRelativeImageFolder(relativeImagesDirectory);
-            File img = new File(imagesInStoreFolder, imagePath);
-            BufferedImage image = ImageUtil.loadImage(img);
-            BufferedImage thumbnail =
-                    ImageUtil.createThumbnail(image, thumbnailMaxWidth, thumbnailMaxHeight);
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            try
-            {
-                ImageIO.write(thumbnail, "png", output);
-                int lastIndex = imagePath.lastIndexOf('.');
-                if (lastIndex > 0)
-                {
-                    imagePath = imagePath.substring(0, lastIndex);
-                }
-                imagePath += ".png";
-                String path = relativeThumbnailFilePath + ":" + imagePath;
-                plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path,
-                        imageReference.tryGetPage(), imageReference.tryGetColorComponent()));
-                byte[] byteArray = output.toByteArray();
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug("thumbnail " + imagePath + " (" + byteArray.length
-                            + " bytes)");
-                }
-                writer.writeByteArray(imagePath, byteArray);
-            } catch (IOException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
-        }
-        writer.close();
+        Hdf5Container container = new Hdf5Container(thumbnailsFile);
+        container.runWriterClient(areThumbnailsCmpressed, new Hdf5ThumbnailGenerator(plateImages,
+                relativeImagesDirectory, imagesInStoreFolder, thumbnailMaxWidth,
+                thumbnailMaxHeight, relativeThumbnailFilePath, operationLog));
     }
 
     private String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)

@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
 
+import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container.IHdf5ReaderClient;
 import ch.systemsx.cisd.hdf5.IHDF5SimpleReader;
 
 /**
@@ -38,11 +39,37 @@ class FileToHdf5DuplicationVerifier extends AssertJUnit
 
     private final IHDF5SimpleReader reader;
 
-    public FileToHdf5DuplicationVerifier(File sourceFolderOrFile, Hdf5Container container)
+    public static IHdf5ReaderClient createVerifierClient(File sourceFolderOrFile,
+            Hdf5Container container)
+    {
+        return new ReaderClient(sourceFolderOrFile, container);
+    }
+
+    private static class ReaderClient implements IHdf5ReaderClient
+    {
+        private final File sourceFolderOrFile;
+
+        private final Hdf5Container container;
+
+        private ReaderClient(File sourceFolderOrFile, Hdf5Container container)
+        {
+            this.sourceFolderOrFile = sourceFolderOrFile;
+            this.container = container;
+        }
+
+        public void runWithSimpleReader(IHDF5SimpleReader reader)
+        {
+            new FileToHdf5DuplicationVerifier(sourceFolderOrFile, container, reader)
+                    .verifyDuplicate();
+        }
+    }
+
+    public FileToHdf5DuplicationVerifier(File sourceFolderOrFile, Hdf5Container container,
+            IHDF5SimpleReader reader)
     {
         this.sourceFolderOrFile = sourceFolderOrFile;
         this.container = container;
-        this.reader = container.createSimpleReader();
+        this.reader = reader;
     }
 
     public void verifyDuplicate()

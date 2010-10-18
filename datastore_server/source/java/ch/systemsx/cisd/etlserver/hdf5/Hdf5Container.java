@@ -34,6 +34,32 @@ public class Hdf5Container
     private final File hdf5Container;
 
     /**
+     * An interface for classes that want to write to HDF5 files.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static interface IHdf5WriterClient
+    {
+        /**
+         * Run code using a writer. Implementations do <b>not</b> need to close the writer.
+         */
+        public void runWithSimpleWriter(IHDF5SimpleWriter writer);
+    }
+
+    /**
+     * An interface for classes that want to read from HDF5 files.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    public static interface IHdf5ReaderClient
+    {
+        /**
+         * Run code using a reader. Implementations do <b>not</b> need to close the reader.
+         */
+        public void runWithSimpleReader(IHDF5SimpleReader reader);
+    }
+
+    /**
      * Constructor.
      * 
      * @param hdf5Container A file designated to be the hdf5 container. The file need not exist --
@@ -66,7 +92,7 @@ public class Hdf5Container
      * @param isContentCompressed Pass in true to have byte arrays transparently compressed.
      * @return A new IHDF5SimpleWriter
      */
-    public IHDF5SimpleWriter createSimpleWriter(boolean isContentCompressed)
+    private IHDF5SimpleWriter createSimpleWriter(boolean isContentCompressed)
     {
         if (isContentCompressed)
         {
@@ -75,6 +101,38 @@ public class Hdf5Container
         } else
         {
             return HDF5FactoryProvider.get().open(hdf5Container);
+        }
+    }
+
+    /**
+     * Run a writer client on this Hdf5 container. Ensures that the writer is closed when the client
+     * finishes running.
+     */
+    public void runWriterClient(boolean isContentCompressed, IHdf5WriterClient client)
+    {
+        IHDF5SimpleWriter writer = createSimpleWriter(isContentCompressed);
+        try
+        {
+            client.runWithSimpleWriter(writer);
+        } finally
+        {
+            writer.close();
+        }
+    }
+
+    /**
+     * Run a reader client on this Hdf5 container. Ensures that the reader is closed when the client
+     * finishes running.
+     */
+    public void runReaderClient(IHdf5ReaderClient client)
+    {
+        IHDF5SimpleReader reader = createSimpleReader();
+        try
+        {
+            client.runWithSimpleReader(reader);
+        } finally
+        {
+            reader.close();
         }
     }
 }
