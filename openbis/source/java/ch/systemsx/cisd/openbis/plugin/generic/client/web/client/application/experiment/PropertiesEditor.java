@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -136,6 +137,10 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
                         createFormFieldId(getId(), propertyTypeCode), value, viewContext);
         field.get().setData(ETPT, etpt);
         GWTUtils.setToolTip(field.get(), propertyTypeCode);
+        if (etpt.isDynamic())
+        {
+            FieldUtil.setVisibility(false, field.get());
+        }
         return field;
     }
 
