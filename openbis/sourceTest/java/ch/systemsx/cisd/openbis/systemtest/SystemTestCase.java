@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
 /**
  * @author Franz-Josef Elmer
@@ -39,6 +40,8 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     protected ICommonServerForInternalUse commonServer;
 
     protected ICommonClientService commonClientService;
+    
+    protected IGenericClientService genericClientService;
 
     protected MockHttpServletRequest request;
 
@@ -82,6 +85,18 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
         this.commonClientService = commonClientService;
     }
 
+    /**
+     * Sets <code>genericClientService</code>.
+     * <p>
+     * Will be automatically dependency injected by type.
+     * </p>
+     */
+    @Autowired
+    public final void setGenericClientService(final IGenericClientService genericClientService)
+    {
+        this.genericClientService = genericClientService;
+    }
+    
     protected SessionContext logIntoCommonClientService()
     {
         SessionContext context = commonClientService.tryToLogin("test", "a");
