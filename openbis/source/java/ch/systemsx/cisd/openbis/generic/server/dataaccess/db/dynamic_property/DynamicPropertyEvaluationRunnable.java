@@ -114,6 +114,10 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     @SuppressWarnings("unchecked")
     public final void run()
     {
+        if (turnOff())
+        {
+            return;
+        }
         try
         {
             while (true)
@@ -163,5 +167,10 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
             notificationLog
                     .error("A problem has occurred while evaluating dynamic properties.", th);
         }
+    }
+
+    private static boolean turnOff()
+    {
+        return true;
     }
 }
