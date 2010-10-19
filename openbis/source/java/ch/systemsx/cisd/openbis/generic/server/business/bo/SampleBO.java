@@ -32,11 +32,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -162,8 +162,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
                 } catch (final DataAccessException e)
                 {
                     final String fileName = property.getFileName();
-                    throwException(e, String.format("Filename '%s' for sample '%s'", fileName,
-                            sample.getSampleIdentifier()));
+                    throwException(
+                            e,
+                            String.format("Filename '%s' for sample '%s'", fileName,
+                                    sample.getSampleIdentifier()));
                 }
             }
             attachments.clear();
@@ -186,8 +188,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             getSampleDAO().updateSample(sample);
         } catch (final DataAccessException ex)
         {
-            throwException(ex, String.format("Couldn't update sample '%s'", sample
-                    .getSampleIdentifier()));
+            throwException(ex,
+                    String.format("Couldn't update sample '%s'", sample.getSampleIdentifier()));
         }
         dataChanged = false;
     }
@@ -196,8 +198,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         if (sample.getInvalidation() != null)
         {
-            throw UserFailureException.fromTemplate("Given sample '%s' is invalid.", sample
-                    .getSampleIdentifier());
+            throw UserFailureException.fromTemplate("Given sample '%s' is invalid.",
+                    sample.getSampleIdentifier());
         }
     }
 
@@ -212,9 +214,9 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         if (experiment != null && experiment.getInvalidation() == null)
         {
             throw UserFailureException.fromTemplate(
-                    "Given sample code '%s' already registered for experiment '%s'.", sample
-                            .getSampleIdentifier(), IdentifierHelper
-                            .createExperimentIdentifier(experiment));
+                    "Given sample code '%s' already registered for experiment '%s'.",
+                    sample.getSampleIdentifier(),
+                    IdentifierHelper.createExperimentIdentifier(experiment));
         }
     }
 
@@ -223,8 +225,8 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         if (sample.getGroup() == null)
         {
             throw UserFailureException.fromTemplate(
-                    "The sample '%s' is shared and cannot be assigned to any experiment.", sample
-                            .getSampleIdentifier());
+                    "The sample '%s' is shared and cannot be assigned to any experiment.",
+                    sample.getSampleIdentifier());
         }
     }
 
@@ -250,10 +252,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     private void updateProperties(List<IEntityProperty> properties)
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
-        final EntityTypePE type = sample.getSampleType();
+        final SampleTypePE type = sample.getSampleType();
         final PersonPE registrator = findRegistrator();
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator));
+                properties, registrator, extractDynamicProperties(type)));
     }
 
     private void updateParents(SampleUpdatesDTO updates)

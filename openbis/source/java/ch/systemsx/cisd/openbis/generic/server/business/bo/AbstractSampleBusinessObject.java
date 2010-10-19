@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -237,8 +238,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         List<SampleRelationshipPE> oldParents = new ArrayList<SampleRelationshipPE>();
         for (SampleRelationshipPE r : child.getParentRelationships())
         {
-            if (r.getRelationship().getCode().equals(
-                    BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
+            if (r.getRelationship().getCode()
+                    .equals(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP))
             {
                 oldParents.add(r);
             }
@@ -353,26 +354,26 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     {
         if (cacheOrNull != null)
         {
-            entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
-                    .getSampleType(), cacheOrNull);
+            entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(),
+                    sample.getSampleType(), cacheOrNull);
         } else
         {
-            entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(), sample
-                    .getSampleType());
+            entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(),
+                    sample.getSampleType());
         }
         final boolean hasDatasets = hasDatasets(externalDataDAO, sample);
         if (hasDatasets && sample.getExperiment() == null)
         {
             throw UserFailureException.fromTemplate(
                     "Cannot detach the sample '%s' from the experiment "
-                            + "because there are already datasets attached to the sample.", sample
-                            .getIdentifier());
+                            + "because there are already datasets attached to the sample.",
+                    sample.getIdentifier());
         }
         if (hasDatasets && sample.getGroup() == null)
         {
             throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
-                    + "because there are already datasets attached to the sample.", sample
-                    .getIdentifier());
+                    + "because there are already datasets attached to the sample.",
+                    sample.getIdentifier());
         }
         if (sample.getExperiment() != null
                 && (sample.getGroup() == null || sample.getExperiment().getProject().getGroup()
@@ -423,8 +424,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             throw UserFailureException.fromTemplate(
                     "Cannot detach the sample '%s' from the experiment "
-                            + "because there are already datasets attached to the sample.", sample
-                            .getIdentifier());
+                            + "because there are already datasets attached to the sample.",
+                    sample.getIdentifier());
         }
         sample.setExperiment(null);
     }
@@ -458,8 +459,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         if (sample.getGroup() == null)
         {
             throw UserFailureException.fromTemplate(
-                    "It is not allowed to connect a shared sample '%s' to the experiment.", sample
-                            .getIdentifier());
+                    "It is not allowed to connect a shared sample '%s' to the experiment.",
+                    sample.getIdentifier());
         }
     }
 
@@ -470,8 +471,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             throw UserFailureException.fromTemplate(
                     "The sample '%s' cannot be assigned to the experiment '%s' "
-                            + "because the experiment has been invalidated.", sample
-                            .getSampleIdentifier(), identOrNull);
+                            + "because the experiment has been invalidated.",
+                    sample.getSampleIdentifier(), identOrNull);
         }
     }
 
@@ -523,8 +524,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             {
                 throw UserFailureException.fromTemplate(
                         "Sample '%s' is an ancestor of Sample '%s' "
-                                + "and cannot be at the same time set as its child.", sample
-                                .getIdentifier(), parentToAdd.getIdentifier());
+                                + "and cannot be at the same time set as its child.",
+                        sample.getIdentifier(), parentToAdd.getIdentifier());
             } else
             {
                 final Set<TechId> nextToVisit = getSampleDAO().listParents(toVisit, relationship);
@@ -533,5 +534,18 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 toVisit = nextToVisit;
             }
         }
+    }
+
+    protected Set<String> extractDynamicProperties(final SampleTypePE type)
+    {
+        Set<String> dynamicProperties = new HashSet<String>();
+        for (SampleTypePropertyTypePE etpt : type.getSampleTypePropertyTypes())
+        {
+            if (etpt.isDynamic())
+            {
+                dynamicProperties.add(etpt.getPropertyType().getCode());
+            }
+        }
+        return dynamicProperties;
     }
 }

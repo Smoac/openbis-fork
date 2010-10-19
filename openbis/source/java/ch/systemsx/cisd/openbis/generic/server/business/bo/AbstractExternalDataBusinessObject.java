@@ -16,13 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -65,19 +67,32 @@ public abstract class AbstractExternalDataBusinessObject extends
             List<IEntityProperty> newProperties, Set<String> set)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
-        final EntityTypePE type = externalData.getDataSetType();
+        final DataSetTypePE type = externalData.getDataSetType();
         final PersonPE registrator = findRegistrator();
         externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, newProperties, registrator, set));
+                type, newProperties, registrator, set, extractDynamicProperties(type)));
+    }
+
+    protected Set<String> extractDynamicProperties(final DataSetTypePE type)
+    {
+        Set<String> dynamicProperties = new HashSet<String>();
+        for (DataSetTypePropertyTypePE etpt : type.getDataSetTypePropertyTypes())
+        {
+            if (etpt.isDynamic())
+            {
+                dynamicProperties.add(etpt.getPropertyType().getCode());
+            }
+        }
+        return dynamicProperties;
     }
 
     protected void updateProperties(ExternalDataPE externalData, List<IEntityProperty> newProperties)
     {
         final Set<DataSetPropertyPE> existingProperties = externalData.getProperties();
-        final EntityTypePE type = externalData.getDataSetType();
+        final DataSetTypePE type = externalData.getDataSetType();
         final PersonPE registrator = findRegistrator();
         externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, newProperties, registrator));
+                type, newProperties, registrator, extractDynamicProperties(type)));
     }
 
 }

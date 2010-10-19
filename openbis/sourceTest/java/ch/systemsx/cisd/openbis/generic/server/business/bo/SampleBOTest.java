@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -71,6 +72,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public final class SampleBOTest extends AbstractBOTest
 {
+    private static final String SAMPLE_TYPE = "sample-type";
+
     private static final TechId SAMPLE_TECH_ID = CommonTestUtils.TECH_ID;
 
     private static final String DB = "DB";
@@ -91,7 +94,19 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE sample = new SamplePE();
         sample.setCode(DEFAULT_SAMPLE_CODE);
         sample.setModificationDate(new Date());
+        sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
         return sample;
+    }
+
+    private static SampleTypePE createSampleTypePE(String typeCode)
+    {
+        SampleTypePE sampleType = new SampleTypePE();
+        sampleType.setCode(typeCode);
+        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        databaseInstance.setCode(DB);
+        sampleType.setDatabaseInstance(databaseInstance);
+        sampleType.setSampleTypePropertyTypes(new HashSet<SampleTypePropertyTypePE>());
+        return sampleType;
     }
 
     private static SamplePE createSample(final SampleIdentifier sampleIdentifier,
@@ -100,9 +115,7 @@ public final class SampleBOTest extends AbstractBOTest
         final SamplePE sample = new SamplePE();
         sample.setCode(sampleIdentifier.getSampleCode());
         sample.setRegistrator(EXAMPLE_PERSON);
-        final SampleTypePE sampleTypeDTO = new SampleTypePE();
-        sampleTypeDTO.setCode(sampleTypeCode);
-        sample.setSampleType(sampleTypeDTO);
+        sample.setSampleType(createSampleTypePE(sampleTypeCode));
         return sample;
     }
 
@@ -380,6 +393,7 @@ public final class SampleBOTest extends AbstractBOTest
         sample.setCode("sampleCode");
         sample.setExperiment(sampleExperiment);
         sample.setGroup(EXAMPLE_GROUP);
+        sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
 
         Date now = new Date();
         sample.setModificationDate(now);
@@ -578,6 +592,7 @@ public final class SampleBOTest extends AbstractBOTest
         sample.setId(SAMPLE_TECH_ID.getId());
         sample.setCode(code);
         sample.setGroup(group);
+        sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
         return sample;
     }
 
@@ -714,8 +729,8 @@ public final class SampleBOTest extends AbstractBOTest
         try
         {
             SampleUpdatesDTO updates =
-                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
-                            .<NewAttachment> emptyList(), now, null, null, null);
+                    new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null,
+                            Collections.<NewAttachment> emptyList(), now, null, null, null);
             createSampleBO().update(updates);
         } catch (UserFailureException e)
         {
@@ -972,8 +987,8 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(propertiesConverter).updateProperties(sample.getProperties(), null, null,
-                            EXAMPLE_PERSON);
+                    one(propertiesConverter).updateProperties(sample.getProperties(),
+                            sample.getSampleType(), null, EXAMPLE_PERSON, new HashSet<String>());
                 }
             });
     }

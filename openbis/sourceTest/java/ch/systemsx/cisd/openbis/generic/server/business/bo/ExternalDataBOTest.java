@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import org.hamcrest.BaseMatcher;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -76,16 +78,15 @@ public class ExternalDataBOTest extends AbstractBOTest
     private static final DatabaseInstanceIdentifier DATABASE_INSTANCE_IDENTIFIER =
             new DatabaseInstanceIdentifier(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE.getCode());
 
-    private static final GroupIdentifier GROUP_IDENTIFIER =
-            new GroupIdentifier(DATABASE_INSTANCE_IDENTIFIER, ManagerTestTool.EXAMPLE_GROUP
-                    .getCode());
+    private static final GroupIdentifier GROUP_IDENTIFIER = new GroupIdentifier(
+            DATABASE_INSTANCE_IDENTIFIER, ManagerTestTool.EXAMPLE_GROUP.getCode());
 
-    private static final SampleIdentifier SAMPLE_IDENTIFIER =
-            new SampleIdentifier(GROUP_IDENTIFIER, "EXAMPLE_SAMPLE");
+    private static final SampleIdentifier SAMPLE_IDENTIFIER = new SampleIdentifier(
+            GROUP_IDENTIFIER, "EXAMPLE_SAMPLE");
 
-    private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER =
-            new ExperimentIdentifier(new ProjectIdentifier(GROUP_IDENTIFIER,
-                    ManagerTestTool.EXAMPLE_PROJECT.getCode()), "EXPERIMENT_CODE");
+    private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER = new ExperimentIdentifier(
+            new ProjectIdentifier(GROUP_IDENTIFIER, ManagerTestTool.EXAMPLE_PROJECT.getCode()),
+            "EXPERIMENT_CODE");
 
     private static final String DATA_STORE_CODE = "dss1";
 
@@ -160,7 +161,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertEquals(null, externalData.getRegistrator());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDefineWithUserID()
     {
@@ -186,11 +187,11 @@ public class ExternalDataBOTest extends AbstractBOTest
                     will(returnValue(registrator));
                 }
             });
-        
+
         IExternalDataBO dataBO = createExternalDataBO();
         dataBO.define(data, sample, SourceType.DERIVED);
         ExternalDataPE externalData = dataBO.getExternalData();
-        
+
         assertEquals(DATA_SET_CODE, externalData.getCode());
         assertEquals(BooleanOrUnknown.U, externalData.getComplete());
         assertEquals(DATA_PRODUCER_CODE, externalData.getDataProducerCode());
@@ -208,7 +209,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertSame(registrator, externalData.getRegistrator());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testDefineWithUserEMail()
     {
@@ -229,17 +230,17 @@ public class ExternalDataBOTest extends AbstractBOTest
         final PersonPE registrator = new PersonPE();
         registrator.setEmail(data.getUserEMail());
         context.checking(new Expectations()
-        {
             {
-                one(personDAO).listPersons();
-                will(returnValue(Arrays.asList(new PersonPE(), registrator)));
-            }
-        });
-        
+                {
+                    one(personDAO).listPersons();
+                    will(returnValue(Arrays.asList(new PersonPE(), registrator)));
+                }
+            });
+
         IExternalDataBO dataBO = createExternalDataBO();
         dataBO.define(data, sample, SourceType.DERIVED);
         ExternalDataPE externalData = dataBO.getExternalData();
-        
+
         assertEquals(DATA_SET_CODE, externalData.getCode());
         assertEquals(BooleanOrUnknown.U, externalData.getComplete());
         assertEquals(DATA_PRODUCER_CODE, externalData.getDataProducerCode());
@@ -424,7 +425,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                     will(returnValue(fileFormatTypePE));
 
                     one(propertiesConverter).checkMandatoryProperties(
-                            Collections.<DataSetPropertyPE> emptySet(), null);
+                            Collections.<DataSetPropertyPE> emptySet(), dataSet.getDataSetType());
 
                     one(externalDataDAO).validateAndSaveUpdatedEntity(dataSet);
                 }
@@ -432,7 +433,6 @@ public class ExternalDataBOTest extends AbstractBOTest
 
         IExternalDataBO dataBO = createExternalDataBO();
         dataBO.update(dataSetUpdatesDTO);
-
         context.assertIsSatisfied();
     }
 
@@ -491,8 +491,8 @@ public class ExternalDataBOTest extends AbstractBOTest
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("Data Sets with following codes do not exist: '[" + PARENT_CODE + "]'.", e
-                    .getMessage());
+            assertEquals("Data Sets with following codes do not exist: '[" + PARENT_CODE + "]'.",
+                    e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -508,8 +508,8 @@ public class ExternalDataBOTest extends AbstractBOTest
                     will(returnValue(dataSet));
 
                     one(propertiesConverter).updateProperties(
-                            Collections.<DataSetPropertyPE> emptySet(), null, null,
-                            ManagerTestTool.EXAMPLE_PERSON);
+                            Collections.<DataSetPropertyPE> emptySet(), dataSet.getDataSetType(),
+                            null, ManagerTestTool.EXAMPLE_PERSON, Collections.<String> emptySet());
                     will(returnValue(Collections.emptySet()));
 
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
@@ -576,6 +576,13 @@ public class ExternalDataBOTest extends AbstractBOTest
         dataSet.setModificationDate(PRODUCTION_DATE);
         dataSet.setSample(sampleOrNull);
         dataSet.setExperiment(experimentOrNull);
+        DataSetTypePE dataSetType = new DataSetTypePE();
+        dataSetType.setCode(DATA_SET_TYPE.getCode());
+        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        databaseInstance.setCode("db");
+        dataSetType.setDatabaseInstance(databaseInstance);
+        dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
+        dataSet.setDataSetType(dataSetType);
         return dataSet;
     }
 

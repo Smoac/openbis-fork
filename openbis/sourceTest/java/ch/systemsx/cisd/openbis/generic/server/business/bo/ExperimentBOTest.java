@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
@@ -101,7 +102,7 @@ public final class ExperimentBOTest extends AbstractBOTest
             {
                 {
                     one(propertiesConverter).updateProperties(oldProperties, entityType,
-                            newProperties, registrator);
+                            newProperties, registrator, new HashSet<String>());
                     will(returnValue(new HashSet<ExperimentPropertyPE>(updated)));
 
                 }
@@ -167,12 +168,16 @@ public final class ExperimentBOTest extends AbstractBOTest
         expBO.loadByExperimentIdentifier(identifier);
 
         // Get first attachment
-        AssertJUnit.assertEquals(attachment1, expBO.getExperimentFileAttachment(attachment1
-                .getFileName(), attachment1.getVersion()));
+        AssertJUnit.assertEquals(
+                attachment1,
+                expBO.getExperimentFileAttachment(attachment1.getFileName(),
+                        attachment1.getVersion()));
 
         // Get another version of attachment
-        AssertJUnit.assertEquals(attachment2, expBO.getExperimentFileAttachment(attachment2
-                .getFileName(), attachment2.getVersion()));
+        AssertJUnit.assertEquals(
+                attachment2,
+                expBO.getExperimentFileAttachment(attachment2.getFileName(),
+                        attachment2.getVersion()));
 
         // Try find not existing version of attachment
         testThrowingExceptionOnUnknownFileVersion(attachment2, expBO);
@@ -291,6 +296,10 @@ public final class ExperimentBOTest extends AbstractBOTest
 
                     one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
                     will(returnValue(null));
+
+                    one(entityPropertyTypeDAO).listEntityPropertyTypes(type);
+                    will(returnValue(new ArrayList<EntityTypePropertyTypePE>()));
+
                 }
             });
         final ExperimentBO experimentBO = createExperimentBO();
@@ -302,8 +311,8 @@ public final class ExperimentBOTest extends AbstractBOTest
         {
             exceptionThrown = true;
             assertTrue(e.getMessage().indexOf(
-                    String.format(ExperimentBO.ERR_PROJECT_NOT_FOUND, createIdentifier(dbCode,
-                            groupCode, projectCode, expCode))) > -1);
+                    String.format(ExperimentBO.ERR_PROJECT_NOT_FOUND,
+                            createIdentifier(dbCode, groupCode, projectCode, expCode))) > -1);
         }
         assertTrue(exceptionThrown);
 
@@ -417,8 +426,8 @@ public final class ExperimentBOTest extends AbstractBOTest
 
         final List<IEntityProperty> newProperties = createDummyProperties();
         prepareUpdateProperties(exp.getProperties(), newProperties, experimentType,
-                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), Arrays.asList(changedProperty,
-                        addedProperty));
+                ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(),
+                Arrays.asList(changedProperty, addedProperty));
         bo.updateProperties(newProperties);
 
         assertTrue(bo.getExperiment().getProperties().contains(changedProperty));
@@ -735,9 +744,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         exceptionThrown = false;
         try
         {
-            expBO
-                    .getExperimentFileAttachment("nonexistentAttachment.txt", attachment2
-                            .getVersion());
+            expBO.getExperimentFileAttachment("nonexistentAttachment.txt", attachment2.getVersion());
         } catch (UserFailureException e)
         {
             exceptionThrown = true;

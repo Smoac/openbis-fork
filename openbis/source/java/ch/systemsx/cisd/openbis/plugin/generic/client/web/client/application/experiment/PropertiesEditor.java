@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -166,16 +165,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
             Object value = field.get().getValue();
             final S etpt = field.get().getData(ETPT); // null for section labels
 
-            // dynamic property should always have a placeholder value
-            // that will be filled later by by calculator
-            if (etpt != null && etpt.isDynamic())
-            {
-                final IEntityProperty entityProperty = createEntityProperty();
-                entityProperty.setValue(BasicConstant.PLACEHOLDER_PROPERTY_VALUE);
-                entityProperty.setPropertyType(etpt.getPropertyType());
-                properties.add(entityProperty);
-            } else if (etpt != null && value != null
-                    && PropertyFieldFactory.valueToString(value) != null)
+            if (etpt != null && value != null && PropertyFieldFactory.valueToString(value) != null)
             {
                 final IEntityProperty entityProperty = createEntityProperty();
                 entityProperty.setValue(PropertyFieldFactory.valueToString(value));

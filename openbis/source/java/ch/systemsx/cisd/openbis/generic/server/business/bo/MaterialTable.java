@@ -108,8 +108,8 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (MaterialPE m : materials)
         {
-            entityPropertiesConverter.checkMandatoryProperties(m.getProperties(), m
-                    .getMaterialType(), cache);
+            entityPropertiesConverter.checkMandatoryProperties(m.getProperties(),
+                    m.getMaterialType(), cache);
         }
     }
 
@@ -177,17 +177,18 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
             List<IEntityProperty> propertiesToUpdate, boolean deleteUntouchedProperties)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
-        final EntityTypePE type = material.getMaterialType();
+        final MaterialTypePE type = material.getMaterialType();
         final PersonPE registrator = findRegistrator();
         if (deleteUntouchedProperties)
         {
             return entityPropertiesConverter.updateProperties(existingProperties, type,
-                    propertiesToUpdate, registrator);
+                    propertiesToUpdate, registrator, extractDynamicProperties(type));
         } else
         {
             Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
             return entityPropertiesConverter.updateProperties(existingProperties, type,
-                    propertiesToUpdate, registrator, propertiesToUpdateNames);
+                    propertiesToUpdate, registrator, propertiesToUpdateNames,
+                    extractDynamicProperties(type));
         }
     }
 

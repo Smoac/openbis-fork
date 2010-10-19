@@ -47,8 +47,8 @@ public interface IEntityPropertiesConverter
             final PersonPE registrator);
 
     /**
-     * Returns given value validated and converted for given property type and entity type.
-     * Result may be null if given value is null.
+     * Returns given value validated and converted for given property type and entity type. Result
+     * may be null if given value is null.
      */
     public String tryCreateValidatedPropertyValue(PropertyTypePE propertyType,
             EntityTypePropertyTypePE entityTypPropertyType, String value);
@@ -61,17 +61,17 @@ public interface IEntityPropertiesConverter
             String validatedValue);
 
     /** Updates Set<T> of properties. */
-    public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(
-            Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
-            PersonPE registrator);
+    public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
+            Set<String> dynamicProperties);
 
     /**
      * Updates Set<T> of properties but preserve those old properties which codes are not among
      * <var>propertiesToUpdate</var>.
      */
-    public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(
-            Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
-            PersonPE registrator, Set<String> propertiesToUpdate);
+    public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
+            Set<String> propertiesToUpdate, Set<String> dynamicProperties);
 
     /**
      * Checks whether all mandatory properties are provided.

@@ -254,10 +254,11 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             Set<String> propertiesToUpdate)
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
-        final EntityTypePE type = sample.getSampleType();
+        final SampleTypePE type = sample.getSampleType();
         final PersonPE registrator = findRegistrator();
+        Set<String> dynamicProperties = extractDynamicProperties(type);
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator, propertiesToUpdate));
+                properties, registrator, propertiesToUpdate, dynamicProperties));
     }
 
     public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates)

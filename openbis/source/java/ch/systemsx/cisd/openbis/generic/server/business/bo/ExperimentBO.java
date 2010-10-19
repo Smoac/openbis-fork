@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -561,12 +562,25 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final ExperimentTypePE type = experiment.getExperimentType();
         final PersonPE registrator = findRegistrator();
         experiment.setProperties(propertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator));
+                properties, registrator, extractDynamicProperties(type)));
     }
 
     public void setGeneratedCode()
     {
         final String code = createCode(EntityKind.EXPERIMENT);
         experiment.setCode(code);
+    }
+
+    protected Set<String> extractDynamicProperties(final ExperimentTypePE type)
+    {
+        Set<String> dynamicProperties = new HashSet<String>();
+        for (ExperimentTypePropertyTypePE etpt : type.getExperimentTypePropertyTypes())
+        {
+            if (etpt.isDynamic())
+            {
+                dynamicProperties.add(etpt.getPropertyType().getCode());
+            }
+        }
+        return dynamicProperties;
     }
 }

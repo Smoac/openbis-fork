@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
@@ -212,8 +211,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         externalData.setRegistrator(tryToGetRegistrator(data));
         DataStorePE dataStore = getDataStoreDAO().tryToFindDataStoreByCode(data.getDataStoreCode());
         externalData.setDataStore(dataStore);
-        defineDataSetProperties(externalData, convertToDataSetProperties(data
-                .getDataSetProperties()));
+        defineDataSetProperties(externalData,
+                convertToDataSetProperties(data.getDataSetProperties()));
         externalData.setDerived(sourceType == SourceType.DERIVED);
         return dataStore;
     }
@@ -353,11 +352,11 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 extractPropertyCodesToUpdate(properties, existingProperties);
         List<NewProperty> propertyUpdates =
                 extractNewPropertiesToUpdate(properties, propertyUpdatesCodes);
-        final EntityTypePE type = externalData.getDataSetType();
+        final DataSetTypePE type = externalData.getDataSetType();
         final PersonPE registrator = findRegistrator();
         externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
                 type, Arrays.asList(convertToDataSetProperties(propertyUpdates)), registrator,
-                propertyUpdatesCodes));
+                propertyUpdatesCodes, extractDynamicProperties(type)));
     }
 
     private List<NewProperty> extractNewPropertiesToUpdate(List<NewProperty> properties,
@@ -487,8 +486,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             {
                 throw UserFailureException.fromTemplate(
                         "Data Set '%s' is an ancestor of Data Set '%s' "
-                                + "and cannot be at the same time set as its child.", externalData
-                                .getCode(), parentToAdd.getCode());
+                                + "and cannot be at the same time set as its child.",
+                        externalData.getCode(), parentToAdd.getCode());
             } else
             {
                 final Set<TechId> nextToVisit = findParentIds(toVisit);
@@ -553,8 +552,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         if (missingDataSetCodes.size() > 0)
         {
             throw UserFailureException.fromTemplate(
-                    "Data Sets with following codes do not exist: '%s'.", CollectionUtils
-                            .abbreviate(missingDataSetCodes, 10));
+                    "Data Sets with following codes do not exist: '%s'.",
+                    CollectionUtils.abbreviate(missingDataSetCodes, 10));
         } else
         {
             return dataSets;

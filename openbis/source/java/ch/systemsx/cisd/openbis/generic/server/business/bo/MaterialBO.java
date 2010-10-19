@@ -26,14 +26,14 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -85,8 +85,8 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
 
     private void checkBusinessRules()
     {
-        entityPropertiesConverter.checkMandatoryProperties(material.getProperties(), material
-                .getMaterialType());
+        entityPropertiesConverter.checkMandatoryProperties(material.getProperties(),
+                material.getMaterialType());
     }
 
     public void update(MaterialUpdateDTO materialUpdate)
@@ -103,10 +103,10 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     private void updateProperties(List<IEntityProperty> properties)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
-        final EntityTypePE type = material.getMaterialType();
+        final MaterialTypePE type = material.getMaterialType();
         final PersonPE registrator = findRegistrator();
         material.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator));
+                properties, registrator, extractDynamicProperties(type)));
     }
 
     public MaterialPE getMaterial()
