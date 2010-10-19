@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.server.util.IPropertyValueValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;

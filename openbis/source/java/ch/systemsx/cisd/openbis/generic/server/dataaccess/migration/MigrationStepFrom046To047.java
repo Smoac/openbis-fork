@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.dbmigration.java.MigrationStepAdapter;
-import ch.systemsx.cisd.openbis.generic.server.util.PropertyValidator.TimestampValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator.TimestampValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;

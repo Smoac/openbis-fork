@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.util;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils.Boolean;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.util.XmlUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
