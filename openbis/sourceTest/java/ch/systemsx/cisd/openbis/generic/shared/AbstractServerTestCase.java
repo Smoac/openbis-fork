@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -172,6 +173,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IQueryDAO queryDAO;
 
+    protected IDynamicPropertyEvaluationScheduler evaluator;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -219,6 +222,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
         materialTable = context.mock(IMaterialTable.class);
         materialLister = context.mock(IMaterialLister.class);
+        //
+        evaluator = context.mock(IDynamicPropertyEvaluationScheduler.class);
 
         homeDatabaseInstance = CommonTestUtils.createHomeDatabaseInstance();
         context.checking(new Expectations()
@@ -252,6 +257,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(dataSetTypeDAO));
                     allowing(daoFactory).getDataStoreDAO();
                     will(returnValue(dataStoreDAO));
+                    allowing(daoFactory).getDynamicPropertyEvaluationScheduler();
+                    will(returnValue(evaluator));
                 }
             });
     }
