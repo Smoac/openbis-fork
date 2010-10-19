@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
@@ -80,13 +79,12 @@ public class DynamicPropertyEvaluationOperation implements Serializable
         {
             return true;
         }
-        if (obj instanceof Code<?> == false)
+        if (obj instanceof DynamicPropertyEvaluationOperation == false)
         {
             return false;
         }
         final DynamicPropertyEvaluationOperation that = (DynamicPropertyEvaluationOperation) obj;
-        return this.getClassName().equals(that.getClassName());
-        // TODO
+        return this.toString().equals(that.toString());
     }
 
 }
