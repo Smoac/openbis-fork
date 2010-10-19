@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -115,8 +116,13 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                         newAssignment.getOrdinal(), entityType, propertyType,
                         newAssignment.isDynamic(), scriptOrNull);
         String defaultValue = newAssignment.getDefaultValue();
+        if (newAssignment.isDynamic())
+        {
+            List<Long> entityIds = getAllEntityIds(entityType);
+            addPropertyWithDefaultValue(entityType, propertyType,
+                    BasicConstant.PLACEHOLDER_PROPERTY_VALUE, entityIds, null);
+        } else if (newAssignment.isMandatory())
         // fill default property values
-        if (newAssignment.isMandatory())
         {
             String errorMsgTemplate =
                     "Cannot create mandatory assignment. "
@@ -218,16 +224,25 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
                     assignmentUpdates.getDefaultValue(), entityIds, errorMsgTemplate);
         }
         assignment.setMandatory(assignmentUpdates.isMandatory());
-        assignment.setDynamic(assignmentUpdates.isDynamic());
-        if (assignmentUpdates.isDynamic())
+        if (assignmentUpdates.isDynamic() != assignment.isDynamic())
+        {
+            throw new UserFailureException(
+                    String.format(
+                            "Changing assignment from '%s' to '%s' is not allowed. Please create a new assignment.",
+                            describeDynamic(assignment.isDynamic()),
+                            describeDynamic(assignmentUpdates.isDynamic())));
+        }
+        if (assignment.isDynamic())
         {
             ScriptPE script = getScriptDAO().tryFindByName(assignmentUpdates.getScriptName());
             assignment.setScript(script);
-        } else
-        {
-            assignment.setScript(null);
         }
         validateAndSave();
+    }
+
+    private static String describeDynamic(boolean dynamic)
+    {
+        return (dynamic ? "" : "not ") + "dynamic";
     }
 
     private void validateAndSave()
