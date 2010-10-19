@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -59,6 +60,12 @@ public abstract class AbstractStrorageProcessorWithUploader extends
                 super.storeData(dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
+        if (originalData == null)
+        {
+            throw new ConfigurationFailureException(
+                    "The original data is no longer available by the wrapped storage processor. "
+                            + "Another storage processor should be used.");
+        }
         uploader.upload(originalData, dataSetInformation);
         return storeData;
     }
