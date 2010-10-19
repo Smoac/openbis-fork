@@ -115,6 +115,15 @@ public interface IGenericClientService extends IClientService
             final String sessionKey) throws UserFailureException;
 
     /**
+     * Updates materials from a file which has been previously uploaded.
+     * 
+     * @param ignoreUnregisteredMaterials If <code>true</code> materials in the
+     *      uploaded file will be ignored if they are not already registered.
+     */
+    public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
+            String sessionKey, boolean ignoreUnregisteredMaterials) throws UserFailureException;
+
+    /**
      * Updates experiment.
      */
     public ExperimentUpdateResult updateExperiment(ExperimentUpdates experimentUpdates)

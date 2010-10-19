@@ -42,6 +42,8 @@ public class MaterialMenu extends TopMenuItem
                 componentProvider.getMaterialBrowser()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_IMPORT, messageProvider,
                 componentProvider.getMaterialBatchRegistration()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_MASS_UPDATE, messageProvider,
+                componentProvider.getMaterialBatchUpdate()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_TYPES, messageProvider,
                 componentProvider.getMaterialTypeBrowser()));
         setMenu(submenu);

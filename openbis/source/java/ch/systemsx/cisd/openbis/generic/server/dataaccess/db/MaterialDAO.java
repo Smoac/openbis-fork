@@ -97,6 +97,9 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
             internalCreateMaterial(materialPE, hibernateTemplate);
         }
         hibernateTemplate.flush();
+
+        // if session is not cleared registration of many materials slows down after each batch
+        hibernateTemplate.clear();
         scheduleDynamicPropertiesEvaluation(materials);
     }
 

@@ -61,7 +61,7 @@ public final class NewMaterialParserObjectFactory extends AbstractParserObjectFa
             {
                 final IEntityProperty property = new EntityProperty();
                 property.setPropertyType(createPropertyType(unmatchedProperty));
-                property.setValue(propertyValue);
+                property.setValue(isDeletionMark(propertyValue) ? null : propertyValue);
                 properties.add(property);
             }
         }

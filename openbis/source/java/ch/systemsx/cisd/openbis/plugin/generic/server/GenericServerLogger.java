@@ -118,6 +118,17 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 materialTypeCode, CollectionUtils.abbreviate(newMaterials, 20));
     }
 
+    public int updateMaterials(String sessionToken, String materialTypeCode,
+            List<NewMaterial> newMaterials, boolean ignoreUnregisteredMaterials)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "update_materials",
+                "MATERIAL_TYPE(%s) IGNORE_UNREGISTERED_MATERIALS(%s) MATERIALS(%s)",
+                materialTypeCode, ignoreUnregisteredMaterials,
+                CollectionUtils.abbreviate(newMaterials, 20));
+        return 0;
+    }
+
     public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
             final TechId experimentId, final String filename, final int version)
             throws UserFailureException

@@ -576,6 +576,8 @@ public abstract class Dict
 
     public static final String SAMPLE_BATCH_UPDATE = "sample_batch_update";
 
+    public static final String MATERIAL_BATCH_UPDATE = "material_batch_update";
+
     public static final String DATA_SET_BATCH_UPDATE = "data_set_batch_update";
 
     public static final String SAMPLE_REGISTRATION = "sample_registration";
@@ -745,6 +747,8 @@ public abstract class Dict
     // Material Import
     //
     public static final String MATERIAL_IMPORT = "material_import";
+
+    public static final String IGNORE_UNREGISTERED_MATERIALS = "ignore_unregistered_materials";
 
     //
     // Material Chooser

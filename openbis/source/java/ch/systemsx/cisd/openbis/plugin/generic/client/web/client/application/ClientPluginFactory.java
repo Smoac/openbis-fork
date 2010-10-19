@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialBatchUpdateForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchRegistrationForm;
@@ -254,6 +255,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         {
             return new GenericMaterialBatchRegistrationForm(getViewContext(), materialType);
         }
+
+        @Override
+        public Widget createBatchUpdateForEntityType(MaterialType entityType)
+        {
+            return new GenericMaterialBatchUpdateForm(getViewContext(), entityType);
+        }
+        
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(

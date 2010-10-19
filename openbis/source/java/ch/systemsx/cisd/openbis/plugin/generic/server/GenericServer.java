@@ -121,8 +121,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             GenericServer.class);
 
-    private static final int REGISTRATION_BATCH_SIZE = 10000;
-
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
@@ -554,7 +552,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public void registerMaterials(String sessionToken, String materialTypeCode,
-            List<NewMaterial> newMaterials)
+            final List<NewMaterial> newMaterials)
     {
         assert sessionToken != null : "Unspecified session token.";
         assert materialTypeCode != null : "Unspecified material type.";
@@ -566,35 +564,99 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             return;
         }
         prevalidate(newMaterials, "material");
-        MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
+        final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
         final Session session = getSession(sessionToken);
-
-        List<NewMaterial> batch = new ArrayList<NewMaterial>();
-        int counter = 0;
-        for (NewMaterial newMaterial : newMaterials)
-        {
-            batch.add(newMaterial);
-            if (batch.size() >= REGISTRATION_BATCH_SIZE)
+        IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
             {
-                doRegisterMaterials(materialTypePE, session, batch);
-                counter += batch.size();
-                operationLog.info("Material registration progress: " + counter + "/"
-                        + newMaterials.size());
-                batch.clear();
-            }
-        }
-        if (batch.size() > 0)
-        {
-            doRegisterMaterials(materialTypePE, session, batch);
-        }
+
+                public void execute(List<NewMaterial> entities)
+                {
+                    final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+                    materialTable.add(entities, materialTypePE);
+                    materialTable.save();
+                }
+
+                public List<NewMaterial> getAllEntities()
+                {
+                    return newMaterials;
+                }
+
+                public String getEntityName()
+                {
+                    return "material";
+                }
+
+                public String getOperationName()
+                {
+                    return "register";
+                }
+            };
+        BatchOperationExecutor.executeInBatches(strategy);
     }
 
-    private void doRegisterMaterials(MaterialTypePE materialTypePE, final Session session,
-            List<NewMaterial> batch)
+    public int updateMaterials(String sessionToken, String materialTypeCode,
+            final List<NewMaterial> newMaterials, final boolean ignoreUnregisteredMaterials)
+            throws UserFailureException
     {
-        final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
-        materialTable.add(batch, materialTypePE);
-        materialTable.save();
+        assert sessionToken != null : "Unspecified session token.";
+        assert materialTypeCode != null : "Unspecified material type.";
+        assert newMaterials != null : "Unspecified new materials.";
+
+        // Does nothing if material list is empty.
+        if (newMaterials.size() == 0)
+        {
+            return 0;
+        }
+        class Counter 
+        {
+            int count;
+        }
+        final Counter counter = new Counter();
+        prevalidate(newMaterials, "material");
+        final Map<String/* code */, Material> existingMaterials =
+                listMaterials(sessionToken, materialTypeCode);
+        final Session session = getSession(sessionToken);
+        IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
+            {
+                public void execute(List<NewMaterial> entities)
+                {
+                    List<MaterialUpdateDTO> materialUpdates = new ArrayList<MaterialUpdateDTO>();
+                    for (NewMaterial material : entities)
+                    {
+                        Material existingMaterial =
+                                existingMaterials.get(CodeConverter.tryToDatabase(material
+                                        .getCode()));
+                        if (existingMaterial != null)
+                        {
+                            materialUpdates.add(createMaterialUpdate(existingMaterial, material));
+                            counter.count++;
+                        } else if (ignoreUnregisteredMaterials == false)
+                        {
+                            throw new UserFailureException("Can not update unregistered material '"
+                                    + material.getCode()
+                                    + "'. Please use checkbox for ignoring unregistered materials.");
+                        }
+                    }
+                    updateMaterials(session.getSessionToken(), materialUpdates);
+                }
+
+                public List<NewMaterial> getAllEntities()
+                {
+                    return newMaterials;
+                }
+
+                public String getEntityName()
+                {
+                    return "material";
+                }
+
+                public String getOperationName()
+                {
+                    return "update";
+                }
+            };
+        BatchOperationExecutor.executeInBatches(strategy);
+        return counter.count;
     }
 
     private <T> void prevalidate(List<T> entities, String entityName)

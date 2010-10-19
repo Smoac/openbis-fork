@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -48,14 +49,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -66,6 +71,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @Friend(toClasses = GenericClientService.class)
 public final class GenericClientServiceTest extends AbstractClientServiceTest
 {
+    private static final MaterialType MATERIAL_TYPE = MaterialTypeTranslator
+            .translateSimple(CommonTestUtils.createMaterialType());
+
     private MultipartFile multipartFile;
 
     private IGenericServer genericServer;
@@ -439,6 +447,94 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         assertEquals(fileName, batchRegistrationResult.getFileName());
         assertEquals("Update of 2 sample(s) is complete.", batchRegistrationResult.getMessage());
         context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUpdateMaterials() throws IOException
+    {
+        final String sessionKey = "s-key";
+        final boolean ignoreUnregisteredMaterials = false;
+        final int updateCount = 1;
+        prepareMaterialsUpdate(sessionKey, ignoreUnregisteredMaterials, updateCount);
+
+        List<BatchRegistrationResult> results =
+                genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
+                        ignoreUnregisteredMaterials);
+
+        assertEquals(1, results.size());
+        assertEquals(updateCount + " material(s) updated.", results.get(0).getMessage());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUpdateMaterialsIgnoringUnregisteredButNoUnregistered() throws IOException
+    {
+        final String sessionKey = "s-key";
+        final boolean ignoreUnregisteredMaterials = true;
+        final int updateCount = 1;
+        prepareMaterialsUpdate(sessionKey, ignoreUnregisteredMaterials, updateCount);
+        
+        List<BatchRegistrationResult> results =
+            genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
+                    ignoreUnregisteredMaterials);
+        
+        assertEquals(1, results.size());
+        assertEquals(updateCount + " material(s) updated, non ignored.", results.get(0).getMessage());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUpdateMaterialsIgnoringUnregistered() throws IOException
+    {
+        final String sessionKey = "s-key";
+        final boolean ignoreUnregisteredMaterials = true;
+        final int updateCount = 0;
+        prepareMaterialsUpdate(sessionKey, ignoreUnregisteredMaterials, updateCount);
+        
+        List<BatchRegistrationResult> results =
+            genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
+                    ignoreUnregisteredMaterials);
+        
+        assertEquals(1, results.size());
+        assertEquals(updateCount + " material(s) updated, 1 ignored.", results.get(0).getMessage());
+        context.assertIsSatisfied();
+    }
+
+    protected void prepareMaterialsUpdate(final String sessionKey,
+            final boolean ignoreUnregisteredMaterials, final int updateCount) throws IOException
+    {
+        final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
+        final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetSessionToken(this);
+
+                    allowing(httpSession).getAttribute(sessionKey);
+                    will(returnValue(uploadedFilesBean));
+
+                    one(multipartFile).getOriginalFilename();
+                    will(returnValue("file name"));
+
+                    one(multipartFile).transferTo(with(any(File.class)));
+                    will(new CustomAction("copy content")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File target = (File) invocation.getParameter(0);
+                                FileUtilities.writeToFile(target, "code\nM1");
+                                return null;
+                            }
+                        });
+
+                    one(httpSession).removeAttribute(sessionKey);
+
+                    one(genericServer).updateMaterials(SESSION_TOKEN, materialTypePE.getCode(),
+                            Arrays.asList(new NewMaterial("M1")), ignoreUnregisteredMaterials);
+                    will(returnValue(updateCount));
+                }
+            });
+        uploadedFilesBean.addMultipartFile(multipartFile);
     }
 
     @Test

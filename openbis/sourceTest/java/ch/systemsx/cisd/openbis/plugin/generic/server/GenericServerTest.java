@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -24,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,10 +38,14 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -59,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -81,10 +89,14 @@ public final class GenericServerTest extends AbstractServerTestCase
 
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
 
+    private ICommonServer commonServer;
+
     private final IGenericServer createServer()
     {
-        return new GenericServer(sessionManager, daoFactory, genericBusinessObjectFactory,
+        GenericServer genericServer = new GenericServer(sessionManager, daoFactory, genericBusinessObjectFactory,
                 sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
+        genericServer.commonServer = commonServer;
+        return genericServer;
     }
 
     private final NewSample createNewSample(final String identifier)
@@ -113,6 +125,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         genericBusinessObjectFactory = context.mock(IGenericBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
+        commonServer = context.mock(ICommonServer.class);
     }
 
     @Test
@@ -394,7 +407,159 @@ public final class GenericServerTest extends AbstractServerTestCase
         createServer().registerMaterials(SESSION_TOKEN, typeCode, newMaterials);
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public final void testUpdateMaterials()
+    {
+        prepareGetSession();
+        final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final NewMaterial m1 = createNewMaterial("M1");
+        final NewMaterial m2 = createNewMaterial("M2");
+        final String typeCode = materialTypePE.getCode();
+        prepareMaterialUpdate(materialTypePE, false, m1, m2);
 
+        int updateCount =
+                createServer().updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2),
+                        false);
+
+        assertEquals(2, updateCount);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testUpdateMaterialsFailedBecauseOfDuplicates()
+    {
+        prepareGetSession();
+        final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final NewMaterial m1 = createNewMaterial("M1");
+        final NewMaterial m2 = createNewMaterial("M1");
+        final String typeCode = materialTypePE.getCode();
+        
+        try
+        {
+            createServer().updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2),
+                    false);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Following material(s) '[M1]' are duplicated.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testUpdateMaterialsIgnoreUnregistered()
+    {
+        prepareGetSession();
+        final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final NewMaterial m1 = createNewMaterial("M1");
+        final NewMaterial m2 = createNewMaterial("M2");
+        final String typeCode = materialTypePE.getCode();
+        prepareMaterialUpdate(materialTypePE, false, m1);
+        
+        int updateCount =
+            createServer().updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2),
+                    true);
+        
+        assertEquals(1, updateCount);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testUpdateMaterialsFailForUnregistered()
+    {
+        prepareGetSession();
+        final MaterialTypePE materialTypePE = CommonTestUtils.createMaterialType();
+        final NewMaterial m1 = createNewMaterial("M1");
+        final NewMaterial m2 = createNewMaterial("M2");
+        final String typeCode = materialTypePE.getCode();
+        prepareMaterialUpdate(materialTypePE, true, m1);
+        
+        try
+        {
+            createServer().updateMaterials(SESSION_TOKEN, typeCode, Arrays.asList(m1, m2),
+                    false);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Can not update unregistered material 'M2'. "
+                    + "Please use checkbox for ignoring unregistered materials.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+
+    protected void prepareMaterialUpdate(final MaterialTypePE materialTypePE, final boolean doNotUpdate,
+            final NewMaterial... materialsToBeRegistered)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<Material> existingMaterials = new ArrayList<Material>();
+                    List<MaterialUpdateDTO> updates = new ArrayList<MaterialUpdateDTO>();
+                    for (NewMaterial material : materialsToBeRegistered)
+                    {
+                        Material m = createMaterial(material);
+                        existingMaterials.add(m);
+                        updates.add(createUpdateDTO(m, material));
+                    }
+                    existingMaterials.add(createMaterial(createNewMaterial("A")));
+                    
+                    one(commonServer).listMaterials(with(SESSION_TOKEN),
+                            with(new BaseMatcher<ListMaterialCriteria>()
+                                {
+                                    public boolean matches(Object item)
+                                    {
+                                        assertTrue(item instanceof ListMaterialCriteria);
+                                        MaterialType materialType =
+                                                ((ListMaterialCriteria) item).getMaterialType();
+                                        assertEquals(materialTypePE.getCode(),
+                                                materialType.getCode());
+                                        return true;
+                                    }
+
+                                    public void describeTo(Description description)
+                                    {
+                                        description.appendText(materialTypePE.getCode());
+                                    }
+                                }), with(false));
+                    will(returnValue(existingMaterials));
+                    
+                    one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
+                    will(returnValue(entityTypeDAO));
+
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(materialTypePE.getCode());
+                    will(returnValue(materialTypePE));
+
+                    if (doNotUpdate == false)
+                    {
+                        one(genericBusinessObjectFactory).createMaterialTable(SESSION);
+                        will(returnValue(materialTable));
+                        
+                        one(materialTable).update(updates, false);
+                        one(materialTable).save();
+                    }
+                }
+                
+                private Material createMaterial(NewMaterial newMaterial)
+                {
+                    Material material = new Material();
+                    material.setCode(newMaterial.getCode());
+                    material.setId((long) newMaterial.getCode().hashCode());
+                    material.setMaterialType(MaterialTypeTranslator.translateSimple(CommonTestUtils
+                            .createMaterialType()));
+                    return material;
+                }
+                
+                private MaterialUpdateDTO createUpdateDTO(Material existingMaterial, NewMaterial material)
+                {
+                    return new MaterialUpdateDTO(new TechId(existingMaterial.getId()), Arrays.asList(material
+                            .getProperties()), existingMaterial.getModificationDate());
+                }
+            });
+    }
+    
     @Test
     public void testEditMaterialNothingChanged() throws Exception
     {

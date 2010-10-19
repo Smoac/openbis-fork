@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,47 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
- * The <i>generic</i> material batch registration panel.
  * 
- * @author Christian Ribeaud
- * @author Izabela Adamczyk
+ *
+ * @author Franz-Josef Elmer
  */
-public final class GenericMaterialBatchRegistrationForm extends AbstractMaterialBatchRegistrationForm
+public class GenericMaterialBatchUpdateForm extends AbstractMaterialBatchRegistrationForm
 {
-    private static final String PREFIX = "material-batch-registration";
+    private static final String PREFIX = "material-batch-update";
     
     private static final String SESSION_KEY = PREFIX;
 
-    public final static String ID = GenericConstants.ID_PREFIX + PREFIX;
-
-    public GenericMaterialBatchRegistrationForm(
-            final IViewContext<IGenericClientServiceAsync> viewContext,
+    private final CheckBoxField ignoreUnregisteredMaterialsCheckBox;
+    
+    public GenericMaterialBatchUpdateForm(final IViewContext<IGenericClientServiceAsync> viewContext,
             final MaterialType materialType)
     {
-        super(viewContext, PREFIX, BatchOperationKind.REGISTRATION, materialType);
+        super(viewContext, PREFIX, BatchOperationKind.UPDATE, materialType);
+        ignoreUnregisteredMaterialsCheckBox =
+                new CheckBoxField(viewContext.getMessage(Dict.IGNORE_UNREGISTERED_MATERIALS), false);
+    }
+    
+    @Override
+    protected void addSpecificFormFields(FormPanel form)
+    {
+        form.add(ignoreUnregisteredMaterialsCheckBox);
     }
 
     @Override
     protected void save()
     {
-        viewContext.getService().registerMaterials(materialType, SESSION_KEY,
+        viewContext.getService().updateMaterials(materialType, SESSION_KEY,
+                ignoreUnregisteredMaterialsCheckBox.getValue(),
                 new RegisterMaterialsCallback(viewContext));
     }
 }

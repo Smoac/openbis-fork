@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -290,6 +292,54 @@ public class GenericClientService extends AbstractClientService implements IGene
     public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
             final String sessionKey)
     {
+        String sessionToken = getSessionToken();
+        try
+        {
+            MaterialLoader loader = parseMaterials(sessionKey);
+            genericServer.registerMaterials(sessionToken, materialType.getCode(),
+                    loader.getNewMaterials());
+            return loader.getResults();
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+    
+    public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
+            String sessionKey, boolean ignoreUnregisteredMaterials)
+    {
+        String sessionToken = getSessionToken();
+        try
+        {
+            MaterialLoader loader = parseMaterials(sessionKey);
+            List<NewMaterial> newMaterials = loader.getNewMaterials();
+            int updateCount = genericServer.updateMaterials(sessionToken, materialType.getCode(),
+                    newMaterials, ignoreUnregisteredMaterials);
+            List<BatchRegistrationResult> results = loader.getResults();
+            String message = updateCount + " material(s) updated";
+            if (ignoreUnregisteredMaterials)
+            {
+                int ignoredCount = newMaterials.size() - updateCount;
+                if (ignoredCount > 0)
+                {
+                    message += ", " + ignoredCount + " ignored.";
+                } else
+                {
+                    message += ", non ignored.";
+                }
+            } else
+            {
+                message += ".";
+            }
+            return Arrays.asList(new BatchRegistrationResult(results.get(0).getFileName(), message));
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private MaterialLoader parseMaterials(String sessionKey)
+    {
         HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
         try
@@ -304,12 +354,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
             MaterialLoader loader = new MaterialLoader();
             loader.load(files);
-            genericServer.registerMaterials(getSessionToken(), materialType.getCode(),
-                    loader.getNewMaterials());
-            return loader.getResults();
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
+            return loader;
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);

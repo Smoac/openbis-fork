@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBatchRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBatchRegistrationUpdatePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.LoggingConsole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -568,14 +569,14 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                            MaterialBatchRegistrationPanel.create(viewContext);
+                            MaterialBatchRegistrationUpdatePanel.create(viewContext, false);
                     return createRegistrationTab(getTabTitle(), component);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return MaterialBatchRegistrationPanel.ID;
+                    return MaterialBatchRegistrationUpdatePanel.getId(false);
                 }
 
                 @Override
@@ -597,6 +598,45 @@ public final class ComponentProvider
                 }
 
             };
+    }
+
+    public final AbstractTabItemFactory getMaterialBatchUpdate()
+    {
+        return new AbstractTabItemFactory()
+        {
+            @Override
+            public ITabItem create()
+            {
+                DatabaseModificationAwareComponent component =
+                        MaterialBatchRegistrationUpdatePanel.create(viewContext, true);
+                return createRegistrationTab(getTabTitle(), component);
+            }
+
+            @Override
+            public String getId()
+            {
+                return MaterialBatchRegistrationUpdatePanel.getId(true);
+            }
+
+            @Override
+            public HelpPageIdentifier getHelpPageIdentifier()
+            {
+                return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.BATCH_UPDATE);
+            }
+
+            @Override
+            public String getTabTitle()
+            {
+                return getMessage(Dict.MATERIAL_BATCH_UPDATE);
+            }
+
+            @Override
+            public String tryGetLink()
+            {
+                return null;
+            }
+
+        };
     }
 
     public final AbstractTabItemFactory getVocabularyRegistration()

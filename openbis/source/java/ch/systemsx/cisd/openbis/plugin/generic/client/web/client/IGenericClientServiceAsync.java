@@ -107,6 +107,12 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
 
     /**
+     * @see IGenericClientService#updateMaterials(MaterialType, String, boolean)
+     */
+    public void updateMaterials(MaterialType materialType, String sessionKey, boolean ignoreUnregisteredMaterials,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
+    
+    /**
      * @see IGenericClientService#updateExperiment(ExperimentUpdates)
      */
     public void updateExperiment(ExperimentUpdates experimentUpdates,

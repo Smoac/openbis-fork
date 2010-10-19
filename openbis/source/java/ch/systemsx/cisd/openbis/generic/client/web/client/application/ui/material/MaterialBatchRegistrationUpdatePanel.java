@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -37,11 +38,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
- * The {@link LayoutContainer} extension for importing materials.
+ * The {@link LayoutContainer} extension for importing/updating materials.
  * 
  * @author Izabela Adamczyk
  */
-public final class MaterialBatchRegistrationPanel extends LayoutContainer
+public final class MaterialBatchRegistrationUpdatePanel extends LayoutContainer
 {
     private static final String ID_SUFFIX = "material-batch-registration";
 
@@ -50,18 +51,25 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
     private final MaterialTypeSelectionWidget materialTypeSelection;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
+    
+    public static String getId(final boolean update)
+    {
+        return ID + "_" + (update == true ? "update" : "registration");
+    }
 
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final boolean update)
     {
-        MaterialBatchRegistrationPanel panel = new MaterialBatchRegistrationPanel(viewContext);
+        MaterialBatchRegistrationUpdatePanel panel =
+                new MaterialBatchRegistrationUpdatePanel(viewContext, update);
         return new DatabaseModificationAwareComponent(panel, panel.materialTypeSelection);
     }
 
-    private MaterialBatchRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private MaterialBatchRegistrationUpdatePanel(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final boolean update)
     {
         this.viewContext = viewContext;
-        setId(ID);
+        setId(getId(update));
         setScrollMode(Scroll.AUTO);
         materialTypeSelection = new MaterialTypeSelectionWidget(viewContext, null, ID_SUFFIX);
         final ToolBar toolBar = createToolBar();
@@ -86,8 +94,20 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
                                                 .getClientPluginFactory(entityKind, materialType);
                                 final IClientPlugin<EntityType, IIdAndCodeHolder> createClientPlugin =
                                         clientPluginFactory.createClientPlugin(entityKind);
-                                add(createClientPlugin
-                                        .createBatchRegistrationForEntityType(materialType));
+                                Widget batchOperationWidget;
+                                if (update)
+                                {
+                                    batchOperationWidget =
+                                            createClientPlugin
+                                                    .createBatchUpdateForEntityType(materialType);
+
+                                } else
+                                {
+                                    batchOperationWidget =
+                                            createClientPlugin
+                                                    .createBatchRegistrationForEntityType(materialType);
+                                }
+                                add(batchOperationWidget);
                                 layout();
                             }
                         }

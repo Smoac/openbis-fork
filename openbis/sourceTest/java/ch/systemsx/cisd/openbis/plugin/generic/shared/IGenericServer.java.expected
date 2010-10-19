@@ -171,6 +171,15 @@ public interface IGenericServer extends IServer
             List<NewMaterial> newMaterials) throws UserFailureException;
 
     /**
+     * Updates materials in batch.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
+    public int updateMaterials(String sessionToken, String materialTypeCode, List<NewMaterial> newMaterials,
+            boolean ignoreUnregisteredMaterials) throws UserFailureException;
+    
+    /**
      * Registers new materials or if they exist updates in batch their properties (properties which
      * are not mentioned stay unchanged).
      */
@@ -254,4 +263,5 @@ public interface IGenericServer extends IServer
             final String sessionToken,
             @AuthorizationGuard(guardClass = NewDataSetsWithTypePredicate.class) final NewDataSetsWithTypes newSamplesWithType)
             throws UserFailureException;
+
 }

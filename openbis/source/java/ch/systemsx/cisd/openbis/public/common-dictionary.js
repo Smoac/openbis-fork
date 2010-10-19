@@ -306,6 +306,7 @@ var common = {
   menu_material: "Material",
   MATERIAL_MENU_BROWSE: "Browse",
   MATERIAL_MENU_IMPORT: "Batch Import",
+  MATERIAL_MENU_MASS_UPDATE: "Batch Update",
   MATERIAL_MENU_TYPES: "Types",
    
   menu_sample: "Sample",
@@ -365,6 +366,7 @@ var common = {
   vocabulary_registration: "Vocabulary Registration",
   sample_batch_registration: "Sample Batch Registration",
   sample_batch_update: "Sample Batch Update",
+  material_batch_update: "Material Batch Update",
   sample_registration: "Sample Registration",
   sample_broser: "Sample Browser",
   list_groups: "Spaces Browser",
@@ -592,7 +594,7 @@ var common = {
  // Import Materials
  //
  material_import: "Import Materials",
- 
+ignore_unregistered_materials: "Ignore unregistered materials", 
  
  // 
  // Material Chooser
