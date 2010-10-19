@@ -80,6 +80,12 @@ public class TypedTableModelBuilder<T extends IsSerializable>
             column.getHeader().setDataType(dataType);
             return this;
         }
+
+        public IColumnMetaData hideByDefault()
+        {
+            column.getHeader().setHidden(true);
+            return this;
+        }
     }
     
     private static interface IIndexProvider

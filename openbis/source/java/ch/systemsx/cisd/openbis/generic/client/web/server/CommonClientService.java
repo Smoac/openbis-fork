@@ -64,9 +64,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabularyTermsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -151,7 +153,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 
 /**
  * The {@link ICommonClientService} implementation.
@@ -434,7 +435,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTermWithStats> criteria)
+    public String prepareExportVocabularyTerms(TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -787,21 +788,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<VocabularyTermWithStats> listVocabularyTerms(final Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTermWithStats> criteria)
+    public TypedTableResultSet<VocabularyTermWithStats> listVocabularyTerms(
+            final Vocabulary vocabulary,
+            DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> criteria)
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<VocabularyTermWithStats>()
-                    {
-                        public List<VocabularyTermWithStats> getOriginalData()
-                                throws UserFailureException
-                        {
-                            List<ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats> terms =
-                                    commonServer.listVocabularyTermsWithStatistics(
-                                            getSessionToken(), vocabulary);
-                            return VocabularyTermTranslator.translate(terms);
-                        }
-                    });
+        VocabularyTermsProvider vocabularyTermsProvider =
+                new VocabularyTermsProvider(commonServer, getSessionToken(), vocabulary);
+        DataProviderAdapter<VocabularyTermWithStats> dataProvider =
+                new DataProviderAdapter<VocabularyTermWithStats>(vocabularyTermsProvider);
+        ResultSet<TableModelRowWithObject<VocabularyTermWithStats>> resultSet =
+                listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<VocabularyTermWithStats>(resultSet);
     }
 
     public ResultSet<MaterialType> listMaterialTypes(

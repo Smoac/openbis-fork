@@ -39,5 +39,10 @@ public interface IColumnMetaData
      * Sets the data type.
      */
     public IColumnMetaData withDataType(DataTypeCode dataType);
+    
+    /**
+     * Sets hidden flag to <code>true</code>.
+     */
+    public IColumnMetaData hideByDefault();
 
 }

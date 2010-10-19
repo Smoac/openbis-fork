@@ -46,6 +46,8 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     private Map<String, String> properties;
 
     private int defaultColumnWidth = 150;
+    
+    private boolean hidden;
 
     public TableModelColumnHeader()
     {
@@ -102,6 +104,16 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     public int getDefaultColumnWidth()
     {
         return defaultColumnWidth;
+    }
+
+    public final boolean isHidden()
+    {
+        return hidden;
+    }
+
+    public final void setHidden(boolean hidden)
+    {
+        this.hidden = hidden;
     }
 
     public boolean isNumeric()

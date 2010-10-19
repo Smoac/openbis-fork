@@ -277,12 +277,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listVocabularyTerms(Vocabulary, DefaultResultSetConfig)
      */
     public void listVocabularyTerms(Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig,
-            AsyncCallback<ResultSet<VocabularyTermWithStats>> callback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<VocabularyTermWithStats>> callback);
 
     /** @see ICommonClientService#prepareExportVocabularyTerms(TableExportCriteria) */
     public void prepareExportVocabularyTerms(
-            TableExportCriteria<VocabularyTermWithStats> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listMaterialTypes(DefaultResultSetConfig) */

@@ -42,6 +42,10 @@ public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
     {
         super(header, title, downloadURL, sessionID);
         this.linkGeneratorOrNull = linkGeneratorOrNull;
+        if (header != null)
+        {
+            hidden = header.isHidden();
+        }
     }
 
     // GWT only

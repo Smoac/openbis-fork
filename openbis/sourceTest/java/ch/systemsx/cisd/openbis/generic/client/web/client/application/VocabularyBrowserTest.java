@@ -21,8 +21,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyTermGrid;
@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RemoteConsole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermGridIDs;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Vocabulary Browser</i>.
@@ -67,8 +68,8 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
     {
         remoteConsole.prepare(new ShowVocabularyTerms(vocabularyCode));
         CheckTableCommand termsTable =
-                new CheckTableCommand(VocabularyTermGrid
-                        .createGridId(TechId.createWildcardTechId()));
+                new CheckTableCommand(VocabularyTermGrid.createBrowserId(TechId
+                        .createWildcardTechId()) + TypedTableGrid.GRID_POSTFIX);
         for (String expectedTerm : expectedTerms)
         {
             expectTermWithCode(termsTable, expectedTerm);
@@ -78,7 +79,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
     private static void expectTermWithCode(CheckTableCommand termsTable, String code)
     {
-        termsTable.expectedColumn(VocabularyTermColDefKind.CODE.id(), code);
+        termsTable.expectedColumn(VocabularyTermGridIDs.CODE, code);
     }
 
     public static class ShowVocabularyTerms extends AbstractDefaultTestCommand

@@ -338,14 +338,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all vocabulary terms for a specified vocabulary.
      */
-    public ResultSet<VocabularyTermWithStats> listVocabularyTerms(Vocabulary vocabulary,
-            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig)
+    public TypedTableResultSet<VocabularyTermWithStats> listVocabularyTerms(Vocabulary vocabulary,
+            DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabulary Terms.
      */
-    public String prepareExportVocabularyTerms(TableExportCriteria<VocabularyTermWithStats> criteria)
+    public String prepareExportVocabularyTerms(TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
             throws UserFailureException;
 
     public ResultSet<MaterialType> listMaterialTypes(

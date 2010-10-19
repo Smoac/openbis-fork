@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,11 +35,11 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -54,12 +55,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
@@ -71,24 +70,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermGridIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * Grid displaying vocabularies.
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTermWithStats>
+public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
 {
 
     private static final int LABEL_WIDTH = 100;
@@ -129,11 +129,31 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private VocabularyTermGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             Vocabulary vocabulary)
     {
-        super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary),
+        super(viewContext, createBrowserId(vocabulary), true, 
                 DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
         this.vocabulary = vocabulary;
         this.postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
+
+    }
+    
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<VocabularyTermWithStats>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<VocabularyTermWithStats>> definitions =
+                super.createColumnsDefinition();
+        definitions.setGridCellRendererFor(VocabularyTermGridIDs.URL, LinkRenderer
+                .createExternalLinkRenderer());
+        return definitions;
+    }
+
+    @Override
+    protected BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> createModel(
+            GridRowModel<TableModelRowWithObject<VocabularyTermWithStats>> entity)
+    {
+        BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> model = super.createModel(entity);
+        model.renderAsMultilineStringWithTooltip(VocabularyTermGridIDs.DESCRIPTION);
+        return model;
     }
 
     private void extendBottomToolbar()
@@ -165,15 +185,15 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
-                        new ISelectedEntityInvoker<BaseEntityModel<VocabularyTermWithStats>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>>()
                             {
 
                                 public void invoke(
-                                        BaseEntityModel<VocabularyTermWithStats> selectedItem,
+                                        BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     final VocabularyTermWithStats term =
-                                            selectedItem.getBaseObject();
+                                            selectedItem.getBaseObject().getObjectOrNull();
                                     createEditDialog(term.getTerm()).show();
                                 }
                             });
@@ -302,16 +322,6 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         GWTUtils.setToolTip(button, tooltip);
     }
 
-    public static String createGridId(Vocabulary vocabulary)
-    {
-        return createGridId(TechId.create(vocabulary));
-    }
-
-    public static String createGridId(TechId vocabularyId)
-    {
-        return createBrowserId(vocabularyId) + "-grid";
-    }
-
     public static String createBrowserId(Vocabulary vocabulary)
     {
         return createBrowserId(TechId.create(vocabulary));
@@ -322,53 +332,29 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         return BROWSER_ID + "-" + vocabularyId;
     }
 
-    @Override
-    protected ColumnDefsAndConfigs<VocabularyTermWithStats> createColumnsDefinition()
-    {
-        ColumnDefsAndConfigs<VocabularyTermWithStats> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(VocabularyTermColDefKind.URL.id(), LinkRenderer
-                .createExternalLinkRenderer());
-        return schema;
-    }
 
     @Override
-    protected IColumnDefinitionKind<VocabularyTermWithStats>[] getStaticColumnsDefinition()
-    {
-        return VocabularyTermColDefKind.values();
-    }
-
-    @Override
-    protected List<IColumnDefinition<VocabularyTermWithStats>> getInitialFilters()
-    {
-        return asColumnFilters(new VocabularyTermColDefKind[]
-            { VocabularyTermColDefKind.CODE, VocabularyTermColDefKind.LABEL });
-    }
-
-    @Override
-    protected BaseEntityModel<VocabularyTermWithStats> createModel(
-            GridRowModel<VocabularyTermWithStats> entity)
-    {
-        BaseEntityModel<VocabularyTermWithStats> model = super.createModel(entity);
-        model.renderAsMultilineStringWithTooltip(VocabularyTermColDefKind.DESCRIPTION.id());
-        return model;
-    }
-
-    @Override
-    protected void listEntities(
-            DefaultResultSetConfig<String, VocabularyTermWithStats> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<VocabularyTermWithStats>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<VocabularyTermWithStats>> callback)
     {
         viewContext.getService().listVocabularyTerms(vocabulary, resultSetConfig, callback);
     }
 
     @Override
     protected void prepareExportEntities(
-            TableExportCriteria<VocabularyTermWithStats> exportCriteria,
+            TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
     }
 
+    @Override
+    protected String translateColumnIdToDictionaryKey(String columnID)
+    {
+        return columnID.startsWith("TERM") ? columnID : columnID.toLowerCase();
+    }
+    
     private Window createUpdateTermsDialog()
     {
         final String title =
@@ -577,6 +563,15 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             };
     }
 
+    
+
+    @Override
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(VocabularyTermGridIDs.CODE, VocabularyTermGridIDs.LABEL);
+    }
+
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         // refresh when any high level entity or property assignment is modified/created/deleted
@@ -595,7 +590,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 
     private void deleteTerms()
     {
-        List<BaseEntityModel<VocabularyTermWithStats>> terms = getSelectedItems();
+        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms = getSelectedItems();
         if (terms.isEmpty())
         {
             return;
@@ -610,11 +605,11 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         List<VocabularyTerm> termsToBeDeleted = new ArrayList<VocabularyTerm>();
         List<VocabularyTermReplacement> termsToBeReplaced =
                 new ArrayList<VocabularyTermReplacement>();
-        for (BaseEntityModel<VocabularyTermWithStats> model : terms)
+        for (BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> model : terms)
         {
-            VocabularyTerm term = model.getBaseObject().getTerm();
+            VocabularyTerm term = model.getBaseObject().getObjectOrNull().getTerm();
             selectedTerms.add(term.getCode());
-            if (model.getBaseObject().getTotalUsageCounter() > 0)
+            if (model.getBaseObject().getObjectOrNull().getTotalUsageCounter() > 0)
             {
                 VocabularyTermReplacement termToBeReplaced = new VocabularyTermReplacement();
                 termToBeReplaced.setTerm(term);
@@ -674,9 +669,9 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private List<VocabularyTerm> getTerms()
     {
         List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
-        for (BaseEntityModel<VocabularyTermWithStats> model : getGridModels())
+        for (BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> model : getGridModels())
         {
-            terms.add(model.getBaseObject().getTerm());
+            terms.add(model.getBaseObject().getObjectOrNull().getTerm());
         }
         return terms;
     }
