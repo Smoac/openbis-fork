@@ -298,6 +298,15 @@ public class PropertyTypeAssignmentGrid extends
                     mandatoryCheckbox =
                             new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
                     mandatoryCheckbox.setValue(originalIsMandatory);
+
+                    if (dynamicCheckbox.getValue())
+                    {
+                        dynamicCheckbox.disable();
+                        mandatoryCheckbox.setVisible(false);
+                    } else
+                    {
+                        dynamicCheckbox.setVisible(false);
+                    }
                     addField(mandatoryCheckbox);
 
                     addField(dynamicCheckbox);
