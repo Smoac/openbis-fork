@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -35,12 +33,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -63,9 +58,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
-    private static boolean CHECK_DYNAMIC_PROPERTIES_NOT_UPDATED_MANUALLY = false;
-
-    private static boolean CREATE_DYNAMIC_PROPERTIES_PLACEHOLDERS = false;
 
     private static final String NO_ENTITY_PROPERTY_VALUE_FOR_S =
             "Value of mandatory property '%s' not specified.";
@@ -87,22 +79,32 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private final IPropertyValueValidator propertyValueValidator;
 
+    private final IDynamicPropertiesUpdateChecker dynamicPropertiesUpdateChecker;
+
+    private final IDynamicProperiesPlaceholderCreator placeholderCreator;
+
     public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
     {
-        this(entityKind, daoFactory, new PropertyValidator(daoFactory));
+        this(entityKind, daoFactory, new PropertyValidator(daoFactory),
+                new DynamicPropertiesUpdateChecker(), new DynamicProperiesPlaceholderCreator());
     }
 
     @Private
     EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory,
-            final IPropertyValueValidator propertyValueValidator)
+            final IPropertyValueValidator propertyValueValidator,
+            IDynamicPropertiesUpdateChecker dynamicPropertiesUpdateChecker,
+            IDynamicProperiesPlaceholderCreator placeholderCreator)
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert daoFactory != null : "Unspecified DAO factory.";
         assert propertyValueValidator != null : "Unspecified property value validator.";
+        assert dynamicPropertiesUpdateChecker != null : "Unspecified dynamic properties update checker.";
 
         this.daoFactory = daoFactory;
         this.entityKind = entityKind;
         this.propertyValueValidator = propertyValueValidator;
+        this.dynamicPropertiesUpdateChecker = dynamicPropertiesUpdateChecker;
+        this.placeholderCreator = placeholderCreator;
     }
 
     private final Set<String> getDynamicProperties(final EntityTypePE entityTypePE)
@@ -283,10 +285,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final EntityTypePE entityTypePE = getEntityType(entityTypeCode);
         Set<String> dynamicProperties = getDynamicProperties(entityTypePE);
         Set<String> propertiesToUpdate = extractPropertiesToUpdate(properties);
-        checkDynamicPropertiesNotManuallyUpdated(propertiesToUpdate, dynamicProperties);
+        dynamicPropertiesUpdateChecker.checkDynamicPropertiesNotManuallyUpdated(propertiesToUpdate,
+                dynamicProperties);
         List<IEntityProperty> newProperties =
                 new ArrayList<IEntityProperty>(Arrays.asList(properties));
-        addDynamicPropertiesPlaceholders(newProperties, propertiesToUpdate, dynamicProperties);
+        placeholderCreator.addDynamicPropertiesPlaceholders(newProperties, propertiesToUpdate,
+                dynamicProperties);
         final List<T> list = new ArrayList<T>();
         for (final IEntityProperty property : newProperties)
         {
@@ -397,9 +401,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
             Set<String> dynamicProperties)
     {
-        Set<String> propertiesToUpdate = extractPropertiesToUpdate(newProperties);
-        checkDynamicPropertiesNotManuallyUpdated(propertiesToUpdate, dynamicProperties);
-        addDynamicPropertiesPlaceholders(newProperties, propertiesToUpdate, dynamicProperties);
         final List<T> convertedProperties =
                 convertProperties(newProperties, entityType.getCode(), registrator);
         final Set<T> set = new HashSet<T>();
@@ -419,22 +420,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return set;
     }
 
-    private <P extends IEntityProperty> Set<String> extractPropertiesToUpdate(List<P> newProperties)
-    {
-        Set<String> propertiesToUpdate = new HashSet<String>();
-        for (P np : newProperties)
-        {
-            propertiesToUpdate.add(np.getPropertyType().getCode());
-        }
-        return propertiesToUpdate;
-    }
-
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
             Set<String> propertiesToUpdate, Set<String> dynamicProperties)
     {
-        checkDynamicPropertiesNotManuallyUpdated(propertiesToUpdate, dynamicProperties);
-        addDynamicPropertiesPlaceholders(newProperties, propertiesToUpdate, dynamicProperties);
         // all new properties should be among propertiesToUpdate (no need to check it)
         final Set<T> set =
                 updateProperties(oldProperties, entityType, newProperties, registrator,
@@ -450,45 +439,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         }
         return set;
-    }
-
-    private void addDynamicPropertiesPlaceholders(List<IEntityProperty> newProperties,
-            Set<String> propertiesToUpdate, Set<String> dynamicProperties)
-    {
-        if (CREATE_DYNAMIC_PROPERTIES_PLACEHOLDERS)
-        {
-            propertiesToUpdate.addAll(dynamicProperties);
-            for (String dp : dynamicProperties)
-            {
-                final IEntityProperty entityProperty = new EntityProperty();
-                entityProperty.setValue(BasicConstant.PLACEHOLDER_PROPERTY_VALUE);
-                PropertyType propertyType = new PropertyType();
-                propertyType.setCode(dp);
-                entityProperty.setPropertyType(propertyType);
-                newProperties.add(entityProperty);
-            }
-        }
-    }
-
-    private void checkDynamicPropertiesNotManuallyUpdated(Set<String> propertiesToUpdate,
-            Set<String> dynamicProperties)
-    {
-        if (CHECK_DYNAMIC_PROPERTIES_NOT_UPDATED_MANUALLY)
-        {
-            HashSet<String> allPropertiesToUpdate = new HashSet<String>();
-            for (String p : propertiesToUpdate)
-            {
-                allPropertiesToUpdate.add(p.toUpperCase());
-            }
-            HashSet<String> dynamicPropertiesToUpdate = new HashSet<String>(dynamicProperties);
-            dynamicPropertiesToUpdate.retainAll(allPropertiesToUpdate);
-            if (dynamicPropertiesToUpdate.isEmpty() == false)
-            {
-                throw new UserFailureException(String.format(
-                        "Dynamic properties cannot be updated manually [%s]",
-                        StringUtils.join(dynamicPropertiesToUpdate, ",")));
-            }
-        }
     }
 
     private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties, T p)

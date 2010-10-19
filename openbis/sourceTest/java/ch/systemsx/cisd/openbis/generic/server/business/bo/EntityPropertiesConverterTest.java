@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -55,18 +59,26 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
 
     private IPropertyValueValidator propertyValueValidator;
 
+    private IDynamicPropertiesUpdateChecker dynamicPropertiesChecker;
+
+    private IDynamicProperiesPlaceholderCreator placeholderCreator;
+
     @Override
     @BeforeMethod
     public final void beforeMethod()
     {
         super.beforeMethod();
         propertyValueValidator = context.mock(IPropertyValueValidator.class);
+        dynamicPropertiesChecker = context.mock(IDynamicPropertiesUpdateChecker.class);
+        placeholderCreator = context.mock(IDynamicProperiesPlaceholderCreator.class);
+
     }
 
     private final IEntityPropertiesConverter createEntityPropertiesConverter(
             final EntityKind entityKind)
     {
-        return new EntityPropertiesConverter(entityKind, daoFactory, propertyValueValidator);
+        return new EntityPropertiesConverter(entityKind, daoFactory, propertyValueValidator,
+                dynamicPropertiesChecker, placeholderCreator);
     }
 
     private void prepareForConvertion(final Expectations exp)
@@ -160,6 +172,20 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
             {
                 {
                     prepareForConvertion(this);
+                    CollectionMatcher<Set<String>> propertiesToUpdateMatcher =
+                            new CollectionMatcher<Set<String>>(new HashSet<String>());
+                    CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
+                            new CollectionMatcher<Set<String>>(new HashSet<String>(
+                                    new ArrayList<String>()));
+                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
+                            with(propertiesToUpdateMatcher), with(dynamicPropertiesMatcher));
+
+                    CollectionMatcher<List<IEntityProperty>> newPropertiesMatcher =
+                            new CollectionMatcher<List<IEntityProperty>>(
+                                    new ArrayList<IEntityProperty>());
+                    one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                            with(newPropertiesMatcher), with(propertiesToUpdateMatcher),
+                            with(dynamicPropertiesMatcher));
                 }
             });
         final List<EntityPropertyPE> properties =
@@ -175,23 +201,77 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
         final PropertyTypePE propertyTypePE = createPropertyType();
+        final IEntityProperty[] properties = createSampleProperties(false);
         context.checking(new Expectations()
             {
                 {
-                    prepareForConvertion(this);
+
+                    final SampleTypePE sampleType = createSampleType(SAMPLE_TYPE_CODE);
+                    final SampleTypePropertyTypePE sampleTypePropertyTypePE =
+                            createETPT(VARCHAR_PROPERTY_TYPE_CODE, false, sampleType);
+
+                    this.allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
+                    this.will(Expectations.returnValue(entityPropertyTypeDAO));
+
+                    this.allowing(daoFactory).getEntityTypeDAO(EntityKind.SAMPLE);
+                    this.will(Expectations.returnValue(entityTypeDAO));
+
+                    this.allowing(daoFactory).getPropertyTypeDAO();
+                    this.will(Expectations.returnValue(propertyTypeDAO));
+
+                    this.atLeast(1).of(entityTypeDAO).listEntityTypes();
+                    this.will(Expectations.returnValue(Collections.singletonList(sampleType)));
+
+                    this.allowing(entityPropertyTypeDAO).listEntityPropertyTypes(sampleType);
+                    this.will(Expectations.returnValue(Collections
+                            .singletonList(sampleTypePropertyTypePE)));
 
                     one(propertyTypeDAO).tryFindPropertyTypeByCode(VARCHAR_PROPERTY_TYPE_CODE);
                     will(returnValue(propertyTypePE));
 
                     one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
+
+                    CollectionMatcher<Set<String>> propertiesToUpdateMatcher =
+                            new CollectionMatcher<Set<String>>(new HashSet<String>(Arrays
+                                    .asList(VARCHAR_PROPERTY_TYPE_CODE)));
+                    CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
+                            new CollectionMatcher<Set<String>>(new HashSet<String>(
+                                    new ArrayList<String>()));
+                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
+                            with(propertiesToUpdateMatcher), with(dynamicPropertiesMatcher));
+
+                    ArrayList<IEntityProperty> listOfProperties = new ArrayList<IEntityProperty>();
+                    for (IEntityProperty p : properties)
+                    {
+                        listOfProperties.add(p);
+                    }
+                    CollectionMatcher<List<IEntityProperty>> newPropertiesMatcher =
+                            new CollectionMatcher<List<IEntityProperty>>(listOfProperties);
+                    one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                            with(newPropertiesMatcher), with(propertiesToUpdateMatcher),
+                            with(dynamicPropertiesMatcher));
                 }
+
             });
-        final IEntityProperty[] properties = createSampleProperties(false);
         final List<EntityPropertyPE> convertedProperties =
                 entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE,
                         ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(1, convertedProperties.size());
         context.assertIsSatisfied();
+    }
+
+    private SampleTypePropertyTypePE createETPT(String code, boolean dynamic,
+            final SampleTypePE sampleType)
+    {
+        final SampleTypePropertyTypePE sampleTypePropertyTypePE = new SampleTypePropertyTypePE();
+        sampleTypePropertyTypePE.setEntityType(sampleType);
+
+        final PropertyTypePE propertyType = new PropertyTypePE();
+        propertyType.setCode(code);
+        sampleTypePropertyTypePE.setPropertyType(propertyType);
+        sampleTypePropertyTypePE.setMandatory(false);
+        sampleTypePropertyTypePE.setDynamic(dynamic);
+        return sampleTypePropertyTypePE;
     }
 
     @Test
@@ -200,6 +280,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         final IEntityPropertiesConverter entityPropertiesConverter =
                 createEntityPropertiesConverter(EntityKind.SAMPLE);
         final PropertyTypePE propertyTypePE = createPropertyType();
+        final IEntityProperty[] properties = createSampleProperties(true);
         context.checking(new Expectations()
             {
                 {
@@ -209,12 +290,31 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     will(returnValue(propertyTypePE));
 
                     one(propertyValueValidator).validatePropertyValue(propertyTypePE, "blue");
+
+                    CollectionMatcher<Set<String>> propertiesToUpdateMatcher =
+                            new CollectionMatcher<Set<String>>(new HashSet<String>(Arrays
+                                    .asList(VARCHAR_PROPERTY_TYPE_CODE)));
+                    CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
+                            new CollectionMatcher<Set<String>>(new HashSet<String>(
+                                    new ArrayList<String>()));
+                    one(dynamicPropertiesChecker).checkDynamicPropertiesNotManuallyUpdated(
+                            with(propertiesToUpdateMatcher), with(dynamicPropertiesMatcher));
+
+                    ArrayList<IEntityProperty> listOfProperties = new ArrayList<IEntityProperty>();
+                    for (IEntityProperty p : properties)
+                    {
+                        listOfProperties.add(p);
+                    }
+                    CollectionMatcher<List<IEntityProperty>> newPropertiesMatcher =
+                            new CollectionMatcher<List<IEntityProperty>>(listOfProperties);
+                    one(placeholderCreator).addDynamicPropertiesPlaceholders(
+                            with(newPropertiesMatcher), with(propertiesToUpdateMatcher),
+                            with(dynamicPropertiesMatcher));
                 }
             });
-        final IEntityProperty[] properties = createSampleProperties(true);
         final List<EntityPropertyPE> convertedProperties =
-                entityPropertiesConverter.convertProperties(properties, SAMPLE_TYPE_CODE
-                        .toLowerCase(), ManagerTestTool.EXAMPLE_PERSON);
+                entityPropertiesConverter.convertProperties(properties,
+                        SAMPLE_TYPE_CODE.toLowerCase(), ManagerTestTool.EXAMPLE_PERSON);
         assertEquals(1, convertedProperties.size());
         context.assertIsSatisfied();
     }
@@ -248,8 +348,10 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
             });
         entityPropertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
                 defaultValue);
-        assertEquals(registrator, entityPropertiesConverter.createValidatedProperty(propertyType,
-                assignment, registrator, defaultValue).getRegistrator());
+        assertEquals(
+                registrator,
+                entityPropertiesConverter.createValidatedProperty(propertyType, assignment,
+                        registrator, defaultValue).getRegistrator());
         context.assertIsSatisfied();
     }
 
@@ -285,4 +387,5 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 assignment, defaultValue));
         context.assertIsSatisfied();
     }
+
 }
