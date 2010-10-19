@@ -1815,7 +1815,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<Script> listScripts(String sessionToken)
     {
         checkSession(sessionToken);
-        // FIXME: list only from current database instance
         final List<ScriptPE> scripts = getDAOFactory().getScriptDAO().listAllEntities();
         Collections.sort(scripts);
         return ScriptTranslator.translate(scripts);

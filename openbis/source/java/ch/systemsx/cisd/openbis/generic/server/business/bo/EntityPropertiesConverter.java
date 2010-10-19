@@ -63,6 +63,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class EntityPropertiesConverter implements IEntityPropertiesConverter
 {
+    private static boolean CHECK_DYNAMIC_PROPERTIES_NOT_UPDATED_MANUALLY = false;
+
+    private static boolean CREATE_DYNAMIC_PROPERTIES_PLACEHOLDERS = false;
+
     private static final String NO_ENTITY_PROPERTY_VALUE_FOR_S =
             "Value of mandatory property '%s' not specified.";
 
@@ -451,33 +455,39 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     private void addDynamicPropertiesPlaceholders(List<IEntityProperty> newProperties,
             Set<String> propertiesToUpdate, Set<String> dynamicProperties)
     {
-        propertiesToUpdate.addAll(dynamicProperties);
-        for (String dp : dynamicProperties)
+        if (CREATE_DYNAMIC_PROPERTIES_PLACEHOLDERS)
         {
-            final IEntityProperty entityProperty = new EntityProperty();
-            entityProperty.setValue(BasicConstant.PLACEHOLDER_PROPERTY_VALUE);
-            PropertyType propertyType = new PropertyType();
-            propertyType.setCode(dp);
-            entityProperty.setPropertyType(propertyType);
-            newProperties.add(entityProperty);
+            propertiesToUpdate.addAll(dynamicProperties);
+            for (String dp : dynamicProperties)
+            {
+                final IEntityProperty entityProperty = new EntityProperty();
+                entityProperty.setValue(BasicConstant.PLACEHOLDER_PROPERTY_VALUE);
+                PropertyType propertyType = new PropertyType();
+                propertyType.setCode(dp);
+                entityProperty.setPropertyType(propertyType);
+                newProperties.add(entityProperty);
+            }
         }
     }
 
     private void checkDynamicPropertiesNotManuallyUpdated(Set<String> propertiesToUpdate,
             Set<String> dynamicProperties)
     {
-        HashSet<String> allPropertiesToUpdate = new HashSet<String>();
-        for (String p : propertiesToUpdate)
+        if (CHECK_DYNAMIC_PROPERTIES_NOT_UPDATED_MANUALLY)
         {
-            allPropertiesToUpdate.add(p.toUpperCase());
-        }
-        HashSet<String> dynamicPropertiesToUpdate = new HashSet<String>(dynamicProperties);
-        dynamicPropertiesToUpdate.retainAll(allPropertiesToUpdate);
-        if (dynamicPropertiesToUpdate.isEmpty() == false)
-        {
-            throw new UserFailureException(String.format(
-                    "Dynamic properties cannot be updated manually [%s]",
-                    StringUtils.join(dynamicPropertiesToUpdate, ",")));
+            HashSet<String> allPropertiesToUpdate = new HashSet<String>();
+            for (String p : propertiesToUpdate)
+            {
+                allPropertiesToUpdate.add(p.toUpperCase());
+            }
+            HashSet<String> dynamicPropertiesToUpdate = new HashSet<String>(dynamicProperties);
+            dynamicPropertiesToUpdate.retainAll(allPropertiesToUpdate);
+            if (dynamicPropertiesToUpdate.isEmpty() == false)
+            {
+                throw new UserFailureException(String.format(
+                        "Dynamic properties cannot be updated manually [%s]",
+                        StringUtils.join(dynamicPropertiesToUpdate, ",")));
+            }
         }
     }
 
