@@ -134,8 +134,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
         }
         if (propertyCodes.size() > 0 && ignoreUnmatchedProperties() == false)
         {
-            throw new UnmatchedPropertiesException(mandatoryPropertyCodes, beanAnalyzer
-                    .getOptionalProperties(), propertyCodes);
+            throw new UnmatchedPropertiesException(mandatoryPropertyCodes,
+                    beanAnalyzer.getOptionalProperties(), propertyCodes);
         }
         unmatchedProperties = propertyCodes;
     }
@@ -149,7 +149,7 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             throw new IndexOutOfBoundsException(column, lineTokens);
         }
         String value = lineTokens[column];
-        // TODO this check doesn't work for <DELETE>
+        // TODO 2010-09-17, Piotr Buczek: this check doesn't work for <DELETE>
         checkMandatory(value, propertyModel.getCode());
         return value;
     }
@@ -218,8 +218,8 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
             if (propertyModel != null)
             {
                 final String propertyValue = getPropertyValue(lineTokens, propertyModel);
-                ClassUtils.invokeMethod(writeMethod, object, convert(propertyValue, writeMethod
-                        .getParameterTypes()[0]));
+                ClassUtils.invokeMethod(writeMethod, object,
+                        convert(propertyValue, writeMethod.getParameterTypes()[0]));
             }
         }
         return object;

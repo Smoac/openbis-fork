@@ -113,7 +113,7 @@ class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample
                     + "' should be removed from the file.");
         }
         newSample.setSampleType(sampleType);
-        setProperties(newSample, lineTokens); // TODO new placeholders for dynamic properties
+        setProperties(newSample, lineTokens);
         newSample
                 .setContainerIdentifier(StringUtils.trimToNull(newSample.getContainerIdentifier()));
         newSample.setParentIdentifier(StringUtils.trimToNull(newSample.getParentIdentifier()));

@@ -63,7 +63,6 @@ public class RowCalculatorTest extends AssertJUnit
 
         public List<String> getAllColumnTitles()
         {
-            // TODO Auto-generated method stub
             return null;
         }
 
@@ -72,7 +71,7 @@ public class RowCalculatorTest extends AssertJUnit
             return null;
         }
     }
-    
+
     private ITableDataProvider dataProvider;
 
     @BeforeMethod
@@ -99,8 +98,7 @@ public class RowCalculatorTest extends AssertJUnit
     {
         Set<ParameterWithValue> parameters = createParameters("x", "10");
         parameters.addAll(createParameters("y", "1"));
-        RowCalculator calculator =
-                createCalculator(parameters, "${x} * row.col('VALUE') + ${y}");
+        RowCalculator calculator = createCalculator(parameters, "${x} * row.col('VALUE') + ${y}");
 
         calculator.setRowData(Arrays.asList(2.5));
         assertEquals(26.0, calculator.evalToDouble());
@@ -126,8 +124,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testEvalToInt()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "42");
-        RowCalculator calculator =
-                createCalculator(parameters, "int(row.col('VALUE') * ${x})");
+        RowCalculator calculator = createCalculator(parameters, "int(row.col('VALUE') * ${x})");
 
         calculator.setRowData(Arrays.asList(2.5));
         assertEquals(105, calculator.evalToInt());
@@ -140,8 +137,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testEvalToBigInt()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "10");
-        RowCalculator calculator =
-                createCalculator(parameters, "${x} ** int(row.col('VALUE'))");
+        RowCalculator calculator = createCalculator(parameters, "${x} ** int(row.col('VALUE'))");
 
         calculator.setRowData(Arrays.asList(10));
         assertEquals(new BigInteger("10000000000"), calculator.evalToBigInt());
@@ -151,8 +147,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testEvalAsString()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "42");
-        RowCalculator calculator =
-                createCalculator(parameters, "str(${x} + row.col('VALUE'))");
+        RowCalculator calculator = createCalculator(parameters, "str(${x} + row.col('VALUE'))");
 
         calculator.setRowData(Arrays.asList(10));
         assertEquals("52", calculator.evalAsString());
@@ -179,8 +174,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testIntFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator calculator =
-                createCalculator(parameters, "map(int, [${x},'  ',2,2.5,'3'])");
+        RowCalculator calculator = createCalculator(parameters, "map(int, [${x},'  ',2,2.5,'3'])");
 
         assertEquals("[0, -2147483648, 2, 2, 3]", calculator.evalAsString());
 
@@ -201,8 +195,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testMinFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator calculator =
-                createCalculator(parameters, "min([${x},None,'  ',-2,'-3'])");
+        RowCalculator calculator = createCalculator(parameters, "min([${x},None,'  ',-2,'-3'])");
 
         assertEquals(-3.0, calculator.evalToDouble());
 
@@ -212,8 +205,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void testMaxFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
-        RowCalculator calculator =
-                createCalculator(parameters, "max([${x},None,'  ',-2,'-3'])");
+        RowCalculator calculator = createCalculator(parameters, "max([${x},None,'  ',-2,'-3'])");
 
         assertEquals(0.0, calculator.evalToDouble());
 
@@ -267,8 +259,7 @@ public class RowCalculatorTest extends AssertJUnit
         assertEquals(38.6, calculator.evalToDouble());
     }
 
-    private RowCalculator createCalculator(Set<ParameterWithValue> parameters,
-            String expression)
+    private RowCalculator createCalculator(Set<ParameterWithValue> parameters, String expression)
     {
         if (parameters != null)
         {
