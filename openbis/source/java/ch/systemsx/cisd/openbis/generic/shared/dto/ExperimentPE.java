@@ -85,8 +85,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Indexed
 @Friend(toClasses =
     { AttachmentPE.class, ProjectPE.class })
-public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertiesHolder,
-        IIdAndCodeHolder, Comparable<ExperimentPE>, IMatchingEntity, Serializable
+public class ExperimentPE extends AttachmentHolderPE implements
+        IEntityInformationWithPropertiesHolder, IIdAndCodeHolder, Comparable<ExperimentPE>,
+        IMatchingEntity, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 

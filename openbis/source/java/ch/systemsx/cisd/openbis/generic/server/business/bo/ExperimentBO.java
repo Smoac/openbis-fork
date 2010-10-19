@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
@@ -50,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -104,19 +104,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             throw UserFailureException.fromTemplate(ERR_EXPERIMENT_TYPE_NOT_FOUND, code);
         }
         return (ExperimentTypePE) experimentType;
-    }
-
-    @SuppressWarnings("unused")
-    private final void defineSampleProperties(final IEntityProperty[] experimentProperties)
-    {
-        final String experimentTypeCode = experiment.getExperimentType().getCode();
-        final List<ExperimentPropertyPE> properties =
-                propertiesConverter.convertProperties(experimentProperties, experimentTypeCode,
-                        experiment.getRegistrator());
-        for (final ExperimentPropertyPE property : properties)
-        {
-            experiment.addProperty(property);
-        }
     }
 
     public final ExperimentPE getExperiment()
@@ -291,8 +278,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         experiment.setCode(experimentIdentifier.getExperimentCode());
         experiment.setRegistrator(registrator);
         defineExperimentType(newExperiment);
-        defineExperimentProperties(newExperiment.getExperimentTypeCode(), newExperiment
-                .getProperties(), registrator);
+        defineExperimentProperties(newExperiment.getExperimentTypeCode(),
+                newExperiment.getProperties(), registrator);
         defineExperimentProject(newExperiment, experimentIdentifier);
         experiment.setPermId(getPermIdDAO().createPermId());
         dataChanged = true;
@@ -377,8 +364,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private void checkBusinessRules()
     {
-        propertiesConverter.checkMandatoryProperties(experiment.getProperties(), experiment
-                .getExperimentType());
+        propertiesConverter.checkMandatoryProperties(experiment.getProperties(),
+                experiment.getExperimentType());
     }
 
     private ExperimentIdentifier createExperimentIdentifier()
@@ -515,8 +502,8 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         if (missingSamples.size() > 0)
         {
             throw UserFailureException.fromTemplate(
-                    "Samples with following codes do not exist in the space '%s': '%s'.", group
-                            .getCode(), CollectionUtils.abbreviate(missingSamples, 10));
+                    "Samples with following codes do not exist in the space '%s': '%s'.",
+                    group.getCode(), CollectionUtils.abbreviate(missingSamples, 10));
         } else
         {
             return samples;

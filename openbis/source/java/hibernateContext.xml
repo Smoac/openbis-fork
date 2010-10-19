@@ -153,6 +153,11 @@
         <constructor-arg ref="hibernate-search-context" />
         <constructor-arg ref="full-text-index-updater" />
     </bean>
+
+    <bean id="dynamic-property-evaluator"
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationRunnable">
+        <constructor-arg ref="hibernate-session-factory" />
+    </bean>
     
     <bean id="maintenance-task-starter" 
         class="ch.systemsx.cisd.openbis.generic.server.MaintenanceTaskStarterRunnable">
@@ -164,6 +169,10 @@
                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
                     <property name="delay" value="0" />
                     <property name="runnable" ref="full-text-indexer" />
+                </bean>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
+                    <property name="delay" value="0" />
+                    <property name="runnable" ref="dynamic-property-evaluator" />
                 </bean>
                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
                     <property name="delay" value="0" />

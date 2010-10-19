@@ -45,8 +45,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 final class DefaultFullTextIndexer implements IFullTextIndexer
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DefaultFullTextIndexer.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DefaultFullTextIndexer.class);
 
     private static String ID_PROPERTY_NAME = "id";
 
@@ -97,8 +97,8 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                     listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
             indexEntities(fullTextSession, results, clazz);
             index = nextIndex;
-            operationLog.info(String.format("%d %ss have been indexed...", index, clazz
-                    .getSimpleName()));
+            operationLog.info(String.format("%d/%d %ss have been indexed...", index, maxIndex,
+                    clazz.getSimpleName()));
         }
         fullTextSession.getSearchFactory().optimize(clazz);
         operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
@@ -124,8 +124,8 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             final List<T> results = listEntitiesWithRestrictedId(fullTextSession, clazz, subList);
             indexEntities(fullTextSession, results, clazz);
             index = nextIndex;
-            operationLog.info(String.format("%d %ss have been reindexed...", index, clazz
-                    .getSimpleName()));
+            operationLog.info(String.format("%d/%d %ss have been reindexed...", index, maxIndex,
+                    clazz.getSimpleName()));
         }
         fullTextSession.getSearchFactory().optimize(clazz);
         transaction.commit();

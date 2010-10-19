@@ -115,6 +115,11 @@ public final class PropertyValidator implements IPropertyValueValidator
         return datePatterns.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
+    public PropertyValidator()
+    {
+        // NOTE: controlled vocabulary validator will always fail
+    }
+
     public PropertyValidator(IDAOFactory daoFactory)
     {
         assert daoFactory != null : "Unspecified DAO factory.";
@@ -302,6 +307,12 @@ public final class PropertyValidator implements IPropertyValueValidator
         {
             assert value != null : "Unspecified value.";
             assert vocabulary != null : "Unspecified vocabulary.";
+
+            if (daoFactory == null)
+            {
+                throw UserFailureException
+                        .fromTemplate("Controlled vocabulary validator wasn't initialized.");
+            }
 
             final String upperCaseValue = value.toUpperCase();
             VocabularyTermPE termOrNull =

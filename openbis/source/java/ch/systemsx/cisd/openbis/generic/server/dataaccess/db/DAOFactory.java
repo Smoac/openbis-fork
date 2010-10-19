@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -57,6 +58,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     {
         SpringEoDSQLExceptionTranslator.activate();
     }
+
+    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
     private final ISampleTypeDAO sampleTypeDAO;
 
@@ -98,9 +101,12 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory, HibernateSearchContext hibernateSearchContext,
-            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
-        super(context, sessionFactory, fullTextIndexUpdateScheduler);
+        super(context, sessionFactory, fullTextIndexUpdateScheduler,
+                dynamicPropertyEvaluationScheduler);
+        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
         final DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory, hibernateSearchContext);
@@ -221,6 +227,11 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IScriptDAO getScriptDAO()
     {
         return scriptDAO;
+    }
+
+    public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()
+    {
+        return dynamicPropertyEvaluationScheduler;
     }
 
 }

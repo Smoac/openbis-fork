@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -73,11 +76,15 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
     private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
 
+    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
+
     SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
-            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
         super(sessionFactory, databaseInstance, SamplePE.class);
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
+        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
     // LockSampleModificationsInterceptor automatically obtains lock
@@ -109,6 +116,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                 new ClassValidator<SamplePE>(SamplePE.class), true);
 
         flushWithSqlExceptionHandling(hibernateTemplate);
+        scheduleDynamicPropertiesEvaluation(Arrays.asList(sample));
     }
 
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)
@@ -304,6 +312,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
         // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(getHibernateTemplate());
+        scheduleDynamicPropertiesEvaluation(samples);
 
         // if session is not cleared registration of many samples slows down after each batch
         hibernateTemplate.clear();
@@ -316,6 +325,7 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
         // need to deal with exception thrown by trigger checking code uniqueness
         flushWithSqlExceptionHandling(getHibernateTemplate());
+        scheduleDynamicPropertiesEvaluation(Arrays.asList(sample));
 
         if (operationLog.isInfoEnabled())
         {
@@ -408,6 +418,17 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
         }
         fullTextIndexUpdateScheduler.scheduleUpdate(IndexUpdateOperation
                 .remove(SamplePE.class, ids));
+    }
+
+    private void scheduleDynamicPropertiesEvaluation(List<SamplePE> samples)
+    {
+        List<Long> sampleIds = new ArrayList<Long>();
+        for (SamplePE sample : samples)
+        {
+            sampleIds.add(sample.getId());
+        }
+        dynamicPropertyEvaluationScheduler.scheduleUpdate(DynamicPropertyEvaluationOperation
+                .evaluate(SamplePE.class, sampleIds));
     }
 
     @SuppressWarnings("unchecked")

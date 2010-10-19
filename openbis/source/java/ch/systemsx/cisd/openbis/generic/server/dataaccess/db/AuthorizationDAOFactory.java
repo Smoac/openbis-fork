@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
@@ -87,7 +88,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory,
-            final IFullTextIndexUpdateScheduler indexUpdateScheduler)
+            final IFullTextIndexUpdateScheduler indexUpdateScheduler,
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
         persistencyResources = new PersistencyResources(context, sessionFactory);
         databaseInstancesDAO = new DatabaseInstanceDAO(sessionFactory);
@@ -98,7 +100,9 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         externalDataDAO = new ExternalDataDAO(sessionFactory, homeDatabaseInstance);
         experimentDAO = new ExperimentDAO(sessionFactory, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
-        sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance, indexUpdateScheduler);
+        sampleDAO =
+                new SampleDAO(sessionFactory, homeDatabaseInstance, indexUpdateScheduler,
+                        dynamicPropertyEvaluationScheduler);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, homeDatabaseInstance);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);

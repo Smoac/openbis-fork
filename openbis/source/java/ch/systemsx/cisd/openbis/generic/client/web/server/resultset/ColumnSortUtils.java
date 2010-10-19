@@ -40,7 +40,7 @@ class ColumnSortUtils
         // compare code and identifier columns with a special alphanum comparator
         final Comparator<GridRowModel<T>> comparator =
                 isAlphanum(sortField) ? createAlphanumComparator(sortField)
-                        : createDefaiultComparator(sortField);
+                        : createDefaultComparator(sortField);
         return applySortDir(sortDir, comparator);
     }
 
@@ -52,8 +52,9 @@ class ColumnSortUtils
                 || field.getIdentifier().contains("IDENTIFIER");
     }
 
+    // TODO 2010-10-19, Piotr Buczek: extract common part with createAlphanumComparator
     @SuppressWarnings("unchecked")
-    private static <T> Comparator<GridRowModel<T>> createDefaiultComparator(
+    private static <T> Comparator<GridRowModel<T>> createDefaultComparator(
             final IColumnDefinition<T> sortField)
     {
         return new Comparator<GridRowModel<T>>()
@@ -66,7 +67,25 @@ class ColumnSortUtils
                     // treat null as minimal value
                     if (v1 == null)
                     {
-                        return -1;
+                        // error messages are bigger
+                        if (v2 == null)
+                        {
+                            String s1 = sortField.getValue(o1);
+                            String s2 = sortField.getValue(o2);
+                            if (s1 == null)
+                            {
+                                return -1;
+                            } else if (s2 == null)
+                            {
+                                return -1;
+                            } else
+                            {
+                                return s1.compareTo(s2);
+                            }
+                        } else
+                        {
+                            return -1;
+                        }
                     } else if (v2 == null)
                     {
                         return 1;
@@ -93,7 +112,25 @@ class ColumnSortUtils
                     // treat null as minimal value
                     if (v1 == null)
                     {
-                        return -1;
+                        // error messages are bigger
+                        if (v2 == null)
+                        {
+                            String s1 = sortField.getValue(o1);
+                            String s2 = sortField.getValue(o2);
+                            if (s1 == null)
+                            {
+                                return -1;
+                            } else if (s2 == null)
+                            {
+                                return -1;
+                            } else
+                            {
+                                return s1.compareTo(s2);
+                            }
+                        } else
+                        {
+                            return -1;
+                        }
                     } else if (v2 == null)
                     {
                         return 1;

@@ -78,8 +78,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Table(name = TableNames.DATA_TABLE, uniqueConstraints = @UniqueConstraint(columnNames = ColumnNames.CODE_COLUMN))
 @Inheritance(strategy = InheritanceType.JOINED)
 @Friend(toClasses = EventPE.class)
-public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder,
-        IEntityInformationHolderDTO, IIdentifierHolder, ICodeHolder
+public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
+        IEntityInformationWithPropertiesHolder, IIdentifierHolder, ICodeHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 
