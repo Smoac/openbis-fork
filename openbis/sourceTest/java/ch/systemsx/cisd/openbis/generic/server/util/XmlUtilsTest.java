@@ -30,6 +30,7 @@ import org.xml.sax.SAXParseException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.XmlUtils;
 
 /**
  * Tests of {@link XmlUtils}.
