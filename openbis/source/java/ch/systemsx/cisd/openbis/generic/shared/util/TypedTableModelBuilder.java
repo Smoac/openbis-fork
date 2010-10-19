@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
-import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Builder class for creating an instance of {@link TypedTableModel}.

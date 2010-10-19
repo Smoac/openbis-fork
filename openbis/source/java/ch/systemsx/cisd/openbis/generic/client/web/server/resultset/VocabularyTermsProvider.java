@@ -31,7 +31,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermGr
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.server.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -40,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 
 /**

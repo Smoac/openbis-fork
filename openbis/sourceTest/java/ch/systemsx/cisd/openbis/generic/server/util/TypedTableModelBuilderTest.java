@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
  * 
