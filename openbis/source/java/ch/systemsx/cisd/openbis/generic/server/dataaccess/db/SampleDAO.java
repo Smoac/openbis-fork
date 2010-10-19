@@ -115,7 +115,6 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                 new ClassValidator<SamplePE>(SamplePE.class), true);
 
         flushWithSqlExceptionHandling(hibernateTemplate);
-        scheduleDynamicPropertiesEvaluation(Arrays.asList(sample));
     }
 
     public final List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample)

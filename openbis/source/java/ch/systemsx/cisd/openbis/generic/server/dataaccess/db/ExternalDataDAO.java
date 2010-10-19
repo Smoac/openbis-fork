@@ -454,12 +454,18 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         {
             operationLog.info(String.format("UPDATE: %d data sets.", externalData.size()));
         }
+
+        flushWithSqlExceptionHandling(getHibernateTemplate());
+        scheduleDynamicPropertiesEvaluation(externalData);
+
+        // if session is not cleared registration of many samples slows down after each batch
+        hibernateTemplate.clear();
     }
 
-    private void scheduleDynamicPropertiesEvaluation(List<ExternalDataPE> data)
+    private void scheduleDynamicPropertiesEvaluation(List<ExternalDataPE> externalData)
     {
         scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler,
-                ExternalDataPE.class, data);
+                ExternalDataPE.class, externalData);
     }
 
 }
