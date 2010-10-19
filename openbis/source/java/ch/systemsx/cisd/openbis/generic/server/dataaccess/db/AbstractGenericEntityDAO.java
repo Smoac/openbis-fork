@@ -117,7 +117,7 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
         return result;
     }
 
-    public final void validateAndSaveUpdatedEntity(T entity) throws DataAccessException
+    public void validateAndSaveUpdatedEntity(T entity) throws DataAccessException
     {
         assert entity != null : "entity is null";
 

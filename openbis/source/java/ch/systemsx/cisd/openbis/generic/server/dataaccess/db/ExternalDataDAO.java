@@ -335,7 +335,11 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         final HibernateTemplate template = getHibernateTemplate();
         template.save(dataset);
         template.flush();
-        // evaluation of dynamic properties will be triggered after ExternalDataPE creation
+
+        if (dataset instanceof ExternalDataPE)
+        {
+            scheduleDynamicPropertiesEvaluation(Arrays.asList((ExternalDataPE) dataset));
+        }
 
         if (operationLog.isInfoEnabled())
         {
@@ -460,6 +464,14 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
 
         // if session is not cleared registration of many samples slows down after each batch
         hibernateTemplate.clear();
+    }
+
+    @Override
+    public final void validateAndSaveUpdatedEntity(ExternalDataPE entity)
+            throws DataAccessException
+    {
+        super.validateAndSaveUpdatedEntity(entity);
+        scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
     }
 
     private void scheduleDynamicPropertiesEvaluation(List<ExternalDataPE> externalData)
