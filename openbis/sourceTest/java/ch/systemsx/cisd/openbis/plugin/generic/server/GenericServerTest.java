@@ -130,8 +130,6 @@ public final class GenericServerTest extends AbstractServerTestCase
         commonServer = context.mock(ICommonServer.class);
     }
 
-    // TODO 2010-10-19, Piotr Buczek
-    @Test(groups = "broken")
     public final void testRegisterSample()
     {
         prepareGetSession();
@@ -145,8 +143,16 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleBO).define(newSample);
                     exactly(2).of(sampleBO).save();
 
+                    final SamplePE sample = new SamplePE();
+                    final Long id = 1L;
+                    sample.setId(id);
                     allowing(sampleBO).getSample();
-                    will((returnValue(null)));
+                    will((returnValue(sample)));
+
+                    final DynamicPropertyEvaluationOperation operation =
+                            DynamicPropertyEvaluationOperation.evaluate(SamplePE.class,
+                                    Arrays.asList(id));
+                    one(evaluator).scheduleUpdate(with(operation));
                 }
             });
         createServer().registerSample(SESSION_TOKEN, newSample,
@@ -601,7 +607,9 @@ public final class GenericServerTest extends AbstractServerTestCase
         prepareGetSession();
         final Date version = new Date();
         final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
+        final Long id = 1L;
         final SamplePE sample = new SamplePE();
+        sample.setId(id);
         Set<SampleRelationshipPE> newParents = new HashSet<SampleRelationshipPE>();
         sample.setParentRelationships(newParents);
         Date newModificationDate = new Date(2);
@@ -620,8 +628,10 @@ public final class GenericServerTest extends AbstractServerTestCase
                     allowing(sampleBO).getSample();
                     will(returnValue(sample));
 
-                    one(evaluator).scheduleUpdate(
-                            DynamicPropertyEvaluationOperation.evaluate(SamplePE.class, null));
+                    final DynamicPropertyEvaluationOperation operation =
+                            DynamicPropertyEvaluationOperation.evaluate(SamplePE.class,
+                                    Arrays.asList(id));
+                    one(evaluator).scheduleUpdate(with(operation));
                 }
             });
         SampleUpdateResult result = createServer().updateSample(SESSION_TOKEN, updates);
