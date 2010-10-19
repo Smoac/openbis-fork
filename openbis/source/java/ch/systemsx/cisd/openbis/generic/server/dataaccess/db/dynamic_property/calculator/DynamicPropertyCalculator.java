@@ -17,23 +17,39 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.AbstractCalculator;
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 
 /**
  * @author Piotr Buczek
  */
-public class DynamicPropertyCalculator extends AbstractCalculator
+public class DynamicPropertyCalculator
 {
     private static final String ENTITY_VARIABLE_NAME = "entity";
 
+    private static final String BASIC_INITIAL_SCRIPT = "from "
+            + StandardFunctions.class.getCanonicalName() + " import *\n"
+            + "def int(x):return toInt(x)\n" + "def float(x):return toFloat(x)\n";
+
+    private final Evaluator evaluator;
+
     public DynamicPropertyCalculator(String expression)
     {
-        super(new Evaluator(expression, Math.class, BASIC_INITIAL_SCRIPT));
+        this.evaluator = new Evaluator(expression, Math.class, BASIC_INITIAL_SCRIPT);
     }
 
     public void setEntity(IEntityAdaptor entity)
     {
         evaluator.set(ENTITY_VARIABLE_NAME, entity);
+    }
+
+    public String evalAsString() throws EvaluatorException
+    {
+        return evaluator.evalAsString();
+    }
+
+    public Object eval() throws EvaluatorException
+    {
+        return evaluator.eval();
     }
 
 }
