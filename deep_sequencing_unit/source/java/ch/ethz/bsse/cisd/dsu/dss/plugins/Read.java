@@ -1,5 +1,4 @@
-/*
- * Copyright 2010 ETH Zuerich, CISD
+/* Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +15,52 @@
 
 package ch.ethz.bsse.cisd.dsu.dss.plugins;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
  * <pre>
- *   &lt;ExpandedLaneSummary&gt;
- *      &lt;Read&gt;
- *      &lt;/Read&gt;
- *   &lt;/ExpandedLaneSummary&gt;
+ *  &lt;Read&gt;
+ *  &lt;readNumber&gt;1&lt;/readNumber&gt;
+ *  &lt;Lane&gt;
+ *  ...
+ *  &lt;/Lane&gt;
+ *  ...
+ *  &lt;/Read&gt;
  * </pre>
  * 
  * @author Manuel Kohler
  */
 
-class LaneResultsSummary
+class Read
 {
-    private Read read;
-
-    @XmlElement(name = "Read")
-    public Read getRead()
+    private List<Integer> readNumber = new ArrayList<Integer>();
+    
+    private List<Lane> lanes;
+    
+    @XmlElement (name = "readNumber")
+    public List<Integer> getReadNumbers()
     {
-        return read;
+        return readNumber;
     }
 
-    public void setRead(Read read)
+    public void setReadNumbers(List<Integer> readNumber)
     {
-        this.read = read;
+        this.readNumber = readNumber;
     }
+
+    @XmlElement (name = "Lane")
+    public List<Lane> getLanes()
+    {
+        return lanes;
+    }
+
+    public void setLanes(List<Lane> lanes)
+    {
+        this.lanes = lanes;
+    }
+    
+
 }
+    

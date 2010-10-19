@@ -39,12 +39,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * Reporting plugin which shows numbers of the Summary file generated from the Illumina Sequencer.
+ * Reporting plugin which shows numbers of the Summary.xml file generated from the Illumina
+ * Sequencer. The structure of the Summary file has changed from Casava 1.6 to 1.7 so some XML
+ * elements are not available in the old files.
  * 
  * @author Manuel Kohler
  */
 public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingPlugin
 {
+    private static final int MEGA = 1000000;
+
+    private static final int KILO = 1000;
+
     private static final long serialVersionUID = 1L;
 
     private static final String SUMMARY_FILE_NAME = "Summary.xml";
@@ -55,7 +61,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
     private static final String[] PROPERTIES =
         { "GENOME_ANALYZER", "END_TYPE", "ILLUMINA_PIPELINE_VERSION",
-                "CYCLES_REQUESTED_BY_CUSTOMER" };
+        "CYCLES_REQUESTED_BY_CUSTOMER" };
 
     public IlluminaSummaryReportingPlugin(Properties properties, File storeRoot)
     {
@@ -68,31 +74,35 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         builder.addHeader("Sample Code");
         builder.addHeader("Clusters");
         builder.addHeader("Clusters (PF)");
-        builder.addHeader("Yield (kbases)");
+        builder.addHeader("Yield (Mbases)");
+        builder.addHeader("Density Ratio");
+        builder.addHeader("PhiX: Clusters");
+        builder.addHeader("PhiX: ClustersPF");
+        builder.addHeader("PhiX: Yield (Mbases)");
+        builder.addHeader("PhiX: % Align (PF)");
+
         builder.addHeader("Software");
+        builder.addHeader("Eland finished");
         for (String property : PROPERTIES)
         {
             builder.addHeader(property);
         }
-        builder.addHeader("PhiX: Clusters");
-        builder.addHeader("PhiX: ClustersPF");
-        builder.addHeader("PhiX: Yield (kbases)");
-        builder.addHeader("PhiX: % Align (PF)");
+
         for (DatasetDescription dataset : datasets)
         {
             File originalData = getDataSubDir(dataset);
 
             // set the directory containing the Summary.xml
             File childDirectory =
-                    new File(originalData, dataset.getSampleCode()
-                            + DATA_INTENSITIES_BASE_CALLS_PATH);
+                new File(originalData, dataset.getSampleCode()
+                        + DATA_INTENSITIES_BASE_CALLS_PATH);
             File[] files = childDirectory.listFiles(new FileFilter()
+            {
+                public boolean accept(File file)
                 {
-                    public boolean accept(File file)
-                    {
-                        return file.isDirectory() && file.getName().startsWith(GERALD_DIR);
-                    }
-                });
+                    return file.isDirectory() && file.getName().startsWith(GERALD_DIR);
+                }
+            });
 
             System.out.println(files[0]);
             if (files.length == 1)
@@ -103,34 +113,11 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
             } else
             {
                 // throw new EnvironmentFailureException(String.format("More than one ..."));
+                // removed because it doesn't help, so just do nothing
             }
-            // if (childDirectory.exists())
-            // {
-            // File summaryFile = extractSummaryFile(dataset, childDirectory);
-            // describe(builder, dataset, summaryFile);
-            // } else
-            // {
-            // File summaryFile = extractSummaryFile(dataset, originalData);
-            // }
         }
         return builder.getTableModel();
     }
-
-    // private static File extractSummaryFile(DatasetDescription dataset, File originalData)
-    // {
-    // List<File> files = new ArrayList<File>();
-    // FileUtilities.findFiles(originalData, files, createIlluminaSummaryFileFilter());
-    // int size = files.size();
-    // if (size == 1)
-    // {
-    // return files.get(0);
-    // } else
-    // {
-    // throw new EnvironmentFailureException(String.format(
-    // "%s file was found for the dataset %s (%s).", (size == 0) ? "No summary"
-    // : " More than one", dataset.getDatasetCode(), dataset.getSampleCode()));
-    // }
-    // }
 
     private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset,
             File summaryFile)
@@ -143,6 +130,8 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
             DatasetDescription dataset, IlluminaSummary summary)
     {
         ChipResultsSummary chipResultSummary = summary.getChipResultsSummary();
+        LaneResultsSummary laneResultSummary = summary.getLaneResultsSummary();
+        // ChipSummary chipSummary = summary.getChipSummary();
 
         String software_version = summary.getSoftware();
         if (software_version == null)
@@ -150,18 +139,29 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
             software_version = "Not available";
         }
 
+        // TODO : Cover Paired end runs
+
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
         row.add(new StringTableCell(dataset.getSampleCode()));
         row.add(new IntegerTableCell(chipResultSummary.getClusterCountRaw()));
         row.add(new IntegerTableCell(chipResultSummary.getClusterCountPF()));
-        row.add(new IntegerTableCell(chipResultSummary.getYield() / 1000));
+        row.add(new IntegerTableCell(chipResultSummary.getYield() / MEGA));
+        row.add(new DoubleTableCell(chipResultSummary.getDensityRatio()));
+
+        // PhiX Lane
+        row.add(new IntegerTableCell(laneResultSummary.getRead().getLanes().get(4)
+                .getClusterCountRaw().getMean()));
+        row.add(new IntegerTableCell(laneResultSummary.getRead().getLanes().get(4)
+                .getClusterCountPF().getMean()));
+        row.add(new IntegerTableCell(laneResultSummary.getRead().getLanes().get(4).getLaneYield()
+                / KILO));
+        row.add(new DoubleTableCell(laneResultSummary.getRead().getLanes().get(4)
+                .getPercentUniquelyAlignedPF().getMean()));
+
         row.add(new StringTableCell(software_version));
+        row.add(new StringTableCell(summary.getDate()));
         addPropertyColumnValues(dataset, row);
-        // just dummies
-        row.add(new IntegerTableCell(1));
-        row.add(new IntegerTableCell(1));
-        row.add(new IntegerTableCell(1));
-        row.add(new DoubleTableCell(1.0));
+
         builder.addRow(row);
     }
 
@@ -194,10 +194,10 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         String sampleCode = dataset.getSampleCode();
         String databaseInstanceCode = dataset.getDatabaseInstanceCode();
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new SpaceIdentifier(databaseInstanceCode, spaceCode),
-                        sampleCode);
+            new SampleIdentifier(new SpaceIdentifier(databaseInstanceCode, spaceCode),
+                    sampleCode);
         Sample sampleOrNull =
-                ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
+            ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
         if (sampleOrNull == null)
         {
             throw new EnvironmentFailureException(String.format(
@@ -207,23 +207,12 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         return sampleOrNull;
     }
 
-    // private static FileFilter createIlluminaSummaryFileFilter()
-    // {
-    // return new FileFilter()
-    // {
-    // public boolean accept(File file)
-    // {
-    // return file.isFile() && file.getName().equals(SUMMARY_FILE_NAME);
-    // }
-    // };
-    // }
-
     /**
      * Loader of Illumina summary XML file.
      * <p>
      * NOTE: This is not thread safe as it holds {@link JaxbXmlParser} singleton. As long as it is
      * used only by {@link IlluminaSummaryReportingPlugin} it will work correctly because we only
-     * use a singleto of each reporting plugin.
+     * use a singleton of each reporting plugin.
      * 
      * @author Piotr Buczek
      */
@@ -231,7 +220,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
     {
         // we use one instance
         private static JaxbXmlParser<IlluminaSummary> PARSER_INSTANCE =
-                new JaxbXmlParser<IlluminaSummary>(IlluminaSummary.class, false);
+            new JaxbXmlParser<IlluminaSummary>(IlluminaSummary.class, false);
 
         public static IlluminaSummary readSummaryXML(File summaryXml)
         {

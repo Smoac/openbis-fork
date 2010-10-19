@@ -20,27 +20,52 @@ import javax.xml.bind.annotation.XmlElement;
 
 /**
  * <pre>
- *   &lt;ExpandedLaneSummary&gt;
- *      &lt;Read&gt;
- *      &lt;/Read&gt;
- *   &lt;/ExpandedLaneSummary&gt;
+ *   &lt;mean&gt;277736&lt;/mean&gt;
+ *   &lt;stdev&gt;11981&lt;/stdev&gt;
+ *   &lt;sumsq&gt;17224950000&lt;/sumsq&gt;
  * </pre>
  * 
- * @author Manuel Kohler
+ * @author kohleman
  */
 
-class LaneResultsSummary
+public class stats
 {
-    private Read read;
+    private Long mean;
 
-    @XmlElement(name = "Read")
-    public Read getRead()
+    private Long stdev;
+
+    private Long sumsq;
+
+    @XmlElement(name = "mean")
+    public Long getMean()
     {
-        return read;
+        return mean;
     }
 
-    public void setRead(Read read)
+    public void setMean(Long mean)
     {
-        this.read = read;
+        this.mean = mean;
+    }
+
+    @XmlElement(name = "stdev")
+    public Long getStdev()
+    {
+        return stdev;
+    }
+
+    public void setStdev(Long stdev)
+    {
+        this.stdev = stdev;
+    }
+
+    @XmlElement(name = "sumsq")
+    public Long getSumsq()
+    {
+        return sumsq;
+    }
+
+    public void setSumsq(Long sumsq)
+    {
+        this.sumsq = sumsq;
     }
 }

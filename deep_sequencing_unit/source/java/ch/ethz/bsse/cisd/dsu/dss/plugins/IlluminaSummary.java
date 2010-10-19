@@ -20,21 +20,50 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Note: Not all XML Elements are read in
+ * 
  * <pre>
  *   &lt;Summary&gt;
  *     &lt;ChipResultsSummary&gt;
- *       &lt;clusterCountPF&gt;98792458&lt;/clusterCountPF&gt;
- *       &lt;clusterCountRaw&gt;158466917&lt;/clusterCountRaw&gt;
- *       &lt;yield&gt;3556528488&lt;/yield&gt;
+ *     ...
  *     &lt;/ChipResultsSummary&gt;
  *     ...
- *     &lt;Software&gt;CASAVA-1.6.0&lt;/Software&gt;
+ *     &lt;ChipSummary&gt;
+ *     ...
+ *     &lt;/ChipSummary&gt;
+ *     ...
+ *     &lt;Date&gt;
+ *     ...
+ *     &lt;/Date&gt;
+ *     ...
+ *     &lt;ExpandedLaneSummary&gt;
+ *     ...
+ *     &lt;/ExpandedLaneSummary&gt;
+ *     ...
+ *     &lt;LaneParameterSummary&gt;
+ *     ...
+ *     &lt;/LaneParameterSummary&gt;
+ *     ...
+ *     &lt;LaneResultsSummary&gt;
+ *     ...
+ *     &lt;/LaneResultsSummary&gt;
+ *     ...
+ *     &lt;Software&gt;CASAVA-1.7.0&lt;/Software&gt;
+ *     ...
+ *     &lt;TileErrorsByLane&gt;
+ *     ...
+ *     &lt;/TileErrorsByLane&gt;
+ *     ...
+ *     &lt;TileResultsByLane&gt;
+ *     ...
+ *     &lt;/TileResultsByLane&gt;
  *     ...
  *   &lt;Summary&gt;
  * </pre>
  * 
  * @author Manuel Kohler
  */
+
 @XmlRootElement(name = "Summary")
 class IlluminaSummary
 {
@@ -42,7 +71,11 @@ class IlluminaSummary
 
     private LaneResultsSummary LaneResultsSummary;
 
+    private ChipSummary chipSummary;
+
     private String Software;
+
+    private String Date;
 
     @XmlElement(name = "ChipResultsSummary")
     public ChipResultsSummary getChipResultsSummary()
@@ -63,7 +96,18 @@ class IlluminaSummary
 
     public void setLaneResultsSummary(LaneResultsSummary laneResultsSummary)
     {
-        LaneResultsSummary = laneResultsSummary;
+        this.LaneResultsSummary = laneResultsSummary;
+    }
+
+    @XmlElement(name = "ChipSummary")
+    public ChipSummary getChipSummary()
+    {
+        return chipSummary;
+    }
+
+    public void setChipSummary(ChipSummary chipSummary)
+    {
+        this.chipSummary = chipSummary;
     }
 
     @XmlElement(name = "Software")
@@ -74,6 +118,17 @@ class IlluminaSummary
 
     public void setSoftware(String software)
     {
-        Software = software;
+        this.Software = software;
+    }
+
+    @XmlElement(name = "Date")
+    public String getDate()
+    {
+        return Date;
+    }
+
+    public void setDate(String date)
+    {
+        this.Date = date;
     }
 }

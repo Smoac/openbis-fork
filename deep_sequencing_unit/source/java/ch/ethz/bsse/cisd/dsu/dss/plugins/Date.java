@@ -1,5 +1,4 @@
-/*
- * Copyright 2010 ETH Zuerich, CISD
+/* Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +17,22 @@ package ch.ethz.bsse.cisd.dsu.dss.plugins;
 
 import javax.xml.bind.annotation.XmlElement;
 
-/**
- * <pre>
- *   &lt;ExpandedLaneSummary&gt;
- *      &lt;Read&gt;
- *      &lt;/Read&gt;
- *   &lt;/ExpandedLaneSummary&gt;
- * </pre>
- * 
+/*
  * @author Manuel Kohler
  */
-
-class LaneResultsSummary
+class Date
 {
-    private Read read;
+    private String Date;
 
-    @XmlElement(name = "Read")
-    public Read getRead()
+    @XmlElement
+    public String getDate()
     {
-        return read;
+        return Date;
     }
 
-    public void setRead(Read read)
+    public void setDate(String date)
     {
-        this.read = read;
+        this.Date = date;
     }
+    
 }

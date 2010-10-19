@@ -23,13 +23,15 @@ import javax.xml.bind.annotation.XmlElement;
  *   &lt;ChipResultsSummary&gt;
  *     &lt;clusterCountPF&gt;98792458&lt;/clusterCountPF&gt;
  *     &lt;clusterCountRaw&gt;158466917&lt;/clusterCountRaw&gt;
+ *     &lt;densityRatio&gt;3556528488&lt;/densityRatio&gt;
  *     &lt;yield&gt;3556528488&lt;/yield&gt;
  *   &lt;/ChipResultsSummary&gt;
- *   &lt;Software&gt;CASAVA-1.6.0&lt;/Software&gt;
+ *   &lt;Software&gt;CASAVA-1.7.0&lt;/Software&gt;
  * </pre>
  * 
  * @author Manuel Kohler
  */
+
 class ChipResultsSummary
 {
     private Long clusterCountPF;
@@ -38,7 +40,9 @@ class ChipResultsSummary
 
     private Long yield;
 
-    @XmlElement
+    private Double densityRatio;
+
+    @XmlElement(name = "clusterCountPF")
     public Long getClusterCountPF()
     {
         return clusterCountPF;
@@ -49,7 +53,7 @@ class ChipResultsSummary
         this.clusterCountPF = clusterCountPF;
     }
 
-    @XmlElement
+    @XmlElement(name = "clusterCountRaw")
     public Long getClusterCountRaw()
     {
         return clusterCountRaw;
@@ -60,7 +64,7 @@ class ChipResultsSummary
         this.clusterCountRaw = clusterCountRaw;
     }
 
-    @XmlElement
+    @XmlElement(name = "yield")
     public Long getYield()
     {
         return yield;
@@ -69,6 +73,17 @@ class ChipResultsSummary
     public void setYield(Long yield)
     {
         this.yield = yield;
+    }
+
+    @XmlElement(name = "densityRatio")
+    public Double getDensityRatio()
+    {
+        return densityRatio;
+    }
+
+    public void setDensityRatio(Double densityRatio)
+    {
+        this.densityRatio = densityRatio;
     }
 
 }
