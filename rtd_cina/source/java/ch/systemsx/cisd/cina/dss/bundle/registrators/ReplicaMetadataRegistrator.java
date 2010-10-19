@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
@@ -38,15 +39,18 @@ public class ReplicaMetadataRegistrator extends BundleDataSetHelper
 
     private final SampleIdentifier replicaSampleId;
 
+    private final DataSetInformation bundleMetadataDataSetInformation;
+
     private File metadataDataSetFile = null;
 
     ReplicaMetadataRegistrator(BundleRegistrationState globalState,
             ReplicaMetadataExtractor replicaMetadataExtractor, Sample replicaSample,
-            SampleIdentifier replicaSampleId)
+            SampleIdentifier replicaSampleId, DataSetInformation bundleMetadataDataSetInformation)
     {
         super(globalState, replicaMetadataExtractor.getFolder());
         this.replicaMetadataExtractor = replicaMetadataExtractor;
         this.replicaSampleId = replicaSampleId;
+        this.bundleMetadataDataSetInformation = bundleMetadataDataSetInformation;
     }
 
     /**
@@ -85,6 +89,9 @@ public class ReplicaMetadataRegistrator extends BundleDataSetHelper
         metadataDataSetInfo.setInstanceCode(replicaSampleId.getSpaceLevel()
                 .getDatabaseInstanceCode());
         metadataDataSetInfo.setDataSetType(globalState.getMetadataDataSetType().getDataSetType());
+        List<String> parentDataSetCodes =
+                Collections.singletonList(bundleMetadataDataSetInformation.getDataSetCode());
+        metadataDataSetInfo.setParentDataSetCodes(parentDataSetCodes);
         return metadataDataSetInfo;
     }
 

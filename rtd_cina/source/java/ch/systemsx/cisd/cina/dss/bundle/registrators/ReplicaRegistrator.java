@@ -43,6 +43,8 @@ public class ReplicaRegistrator extends BundleDataSetHelper
 
     private final SampleIdentifier gridPrepSampleId;
 
+    private final DataSetInformation bundleMetadataDataSetInformation;
+
     // Processing State (gets set during the execution of registration)
     private SampleIdentifier replicaSampleId;
 
@@ -52,13 +54,15 @@ public class ReplicaRegistrator extends BundleDataSetHelper
 
     ReplicaRegistrator(BundleRegistrationState globalState,
             ReplicaMetadataExtractor replicaMetadataExtractor, Sample gridPrepSample,
-            SampleIdentifier gridPrepSampleId, File dataSet)
+            SampleIdentifier gridPrepSampleId, DataSetInformation bundleMetadataDataSetInformation,
+            File dataSet)
     {
         super(globalState, dataSet);
 
         this.replicaMetadataExtractor = replicaMetadataExtractor;
         this.gridPrepSample = gridPrepSample;
         this.gridPrepSampleId = gridPrepSampleId;
+        this.bundleMetadataDataSetInformation = bundleMetadataDataSetInformation;
     }
 
     /**
@@ -126,7 +130,7 @@ public class ReplicaRegistrator extends BundleDataSetHelper
     {
         ReplicaMetadataRegistrator registrator =
                 new ReplicaMetadataRegistrator(globalState, replicaMetadataExtractor,
-                        replicaSample, replicaSampleId);
+                        replicaSample, replicaSampleId, bundleMetadataDataSetInformation);
         List<DataSetInformation> registeredDataSetInfos = registrator.register();
         getDataSetInformation().addAll(registeredDataSetInfos);
         return registrator.getMetadataDataSetFile();
@@ -145,7 +149,7 @@ public class ReplicaRegistrator extends BundleDataSetHelper
         {
             ReplicaAnnotatedImagesRegistrator registrator =
                     new ReplicaAnnotatedImagesRegistrator(globalState, imageMetadataExtractor,
-                            replicaSample, replicaSampleId);
+                            replicaSample, replicaSampleId, bundleMetadataDataSetInformation);
             List<DataSetInformation> registeredDataSetInfos = registrator.register();
             getDataSetInformation().addAll(registeredDataSetInfos);
         }

@@ -74,7 +74,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
     protected static final String REPLICA_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
             + REPLICA_SAMPLE_CODE;
 
-    private static final String BUNDLE_METADATA_DATA_SET_CODE = null;
+    private static final String BUNDLE_METADATA_DATA_SET_CODE = "BUNDLE_METADATA";
 
     public static abstract class MatcherNoDesc<T> extends BaseMatcher<T>
     {
@@ -292,6 +292,8 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                                     dataSetInfo.getDataSetType());
                                             assertEquals(REPLICA_SAMPLE_CODE,
                                                     dataSetInfo.getSampleCode());
+                                            assertEquals(BUNDLE_METADATA_DATA_SET_CODE, dataSetInfo
+                                                    .getParentDataSetCodes().get(0));
                                             return true;
                                         }
                                         return false;
@@ -321,6 +323,8 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                                     dataSetInfo.getDataSetType());
                                             assertEquals(REPLICA_SAMPLE_CODE,
                                                     dataSetInfo.getSampleCode());
+                                            assertEquals(BUNDLE_METADATA_DATA_SET_CODE, dataSetInfo
+                                                    .getParentDataSetCodes().get(0));
                                             return true;
                                         }
                                         return false;
@@ -418,7 +422,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                             with(new SampleIdentifierFactory(GRID_SAMPLE_IDENTIFIER)
                                     .createIdentifier()));
                     will(returnValue(null));
-    
+
                     // Create the Grid Prep
                     one(openbisService).registerSample(with(new BaseMatcher<NewSample>()
                         {
@@ -435,19 +439,19 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                 }
                                 return false;
                             }
-    
+
                             public void describeTo(Description description)
                             {
                             }
                         }), with(TEST_USER_NAME));
                     will(returnValue(new Long(1)));
-    
+
                     // The Replica does not yet exist
                     one(openbisService).tryGetSampleWithExperiment(
                             with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
                                     .createIdentifier()));
                     will(returnValue(null));
-    
+
                     // Create the Replica
                     one(openbisService).registerSample(with(new MatcherNoDesc<NewSample>()
                         {

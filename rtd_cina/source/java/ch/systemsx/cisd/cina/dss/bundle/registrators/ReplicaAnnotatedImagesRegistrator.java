@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
@@ -37,6 +38,8 @@ public class ReplicaAnnotatedImagesRegistrator extends BundleDataSetHelper
 
     private final SampleIdentifier replicaSampleId;
 
+    private final DataSetInformation bundleMetadataDataSetInformation;
+
     /**
      * Constructor.
      * 
@@ -45,14 +48,16 @@ public class ReplicaAnnotatedImagesRegistrator extends BundleDataSetHelper
      *            in the store
      * @param replicaSample The owning sample of the data set
      * @param replicaSampleId The owning sample id
+     * @param bundleMetadataDataSetInformation
      */
     ReplicaAnnotatedImagesRegistrator(BundleRegistrationState globalState,
             ImageMetadataExtractor imageMetadataExtractor, Sample replicaSample,
-            SampleIdentifier replicaSampleId)
+            SampleIdentifier replicaSampleId, DataSetInformation bundleMetadataDataSetInformation)
     {
         super(globalState, imageMetadataExtractor.getFolder());
         this.imageMetadataExtractor = imageMetadataExtractor;
         this.replicaSampleId = replicaSampleId;
+        this.bundleMetadataDataSetInformation = bundleMetadataDataSetInformation;
     }
 
     public List<DataSetInformation> register()
@@ -76,6 +81,9 @@ public class ReplicaAnnotatedImagesRegistrator extends BundleDataSetHelper
         metadataDataSetInfo.setInstanceCode(replicaSampleId.getSpaceLevel()
                 .getDatabaseInstanceCode());
         metadataDataSetInfo.setDataSetType(globalState.getImageDataSetType().getDataSetType());
+        List<String> parentDataSetCodes =
+                Collections.singletonList(bundleMetadataDataSetInformation.getDataSetCode());
+        metadataDataSetInfo.setParentDataSetCodes(parentDataSetCodes);
         return metadataDataSetInfo;
     }
 }
