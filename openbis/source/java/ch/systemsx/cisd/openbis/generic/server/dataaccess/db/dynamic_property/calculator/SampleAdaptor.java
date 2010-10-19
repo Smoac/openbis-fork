@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * {@link IEntityAdaptor} implementation for {@link ExternalDataPE}.
+ * {@link IEntityAdaptor} implementation for {@link SamplePE}.
  * 
  * @author Piotr Buczek
  */
-public class ExternalDataAdaptor extends AbstractEntityAdaptor
+public class SampleAdaptor extends AbstractEntityAdaptor
 {
-    private final ExternalDataPE externalDataPE;
+    private final SamplePE samplePE;
 
-    public ExternalDataAdaptor(ExternalDataPE externalDataPE)
+    public SampleAdaptor(SamplePE samplePE)
     {
-        super(externalDataPE.getCode());
-        initProperties(externalDataPE);
-        this.externalDataPE = externalDataPE;
+        super(samplePE.getCode());
+        initProperties(samplePE);
+        this.samplePE = samplePE;
     }
 
-    public ExternalDataPE getExternalDataPE()
+    public SamplePE getSamplePE()
     {
-        return externalDataPE;
+        return samplePE;
     }
 
 }

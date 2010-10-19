@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.common.evaluator.Evaluator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.AbstractCalculator;
 
 /**
- * {@link IEntityAdaptor} implementation for {@link SamplePE}.
- * 
  * @author Piotr Buczek
  */
-public class SampleAdaptor extends AbstractEntityAdaptor
+public class DynamicPropertyCalculator extends AbstractCalculator
 {
-    private final SamplePE samplePE;
+    private static final String ENTITY_VARIABLE_NAME = "entity";
 
-    public SampleAdaptor(SamplePE samplePE)
+    public DynamicPropertyCalculator(String expression)
     {
-        super(samplePE.getCode());
-        initProperties(samplePE);
-        this.samplePE = samplePE;
+        super(new Evaluator(expression, Math.class, BASIC_INITIAL_SCRIPT));
     }
 
-    public SamplePE getSamplePE()
+    public void setEntity(IEntityAdaptor entity)
     {
-        return samplePE;
+        evaluator.set(ENTITY_VARIABLE_NAME, entity);
     }
 
 }

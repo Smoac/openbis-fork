@@ -29,11 +29,11 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.DynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property.EntityAdaptorFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.DynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.EntityAdaptorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;

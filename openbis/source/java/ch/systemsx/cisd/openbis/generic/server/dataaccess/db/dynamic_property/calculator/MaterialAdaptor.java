@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
- * {@link IEntityAdaptor} implementation for {@link ExperimentPE}.
+ * {@link IEntityAdaptor} implementation for {@link MaterialPE}.
  * 
  * @author Piotr Buczek
  */
-public class ExperimentAdaptor extends AbstractEntityAdaptor
+public class MaterialAdaptor extends AbstractEntityAdaptor
 {
-    private final ExperimentPE experimentPE;
+    private final MaterialPE MaterialPE;
 
-    public ExperimentAdaptor(ExperimentPE experimentPE)
+    public MaterialAdaptor(MaterialPE MaterialPE)
     {
-        super(experimentPE.getCode());
-        initProperties(experimentPE);
-        this.experimentPE = experimentPE;
+        super(MaterialPE.getCode());
+        initProperties(MaterialPE);
+        this.MaterialPE = MaterialPE;
     }
 
-    public ExperimentPE getExperimentPE()
+    public MaterialPE getMaterialPE()
     {
-        return experimentPE;
+        return MaterialPE;
     }
 
 }

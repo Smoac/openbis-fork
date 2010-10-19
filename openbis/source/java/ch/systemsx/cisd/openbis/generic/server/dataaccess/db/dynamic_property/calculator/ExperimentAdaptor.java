@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
- * Interface implemented by all entity properties
+ * {@link IEntityAdaptor} implementation for {@link ExperimentPE}.
  * 
  * @author Piotr Buczek
  */
-public interface IEntityPropertyAdaptor
+public class ExperimentAdaptor extends AbstractEntityAdaptor
 {
-    /** Returns the code of property type. */
-    public String getPropertyTypeCode();
+    private final ExperimentPE experimentPE;
 
-    /** Returns the property value as string. */
-    public String getValueAsString();
+    public ExperimentAdaptor(ExperimentPE experimentPE)
+    {
+        super(experimentPE.getCode());
+        initProperties(experimentPE);
+        this.experimentPE = experimentPE;
+    }
+
+    public ExperimentPE getExperimentPE()
+    {
+        return experimentPE;
+    }
 
 }

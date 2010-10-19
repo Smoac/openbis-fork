@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collections.CollectionUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
@@ -70,6 +71,22 @@ public class DynamicPropertyEvaluationOperation implements Serializable
     public String toString()
     {
         return className + ": " + (ids == null ? "all" : CollectionUtils.abbreviate(ids, 10));
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof Code<?> == false)
+        {
+            return false;
+        }
+        final DynamicPropertyEvaluationOperation that = (DynamicPropertyEvaluationOperation) obj;
+        return this.getClassName().equals(that.getClassName());
+        // TODO
     }
 
 }

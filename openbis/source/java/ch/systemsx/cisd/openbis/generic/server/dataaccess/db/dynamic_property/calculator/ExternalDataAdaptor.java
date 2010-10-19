@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
-import ch.systemsx.cisd.common.evaluator.Evaluator;
-import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
+ * {@link IEntityAdaptor} implementation for {@link ExternalDataPE}.
+ * 
  * @author Piotr Buczek
  */
-public class DynamicPropertyCalculator extends AbstractCalculator
+public class ExternalDataAdaptor extends AbstractEntityAdaptor
 {
-    private static final String ENTITY_VARIABLE_NAME = "entity";
+    private final ExternalDataPE externalDataPE;
 
-    public DynamicPropertyCalculator(String expression)
+    public ExternalDataAdaptor(ExternalDataPE externalDataPE)
     {
-        super(new Evaluator(expression, Math.class, BASIC_INITIAL_SCRIPT));
+        super(externalDataPE.getCode());
+        initProperties(externalDataPE);
+        this.externalDataPE = externalDataPE;
     }
 
-    public void setEntity(IEntityAdaptor entity)
+    public ExternalDataPE getExternalDataPE()
     {
-        evaluator.set(ENTITY_VARIABLE_NAME, entity);
+        return externalDataPE;
     }
 
 }

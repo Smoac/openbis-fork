@@ -14,29 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.calculator.property;
-
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
 /**
- * {@link IEntityAdaptor} implementation for {@link MaterialPE}.
+ * Interface implemented by all entity properties
  * 
  * @author Piotr Buczek
  */
-public class MaterialAdaptor extends AbstractEntityAdaptor
+public interface IEntityPropertyAdaptor
 {
-    private final MaterialPE MaterialPE;
+    /** Returns the code of property type. */
+    public String getPropertyTypeCode();
 
-    public MaterialAdaptor(MaterialPE MaterialPE)
-    {
-        super(MaterialPE.getCode());
-        initProperties(MaterialPE);
-        this.MaterialPE = MaterialPE;
-    }
-
-    public MaterialPE getMaterialPE()
-    {
-        return MaterialPE;
-    }
+    /** Returns the property value as string. */
+    public String getValueAsString();
 
 }
