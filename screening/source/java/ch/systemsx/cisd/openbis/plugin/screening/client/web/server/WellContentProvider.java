@@ -31,10 +31,10 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSea
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ITableModelProvider;
-import ch.systemsx.cisd.openbis.generic.server.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
