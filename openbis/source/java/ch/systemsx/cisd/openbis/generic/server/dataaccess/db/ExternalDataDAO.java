@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -69,14 +71,18 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
 
     private final static Class<DataPE> ENTITY_SUPER_CLASS = DataPE.class;
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ExternalDataDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ExternalDataDAO.class);
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
-    ExternalDataDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
+
+    ExternalDataDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
         super(sessionFactory, databaseInstance, ENTITY_CLASS);
+        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
     //
@@ -301,9 +307,10 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
                         SQLException
                 {
                     // NOTE: 'VERSIONED' makes modification time modified too
-                    return session.createQuery(
-                            "UPDATE VERSIONED " + TABLE_NAME
-                                    + " SET status = :status WHERE code IN (:codes) ")
+                    return session
+                            .createQuery(
+                                    "UPDATE VERSIONED " + TABLE_NAME
+                                            + " SET status = :status WHERE code IN (:codes) ")
                             .setParameter("status", status).setParameterList("codes", dataSetCodes)
                             .executeUpdate();
                 }
@@ -315,8 +322,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
                     dataSetCodes.size(), status);
         } else if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("UPDATED: %s data set statuses to '%s'.", dataSetCodes
-                    .size(), status));
+            operationLog.info(String.format("UPDATED: %s data set statuses to '%s'.",
+                    dataSetCodes.size(), status));
         }
     }
 
@@ -328,6 +335,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         final HibernateTemplate template = getHibernateTemplate();
         template.save(dataset);
         template.flush();
+        // evaluation of dynamic properties will be triggered after ExternalDataPE creation
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("ADD: data set '%s'.", dataset));
@@ -360,6 +369,8 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         }
         hibernateTemplate.update(externalData);
         hibernateTemplate.flush();
+        scheduleDynamicPropertiesEvaluation(Arrays.asList(externalData));
+
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("UPDATE: external data '%s'.", externalData));
@@ -373,10 +384,9 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         if (entity.getChildren().size() > 0)
         {
             throw new DataIntegrityViolationException(
-                    String
-                            .format(
-                                    "External Data '%s' cannot be deleted because children datasets are connected.",
-                                    entity.getCode()));
+                    String.format(
+                            "External Data '%s' cannot be deleted because children datasets are connected.",
+                            entity.getCode()));
         }
         super.delete(entity);
     }
@@ -444,6 +454,12 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         {
             operationLog.info(String.format("UPDATE: %d data sets.", externalData.size()));
         }
+    }
+
+    private void scheduleDynamicPropertiesEvaluation(List<ExternalDataPE> data)
+    {
+        scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler,
+                ExternalDataPE.class, data);
     }
 
 }

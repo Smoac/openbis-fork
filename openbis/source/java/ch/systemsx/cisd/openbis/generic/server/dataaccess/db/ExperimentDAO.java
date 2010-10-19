@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -48,13 +50,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implements IExperimentDAO
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ExperimentDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ExperimentDAO.class);
+
+    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
     protected ExperimentDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+            final DatabaseInstancePE databaseInstance,
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
         super(sessionFactory, databaseInstance, ExperimentPE.class);
+        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
     public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
@@ -128,6 +134,7 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(experiment);
         template.flush();
+        scheduleDynamicPropertiesEvaluation(Arrays.asList(experiment));
     }
 
     public List<ExperimentPE> listExperimentsByProjectAndProperty(String propertyCode,
@@ -149,8 +156,7 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         {
             operationLog
                     .debug(String
-                            .format(
-                                    "%d experiments have been found for project '%s' and property '%s' equal to '%s'.",
+                            .format("%d experiments have been found for project '%s' and property '%s' equal to '%s'.",
                                     entities.size(), project, propertyCode, propertyValue));
         }
         return entities;
@@ -227,6 +233,12 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
             operationLog.debug(String.format("%d experiment(s) have been found.", list.size()));
         }
         return list;
+    }
+
+    private void scheduleDynamicPropertiesEvaluation(List<ExperimentPE> experiments)
+    {
+        scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler, ExperimentPE.class,
+                experiments);
     }
 
 }

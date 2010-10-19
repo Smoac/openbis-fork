@@ -29,6 +29,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -45,13 +46,18 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
 
     private static final Class<MaterialPE> ENTITY_CLASS = MaterialPE.class;
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, MaterialDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            MaterialDAO.class);
+
+    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
     protected MaterialDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+            final DatabaseInstancePE databaseInstance,
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
+
     {
         super(sessionFactory, databaseInstance, ENTITY_CLASS);
+        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
     public List<MaterialPE> listMaterialsWithProperties(final MaterialTypePE materialType)
@@ -91,6 +97,7 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
             internalCreateMaterial(materialPE, hibernateTemplate);
         }
         hibernateTemplate.flush();
+        scheduleDynamicPropertiesEvaluation(materials);
     }
 
     private void internalCreateMaterial(MaterialPE material, HibernateTemplate hibernateTemplate)
@@ -123,5 +130,11 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
                     + "code '%s' and type '%s'.", material, code, typeCode));
         }
         return material;
+    }
+
+    private void scheduleDynamicPropertiesEvaluation(List<MaterialPE> materials)
+    {
+        scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler, MaterialPE.class,
+                materials);
     }
 }

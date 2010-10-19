@@ -97,8 +97,12 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
         groupDAO = new GroupDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
-        externalDataDAO = new ExternalDataDAO(sessionFactory, homeDatabaseInstance);
-        experimentDAO = new ExperimentDAO(sessionFactory, homeDatabaseInstance);
+        externalDataDAO =
+                new ExternalDataDAO(sessionFactory, homeDatabaseInstance,
+                        dynamicPropertyEvaluationScheduler);
+        experimentDAO =
+                new ExperimentDAO(sessionFactory, homeDatabaseInstance,
+                        dynamicPropertyEvaluationScheduler);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
         sampleDAO =
                 new SampleDAO(sessionFactory, homeDatabaseInstance, indexUpdateScheduler,

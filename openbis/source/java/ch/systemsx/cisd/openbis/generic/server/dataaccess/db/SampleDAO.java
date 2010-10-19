@@ -41,7 +41,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
@@ -411,24 +410,15 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
     private void scheduleRemoveFromFullTextIndex(List<TechId> sampleIds)
     {
-        List<Long> ids = new ArrayList<Long>();
-        for (TechId techId : sampleIds)
-        {
-            ids.add(techId.getId());
-        }
+        List<Long> ids = transformTechIds2Longs(sampleIds);
         fullTextIndexUpdateScheduler.scheduleUpdate(IndexUpdateOperation
                 .remove(SamplePE.class, ids));
     }
 
     private void scheduleDynamicPropertiesEvaluation(List<SamplePE> samples)
     {
-        List<Long> sampleIds = new ArrayList<Long>();
-        for (SamplePE sample : samples)
-        {
-            sampleIds.add(sample.getId());
-        }
-        dynamicPropertyEvaluationScheduler.scheduleUpdate(DynamicPropertyEvaluationOperation
-                .evaluate(SamplePE.class, sampleIds));
+        scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler, SamplePE.class,
+                samples);
     }
 
     @SuppressWarnings("unchecked")

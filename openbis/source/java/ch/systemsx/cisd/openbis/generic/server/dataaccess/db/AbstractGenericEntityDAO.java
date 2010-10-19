@@ -36,9 +36,12 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGenericDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * Abstract super class of DAOs using generic interface.
@@ -206,6 +209,17 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
             result.add(new TechId(number));
         }
         return result;
+    }
+
+    protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
+            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
+    {
+        List<Long> ids = new ArrayList<Long>();
+        for (IEntityInformationWithPropertiesHolder entity : entities)
+        {
+            ids.add(entity.getId());
+        }
+        scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entityClass, ids));
     }
 
 }

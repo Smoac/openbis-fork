@@ -117,7 +117,9 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
         fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
         locatorTypeDAO = new LocatorTypeDAO(sessionFactory, databaseInstance);
-        materialDAO = new MaterialDAO(sessionFactory, databaseInstance);
+        materialDAO =
+                new MaterialDAO(sessionFactory, databaseInstance,
+                        dynamicPropertyEvaluationScheduler);
         codeSequenceDAO = new CodeSequenceDAO(sessionFactory, databaseInstance);
         dataStoreDAO = new DataStoreDAO(sessionFactory, databaseInstance);
         permIdDAO = new PermIdDAO(sessionFactory, databaseInstance);
