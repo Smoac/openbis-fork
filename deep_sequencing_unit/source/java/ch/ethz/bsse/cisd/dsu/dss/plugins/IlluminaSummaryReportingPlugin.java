@@ -61,7 +61,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
     private static final String[] PROPERTIES =
         { "GENOME_ANALYZER", "END_TYPE", "ILLUMINA_PIPELINE_VERSION",
-        "CYCLES_REQUESTED_BY_CUSTOMER" };
+                "CYCLES_REQUESTED_BY_CUSTOMER" };
 
     public IlluminaSummaryReportingPlugin(Properties properties, File storeRoot)
     {
@@ -94,27 +94,20 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
             // set the directory containing the Summary.xml
             File childDirectory =
-                new File(originalData, dataset.getSampleCode()
-                        + DATA_INTENSITIES_BASE_CALLS_PATH);
+                    new File(originalData, dataset.getSampleCode()
+                            + DATA_INTENSITIES_BASE_CALLS_PATH);
             File[] files = childDirectory.listFiles(new FileFilter()
-            {
-                public boolean accept(File file)
                 {
-                    return file.isDirectory() && file.getName().startsWith(GERALD_DIR);
-                }
-            });
+                    public boolean accept(File file)
+                    {
+                        return file.isDirectory() && file.getName().startsWith(GERALD_DIR);
+                    }
+                });
 
-            System.out.println(files[0]);
-            if (files.length == 1)
-            {
-                File geraldDir = files[0];
-                File summaryFile = new File(geraldDir, SUMMARY_FILE_NAME);
-                describe(builder, dataset, summaryFile);
-            } else
-            {
-                // throw new EnvironmentFailureException(String.format("More than one ..."));
-                // removed because it doesn't help, so just do nothing
-            }
+            // just take the first GERALD folder which was found
+            File geraldDir = files[0];
+            File summaryFile = new File(geraldDir, SUMMARY_FILE_NAME);
+            describe(builder, dataset, summaryFile);
         }
         return builder.getTableModel();
     }
@@ -194,10 +187,10 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
         String sampleCode = dataset.getSampleCode();
         String databaseInstanceCode = dataset.getDatabaseInstanceCode();
         SampleIdentifier sampleIdentifier =
-            new SampleIdentifier(new SpaceIdentifier(databaseInstanceCode, spaceCode),
-                    sampleCode);
+                new SampleIdentifier(new SpaceIdentifier(databaseInstanceCode, spaceCode),
+                        sampleCode);
         Sample sampleOrNull =
-            ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
+                ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
         if (sampleOrNull == null)
         {
             throw new EnvironmentFailureException(String.format(
@@ -220,7 +213,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
     {
         // we use one instance
         private static JaxbXmlParser<IlluminaSummary> PARSER_INSTANCE =
-            new JaxbXmlParser<IlluminaSummary>(IlluminaSummary.class, false);
+                new JaxbXmlParser<IlluminaSummary>(IlluminaSummary.class, false);
 
         public static IlluminaSummary readSummaryXML(File summaryXml)
         {
