@@ -100,7 +100,7 @@ public class ParameterValue implements Comparable<ParameterValue>, IsSerializabl
 
     public int compareTo(ParameterValue o)
     {
-        return this.value.compareTo(o.value);
+        return toString().compareTo(o.toString());
     }
 
 }
