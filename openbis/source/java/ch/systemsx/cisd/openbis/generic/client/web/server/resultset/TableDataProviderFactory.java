@@ -26,94 +26,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TableDataProviderFactory
 {
-    private static final class TableDataProviderForTableModel<T> implements ITableDataProvider
-    {
-        private final List<TableModelColumnHeader> columnHeaders;
-
-        private final GridRowModels<T> rows;
-
-        private TableDataProviderForTableModel(List<TableModelColumnHeader> columnHeaders,
-                GridRowModels<T> rows)
-        {
-            this.columnHeaders = columnHeaders;
-            this.rows = rows;
-        }
-
-        public String tryToGetProperty(String columnID, String key)
-        {
-            return getHeader(columnID).tryToGetProperty(key);
-        }
-
-        public Comparable<?> getValue(String columnID, List<? extends Comparable<?>> rowValues)
-        {
-            return rowValues.get(getHeader(columnID).getIndex());
-        }
-
-        private TableModelColumnHeader getHeader(String columnID)
-        {
-            for (TableModelColumnHeader header : columnHeaders)
-            {
-                if (header.getId().equals(columnID))
-                {
-                    return header;
-                }
-            }
-            throw new IllegalArgumentException("Unknown column ID: " + columnID);
-        }
-
-        public List<List<? extends Comparable<?>>> getRows()
-        {
-            List<List<? extends Comparable<?>>> result = new ArrayList<List<? extends Comparable<?>>>();
-            for (GridRowModel<T> row : rows)
-            {
-                TableModelRow tableModelRow = (TableModelRow) row.getOriginalObject();
-                result.add(tableModelRow.getValues());
-            }
-            return result;
-        }
-
-        public Collection<String> getAllColumnIDs()
-        {
-            List<String> result = new ArrayList<String>();
-            for (TableModelColumnHeader header : columnHeaders)
-            {
-                result.add(header.getId());
-            }
-            return result;
-        }
-
-        public List<String> getAllColumnTitles()
-        {
-            List<String> result = new ArrayList<String>();
-            for (TableModelColumnHeader header : columnHeaders)
-            {
-                result.add(header.getTitle());
-            }
-            return result;
-        }
-    }
-    
     private abstract static class AbstractTableDataProvider<T> implements ITableDataProvider
     {
         protected final List<IColumnDefinition<T>> availableColumns;
-        
+
         protected Map<String, Integer> indexMap;
 
         public AbstractTableDataProvider(List<IColumnDefinition<T>> availableColumns)
         {
             this.availableColumns = availableColumns;
         }
-        
+
         public String tryToGetProperty(String columnID, String key)
         {
             return getDefinition(columnID).tryToGetProperty(key);
@@ -138,7 +67,6 @@ public class TableDataProviderFactory
             }
             return result;
         }
-        
 
         public List<String> getAllColumnTitles()
         {
@@ -159,7 +87,7 @@ public class TableDataProviderFactory
                 indexMap.put(columnDefinition.getIdentifier(), i);
             }
         }
-        
+
         protected IColumnDefinition<T> getDefinition(String columnID)
         {
             for (IColumnDefinition<T> definition : availableColumns)
@@ -173,7 +101,8 @@ public class TableDataProviderFactory
         }
     }
 
-    private static final class TableDataProviderForGridRowModles<T> extends AbstractTableDataProvider<T>
+    private static final class TableDataProviderForGridRowModles<T> extends
+            AbstractTableDataProvider<T>
     {
         private final GridRowModels<T> rows;
 
@@ -186,10 +115,12 @@ public class TableDataProviderFactory
 
         public List<List<? extends Comparable<?>>> getRows()
         {
-            List<IColumnDefinition<T>> definitions = new ArrayList<IColumnDefinition<T>>(availableColumns);
+            List<IColumnDefinition<T>> definitions =
+                    new ArrayList<IColumnDefinition<T>>(availableColumns);
             createIndexMap(definitions);
 
-            List<List<? extends Comparable<?>>> result = new ArrayList<List<? extends Comparable<?>>>();
+            List<List<? extends Comparable<?>>> result =
+                    new ArrayList<List<? extends Comparable<?>>>();
             for (GridRowModel<T> row : rows)
             {
                 List<Comparable<?>> rowValues = new ArrayList<Comparable<?>>();
@@ -221,7 +152,8 @@ public class TableDataProviderFactory
 
     }
 
-    private static final class TableDataProviderForListOfRows<T> extends AbstractTableDataProvider<T>
+    private static final class TableDataProviderForListOfRows<T> extends
+            AbstractTableDataProvider<T>
     {
         private final List<T> rows;
 
@@ -234,10 +166,12 @@ public class TableDataProviderFactory
 
         public List<List<? extends Comparable<?>>> getRows()
         {
-            List<IColumnDefinition<T>> definitions = new ArrayList<IColumnDefinition<T>>(availableColumns);
+            List<IColumnDefinition<T>> definitions =
+                    new ArrayList<IColumnDefinition<T>>(availableColumns);
             createIndexMap(definitions);
 
-            List<List<? extends Comparable<?>>> result = new ArrayList<List<? extends Comparable<?>>>();
+            List<List<? extends Comparable<?>>> result =
+                    new ArrayList<List<? extends Comparable<?>>>();
             for (T row : rows)
             {
                 List<Comparable<?>> rowValues = new ArrayList<Comparable<?>>();
@@ -246,10 +180,13 @@ public class TableDataProviderFactory
                     Comparable<?> value = null;
                     try
                     {
-                        value = definition.tryGetComparableValue(GridRowModel.createWithoutCustomColumns(row));
+                        value =
+                                definition.tryGetComparableValue(GridRowModel
+                                        .createWithoutCustomColumns(row));
                     } catch (Exception ex)
                     {
-                        // ignored because this happens hopefully only if definition is a custom column definition
+                        // ignored because this happens hopefully only if definition is a custom
+                        // column definition
                     }
                     rowValues.add(value);
                 }
@@ -265,18 +202,18 @@ public class TableDataProviderFactory
     {
         return new TableDataProviderForListOfRows<T>(availableColumns, rows);
     }
-    
+
     public static <T> ITableDataProvider createDataProvider(final GridRowModels<T> rows,
             final List<IColumnDefinition<T>> availableColumns)
     {
-        final List<TableModelColumnHeader> columnHeaders = rows.getColumnHeaders();
-//        if (columnHeaders.isEmpty())
+        // final List<TableModelColumnHeader> columnHeaders = rows.getColumnHeaders();
+        // if (columnHeaders.isEmpty())
         {
             return new TableDataProviderForGridRowModles<T>(availableColumns, rows);
         }
         // TODO, 2010-10-14, Franz-Josef Elmer: The ITableDataProvider implementation based on
         // TableModel can not be used be cause it doesn't contains calculated columns
         // which would lead to error in case of custom filters based on calculated columns.
-//        return new TableDataProviderForTableModel<T>(columnHeaders, rows);
+        // return new TableDataProviderForTableModel<T>(columnHeaders, rows);
     }
 }
