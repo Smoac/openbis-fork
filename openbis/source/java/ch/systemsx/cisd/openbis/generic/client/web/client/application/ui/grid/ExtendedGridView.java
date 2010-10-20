@@ -69,8 +69,8 @@ class ExtendedGridView extends GridView
     protected void onHeaderClickWithShift(Grid<ModelData> pGrid, int column)
     {
         int margin = 10;
-        pGrid.getColumnModel().setColumnWidth(column,
-                calculateWidthWithScroll(pGrid, column) + margin);
+        int newWidth = calculateWidthWithScroll(pGrid, column) + margin;
+        pGrid.getColumnModel().setColumnWidth(column, newWidth);
     }
 
     private int calculateWidthWithScroll(Grid<ModelData> pGrid, int column)
