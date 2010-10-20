@@ -36,6 +36,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
@@ -62,20 +64,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityPropertyTypeDAO
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, EntityPropertyTypeDAO.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            EntityPropertyTypeDAO.class);
 
     private final EntityKind entityKind;
 
     private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
 
+    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
+
     public EntityPropertyTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance,
-            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
+            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
         super(sessionFactory, databaseInstance);
         this.entityKind = entityKind;
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
+        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
     private final <T extends EntityTypePropertyTypePE> Class<T> getEntityTypePropertyTypeAssignmentClass()
@@ -162,8 +168,8 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("LIST: found %s ids of entities of type '%s'.", list
-                    .size(), entityType));
+            operationLog.info(String.format("LIST: found %s ids of entities of type '%s'.",
+                    list.size(), entityType));
         }
         return list;
     }
@@ -182,8 +188,8 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format(
-                    "LIST: found %s ids of entities of type '%s' assigned to property '%s'.", list
-                            .size(), assignment.getEntityType(), assignment.getPropertyType()));
+                    "LIST: found %s ids of entities of type '%s' assigned to property '%s'.",
+                    list.size(), assignment.getEntityType(), assignment.getPropertyType()));
         }
         return list;
     }
@@ -194,12 +200,11 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         assert assignment != null : "Unspecified assignment.";
 
         String query =
-                String
-                        .format(
-                                "SELECT e.id FROM %s e WHERE e.%s = ? AND e not in (SELECT p.entity FROM %s p WHERE p.entityTypePropertyType = ?)",
-                                entityKind.getEntityClass().getSimpleName(), entityKind
-                                        .getEntityTypeFieldName(), entityKind
-                                        .getEntityPropertyClass().getSimpleName());
+                String.format(
+                        "SELECT e.id FROM %s e WHERE e.%s = ? AND e not in (SELECT p.entity FROM %s p WHERE p.entityTypePropertyType = ?)",
+                        entityKind.getEntityClass().getSimpleName(), entityKind
+                                .getEntityTypeFieldName(), entityKind.getEntityPropertyClass()
+                                .getSimpleName());
         final List<Long> list =
                 cast(getHibernateTemplate().find(query,
                         toArray(assignment.getEntityType(), assignment)));
@@ -207,8 +212,8 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format(
-                    "LIST: found %s ids of entities of type '%s' assigned to property '%s'.", list
-                            .size(), assignment.getEntityType(), assignment.getPropertyType()));
+                    "LIST: found %s ids of entities of type '%s' assigned to property '%s'.",
+                    list.size(), assignment.getEntityType(), assignment.getPropertyType()));
         }
         return list;
     }
@@ -266,14 +271,14 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                         if (operationLog.isDebugEnabled())
                         {
                             operationLog.debug(String.format(
-                                    "Created property '%s' for %s with id %s", property, entityKind
-                                            .getLabel(), entityId));
+                                    "Created property '%s' for %s with id %s", property,
+                                    entityKind.getLabel(), entityId));
                         }
                         if (++counter % 1000 == 0)
                         {
                             operationLog.info(String.format(
-                                    "%d %s properties have been created...", counter, entityKind
-                                            .getLabel()));
+                                    "%d %s properties have been created...", counter,
+                                    entityKind.getLabel()));
                             if (operationLog.isDebugEnabled())
                             {
                                 operationLog.debug(getMemoryUsageMessage());
@@ -291,6 +296,11 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         }
         // index will not be updated automatically by Hibernate because we use native SQL queries
         scheduleFullTextIndexUpdate(entityIds);
+
+        if (property.getEntityTypePropertyType().isDynamic())
+        {
+            scheduleDynamicPropertiesEvaluation(entityIds);
+        }
     }
 
     private String getMemoryUsageMessage()
@@ -343,10 +353,9 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         // we have to fetch props.entity, because hibernate search has some problems with reindexing
         // otherwise
         String query =
-                String
-                        .format(
-                                "from %s props join fetch props.entity where props.vocabularyTerm.code = ?",
-                                entityKind.getEntityPropertyClass().getSimpleName());
+                String.format(
+                        "from %s props join fetch props.entity where props.vocabularyTerm.code = ?",
+                        entityKind.getEntityPropertyClass().getSimpleName());
         //
         List<EntityPropertyPE> properties =
                 cast(getHibernateTemplate().find(query, toArray(vocabularyTermCode)));
@@ -385,8 +394,8 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                         + "WHERE etpt.entityTypeInternal = ? AND etpt.ordinal >= ?", entityKind
                         .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
         final int updatedRows =
-                hibernateTemplate.bulkUpdate(query, toArray(new Long(increment), entityType,
-                        fromOrdinal));
+                hibernateTemplate.bulkUpdate(query,
+                        toArray(new Long(increment), entityType, fromOrdinal));
         hibernateTemplate.flush();
 
         if (operationLog.isInfoEnabled())
@@ -450,12 +459,19 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                 getIndexedEntityClass(entityKind), entityIds));
     }
 
-    private static Class<?> getIndexedEntityClass(EntityKind entityKind)
+    private void scheduleDynamicPropertiesEvaluation(List<Long> entityIds)
+    {
+        scheduleDynamicPropertiesEvaluationForIds(dynamicPropertyEvaluationScheduler,
+                getIndexedEntityClass(entityKind), entityIds);
+    }
+
+    private static <T extends IEntityInformationWithPropertiesHolder> Class<T> getIndexedEntityClass(
+            EntityKind entityKind)
     {
         switch (entityKind)
         {
             case DATA_SET:
-                return ExternalDataPE.class;
+                return cast(ExternalDataPE.class);
             default:
                 return entityKind.getEntityClass();
         }

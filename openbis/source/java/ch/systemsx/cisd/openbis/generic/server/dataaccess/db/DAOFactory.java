@@ -133,7 +133,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                     new EntityTypeDAO(entityKind, sessionFactory, databaseInstance);
             entityTypeDAOs.put(entityKind, dao);
             entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
-                    sessionFactory, databaseInstance, fullTextIndexUpdateScheduler));
+                    sessionFactory, databaseInstance, fullTextIndexUpdateScheduler,
+                    dynamicPropertyEvaluationScheduler));
         }
     }
 

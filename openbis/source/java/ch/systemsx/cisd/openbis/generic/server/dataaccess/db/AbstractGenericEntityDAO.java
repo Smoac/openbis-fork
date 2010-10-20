@@ -16,11 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -36,12 +32,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGenericDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationOperation;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * Abstract super class of DAOs using generic interface.
@@ -189,37 +182,6 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
     public List<T> listAllEntities() throws DataAccessException
     {
         return cast(getHibernateTemplate().loadAll(getEntityClass()));
-    }
-
-    protected static List<Long> transformTechIds2Longs(Collection<TechId> techIds)
-    {
-        final List<Long> result = new ArrayList<Long>(techIds.size());
-        for (TechId techId : techIds)
-        {
-            result.add(techId.getId());
-        }
-        return result;
-    }
-
-    protected static Set<TechId> transformNumbers2TechIds(Collection<? extends Number> numbers)
-    {
-        final Set<TechId> result = new HashSet<TechId>();
-        for (Number number : numbers)
-        {
-            result.add(new TechId(number));
-        }
-        return result;
-    }
-
-    protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
-            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
-    {
-        List<Long> ids = new ArrayList<Long>();
-        for (IEntityInformationWithPropertiesHolder entity : entities)
-        {
-            ids.add(entity.getId());
-        }
-        scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entityClass, ids));
     }
 
 }

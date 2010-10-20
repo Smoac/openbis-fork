@@ -19,9 +19,13 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
 
@@ -51,7 +55,11 @@ import ch.systemsx.cisd.common.collections.CollectionStyle;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.collections.IToStringConverter;
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
  * Abstract super class of all <i>Hibernate</i> DAOs.
@@ -362,6 +370,51 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         {
             throw exception;
         }
+    }
+
+    protected static List<Long> transformTechIds2Longs(Collection<TechId> techIds)
+    {
+        final List<Long> result = new ArrayList<Long>(techIds.size());
+        for (TechId techId : techIds)
+        {
+            result.add(techId.getId());
+        }
+        return result;
+    }
+
+    protected static Set<TechId> transformNumbers2TechIds(Collection<? extends Number> numbers)
+    {
+        final Set<TechId> result = new HashSet<TechId>();
+        for (Number number : numbers)
+        {
+            result.add(new TechId(number));
+        }
+        return result;
+    }
+
+    protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
+            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
+    {
+        List<Long> ids = new ArrayList<Long>();
+        for (IEntityInformationWithPropertiesHolder entity : entities)
+        {
+            ids.add(entity.getId());
+        }
+        scheduleDynamicPropertiesEvaluationForIds(scheduler, entityClass, ids);
+    }
+
+    protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluationForIds(
+            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass,
+            List<Long> entityIds)
+    {
+        scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation
+                .evaluate(entityClass, entityIds));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected final static <T> Class<T> cast(final Class<?> clazz)
+    {
+        return (Class<T>) clazz;
     }
 
 }
