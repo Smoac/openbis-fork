@@ -115,10 +115,6 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     @SuppressWarnings("unchecked")
     public final void run()
     {
-        // if (turnOff())
-        // {
-        // return;
-        // }
         try
         {
             while (true)
