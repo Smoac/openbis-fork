@@ -81,13 +81,13 @@ public class ParameterValue implements Comparable<ParameterValue>, IsSerializabl
             return false;
         }
         ParameterValue other = (ParameterValue) obj;
-        return this.value.equals(other.value);
+        return this.toString().equals(other.toString());
     }
 
     @Override
     public int hashCode()
     {
-        return 37 * value.hashCode();
+        return toString().hashCode();
     }
 
     //
