@@ -24,6 +24,14 @@ layer s_web_all = [screening_web]
 
 check layeringOf s_shared s_server s_web_all
 
+# -------- plugin dependencies
+
+[other.client] = ${root}.generic.client.* ${root}.plugin.*.client excluding [screening_web]
+[other.server] = ${root}.generic.server.* ${root}.plugin.*.server excluding [screening_server]
+
+check [screening_web] independentOf [other.server]
+check [screening_server] independentOf [other.client]
+
 # --------
 
 [screening_web_client] =  ${screening}.client.web.client.application.*

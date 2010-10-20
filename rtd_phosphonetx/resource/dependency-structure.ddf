@@ -4,6 +4,7 @@
 #show allResults
 
 {root} = ch.systemsx.cisd.openbis
+{generic} = ${root}.generic
 {phosphonetx} = ${root}.plugin.phosphonetx
 
 ######################################################################
@@ -25,6 +26,24 @@ check sets [grid-columns]
 [extjs] = com.extjs.**
 check [grid-columns] independentOf [gwt]
 check [grid-columns] independentOf [extjs]
+
+######################################################################
+# Check plugin dependencies
+#
+[phosphonetx.client] = ${phosphonetx}.client.*
+[phosphonetx.server] = ${phosphonetx}.server.*
+[phosphonetx.shared] = ${phosphonetx}.shared.*
+[other.client] = ${generic}.client.* ${root}.plugin.*.client excluding  [phosphonetx.client]
+[other.server] = ${generic}.server.* ${root}.plugin.*.server excluding  [phosphonetx.server]
+
+check sets [phosphonetx.client] [phosphonetx.server] [phosphonetx.shared]
+
+layer phosphonetx.client-server = [phosphonetx.client] [phosphonetx.server]
+layer phosphonetx.shared = [phosphonetx.shared] 
+check layeringOf phosphonetx.shared phosphonetx.client-server
+
+check [phosphonetx.client] independentOf [other.server]
+check [phosphonetx.server] independentOf [other.client]
 
 ######################################################################
 # Check API
