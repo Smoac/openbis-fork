@@ -33,19 +33,26 @@ import static ch.systemsx.cisd.openbis.generic.shared.calculator.StandardFunctio
 import static ch.systemsx.cisd.openbis.generic.shared.calculator.StandardFunctions.toInt;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.calculator.StandardFunctions;
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class StandardFunctionsTest extends AssertJUnit
 {
+    @Test
+    public void testCurrentDate()
+    {
+        Date d1 = new Date();
+        Date d2 = StandardFunctions.currentDate();
+        Date d3 = new Date();
+        assertTrue(d1.getTime() + ">" + d2.getTime(), d1.getTime() <= d2.getTime());
+        assertTrue(d2.getTime() + ">" + d3.getTime(), d2.getTime() <= d3.getTime());
+    }
+
     @Test
     public void testEvalXPath()
     {
@@ -72,35 +79,35 @@ public class StandardFunctionsTest extends AssertJUnit
                 + "XML document structures must start and end within the same entity.",
                 StandardFunctions.evalXPath(xPath, xmlString));
     }
-    
+
     @Test
     public void testToIntegerWithNullArgument()
     {
         assertEquals(INTEGER_DEFAULT_VALUE, toInt(null));
         assertEquals(42, toInt(null, 42).intValue());
     }
-    
+
     @Test
     public void testToIntegerWithBlankArgument()
     {
         assertEquals(INTEGER_DEFAULT_VALUE, toInt("  "));
         assertEquals(42, toInt("  ", 42).intValue());
     }
-    
+
     @Test
     public void testToIntegerWithNumberArgument()
     {
         assertEquals(42, toInt(42).intValue());
         assertEquals(42, toInt(42, 4711).intValue());
     }
-    
+
     @Test
     public void testToIntegerWithParsableArgument()
     {
         assertEquals(42, toInt("42").intValue());
         assertEquals(42, toInt("42", 4711).intValue());
     }
-    
+
     @Test
     public void testToIntegerWithUnParsableArgument()
     {
@@ -113,35 +120,35 @@ public class StandardFunctionsTest extends AssertJUnit
             assertEquals("For input string: \"abc\"", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testToFloatWithNullArgument()
     {
         assertEquals(DOUBLE_DEFAULT_VALUE, toFloat(null));
         assertEquals(42.5, toFloat(null, 42.5).doubleValue());
     }
-    
+
     @Test
     public void testToFloatWithBlankArgument()
     {
         assertEquals(DOUBLE_DEFAULT_VALUE, toFloat("  "));
         assertEquals(42.5, toFloat("  ", 42.5).doubleValue());
     }
-    
+
     @Test
     public void testToFloatWithNumberArgument()
     {
         assertEquals(42.5, toFloat(42.5).doubleValue());
         assertEquals(42.5, toFloat(42.5, 4711.0).doubleValue());
     }
-    
+
     @Test
     public void testToFloatWithParsableArgument()
     {
         assertEquals(42.5, toFloat("42.5").doubleValue());
         assertEquals(42.5, toFloat("42.5", 4711.0).doubleValue());
     }
-    
+
     @Test
     public void testToFloatWithUnParsableArgument()
     {
@@ -154,7 +161,7 @@ public class StandardFunctionsTest extends AssertJUnit
             assertEquals("For input string: \"abc\"", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testIfThenElse()
     {
@@ -162,17 +169,17 @@ public class StandardFunctionsTest extends AssertJUnit
         assertEquals("no", choose(false, "yes", "no"));
         assertEquals("yes", choose(true, "yes", "no"));
     }
-    
+
     @Test
     public void testAvg()
     {
-        assertEquals(1.5, avg(Arrays.<Object>asList(1.5)));
-        assertEquals(5.0, avg(Arrays.<Object>asList(1, 4, 10)));
-        assertEquals(5.5, avg(Arrays.<Object>asList(null, 1, 10)));
-        assertEquals(5.5, avg(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(1.5, avg(Arrays.<Object> asList(1.5)));
+        assertEquals(5.0, avg(Arrays.<Object> asList(1, 4, 10)));
+        assertEquals(5.5, avg(Arrays.<Object> asList(null, 1, 10)));
+        assertEquals(5.5, avg(Arrays.<Object> asList(" ", 1, "10")));
         try
         {
-            avg(Arrays.<Object>asList());
+            avg(Arrays.<Object> asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -180,24 +187,24 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            avg(Arrays.<Object>asList("a"));
+            avg(Arrays.<Object> asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
             // ignored
         }
     }
-    
+
     @Test
     public void testStdev()
     {
-        assertEquals(0.0, stdev(Arrays.<Object>asList(1.5)));
-        assertEquals(2.0, stdev(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9)));
-        assertEquals(0.0, stdev(Arrays.<Object>asList(null, 1)));
-        assertEquals(4.5, stdev(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(0.0, stdev(Arrays.<Object> asList(1.5)));
+        assertEquals(2.0, stdev(Arrays.<Object> asList(2, 4, 4, 4, 5, 5, 7, 9)));
+        assertEquals(0.0, stdev(Arrays.<Object> asList(null, 1)));
+        assertEquals(4.5, stdev(Arrays.<Object> asList(" ", 1, "10")));
         try
         {
-            stdev(Arrays.<Object>asList());
+            stdev(Arrays.<Object> asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -205,24 +212,24 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            stdev(Arrays.<Object>asList("a"));
+            stdev(Arrays.<Object> asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
             // ignored
         }
     }
-    
+
     @Test
     public void testMedian()
     {
-        assertEquals(1.5, median(Arrays.<Object>asList(1.5)));
-        assertEquals(4.0, median(Arrays.<Object>asList(4, 1, 10)));
-        assertEquals(5.5, median(Arrays.<Object>asList(null, 1, 10)));
-        assertEquals(5.5, median(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(1.5, median(Arrays.<Object> asList(1.5)));
+        assertEquals(4.0, median(Arrays.<Object> asList(4, 1, 10)));
+        assertEquals(5.5, median(Arrays.<Object> asList(null, 1, 10)));
+        assertEquals(5.5, median(Arrays.<Object> asList(" ", 1, "10")));
         try
         {
-            median(Arrays.<Object>asList());
+            median(Arrays.<Object> asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -230,24 +237,24 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            median(Arrays.<Object>asList("a"));
+            median(Arrays.<Object> asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
             // ignored
         }
     }
-    
+
     @Test
     public void testMin()
     {
-        assertEquals(1.5, min(Arrays.<Object>asList(1.5)));
-        assertEquals(1.0, min(Arrays.<Object>asList(4, 1, 10)));
-        assertEquals(1.0, min(Arrays.<Object>asList(null, 1, 10)));
-        assertEquals(1.0, min(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(1.5, min(Arrays.<Object> asList(1.5)));
+        assertEquals(1.0, min(Arrays.<Object> asList(4, 1, 10)));
+        assertEquals(1.0, min(Arrays.<Object> asList(null, 1, 10)));
+        assertEquals(1.0, min(Arrays.<Object> asList(" ", 1, "10")));
         try
         {
-            min(Arrays.<Object>asList());
+            min(Arrays.<Object> asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -255,24 +262,24 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            min(Arrays.<Object>asList("a"));
+            min(Arrays.<Object> asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
             // ignored
         }
     }
-    
+
     @Test
     public void testMax()
     {
-        assertEquals(1.5, max(Arrays.<Object>asList(1.5)));
-        assertEquals(10.0, max(Arrays.<Object>asList(4, 1, 10)));
-        assertEquals(10.0, max(Arrays.<Object>asList(null, 1, 10)));
-        assertEquals(10.0, max(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(1.5, max(Arrays.<Object> asList(1.5)));
+        assertEquals(10.0, max(Arrays.<Object> asList(4, 1, 10)));
+        assertEquals(10.0, max(Arrays.<Object> asList(null, 1, 10)));
+        assertEquals(10.0, max(Arrays.<Object> asList(" ", 1, "10")));
         try
         {
-            max(Arrays.<Object>asList());
+            max(Arrays.<Object> asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -280,46 +287,47 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            max(Arrays.<Object>asList("a"));
+            max(Arrays.<Object> asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
             // ignored
         }
     }
-    
+
     @Test
     public void testAvgOrDefault()
     {
-        assertEquals(-47.8, avgOrDefault(Arrays.<Object>asList(), -47.8));
-        assertEquals(5.0, avgOrDefault(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9), -47.8));
+        assertEquals(-47.8, avgOrDefault(Arrays.<Object> asList(), -47.8));
+        assertEquals(5.0, avgOrDefault(Arrays.<Object> asList(2, 4, 4, 4, 5, 5, 7, 9), -47.8));
     }
-    
+
     @Test
     public void testStdevOrDefault()
     {
-        assertEquals(384.21, stdevOrDefault(Arrays.<Object>asList(), 384.21));
-        assertEquals(2.0, stdevOrDefault(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9), 384.21));
+        assertEquals(384.21, stdevOrDefault(Arrays.<Object> asList(), 384.21));
+        assertEquals(2.0, stdevOrDefault(Arrays.<Object> asList(2, 4, 4, 4, 5, 5, 7, 9), 384.21));
     }
-    
+
     @Test
     public void testMedianOrDefault()
     {
-        assertEquals(-47.8, medianOrDefault(Arrays.<Object>asList(), -47.8));
-        assertEquals(4.0, medianOrDefault(Arrays.<Object>asList(4, 1, 10), -47.8));
+        assertEquals(-47.8, medianOrDefault(Arrays.<Object> asList(), -47.8));
+        assertEquals(4.0, medianOrDefault(Arrays.<Object> asList(4, 1, 10), -47.8));
     }
-    
+
     @Test
     public void testMinOrDefault()
     {
-        assertEquals(-47.8, minOrDefault(Arrays.<Object>asList(), -47.8));
-        assertEquals(1.0, minOrDefault(Arrays.<Object>asList(4, 1, 10), -47.8));
+        assertEquals(-47.8, minOrDefault(Arrays.<Object> asList(), -47.8));
+        assertEquals(1.0, minOrDefault(Arrays.<Object> asList(4, 1, 10), -47.8));
     }
-    
+
     @Test
     public void testMaxOrDefault()
     {
-        assertEquals(-47.8, maxOrDefault(Arrays.<Object>asList(), -47.8));
-        assertEquals(10.0, maxOrDefault(Arrays.<Object>asList(4, 1, 10), -47.8));
+        assertEquals(-47.8, maxOrDefault(Arrays.<Object> asList(), -47.8));
+        assertEquals(10.0, maxOrDefault(Arrays.<Object> asList(4, 1, 10), -47.8));
     }
+
 }

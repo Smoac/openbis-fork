@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.calculator;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -34,19 +35,20 @@ import org.xml.sax.InputSource;
 import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 
 /**
- * Set of standard functions used in jython expressions. 
+ * Set of standard functions used in jython expressions.
  * <p>
  * All public methods of this class are part of the Filter/Calculated Column API.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 final class StandardFunctions
 {
     static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
+
     static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);
-    
+
     private static final XPath XPATH = XPathFactory.newInstance().newXPath();
-    
+
     /**
      * Returns <code>true</code> if the specified string matches the specified regular expression.
      */
@@ -54,7 +56,7 @@ final class StandardFunctions
     {
         return Pattern.matches(regex, string);
     }
-    
+
     /**
      * Evaluates the specified XPath expression onto the specified XML string.
      */
@@ -133,7 +135,7 @@ final class StandardFunctions
         }
         return isBlank(value) ? defaultValue : new Double(value.toString());
     }
-    
+
     /**
      * Returns <code>thenValue</code> if <code>condition == true</code> otherwise
      * <code>elseValue</code> is returned.
@@ -146,8 +148,8 @@ final class StandardFunctions
     }
 
     /**
-     * Calculates the sum of the specified values. 
-     * Blank strings or <code>null</code> values in the list are ignored.
+     * Calculates the sum of the specified values. Blank strings or <code>null</code> values in the
+     * list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -164,10 +166,10 @@ final class StandardFunctions
         }
         return sum;
     }
-    
+
     /**
-     * Calculates the mean of the specified values. 
-     * Blank strings or <code>null</code> values in the list are ignored.
+     * Calculates the mean of the specified values. Blank strings or <code>null</code> values in the
+     * list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -183,10 +185,10 @@ final class StandardFunctions
         }
         return sum / array.size();
     }
-    
+
     /**
-     * Calculates the standard deviation of the specified values. 
-     * Blank strings or <code>null</code> values in the list are ignored.
+     * Calculates the standard deviation of the specified values. Blank strings or <code>null</code>
+     * values in the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -207,11 +209,10 @@ final class StandardFunctions
         double m2 = s2 / n;
         return Math.sqrt(Math.max(0, m2 - m1 * m1));
     }
-    
-    
+
     /**
-     * Calculates the median of the specified values. 
-     * Blank strings or <code>null</code> values in the list are ignored.
+     * Calculates the median of the specified values. Blank strings or <code>null</code> values in
+     * the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -224,10 +225,10 @@ final class StandardFunctions
         int i = array.size() / 2;
         return array.size() % 2 == 0 ? (array.get(i - 1) + array.get(i)) / 2 : array.get(i);
     }
-    
+
     /**
-     * Calculates the minimum of the specified values. 
-     * Blank strings or <code>null</code> values in the list are ignored.
+     * Calculates the minimum of the specified values. Blank strings or <code>null</code> values in
+     * the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -239,10 +240,10 @@ final class StandardFunctions
         Collections.sort(array);
         return array.get(0);
     }
-    
+
     /**
-     * Calculates the maximum of the specified values. 
-     * Blank strings or <code>null</code> values in the list are ignored.
+     * Calculates the maximum of the specified values. Blank strings or <code>null</code> values in
+     * the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -254,7 +255,7 @@ final class StandardFunctions
         Collections.sort(array);
         return array.get(array.size() - 1);
     }
-    
+
     /**
      * Like sum, but returns the default value if the list is empty.
      * 
@@ -262,10 +263,11 @@ final class StandardFunctions
      */
     public static Double sumOrDefault(List<Object> values, Double defaultValue)
     {
-        if (values.isEmpty()) return defaultValue;
+        if (values.isEmpty())
+            return defaultValue;
         return sum(values);
     }
-    
+
     /**
      * Like avg, but returns the default value if the list is empty.
      * 
@@ -273,10 +275,11 @@ final class StandardFunctions
      */
     public static Double avgOrDefault(List<Object> values, Double defaultValue)
     {
-        if (values.isEmpty()) return defaultValue;
+        if (values.isEmpty())
+            return defaultValue;
         return avg(values);
     }
-    
+
     /**
      * Like stdev, but returns the default value if the list is empty.
      * 
@@ -284,11 +287,11 @@ final class StandardFunctions
      */
     public static Double stdevOrDefault(List<Object> values, Double defaultValue)
     {
-        if (values.isEmpty()) return defaultValue;
+        if (values.isEmpty())
+            return defaultValue;
         return stdev(values);
     }
-    
-    
+
     /**
      * Like median, but returns the default value if the list is empty.
      * 
@@ -296,10 +299,11 @@ final class StandardFunctions
      */
     public static Double medianOrDefault(List<Object> values, Double defaultValue)
     {
-        if (values.isEmpty()) return defaultValue;
+        if (values.isEmpty())
+            return defaultValue;
         return median(values);
     }
-    
+
     /**
      * Like min, but returns the default value if the list is empty.
      * 
@@ -307,10 +311,11 @@ final class StandardFunctions
      */
     public static Double minOrDefault(List<Object> values, Double defaultValue)
     {
-        if (values.isEmpty()) return defaultValue;
+        if (values.isEmpty())
+            return defaultValue;
         return min(values);
     }
-    
+
     /**
      * Like max, but returns the default value if the list is empty.
      * 
@@ -318,16 +323,22 @@ final class StandardFunctions
      */
     public static Double maxOrDefault(List<Object> values, Double defaultValue)
     {
-        if (values.isEmpty()) return defaultValue;
+        if (values.isEmpty())
+            return defaultValue;
         return max(values);
     }
 
-    
+    /** Returns current date. */
+    public static Date currentDate()
+    {
+        return new Date();
+    }
+
     private static boolean isBlank(Object value)
     {
         return value == null || value.toString().trim().length() == 0;
     }
-    
+
     private static List<Double> toDoubleArray(List<Object> values)
     {
         ArrayList<Double> list = new ArrayList<Double>();
@@ -352,7 +363,7 @@ final class StandardFunctions
         }
         return list;
     }
-    
+
     private static void assertNotEmpty(List<Double> values, String functionName)
     {
         if (values.isEmpty())
@@ -361,9 +372,9 @@ final class StandardFunctions
                     + "' is an empty array.");
         }
     }
-    
+
     private StandardFunctions()
     {
     }
-    
+
 }
