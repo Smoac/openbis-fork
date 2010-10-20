@@ -39,7 +39,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/libraries/spring/third-party/stream-supporting-httpinvoker.jar" sourcepath="/libraries/spring/third-party/stream-supporting-httpinvoker-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar"/>
+	<classpathentry kind="lib" path="/libraries/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar" sourcepath="/libraries/jhdf5/cisd-jhdf5-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/hdf5"/>
 	<classpathentry kind="lib" path="/libraries/nativedata"/>
 	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
