@@ -96,7 +96,7 @@ public class DataTypeUtils
                 return value;
             }
         },
-        STRING(DataTypeCode.VARCHAR, DataTypeCode.MULTILINE_VARCHAR, DataTypeCode.BOOLEAN,
+        STRING(DataTypeCode.VARCHAR, DataTypeCode.MULTILINE_VARCHAR, DataTypeCode.BOOLEAN, DataTypeCode.XML,
                 DataTypeCode.CONTROLLEDVOCABULARY, DataTypeCode.MATERIAL, DataTypeCode.HYPERLINK)
         {
             @Override
