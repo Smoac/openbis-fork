@@ -175,7 +175,7 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
-                    "%d external data have been found for [experiment=%e].", list.size(),
+                    "%d external data have been found for [experiment=%s].", list.size(),
                     experiment));
         }
         return list;
