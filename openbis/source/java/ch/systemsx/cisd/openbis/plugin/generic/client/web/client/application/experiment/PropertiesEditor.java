@@ -73,16 +73,18 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     {
         assert properties != null : "Undefined properties.";
         assert propertyFields == null : "Already initialized.";
+        List<S> etptWithoutDynamic = filterOutDynamicETPT(entityTypesPropertyTypes);
         this.propertyFields =
-                createPropertyFields(entityTypesPropertyTypes, createInitialProperties(properties));
+                createPropertyFields(etptWithoutDynamic, createInitialProperties(properties));
 
     }
 
     public void initWithoutProperties(final List<S> entityTypesPropertyTypes)
     {
         assert propertyFields == null : "Already initialized.";
+        List<S> etptWithoutDynamic = filterOutDynamicETPT(entityTypesPropertyTypes);
         this.propertyFields =
-                createPropertyFields(entityTypesPropertyTypes,
+                createPropertyFields(etptWithoutDynamic,
                         createInitialProperties(new ArrayList<IEntityProperty>()));
 
     }
@@ -258,7 +260,18 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
             formLayout.setDefaultWidth(AbstractRegistrationForm.SECTION_DEFAULT_FIELD_WIDTH);
             return formLayout;
         }
-
     }
 
+    private List<S> filterOutDynamicETPT(List<S> entityTypesPropertyTypes)
+    {
+        ArrayList<S> result = new ArrayList<S>();
+        for (S etpt : entityTypesPropertyTypes)
+        {
+            if (etpt.isDynamic() == false)
+            {
+                result.add(etpt);
+            }
+        }
+        return result;
+    }
 }
