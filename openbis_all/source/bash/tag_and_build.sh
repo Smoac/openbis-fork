@@ -64,9 +64,9 @@ function tag {
 function build {
 	state_start "Building openBIS..."
 	
-	echo "./build.sh --private openbis_all $FULL_VER"
+	echo "./build.sh openbis_all $FULL_VER"
 	if [ $EXECUTE_COMMANDS ]; then
-		./build.sh --private openbis_all $FULL_VER
+		./build.sh openbis_all $FULL_VER
 	fi
 	state_end
 }
