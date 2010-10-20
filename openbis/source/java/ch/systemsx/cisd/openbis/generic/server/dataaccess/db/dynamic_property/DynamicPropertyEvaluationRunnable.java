@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport implements
         IDynamicPropertyEvaluationScheduler, Runnable
 {
+
     private static final int BATCH_SIZE = 1000;
 
     public final static String DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME =
@@ -114,10 +115,10 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     @SuppressWarnings("unchecked")
     public final void run()
     {
-        if (turnOff())
-        {
-            return;
-        }
+        // if (turnOff())
+        // {
+        // return;
+        // }
         try
         {
             while (true)
@@ -169,8 +170,4 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
         }
     }
 
-    private static boolean turnOff()
-    {
-        return true;
-    }
 }

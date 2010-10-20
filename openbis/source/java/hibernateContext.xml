@@ -155,7 +155,7 @@
     </bean>
 
     <bean id="dynamic-property-evaluator"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationRunnable">
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DummyDynamicPropertyEvaluationRunnable">
         <constructor-arg ref="hibernate-session-factory" />
     </bean>
     
