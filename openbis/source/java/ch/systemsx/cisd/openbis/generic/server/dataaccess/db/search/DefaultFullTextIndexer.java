@@ -77,33 +77,45 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
 
         // we index entities in batches loading them in groups restricted by id:
         // [ ids[index], ids[min(index+batchSize, maxIndex))] )
-        final Transaction transaction = fullTextSession.beginTransaction();
-        int index = 0;
-        final List<Long> ids = getAllIds(fullTextSession, clazz);
-        final int idsSize = ids.size();
-        operationLog.info(String.format("... got %d '%s' ids...", idsSize, clazz.getSimpleName()));
-        final int maxIndex = idsSize - 1;
-        // need to increment last id because we use 'lt' condition
-        if (maxIndex > -1)
+        Transaction transaction = null;
+        try
         {
-            ids.set(maxIndex, ids.get(maxIndex) + 1);
-        }
-        while (index < maxIndex)
-        {
-            final int nextIndex = getNextIndex(index, maxIndex);
-            final long minId = ids.get(index);
-            final long maxId = ids.get(nextIndex);
-            final List<T> results =
-                    listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
-            indexEntities(fullTextSession, results, clazz);
-            index = nextIndex;
-            operationLog.info(String.format("%d/%d %ss have been indexed...", index, maxIndex,
+            transaction = fullTextSession.beginTransaction();
+            int index = 0;
+            final List<Long> ids = getAllIds(fullTextSession, clazz);
+            final int idsSize = ids.size();
+            operationLog.info(String.format("... got %d '%s' ids...", idsSize,
                     clazz.getSimpleName()));
+            final int maxIndex = idsSize - 1;
+            // need to increment last id because we use 'lt' condition
+            if (maxIndex > -1)
+            {
+                ids.set(maxIndex, ids.get(maxIndex) + 1);
+            }
+            while (index < maxIndex)
+            {
+                final int nextIndex = getNextIndex(index, maxIndex);
+                final long minId = ids.get(index);
+                final long maxId = ids.get(nextIndex);
+                final List<T> results =
+                        listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
+                indexEntities(fullTextSession, results, clazz);
+                index = nextIndex;
+                operationLog.info(String.format("%d/%d %ss have been indexed...", index, maxIndex,
+                        clazz.getSimpleName()));
+            }
+            fullTextSession.getSearchFactory().optimize(clazz);
+            transaction.commit();
+            operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
+                    clazz.getSimpleName(), index));
+        } catch (Exception e)
+        {
+            operationLog.error(e.getMessage());
+            if (transaction != null)
+            {
+                transaction.rollback();
+            }
         }
-        fullTextSession.getSearchFactory().optimize(clazz);
-        operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
-                clazz.getSimpleName(), index));
-        transaction.commit();
     }
 
     public <T> void doFullTextIndexUpdate(final Session hibernateSession, final Class<T> clazz,
@@ -113,24 +125,37 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         final FullTextSession fullTextSession = getFullTextSession(hibernateSession);
 
         // we index entities in batches loading them in groups by id
-        final Transaction transaction = fullTextSession.beginTransaction();
-        final int maxIndex = ids.size();
-        int index = 0;
-
-        while (index < maxIndex)
+        Transaction transaction = null;
+        try
         {
-            final int nextIndex = getNextIndex(index, maxIndex);
-            List<Long> subList = ids.subList(index, nextIndex);
-            final List<T> results = listEntitiesWithRestrictedId(fullTextSession, clazz, subList);
-            indexEntities(fullTextSession, results, clazz);
-            index = nextIndex;
-            operationLog.info(String.format("%d/%d %ss have been reindexed...", index, maxIndex,
-                    clazz.getSimpleName()));
+            transaction = fullTextSession.beginTransaction();
+            final int maxIndex = ids.size();
+            int index = 0;
+
+            while (index < maxIndex)
+            {
+                final int nextIndex = getNextIndex(index, maxIndex);
+                List<Long> subList = ids.subList(index, nextIndex);
+                final List<T> results =
+                        listEntitiesWithRestrictedId(fullTextSession, clazz, subList);
+                indexEntities(fullTextSession, results, clazz);
+                index = nextIndex;
+                operationLog.info(String.format("%d/%d %ss have been reindexed...", index,
+                        maxIndex, clazz.getSimpleName()));
+            }
+            fullTextSession.getSearchFactory().optimize(clazz);
+            transaction.commit();
+            operationLog.info(String.format(
+                    "'%s' index is updated. %d entities have been reindexed.",
+                    clazz.getSimpleName(), index));
+        } catch (Exception e)
+        {
+            operationLog.error(e.getMessage());
+            if (transaction != null)
+            {
+                transaction.rollback();
+            }
         }
-        fullTextSession.getSearchFactory().optimize(clazz);
-        transaction.commit();
-        operationLog.info(String.format("'%s' index is updated. %d entities have been reindexed.",
-                clazz.getSimpleName(), index));
     }
 
     public <T> void removeFromIndex(final Session hibernateSession, final Class<T> clazz,
@@ -140,15 +165,27 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         final FullTextSession fullTextSession = getFullTextSession(hibernateSession);
 
         // removing from index doesn't require a lot of resources - don't need to use batches
-        final Transaction transaction = fullTextSession.beginTransaction();
-        for (Long id : ids)
+        Transaction transaction = null;
+        try
         {
-            fullTextSession.purge(clazz, id);
+            transaction = fullTextSession.beginTransaction();
+            for (Long id : ids)
+            {
+                fullTextSession.purge(clazz, id);
+            }
+            fullTextSession.getSearchFactory().optimize(clazz);
+            transaction.commit();
+            operationLog.info(String.format(
+                    "'%s' index is updated. %d entities have been removed.", clazz.getSimpleName(),
+                    ids.size()));
+        } catch (Exception e)
+        {
+            operationLog.error(e.getMessage());
+            if (transaction != null)
+            {
+                transaction.rollback();
+            }
         }
-        fullTextSession.getSearchFactory().optimize(clazz);
-        transaction.commit();
-        operationLog.info(String.format("'%s' index is updated. %d entities have been removed.",
-                clazz.getSimpleName(), ids.size()));
     }
 
     private int getNextIndex(int index, int maxIndex)

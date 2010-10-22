@@ -133,12 +133,13 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                             (Class<IEntityInformationWithPropertiesHolder>) Class.forName(operation
                                     .getClassName());
                     session = getSession();
+
                     if (operation.getIds() == null)
                     {
-                        evaluator.doEvaluateProperties(getSession(), clazz);
+                        evaluator.doEvaluateProperties(session, clazz);
                     } else
                     {
-                        evaluator.doEvaluateProperties(getSession(), clazz, operation.getIds());
+                        evaluator.doEvaluateProperties(session, clazz, operation.getIds());
                     }
                     stopWatch.stop();
                 } catch (RuntimeException e)

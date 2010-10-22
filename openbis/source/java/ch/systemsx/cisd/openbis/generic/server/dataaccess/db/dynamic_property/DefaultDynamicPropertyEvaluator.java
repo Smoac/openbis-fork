@@ -68,67 +68,91 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     public final <T extends IEntityInformationWithPropertiesHolder> void doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz) throws DataAccessException
     {
-        operationLog.debug(String.format("Evaluating dynamic properties for '%s'...",
+        operationLog.info(String.format("Evaluating dynamic properties for '%s'...",
                 clazz.getSimpleName()));
 
-        // we evaluate properties of entities in batches loading them in groups restricted by id:
-        // [ ids[index], ids[min(index+batchSize, maxIndex))] )
-        final Transaction transaction = hibernateSession.beginTransaction();
-        int index = 0;
-        final List<Long> ids = getAllIds(hibernateSession, clazz);
-        final int idsSize = ids.size();
-        operationLog.debug(String.format("... got %d '%s' ids...", idsSize, clazz.getSimpleName()));
-        final int maxIndex = idsSize - 1;
-        // need to increment last id because we use 'lt' condition
-        if (maxIndex > -1)
+        Transaction transaction = null;
+
+        try
         {
-            ids.set(maxIndex, ids.get(maxIndex) + 1);
-        }
-        while (index < maxIndex)
-        {
-            final int nextIndex = getNextIndex(index, maxIndex);
-            final long minId = ids.get(index);
-            final long maxId = ids.get(nextIndex);
-            final List<T> results =
-                    listEntitiesWithRestrictedId(hibernateSession, clazz, minId, maxId);
-            evaluateProperties(hibernateSession, results, clazz);
-            index = nextIndex;
-            operationLog.debug(String.format("%d/%d %ss have been updated...", index, maxIndex,
+            transaction = hibernateSession.beginTransaction();
+            // we evaluate properties of entities in batches loading them in groups restricted by id:
+            // [ ids[index], ids[min(index+batchSize, maxIndex))] )
+            int index = 0;
+            final List<Long> ids = getAllIds(hibernateSession, clazz);
+            final int idsSize = ids.size();
+            operationLog.info(String.format("... got %d '%s' ids...", idsSize,
                     clazz.getSimpleName()));
+            final int maxIndex = idsSize - 1;
+            // need to increment last id because we use 'lt' condition
+            if (maxIndex > -1)
+            {
+                ids.set(maxIndex, ids.get(maxIndex) + 1);
+            }
+            while (index < maxIndex)
+            {
+                final int nextIndex = getNextIndex(index, maxIndex);
+                final long minId = ids.get(index);
+                final long maxId = ids.get(nextIndex);
+                final List<T> results =
+                        listEntitiesWithRestrictedId(hibernateSession, clazz, minId, maxId);
+                evaluateProperties(hibernateSession, results, clazz);
+                index = nextIndex;
+                operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
+                        clazz.getSimpleName()));
+            }
+            transaction.commit();
+            operationLog.info(String.format(
+                    "Evaluation of dynamic properties for '%s' is complete. "
+                            + "%d entities have been updated.", clazz.getSimpleName(), index));
+        } catch (Exception e)
+        {
+            operationLog.error(e.getMessage());
+            if (transaction != null)
+            {
+                transaction.rollback();
+            }
         }
-        operationLog.debug(String.format("Evaluation of dynamic properties for '%s' is complete. "
-                + "%d entities have been updated.", clazz.getSimpleName(), index));
-        transaction.commit();
     }
 
     public <T extends IEntityInformationWithPropertiesHolder> void doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
             throws DataAccessException
     {
-        operationLog.debug(String.format("Evaluating dynamic properties for %s %ss...", ids.size(),
+        operationLog.info(String.format("Evaluating dynamic properties for %s %ss...", ids.size(),
                 clazz.getSimpleName()));
 
-        // we index entities in batches loading them in groups by id
-        final Transaction transaction = hibernateSession.beginTransaction();
-        final int maxIndex = ids.size();
-        int index = 0;
-
-        while (index < maxIndex)
+        Transaction transaction = null;
+        try
         {
-            final int nextIndex = getNextIndex(index, maxIndex);
-            List<Long> subList = ids.subList(index, nextIndex);
-            final List<T> results = listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
-            evaluateProperties(hibernateSession, results, clazz);
-            index = nextIndex;
-            if (operationLog.isDebugEnabled())
+            transaction = hibernateSession.beginTransaction();
+            // we index entities in batches loading them in groups by id
+            final int maxIndex = ids.size();
+            int index = 0;
+
+            while (index < maxIndex)
             {
-                operationLog.debug(String.format("%d/%d %ss have been updated...", index, maxIndex,
+                final int nextIndex = getNextIndex(index, maxIndex);
+                List<Long> subList = ids.subList(index, nextIndex);
+                final List<T> results =
+                        listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
+                evaluateProperties(hibernateSession, results, clazz);
+                index = nextIndex;
+                operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
                         clazz.getSimpleName()));
             }
+            transaction.commit();
+            operationLog.info(String.format(
+                    "Evaluation of dynamic properties for '%s' is complete. "
+                            + "%d entities have been updated.", clazz.getSimpleName(), index));
+        } catch (Exception e)
+        {
+            operationLog.error(e.getMessage());
+            if (transaction != null)
+            {
+                transaction.rollback();
+            }
         }
-        transaction.commit();
-        operationLog.debug(String.format("Evaluation of dynamic properties for '%s' is complete. "
-                + "%d entities have been updated.", clazz.getSimpleName(), index));
     }
 
     private int getNextIndex(int index, int maxIndex)

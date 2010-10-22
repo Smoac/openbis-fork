@@ -31,7 +31,7 @@ public class BatchOperationExecutor
         final List<S> allEntities = strategy.getAllEntities();
         int maxIndex = allEntities.size();
 
-        operationLog.info(getMemoryUsageMessage());
+        operationLog.debug(getMemoryUsageMessage());
         // Loop over the list, one block at a time
         for (int startIndex = 0, endIndex = Math.min(startIndex + batchSize, maxIndex); startIndex < maxIndex; startIndex =
                 endIndex, endIndex = Math.min(startIndex + batchSize, maxIndex))

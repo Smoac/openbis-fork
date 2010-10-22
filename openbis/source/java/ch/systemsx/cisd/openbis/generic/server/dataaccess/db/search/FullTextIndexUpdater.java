@@ -40,11 +40,11 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
 {
     public final static String FULL_TEXT_INDEX_UPDATER_QUEUE_FILENAME = ".index_updater_queue";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FullTextIndexUpdater.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FullTextIndexUpdater.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, FullTextIndexUpdater.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            FullTextIndexUpdater.class);
 
     private final HibernateSearchContext context;
 
@@ -169,12 +169,11 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                         switch (operation.getOperationKind())
                         {
                             case REINDEX:
-                                fullTextIndexer.doFullTextIndexUpdate(getSession(), clazz,
+                                fullTextIndexer.doFullTextIndexUpdate(session, clazz,
                                         operation.getIds());
                                 break;
                             case REMOVE:
-                                fullTextIndexer.removeFromIndex(getSession(), clazz, operation
-                                        .getIds());
+                                fullTextIndexer.removeFromIndex(session, clazz, operation.getIds());
                         }
                         stopWatch.stop();
                     } catch (RuntimeException e)
