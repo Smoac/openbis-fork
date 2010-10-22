@@ -16,6 +16,7 @@ export BASYSBIO=bs-basysbio01.ethz.ch
 export BASYSBIO_TEST=openbis-test
 export CINA=bs-openbis01.ethz.ch
 export PLASMIDS=bs-openbis02.ethz.ch
+export LIMB=bs-openbis03.ethz.ch
 
 function create_individual_greeting_message {
 # Creates an individual greeting message
@@ -28,7 +29,7 @@ function create_individual_greeting_message {
 
 function restore_common {
   if [ -f ~openbis/config/loginHeader.html ]; then
-    echo restoring loginHeader.html...
+    echo restoring loginHeader.html, etc...
     cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
     cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
     cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
@@ -41,6 +42,12 @@ function restore_common {
   fi
   if  [ -f ~openbis/config/datastore_log.xml ]; then
   	cp ~openbis/config/datastore_log.xml ~openbis/sprint/datastore_server/etc/log.xml
+  fi  
+  if  [ -f ~openbis/config/welcomePage.html ]; then
+  	cp ~openbis/config/welcomePage.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
+  fi  
+  if  [ -f ~openbis/config/welcomePageSimple.html ]; then
+  	cp ~openbis/config/welcomePageSimple.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
   fi  
 }
 
