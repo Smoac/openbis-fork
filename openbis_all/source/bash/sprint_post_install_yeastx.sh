@@ -20,4 +20,4 @@ function copy_or_die {
 
 copy_or_die $CONFIG_DIR/eicmlDropboxProcessingPlugin.properties $DSS/etc/
 copy_or_die $CONFIG_DIR/fiamlDropboxProcessingPlugin.properties $DSS/etc/
-
+copy_or_die ~/config/openbis-as/genericCommonContext.xml ~/sprint/openBIS-server/jetty/webapps/openbis/WEB-INF/classes
