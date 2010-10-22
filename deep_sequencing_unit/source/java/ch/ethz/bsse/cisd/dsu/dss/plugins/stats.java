@@ -30,11 +30,11 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class stats
 {
-    private Long mean;
+    private Long mean = 0L;
 
-    private Long stdev;
+    private Long stdev = 0L;
 
-    private Long sumsq;
+    private Long sumsq = 0L;
 
     @XmlElement(name = "mean")
     public Long getMean()

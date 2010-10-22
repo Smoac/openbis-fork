@@ -30,11 +30,11 @@ import javax.xml.bind.annotation.XmlElement;
 
 public class doubleStats
 {
-    private double mean;
+    private double mean = 0.0;
 
-    private double stdev;
+    private double stdev = 0.0;
 
-    private double sumsq;
+    private double sumsq = 0.0;
 
     @XmlElement(name = "mean")
     public double getMean()

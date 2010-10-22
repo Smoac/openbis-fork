@@ -31,13 +31,13 @@ import javax.xml.bind.annotation.XmlElement;
  */
 class ChipSummary
 {
-    private String chipID;
+    private String chipID = "";
 
-    private String machine;
+    private String machine = "";
 
-    private String runFolder;
+    private String runFolder = "";
 
-    @XmlElement (name = "ChipID")
+    @XmlElement(name = "ChipID")
     public String getChipID()
     {
         return chipID;
@@ -48,7 +48,7 @@ class ChipSummary
         this.chipID = chipID;
     }
 
-    @XmlElement (name = "Machine")
+    @XmlElement(name = "Machine")
     public String getMachine()
     {
         return machine;
@@ -59,7 +59,7 @@ class ChipSummary
         this.machine = machine;
     }
 
-    @XmlElement (name = "RunFolder")
+    @XmlElement(name = "RunFolder")
     public String getRunFolder()
     {
         return runFolder;

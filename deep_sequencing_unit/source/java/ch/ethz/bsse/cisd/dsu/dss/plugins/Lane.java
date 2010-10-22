@@ -55,7 +55,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 class Lane
 {
-    private Integer laneNumber;
+    private Integer laneNumber = 0;
 
     // since Casava 1.7 available
     private doubleStats averageAlignScorePF;
@@ -67,7 +67,7 @@ class Lane
     // since Casava 1.7 available
     private doubleStats errorPF;
 
-    private Integer laneYield;
+    private Integer laneYield = 0;
 
     private stats oneSig;
 

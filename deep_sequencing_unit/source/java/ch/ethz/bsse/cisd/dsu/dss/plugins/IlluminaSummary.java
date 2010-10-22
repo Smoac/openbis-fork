@@ -73,9 +73,9 @@ class IlluminaSummary
 
     private ChipSummary chipSummary;
 
-    private String Software;
+    private String Software = "";
 
-    private String Date;
+    private String Date = "";
 
     @XmlElement(name = "ChipResultsSummary")
     public ChipResultsSummary getChipResultsSummary()

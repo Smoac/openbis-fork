@@ -34,13 +34,13 @@ import javax.xml.bind.annotation.XmlElement;
 
 class ChipResultsSummary
 {
-    private Long clusterCountPF;
+    private Long clusterCountPF = 0L;
 
-    private Long clusterCountRaw;
+    private Long clusterCountRaw = 0L;
 
-    private Long yield;
+    private Long yield = 0L;
 
-    private Double densityRatio;
+    private Double densityRatio = 0.0;
 
     @XmlElement(name = "clusterCountPF")
     public Long getClusterCountPF()

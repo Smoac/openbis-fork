@@ -132,14 +132,20 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
             software_version = "Not available";
         }
 
-        // TODO : Cover Paired end runs
+        Double densityRatio = chipResultSummary.getDensityRatio();
+        // if (densityRatio == null)
+        // {
+        // // densityRatio = 0.0;
+        // }
+
+        // TODO 2010-10-20, Manuel Kohler : Cover Paired end runs
 
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
         row.add(new StringTableCell(dataset.getSampleCode()));
         row.add(new IntegerTableCell(chipResultSummary.getClusterCountRaw()));
         row.add(new IntegerTableCell(chipResultSummary.getClusterCountPF()));
         row.add(new IntegerTableCell(chipResultSummary.getYield() / MEGA));
-        row.add(new DoubleTableCell(chipResultSummary.getDensityRatio()));
+        row.add(new DoubleTableCell(densityRatio));
 
         // PhiX Lane
         row.add(new IntegerTableCell(laneResultSummary.getRead().getLanes().get(4)
