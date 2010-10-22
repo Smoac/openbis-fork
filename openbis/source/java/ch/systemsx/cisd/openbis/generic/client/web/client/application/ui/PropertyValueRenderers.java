@@ -276,8 +276,10 @@ public final class PropertyValueRenderers
                     && StringEscapeUtils.unescapeHtml(value).startsWith(
                             BasicConstant.ERROR_PROPERTY_PREFIX))
             {
-                return createHtmlWidget(StringEscapeUtils.unescapeHtml(value).substring(
-                        BasicConstant.ERROR_PROPERTY_PREFIX.length()));
+                String errorMsgText =
+                        StringEscapeUtils.unescapeHtml(value).substring(
+                                BasicConstant.ERROR_PROPERTY_PREFIX.length());
+                return createMultilineHtmlWidget(errorMsgText);
             }
             // handle normal values
             switch (getDataTypeCode(object))
@@ -329,8 +331,12 @@ public final class PropertyValueRenderers
 
         private Widget createMultilineHtmlWidget(IEntityProperty object)
         {
-            return MultilineStringPropertyValueRenderer
-                    .createMultilineHtmlWidget(object.getValue());
+            return createMultilineHtmlWidget(object.getValue());
+        }
+
+        private Widget createMultilineHtmlWidget(String multilineText)
+        {
+            return MultilineStringPropertyValueRenderer.createMultilineHtmlWidget(multilineText);
         }
 
         private Widget createHtmlWidget(String html)
