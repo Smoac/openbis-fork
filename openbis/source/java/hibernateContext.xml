@@ -110,9 +110,8 @@
                 <!-- Disabling Hibernate Search. Possible values are [true, false].
                     <prop key="hibernate.search.autoregister_listeners">false</prop>
                 -->
-                <!-- Disabling automatic indexing. Possible values are [event, manual].
-                    <prop key="hibernate.search.indexing_strategy">manual</prop>
-                -->
+                <!-- Disabling automatic indexing. Possible values are [event, manual]. -->
+                <prop key="hibernate.search.indexing_strategy">manual</prop>
                 <!--  Uncomment this for debugging the Hibernate sql queries
 <prop key="hibernate.show_sql">true</prop>
 <prop key="hibernate.use_sql_comments">true</prop> 
@@ -155,8 +154,9 @@
     </bean>
 
     <bean id="dynamic-property-evaluator"
-        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DummyDynamicPropertyEvaluationRunnable">
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationRunnable">
         <constructor-arg ref="hibernate-session-factory" />
+        <constructor-arg ref="full-text-index-updater" />
     </bean>
     
     <bean id="maintenance-task-starter" 
