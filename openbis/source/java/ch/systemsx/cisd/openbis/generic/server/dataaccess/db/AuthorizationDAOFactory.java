@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.CacheMode;
-import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.springframework.dao.DataAccessException;
@@ -46,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
@@ -248,23 +247,15 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     }
 
     /**
-     * @param batchMode if true the second level cache will be switched off and the hibernate
-     *            session will be synchronized with the database only at the end of the transaction.
-     *            Note that 1) this cause that the stale data will be fetched from database,
-     *            ignoring the changes in hibernate layer 2) if you have many write operations
-     *            interleaved with read operations in one block, switching synchronization off
-     *            greatly improves the performance.
+     * Configures current session settings for batch update mode.
+     * 
+     * @see HibernateUtils#setBatchUpdateMode(org.hibernate.Session, boolean)
      */
     public void setBatchUpdateMode(boolean batchMode)
     {
         SessionFactory sessionFactory = persistencyResources.getSessionFactoryOrNull();
         Session currentSession = sessionFactory.getCurrentSession();
-
-        CacheMode cacheMode = (batchMode ? CacheMode.IGNORE : CacheMode.NORMAL);
-        currentSession.setCacheMode(cacheMode);
-
-        FlushMode mode = (batchMode ? FlushMode.COMMIT : FlushMode.AUTO);
-        currentSession.setFlushMode(mode);
+        HibernateUtils.setBatchUpdateMode(currentSession, batchMode);
     }
 
 }

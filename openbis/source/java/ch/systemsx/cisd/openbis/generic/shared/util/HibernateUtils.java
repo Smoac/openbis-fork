@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import org.hibernate.CacheMode;
+import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
@@ -113,4 +116,22 @@ public final class HibernateUtils
             return proxy;
         }
     }
+
+    /**
+     * @param batchMode if true the second level cache will be switched off and the hibernate
+     *            session will be synchronized with the database only at the end of the transaction.
+     *            Note that 1) this cause that the stale data will be fetched from database,
+     *            ignoring the changes in hibernate layer 2) if you have many write operations
+     *            interleaved with read operations in one block, switching synchronization off
+     *            greatly improves the performance.
+     */
+    public final static void setBatchUpdateMode(Session session, boolean batchMode)
+    {
+        CacheMode cacheMode = (batchMode ? CacheMode.IGNORE : CacheMode.NORMAL);
+        session.setCacheMode(cacheMode);
+
+        FlushMode mode = (batchMode ? FlushMode.COMMIT : FlushMode.AUTO);
+        session.setFlushMode(mode);
+    }
+
 }
