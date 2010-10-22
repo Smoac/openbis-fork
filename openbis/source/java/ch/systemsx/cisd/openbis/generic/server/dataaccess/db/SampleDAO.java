@@ -27,7 +27,6 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -41,9 +40,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -62,7 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Tomasz Pylak
  */
-public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISampleDAO
+public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> implements
+        ISampleDAO
 {
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
 
@@ -73,17 +71,10 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
 
-    private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
-
-    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
-
-    SampleDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
-            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
-            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
+    SampleDAO(final PersistencyResources persistencyResources,
+            final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance, SamplePE.class);
-        this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
-        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
+        super(persistencyResources, databaseInstance, SamplePE.class);
     }
 
     // LockSampleModificationsInterceptor automatically obtains lock
@@ -403,21 +394,8 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
                 }
             });
 
-        // index will not be updated automatically by Hibernate because we use native SQL queries
-        scheduleRemoveFromFullTextIndex(sampleIds);
-    }
-
-    private void scheduleRemoveFromFullTextIndex(List<TechId> sampleIds)
-    {
         List<Long> ids = transformTechIds2Longs(sampleIds);
-        fullTextIndexUpdateScheduler.scheduleUpdate(IndexUpdateOperation
-                .remove(SamplePE.class, ids));
-    }
-
-    private void scheduleDynamicPropertiesEvaluation(List<SamplePE> samples)
-    {
-        scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler, SamplePE.class,
-                samples);
+        scheduleRemoveFromFullTextIndex(ids);
     }
 
     @SuppressWarnings("unchecked")

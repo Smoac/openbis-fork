@@ -19,22 +19,33 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 
 /**
  * Resources needed to create DAO's.
- *
- * @author     Franz-Josef Elmer
+ * 
+ * @author Franz-Josef Elmer
  */
 public final class PersistencyResources
 {
     private final DatabaseConfigurationContext contextOrNull;
+
     private final SessionFactory sessionFactoryOrNull;
 
+    private final IFullTextIndexUpdateScheduler indexUpdateScheduler;
+
+    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
+
     public PersistencyResources(DatabaseConfigurationContext contextOrNull,
-            SessionFactory sessionFactoryOrNull)
+            SessionFactory sessionFactoryOrNull,
+            IFullTextIndexUpdateScheduler indexUpdateScheduler,
+            IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
         this.contextOrNull = contextOrNull;
         this.sessionFactoryOrNull = sessionFactoryOrNull;
+        this.indexUpdateScheduler = indexUpdateScheduler;
+        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
     }
 
     public final DatabaseConfigurationContext getContextOrNull()
@@ -46,5 +57,15 @@ public final class PersistencyResources
     {
         return sessionFactoryOrNull;
     }
-    
+
+    public IFullTextIndexUpdateScheduler getIndexUpdateScheduler()
+    {
+        return indexUpdateScheduler;
+    }
+
+    public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()
+    {
+        return dynamicPropertyEvaluationScheduler;
+    }
+
 }

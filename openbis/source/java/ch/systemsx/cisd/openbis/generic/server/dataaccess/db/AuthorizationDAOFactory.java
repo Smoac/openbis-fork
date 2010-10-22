@@ -90,22 +90,18 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
             final IFullTextIndexUpdateScheduler indexUpdateScheduler,
             final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
     {
-        persistencyResources = new PersistencyResources(context, sessionFactory);
+        persistencyResources =
+                new PersistencyResources(context, sessionFactory, indexUpdateScheduler,
+                        dynamicPropertyEvaluationScheduler);
         databaseInstancesDAO = new DatabaseInstanceDAO(sessionFactory);
         homeDatabaseInstance = getDatabaseInstanceId(context.getDatabaseInstance());
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
         groupDAO = new GroupDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
-        externalDataDAO =
-                new ExternalDataDAO(sessionFactory, homeDatabaseInstance,
-                        dynamicPropertyEvaluationScheduler);
-        experimentDAO =
-                new ExperimentDAO(sessionFactory, homeDatabaseInstance,
-                        dynamicPropertyEvaluationScheduler);
+        externalDataDAO = new ExternalDataDAO(persistencyResources, homeDatabaseInstance);
+        experimentDAO = new ExperimentDAO(persistencyResources, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
-        sampleDAO =
-                new SampleDAO(sessionFactory, homeDatabaseInstance, indexUpdateScheduler,
-                        dynamicPropertyEvaluationScheduler);
+        sampleDAO = new SampleDAO(persistencyResources, homeDatabaseInstance);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, homeDatabaseInstance);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);

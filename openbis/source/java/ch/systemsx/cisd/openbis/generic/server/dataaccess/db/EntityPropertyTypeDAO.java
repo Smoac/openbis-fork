@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
-import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.ProjectionList;
@@ -36,6 +35,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
@@ -73,15 +73,15 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
-    public EntityPropertyTypeDAO(final EntityKind entityKind, final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance,
-            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
-            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
+    public EntityPropertyTypeDAO(final EntityKind entityKind,
+            final PersistencyResources persistencyResources,
+            final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance);
+        super(persistencyResources.getSessionFactoryOrNull(), databaseInstance);
         this.entityKind = entityKind;
-        this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
-        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
+        this.fullTextIndexUpdateScheduler = persistencyResources.getIndexUpdateScheduler();
+        this.dynamicPropertyEvaluationScheduler =
+                persistencyResources.getDynamicPropertyEvaluationScheduler();
     }
 
     private final <T extends EntityTypePropertyTypePE> Class<T> getEntityTypePropertyTypeAssignmentClass()
@@ -294,9 +294,8 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
             operationLog.info(String.format("Created %s %s properties : %s", entityIds.size(),
                     entityKind.getLabel(), property));
         }
-        // index will not be updated automatically by Hibernate because we use native SQL queries
-        scheduleFullTextIndexUpdate(entityIds);
 
+        scheduleFullTextIndexUpdate(entityIds);
         if (property.getEntityTypePropertyType().isDynamic())
         {
             scheduleDynamicPropertiesEvaluation(entityIds);
@@ -439,8 +438,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         template.clear();
         template.delete(assignment);
 
-        // index will not be updated automatically by Hibernate
-        // because we use bulk update and don't touch entities
         scheduleFullTextIndexUpdate(entityIds);
 
         if (operationLog.isInfoEnabled())

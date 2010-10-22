@@ -30,7 +30,6 @@ import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Projections;
@@ -45,7 +44,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -64,8 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Christian Ribeaud
  */
-final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> implements
-        IExternalDataDAO
+final class ExternalDataDAO extends AbstractGenericEntityWithPropertiesDAO<ExternalDataPE>
+        implements IExternalDataDAO
 {
     private final static Class<ExternalDataPE> ENTITY_CLASS = ExternalDataPE.class;
 
@@ -76,13 +75,10 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
-    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
-
-    ExternalDataDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
-            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
+    ExternalDataDAO(final PersistencyResources persistencyResources,
+            final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance, ENTITY_CLASS);
-        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
+        super(persistencyResources, databaseInstance, ENTITY_CLASS);
     }
 
     //
@@ -472,12 +468,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     {
         super.validateAndSaveUpdatedEntity(entity);
         scheduleDynamicPropertiesEvaluation(Arrays.asList(entity));
-    }
-
-    private void scheduleDynamicPropertiesEvaluation(List<ExternalDataPE> externalData)
-    {
-        scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler,
-                ExternalDataPE.class, externalData);
     }
 
 }

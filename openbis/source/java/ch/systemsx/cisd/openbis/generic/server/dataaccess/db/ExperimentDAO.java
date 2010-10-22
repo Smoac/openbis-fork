@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
@@ -34,7 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -47,20 +46,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implements IExperimentDAO
+public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<ExperimentPE> implements
+        IExperimentDAO
 {
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ExperimentDAO.class);
 
-    private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
-
-    protected ExperimentDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance,
-            final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler)
+    protected ExperimentDAO(final PersistencyResources persistencyResources,
+            final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance, ExperimentPE.class);
-        this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
+        super(persistencyResources, databaseInstance, ExperimentPE.class);
     }
 
     public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
@@ -233,12 +229,6 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
             operationLog.debug(String.format("%d experiment(s) have been found.", list.size()));
         }
         return list;
-    }
-
-    private void scheduleDynamicPropertiesEvaluation(List<ExperimentPE> experiments)
-    {
-        scheduleDynamicPropertiesEvaluation(dynamicPropertyEvaluationScheduler, ExperimentPE.class,
-                experiments);
     }
 
 }
