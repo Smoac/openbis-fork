@@ -169,8 +169,14 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                         switch (operation.getOperationKind())
                         {
                             case REINDEX:
-                                fullTextIndexer.doFullTextIndexUpdate(session, clazz,
-                                        operation.getIds());
+                                if (operation.getIds() == null)
+                                {
+                                    fullTextIndexer.doFullTextIndex(session, clazz);
+                                } else
+                                {
+                                    fullTextIndexer.doFullTextIndexUpdate(session, clazz,
+                                            operation.getIds());
+                                }
                                 break;
                             case REMOVE:
                                 fullTextIndexer.removeFromIndex(session, clazz, operation.getIds());

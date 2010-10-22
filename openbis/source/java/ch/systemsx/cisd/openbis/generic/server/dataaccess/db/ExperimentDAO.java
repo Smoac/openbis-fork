@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -130,7 +129,6 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
         final HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(experiment);
         template.flush();
-        scheduleDynamicPropertiesEvaluation(Arrays.asList(experiment));
     }
 
     public List<ExperimentPE> listExperimentsByProjectAndProperty(String propertyCode,

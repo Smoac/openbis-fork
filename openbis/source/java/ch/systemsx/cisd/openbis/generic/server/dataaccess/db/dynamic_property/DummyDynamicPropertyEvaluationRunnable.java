@@ -22,6 +22,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 
 /**
  * @author Piotr Buczek
@@ -33,7 +34,8 @@ public final class DummyDynamicPropertyEvaluationRunnable extends HibernateDaoSu
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DummyDynamicPropertyEvaluationRunnable.class);
 
-    public DummyDynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory)
+    public DummyDynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory,
+            final IFullTextIndexUpdateScheduler fullTextIFullTextIndexUpdateScheduler)
     {
         setSessionFactory(sessionFactory);
         operationLog.debug("dummy property evaluator created");

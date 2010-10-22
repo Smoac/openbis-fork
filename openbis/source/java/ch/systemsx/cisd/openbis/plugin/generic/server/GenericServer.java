@@ -555,6 +555,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 sampleBO.setExperiment(experiment);
             }
         }
+        scheduleDynamicPropertiesEvaluation(
+                getDAOFactory().getDynamicPropertyEvaluationScheduler(), ExperimentPE.class,
+                Arrays.asList(experimentBO.getExperiment()));
     }
 
     public void registerMaterials(String sessionToken, String materialTypeCode,
@@ -577,7 +580,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
                 public void execute(List<NewMaterial> entities)
                 {
-                    final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+                    final IMaterialTable materialTable =
+                            businessObjectFactory.createMaterialTable(session);
                     materialTable.add(entities, materialTypePE);
                     materialTable.save();
                 }
@@ -613,7 +617,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return 0;
         }
-        class Counter 
+        class Counter
         {
             int count;
         }
@@ -748,6 +752,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         ExperimentPE experiment = experimentBO.getExperiment();
         result.setModificationDate(experiment.getModificationDate());
         result.setSamples(Code.extractCodes(experiment.getSamples()));
+        scheduleDynamicPropertiesEvaluation(
+                getDAOFactory().getDynamicPropertyEvaluationScheduler(), ExperimentPE.class,
+                Arrays.asList(experimentBO.getExperiment()));
         return result;
     }
 
@@ -861,6 +868,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return map;
     }
 
+    /**
+     * Schedules evaluation of dynamic properties on specified entities. After evaluation is done
+     * the entities will be indexed.
+     */
     private static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
             IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
     {

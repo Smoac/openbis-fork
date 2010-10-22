@@ -76,8 +76,8 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         try
         {
             transaction = hibernateSession.beginTransaction();
-            // we evaluate properties of entities in batches loading them in groups restricted by id:
-            // [ ids[index], ids[min(index+batchSize, maxIndex))] )
+            // we evaluate properties of entities in batches loading them in groups restricted by
+            // id: [ ids[index], ids[min(index+batchSize, maxIndex))] )
             int index = 0;
             final List<Long> ids = getAllIds(hibernateSession, clazz);
             final int idsSize = ids.size();

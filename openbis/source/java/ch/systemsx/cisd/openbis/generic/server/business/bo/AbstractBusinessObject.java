@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -322,5 +323,10 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()
     {
         return daoFactory.getDynamicPropertyEvaluationScheduler();
+    }
+
+    public IFullTextIndexUpdateScheduler getFullTextIndexUpdateScheduler()
+    {
+        return daoFactory.getFullTextIndexUpdateScheduler();
     }
 }

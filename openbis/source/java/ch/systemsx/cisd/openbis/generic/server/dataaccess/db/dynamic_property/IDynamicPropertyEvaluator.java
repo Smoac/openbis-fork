@@ -24,7 +24,8 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
- * Each implementation is able to evaluate dynamic properties.
+ * Each implementation is able to evaluate dynamic properties. After evaluation of properties the
+ * entities will be reindexed.
  * 
  * @author Piotr Buczek
  */

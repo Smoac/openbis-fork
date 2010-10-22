@@ -392,14 +392,21 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         return result;
     }
 
+    protected static <T extends IEntityInformationWithPropertiesHolder> List<Long> transformEntities2Longs(
+            Collection<T> entities)
+    {
+        final List<Long> result = new ArrayList<Long>();
+        for (IEntityInformationWithPropertiesHolder entity : entities)
+        {
+            result.add(entity.getId());
+        }
+        return result;
+    }
+
     protected static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
             IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
     {
-        List<Long> ids = new ArrayList<Long>();
-        for (IEntityInformationWithPropertiesHolder entity : entities)
-        {
-            ids.add(entity.getId());
-        }
+        List<Long> ids = transformEntities2Longs(entities);
         scheduleDynamicPropertiesEvaluationForIds(scheduler, entityClass, ids);
     }
 

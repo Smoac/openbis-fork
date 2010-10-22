@@ -61,6 +61,8 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
+    private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
+
     private final ISampleTypeDAO sampleTypeDAO;
 
     private final IHibernateSearchDAO hibernateSearchDAO;
@@ -107,6 +109,7 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         super(context, sessionFactory, fullTextIndexUpdateScheduler,
                 dynamicPropertyEvaluationScheduler);
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
+        this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         final DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
         sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory, hibernateSearchContext);
@@ -232,6 +235,11 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
     public IDynamicPropertyEvaluationScheduler getDynamicPropertyEvaluationScheduler()
     {
         return dynamicPropertyEvaluationScheduler;
+    }
+
+    public IFullTextIndexUpdateScheduler getFullTextIndexUpdateScheduler()
+    {
+        return fullTextIndexUpdateScheduler;
     }
 
 }

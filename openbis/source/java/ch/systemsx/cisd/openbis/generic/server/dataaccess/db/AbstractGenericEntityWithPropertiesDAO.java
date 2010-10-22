@@ -65,12 +65,8 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
 
     protected void scheduleRemoveFromFullTextIndex(List<Long> ids)
     {
-        getIndexUpdateScheduler().scheduleUpdate(IndexUpdateOperation.remove(getClass(), ids));
-    }
-
-    protected void scheduleFullTextIndexUpdate(List<Long> ids)
-    {
-        getIndexUpdateScheduler().scheduleUpdate(IndexUpdateOperation.reindex(getClass(), ids));
+        getIndexUpdateScheduler()
+                .scheduleUpdate(IndexUpdateOperation.remove(getEntityClass(), ids));
     }
 
     protected void scheduleDynamicPropertiesEvaluation(List<T> entities)

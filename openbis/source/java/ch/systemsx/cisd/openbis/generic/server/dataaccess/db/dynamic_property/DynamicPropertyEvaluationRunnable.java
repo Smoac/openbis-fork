@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
@@ -52,8 +54,12 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
 
     private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
 
-    public DynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory)
+    private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
+
+    public DynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory,
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
     {
+        this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         setSessionFactory(sessionFactory);
         evaluator = new DefaultDynamicPropertyEvaluator(BATCH_SIZE);
 
@@ -127,9 +133,10 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
                 Session session = null;
+                Class<IEntityInformationWithPropertiesHolder> clazz = null;
                 try
                 {
-                    final Class<IEntityInformationWithPropertiesHolder> clazz =
+                    clazz =
                             (Class<IEntityInformationWithPropertiesHolder>) Class.forName(operation
                                     .getClassName());
                     session = getSession();
@@ -157,6 +164,12 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                                 + (operation.getIds() == null ? "" : operation.getIds().size()
                                         + " ") + operation.getClassName() + "s took " + stopWatch);
                     }
+                    if (clazz != null)
+                    {
+                        IndexUpdateOperation indexUpdateOperation =
+                                IndexUpdateOperation.reindex(clazz, operation.getIds());
+                        fullTextIndexUpdateScheduler.scheduleUpdate(indexUpdateOperation);
+                    }
                 }
                 evaluatorQueue.take();
             }
@@ -166,5 +179,4 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                     .error("A problem has occurred while evaluating dynamic properties.", th);
         }
     }
-
 }
