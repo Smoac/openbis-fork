@@ -292,6 +292,17 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
+
+                    final ExperimentPE experiment = new ExperimentPE();
+                    final Long id = 1L;
+                    experiment.setId(id);
+                    allowing(experimentBO).getExperiment();
+                    will((returnValue(experiment)));
+
+                    final DynamicPropertyEvaluationOperation operation =
+                            DynamicPropertyEvaluationOperation.evaluate(ExperimentPE.class,
+                                    Arrays.asList(id));
+                    one(evaluator).scheduleUpdate(with(operation));
                 }
             });
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
@@ -317,6 +328,8 @@ public final class GenericServerTest extends AbstractServerTestCase
             { sample1, sampleIdentifier2 };
         final ExperimentPE experimentPE =
                 createExperiment(experimentTypeCode, experimentCode, groupCode);
+        final Long id = 1L;
+        experimentPE.setId(id);
         final NewExperiment newExperiment =
                 createNewExperiment(experimentTypeCode, experimentCode, groupCode, samples);
         context.checking(new Expectations()
@@ -328,7 +341,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(experimentBO).define(newExperiment);
                     exactly(2).of(experimentBO).save();
 
-                    one(experimentBO).getExperiment();
+                    allowing(experimentBO).getExperiment();
                     will(returnValue(experimentPE));
 
                     one(genericBusinessObjectFactory).createSampleBO(SESSION);
@@ -340,6 +353,11 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(sampleIdentifier2WithGroup);
                     one(sampleBO).setExperiment(experimentPE);
+
+                    final DynamicPropertyEvaluationOperation operation =
+                            DynamicPropertyEvaluationOperation.evaluate(ExperimentPE.class,
+                                    Arrays.asList(id));
+                    one(evaluator).scheduleUpdate(with(operation));
                 }
             });
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
@@ -650,6 +668,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         updates.setExperimentId(experimentId);
         updates.setProjectIdentifier(newProjectIdentifier);
         final ExperimentPE experiment = new ExperimentPE();
+        final Long id = 1L;
+        experiment.setId(id);
         Date newModificationDate = new Date(2);
         experiment.setModificationDate(newModificationDate);
         ArrayList<SamplePE> newSamples = new ArrayList<SamplePE>();
@@ -663,8 +683,13 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                     one(experimentBO).update(updates);
                     one(experimentBO).save();
-                    one(experimentBO).getExperiment();
+                    allowing(experimentBO).getExperiment();
                     will(returnValue(experiment));
+
+                    final DynamicPropertyEvaluationOperation operation =
+                            DynamicPropertyEvaluationOperation.evaluate(ExperimentPE.class,
+                                    Arrays.asList(id));
+                    one(evaluator).scheduleUpdate(with(operation));
                 }
             });
         ExperimentUpdateResult result = createServer().updateExperiment(SESSION_TOKEN, updates);
