@@ -50,21 +50,24 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  */
 public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
 {
-    private final static Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, CifexStorageProcessor.class);
+    private final static Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            CifexStorageProcessor.class);
 
     public static final String KEEP_FILE_REGEX_KEY = "keep-file-regex";
+
     public static final String MOVE_TO_ERROR_FOLDER_KEY = "move-to-error-folder";
 
     private final String keepFileRegex;
 
     private final boolean moveToErrorFolder;
-    
+
     private File dirToRestore;
 
     private File fileToMove;
 
     private boolean dirDeleted = false;
+
+    private File newIncomingDataSetDirectory;
 
     public CifexStorageProcessor(Properties properties)
     {
@@ -77,25 +80,26 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
             IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
-        File result = super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory, rootDir);
+        newIncomingDataSetDirectory = incomingDataSetDirectory;
         if (StringUtils.isBlank(keepFileRegex) == false)
         {
-            clean(tryGetProprietaryData(rootDir), keepFileRegex);
+            newIncomingDataSetDirectory = clean(incomingDataSetDirectory, keepFileRegex);
         }
-        return result;
+        return super.storeData(dataSetInformation, typeExtractor, mailClient,
+                newIncomingDataSetDirectory, rootDir);
     }
 
     @Override
     public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
             Throwable exception)
     {
+        super.rollback(newIncomingDataSetDirectory, storedDataDirectory, exception);
         if (dirDeleted)
         {
             FileOperations.getMonitoredInstanceForCurrentThread().mkdir(dirToRestore);
             FileOperations.getMonitoredInstanceForCurrentThread().moveToDirectory(fileToMove,
                     dirToRestore);
         }
-        super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
         return moveToErrorFolder ? UnstoreDataAction.MOVE_TO_ERROR : UnstoreDataAction.DELETE;
     }
 
@@ -158,8 +162,8 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
 
     private void createCleaningErrorMessage(File dir, String pattern)
     {
-        notificationLog.error(String.format("Cleaning '%s' by file name pattern '%s' failed.", dir
-                .getPath(), pattern));
+        notificationLog.error(String.format("Cleaning '%s' by file name pattern '%s' failed.",
+                dir.getPath(), pattern));
     }
 
     private void removeUnmatchedFiles(File dir, List<File> matchingFiles)
