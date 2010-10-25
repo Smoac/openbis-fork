@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-
 /**
  * @author Piotr Buczek
  */
@@ -34,8 +33,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     {
         final String entityCode1 = "ecode1";
         final String entityCode2 = "ecode2";
-        final DynamicPropertyCalculator calculator =
-                new DynamicPropertyCalculator("entity.getCode()");
+        final DynamicPropertyCalculator calculator = new DynamicPropertyCalculator("entity.code()");
 
         calculator.setEntity(createEntity(entityCode1, null));
         assertEquals(entityCode1, calculator.evalAsString());
@@ -48,7 +46,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     public void testGetEntityPropertyValue()
     {
         final DynamicPropertyCalculator calculator =
-                new DynamicPropertyCalculator("entity.getPropertyValueByCode('p2')");
+                new DynamicPropertyCalculator("entity.propertyValueByCode('p2')");
 
         final String entityCode = "ecode";
 

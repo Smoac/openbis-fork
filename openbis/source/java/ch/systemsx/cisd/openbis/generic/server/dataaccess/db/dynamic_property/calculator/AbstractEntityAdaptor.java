@@ -66,23 +66,23 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
         propertiesByCode.put(property.getPropertyTypeCode(), property);
     }
 
-    public String getCode()
+    public String code()
     {
         return code;
     }
 
-    public IEntityPropertyAdaptor getPropertyByCode(String propertyTypeCode)
+    public IEntityPropertyAdaptor propertyByCode(String propertyTypeCode)
     {
         return propertiesByCode.get(propertyTypeCode);
     }
 
-    public String getPropertyValueByCode(String propertyTypeCode)
+    public String propertyValueByCode(String propertyTypeCode)
     {
-        final IEntityPropertyAdaptor propertyOrNull = getPropertyByCode(propertyTypeCode);
+        final IEntityPropertyAdaptor propertyOrNull = propertyByCode(propertyTypeCode);
         return propertyOrNull == null ? "" : propertyOrNull.getValueAsString();
     }
 
-    public Collection<IEntityPropertyAdaptor> getProperties()
+    public Collection<IEntityPropertyAdaptor> properties()
     {
         return propertiesByCode.values();
     }

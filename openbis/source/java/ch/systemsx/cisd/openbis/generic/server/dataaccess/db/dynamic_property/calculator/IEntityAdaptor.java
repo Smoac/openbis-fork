@@ -25,19 +25,18 @@ import java.util.Collection;
  * 
  * @author Piotr Buczek
  */
-// TODO 2010-10-15, Piotr Buczek: what naming convention should be used for DTOs used in Jython
 public interface IEntityAdaptor
 {
     /** Returns the code. */
-    public String getCode();
+    public String code();
 
     /** Returns the property by code of the property type. */
-    public IEntityPropertyAdaptor getPropertyByCode(String propertyTypeCode);
+    public IEntityPropertyAdaptor propertyByCode(String propertyTypeCode);
 
     /** Returns the property value by code of the property type. */
-    public String getPropertyValueByCode(String propertyTypeCode);
+    public String propertyValueByCode(String propertyTypeCode);
 
     /** Returns collection of properties of the entity */
-    public Collection<IEntityPropertyAdaptor> getProperties();
+    public Collection<IEntityPropertyAdaptor> properties();
 
 }
