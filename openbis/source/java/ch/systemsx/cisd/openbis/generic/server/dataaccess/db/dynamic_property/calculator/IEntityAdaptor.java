@@ -31,10 +31,13 @@ public interface IEntityAdaptor
     public String code();
 
     /** Returns the property by code of the property type. */
-    public IEntityPropertyAdaptor propertyByCode(String propertyTypeCode);
+    public IEntityPropertyAdaptor property(String propertyTypeCode);
 
     /** Returns the property value by code of the property type. */
-    public String propertyValueByCode(String propertyTypeCode);
+    public String propertyValue(String propertyTypeCode);
+
+    /** Returns the property value rendered as String by code of the property type. */
+    public String propertyRendered(String propertyTypeCode);
 
     /** Returns collection of properties of the entity */
     public Collection<IEntityPropertyAdaptor> properties();

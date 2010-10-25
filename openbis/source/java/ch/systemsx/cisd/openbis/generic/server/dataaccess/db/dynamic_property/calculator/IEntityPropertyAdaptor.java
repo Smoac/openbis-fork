@@ -24,9 +24,12 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.c
 public interface IEntityPropertyAdaptor
 {
     /** Returns the code of property type. */
-    public String getPropertyTypeCode();
+    public String propertyTypeCode();
 
     /** Returns the property value as string. */
-    public String getValueAsString();
+    public String valueAsString();
+
+    /** Returns the property value as string that should be rendered e.g. in a table. */
+    public String renderedValue();
 
 }

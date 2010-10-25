@@ -22,6 +22,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * Abstract {@link IEntityAdaptor} implementation.
@@ -44,8 +45,9 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     {
         for (EntityPropertyPE property : propertiesHolder.getProperties())
         {
-            final String propertyTypeCode =
-                    property.getEntityTypePropertyType().getPropertyType().getCode();
+            final PropertyTypePE propertyType =
+                    property.getEntityTypePropertyType().getPropertyType();
+            final String propertyTypeCode = propertyType.getCode();
             final String value;
             if (property.getMaterialValue() != null)
             {
@@ -57,13 +59,20 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
             {
                 value = property.getValue();
             }
-            addProperty(new BasicPropertyAdaptor(propertyTypeCode, value, property));
+            if (propertyType.getTransformation() == null)
+            {
+                addProperty(new BasicPropertyAdaptor(propertyTypeCode, value, property));
+            } else
+            {
+                addProperty(new XmlPropertyAdaptor(propertyTypeCode, value, property,
+                        propertyType.getTransformation()));
+            }
         }
     }
 
     public void addProperty(IEntityPropertyAdaptor property)
     {
-        propertiesByCode.put(property.getPropertyTypeCode(), property);
+        propertiesByCode.put(property.propertyTypeCode(), property);
     }
 
     public String code()
@@ -71,15 +80,21 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
         return code;
     }
 
-    public IEntityPropertyAdaptor propertyByCode(String propertyTypeCode)
+    public IEntityPropertyAdaptor property(String propertyTypeCode)
     {
         return propertiesByCode.get(propertyTypeCode);
     }
 
-    public String propertyValueByCode(String propertyTypeCode)
+    public String propertyValue(String propertyTypeCode)
     {
-        final IEntityPropertyAdaptor propertyOrNull = propertyByCode(propertyTypeCode);
-        return propertyOrNull == null ? "" : propertyOrNull.getValueAsString();
+        final IEntityPropertyAdaptor propertyOrNull = property(propertyTypeCode);
+        return propertyOrNull == null ? "" : propertyOrNull.valueAsString();
+    }
+
+    public String propertyRendered(String propertyTypeCode)
+    {
+        final IEntityPropertyAdaptor propertyOrNull = property(propertyTypeCode);
+        return propertyOrNull == null ? "" : propertyOrNull.renderedValue();
     }
 
     public Collection<IEntityPropertyAdaptor> properties()

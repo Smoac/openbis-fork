@@ -46,7 +46,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     public void testGetEntityPropertyValue()
     {
         final DynamicPropertyCalculator calculator =
-                new DynamicPropertyCalculator("entity.propertyValueByCode('p2')");
+                new DynamicPropertyCalculator("entity.propertyValue('p2')");
 
         final String entityCode = "ecode";
 
@@ -63,11 +63,42 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
 
         calculator.setEntity(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
             { p1, p21 })));
-        assertEquals(p21.getValueAsString(), calculator.evalAsString());
+        assertEquals(p21.valueAsString(), calculator.evalAsString());
 
         calculator.setEntity(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
             { p1, p22 })));
-        assertEquals(p22.getValueAsString(), calculator.evalAsString());
+        assertEquals(p22.valueAsString(), calculator.evalAsString());
+    }
+
+    private static final String XSLT =
+            "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
+                    + "<xsl:template match='/'><b><xsl:value-of select='.'/></b></xsl:template>"
+                    + "</xsl:stylesheet>";
+
+    @Test
+    public void testGetEntityPropertyRenderedValue()
+    {
+        final DynamicPropertyCalculator normalPropertyCalculator =
+                new DynamicPropertyCalculator("entity.propertyRendered('normalProperty')");
+        final DynamicPropertyCalculator xmlPropertyCalculator =
+                new DynamicPropertyCalculator("entity.propertyRendered('xmlProperty')");
+
+        final String entityCode = "ecode";
+
+        IEntityPropertyAdaptor normalProperty = createProperty("normalProperty", "normalValue");
+        IEntityPropertyAdaptor xmlProperty =
+                createXmlProperty("xmlProperty", "<root>hello world</root>", XSLT);
+
+        normalPropertyCalculator.setEntity(createEntity(entityCode,
+                Arrays.asList(new IEntityPropertyAdaptor[]
+                    { normalProperty, xmlProperty })));
+        assertEquals("normalValue", normalPropertyCalculator.evalAsString());
+
+        xmlPropertyCalculator.setEntity(createEntity(entityCode,
+                Arrays.asList(new IEntityPropertyAdaptor[]
+                    { normalProperty, xmlProperty })));
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello world</b>",
+                xmlPropertyCalculator.evalAsString());
     }
 
     private static IEntityAdaptor createEntity(final String code,
@@ -88,6 +119,12 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
             final String value)
     {
         return new BasicPropertyAdaptor(propertyTypeCode, value);
+    }
+
+    private static IEntityPropertyAdaptor createXmlProperty(final String propertyTypeCode,
+            final String value, final String xmlTransformation)
+    {
+        return new XmlPropertyAdaptor(propertyTypeCode, value, xmlTransformation);
     }
 
 }
