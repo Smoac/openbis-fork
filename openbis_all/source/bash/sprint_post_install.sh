@@ -84,6 +84,7 @@ case "$SERVER" in
 	$PHOSPHONETX)
 	restore_common
 	create_individual_greeting_message
+	$BIN/sprint_post_install_phosphonetx.sh
 	echo PHOSPHONETX:$PHOSPHONETX;
 	;;
 	$LIVERX)
@@ -103,7 +104,7 @@ case "$SERVER" in
 	restore_common
 	create_individual_greeting_message
 	DSU_SERVER_HOME=~openbis/sprint/openBIS-server/jetty/webapps/openbis
-    cp ~openbis/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
+    	cp ~openbis/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
 	;;
 	$SCU)
 	echo SCU:$SCU;
@@ -133,7 +134,7 @@ case "$SERVER" in
 	echo PLASMIDS:$PLASMIDS;
 	restore_common
 	create_individual_greeting_message
-    $BIN/sprint_post_install_plasmids.sh
+    	$BIN/sprint_post_install_plasmids.sh
 	;;
 	*)
 	echo Wrong Server! $SERVER is not in the list of openBIS Servers.;
