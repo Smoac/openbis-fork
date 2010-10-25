@@ -35,15 +35,19 @@ public interface IDynamicPropertyEvaluator
     /**
      * Evaluates dynamic properties of all entities of given <var>clazz</var> using given
      * <i>Hibernate</i> session.
+     * 
+     * @return list of ids of entities with dynamic properties that have been evaluated
      */
-    public <T extends IEntityInformationWithPropertiesHolder> void doEvaluateProperties(
+    public <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz) throws DataAccessException;
 
     /**
      * Evaluates dynamic properties of entities of given <var>clazz</var> with given <var>ids</var>
      * using given <i>Hibernate</i> session.
+     * 
+     * @return list of ids of entities with dynamic properties that have been evaluated
      */
-    public <T extends IEntityInformationWithPropertiesHolder> void doEvaluateProperties(
+    public <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
             throws DataAccessException;
 

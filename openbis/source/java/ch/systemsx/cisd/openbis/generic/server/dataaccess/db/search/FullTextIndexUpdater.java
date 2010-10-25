@@ -169,14 +169,8 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                         switch (operation.getOperationKind())
                         {
                             case REINDEX:
-                                if (operation.getIds() == null)
-                                {
-                                    fullTextIndexer.doFullTextIndex(session, clazz);
-                                } else
-                                {
-                                    fullTextIndexer.doFullTextIndexUpdate(session, clazz,
-                                            operation.getIds());
-                                }
+                                fullTextIndexer.doFullTextIndexUpdate(session, clazz,
+                                        operation.getIds());
                                 break;
                             case REMOVE:
                                 fullTextIndexer.removeFromIndex(session, clazz, operation.getIds());
@@ -193,11 +187,9 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
                         }
                         if (operationLog.isInfoEnabled())
                         {
-                            operationLog.info(operation.getOperationKind()
-                                    + " of "
-                                    + (operation.getIds() == null ? "all" : operation.getIds()
-                                            .size()) + " " + operation.getClassName() + "s took "
-                                    + stopWatch);
+                            operationLog.info(operation.getOperationKind() + " of "
+                                    + operation.getIds().size() + " " + operation.getClassName()
+                                    + "s took " + stopWatch);
                         }
                     }
                     updaterQueue.take();

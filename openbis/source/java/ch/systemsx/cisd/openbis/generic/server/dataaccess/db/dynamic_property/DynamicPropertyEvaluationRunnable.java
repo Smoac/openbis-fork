@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -134,6 +136,7 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                 stopWatch.start();
                 Session session = null;
                 Class<IEntityInformationWithPropertiesHolder> clazz = null;
+                List<Long> modifiedIds = null;
                 try
                 {
                     clazz =
@@ -143,10 +146,13 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
 
                     if (operation.getIds() == null)
                     {
-                        evaluator.doEvaluateProperties(session, clazz);
+                        modifiedIds = evaluator.doEvaluateProperties(session, clazz);
                     } else
                     {
-                        evaluator.doEvaluateProperties(session, clazz, operation.getIds());
+                        // new collection is passed because it can be modified inside
+                        modifiedIds =
+                                evaluator.doEvaluateProperties(session, clazz, new ArrayList<Long>(
+                                        operation.getIds()));
                     }
                     stopWatch.stop();
                 } catch (RuntimeException e)
@@ -161,14 +167,19 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                     if (operationLog.isInfoEnabled())
                     {
                         operationLog.info("Update of "
-                                + (operation.getIds() == null ? "" : operation.getIds().size()
-                                        + " ") + operation.getClassName() + "s took " + stopWatch);
+                                + (modifiedIds == null ? "" : modifiedIds.size() + " ")
+                                + operation.getClassName() + "s took " + stopWatch);
                     }
                     if (clazz != null)
                     {
-                        IndexUpdateOperation indexUpdateOperation =
-                                IndexUpdateOperation.reindex(clazz, operation.getIds());
-                        fullTextIndexUpdateScheduler.scheduleUpdate(indexUpdateOperation);
+                        List<Long> ids =
+                                operation.getIds() == null ? modifiedIds : operation.getIds();
+                        if (ids.size() > 0)
+                        {
+                            IndexUpdateOperation indexUpdateOperation =
+                                    IndexUpdateOperation.reindex(clazz, ids);
+                            fullTextIndexUpdateScheduler.scheduleUpdate(indexUpdateOperation);
+                        }
                     }
                 }
                 evaluatorQueue.take();

@@ -82,8 +82,6 @@ public class IndexUpdateOperation implements Serializable
     @Override
     public String toString()
     {
-        return operationKind + " " + className + ": "
-                + (ids == null ? "all" : CollectionUtils.abbreviate(ids, 10));
+        return operationKind + " " + className + ": " + CollectionUtils.abbreviate(ids, 10);
     }
-
 }

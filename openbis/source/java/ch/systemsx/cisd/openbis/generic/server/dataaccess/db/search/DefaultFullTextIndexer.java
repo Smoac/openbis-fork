@@ -101,13 +101,13 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                         listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
                 indexEntities(fullTextSession, results, clazz);
                 index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been indexed...", index, maxIndex,
-                        clazz.getSimpleName()));
+                operationLog.info(String.format("%d/%d %ss have been indexed...", index + 1,
+                        maxIndex + 1, clazz.getSimpleName()));
             }
             fullTextSession.getSearchFactory().optimize(clazz);
             transaction.commit();
             operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
-                    clazz.getSimpleName(), index));
+                    clazz.getSimpleName(), index + 1));
         } catch (Exception e)
         {
             operationLog.error(e.getMessage());

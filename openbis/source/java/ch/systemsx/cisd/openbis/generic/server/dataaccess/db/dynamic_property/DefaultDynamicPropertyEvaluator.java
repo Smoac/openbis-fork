@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -85,10 +86,10 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     // IDynamicPropertyEvaluator
     //
 
-    public final <T extends IEntityInformationWithPropertiesHolder> void doEvaluateProperties(
+    public final <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz) throws DataAccessException
     {
-        operationLog.info(String.format("Evaluating dynamic properties for '%s'...",
+        operationLog.info(String.format("Evaluating dynamic properties for all %ss...",
                 clazz.getSimpleName()));
 
         Transaction transaction = null;
@@ -106,10 +107,10 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                     clazz.getSimpleName()));
             final int maxIndex = idsSize - 1;
             // need to increment last id because we use 'lt' condition
-            if (maxIndex > -1)
-            {
-                ids.set(maxIndex, ids.get(maxIndex) + 1);
-            }
+                if (maxIndex > -1)
+        {
+                     ids.set(maxIndex, ids.get(maxIndex) + 1);
+       }
             while (index < maxIndex)
             {
                 final int nextIndex = getNextIndex(index, maxIndex);
@@ -126,6 +127,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             operationLog.info(String.format(
                     "Evaluation of dynamic properties for '%s' is complete. "
                             + "%d entities have been updated.", clazz.getSimpleName(), index));
+            return ids;
         } catch (Exception e)
         {
             operationLog.error(e.getMessage());
@@ -134,39 +136,44 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 transaction.rollback();
             }
         }
+        return new ArrayList<Long>();
     }
 
-    public <T extends IEntityInformationWithPropertiesHolder> void doEvaluateProperties(
+    public <T extends IEntityInformationWithPropertiesHolder> List<Long> doEvaluateProperties(
             final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
             throws DataAccessException
     {
-        operationLog.info(String.format("Evaluating dynamic properties for %s %ss...", ids.size(),
+        operationLog.info(String.format("Evaluating dynamic properties for %ss...",
                 clazz.getSimpleName()));
 
         Transaction transaction = null;
         try
         {
             transaction = hibernateSession.beginTransaction();
-            retainDynamicIds(hibernateSession, clazz, ids);
+            List<Long> dynamicIds = new ArrayList<Long>(ids);
+            retainDynamicIds(hibernateSession, clazz, dynamicIds);
+            operationLog.info(String.format("... got %d '%s' ids...", dynamicIds.size(),
+                    clazz.getSimpleName()));
             // we index entities in batches loading them in groups by id
-            final int maxIndex = ids.size();
+            final int maxIndex = dynamicIds.size();
             int index = 0;
 
             while (index < maxIndex)
             {
                 final int nextIndex = getNextIndex(index, maxIndex);
-                List<Long> subList = ids.subList(index, nextIndex);
+                List<Long> subList = dynamicIds.subList(index, nextIndex);
                 final List<T> results =
                         listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
                 evaluateProperties(hibernateSession, results, clazz);
                 index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
+                operationLog.info(String.format("%d/%d %ss have been updated...", index + 1, maxIndex + 1,
                         clazz.getSimpleName()));
             }
             transaction.commit();
             operationLog.info(String.format(
                     "Evaluation of dynamic properties for '%s' is complete. "
-                            + "%d entities have been updated.", clazz.getSimpleName(), index));
+                            + "%d entities have been updated.", clazz.getSimpleName(), index + 1));
+            return dynamicIds;
         } catch (Exception e)
         {
             operationLog.error(e.getMessage());
@@ -175,6 +182,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 transaction.rollback();
             }
         }
+        return new ArrayList<Long>();
     }
 
     private int getNextIndex(int index, int maxIndex)
@@ -295,14 +303,14 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             EntityKind entityKind) throws DataAccessException
     {
         final String query =
-                String.format(
-                        "SELECT pv.entity.id FROM %s pa join pa.propertyValues pv WHERE pa.dynamic = true",
-                        entityKind.getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+                String.format("SELECT DISTINCT pv.entity.id FROM %s pa join pa.propertyValues pv "
+                        + "WHERE pa.dynamic = true", entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
         final List<Long> list = list(hibernateSession.createQuery(query));
 
-        if (operationLog.isInfoEnabled())
+        if (operationLog.isDebugEnabled())
         {
-            operationLog.info(String.format(
+            operationLog.debug(String.format(
                     "LIST: found %s ids of entities of class '%s' assigned to dynamic property.",
                     list.size(), entityKind.getEntityTypePropertyTypeAssignmentClass()
                             .getSimpleName()));
