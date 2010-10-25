@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 
@@ -29,7 +29,7 @@ public class CheckGroupTable extends CheckTableCommand
 {
     public CheckGroupTable()
     {
-        super(GroupGrid.GRID_ID);
+        super(SpaceGrid.GRID_ID);
     }
 
 }

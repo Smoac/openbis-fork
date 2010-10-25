@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
@@ -203,14 +203,14 @@ public final class ComponentProvider
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = GroupGrid.create(viewContext);
+                    IDisposableComponent component = SpaceGrid.create(viewContext);
                     return createTab(getTabTitle(), component);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return GroupGrid.BROWSER_ID;
+                    return SpaceGrid.BROWSER_ID;
                 }
 
                 @Override

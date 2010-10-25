@@ -118,7 +118,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all groups.
      */
-    public ResultSet<Space> listGroups(DefaultResultSetConfig<String, Space> criteria)
+    public TypedTableResultSet<Space> listGroups(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
             throws UserFailureException;
 
     /**
@@ -136,7 +136,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for groups.
      */
-    public String prepareExportGroups(final TableExportCriteria<Space> criteria)
+    public String prepareExportGroups(final TableExportCriteria<TableModelRowWithObject<Space>> criteria)
             throws UserFailureException;
 
     /**

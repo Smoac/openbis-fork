@@ -109,8 +109,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void keepSessionAlive(final AsyncCallback<Boolean> asyncCallback);
 
     /** @see ICommonClientService#listGroups(DefaultResultSetConfig) */
-    public void listGroups(DefaultResultSetConfig<String, Space> criteria,
-            final AsyncCallback<ResultSet<Space>> asyncCallback);
+    public void listGroups(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria,
+            final AsyncCallback<TypedTableResultSet<Space>> asyncCallback);
 
     /** @see ICommonClientService#listScripts(DefaultResultSetConfig) */
     public void listScripts(DefaultResultSetConfig<String, Script> criteria,
@@ -121,7 +121,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */
-    public void prepareExportGroups(TableExportCriteria<Space> exportCriteria,
+    public void prepareExportGroups(TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerGroup(String, String) */

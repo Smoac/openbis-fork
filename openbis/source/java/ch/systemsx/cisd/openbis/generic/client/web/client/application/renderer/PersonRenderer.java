@@ -16,14 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A <i>static</i> class to render {@link Person}.
@@ -40,6 +47,25 @@ public final class PersonRenderer
     private static final char LOGIN_END = ']';
 
     private static final char LOGIN_START = '[';
+    
+    /**
+     * Registrator renderer. Works only with {@link TableModelRowWithObject} wrapping a
+     * subclass of {@link AbstractRegistrationHolder}.
+     */
+    public static final GridCellRenderer<BaseEntityModel<?>> REGISTRATOR_RENDERER =
+            new GridCellRenderer<BaseEntityModel<?>>()
+                {
+                    @SuppressWarnings("unchecked")
+                    public Object render(BaseEntityModel<?> model, String property,
+                            ColumnData config, int rowIndex, int colIndex,
+                            ListStore<BaseEntityModel<?>> store, Grid<BaseEntityModel<?>> grid)
+                    {
+                        Person registrator =
+                                ((TableModelRowWithObject<AbstractRegistrationHolder>) model
+                                        .getBaseObject()).getObjectOrNull().getRegistrator();
+                        return PersonRenderer.createPersonAnchor(registrator);
+                    }
+                };
 
     private PersonRenderer()
     {

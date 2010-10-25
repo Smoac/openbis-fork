@@ -32,7 +32,6 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermGr
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -85,7 +84,7 @@ public class VocabularyTermsProvider extends AbstractCommonTableModelProvider<Vo
             builder.column(DESCRIPTION).addString(term.getDescription());
             builder.column(ORDINAL).addInteger(term.getOrdinal());
             builder.column(URL).addString(term.getUrl());
-            builder.column(REGISTRATOR).addString(SimplePersonRenderer.createPersonName(term.getRegistrator()).toString());
+            builder.column(REGISTRATOR).addPerson(term.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(term.getRegistrationDate());
             builder.column(TERM_TOTAL_USAGE).addInteger((long) termWithStats.getTotalUsageCounter());
             builder.column(TERM_FOR_DATA_SET_USAGE).addInteger(termWithStats.getUsageCounter(EntityKind.DATA_SET));

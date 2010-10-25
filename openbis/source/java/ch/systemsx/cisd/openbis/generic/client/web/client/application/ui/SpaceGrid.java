@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -32,11 +33,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -45,23 +44,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SpaceGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * Grid displaying groups.
+ * Grid displaying spaces.
  * 
  * @author Piotr Buczek
  */
-public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
+public class SpaceGrid extends TypedTableGrid<Space>
 {
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "group-browser";
+    public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "space-browser";
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
@@ -76,14 +76,14 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final GroupGrid grid = new GroupGrid(viewContext);
+        final SpaceGrid grid = new SpaceGrid(viewContext);
         grid.extendBottomToolbar();
         return grid.asDisposableWithoutToolbar();
     }
 
-    private GroupGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private SpaceGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.GROUPS_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.SPACES_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
     }
 
@@ -108,12 +108,12 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
 
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<Space>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Space>>>()
                             {
-                                public void invoke(BaseEntityModel<Space> selectedItem,
+                                public void invoke(BaseEntityModel<TableModelRowWithObject<Space>> selectedItem,
                                         boolean keyPressed)
                                 {
-                                    Space space = selectedItem.getBaseObject();
+                                    Space space = selectedItem.getBaseObject().getObjectOrNull();
                                     createEditDialog(space).show();
                                 }
                             });
@@ -125,7 +125,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<Space> groups,
+                                protected Dialog createDialog(List<TableModelRowWithObject<Space>> groups,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new GroupListDeletionConfirmationDialog(viewContext,
@@ -168,47 +168,36 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
     }
 
     @Override
-    protected IColumnDefinitionKind<Space>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return GroupColDefKind.values();
+        return columnID.toLowerCase();
+    }
+    
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Space>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<Space>> definitions =
+                super.createColumnsDefinition();
+        definitions.setGridCellRendererFor(SpaceGridColumnIDs.REGISTRATOR, PersonRenderer.REGISTRATOR_RENDERER);
+        return definitions;
     }
 
     @Override
-    protected ColumnDefsAndConfigs<Space> createColumnsDefinition()
-    {
-        ColumnDefsAndConfigs<Space> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(GroupColDefKind.DESCRIPTION.id(),
-                createMultilineStringCellRenderer());
-        return schema;
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, Space> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Space>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Space>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Space>> callback)
     {
         viewContext.getService().listGroups(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Space> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportGroups(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<Space>> getInitialFilters()
-    {
-        return asColumnFilters(new GroupColDefKind[]
-            { GroupColDefKind.CODE });
-    }
-
-    @Override
-    protected void showEntityViewer(final Space space, boolean editMode, boolean inBackground)
-    {
-        assert false : "not implemented";
-    }
-
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
@@ -217,7 +206,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
     }
 
     private static final class GroupListDeletionConfirmationDialog extends
-            AbstractDataListDeletionConfirmationDialog<Space>
+            AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<Space>>
     {
 
         private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -225,7 +214,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
         private final AbstractAsyncCallback<Void> callback;
 
         public GroupListDeletionConfirmationDialog(
-                IViewContext<ICommonClientServiceAsync> viewContext, List<Space> data,
+                IViewContext<ICommonClientServiceAsync> viewContext, List<TableModelRowWithObject<Space>> data,
                 AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data);
@@ -236,7 +225,14 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Space>
         @Override
         protected void executeConfirmedAction()
         {
-            viewContext.getCommonService().deleteGroups(TechId.createList(data), reason.getValue(),
+            
+            List<TableModelRowWithObject<Space>> d = data;
+            List<TechId> list = new ArrayList<TechId>();
+            for (TableModelRowWithObject<Space> tableModelRowWithObject : d)
+            {
+                list.add(new  TechId(tableModelRowWithObject.getObjectOrNull().getId()));
+            }
+            viewContext.getCommonService().deleteGroups(list, reason.getValue(),
                     callback);
         }
 

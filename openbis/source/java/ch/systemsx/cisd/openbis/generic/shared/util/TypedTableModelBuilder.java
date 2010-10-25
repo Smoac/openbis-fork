@@ -32,12 +32,14 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -235,6 +237,11 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         private void setDataType(DataTypeCode dataType)
         {
             header.setDataType(DataTypeUtils.getCompatibleDataType(header.getDataType(), dataType));
+        }
+
+        public void addPerson(Person personOrNull)
+        {
+            addString(SimplePersonRenderer.createPersonName(personOrNull).toString());
         }
     }
     

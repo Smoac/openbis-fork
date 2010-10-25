@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabularyTermsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
@@ -475,7 +476,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportGroups(TableExportCriteria<Space> criteria)
+    public String prepareExportGroups(TableExportCriteria<TableModelRowWithObject<Space>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -611,15 +612,12 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<Space> listGroups(DefaultResultSetConfig<String, Space> criteria)
+    public TypedTableResultSet<Space> listGroups(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Space>()
-            {
-                public List<Space> getOriginalData() throws UserFailureException
-                {
-                    return listGroups();
-                }
-            });
+        SpacesProvider spacesProvider = new SpacesProvider(commonServer, getSessionToken());
+        DataProviderAdapter<Space> dataProvider = new DataProviderAdapter<Space>(spacesProvider);
+        ResultSet<TableModelRowWithObject<Space>> resultSet = listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<Space>(resultSet);
     }
 
     public ResultSet<Script> listScripts(DefaultResultSetConfig<String, Script> criteria)
@@ -641,21 +639,6 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final List<Script> scripts = commonServer.listScripts(sessionToken);
             return scripts;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
-    private List<Space> listGroups()
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
-            final List<Space> groups = commonServer.listSpaces(sessionToken, identifier);
-            return groups;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

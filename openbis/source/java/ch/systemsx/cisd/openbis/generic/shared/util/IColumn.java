@@ -20,6 +20,7 @@ import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
@@ -68,4 +69,9 @@ public interface IColumn
      * Adds a date value to the column.
      */
     public void addDate(Date valueOrNull);
+    
+    /**
+     * Adds a person to the column as a string.
+     */
+    public void addPerson(Person personOrNull);
 }

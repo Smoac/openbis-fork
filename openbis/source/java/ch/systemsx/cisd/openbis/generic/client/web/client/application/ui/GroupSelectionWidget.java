@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -30,12 +31,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Mode
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * {@link ComboBox} containing list of groups loaded from the server.
@@ -114,7 +116,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         return space;
     }
 
-    private final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Space>>
+    private final class ListGroupsCallback extends AbstractAsyncCallback<TypedTableResultSet<Space>>
     {
         ListGroupsCallback(final IViewContext<?> viewContext)
         {
@@ -122,7 +124,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
         }
 
         @Override
-        protected final void process(final ResultSet<Space> result)
+        protected final void process(final TypedTableResultSet<Space> result)
         {
             final ListStore<GroupModel> groupStore = getStore();
             groupStore.removeAll();
@@ -134,7 +136,13 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
             {
                 groupStore.add(new GroupModel(createAllSpaces()));
             }
-            groupStore.add(convertItems(result.getList().extractOriginalObjects()));
+            List<TableModelRowWithObject<Space>> tableRows = result.getResultSet().getList().extractOriginalObjects();
+            List<Space> spaces = new ArrayList<Space>();
+            for (TableModelRowWithObject<Space> tableModelRowWithObject : tableRows)
+            {
+                spaces.add(tableModelRowWithObject.getObjectOrNull());
+            }
+            groupStore.add(convertItems(spaces));
             dataLoaded = true;
             if (groupStore.getCount() > 0)
             {
@@ -206,7 +214,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Space>
     @Override
     protected void loadData(AbstractAsyncCallback<List<Space>> callback)
     {
-        DefaultResultSetConfig<String, Space> config = DefaultResultSetConfig.createFetchAll();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Space>> config = DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listGroups(config, new ListGroupsCallback(viewContext));
         callback.ignore();
     }
