@@ -206,14 +206,6 @@ public class TableDataProviderFactory
     public static <T> ITableDataProvider createDataProvider(final GridRowModels<T> rows,
             final List<IColumnDefinition<T>> availableColumns)
     {
-        // final List<TableModelColumnHeader> columnHeaders = rows.getColumnHeaders();
-        // if (columnHeaders.isEmpty())
-        {
-            return new TableDataProviderForGridRowModles<T>(availableColumns, rows);
-        }
-        // TODO, 2010-10-14, Franz-Josef Elmer: The ITableDataProvider implementation based on
-        // TableModel can not be used be cause it doesn't contains calculated columns
-        // which would lead to error in case of custom filters based on calculated columns.
-        // return new TableDataProviderForTableModel<T>(columnHeaders, rows);
+        return new TableDataProviderForGridRowModles<T>(availableColumns, rows);
     }
 }
