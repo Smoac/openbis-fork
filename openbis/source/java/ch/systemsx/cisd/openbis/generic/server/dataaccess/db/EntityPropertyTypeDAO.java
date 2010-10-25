@@ -295,10 +295,12 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                     entityKind.getLabel(), property));
         }
 
-        scheduleFullTextIndexUpdate(entityIds);
         if (property.getEntityTypePropertyType().isDynamic())
         {
             scheduleDynamicPropertiesEvaluation(entityIds);
+        } else
+        {
+            scheduleFullTextIndexUpdate(entityIds);
         }
     }
 

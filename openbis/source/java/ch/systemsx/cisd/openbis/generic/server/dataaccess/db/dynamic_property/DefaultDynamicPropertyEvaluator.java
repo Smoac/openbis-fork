@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
@@ -37,7 +40,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.ca
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * A default {@link IDynamicPropertyEvaluator}.
@@ -49,9 +57,21 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DefaultDynamicPropertyEvaluator.class);
 
-    private static IPropertyValueValidator validator = new PropertyValidator();
-
     private static String ID_PROPERTY_NAME = "id";
+
+    private final static Map<Class<? extends IEntityInformationWithPropertiesHolder>, EntityKind> entityKindsByClass;
+
+    static
+    {
+        entityKindsByClass =
+                new HashedMap<Class<? extends IEntityInformationWithPropertiesHolder>, EntityKind>();
+        entityKindsByClass.put(SamplePE.class, EntityKind.SAMPLE);
+        entityKindsByClass.put(ExperimentPE.class, EntityKind.EXPERIMENT);
+        entityKindsByClass.put(MaterialPE.class, EntityKind.MATERIAL);
+        entityKindsByClass.put(ExternalDataPE.class, EntityKind.DATA_SET);
+    }
+
+    private static IPropertyValueValidator validator = new PropertyValidator();
 
     private final int batchSize;
 
@@ -62,7 +82,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     }
 
     //
-    // IFullTextIndexer
+    // IDynamicPropertyEvaluator
     //
 
     public final <T extends IEntityInformationWithPropertiesHolder> void doEvaluateProperties(
@@ -80,6 +100,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             // id: [ ids[index], ids[min(index+batchSize, maxIndex))] )
             int index = 0;
             final List<Long> ids = getAllIds(hibernateSession, clazz);
+            retainDynamicIds(hibernateSession, clazz, ids);
             final int idsSize = ids.size();
             operationLog.info(String.format("... got %d '%s' ids...", idsSize,
                     clazz.getSimpleName()));
@@ -126,6 +147,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         try
         {
             transaction = hibernateSession.beginTransaction();
+            retainDynamicIds(hibernateSession, clazz, ids);
             // we index entities in batches loading them in groups by id
             final int maxIndex = ids.size();
             int index = 0;
@@ -210,6 +232,13 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         return criteria.list();
     }
 
+    @SuppressWarnings("unchecked")
+    private static final <T> List<T> list(final Query query)
+    {
+        return query.list();
+    }
+
+    /** Evaluates properties of specified entity using given session. */
     private static final <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(
             final Session session, T entity)
     {
@@ -242,4 +271,43 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             }
         }
     }
+
+    /**
+     * Retains only those elements in the <code>ids</code> list that are ids of entities of given
+     * class that have a dynamic property.
+     */
+    private static <T extends IEntityInformationWithPropertiesHolder> void retainDynamicIds(
+            final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
+    {
+        final EntityKind entityKind = getEntityKind(clazz);
+        final List<Long> dynamicEntityIds =
+                listEntityIdsWithDynamicProperty(hibernateSession, entityKind);
+        ids.retainAll(dynamicEntityIds);
+    }
+
+    private final static <T extends IEntityInformationWithPropertiesHolder> EntityKind getEntityKind(
+            Class<T> clazz)
+    {
+        return entityKindsByClass.get(clazz);
+    }
+
+    private static List<Long> listEntityIdsWithDynamicProperty(Session hibernateSession,
+            EntityKind entityKind) throws DataAccessException
+    {
+        final String query =
+                String.format(
+                        "SELECT pv.entity.id FROM %s pa join pa.propertyValues pv WHERE pa.dynamic = true",
+                        entityKind.getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+        final List<Long> list = list(hibernateSession.createQuery(query));
+
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format(
+                    "LIST: found %s ids of entities of class '%s' assigned to dynamic property.",
+                    list.size(), entityKind.getEntityTypePropertyTypeAssignmentClass()
+                            .getSimpleName()));
+        }
+        return list;
+    }
+
 }
