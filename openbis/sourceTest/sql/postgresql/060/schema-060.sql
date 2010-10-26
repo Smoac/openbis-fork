@@ -16,7 +16,7 @@ CREATE DOMAIN column_label AS character varying(128);
 CREATE DOMAIN data_store_service_kind AS character varying(40)
 	CONSTRAINT data_store_service_kind_check CHECK (((VALUE)::text = ANY (ARRAY[('PROCESSING'::character varying)::text, ('QUERIES'::character varying)::text])));
 CREATE DOMAIN data_store_service_reporting_plugin_type AS character varying(40)
-	CONSTRAINT data_store_service_reporting_plugin_type_check CHECK (((VALUE)::text = ANY ((ARRAY['TABLE_MODEL'::character varying, 'DSS_LINK'::character varying])::text[])));
+	CONSTRAINT data_store_service_reporting_plugin_type_check CHECK (((VALUE)::text = ANY (ARRAY[('TABLE_MODEL'::character varying)::text, ('DSS_LINK'::character varying)::text])));
 CREATE DOMAIN description_2000 AS character varying(2000);
 CREATE DOMAIN event_type AS character varying(40)
 	CONSTRAINT event_type_check CHECK (((VALUE)::text = ANY (ARRAY[('DELETION'::character varying)::text, ('INVALIDATION'::character varying)::text, ('MOVEMENT'::character varying)::text])));
@@ -936,7 +936,7 @@ CREATE SEQUENCE sample_property_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('sample_property_id_seq', 39, true);
+SELECT pg_catalog.setval('sample_property_id_seq', 50, true);
 CREATE SEQUENCE sample_relationship_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -1022,5 +1022,5 @@ CREATE SEQUENCE stpt_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('stpt_id_seq', 12, true);
+SELECT pg_catalog.setval('stpt_id_seq', 13, true);
 
