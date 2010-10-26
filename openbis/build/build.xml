@@ -133,6 +133,35 @@
       <param name="variant" value="" />
     </antcall>
   </target>
+	
+  <!-- 
+      Build the checksum file.
+  -->
+  <target name="compute-checksum" depends="compute-separate-checksums">
+  	<concat-checksums />
+  </target>
+	
+  <!-- 
+      Compute checksum files, one per configuration file, and place them
+      in the ${dist} dir. 
+      
+      The pattern shown in the file should be:
+      	hash[two spaces]path_in_distribution_to_file
+      e.g.,
+        {0}  [folder of file]{1}
+  -->
+	<target name="compute-separate-checksums">
+		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/classes/{1}">
+			<fileset dir="${sources}">
+				<include name="service.properties" />
+				<include name="applicationContext.xml" />
+				<include name="dbConfigurationContext.xml" />
+				<include name="genericApplicationContext.xml" />
+				<include name="genericCommonContext.xml" />
+				<include name="hibernateContext.xml" />
+			</fileset>
+		</checksum>
+	</target>
 
   <target name="admin-console-dist" depends="jar" 
   	description="Makes a distribution file for the admin console.">
@@ -188,7 +217,7 @@
   </target>
 
   <target name="make-dist" description="Makes a distribution file." 
-  		depends="check-dictionary-syntax, clean, war, admin-console-dist, query-api-dist">
+  		depends="check-dictionary-syntax, clean, war, admin-console-dist, query-api-dist, compute-checksum">
     <copy file="${lib}/jetty7/jetty.zip" todir="${server.dist}" />
     <loadfile property="jetty.version" srcFile="${lib}/jetty7/version.txt">
       <filterchain>
@@ -199,6 +228,7 @@
     <copy file="${original.openbis.server.dist}/jetty.xml" todir="${server.dist}" />
     <move file="${admin.dist.file}" todir="${server.dist}" />
     <move file="${query.api.dist.file}" todir="${server.dist}" />
+  	<move file="${checksum.file}" todir="${server.dist}" />
     <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
     <copy file="${original.server.dist}/web-client.properties" todir="${server.dist}" />   
     <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />

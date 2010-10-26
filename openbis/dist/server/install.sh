@@ -30,6 +30,7 @@ fi
 
 properties_file="${installation_folder}/service.properties"
 logconf_file="${installation_folder}/log.xml"
+checksum_file="${installation_folder}/configuration.MD5"
 startup_properties_file="${installation_folder}/openbis.conf"
 # Check whether given properties files exist and are regular file.
 if [ "$1" ]; then
@@ -88,6 +89,8 @@ echo "Replace service.properties by following file (if it exists): " $properties
 test -f "$properties_file" && cp -p "$properties_file" "$war_classes/"
 echo "Replace log.xml by following file (if it exists): " $logconf_file
 test -f "$logconf_file" && cp -p "$logconf_file" "$war_classes/etc/"
+echo "Make the configuration checksum file available : " $checksum_file
+test -f "$checksum_file" && cp -p "$checksum_file" "$server_folder/${rel_jetty_folder}"
 
 # Create symlinks for easier access.
 cd "$server_folder"
@@ -97,6 +100,7 @@ ln -s $war_classes/service.properties .
 ln -s $war_classes/etc/log.xml .
 ln -s ../bin/jetty.properties .
 cd ../..
+
 
 JETTY_BIN_DIR="$jetty_folder"/bin
 cp -p "$installation_folder"/startup.sh "$JETTY_BIN_DIR"

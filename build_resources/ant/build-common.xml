@@ -27,6 +27,10 @@
     <property name="output.test" value="${targets}/test-output" />
     <property name="build.info.filename" value="BUILD-${ant.project.name}.INFO" />
     <property name="build.info.file" value="${classes}/${build.info.filename}" />
+	
+		<!-- The name of the file containing checksums for all properties files -->
+		<property name="checksum.file.name" value="configuration.MD5" />
+		<property name="checksum.file" value="${dist}/${checksum.file.name}" />
 
     <!--
       // Dummy target used by cruisecontrol
@@ -129,5 +133,22 @@
             <arg value="${ecp}" />
         </exec>
     </target>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: concat-checksums   
+          Take checksum files located in the ${dist} directory, concatenate
+          them into one file and delete the individual files.     
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="concat-checksums">
+        <sequential>
+        	<concat destfile="${checksum.file}">
+        		<!-- If a configuration.MD5 file is already in the directory, ignore it -->
+        		<fileset dir="${dist}" includes="*.MD5" excludes="${checksum.file.name}" />
+        	</concat>
+        	<delete>
+      			<fileset dir="${dist}" includes="*.MD5" excludes="${checksum.file.name}" />
+      		</delete>
+        </sequential>
+    </macrodef>
 
 </project>
