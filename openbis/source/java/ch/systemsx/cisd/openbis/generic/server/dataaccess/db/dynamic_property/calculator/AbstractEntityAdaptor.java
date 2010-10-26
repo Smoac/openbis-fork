@@ -77,7 +77,7 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
 
     public void addProperty(IEntityPropertyAdaptor property)
     {
-        propertiesByCode.put(property.propertyTypeCode(), property);
+        propertiesByCode.put(property.propertyTypeCode().toUpperCase(), property);
     }
 
     public String code()
