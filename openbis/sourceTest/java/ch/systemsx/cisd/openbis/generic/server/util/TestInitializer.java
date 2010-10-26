@@ -32,11 +32,11 @@ public class TestInitializer
         LogInitializer.init();
         System.setProperty("database.create-from-scratch", "true");
         System.setProperty("database.kind", "test");
-        System.setProperty("script-folder", "sourceTest");
+        System.setProperty("script-folder", "../openbis/sourceTest");
         System.setProperty("hibernate.search.index-mode", "NO_INDEX");
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
         System.setProperty("hibernate.search.worker.execution", "sync");
-        System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
+        System.setProperty("mass-upload-folder", "../openbis/sourceTest/sql/postgresql");
     }
 
 }

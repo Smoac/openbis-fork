@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,6 +39,8 @@ import net.lemnik.eodsql.DataIterator;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
@@ -205,6 +208,105 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             parents.add(relationship.data_id_parent);
         }
         return map;
+    }
+
+    public Map<Long, Set<Long>> listChildrenIds(Collection<Long> dataSetIDs)
+    {
+        LongOpenHashSet ids = new LongOpenHashSet();
+        for (Long id : dataSetIDs)
+        {
+            ids.add(id);
+        }
+        DataIterator<DatasetRelationRecord> relationships = query.listChildrenDataSetIds(ids);
+        Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
+        for (DatasetRelationRecord relationship : relationships)
+        {
+            Set<Long> children = map.get(relationship.data_id_parent);
+            if (children == null)
+            {
+                children = new LinkedHashSet<Long>();
+                map.put(relationship.data_id_parent, children);
+            }
+            children.add(relationship.data_id_child);
+        }
+        return map;
+    }
+    
+    public Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples)
+    {
+        TableMap<Long, Sample> samplesByID =
+                new TableMap<Long, Sample>(samples, new IKeyExtractor<Long, Sample>()
+                    {
+                        public Long getKey(Sample e)
+                        {
+                            return e.getId();
+                        }
+                    });
+        Map<Sample, List<ExternalData>> result = new HashMap<Sample, List<ExternalData>>();
+        Set<Long> sampleIDs = new HashSet<Long>();
+        for (Sample sample : samples)
+        {
+            result.put(sample, new ArrayList<ExternalData>());
+            sampleIDs.add(sample.getId());
+        }
+        List<ExternalData> rootDataSets = listBySampleIds(sampleIDs);
+        addChildren(rootDataSets);
+        for (ExternalData dataSet : rootDataSets)
+        {
+            Sample sample = samplesByID.tryGet(dataSet.getSample().getId());
+            assert sample != null;
+            result.get(sample).add(dataSet);
+        }
+        return result;
+    }
+
+    private void addChildren(List<ExternalData> dataSets)
+    {
+        Map<Long, ExternalData> dataSetsByID = new HashMap<Long, ExternalData>();
+        for (ExternalData dataSet : dataSets)
+        {
+            dataSetsByID.put(dataSet.getId(), dataSet);
+        }
+        Map<Long, Set<Long>> childrenIDs = listChildrenIds(dataSetsByID.keySet());
+        Set<Entry<Long, Set<Long>>> entrySet = childrenIDs.entrySet();
+        Map<Long, Set<Long>> child2ParentsMap = new HashMap<Long, Set<Long>>();
+        Set<Long> childIDs = new HashSet<Long>();
+        for (Entry<Long, Set<Long>> entry : entrySet)
+        {
+            Set<Long> value = entry.getValue();
+            Long parentID = entry.getKey();
+            for (Long childId : value)
+            {
+                childIDs.add(childId);
+                Set<Long> parents = child2ParentsMap.get(childId);
+                if (parents == null)
+                {
+                    parents = new HashSet<Long>(1);
+                    child2ParentsMap.put(childId, parents);
+                }
+                parents.add(parentID);
+            }
+        }
+        if (childIDs.isEmpty() == false)
+        {
+            List<ExternalData> children = listByDatasetIds(childIDs);
+            for (ExternalData child : children)
+            {
+                Set<Long> parentIDs = child2ParentsMap.get(child.getId());
+                for (Long parentID : parentIDs)
+                {
+                    ExternalData dataSet = dataSetsByID.get(parentID);
+                    List<ExternalData> childList = dataSet.getChildren();
+                    if (childList == null)
+                    {
+                        childList = new ArrayList<ExternalData>(1);
+                        dataSet.setChildren(childList);
+                    }
+                    childList.add(child);
+                }
+            }
+            addChildren(children);
+        }
     }
 
     public List<ExternalData> listByChildTechId(TechId childDatasetId)

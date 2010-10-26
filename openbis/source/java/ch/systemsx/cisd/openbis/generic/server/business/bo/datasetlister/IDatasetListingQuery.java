@@ -109,6 +109,10 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids);
 
+    @Select(sql = "select * from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRelationRecord> listChildrenDataSetIds(LongSet ids);
+    
     /**
      * Returns all datasets that are children of any specified dataset id.
      */

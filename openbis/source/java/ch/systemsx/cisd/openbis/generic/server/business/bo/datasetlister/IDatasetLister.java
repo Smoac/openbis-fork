@@ -24,6 +24,7 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
@@ -51,10 +52,22 @@ public interface IDatasetLister
 
     /**
      * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map are
-     * IDs from the argument. A value of the map contains at least one alement.
+     * IDs from the argument. A value of the map contains at least one element.
      */
     Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs);
 
+    /**
+     * Returns a map with all child data set IDs of specified data set IDs. The keys of the map are
+     * IDs from the argument. A value of the map contains at least one element.
+     */
+    Map<Long, Set<Long>> listChildrenIds(Collection<Long> dataSetIDs);
+    
+    /**
+     * Returns a map with all data sets of specified samples. The sample arguments are the
+     * key into the returned map. The returned data sets contains all derived data sets (children,
+     * grand children, etc.).
+     */
+    Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples);
     //
 
     /** @return datasets with given ids */

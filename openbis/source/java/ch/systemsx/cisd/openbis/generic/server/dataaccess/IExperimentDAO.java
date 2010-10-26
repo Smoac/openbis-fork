@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +41,12 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public List<ExperimentPE> listExperimentsWithProperties(final ProjectPE projectOrNull)
             throws DataAccessException;
 
+    /**
+     * Lists experiments with specified ids. Fetches also properties. 
+     */
+    public List<ExperimentPE> listExperimentsWithProperties(final Collection<Long> experimentIDs)
+            throws DataAccessException;
+    
     /**
      * Lists experiments of specified type and specified project. Fetches also properties.
      * 

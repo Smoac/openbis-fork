@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertSame;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +40,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Seconda
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
 /**
  * @author Tomasz Pylak
@@ -90,4 +95,83 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("[2, 5, 6, 7]", list.toString());
     }
 
+    @Test
+    public void testListAllDataSetsFor()
+    {
+        HashSet<String> samplePermIDs =
+                new HashSet<String>(Arrays.asList("200811050946559-983", "200902091219327-1025"));
+        List<SamplePE> samplePEs = daoFactory.getSampleDAO().listByPermID(samplePermIDs);
+        List<Sample> samples = SampleTranslator.translate(samplePEs, "");
+        
+        Map<Sample, List<ExternalData>> dataSets = lister.listAllDataSetsFor(samples);
+        
+        StringBuilder builder = new StringBuilder();
+        for (Sample sample : samples)
+        {
+            builder.append(sample.getCode());
+            appendChildren(builder, dataSets.get(sample), "   ");
+            builder.append('\n');
+        }
+        assertEquals("3VCP1\n   20081105092158673-1 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "     20081105092159188-3 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "     20081105092259000-9 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "       20081105092259900-0 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "       20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "CP-TEST-1\n"
+                + "   20081105092159111-1 (HCS_IMAGE) [ANY_MATERIAL: 1000_C (SIRNA), "
+                + "BACTERIUM: BACTERIUM1 (BACTERIUM), COMMENT: no comment, GENDER: FEMALE]\n"
+                + "     20081105092259000-9 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "       20081105092259900-0 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "       20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
+                + "         20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n",
+                builder.toString());
+        Map<String, ExternalData> dataSetsByCode = new HashMap<String, ExternalData>();
+        for (Sample sample : samples)
+        {
+            List<ExternalData> rootDataSets = dataSets.get(sample);
+            assertSameDataSetsForSameCode(dataSetsByCode, rootDataSets);
+        }
+    }
+
+    private void assertSameDataSetsForSameCode(Map<String, ExternalData> dataSetsByCode,
+            List<ExternalData> dataSets)
+    {
+        if (dataSets == null || dataSets.isEmpty())
+        {
+            return;
+        }
+        for (ExternalData dataSet : dataSets)
+        {
+            ExternalData previousDataSet = dataSetsByCode.put(dataSet.getCode(), dataSet);
+            if (previousDataSet != null)
+            {
+                assertSame("Same data set object expected for " + dataSet.getCode(), previousDataSet,
+                        dataSet);
+            }
+            List<ExternalData> children = dataSet.getChildren();
+            assertSameDataSetsForSameCode(dataSetsByCode, children);
+        }
+    }
+
+    private void appendChildren(StringBuilder builder, List<ExternalData> dataSets,
+            String indentation)
+    {
+        if (dataSets.isEmpty() == false)
+        {
+            for (ExternalData dataSet : dataSets)
+            {
+                builder.append('\n').append(indentation).append(dataSet.getCode()).append(" (");
+                builder.append(dataSet.getDataSetType().getCode()).append(") ");
+                builder.append(getSortedProperties(dataSet));
+                List<ExternalData> children = dataSet.getChildren();
+                if (children != null && children.isEmpty() == false)
+                {
+                    appendChildren(builder, children, indentation + "  ");
+                }
+            }
+        }
+    }
 }

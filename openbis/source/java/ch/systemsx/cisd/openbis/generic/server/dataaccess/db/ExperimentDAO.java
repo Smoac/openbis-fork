@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -85,6 +86,22 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             operationLog.debug(String.format("%d experiments have been found for project '%s'%s.",
                     list.size(), projectOrNull, (experimentTypeOrNull == null) ? ""
                             : " and experiment type '" + experimentTypeOrNull + "'"));
+        }
+        return list;
+    }
+
+    public List<ExperimentPE> listExperimentsWithProperties(Collection<Long> experimentIDs)
+            throws DataAccessException
+    {
+        DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.add(Restrictions.in("id", experimentIDs));
+        criteria.setFetchMode("experimentProperties", FetchMode.JOIN);
+        criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        final List<ExperimentPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d experiments have been found for specified IDs.",
+                    list.size()));
         }
         return list;
     }

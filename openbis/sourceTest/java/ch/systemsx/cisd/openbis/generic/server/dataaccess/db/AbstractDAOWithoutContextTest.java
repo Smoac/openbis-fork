@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -361,5 +364,18 @@ public abstract class AbstractDAOWithoutContextTest extends
         result.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         result.setRegistrator(getSystemPerson());
         return result;
+    }
+
+    protected List<IEntityProperty> getSortedProperties(IEntityPropertiesHolder sample)
+    {
+        List<IEntityProperty> properties = sample.getProperties();
+        Collections.sort(properties, new Comparator<IEntityProperty>()
+            {
+                public int compare(IEntityProperty p1, IEntityProperty p2)
+                {
+                    return p1.getPropertyType().getCode().compareTo(p2.getPropertyType().getCode());
+                }
+            });
+        return properties;
     }
 }
