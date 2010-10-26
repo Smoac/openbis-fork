@@ -45,7 +45,7 @@ public final class CreateGroup extends CheckTableCommand
     public final void execute()
     {
         GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, SpaceGrid.BROWSER_ID
-                + SpaceGrid.GRID_POSTFIX);
+                + MainTabPanel.TAB_SUFFIX);
         GWTTestUtil.clickButtonWithID(SpaceGrid.ADD_BUTTON_ID);
         GWTTestUtil.getTextFieldWithID(AddGroupDialog.CODE_FIELD_ID).setValue(groupCode);
         GWTTestUtil.clickButtonWithID(AddGroupDialog.SAVE_BUTTON_ID);

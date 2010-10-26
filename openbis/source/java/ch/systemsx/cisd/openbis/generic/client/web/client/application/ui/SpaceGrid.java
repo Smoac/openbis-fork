@@ -63,7 +63,7 @@ public class SpaceGrid extends TypedTableGrid<Space>
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "space-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static final String ADD_BUTTON_ID = BROWSER_ID + "_add-button";
 
