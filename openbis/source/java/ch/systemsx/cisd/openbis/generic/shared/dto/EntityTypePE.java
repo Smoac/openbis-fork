@@ -20,6 +20,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -37,13 +38,16 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * Entity is one of: material, sample, experiment
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
 @MappedSuperclass
 public abstract class EntityTypePE extends AbstractTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
+
+    @Transient
+    public abstract EntityKind getEntityKind();
 
     private DatabaseInstancePE databaseInstance;
 

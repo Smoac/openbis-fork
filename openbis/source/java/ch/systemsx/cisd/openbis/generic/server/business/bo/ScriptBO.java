@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -94,7 +95,21 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         loadDataByTechId(TechId.create(updates));
         script.setName(updates.getName());
         script.setDescription(updates.getDescription());
-        script.setScript(updates.getScript());
+        boolean scriptChanged = false;
+        if (script.getScript().equals(updates.getScript()) == false)
+        {
+            scriptChanged = true;
+            script.setScript(updates.getScript());
+        }
         getScriptDAO().createOrUpdate(script);
+        if (scriptChanged)
+        {
+            for (EntityTypePropertyTypePE assignment : script.getPropertyAssignments())
+            {
+                getEntityPropertyTypeDAO(assignment.getEntityType().getEntityKind())
+                        .scheduleDynamicPropertiesEvaluation(assignment);
+            }
+        }
     }
+
 }

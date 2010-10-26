@@ -125,7 +125,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.SCRIPT_ID_COLUMN)
+    @JoinColumn(name = ColumnNames.SCRIPT_ID_COLUMN, updatable = true)
     public ScriptPE getScript()
     {
         return script;

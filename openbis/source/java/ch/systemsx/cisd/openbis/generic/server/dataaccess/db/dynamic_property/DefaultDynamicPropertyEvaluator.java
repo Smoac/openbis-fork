@@ -120,13 +120,13 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                         listEntitiesWithRestrictedId(hibernateSession, clazz, minId, maxId);
                 evaluateProperties(hibernateSession, results, clazz);
                 index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
-                        clazz.getSimpleName()));
+                operationLog.info(String.format("%d/%d %ss have been updated...", index + 1,
+                        maxIndex + 1, clazz.getSimpleName()));
             }
             transaction.commit();
             operationLog.info(String.format(
                     "Evaluation of dynamic properties for '%s' is complete. "
-                            + "%d entities have been updated.", clazz.getSimpleName(), index));
+                            + "%d entities have been updated.", clazz.getSimpleName(), index + 1));
             return ids;
         } catch (Exception e)
         {
@@ -166,13 +166,13 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                         listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
                 evaluateProperties(hibernateSession, results, clazz);
                 index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been updated...", index + 1,
-                        maxIndex + 1, clazz.getSimpleName()));
+                operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
+                        clazz.getSimpleName()));
             }
             transaction.commit();
             operationLog.info(String.format(
                     "Evaluation of dynamic properties for '%s' is complete. "
-                            + "%d entities have been updated.", clazz.getSimpleName(), index + 1));
+                            + "%d entities have been updated.", clazz.getSimpleName(), index));
             return dynamicIds;
         } catch (Exception e)
         {

@@ -39,6 +39,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Persistence Entity representing 'sample type'.
@@ -204,6 +205,13 @@ public final class SampleTypePE extends EntityTypePE
         builder.append("containerHierarchyDepth", getContainerHierarchyDepth());
         builder.append("generatedFromHierarchyDepth", getGeneratedFromHierarchyDepth());
         return builder;
+    }
+
+    @Override
+    @Transient
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.SAMPLE;
     }
 
 }

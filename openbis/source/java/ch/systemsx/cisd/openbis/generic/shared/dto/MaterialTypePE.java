@@ -34,6 +34,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cascade;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Persistence entity representing type of material.
@@ -104,5 +105,12 @@ public final class MaterialTypePE extends EntityTypePE
         }
         child.setEntityTypeInternal(this);
         getMaterialTypePropertyTypesInternal().add(child);
+    }
+
+    @Override
+    @Transient
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.MATERIAL;
     }
 }

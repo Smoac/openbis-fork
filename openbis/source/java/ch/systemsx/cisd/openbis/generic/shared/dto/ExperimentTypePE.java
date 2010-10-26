@@ -34,6 +34,7 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Cascade;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Persistence entity representing type of experiment.
@@ -102,4 +103,10 @@ public final class ExperimentTypePE extends EntityTypePE
         getExperimentTypePropertyTypesInternal().add(child);
     }
 
+    @Override
+    @Transient
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.EXPERIMENT;
+    }
 }

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,14 +28,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
+import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -60,6 +65,22 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     private DatabaseInstancePE databaseInstance;
 
     private String script;
+
+    //
+    // assignments using the script - readonly
+    //
+
+    private List<SampleTypePropertyTypePE> sampleAssignments =
+            new ArrayList<SampleTypePropertyTypePE>();
+
+    private List<ExperimentTypePropertyTypePE> experimentAssignments =
+            new ArrayList<ExperimentTypePropertyTypePE>();
+
+    private List<MaterialTypePropertyTypePE> materialAssignments =
+            new ArrayList<MaterialTypePropertyTypePE>();
+
+    private List<DataSetTypePropertyTypePE> dataSetAssignments =
+            new ArrayList<DataSetTypePropertyTypePE>();
 
     @Column(name = ColumnNames.DESCRIPTION_COLUMN)
     @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
@@ -171,5 +192,69 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
             return 1;
         }
         return thisName.compareTo(thatName);
+    }
+
+    //
+    // assignments using the script - readonly
+    //
+
+    @Transient
+    /** all dynamic property assignments using the script */
+    public List<EntityTypePropertyTypePE> getPropertyAssignments()
+    {
+        List<EntityTypePropertyTypePE> assignments = new ArrayList<EntityTypePropertyTypePE>();
+        assignments.addAll(getDataSetAssignments());
+        assignments.addAll(getExperimentAssignments());
+        assignments.addAll(getMaterialAssignments());
+        assignments.addAll(getSampleAssignments());
+        return new UnmodifiableListDecorator<EntityTypePropertyTypePE>(assignments);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "script")
+    private List<SampleTypePropertyTypePE> getSampleAssignments()
+    {
+        return sampleAssignments;
+    }
+
+    @SuppressWarnings("unused")
+    private void setSampleAssignments(List<SampleTypePropertyTypePE> sampleAssignments)
+    {
+        this.sampleAssignments = sampleAssignments;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "script")
+    private List<ExperimentTypePropertyTypePE> getExperimentAssignments()
+    {
+        return experimentAssignments;
+    }
+
+    @SuppressWarnings("unused")
+    private void setExperimentAssignments(List<ExperimentTypePropertyTypePE> experimentAssignments)
+    {
+        this.experimentAssignments = experimentAssignments;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "script")
+    private List<MaterialTypePropertyTypePE> getMaterialAssignments()
+    {
+        return materialAssignments;
+    }
+
+    @SuppressWarnings("unused")
+    private void setMaterialAssignments(List<MaterialTypePropertyTypePE> materialAssignments)
+    {
+        this.materialAssignments = materialAssignments;
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "script")
+    private List<DataSetTypePropertyTypePE> getDataSetAssignments()
+    {
+        return dataSetAssignments;
+    }
+
+    @SuppressWarnings("unused")
+    private void setDataListAssignments(List<DataSetTypePropertyTypePE> dataSetAssignments)
+    {
+        this.dataSetAssignments = dataSetAssignments;
     }
 }

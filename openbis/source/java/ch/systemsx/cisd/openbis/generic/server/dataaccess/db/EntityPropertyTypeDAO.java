@@ -174,6 +174,17 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return list;
     }
 
+    public void scheduleDynamicPropertiesEvaluation(final EntityTypePropertyTypePE assignment)
+            throws DataAccessException
+    {
+        assert assignment != null : "Unspecified assignment.";
+        if (assignment.isDynamic()) // sanity check
+        {
+            List<Long> entityIds = listEntityIds(assignment);
+            scheduleDynamicPropertiesEvaluation(entityIds);
+        }
+    }
+
     private List<Long> listEntityIds(final EntityTypePropertyTypePE assignment)
             throws DataAccessException
     {

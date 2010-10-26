@@ -226,18 +226,25 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         assignment.setMandatory(assignmentUpdates.isMandatory());
         if (assignmentUpdates.isDynamic() != assignment.isDynamic())
         {
-            throw new UserFailureException(
-                    String.format(
-                            "Changing assignment from '%s' to '%s' is not allowed. Please create a new assignment.",
-                            describeDynamic(assignment.isDynamic()),
-                            describeDynamic(assignmentUpdates.isDynamic())));
+            throw new UserFailureException(String.format(
+                    "Changing assignment from '%s' to '%s' is not allowed. "
+                            + "Please create a new assignment.",
+                    describeDynamic(assignment.isDynamic()),
+                    describeDynamic(assignmentUpdates.isDynamic())));
         }
-        if (assignment.isDynamic())
+        boolean scriptChanged = false;
+        if (assignment.isDynamic()
+                && assignment.getScript().getName().equals(assignmentUpdates.getScriptName()) == false)
         {
+            scriptChanged = true;
             ScriptPE script = getScriptDAO().tryFindByName(assignmentUpdates.getScriptName());
             assignment.setScript(script);
         }
         validateAndSave();
+        if (scriptChanged)
+        {
+            getEntityPropertyTypeDAO(entityKind).scheduleDynamicPropertiesEvaluation(assignment);
+        }
     }
 
     private static String describeDynamic(boolean dynamic)

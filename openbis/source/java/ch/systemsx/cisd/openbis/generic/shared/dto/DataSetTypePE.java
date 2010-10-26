@@ -37,6 +37,7 @@ import org.hibernate.validator.Length;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Persistence Entity representing data set type.
@@ -130,5 +131,12 @@ public class DataSetTypePE extends EntityTypePE
     public void setMainDataSetPattern(String mainDataSetPattern)
     {
         this.mainDataSetPattern = mainDataSetPattern;
+    }
+
+    @Override
+    @Transient
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
     }
 }

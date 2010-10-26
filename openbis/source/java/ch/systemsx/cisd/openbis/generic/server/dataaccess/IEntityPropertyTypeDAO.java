@@ -79,6 +79,10 @@ public interface IEntityPropertyTypeDAO
     public List<Long> listIdsOfEntitiesWithoutPropertyValue(
             final EntityTypePropertyTypePE assignment) throws DataAccessException;
 
+    /** Schedules evaluation of dynamic properties */
+    public void scheduleDynamicPropertiesEvaluation(final EntityTypePropertyTypePE assignment)
+            throws DataAccessException;
+
     /**
      * Fills term usage statistics for the entity kind represented by this class.
      * 
