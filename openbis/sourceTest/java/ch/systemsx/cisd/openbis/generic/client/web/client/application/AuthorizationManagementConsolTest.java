@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
 {
 
-    private static final String TEST_GROUP = "test-group";
+    private static final String TEST_GROUP = "testgroup";
 
     private static final String ADMINS_GROUP = "admins-group";
 
