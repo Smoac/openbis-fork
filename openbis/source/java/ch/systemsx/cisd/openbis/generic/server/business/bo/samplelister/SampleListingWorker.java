@@ -198,10 +198,10 @@ final class SampleListingWorker extends AbstractLister
         this.enrichDependentSamples = criteria.isEnrichDependentSamplesWithProperties();
         this.referencedEntityDAO = referencedEntityDAO;
         this.parentRelationhipTypeId =
-                getRelationId(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+                getRelationId(query, BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
     }
 
-    private long getRelationId(String fullRelationCode)
+    static long getRelationId(ISampleListingQuery query, String fullRelationCode)
     {
         return query.getRelationshipTypeId(CodeConverter.tryToDatabase(fullRelationCode),
                 CodeConverter.isInternalNamespace(fullRelationCode));

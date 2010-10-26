@@ -16,12 +16,18 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import net.lemnik.eodsql.DataIterator;
+
+import ch.systemsx.cisd.common.collections.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationShipSkeleton;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleSkeleton;
 
 /**
  * A business object for providing lists of samples (more precisely sets of samples) for the purpose
@@ -56,6 +62,50 @@ public class SampleLister implements ISampleLister
     public List<Sample> list(final ListOrSearchSampleCriteria criteria)
     {
         return SampleListingWorker.create(criteria, baseIndexURL, dao, referencedEntityDAO).load();
+    }
+
+    public long getRelationshipTypeID(String code)
+    {
+        return SampleListingWorker.getRelationId(dao.getQuery(), code);
+    }
+
+    public List<SampleSkeleton> listSampleBy(IValidator<SampleSkeleton> criteria)
+    {
+        DataIterator<SampleRecord> sampleSkeletons = dao.getQuery().getSampleSkeletons();
+        List<SampleSkeleton> result = new ArrayList<SampleSkeleton>();
+        for (SampleRecord sampleRecord : sampleSkeletons)
+        {
+            SampleSkeleton sampleSkeleton = new SampleSkeleton();
+            sampleSkeleton.setId(sampleRecord.id);
+            sampleSkeleton.setExperimentID(sampleRecord.expe_id);
+            sampleSkeleton.setSpaceID(sampleRecord.grou_id);
+            sampleSkeleton.setTypeID(sampleRecord.saty_id);
+            sampleSkeleton.setDatabaseInstanceID(sampleRecord.dbin_id);
+            if (criteria.isValid(sampleSkeleton))
+            {
+                result.add(sampleSkeleton);
+            }
+        }
+        return result;
+    }
+
+    public List<SampleRelationShipSkeleton> listSampleRelationShipsBy(
+            IValidator<SampleRelationShipSkeleton> criteria)
+    {
+        DataIterator<SampleRelationRecord> records = dao.getQuery().getSampleRelationshipSkeletons();
+        List<SampleRelationShipSkeleton> result = new ArrayList<SampleRelationShipSkeleton>();
+        for (SampleRelationRecord record : records)
+        {
+            SampleRelationShipSkeleton skeleton = new SampleRelationShipSkeleton();
+            skeleton.setRelationShipTypeID(record.relationship_id);
+            skeleton.setParentSampleID(record.sample_id_parent);
+            skeleton.setChildSampleID(record.sample_id_child);
+            if (criteria.isValid(skeleton))
+            {
+                result.add(skeleton);
+            }
+        }
+        return result;
     }
 
 }

@@ -102,6 +102,12 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
         { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getParentRelations(long relationshipId,
             LongSet childrenSampleIds);
+    
+    @Select(sql = "select id, saty_id, grou_id, dbin_id, expe_id from samples", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSampleSkeletons();
+    
+    @Select(sql = "select * from sample_relationships", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRelationRecord> getSampleRelationshipSkeletons();
 
     //
 
