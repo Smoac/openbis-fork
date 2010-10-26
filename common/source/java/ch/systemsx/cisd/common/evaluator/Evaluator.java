@@ -95,7 +95,7 @@ public final class Evaluator
     public Evaluator(String expression, Class<?> supportFunctionsOrNull, String initialScriptOrNull)
             throws EvaluatorException
     {
-        if (expression.indexOf('\n') >= 0)
+        if (isMultiline(expression))
         {
             throw new EvaluatorException("Expression '" + expression + "' contains line breaks");
         }
@@ -315,5 +315,10 @@ public final class Evaluator
         final String msg =
                 "Error evaluating '" + expression + "': " + description[description.length - 1];
         return new EvaluatorException(msg);
+    }
+
+    public static boolean isMultiline(String expression)
+    {
+        return expression.indexOf('\n') >= 0;
     }
 }
