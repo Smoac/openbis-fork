@@ -52,9 +52,9 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
 
         final String entityCode = "ecode";
 
-        IEntityPropertyAdaptor p1 = createProperty("p1", "v1");
-        IEntityPropertyAdaptor p21 = createProperty("p2", "v21");
-        IEntityPropertyAdaptor p22 = createProperty("p2", "v22");
+        IEntityPropertyAdaptor p1 = createProperty("P1", "v1");
+        IEntityPropertyAdaptor p21 = createProperty("P2", "v21");
+        IEntityPropertyAdaptor p22 = createProperty("P2", "v22");
 
         calculator.setEntity(createEntity(entityCode, null));
         assertEquals("", calculator.evalAsString());

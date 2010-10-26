@@ -45,6 +45,11 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     {
         for (EntityPropertyPE property : propertiesHolder.getProperties())
         {
+            if (property.getEntityTypePropertyType().isDynamic())
+            {
+                // values of dynamic properties can't be referred to - it wouldn't be deterministic
+                continue;
+            }
             final PropertyTypePE propertyType =
                     property.getEntityTypePropertyType().getPropertyType();
             final String propertyTypeCode = propertyType.getCode();
@@ -82,7 +87,7 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
 
     public IEntityPropertyAdaptor property(String propertyTypeCode)
     {
-        return propertiesByCode.get(propertyTypeCode);
+        return propertiesByCode.get(propertyTypeCode.toUpperCase());
     }
 
     public String propertyValue(String propertyTypeCode)

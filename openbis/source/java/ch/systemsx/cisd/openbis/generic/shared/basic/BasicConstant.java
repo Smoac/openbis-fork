@@ -38,10 +38,10 @@ public class BasicConstant
     /** Prefix of internal namespace vocabulary code. */
     public static final String INTERNAL_NAMESPACE_PREFIX = "$";
 
-    private static final int UNI_REPLACEMENT_CHAR = 0xFFFD;
+    private static final char UNI_REPLACEMENT_CHAR = 0xFFFD;
 
     /** Prefix of property value that contains error message. */
-    public static final String ERROR_PROPERTY_PREFIX = "" + (char) UNI_REPLACEMENT_CHAR;
+    public static final String ERROR_PROPERTY_PREFIX = "" + UNI_REPLACEMENT_CHAR;
 
     // placeholder
     /** Prefix of property value that contains error message. */
