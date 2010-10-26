@@ -107,10 +107,10 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                     clazz.getSimpleName()));
             final int maxIndex = idsSize - 1;
             // need to increment last id because we use 'lt' condition
-                if (maxIndex > -1)
-        {
-                     ids.set(maxIndex, ids.get(maxIndex) + 1);
-       }
+            if (maxIndex > -1)
+            {
+                ids.set(maxIndex, ids.get(maxIndex) + 1);
+            }
             while (index < maxIndex)
             {
                 final int nextIndex = getNextIndex(index, maxIndex);
@@ -166,8 +166,8 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                         listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
                 evaluateProperties(hibernateSession, results, clazz);
                 index = nextIndex;
-                operationLog.info(String.format("%d/%d %ss have been updated...", index + 1, maxIndex + 1,
-                        clazz.getSimpleName()));
+                operationLog.info(String.format("%d/%d %ss have been updated...", index + 1,
+                        maxIndex + 1, clazz.getSimpleName()));
             }
             transaction.commit();
             operationLog.info(String.format(
@@ -263,7 +263,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 try
                 {
                     DynamicPropertyCalculator calculator =
-                            new DynamicPropertyCalculator(etpt.getScript().getScript());
+                            DynamicPropertyCalculator.create(etpt.getScript().getScript());
                     final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity);
                     calculator.setEntity(entityAdaptor);
                     final String dynamicValue = calculator.evalAsString();

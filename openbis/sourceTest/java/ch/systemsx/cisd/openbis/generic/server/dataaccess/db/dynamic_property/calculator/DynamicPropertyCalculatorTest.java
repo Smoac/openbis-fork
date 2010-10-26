@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtilsTest;
 
 /**
@@ -35,7 +36,8 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     {
         final String entityCode1 = "ecode1";
         final String entityCode2 = "ecode2";
-        final DynamicPropertyCalculator calculator = new DynamicPropertyCalculator("entity.code()");
+        final DynamicPropertyCalculator calculator =
+                DynamicPropertyCalculator.create("entity.code()");
 
         calculator.setEntity(createEntity(entityCode1, null));
         assertEquals(entityCode1, calculator.evalAsString());
@@ -48,7 +50,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     public void testGetEntityPropertyValue()
     {
         final DynamicPropertyCalculator calculator =
-                new DynamicPropertyCalculator("entity.propertyValue('p2')");
+                DynamicPropertyCalculator.create("entity.propertyValue('p2')");
 
         final String entityCode = "ecode";
 
@@ -76,9 +78,9 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
     public void testGetEntityPropertyRenderedValue()
     {
         final DynamicPropertyCalculator normalPropertyCalculator =
-                new DynamicPropertyCalculator("entity.propertyRendered('normalProperty')");
+                DynamicPropertyCalculator.create("entity.propertyRendered('normalProperty')");
         final DynamicPropertyCalculator xmlPropertyCalculator =
-                new DynamicPropertyCalculator("entity.propertyRendered('xmlProperty')");
+                DynamicPropertyCalculator.create("entity.propertyRendered('xmlProperty')");
 
         final String entityCode = "ecode";
 
@@ -95,6 +97,36 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
                 Arrays.asList(new IEntityPropertyAdaptor[]
                     { normalProperty, xmlProperty })));
         assertEquals(XmlUtilsTest.SIMPLE_XML_TRANSFORMED, xmlPropertyCalculator.evalAsString());
+    }
+
+    @Test
+    public void testEvaluateMultilineExpression()
+    {
+        final String expression = "def calculate():\n" + "\treturn entity.code()";
+        final String entityCode = "ecode";
+        final DynamicPropertyCalculator calculator = DynamicPropertyCalculator.create(expression);
+
+        calculator.setEntity(createEntity(entityCode, null));
+        assertEquals(entityCode, calculator.evalAsString());
+    }
+
+    @Test
+    public void testEvaluateMultilineExpressionFailsWithNoCalculateFunction()
+    {
+        final String expression = "def calc():\n" + "\treturn entity.code()";
+        final String entityCode = "ecode";
+        final DynamicPropertyCalculator calculator = DynamicPropertyCalculator.create(expression);
+
+        calculator.setEntity(createEntity(entityCode, null));
+        try
+        {
+            calculator.evalAsString();
+            fail("expected EvaluatorException");
+        } catch (EvaluatorException e)
+        {
+            final String expectedMsg = "Error evaluating 'calculate()': NameError: calculate";
+            assertEquals("expected exception message: " + expectedMsg, expectedMsg, e.getMessage());
+        }
     }
 
     private static IEntityAdaptor createEntity(final String code,
