@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,7 +30,6 @@ import org.xml.sax.SAXParseException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.XmlUtils;
 
 /**
  * Tests of {@link XmlUtils}.
@@ -78,33 +77,31 @@ public class XmlUtilsTest extends AssertJUnit
                     + "</xs:element>\n                                          "
                     + "</xs:schema>                                             ";
 
-    public static String EXAMPLE_INCORRECT_SCHEMA =
-            EXAMPLE_SCHEMA.replaceAll("xs:complexType", "xs:complex");
+    public static String EXAMPLE_INCORRECT_SCHEMA = EXAMPLE_SCHEMA.replaceAll("xs:complexType",
+            "xs:complex");
 
-    public static String EXAMPLE_XSLT =
-            "<?xml version='1.0'?>\n"
-                    + "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
-                    + "<xsl:output method='html'/>\n                            "
-                    + "<xsl:template match='child::person'>\n                   "
-                    + " <html>\n                                                "
-                    + "  <head>\n                                               "
-                    + "   <title>\n                                             "
-                    + "    <xsl:value-of select='descendant::firstname' />\n    "
-                    + "    <xsl:text> </xsl:text>\n                             "
-                    + "    <xsl:value-of select='descendant::lastname' />\n     "
-                    + "   </title>\n                                            "
-                    + "  </head>\n                                              "
-                    + "  <body>\n                                               "
-                    + "   <xsl:value-of select='descendant::firstname' />\n     "
-                    + "   <xsl:text> </xsl:text>\n                              "
-                    + "   <xsl:value-of select='descendant::lastname' />\n      "
-                    + "  </body>\n                                              "
-                    + " </html>\n                                               "
-                    + "</xsl:template>\n                                        "
-                    + "</xsl:stylesheet>";
+    public static String EXAMPLE_XSLT = "<?xml version='1.0'?>\n"
+            + "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
+            + "<xsl:output method='html'/>\n                            "
+            + "<xsl:template match='child::person'>\n                   "
+            + " <html>\n                                                "
+            + "  <head>\n                                               "
+            + "   <title>\n                                             "
+            + "    <xsl:value-of select='descendant::firstname' />\n    "
+            + "    <xsl:text> </xsl:text>\n                             "
+            + "    <xsl:value-of select='descendant::lastname' />\n     "
+            + "   </title>\n                                            "
+            + "  </head>\n                                              "
+            + "  <body>\n                                               "
+            + "   <xsl:value-of select='descendant::firstname' />\n     "
+            + "   <xsl:text> </xsl:text>\n                              "
+            + "   <xsl:value-of select='descendant::lastname' />\n      "
+            + "  </body>\n                                              "
+            + " </html>\n                                               "
+            + "</xsl:template>\n                                        " + "</xsl:stylesheet>";
 
-    public static String EXAMPLE_INCORRECT_XSLT =
-            EXAMPLE_XSLT.replaceAll("xsl:stylesheet", "xsl:styleshet");
+    public static String EXAMPLE_INCORRECT_XSLT = EXAMPLE_XSLT.replaceAll("xsl:stylesheet",
+            "xsl:styleshet");
 
     @BeforeClass
     public void outputJaxpInfo()
@@ -213,5 +210,22 @@ public class XmlUtilsTest extends AssertJUnit
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
+    }
+
+    public static String SIMPLE_XML = "<root>hello world</root>";
+
+    public static String SIMPLE_XSLT =
+            "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
+                    + "<xsl:template match='/'><b><xsl:value-of select='.'/></b></xsl:template>"
+                    + "</xsl:stylesheet>";
+
+    public static String SIMPLE_XML_TRANSFORMED =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello world</b>";
+
+    @Test
+    public void testXsltTransformation()
+    {
+        String result = XmlUtils.transform(SIMPLE_XSLT, SIMPLE_XML);
+        assertEquals(SIMPLE_XML_TRANSFORMED, result);
     }
 }

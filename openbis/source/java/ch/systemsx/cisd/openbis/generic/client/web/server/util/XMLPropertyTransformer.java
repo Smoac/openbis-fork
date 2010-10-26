@@ -16,38 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class XMLPropertyTransformer
 {
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
-
-    private final Map<String, Transformer> cachedTransformers = new HashMap<String, Transformer>();
-
     public <T> void transformXMLProperties(List<T> rows)
     {
         for (T row : rows)
@@ -60,7 +44,8 @@ public class XMLPropertyTransformer
                 {
                     if (property instanceof GenericValueEntityProperty)
                     {
-                        GenericValueEntityProperty entityProperty = (GenericValueEntityProperty) property;
+                        GenericValueEntityProperty entityProperty =
+                                (GenericValueEntityProperty) property;
                         PropertyType propertyType = entityProperty.getPropertyType();
                         if (propertyType.getDataType().getCode().equals(DataTypeCode.XML))
                         {
@@ -68,10 +53,11 @@ public class XMLPropertyTransformer
                             if (transformation != null)
                             {
                                 String xslt = StringEscapeUtils.unescapeHtml(transformation);
-                                String v = StringEscapeUtils.unescapeHtml(entityProperty.getValue());
-                                String renderedXMLString = eval(xslt, v);
+                                String xmlString =
+                                        StringEscapeUtils.unescapeHtml(entityProperty.getValue());
+                                String renderedXMLString = XmlUtils.transform(xslt, xmlString);
                                 entityProperty.setValue(renderedXMLString);
-                                entityProperty.setOriginalValue(v);
+                                entityProperty.setOriginalValue(xmlString);
                             }
                         }
                     }
@@ -80,36 +66,4 @@ public class XMLPropertyTransformer
         }
     }
     
-    private String eval(String xslt, String xmlString)
-    {
-        Transformer transformer = getTransformer(xslt);
-        StringWriter writer = new StringWriter();
-        try
-        {
-            transformer.transform(new StreamSource(new StringReader(xmlString)), new StreamResult(writer));
-        } catch (TransformerException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-        return writer.toString();
-    }
-    
-    private Transformer getTransformer(String xslt)
-    {
-        try
-        {
-            Transformer transformer = cachedTransformers.get(xslt);
-            if (transformer == null)
-            {
-                transformer = TRANSFORMER_FACTORY.newTransformer(new StreamSource(new StringReader(xslt)));
-                cachedTransformers.put(xslt, transformer);
-            }
-            return transformer;
-        } catch (Exception ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-
 }

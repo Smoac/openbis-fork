@@ -22,6 +22,8 @@ import java.util.Collection;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtilsTest;
+
 /**
  * @author Piotr Buczek
  */
@@ -70,11 +72,6 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
         assertEquals(p22.valueAsString(), calculator.evalAsString());
     }
 
-    private static final String XSLT =
-            "<xsl:stylesheet version='1.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>"
-                    + "<xsl:template match='/'><b><xsl:value-of select='.'/></b></xsl:template>"
-                    + "</xsl:stylesheet>";
-
     @Test
     public void testGetEntityPropertyRenderedValue()
     {
@@ -87,7 +84,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
 
         IEntityPropertyAdaptor normalProperty = createProperty("normalProperty", "normalValue");
         IEntityPropertyAdaptor xmlProperty =
-                createXmlProperty("xmlProperty", "<root>hello world</root>", XSLT);
+                createXmlProperty("xmlProperty", XmlUtilsTest.SIMPLE_XML, XmlUtilsTest.SIMPLE_XSLT);
 
         normalPropertyCalculator.setEntity(createEntity(entityCode,
                 Arrays.asList(new IEntityPropertyAdaptor[]
@@ -97,8 +94,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
         xmlPropertyCalculator.setEntity(createEntity(entityCode,
                 Arrays.asList(new IEntityPropertyAdaptor[]
                     { normalProperty, xmlProperty })));
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello world</b>",
-                xmlPropertyCalculator.evalAsString());
+        assertEquals(XmlUtilsTest.SIMPLE_XML_TRANSFORMED, xmlPropertyCalculator.evalAsString());
     }
 
     private static IEntityAdaptor createEntity(final String code,

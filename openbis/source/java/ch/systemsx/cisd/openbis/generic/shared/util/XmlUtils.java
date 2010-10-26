@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
@@ -31,11 +40,12 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 
 /**
- * Utility methods for parsing and validating XML files.
+ * Utility methods for parsing, validating and transforming XML files.
  * 
  * @author Piotr Buczek
  */
@@ -65,8 +75,8 @@ public class XmlUtils
         } catch (Exception e)
         {
             throw UserFailureException.fromTemplate(
-                    "Provided value:\n\n%s\n\nisn't a well formed XML document. %s", value, e
-                            .getMessage());
+                    "Provided value:\n\n%s\n\nisn't a well formed XML document. %s", value,
+                    e.getMessage());
         }
     }
 
@@ -74,8 +84,8 @@ public class XmlUtils
     public static void validate(Document document, String xmlSchema) throws SAXException,
             IOException
     {
-        validate(document, XMLInfraStructure.createSchema(new StreamSource(new StringReader(
-                xmlSchema))));
+        validate(document,
+                XMLInfraStructure.createSchema(new StreamSource(new StringReader(xmlSchema))));
     }
 
     /** validate given document against the schema specified by URL */
@@ -98,6 +108,51 @@ public class XmlUtils
         Validator validator = schema.newValidator();
         // validate the DOM tree
         validator.validate(new DOMSource(document));
+    }
+
+    //
+    // XSL Transformations
+    //
+
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+
+    private static final Map<String, Transformer> cachedTransformers =
+            new HashMap<String, Transformer>();
+
+    /** @return <code>xmlString</code> transformed with <code>xslt</code> script */
+    public static String transform(String xslt, String xmlString)
+    {
+        Transformer transformer = getTransformer(xslt);
+        Source source = new StreamSource(new StringReader(xmlString));
+        StringWriter writer = new StringWriter();
+        Result result = new StreamResult(writer);
+        try
+        {
+            transformer.transform(source, result);
+        } catch (TransformerException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        return writer.toString();
+    }
+
+    private static Transformer getTransformer(String xslt)
+    {
+        try
+        {
+            Transformer transformer = cachedTransformers.get(xslt);
+            if (transformer == null)
+            {
+                transformer =
+                        TRANSFORMER_FACTORY
+                                .newTransformer(new StreamSource(new StringReader(xslt)));
+                cachedTransformers.put(xslt, transformer);
+            }
+            return transformer;
+        } catch (Exception ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
 }

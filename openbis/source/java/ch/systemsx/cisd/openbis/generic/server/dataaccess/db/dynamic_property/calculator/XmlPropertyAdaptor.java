@@ -16,17 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
 
 /**
  * {@link IEntityPropertyAdaptor} implementation for xml property.
@@ -52,22 +43,8 @@ class XmlPropertyAdaptor extends BasicPropertyAdaptor
     @Override
     public String renderedValue()
     {
-        // TODO 2010-10-25, PTR: Refactoring needed (merge with XMLPropertyTransformer)
         final String xml = super.valueAsString();
-
-        StringWriter writer = new StringWriter();
-        try
-        {
-            Transformer transformer =
-                    TransformerFactory.newInstance().newTransformer(
-                            new StreamSource(new StringReader(xsltTransformation)));
-            transformer
-                    .transform(new StreamSource(new StringReader(xml)), new StreamResult(writer));
-        } catch (TransformerException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-        return writer.toString();
+        return XmlUtils.transform(xsltTransformation, xml);
     }
 
     //
