@@ -152,13 +152,22 @@
   -->
 	<target name="compute-separate-checksums">
 		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/classes/{1}">
-			<fileset dir="${sources}">
-				<include name="service.properties" />
+			<fileset dir="../openbis/${sources}">
 				<include name="applicationContext.xml" />
 				<include name="dbConfigurationContext.xml" />
 				<include name="genericApplicationContext.xml" />
 				<include name="genericCommonContext.xml" />
 				<include name="hibernateContext.xml" />
+			</fileset>
+		</checksum>
+		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/classes/{1}">
+			<fileset dir="dist/server">
+				<include name="service.properties" />
+			</fileset>
+		</checksum>
+		<checksum todir="${dist}" pattern="{0}  etc/{1}">
+			<fileset dir="dist/server">
+				<include name="web-client.properties" />
 			</fileset>
 		</checksum>
 	</target>

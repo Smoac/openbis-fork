@@ -78,7 +78,7 @@
     </copy>
   </target>
 	
-  <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs">
+  <target name="make-full-dss-dist" depends="datastore_server.prepare-dist-libs, compute-dss-checksum">
     <jar update="true" destfile="${dss-jar.file}">
     	<zipfileset src="${lib}/jhdf5/cisd-jhdf5-batteries_included_lin_win_mac.jar">
     		<exclude name="META_INF/*"/>
@@ -107,6 +107,32 @@
       </fileset>
     </copy>
   	<antcall target="datastore_server.create-distribution" />
+  </target>
+	
+	
+  <!-- 
+      Build the checksum file.
+  -->
+  <target name="compute-dss-checksum" depends="compute-separate-dss-checksums">
+  	<concat-checksums />
+  </target>
+	
+  <!-- 
+      Compute checksum files, one per configuration file, and place them
+      in the ${dist} dir. 
+      
+      The pattern shown in the file should be:
+        hash[two spaces]path_in_distribution_to_file
+      e.g.,
+        {0}  [folder of file]{1}
+  -->
+  <target name="compute-separate-dss-checksums">
+    <checksum todir="${dist}" pattern="{0}  etc/{1}">
+      <fileset dir="dist/etc">
+        <include name="service.properties" />
+        <include name="log.xml" />
+      </fileset>
+    </checksum>
   </target>
 	
   <!--

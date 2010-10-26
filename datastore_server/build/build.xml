@@ -129,7 +129,7 @@
   <!-- parameters: 
           variant - will be used in the distribution file name  
     -->
-  <target name="create-distribution" depends="compute-checksum">
+  <target name="create-distribution">
     <property name="dist.file"
               value="${dist.file.prefix}${variant}-${version.number}-r${revision.number}.zip" />
     <move file="${checksum.file}" todir="${dist.datastore_server}" />
@@ -175,7 +175,7 @@
 	<!-- parameters: 
 					variant - will be used in the distribution file name  
 		-->
-	<target name="make-dist" depends="prepare-dist-libs, create-distribution" />
+	<target name="make-dist" depends="prepare-dist-libs, compute-checksum, create-distribution" />
   
   <!--  
     dss-client-jar is designed to be called from make-dist. Thus, it does not depend on compile, but
