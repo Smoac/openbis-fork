@@ -253,7 +253,7 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     }
 
     @SuppressWarnings("unused")
-    private void setDataListAssignments(List<DataSetTypePropertyTypePE> dataSetAssignments)
+    private void setDataSetAssignments(List<DataSetTypePropertyTypePE> dataSetAssignments)
     {
         this.dataSetAssignments = dataSetAssignments;
     }
