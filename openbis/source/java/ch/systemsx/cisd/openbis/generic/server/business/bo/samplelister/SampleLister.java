@@ -21,6 +21,7 @@ import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -36,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleSkeleton;
  * 
  * @author Bernd Rinn
  */
+@Friend(toClasses =
+    { ISampleListingQuery.class, SampleRecord.class, SampleRelationRecord.class })
 public class SampleLister implements ISampleLister
 {
     private final SampleListerDAO dao;
