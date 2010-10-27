@@ -16,16 +16,29 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.dao.DataAccessException;
+
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -36,11 +49,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public final class ExperimentTable extends AbstractBusinessObject implements IExperimentTable
 {
+    protected final IEntityPropertiesConverter entityPropertiesConverter;
+
     private List<ExperimentPE> experiments;
+
+    private boolean dataChanged = false;
+
+    @Private
+    ExperimentTable(final IDAOFactory daoFactory, final Session session,
+            IEntityPropertiesConverter converter)
+    {
+        super(daoFactory, session);
+        entityPropertiesConverter = converter;
+    }
 
     public ExperimentTable(final IDAOFactory daoFactory, final Session session)
     {
-        super(daoFactory, session);
+        this(daoFactory, session, new EntityPropertiesConverter(EntityKind.EXPERIMENT, daoFactory));
     }
 
     //
@@ -104,6 +129,94 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     {
         assert experiments != null : "Experiments have not been loaded.";
         return experiments;
+    }
+
+    public void add(List<NewBasicExperiment> entities, ExperimentTypePE experimentTypePE)
+    {
+        if (experiments == null)
+        {
+            experiments = new ArrayList<ExperimentPE>();
+        }
+        setBatchUpdateMode(true);
+        for (NewBasicExperiment ne : entities)
+        {
+            experiments.add(createExperiment(ne, experimentTypePE));
+        }
+        setBatchUpdateMode(false);
+        dataChanged = true;
+    }
+
+    private ExperimentPE createExperiment(NewBasicExperiment newExperiment,
+            ExperimentTypePE experimentTypePE)
+    {
+        final ExperimentPE result = new ExperimentPE();
+        result.setExperimentType(experimentTypePE);
+        final ExperimentIdentifier experimentIdentifier =
+                new ExperimentIdentifierFactory(newExperiment.getIdentifier()).createIdentifier();
+        result.setCode(experimentIdentifier.getExperimentCode());
+        final PersonPE registrator = findRegistrator();
+        result.setRegistrator(registrator);
+        defineExperimentProperties(result, experimentTypePE.getCode(),
+                newExperiment.getProperties(), registrator);
+        defineExperimentProject(result, experimentIdentifier);
+        result.setPermId(getPermIdDAO().createPermId());
+        return result;
+    }
+
+    // FIXME 2010-10-26, IA: merge with ExperimntBO, improve speed (number of DB reads)
+    static final String ERR_PROJECT_NOT_FOUND =
+            "No project for experiment '%s' could be found in the database.";
+
+    private void defineExperimentProject(ExperimentPE result,
+            final ExperimentIdentifier experimentIdentifier)
+    {
+        ProjectPE project =
+                getProjectDAO().tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
+                        experimentIdentifier.getSpaceCode(), experimentIdentifier.getProjectCode());
+        if (project == null)
+        {
+            throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, experimentIdentifier);
+        }
+        result.setProject(project);
+    }
+
+    private final void defineExperimentProperties(ExperimentPE result,
+            final String experimentTypeCode, final IEntityProperty[] experimentProperties,
+            PersonPE registrator)
+    {
+        final List<ExperimentPropertyPE> properties =
+                entityPropertiesConverter.convertProperties(experimentProperties,
+                        experimentTypeCode, registrator);
+        for (final ExperimentPropertyPE experimentProperty : properties)
+        {
+            result.addProperty(experimentProperty);
+        }
+    }
+
+    public void save()
+    {
+        assert experiments != null : "Experiments not loaded.";
+        assert dataChanged : "Data has not been changed.";
+        try
+        {
+            getExperimentDAO().createExperiments(experiments);
+            checkBusinessRules();
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("One of experiments"));
+        }
+        dataChanged = false;
+    }
+
+    private void checkBusinessRules()
+    {
+        final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
+                new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
+        for (ExperimentPE m : experiments)
+        {
+            entityPropertiesConverter.checkMandatoryProperties(m.getProperties(),
+                    m.getExperimentType(), cache);
+        }
     }
 
 }

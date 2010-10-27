@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -304,7 +306,23 @@ public class GenericClientService extends AbstractClientService implements IGene
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
-    
+
+    public final List<BatchRegistrationResult> registerExperiments(
+            final ExperimentType experimentType, final String sessionKey)
+    {
+        String sessionToken = getSessionToken();
+        try
+        {
+            ExperimentLoader loader = parseExperiments(sessionKey);
+            genericServer.registerExperiments(sessionToken, new NewExperimentsWithType(
+                    experimentType.getCode(), loader.getNewBasicExperiments()));
+            return loader.getResults();
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
             String sessionKey, boolean ignoreUnregisteredMaterials)
     {
@@ -313,8 +331,9 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             MaterialLoader loader = parseMaterials(sessionKey);
             List<NewMaterial> newMaterials = loader.getNewMaterials();
-            int updateCount = genericServer.updateMaterials(sessionToken, materialType.getCode(),
-                    newMaterials, ignoreUnregisteredMaterials);
+            int updateCount =
+                    genericServer.updateMaterials(sessionToken, materialType.getCode(),
+                            newMaterials, ignoreUnregisteredMaterials);
             List<BatchRegistrationResult> results = loader.getResults();
             String message = updateCount + " material(s) updated";
             if (ignoreUnregisteredMaterials)
@@ -331,10 +350,34 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 message += ".";
             }
-            return Arrays.asList(new BatchRegistrationResult(results.get(0).getFileName(), message));
+            return Arrays
+                    .asList(new BatchRegistrationResult(results.get(0).getFileName(), message));
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private ExperimentLoader parseExperiments(String sessionKey)
+    {
+        HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        try
+        {
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            Collection<NamedInputStream> files =
+                    new ArrayList<NamedInputStream>(uploadedFiles.size());
+            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+            {
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
+                        .getBytes()));
+            }
+            ExperimentLoader loader = new ExperimentLoader();
+            loader.load(files);
+            return loader;
+        } finally
+        {
+            cleanUploadedFiles(sessionKey, session, uploadedFiles);
         }
     }
 

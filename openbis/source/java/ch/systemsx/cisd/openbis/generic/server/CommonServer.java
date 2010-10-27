@@ -1589,7 +1589,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 columns.add(NewMaterial.CODE);
                 addProperties(columns, ((MaterialTypePE) entityType).getMaterialTypePropertyTypes());
                 break;
-            default:
+            case EXPERIMENT:
+                columns.add(NewSample.IDENTIFIER_COLUMN);
+                addProperties(columns,
+                        ((ExperimentTypePE) entityType).getExperimentTypePropertyTypes());
                 break;
         }
         StringBuilder sb = new StringBuilder();

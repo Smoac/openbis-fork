@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -80,6 +81,15 @@ public interface IGenericClientService extends IClientService
             final String sessionKey, String defaultGroupIdentifier) throws UserFailureException;
 
     /**
+     * Registers new experiments from files which have been previously uploaded.
+     * <p>
+     * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
+     * </p>
+     */
+    public List<BatchRegistrationResult> registerExperiments(final ExperimentType experimentType,
+            final String sessionKey) throws UserFailureException;
+
+    /**
      * Updates samples from files which have been previously uploaded.
      * <p>
      * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
@@ -117,8 +127,8 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates materials from a file which has been previously uploaded.
      * 
-     * @param ignoreUnregisteredMaterials If <code>true</code> materials in the
-     *      uploaded file will be ignored if they are not already registered.
+     * @param ignoreUnregisteredMaterials If <code>true</code> materials in the uploaded file will
+     *            be ignored if they are not already registered.
      */
     public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
             String sessionKey, boolean ignoreUnregisteredMaterials) throws UserFailureException;

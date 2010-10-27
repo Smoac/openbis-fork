@@ -70,9 +70,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -87,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -881,6 +884,34 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             ids.add(entity.getId());
         }
         scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entityClass, ids));
+    }
+
+    public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
+            throws UserFailureException
+    {
+        assert experiments != null : "Unspecified experiments.";
+        assert sessionToken != null : "Unspecified session token.";
+        assert experiments.getExperimentTypeCode() != null : "Experiments type not specified";
+        assert experiments.getNewExperiments() != null : "Experiments collection not specified";
+
+        final Session session = getSession(sessionToken);
+        final List<NewBasicExperiment> newExperiments = experiments.getNewExperiments();
+        if (newExperiments.size() == 0)
+        {
+            return;
+        }
+        prevalidate(newExperiments, "experiment");
+        final ExperimentTypePE experimentTypePE =
+                (ExperimentTypePE) getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT)
+                        .tryToFindEntityTypeByCode(experiments.getExperimentTypeCode());
+        if (experimentTypePE == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Experiment type with code '%s' does not exist.", experimentTypePE);
+        }
+        BatchOperationExecutor.executeInBatches(new ExperimentBatchRegistration(
+                businessObjectFactory.createExperimentTable(session), newExperiments,
+                experimentTypePE));
     }
 
 }

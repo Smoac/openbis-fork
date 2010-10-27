@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetBatchUpdateForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -261,7 +262,6 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         {
             return new GenericMaterialBatchUpdateForm(getViewContext(), entityType);
         }
-        
 
         @Override
         public final AbstractTabItemFactory createEntityViewer(
@@ -405,6 +405,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
             GenericExperimentRegistrationForm form =
                     new GenericExperimentRegistrationForm(getViewContext(), context, entityType);
             return new DatabaseModificationAwareWidget(form, form);
+        }
+
+        @Override
+        public final Widget createBatchRegistrationForEntityType(final ExperimentType type)
+        {
+            return new GenericExperimentBatchRegistrationForm(getViewContext(), type);
         }
 
         @Override

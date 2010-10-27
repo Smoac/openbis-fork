@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -107,8 +108,8 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             final Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_experiment",
-                "EXPERIMENT_TYPE(%s) EXPERIMENT(%S) ATTACHMENTS(%S)", experiment
-                        .getExperimentTypeCode(), experiment.getIdentifier(), attachments.size());
+                "EXPERIMENT_TYPE(%s) EXPERIMENT(%S) ATTACHMENTS(%S)",
+                experiment.getExperimentTypeCode(), experiment.getIdentifier(), attachments.size());
     }
 
     public void registerMaterials(String sessionToken, String materialTypeCode,
@@ -163,9 +164,9 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_experiment",
-                "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s) SAMPLES(%s)", updates
-                        .getExperimentId(), updates.getAttachments().size(), updates
-                        .getProjectIdentifier(), StringUtils.join(updates.getSampleCodes(), ","));
+                "EXPERIMENT(%s) ATTACHMENTS_ADDED(%s) NEW_PROJECT(%s) SAMPLES(%s)",
+                updates.getExperimentId(), updates.getAttachments().size(),
+                updates.getProjectIdentifier(), StringUtils.join(updates.getSampleCodes(), ","));
         return null;
     }
 
@@ -188,8 +189,8 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_data_set", "DATA_SET(%s) SAMPLE(%s) MODIFIED_PARENTS(%s)",
-                updates.getDatasetId(), updates.getSampleIdentifierOrNull(), StringUtils.join(
-                        updates.getModifiedParentDatasetCodesOrNull(), ","));
+                updates.getDatasetId(), updates.getSampleIdentifierOrNull(),
+                StringUtils.join(updates.getModifiedParentDatasetCodesOrNull(), ","));
         return null;
     }
 
@@ -251,6 +252,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logTracking(sessionToken, "update_data_sets",
                 (dataSets.getDataSetType().getCode() + ":" + dataSets.getNewDataSets().size()));
+    }
+
+    public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "register_experiments", "TYPE(%s) EXPERIMENTS(%s)",
+                experiments.getExperimentTypeCode(), experiments.getNewExperiments().size());
     }
 
 }

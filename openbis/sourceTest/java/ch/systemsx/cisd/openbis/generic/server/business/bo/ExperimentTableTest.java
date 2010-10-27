@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -34,11 +35,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
+@Friend(toClasses = ExperimentTable.class)
 public final class ExperimentTableTest extends AbstractBOTest
 {
     private final ExperimentTable createExperimentTable()
     {
-        return new ExperimentTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION);
+        return new ExperimentTable(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter);
     }
 
     @Test

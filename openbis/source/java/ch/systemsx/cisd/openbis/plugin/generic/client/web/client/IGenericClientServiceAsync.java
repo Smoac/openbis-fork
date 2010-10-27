@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -109,9 +110,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#updateMaterials(MaterialType, String, boolean)
      */
-    public void updateMaterials(MaterialType materialType, String sessionKey, boolean ignoreUnregisteredMaterials,
+    public void updateMaterials(MaterialType materialType, String sessionKey,
+            boolean ignoreUnregisteredMaterials,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
-    
+
     /**
      * @see IGenericClientService#updateExperiment(ExperimentUpdates)
      */
@@ -141,5 +143,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void updateDataSets(DataSetType dataSetType, String sessionKey,
             AsyncCallback<List<BatchRegistrationResult>> updateDataSetsCallback);
+
+    /**
+     * @see IGenericClientService#registerExperiments(ExperimentType, String)
+     */
+    public void registerExperiments(ExperimentType experimentType, String sessionKey,
+            AsyncCallback<List<BatchRegistrationResult>> registerExperimentsCallback);
 
 }

@@ -301,6 +301,7 @@ var common = {
   menu_experiment: "Experiment",
   EXPERIMENT_MENU_BROWSE: "Browse",
   EXPERIMENT_MENU_NEW: "New",
+  EXPERIMENT_MENU_IMPORT: "Batch Import",
   EXPERIMENT_MENU_TYPES: "Types",
   
   menu_material: "Material",
@@ -467,6 +468,7 @@ var common = {
   // Experiment Registration
   //
   experiment_registration: "Experiment Registration",
+  experiment_import: "Import Experiments",
   samples: "Samples",
   samples_list: "List of samples (codes or identifiers) separated by commas (\",\") or one sample per line.",
   

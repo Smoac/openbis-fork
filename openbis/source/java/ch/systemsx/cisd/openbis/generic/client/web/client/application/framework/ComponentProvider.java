@@ -26,15 +26,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetBatchUpdatePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetUploadForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeGrid;
@@ -433,6 +434,45 @@ public final class ComponentProvider
             };
     }
 
+    public final AbstractTabItemFactory getExperimentBatchRegistration()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component =
+                            ExperimentBatchRegistrationPanel.create(viewContext, false);
+                    return createRegistrationTab(getTabTitle(), component);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return ExperimentBatchRegistrationPanel.getId(false);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT, HelpPageAction.IMPORT);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.MATERIAL_IMPORT);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
+            };
+    }
+
     public final AbstractTabItemFactory getExperimentRegistration()
     {
         return getExperimentRegistration(new ActionContext());
@@ -602,40 +642,41 @@ public final class ComponentProvider
     public final AbstractTabItemFactory getMaterialBatchUpdate()
     {
         return new AbstractTabItemFactory()
-        {
-            @Override
-            public ITabItem create()
             {
-                DatabaseModificationAwareComponent component =
-                        MaterialBatchRegistrationUpdatePanel.create(viewContext, true);
-                return createRegistrationTab(getTabTitle(), component);
-            }
+                @Override
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component =
+                            MaterialBatchRegistrationUpdatePanel.create(viewContext, true);
+                    return createRegistrationTab(getTabTitle(), component);
+                }
 
-            @Override
-            public String getId()
-            {
-                return MaterialBatchRegistrationUpdatePanel.getId(true);
-            }
+                @Override
+                public String getId()
+                {
+                    return MaterialBatchRegistrationUpdatePanel.getId(true);
+                }
 
-            @Override
-            public HelpPageIdentifier getHelpPageIdentifier()
-            {
-                return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.BATCH_UPDATE);
-            }
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.MATERIAL,
+                            HelpPageAction.BATCH_UPDATE);
+                }
 
-            @Override
-            public String getTabTitle()
-            {
-                return getMessage(Dict.MATERIAL_BATCH_UPDATE);
-            }
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.MATERIAL_BATCH_UPDATE);
+                }
 
-            @Override
-            public String tryGetLink()
-            {
-                return null;
-            }
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
 
-        };
+            };
     }
 
     public final AbstractTabItemFactory getVocabularyRegistration()

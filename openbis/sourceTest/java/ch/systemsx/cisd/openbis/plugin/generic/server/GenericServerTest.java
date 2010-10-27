@@ -48,14 +48,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -78,6 +82,12 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 @Friend(toClasses = GenericServer.class)
 public final class GenericServerTest extends AbstractServerTestCase
 {
+    private static final String EXPERIMENT_IDENTIFIER1 = "/SPACE/PROJECT/EXP1";
+
+    private static final String EXPERIMENT_IDENTIFIER2 = "/SPACE/PROJECT/EXP2";
+
+    private static final String EXPERIMENT_TYPE = "EXP_TYPE";
+
     private static final String PROJECT_1 = "PROJECT-1";
 
     private static final String GROUP_1 = "GROUP-1";
@@ -99,6 +109,22 @@ public final class GenericServerTest extends AbstractServerTestCase
                         sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
         genericServer.commonServer = commonServer;
         return genericServer;
+    }
+
+    private static final ExperimentTypePE createExperimentType(String code)
+    {
+        ExperimentTypePE experimentTypePE = new ExperimentTypePE();
+        experimentTypePE.setCode(code);
+        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        databaseInstance.setCode("DB");
+        experimentTypePE.setDatabaseInstance(databaseInstance);
+        return experimentTypePE;
+    }
+
+    private static final ArrayList<NewBasicExperiment> createNewExperiments(
+            NewBasicExperiment... basicExperiments)
+    {
+        return new ArrayList<NewBasicExperiment>(Arrays.asList(basicExperiments));
     }
 
     private final NewSample createNewSample(final String identifier)
@@ -696,4 +722,80 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testFailRegisterExperimentsWithNullParameter() throws Exception
+    {
+        boolean asserionError = false;
+        try
+        {
+            createServer().registerExperiments(SESSION_TOKEN, null);
+        } catch (AssertionError ex)
+        {
+            asserionError = true;
+        }
+        assertTrue(asserionError);
+    }
+
+    @Test
+    public void testFailRegisterExperimentsWithNullType() throws Exception
+    {
+        boolean asserionError = false;
+        try
+        {
+            createServer().registerExperiments(SESSION_TOKEN,
+                    new NewExperimentsWithType(null, createNewExperiments()));
+        } catch (AssertionError ex)
+        {
+            asserionError = true;
+        }
+        assertTrue(asserionError);
+    }
+
+    @Test
+    public void testFailRegisterExperimentsWithNullCollection() throws Exception
+    {
+        boolean asserionError = false;
+        try
+        {
+            createServer().registerExperiments(SESSION_TOKEN, new NewExperimentsWithType("", null));
+        } catch (AssertionError ex)
+        {
+            asserionError = true;
+        }
+        assertTrue(asserionError);
+    }
+
+    @Test
+    public void testRegisterExperimentEmptyCollection() throws Exception
+    {
+        prepareGetSession();
+        createServer().registerExperiments(SESSION_TOKEN,
+                new NewExperimentsWithType(EXPERIMENT_TYPE, createNewExperiments()));
+    }
+
+    @Test
+    public void testRegisterExperiment() throws Exception
+    {
+        prepareGetSession();
+        final ExperimentTypePE experimentTypePE = createExperimentType(EXPERIMENT_TYPE);
+        final List<NewBasicExperiment> entities =
+                createNewExperiments(new NewBasicExperiment(EXPERIMENT_IDENTIFIER1),
+                        new NewBasicExperiment(EXPERIMENT_IDENTIFIER2));
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);
+                    will(returnValue(experimentTypePE));
+                    one(genericBusinessObjectFactory).createExperimentTable(SESSION);
+                    will(returnValue(experimentTable));
+                    one(experimentTable).add(entities, experimentTypePE);
+                    one(experimentTable).save();
+                }
+            });
+        createServer().registerExperiments(SESSION_TOKEN,
+                new NewExperimentsWithType(EXPERIMENT_TYPE, entities));
+        context.assertIsSatisfied();
+    }
 }

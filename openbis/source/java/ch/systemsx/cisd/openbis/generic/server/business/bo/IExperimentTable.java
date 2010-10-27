@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -29,7 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 public interface IExperimentTable
 {
     /**
-     * Loads all experiments of given type and from given project together with all their properties.
+     * Loads all experiments of given type and from given project together with all their
+     * properties.
      * 
      * @param experimentTypeCodeOrNull the experiment type code or <code>null</code>.
      * @param projectIdentifier identifier of the project to which we restrict the load.
@@ -38,5 +41,15 @@ public interface IExperimentTable
 
     /** Returns the loaded {@link ExperimentPE}. */
     public List<ExperimentPE> getExperiments();
+
+    /**
+     * Defines new experiments of given type.
+     */
+    public void add(List<NewBasicExperiment> entities, ExperimentTypePE experimentTypePE);
+
+    /**
+     * Saves experiments in the database.
+     */
+    public void save();
 
 }

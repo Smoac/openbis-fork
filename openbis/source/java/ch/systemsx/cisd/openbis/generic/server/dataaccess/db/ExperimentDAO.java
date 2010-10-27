@@ -138,13 +138,8 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
     public void createExperiment(ExperimentPE experiment)
     {
-        assert experiment != null : "Missing experiment.";
-        experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
-
-        validatePE(experiment);
-
-        final HibernateTemplate template = getHibernateTemplate();
-        template.saveOrUpdate(experiment);
+        HibernateTemplate template = getHibernateTemplate();
+        internalCreateExperiment(experiment, template);
         template.flush();
     }
 
@@ -244,6 +239,36 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             operationLog.debug(String.format("%d experiment(s) have been found.", list.size()));
         }
         return list;
+    }
+
+    public void createExperiments(List<ExperimentPE> experiments)
+    {
+        assert experiments != null && experiments.size() > 0 : "Unspecified or empty experiments.";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        for (final ExperimentPE experiment : experiments)
+        {
+            internalCreateExperiment(experiment, hibernateTemplate);
+        }
+        hibernateTemplate.flush();
+
+        // if session is not cleared registration of many experiments slows down after each batch
+        hibernateTemplate.clear();
+        scheduleDynamicPropertiesEvaluation(experiments);
+    }
+
+    private void internalCreateExperiment(ExperimentPE experiment,
+            HibernateTemplate hibernateTemplate)
+    {
+        assert experiment != null : "Missing experiment.";
+        experiment.setCode(CodeConverter.tryToDatabase(experiment.getCode()));
+        validatePE(experiment);
+        final HibernateTemplate template = getHibernateTemplate();
+        template.saveOrUpdate(experiment);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("ADD: experiment '%s'.", experiment));
+        }
     }
 
 }
