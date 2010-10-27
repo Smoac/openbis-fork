@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -101,7 +102,6 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
     @Test
     public void testCreateAssignment()
     {
-
         final EntityKind entityKind = EntityKind.EXPERIMENT;
         boolean mandatory = true;
         final String defaultValue = "50.00";
@@ -148,6 +148,47 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         bo.createAssignment(newAssignment);
 
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateDynamicPropertyAssignmentScript()
+    {
+        final EntityKind entityKind = EntityKind.EXPERIMENT;
+        final ExperimentTypePE experimentType = createExperimentType();
+        final PropertyTypePE propertyType = createPropertyType();
+        final ExperimentTypePropertyTypePE etpt = new ExperimentTypePropertyTypePE();
+        final ScriptPE script1 = new ScriptPE();
+        script1.setName("name1");
+        final ScriptPE script2 = new ScriptPE();
+        script2.setName("name2");
+        etpt.setDynamic(true);
+        etpt.setScript(script1);
+        etpt.setOrdinal(1L);
+
+        prepareExperimentTypeAndPropertyType(entityKind, experimentType, propertyType);
+        context.checking(new Expectations()
+            {
+                {
+                    one(entityPropertyTypeDAO).tryFindAssignment(experimentType, propertyType);
+                    will(returnValue(etpt));
+
+                    one(scriptDAO).tryFindByName(script2.getName());
+                    will(returnValue(script2));
+
+                    one(entityPropertyTypeDAO).validateAndSaveUpdatedEntity(etpt);
+                    one(entityPropertyTypeDAO).scheduleDynamicPropertiesEvaluation(etpt);
+                }
+            });
+
+        IEntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(entityKind);
+        bo.loadAssignment(propertyType.getCode(), experimentType.getCode());
+
+        NewETPTAssignment updatedAssignment =
+                new NewETPTAssignment(
+                        ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.EXPERIMENT,
+                        propertyType.getCode(), experimentType.getCode(), false, null, "s",
+                        etpt.getOrdinal() - 1, true, script2.getName());
+        bo.updateLoadedAssignment(updatedAssignment);
     }
 
     private void prepareExperimentTypeAndPropertyType(final EntityKind entityKind,

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
@@ -106,6 +107,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IGridCustomFilterDAO filterDAO;
 
+    IScriptDAO scriptDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -135,6 +138,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         eventDAO = context.mock(IEventDAO.class);
         authorizationGroupDAO = context.mock(IAuthorizationGroupDAO.class);
         filterDAO = context.mock(IGridCustomFilterDAO.class);
+        scriptDAO = context.mock(IScriptDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -171,6 +175,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(filterDAO));
                     allowing(daoFactory).getPersonDAO();
                     will(returnValue(personDAO));
+                    allowing(daoFactory).getScriptDAO();
+                    will(returnValue(scriptDAO));
                 }
             });
     }
