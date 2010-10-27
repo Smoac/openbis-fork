@@ -39,4 +39,9 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor
         return experimentPE;
     }
 
+    public ExperimentPE getEntityPE()
+    {
+        return getExperimentPE();
+    }
+
 }

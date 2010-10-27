@@ -39,4 +39,9 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor
         return externalDataPE;
     }
 
+    public ExternalDataPE getEntityPE()
+    {
+        return getExternalDataPE();
+    }
+
 }

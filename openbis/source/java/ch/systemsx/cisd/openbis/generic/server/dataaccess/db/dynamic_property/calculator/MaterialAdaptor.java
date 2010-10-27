@@ -39,4 +39,9 @@ public class MaterialAdaptor extends AbstractEntityAdaptor
         return MaterialPE;
     }
 
+    public MaterialPE getEntityPE()
+    {
+        return getMaterialPE();
+    }
+
 }
