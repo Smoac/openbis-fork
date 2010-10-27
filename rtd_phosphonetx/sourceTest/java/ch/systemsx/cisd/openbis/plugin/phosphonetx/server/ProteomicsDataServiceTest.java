@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1.ProteomicsDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.PropertyKey;
@@ -152,11 +154,32 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         IEntityProperty p4 = property("boolean", DataTypeCode.BOOLEAN, "true");
         IEntityProperty p5 = property("link", DataTypeCode.HYPERLINK, "link");
         parent.setProperties(Arrays.asList(p4, p5));
+        Experiment experiment = new Experiment();
+        experiment.setId(4747L);
+        experiment.setCode("exp1");
+        Project project = new Project();
+        project.setCode("project1");
+        Space space = new Space();
+        space.setCode("space1");
+        project.setSpace(space);
+        experiment.setProject(project);
+        experiment.setRegistrationDate(new Date(1234567));
+        IEntityProperty p6 = property("ex", DataTypeCode.VARCHAR, "exp");
+        experiment.setProperties(Arrays.<IEntityProperty>asList(p6));
+        parent.setExperiment(experiment);
         sample .setGeneratedFrom(parent);
+        final ExternalData ds1 = createDataSet(RAW_DATA, 10);
+        final ExternalData ds2 = createDataSet(MZXML_DATA, 20);
+        ExternalData ds3 = createDataSet(MZXML_DATA, 15);
+        ExternalData ds4 = createDataSet(RAW_DATA, 30);
+        ds2.setChildren(Arrays.asList(ds3));
+        ds3.setChildren(Arrays.asList(ds4));
         context.checking(new Expectations()
             {
                 {
                     one(internalService).listRawDataSamples(session2.getSessionToken());
+                    MsInjectionSample msInjectionSample = new MsInjectionSample(sample, Arrays.asList(ds1, ds2));
+                    will(returnValue(Arrays.asList(msInjectionSample)));
                 }
             });
 
@@ -170,12 +193,71 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         assertEquals(parent.getId().longValue(), info.getBiologicalSampleID());
         assertEquals(parent.getIdentifier(), info.getBiologicalSampleIdentifier());
         checkProperties(info.getBiologicalSampleProperties(), p4, p5);
+        assertEquals("4747:space1/project1/exp1 date:1234567 {ex[EX]=exp}",
+                renderExperiment(info.getBiologicalExperiment()));
+        checkProperties(info.getBiologicalExperiment().getProperties(), p6);
+        List<DataSet> dataSets = new ArrayList<DataSet>(info.getDataSets());
+        Collections.sort(dataSets, new Comparator<DataSet>()
+            {
+                public int compare(DataSet d1, DataSet d2)
+                {
+                    return d1.getCode().compareTo(d2.getCode());
+                }
+            });
+        assertEquals("20:MZXML_DATA-20 [MZXML_DATA date:20] {n[N]=2.5}, children:15",
+                renderDataSet(dataSets.get(0)));
+        assertEquals("10:RAW_DATA-10 [RAW_DATA date:10] {n[N]=2.5}", renderDataSet(dataSets.get(1)));
+        assertEquals("15:MZXML_DATA-15 [MZXML_DATA date:15] {n[N]=2.5}, parent:20 , children:30",
+                renderDataSet(dataSets.get(0).getChildren().iterator().next()));
+        assertEquals("30:RAW_DATA-30 [RAW_DATA date:30] {n[N]=2.5}, parent:15",
+                renderDataSet(dataSets.get(0).getChildren().iterator().next().getChildren()
+                        .iterator().next()));
+        assertEquals(2, dataSets.size());
         Map<String, Date> dates = info.getLatestDataSetRegistrationDates();
         assertEquals(30, dates.get(RAW_DATA).getTime());
         assertEquals(20, dates.get(MZXML_DATA).getTime());
         assertEquals(2, dates.size());
         assertEquals(1, infos.size());
         context.assertIsSatisfied();
+    }
+    
+    private String renderExperiment(ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment experiment)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(experiment.getId()).append(":").append(experiment.getSpaceCode());
+        builder.append('/').append(experiment.getProjectCode());
+        builder.append('/').append(experiment.getCode());
+        builder.append(" date:").append(experiment.getRegistrationDate().getTime());
+        builder.append(' ').append(experiment.getProperties());
+        return builder.toString();
+    }
+    
+    private String renderDataSet(DataSet dataSet)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(dataSet.getId()).append(":").append(dataSet.getCode());
+        builder.append(" [").append( dataSet.getType()).append(" date:");
+        builder.append(dataSet.getRegistrationDate().getTime()).append("] ");
+        builder.append(dataSet.getProperties());
+        Set<DataSet> parents = dataSet.getParents();
+        if (parents != null && parents.isEmpty() == false)
+        {
+            builder.append(", parent:");
+            for (DataSet parent : parents)
+            {
+                builder.append(parent.getId()).append(' ');
+            }
+        }
+        Set<DataSet> children = dataSet.getChildren();
+        if (children != null && children.isEmpty() == false)
+        {
+            builder.append(", children:");
+            for (DataSet child : children)
+            {
+                builder.append(child.getId()).append(' ');
+            }
+        }
+        return builder.toString().trim();
     }
 
     @Test
@@ -328,8 +410,11 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
     private ExternalData createDataSet(String type, long date)
     {
         ExternalData dataSet = new ExternalData();
+        dataSet.setId(date);
+        dataSet.setCode(type + "-" + date);
         dataSet.setDataSetType(new DataSetType(type));
         dataSet.setRegistrationDate(new Date(date));
+        dataSet.setDataSetProperties(Arrays.asList(property("n", DataTypeCode.REAL, "2.5")));
         return dataSet;
     }
     
