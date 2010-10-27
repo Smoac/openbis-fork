@@ -34,14 +34,14 @@ public class MaterialAdaptor extends AbstractEntityAdaptor
         this.MaterialPE = MaterialPE;
     }
 
-    public MaterialPE getMaterialPE()
+    public MaterialPE materialPE()
     {
         return MaterialPE;
     }
 
-    public MaterialPE getEntityPE()
+    public MaterialPE entityPE()
     {
-        return getMaterialPE();
+        return materialPE();
     }
 
 }

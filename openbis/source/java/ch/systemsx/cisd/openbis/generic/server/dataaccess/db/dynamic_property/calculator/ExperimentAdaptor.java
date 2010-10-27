@@ -34,14 +34,14 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor
         this.experimentPE = experimentPE;
     }
 
-    public ExperimentPE getExperimentPE()
+    public ExperimentPE experimentPE()
     {
         return experimentPE;
     }
 
-    public ExperimentPE getEntityPE()
+    public ExperimentPE entityPE()
     {
-        return getExperimentPE();
+        return experimentPE();
     }
 
 }

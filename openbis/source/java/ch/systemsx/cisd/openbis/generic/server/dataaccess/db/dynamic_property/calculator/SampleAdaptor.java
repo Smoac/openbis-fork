@@ -34,14 +34,14 @@ public class SampleAdaptor extends AbstractEntityAdaptor
         this.samplePE = samplePE;
     }
 
-    public SamplePE getSamplePE()
+    public SamplePE samplePE()
     {
         return samplePE;
     }
 
-    public SamplePE getEntityPE()
+    public SamplePE entityPE()
     {
-        return getSamplePE();
+        return samplePE();
     }
 
 }
