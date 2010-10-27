@@ -34,11 +34,11 @@ public class PropertyTypeAssignmentBrowserTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS);
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
-        table.expectedRow(new Row().withCell(
-                PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), "DESCRIPTION").withCell(
-                PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), "CONTROL_LAYOUT").withCell(
-                PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(), "Sample"));
-        remoteConsole.prepare(table.expectedSize(34));
+        table.expectedRow(new Row()
+                .withCell(PropertyTypeAssignmentColDefKind.PROPERTY_TYPE_CODE.id(), "DESCRIPTION")
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), "CONTROL_LAYOUT")
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(), "Sample"));
+        remoteConsole.prepare(table.expectedSize(35));
 
         launchTest();
     }
