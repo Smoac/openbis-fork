@@ -751,6 +751,11 @@ public abstract class Dict
     public static final String IGNORE_UNREGISTERED_MATERIALS = "ignore_unregistered_materials";
 
     //
+    // Script Browser
+    //
+    public static final String SCRIPT_BROWSER = "script_browser";
+
+    //
     // Material Chooser
     //
 

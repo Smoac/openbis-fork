@@ -47,6 +47,8 @@ public class HelpPageIdentifier
         // administration subdomains
         GROUP(ADMINISTRATION),
 
+        SCRIPT(ADMINISTRATION),
+
         PROJECT(ADMINISTRATION),
 
         VOCABULARY(ADMINISTRATION),

@@ -50,7 +50,7 @@ public class TopMenu extends LayoutContainer
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
     public static enum ActionMenuKind implements IActionMenuItem
     {
-        ADMINISTRATION_MENU_MANAGE_GROUPS,
+        ADMINISTRATION_MENU_MANAGE_GROUPS, ADMINISTRATION_MENU_SCRIPTS,
 
         AUTHORIZATION_MENU_USERS, AUTHORIZATION_MENU_ROLES,
         AUTHORIZATION_MENU_AUTHORIZATION_GROUPS,

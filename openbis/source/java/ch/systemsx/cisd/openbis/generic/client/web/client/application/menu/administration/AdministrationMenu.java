@@ -49,6 +49,8 @@ public class AdministrationMenu extends TopMenuItem
         submenu.add(new PropertyTypesMenu(messageProvider, componentProvider));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS,
                 messageProvider, componentProvider.getFileFormatTypeBrowser()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_SCRIPTS,
+                messageProvider, componentProvider.getScriptBrowser()));
         submenu.add(new AuthorizationMenu(messageProvider, componentProvider));
         if (viewContext.isLoggingEnabled())
         {

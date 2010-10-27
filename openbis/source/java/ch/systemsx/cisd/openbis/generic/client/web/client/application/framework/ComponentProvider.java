@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ScriptGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetBatchUpdatePanel;
@@ -218,6 +219,44 @@ public final class ComponentProvider
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
                     return new HelpPageIdentifier(HelpPageDomain.GROUP, HelpPageAction.BROWSE);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.GROUP_BROWSER);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
+            };
+    }
+
+    public final AbstractTabItemFactory getScriptBrowser()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    IDisposableComponent component = ScriptGrid.create(viewContext);
+                    return createTab(getTabTitle(), component);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return ScriptGrid.BROWSER_ID;
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SCRIPT, HelpPageAction.BROWSE);
                 }
 
                 @Override

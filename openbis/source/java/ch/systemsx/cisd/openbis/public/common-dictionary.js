@@ -687,6 +687,8 @@ default_group: "Default Space",
 //
 add_script_title: "Add a new script",
 title_choose_script: "Choose a Script",
+script_browser: "Scripts",
+ADMINISTRATION_MENU_SCRIPTS: "Scripts",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
