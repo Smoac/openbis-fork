@@ -18,7 +18,7 @@ package ch.systemsx.cisd.bds.storage.filesystem;
 
 import java.io.File;
 
-import com.sun.corba.se.impl.orbutil.ObjectUtility;
+import org.apache.commons.lang.ObjectUtils;
 
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
@@ -134,7 +134,7 @@ final class Link implements IFileBasedLink
         {
             return false;
         }
-        return ObjectUtility.equals(getPath(), ((IFileBasedLink) obj).getPath());
+        return ObjectUtils.equals(getPath(), ((IFileBasedLink) obj).getPath());
     }
 
     @Override
