@@ -157,12 +157,6 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
             {
                 {
                     one(internalService).listRawDataSamples(session2.getSessionToken());
-                    MsInjectionSample msInjectionSample = new MsInjectionSample(sample);
-                    msInjectionSample.addLatestDataSet(createDataSet(RAW_DATA, 10));
-                    msInjectionSample.addLatestDataSet(createDataSet(MZXML_DATA, 20));
-                    msInjectionSample.addLatestDataSet(createDataSet(MZXML_DATA, 15));
-                    msInjectionSample.addLatestDataSet(createDataSet(RAW_DATA, 30));
-                    will(returnValue(Arrays.asList(msInjectionSample)));
                 }
             });
 

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -32,10 +33,25 @@ public class MsInjectionSample
 {
     private final Sample sample;
     private final Map<String, ExternalData> latestDataSets = new LinkedHashMap<String, ExternalData>();
+    private final List<ExternalData> dataSets;
 
-    public MsInjectionSample(Sample sample)
+    public MsInjectionSample(Sample sample, List<ExternalData> dataSets)
     {
         this.sample = sample;
+        this.dataSets = dataSets;
+        add(dataSets);
+    }
+
+    private void add(List<ExternalData> datasets)
+    {
+        if (datasets != null)
+        {
+            for (ExternalData dataSet : datasets)
+            {
+                addLatestDataSet(dataSet);
+                add(dataSet.getChildren());
+            }
+        }
     }
 
     public Sample getSample()
@@ -43,12 +59,17 @@ public class MsInjectionSample
         return sample;
     }
 
+    public final List<ExternalData> getDataSets()
+    {
+        return dataSets;
+    }
+
     public Map<String, ExternalData> getLatestDataSets()
     {
         return latestDataSets;
     }
 
-    public void addLatestDataSet(ExternalData dataSet)
+    private void addLatestDataSet(ExternalData dataSet)
     {
         String dataSetTypeCode = dataSet.getDataSetType().getCode();
         Date registrationDate = dataSet.getRegistrationDate();

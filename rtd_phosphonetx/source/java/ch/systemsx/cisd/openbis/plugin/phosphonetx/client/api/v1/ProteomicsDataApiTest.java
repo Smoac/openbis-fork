@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
@@ -55,8 +57,20 @@ public class ProteomicsDataApiTest
             {
                 System.out.println("   " + info.getMsInjectionSampleCode() + " -> "
                         + info.getBiologicalSampleIdentifier() + " -> "
-                        + info.getBiologicalExperimentIdentifier() + ": latest data sets: "
-                        + latestDataSets);
+                        + info.getBiologicalExperimentIdentifier());
+                Experiment experiment = info.getBiologicalExperiment();
+                if (experiment != null)
+                {
+                    System.out.println("   biological experiment: "
+                            + experiment.getCode() + " "
+                            + experiment.getProperties());
+                }
+                System.out.println("   latest data sets: " + info.getLatestDataSetRegistrationDates());
+                Set<DataSet> dataSets = info.getDataSets();
+                for (DataSet dataSet : dataSets)
+                {
+                    print(dataSet, "         ");
+                }
             }
         }
         
@@ -99,5 +113,16 @@ public class ProteomicsDataApiTest
         }
         
         facade.logout();
+    }
+    
+    private static void print(DataSet dataSet, String indentation)
+    {
+        System.out.println(indentation + dataSet.getCode() + " " + dataSet.getType() + " "
+                + dataSet.getRegistrationDate() + " " + dataSet.getProperties());
+        Set<DataSet> children = dataSet.getChildren();
+        for (DataSet child : children)
+        {
+            print(child, indentation + "  ");
+        }
     }
 }

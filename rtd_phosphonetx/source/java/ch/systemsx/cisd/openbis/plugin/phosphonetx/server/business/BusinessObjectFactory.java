@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -31,11 +32,14 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
 {
     private final IDAOFactory daoFactory;
     private final IPhosphoNetXDAOFactory specificDAOFactory;
+    private final ICommonBusinessObjectFactory businessObjectFactory;
 
-    public BusinessObjectFactory(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory)
+    public BusinessObjectFactory(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
+            ICommonBusinessObjectFactory businessObjectFactory)
     {
         this.daoFactory = daoFactory;
         this.specificDAOFactory = specificDAOFactory;
+        this.businessObjectFactory = businessObjectFactory;
     }
 
     public ISampleLister createSampleLister(Session session)
@@ -87,5 +91,12 @@ public class BusinessObjectFactory  extends AbstractPluginBusinessObjectFactory 
     {
         return new SampleProvider(session, this);
     }
+
+    public ISampleLoader createSampleLoader(Session session)
+    {
+        return new SampleLoader(session, daoFactory, businessObjectFactory);
+    }
+    
+    
 
 }

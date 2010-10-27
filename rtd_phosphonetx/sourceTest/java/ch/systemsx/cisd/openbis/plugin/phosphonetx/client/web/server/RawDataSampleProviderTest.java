@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDa
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.RawDataSampleGridIDs.REGISTRATION_DATE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -220,7 +222,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
                     List<MsInjectionSample> list = new ArrayList<MsInjectionSample>();
                     for (Sample sample : samples)
                     {
-                        list.add(new MsInjectionSample(sample));
+                        list.add(new MsInjectionSample(sample, Arrays.<ExternalData>asList()));
                     }
                     will(returnValue(list));
                 }

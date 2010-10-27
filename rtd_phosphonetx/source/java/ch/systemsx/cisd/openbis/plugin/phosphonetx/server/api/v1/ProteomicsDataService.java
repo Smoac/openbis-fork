@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.IProteomicsDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.PropertyKey;
@@ -122,8 +124,17 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         if (experiment != null)
         {
             info.setBiologicalExperimentIdentifier(experiment.getIdentifier());
+            info.setBiologicalExperiment(translate(experiment));
         }
         info.setBiologicalSampleProperties(translate(bioSample.getProperties()));
+        List<ExternalData> dataSets = sample.getDataSets();
+        Set<DataSet> transformedDataSets = new HashSet<DataSet>();
+        for (ExternalData dataSet : dataSets)
+        {
+            DataSet transformedDataSet = transform(dataSet);
+            transformedDataSets.add(transformedDataSet);
+        }
+        info.setDataSets(transformedDataSets);
         Map<String, Date> latestDataSetRegistrationDates = new HashMap<String, Date>();
         for (Entry<String, ExternalData> entry : sample.getLatestDataSets().entrySet())
         {
@@ -131,6 +142,25 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         }
         info.setLatestDataSetRegistrationDates(latestDataSetRegistrationDates);
         return info;
+    }
+
+    private DataSet transform(ExternalData dataSet)
+    {
+        DataSet transformedDataSet = new DataSet();
+        transformedDataSet.setId(dataSet.getId());
+        transformedDataSet.setCode(dataSet.getCode());
+        transformedDataSet.setType(dataSet.getDataSetType().getCode());
+        transformedDataSet.setRegistrationDate(dataSet.getRegistrationDate());
+        transformedDataSet.setProperties(translate(dataSet.getProperties()));
+        List<ExternalData> children = dataSet.getChildren();
+        if (children != null && children.isEmpty() == false)
+        {
+            for (ExternalData child : children)
+            {
+                transformedDataSet.addChild(transform(child));
+            }
+        }
+        return transformedDataSet;
     }
 
     public List<DataStoreServerProcessingPluginInfo> listDataStoreServerProcessingPluginInfos(
@@ -195,13 +225,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
             for (Experiment experiment : experiments)
             {
                 ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment e =
-                        new ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment();
-                e.setId(experiment.getId());
-                e.setCode(experiment.getCode());
-                e.setProjectCode(experiment.getProject().getCode());
-                e.setSpaceCode(experiment.getProject().getSpace().getCode());
-                e.setRegistrationDate(experiment.getRegistrationDate());
-                e.setProperties(translate(experiment.getProperties()));
+                        translate(experiment);
                 result.add(e);
             }
             return result;
@@ -209,6 +233,20 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         {
             service.logout(session.getSessionToken());
         }
+    }
+
+    private ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment translate(
+            Experiment experiment)
+    {
+        ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment e =
+                new ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment();
+        e.setId(experiment.getId());
+        e.setCode(experiment.getCode());
+        e.setProjectCode(experiment.getProject().getCode());
+        e.setSpaceCode(experiment.getProject().getSpace().getCode());
+        e.setRegistrationDate(experiment.getRegistrationDate());
+        e.setProperties(translate(experiment.getProperties()));
+        return e;
     }
 
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
@@ -260,7 +298,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
 
     public int getMinorVersion()
     {
-        return 2;
+        return 3;
     }
 
 }

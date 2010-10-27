@@ -38,6 +38,7 @@
           class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.BusinessObjectFactory">
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="phosphonetx-dao-factory"/>
+        <constructor-arg ref="common-business-object-factory" />
     </bean>      
     
     <!-- 
@@ -66,6 +67,7 @@
         </constructor-arg>
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="common-business-object-factory" />
+        <constructor-arg ref="phosphonetx-bo-factory" />
     </bean>
     
     <bean id="proteomics-data-service-web" 
@@ -73,6 +75,7 @@
         <constructor-arg ref="session-manager" />
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="common-business-object-factory" />
+        <constructor-arg ref="phosphonetx-bo-factory" />
     </bean>
 
     

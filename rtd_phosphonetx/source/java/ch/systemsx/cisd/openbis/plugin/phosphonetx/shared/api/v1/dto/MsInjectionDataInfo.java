@@ -19,14 +19,17 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Informations about an MS_INJECTION sample and its related biological sample. There are attributes
  * for 
  * <ul><li>MS_INJECTION sample: ID, properties, code and registration date
  * <li>Biological sample: identifier and properties
- * <li>Identifier of biological experiment (i.e. experiment of biological sample) if present
+ * <li>Biological experiment (i.e. experiment of biological sample) if present: identifier and properties
  * <li>Registration dates of the most recently registered data sets for each data set type 
+ * <li>All data sets including the derived ones of the MS_INJECTION sample with their type, 
+ * registration date, and properties.
  * </ul>
  *
  * @author Franz-Josef Elmer
@@ -49,7 +52,11 @@ public class MsInjectionDataInfo implements Serializable
     
     private String biologicalExperimentIdentifier;
     
+    private Experiment biologicalExperiment;
+    
     private Map<PropertyKey, Serializable> biologicalSampleProperties;
+    
+    private Set<DataSet> dataSets;
     
     private Map<String, Date> latestDataSetRegistrationDates;
 
@@ -124,6 +131,16 @@ public class MsInjectionDataInfo implements Serializable
         this.biologicalExperimentIdentifier = biologicalExperimentIdentifier;
     }
 
+    public final Experiment getBiologicalExperiment()
+    {
+        return biologicalExperiment;
+    }
+
+    public final void setBiologicalExperiment(Experiment biologicalExperiment)
+    {
+        this.biologicalExperiment = biologicalExperiment;
+    }
+
     public Map<PropertyKey, Serializable> getBiologicalSampleProperties()
     {
         return biologicalSampleProperties;
@@ -132,6 +149,16 @@ public class MsInjectionDataInfo implements Serializable
     public void setBiologicalSampleProperties(Map<PropertyKey, Serializable> biologicalSampleProperties)
     {
         this.biologicalSampleProperties = biologicalSampleProperties;
+    }
+
+    public final Set<DataSet> getDataSets()
+    {
+        return dataSets;
+    }
+
+    public final void setDataSets(Set<DataSet> dataSets)
+    {
+        this.dataSets = dataSets;
     }
 
     public Map<String, Date> getLatestDataSetRegistrationDates()

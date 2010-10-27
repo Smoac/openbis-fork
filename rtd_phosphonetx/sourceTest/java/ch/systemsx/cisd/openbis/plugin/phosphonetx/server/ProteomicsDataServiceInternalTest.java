@@ -31,10 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -47,13 +44,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -62,9 +60,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
@@ -80,20 +79,37 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
     private IProteomicsDataServiceInternal service;
 
-    private ICommonBusinessObjectFactory boFactory;
+    private ICommonBusinessObjectFactory commonBoFactory;
 
     private ExperimentTypePE experimentType;
+
+    private IBusinessObjectFactory boFactory;
+
+    private ISampleLoader sampleLoader;
 
     @Override
     @BeforeMethod
     public final void setUp()
     {
         super.setUp();
-        boFactory = context.mock(ICommonBusinessObjectFactory.class);
-        service = new ProteomicsDataServiceInternal(sessionManager, daoFactory, boFactory);
+        commonBoFactory = context.mock(ICommonBusinessObjectFactory.class);
+        boFactory = context.mock(IBusinessObjectFactory.class);
+        sampleLoader = context.mock(ISampleLoader.class);
+        service = new ProteomicsDataServiceInternal(sessionManager, daoFactory, commonBoFactory, boFactory);
         experimentType = new ExperimentTypePE();
         experimentType.setCode(SEARCH_EXPERIMENT_TYPE);
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
+        PersonPE person = new PersonPE();
+        RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
+        GroupPE group = new GroupPE();
+        group.setCode("Space-0");
+        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        databaseInstance.setCode("db");
+        databaseInstance.setUuid("UUID-db");
+        group.setDatabaseInstance(databaseInstance);
+        roleAssignment.setGroup(group);
+        person.setRoleAssignments(Collections.singleton(roleAssignment));
+        SESSION.setPerson(person);
     }
 
     @Test
@@ -117,8 +133,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         final long[] ids = new long[]
             { 2 };
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
-        parameterBindings.put("ds-2", "s-2");
-        prepareProcessDataSets(SESSION, parameterBindings, "ds-2");
+        parameterBindings.put("ds-21-child", "s-2");
+        prepareProcessDataSets(SESSION, parameterBindings, "ds-21-child");
 
         service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids, "dt-0");
 
@@ -274,7 +290,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     DataStorePE s2 = store("s2", service(COPY_PROCESSING_KEY, PROCESSING));
                     will(returnValue(Arrays.asList(s1, s2)));
 
-                    one(boFactory).createExternalDataTable(session);
+                    one(commonBoFactory).createExternalDataTable(session);
                     will(returnValue(externalDataTable));
 
                     one(externalDataTable).processDatasets(COPY_PROCESSING_KEY, "s2",
@@ -287,8 +303,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     private void prepareListRawDataSamples(final Long... sampleIDs)
     {
         final List<Sample> samples = new ArrayList<Sample>();
-        final List<ExternalData> dataSets = new ArrayList<ExternalData>();
-        final LinkedHashSet<TechId> experimentIds = new LinkedHashSet<TechId>();
+        final LinkedHashSet<Long> experimentIds = new LinkedHashSet<Long>();
+        final List<ExperimentPE> bioExperiments = new ArrayList<ExperimentPE>();
         for (Long id : sampleIDs)
         {
             Sample sample = new Sample();
@@ -300,67 +316,74 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
             sample.setExperiment(experiment);
             Sample parent = new Sample();
             parent.setId(id * 100);
+            Space space = new Space();
+            space.setCode("Space-" + id % 2);
+            DatabaseInstance instance = new DatabaseInstance();
+            instance.setCode("db");
+            instance.setUuid("UUID-db");
+            space.setInstance(instance);
+            parent.setSpace(space);
+            Experiment parentExperiment = new Experiment();
+            parentExperiment.setId(id * 20);
+            parent.setExperiment(parentExperiment);
             sample.setGeneratedFrom(parent);
             samples.add(sample);
-            ExternalData dataSet = new ExternalData();
-            dataSet.setId(id * 1000);
-            dataSet.setCode("ds-" + id);
-            dataSet.setDataSetType(new DataSetType("dt-" + id % 2));
-            dataSet.setSample(sample);
-            dataSets.add(dataSet);
-            experimentIds.add(new TechId(id * 10));
+            if (id % 2 == 0)
+            {
+                ExperimentPE bioExperiment = createExperiment("e-type", "exp-" + id, space.getCode());
+                bioExperiment.setId(parentExperiment.getId());
+                bioExperiments.add(bioExperiment);
+                experimentIds.add(bioExperiment.getId());
+            }
         }
         context.checking(new Expectations()
             {
                 {
-                    one(boFactory).createSampleLister(SESSION);
-                    will(returnValue(sampleLister));
-
-                    one(sampleTypeDAO).tryFindSampleTypeByCode(RAW_DATA_SAMPLE_TYPE);
-                    final SampleTypePE sampleType = new SampleTypePE();
-                    sampleType.setCode(RAW_DATA_SAMPLE_TYPE);
-                    sampleType.setId(20100104l);
-                    sampleType.setListable(Boolean.TRUE);
-                    sampleType.setAutoGeneratedCode(Boolean.FALSE);
-                    sampleType.setSubcodeUnique(Boolean.FALSE);
-                    sampleType.setGeneratedFromHierarchyDepth(0);
-                    sampleType.setContainerHierarchyDepth(0);
-                    sampleType.setSubcodeUnique(false);
-                    will(returnValue(sampleType));
-
-                    one(sampleLister).list(with(new BaseMatcher<ListOrSearchSampleCriteria>()
-                        {
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof ListOrSearchSampleCriteria)
-                                {
-                                    ListOrSearchSampleCriteria criteria =
-                                            (ListOrSearchSampleCriteria) item;
-                                    assertEquals(SPACE_CODE, criteria.getSpaceCode());
-                                    assertEquals(true, criteria.isIncludeSpace());
-                                    SampleType type = criteria.getSampleType();
-                                    assertEquals(RAW_DATA_SAMPLE_TYPE, type.getCode());
-                                    assertEquals(sampleType.getId(), type.getId());
-                                    return true;
-                                }
-                                return false;
-                            }
-
-                            public void describeTo(Description description)
-                            {
-                                description.appendValue(sampleType);
-                            }
-                        }));
+                    one(boFactory).createSampleLoader(SESSION);
+                    will(returnValue(sampleLoader));
+                    
+                    one(sampleLoader).listSamplesWithParentsByTypeAndSpace(RAW_DATA_SAMPLE_TYPE, SPACE_CODE);
                     will(returnValue(samples));
-
-                    one(boFactory).createDatasetLister(SESSION);
+                    
+                    one(experimentDAO).listExperimentsWithProperties(experimentIds);
+                    will(returnValue(bioExperiments));
+                    
+                    List<Sample> filteredSamples = new ArrayList<Sample>();
+                    Map<Sample, List<ExternalData>> dataSetsBySamples = new HashMap<Sample, List<ExternalData>>();
+                    for (Sample sample : samples)
+                    {
+                        if ("Space-0".equals(sample.getGeneratedFrom().getSpace().getCode()))
+                        {
+                            Long id = sample.getId();
+                            ExternalData ds1 = new ExternalData();
+                            ds1.setId(id * 1000);
+                            ds1.setCode("ds-" + id);
+                            ds1.setRegistrationDate(new Date(ds1.getId()));
+                            ds1.setDataSetType(new DataSetType("dt-" + id % 2));
+                            ds1.setSample(sample);
+                            ExternalData ds2 = new ExternalData();
+                            ds2.setId((id + 1) * 1001);
+                            ds2.setCode("ds-" + id + 1);
+                            ds2.setRegistrationDate(new Date(ds2.getId()));
+                            ds2.setDataSetType(new DataSetType("dt-" + id % 2));
+                            ds2.setSample(sample);
+                            ExternalData ds2Child = new ExternalData();
+                            ds2Child.setId(ds2.getId() + 1);
+                            ds2Child.setCode(ds2.getCode() + "-child");
+                            ds2Child.setRegistrationDate(new Date(ds2Child.getId()));
+                            ds2Child.setDataSetType(new DataSetType("dt-" + id % 2));
+                            ds2.setChildren(Arrays.asList(ds2Child));
+                            dataSetsBySamples.put(sample, Arrays.asList(ds1, ds2));
+                            filteredSamples.add(sample);
+                        }
+                    }
+                    
+                    one(commonBoFactory).createDatasetLister(SESSION);
                     will(returnValue(datasetLister));
-
-                    one(datasetLister).listByExperimentTechIds(experimentIds);
-                    will(returnValue(dataSets));
-
-                    one(datasetLister).listParentIds(Collections.<Long> emptySet());
-                    will(returnValue(Collections.<Long, Set<Long>> emptyMap()));
+                        
+                    one(datasetLister).listAllDataSetsFor(filteredSamples);
+                    will(returnValue(dataSetsBySamples));
+                    
                 }
             });
     }
@@ -390,7 +413,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         }
         return experiment;
     }
-
+    
     private DataStorePE store(String code, DataStoreServicePE... services)
     {
         DataStorePE store = new DataStorePE();

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.rinn.restrictions.Private;
@@ -30,7 +31,6 @@ import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
@@ -41,8 +41,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -50,13 +48,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.DataSetManager;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ExperimentLoader;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleLoader;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.ParentSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 
@@ -73,26 +72,34 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
 
     @Private
     static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
+    
+    private static final IValidator<Sample> PARENT_SAMPLE_VALIDATOR = new ParentSampleValidator();
 
     private static final IValidator<MsInjectionSample> RAW_DATA_SAMPLE_VALIDATOR =
             new RawDataSampleValidator();
     
     private static final IValidator<Experiment> EXPERIMENT_VALIDATOR = new ExperimentValidator();
 
-    private ICommonBusinessObjectFactory businessObjectFactory;
+    private ICommonBusinessObjectFactory commonBoFactory;
 
     private ISessionManager<Session> sessionManagerFromConstructor;
+
+    private ExperimentLoader experimentLoader;
+
+    private IBusinessObjectFactory boFactory;
 
     public ProteomicsDataServiceInternal()
     {
     }
 
     public ProteomicsDataServiceInternal(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            ICommonBusinessObjectFactory businessObjectFactory)
+            ICommonBusinessObjectFactory businessObjectFactory, IBusinessObjectFactory boFactory)
     {
         super(sessionManager, daoFactory);
         sessionManagerFromConstructor = sessionManager;
-        this.businessObjectFactory = businessObjectFactory;
+        this.commonBoFactory = businessObjectFactory;
+        this.boFactory = boFactory;
+        experimentLoader = new ExperimentLoader(getDAOFactory());
     }
 
     public void replaceAutoWiredSesseionManagerByConstructorSessionManager()
@@ -188,23 +195,38 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
 
     private List<MsInjectionSample> loadAllRawDataSamples(Session session)
     {
-        ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        ListSampleCriteria criteria = new ListSampleCriteria();
-        SampleTypePE sampleTypePE =
-                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(RAW_DATA_SAMPLE_TYPE);
-        criteria.setSampleType(SampleTypeTranslator.translate(sampleTypePE, null));
-        criteria.setIncludeSpace(true);
-        criteria.setSpaceCode(SPACE_CODE);
-        ListOrSearchSampleCriteria criteria2 = new ListOrSearchSampleCriteria(criteria);
-        criteria2.setEnrichDependentSamplesWithProperties(true);
-        List<Sample> samples = sampleLister.list(criteria2);
-        DataSetManager manager = new DataSetManager();
+        List<Sample> samples = loadAccessableSamples(session);
+        List<Sample> parentSamples = new ArrayList<Sample>();
         for (Sample sample : samples)
         {
-            manager.addSample(sample);
+            parentSamples.add(sample.getGeneratedFrom());
         }
-        manager.gatherDataSets(businessObjectFactory.createDatasetLister(session));
-        return manager.getSamples();
+        experimentLoader.enrichWithExperiments(parentSamples);
+        Map<Sample, List<ExternalData>> dataSetsBySamples =
+                commonBoFactory.createDatasetLister(session).listAllDataSetsFor(samples);
+        List<MsInjectionSample> result = new ArrayList<MsInjectionSample>();
+        for (Entry<Sample, List<ExternalData>> entry : dataSetsBySamples.entrySet())
+        {
+            result.add(new MsInjectionSample(entry.getKey(), entry.getValue()));
+        }
+        return result;
+    }
+
+    protected List<Sample> loadAccessableSamples(Session session)
+    {
+        ISampleLoader sampleLoader = boFactory.createSampleLoader(session);
+        List<Sample> samples =
+                sampleLoader.listSamplesWithParentsByTypeAndSpace(RAW_DATA_SAMPLE_TYPE, SPACE_CODE);
+        PersonPE person = session.tryGetPerson();
+        List<Sample> validSamples = new ArrayList<Sample>();
+        for (Sample sample : samples)
+        {
+            if (PARENT_SAMPLE_VALIDATOR.isValid(person, sample))
+            {
+                validSamples.add(sample);
+            }
+        }
+        return validSamples;
     }
 
     private void processDataSets(Session session, String dataSetProcessingKey,
@@ -212,7 +234,7 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
     {
         String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
         IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
+                commonBoFactory.createExternalDataTable(session);
         externalDataTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes,
                 parameterBindings);
     }

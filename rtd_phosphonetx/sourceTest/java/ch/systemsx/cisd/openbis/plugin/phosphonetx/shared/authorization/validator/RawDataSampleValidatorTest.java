@@ -23,6 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -79,7 +80,7 @@ public class RawDataSampleValidatorTest extends AssertJUnit
             }
             sample.setGeneratedFrom(parent);
         }
-        return new MsInjectionSample(sample);
+        return new MsInjectionSample(sample, Arrays.<ExternalData>asList());
     }
 
     private static DatabaseInstance createDatabaseInstance(String code)

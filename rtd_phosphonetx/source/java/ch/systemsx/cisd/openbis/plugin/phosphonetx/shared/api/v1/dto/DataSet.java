@@ -18,28 +18,32 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Experiment bean with properties.
+ * Date Set bean with properties, children and parents.
  *
  * @author Franz-Josef Elmer
  */
-public class Experiment implements Serializable
+public class DataSet implements Serializable
 {
     private static final long serialVersionUID = 1L;
     
     private long id;
     
-    private String spaceCode;
-    
-    private String projectCode;
-    
     private String code;
+    
+    private String type;
     
     private Date registrationDate;
     
     private Map<PropertyKey, Serializable> properties;
+    
+    private Set<DataSet> parents = new HashSet<DataSet>();
+    
+    private Set<DataSet> children = new HashSet<DataSet>();
 
     public final long getId()
     {
@@ -51,26 +55,6 @@ public class Experiment implements Serializable
         this.id = id;
     }
 
-    public final String getSpaceCode()
-    {
-        return spaceCode;
-    }
-
-    public final void setSpaceCode(String spaceCode)
-    {
-        this.spaceCode = spaceCode;
-    }
-
-    public final String getProjectCode()
-    {
-        return projectCode;
-    }
-
-    public final void setProjectCode(String projectCode)
-    {
-        this.projectCode = projectCode;
-    }
-
     public final String getCode()
     {
         return code;
@@ -79,6 +63,16 @@ public class Experiment implements Serializable
     public final void setCode(String code)
     {
         this.code = code;
+    }
+
+    public final String getType()
+    {
+        return type;
+    }
+
+    public final void setType(String type)
+    {
+        this.type = type;
     }
 
     public final Date getRegistrationDate()
@@ -101,5 +95,20 @@ public class Experiment implements Serializable
         this.properties = properties;
     }
 
+    public final Set<DataSet> getParents()
+    {
+        return parents;
+    }
+
+    public final Set<DataSet> getChildren()
+    {
+        return children;
+    }
+
+    public void addChild(DataSet child)
+    {
+        getChildren().add(child);
+        child.getParents().add(this);
+    }
 
 }

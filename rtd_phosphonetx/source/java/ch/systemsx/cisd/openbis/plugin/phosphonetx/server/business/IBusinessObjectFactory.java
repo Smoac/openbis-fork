@@ -46,4 +46,6 @@ public interface IBusinessObjectFactory
     public ISampleIDProvider createSampleIDProvider(Session session);
     
     public ISampleProvider createSampleProvider(Session session);
+    
+    public ISampleLoader createSampleLoader(Session session);
 }
