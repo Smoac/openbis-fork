@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -65,6 +69,30 @@ public class MultilineVarcharField extends TextArea
     public void setValueAndUnescape(String escapedValue)
     {
         setValue(StringEscapeUtils.unescapeHtml(escapedValue));
+    }
+
+    /**
+     * By default tab key will cause change of focus to next field. Call this method to change the
+     * behaviour to act like a text editor where tab key appends a tab.
+     */
+    public void treatTabKeyAsInput()
+    {
+        addListener(Events.OnKeyDown, new Listener<FieldEvent>()
+            {
+                public void handleEvent(FieldEvent be)
+                {
+                    if (be.getKeyCode() == KeyCodes.KEY_TAB)
+                    {
+                        be.preventDefault();
+                        String t = getValue();
+                        int cp = getCursorPos();
+                        String start = t.substring(0, cp);
+                        String end = t.substring(cp, t.length());
+                        setValue(start + ((char) KeyCodes.KEY_TAB) + end);
+                        setCursorPos(cp + 1);
+                    }
+                }
+            });
     }
 
 }

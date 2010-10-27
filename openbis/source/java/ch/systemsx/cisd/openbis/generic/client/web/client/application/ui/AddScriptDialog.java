@@ -56,8 +56,18 @@ public class AddScriptDialog extends AbstractRegistrationDialog
         this.descriptionField = createDescriptionField(viewContext);
         addField(descriptionField);
 
-        this.scriptField = new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
+        this.scriptField = createScriptField(viewContext);
+        new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
         addField(scriptField);
+    }
+
+    private static MultilineVarcharField createScriptField(
+            IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        final MultilineVarcharField field =
+                new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
+        field.treatTabKeyAsInput();
+        return field;
     }
 
     @Override

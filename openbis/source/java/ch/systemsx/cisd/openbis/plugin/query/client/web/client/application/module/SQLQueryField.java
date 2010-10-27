@@ -70,6 +70,7 @@ public class SQLQueryField extends MultilineVarcharField
     {
         super(messageProvider.getMessage(Dict.SQL_QUERY), mandatory, lines);
         updateQueryType(QueryType.GENERIC);
+        treatTabKeyAsInput();
     }
 
     public SQLQueryField(IMessageProvider messageProvider, boolean mandatory)
