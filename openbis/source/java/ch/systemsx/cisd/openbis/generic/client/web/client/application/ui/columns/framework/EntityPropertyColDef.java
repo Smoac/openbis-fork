@@ -100,26 +100,19 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     @Override
     protected final String tryGetValue(T entity)
     {
-        String result = null;
-        for (IEntityProperty prop : getProperties(entity))
+        IEntityProperty property = tryGetProperty(entity);
+        String valueAsString = property == null ? null : property.tryGetAsString();
+
+        // remove error prefix for export
+        if (StringUtils.isBlank(valueAsString) == false
+                && StringEscapeUtils.unescapeHtml(valueAsString).startsWith(
+                        BasicConstant.ERROR_PROPERTY_PREFIX))
         {
-            if (isMatching(prop))
-            {
-                result = prop.tryGetAsString();
-                break;
-            }
+            valueAsString =
+                    StringEscapeUtils.unescapeHtml(valueAsString).substring(
+                            BasicConstant.ERROR_PROPERTY_PREFIX.length());
         }
-        if (StringUtils.isBlank(result) == false)
-        {
-            if (StringEscapeUtils.unescapeHtml(result).startsWith(
-                    BasicConstant.ERROR_PROPERTY_PREFIX))
-            {
-                result =
-                        StringEscapeUtils.unescapeHtml(result).substring(
-                                BasicConstant.ERROR_PROPERTY_PREFIX.length());
-            }
-        }
-        return result;
+        return valueAsString;
     }
 
     @Override

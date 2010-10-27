@@ -16,12 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
@@ -73,9 +78,24 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         this.colDef = colDef;
     }
 
-    public String getValue(GridRowModel<T> entity)
+    public String getValue(GridRowModel<T> rowModel)
     {
-        return renderValue(entity);
+        IEntityProperty property = colDef.tryGetProperty(rowModel.getOriginalObject());
+        String valueAsString = property == null ? null : property.tryGetAsString();
+
+        // error message should always display as multiline HTML
+        if (StringUtils.isBlank(valueAsString) == false
+                && StringEscapeUtils.unescapeHtml(valueAsString).startsWith(
+                        BasicConstant.ERROR_PROPERTY_PREFIX))
+        {
+            valueAsString =
+                    StringEscapeUtils.unescapeHtml(valueAsString).substring(
+                            BasicConstant.ERROR_PROPERTY_PREFIX.length());
+            return (new MultilineHTML(valueAsString)).toString();
+        } else
+        {
+            return renderValue(rowModel);
+        }
     }
 
     public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
