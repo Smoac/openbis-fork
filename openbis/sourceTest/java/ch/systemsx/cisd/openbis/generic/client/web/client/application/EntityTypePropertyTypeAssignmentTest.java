@@ -65,12 +65,13 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         remoteConsole.prepare(new InvokeActionMenu(
                 ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
-        table.expectedRow(new Row().withCell(PropertyTypeAssignmentColDefKind.LABEL.id(),
-                propertyTypeLabel).withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(),
-                entityTypeCode).withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(),
-                entityKind.getDescription()).withCell(
-                PropertyTypeAssignmentColDefKind.IS_MANDATORY.id(),
-                SimpleYesNoRenderer.render(isMandatory)));
+        table.expectedRow(new Row()
+                .withCell(PropertyTypeAssignmentColDefKind.LABEL.id(), propertyTypeLabel)
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(), entityTypeCode)
+                .withCell(PropertyTypeAssignmentColDefKind.ENTITY_KIND.id(),
+                        entityKind.getDescription())
+                .withCell(PropertyTypeAssignmentColDefKind.IS_MANDATORY.id(),
+                        SimpleYesNoRenderer.render(isMandatory)));
         remoteConsole.prepare(table.expectedSize(expectedEntries));
     }
 
@@ -80,7 +81,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, COMMENT, SIRNA_HCS,
                 "a comment", EXPERIMENT));
-        prepareListingAfterAssignment(COMMENT, SIRNA_HCS, EXPERIMENT, 35, mandatory);
+        prepareListingAfterAssignment(COMMENT, SIRNA_HCS, EXPERIMENT, 36, mandatory);
         launchTest();
     }
 
@@ -90,7 +91,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         final boolean mandatory = false;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, DESCRIPTION, HCS_IMAGE,
                 null, DATA_SET));
-        prepareListingAfterAssignment(DESCRIPTION, HCS_IMAGE, DATA_SET, 36, mandatory);
+        prepareListingAfterAssignment(DESCRIPTION, HCS_IMAGE, DATA_SET, 37, mandatory);
         launchTest();
     }
 

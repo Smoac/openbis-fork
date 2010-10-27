@@ -616,8 +616,6 @@ public final class GenericServerTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    // TODO 2010-10-19, Piotr Buczek
-    @Test(groups = "broken")
     public void testEditSampleNothingChanged() throws Exception
     {
         final TechId sampleId = CommonTestUtils.TECH_ID;
