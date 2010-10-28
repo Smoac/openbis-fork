@@ -829,7 +829,7 @@ public interface ICommonServer extends IServer
     /**
      * Returns unique code.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public String generateCode(String sessionToken, String prefix);
 

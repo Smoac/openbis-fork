@@ -226,7 +226,7 @@ public interface IGenericServer extends IServer
     /**
      * Returns a list of unique codes.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<String> generateCodes(String sessionToken, String prefix, int number);
 
