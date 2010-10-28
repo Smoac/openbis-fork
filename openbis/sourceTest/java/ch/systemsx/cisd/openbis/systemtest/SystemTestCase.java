@@ -40,7 +40,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     protected ICommonServerForInternalUse commonServer;
 
     protected ICommonClientService commonClientService;
-    
+
     protected IGenericClientService genericClientService;
 
     protected MockHttpServletRequest request;
@@ -96,7 +96,7 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     {
         this.genericClientService = genericClientService;
     }
-    
+
     protected SessionContext logIntoCommonClientService()
     {
         SessionContext context = commonClientService.tryToLogin("test", "a");
@@ -107,6 +107,17 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
     protected void logOutFromCommonClientService()
     {
         commonClientService.logout(new DisplaySettings());
+    }
+
+    protected void sleep(long millis)
+    {
+        try
+        {
+            Thread.sleep(millis);
+        } catch (InterruptedException ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
 }

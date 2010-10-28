@@ -52,13 +52,13 @@ public class NewETPTAssignment implements IsSerializable, Serializable
     }
 
     public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
-            boolean manadatory, String defaultValue, String section, Long ordinal, boolean dynamic,
+            boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
             String scriptOrNull)
     {
         this.entityKind = entityKind;
         this.propertyTypeCode = propertyTypeCode;
         this.entityTypeCode = entityTypeCode;
-        this.mandatory = manadatory;
+        this.mandatory = mandatory;
         this.defaultValue = defaultValue;
         this.section = section;
         this.ordinal = ordinal;
