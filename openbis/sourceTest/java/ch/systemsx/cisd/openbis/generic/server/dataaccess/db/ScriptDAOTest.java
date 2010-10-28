@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -82,21 +81,26 @@ public final class ScriptDAOTest extends AbstractDAOTest
     @Test
     public void testListScripts()
     {
-        assertEquals(0, daoFactory.getScriptDAO().listAllEntities().size());
-        int numberOfScripts = 10;
-        for (int i = 0; i < numberOfScripts; i++)
-        {
-            createScriptInDB(createScriptName(i), createScriptText(i), createScriptDescription(i));
-        }
+        int initialNumberOfScripts = daoFactory.getScriptDAO().listAllEntities().size();
+        int scriptNumber = 1;
+        createScriptInDB(createScriptName(scriptNumber), createScriptText(scriptNumber),
+                createScriptDescription(scriptNumber));
         final List<ScriptPE> scripts = daoFactory.getScriptDAO().listAllEntities();
-        assertEquals(numberOfScripts, scripts.size());
-        Collections.sort(scripts);
-        int index = 3;
-        ScriptPE script = scripts.get(index);
-        assertEquals(daoFactory.getHomeDatabaseInstance(), script.getDatabaseInstance());
-        assertEquals(createScriptName(index), script.getName());
-        assertEquals(createScriptText(index), script.getScript());
-        assertEquals(createScriptDescription(index), script.getDescription());
+        assertEquals(1 + initialNumberOfScripts, scripts.size());
+        ScriptPE registered = null;
+        for (ScriptPE s : scripts)
+        {
+            if (s.getName().equals(createScriptName(scriptNumber)))
+            {
+                registered = s;
+            }
+        }
+        assertNotNull(registered);
+        assert registered != null;// for Eclipse
+        assertEquals(daoFactory.getHomeDatabaseInstance(), registered.getDatabaseInstance());
+        assertEquals(createScriptName(scriptNumber), registered.getName());
+        assertEquals(createScriptText(scriptNumber), registered.getScript());
+        assertEquals(createScriptDescription(scriptNumber), registered.getDescription());
     }
 
     @Test
