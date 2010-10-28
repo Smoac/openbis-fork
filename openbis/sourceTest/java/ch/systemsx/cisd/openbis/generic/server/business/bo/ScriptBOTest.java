@@ -37,7 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = ScriptBO.class)
+@Friend(toClasses =
+    { ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
 public final class ScriptBOTest extends AbstractBOTest
 {
     private static final String SCRIPT = "1+1";
