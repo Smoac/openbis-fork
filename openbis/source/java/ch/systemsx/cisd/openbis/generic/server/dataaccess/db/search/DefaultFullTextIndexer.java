@@ -99,7 +99,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 final long maxId = ids.get(nextIndex);
                 final List<T> results =
                         listEntitiesWithRestrictedId(fullTextSession, clazz, minId, maxId);
-                indexEntities(fullTextSession, results, clazz);
+                indexEntities(fullTextSession, results);
                 index = nextIndex;
                 operationLog.info(String.format("%d/%d %ss have been indexed...", index + 1,
                         maxIndex + 1, clazz.getSimpleName()));
@@ -138,7 +138,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
                 List<Long> subList = ids.subList(index, nextIndex);
                 final List<T> results =
                         listEntitiesWithRestrictedId(fullTextSession, clazz, subList);
-                indexEntities(fullTextSession, results, clazz);
+                indexEntities(fullTextSession, results);
                 index = nextIndex;
                 operationLog.info(String.format("%d/%d %ss have been reindexed...", index,
                         maxIndex, clazz.getSimpleName()));
@@ -202,7 +202,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     }
 
     private static final <T> void indexEntities(final FullTextSession fullTextSession,
-            final List<T> entities, final Class<T> clazz)
+            final List<T> entities)
     {
         for (T entity : entities)
         {

@@ -118,7 +118,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 final long maxId = ids.get(nextIndex);
                 final List<T> results =
                         listEntitiesWithRestrictedId(hibernateSession, clazz, minId, maxId);
-                evaluateProperties(hibernateSession, results, clazz);
+                evaluateProperties(hibernateSession, results);
                 index = nextIndex;
                 operationLog.info(String.format("%d/%d %ss have been updated...", index + 1,
                         maxIndex + 1, clazz.getSimpleName()));
@@ -164,7 +164,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 List<Long> subList = dynamicIds.subList(index, nextIndex);
                 final List<T> results =
                         listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
-                evaluateProperties(hibernateSession, results, clazz);
+                evaluateProperties(hibernateSession, results);
                 index = nextIndex;
                 operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
                         clazz.getSimpleName()));
@@ -191,8 +191,9 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     }
 
     private static final <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(
-            final Session session, final List<T> entities, final Class<T> clazz)
+            final Session session, final List<T> entities)
     {
+        // TODO 2010-10-28, Piotr Buczek: group properties by ETPT and evaluate efficiently
         for (T entity : entities)
         {
             evaluateProperties(session, entity);
@@ -262,7 +263,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             {
                 try
                 {
-                    DynamicPropertyCalculator calculator =
+                    final DynamicPropertyCalculator calculator =
                             DynamicPropertyCalculator.create(etpt.getScript().getScript());
                     final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity);
                     calculator.setEntity(entityAdaptor);

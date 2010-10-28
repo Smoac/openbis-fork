@@ -60,4 +60,11 @@ public class StopWatchLogger
         System.err.println(watch.toString() + " - " + method);
     }
 
+    public void logAndReset(String method)
+    {
+        log(method);
+        watch.reset();
+        watch.start();
+    }
+
 }
