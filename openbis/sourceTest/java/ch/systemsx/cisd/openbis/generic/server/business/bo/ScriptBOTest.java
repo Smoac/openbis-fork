@@ -82,14 +82,11 @@ public final class ScriptBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(instance));
-
-                    one(daoFactory).getScriptDAO();
-                    will(returnValue(scriptDAO));
-
                     one(scriptFactory).create();
                     will(returnValue(scriptPE));
+
+                    one(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(instance));
 
                     one(scriptDAO).createOrUpdate(scriptPE);
                 }
@@ -115,9 +112,6 @@ public final class ScriptBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(daoFactory).getScriptDAO();
-                    will(returnValue(scriptDAO));
-
                     one(scriptDAO).getByTechId(techId);
                     will(returnValue(scriptPE));
 
@@ -138,9 +132,6 @@ public final class ScriptBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getScriptDAO();
-                    will(returnValue(scriptDAO));
-
                     one(scriptDAO).getByTechId(techId);
                     will(throwException(new DataRetrievalFailureException("Not found")));
 
@@ -168,9 +159,6 @@ public final class ScriptBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(daoFactory).getScriptDAO();
-                    will(returnValue(scriptDAO));
-
                     one(scriptDAO).getByTechId(techId);
                     will(returnValue(scriptPE));
 
@@ -213,9 +201,6 @@ public final class ScriptBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(daoFactory).getScriptDAO();
-                    will(returnValue(scriptDAO));
-
                     one(scriptDAO).getByTechId(TechId.create(updates));
                     will(returnValue(scriptPE));
 
@@ -264,9 +249,6 @@ public final class ScriptBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(daoFactory).getScriptDAO();
-                    will(returnValue(scriptDAO));
-
                     one(scriptDAO).getByTechId(TechId.create(updates));
                     will(returnValue(scriptPE));
 
