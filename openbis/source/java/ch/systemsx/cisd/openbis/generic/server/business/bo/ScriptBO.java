@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -39,9 +40,33 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
 
     private ScriptPE script;
 
+    private final IScriptFactory scriptFactory;
+
     public ScriptBO(final IDAOFactory daoFactory, final Session session)
     {
+        this(daoFactory, session, new ScriptFactory());
+    }
+
+    @Private
+    // for testing
+    ScriptBO(final IDAOFactory daoFactory, final Session session, IScriptFactory scriptFactory)
+    {
         super(daoFactory, session);
+        this.scriptFactory = scriptFactory;
+    }
+
+    @Private
+    interface IScriptFactory
+    {
+        ScriptPE create();
+    }
+
+    private static class ScriptFactory implements IScriptFactory
+    {
+        public ScriptPE create()
+        {
+            return new ScriptPE();
+        }
     }
 
     public void deleteByTechId(TechId groupId) throws UserFailureException
@@ -82,7 +107,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     public void define(Script newScript) throws UserFailureException
     {
         assert newScript != null : "Unspecified script.";
-        script = new ScriptPE();
+        script = scriptFactory.create();
         script.setDatabaseInstance(getHomeDatabaseInstance());
         script.setName(newScript.getName());
         script.setDescription(newScript.getDescription());

@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -81,8 +82,8 @@ public abstract class AbstractDAOWithoutContextTest extends
 
     static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(2);
 
-    static final String EXCEED_CODE_LENGTH_CHARACTERS =
-            StringUtils.repeat("A", Code.CODE_LENGTH_MAX + 1);
+    static final String EXCEED_CODE_LENGTH_CHARACTERS = StringUtils.repeat("A",
+            Code.CODE_LENGTH_MAX + 1);
 
     protected IDAOFactory daoFactory;
 
@@ -227,6 +228,24 @@ public abstract class AbstractDAOWithoutContextTest extends
     {
         final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
         return createGroup(groupCode, databaseInstance);
+    }
+
+    protected ScriptPE createScriptInDB(final String name, String script, String description)
+    {
+        final ScriptPE result = createScriptPE(name, script, description);
+        daoFactory.getScriptDAO().createOrUpdate(result);
+        return result;
+    }
+
+    protected ScriptPE createScriptPE(final String name, String script, String description)
+    {
+        final ScriptPE result = new ScriptPE();
+        result.setName(name);
+        result.setScript(script);
+        result.setDescription(description);
+        result.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        result.setRegistrator(getSystemPerson());
+        return result;
     }
 
     protected GroupPE createGroup(final String groupCode, final DatabaseInstancePE databaseInstance)

@@ -22,6 +22,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO.IScriptFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * An <i>abstract</i> test for <i>Business Object</i>.
@@ -59,7 +61,11 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IDAOFactory daoFactory;
 
+    IScriptFactory scriptFactory;
+
     IGroupDAO groupDAO;
+
+    IScriptDAO scriptDAO;
 
     IRelationshipTypeDAO relationshipTypeDAO;
 
@@ -107,13 +113,12 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IGridCustomFilterDAO filterDAO;
 
-    IScriptDAO scriptDAO;
-
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
+        scriptFactory = context.mock(IScriptFactory.class);
         groupDAO = context.mock(IGroupDAO.class);
         relationshipTypeDAO = context.mock(IRelationshipTypeDAO.class);
         experimentDAO = context.mock(IExperimentDAO.class);
@@ -187,5 +192,14 @@ public abstract class AbstractBOTest extends AssertJUnit
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
+    }
+
+    protected DatabaseInstancePE createDatabaseInstance()
+    {
+        DatabaseInstancePE db = new DatabaseInstancePE();
+        db.setCode("DB");
+        db.setOriginalSource(true);
+        db.setUuid("UUID");
+        return db;
     }
 }

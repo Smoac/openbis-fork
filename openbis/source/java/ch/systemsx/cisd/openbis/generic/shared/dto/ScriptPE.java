@@ -38,6 +38,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -210,8 +211,11 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
         return new UnmodifiableListDecorator<EntityTypePropertyTypePE>(assignments);
     }
 
+    @Private
+    @Deprecated
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "script")
-    private List<SampleTypePropertyTypePE> getSampleAssignments()
+    // exposed for tests
+    public List<SampleTypePropertyTypePE> getSampleAssignments()
     {
         return sampleAssignments;
     }
