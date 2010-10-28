@@ -37,6 +37,21 @@ public final class ApplicationInfo implements IsSerializable
 
     private WebClientConfiguration webClientConfiguration;
 
+    private int maxResults = 100000;
+
+    public int getMaxResults()
+    {
+        return maxResults;
+    }
+
+    public void setMaxResults(int maxResults)
+    {
+        if (maxResults > 0)
+        {
+            this.maxResults = maxResults;
+        }
+    }
+
     public String getCifexRecipient()
     {
         return cifexRecipient;

@@ -106,6 +106,7 @@
         <property name="onlineHelpSpecificRootURL" value="${onlinehelp.specific.root-url}"/>
         <property name="onlineHelpSpecificPageTemplate" value="${onlinehelp.specific.page-template}"/>
         <property name="webClientConfigurationProvider" ref="web-client-configuration-provider"/>
+        <property name="maxResults" value="${hibernate.search.maxResults}" />
     </bean>
     
     <bean id="rpc-name-server" class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer" />

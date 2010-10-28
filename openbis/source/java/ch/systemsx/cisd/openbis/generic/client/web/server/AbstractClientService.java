@@ -76,15 +76,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 public abstract class AbstractClientService implements IClientService,
         IOnlineHelpResourceLocatorService
 {
-    protected static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractClientService.class);
+    protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractClientService.class);
 
     @Resource(name = "request-context-provider")
     private IRequestContextProvider requestContextProvider;
 
     @Resource(name = "common-service")
     protected CommonClientService commonClientService;
-    
+
     private String cifexURL;
 
     private String cifexRecipient;
@@ -99,6 +99,8 @@ public abstract class AbstractClientService implements IClientService,
 
     private WebClientConfigurationProvider webClientConfigurationProvider;
 
+    private int maxResults;
+
     protected AbstractClientService()
     {
     }
@@ -107,7 +109,7 @@ public abstract class AbstractClientService implements IClientService,
     {
         this.requestContextProvider = requestContextProvider;
     }
-    
+
     protected void transformXML(IEntityPropertiesHolder propertiesHolder)
     {
         new XMLPropertyTransformer().transformXMLProperties(Arrays.asList(propertiesHolder));
@@ -140,8 +142,7 @@ public abstract class AbstractClientService implements IClientService,
     {
         final IResultSetManager<String> resultSetManager = getResultSetManager();
         final IResultSet<String, T> result =
-                resultSetManager
-                        .getResultSet(getSessionToken(), resultSetConfig, dataProvider);
+                resultSetManager.getResultSet(getSessionToken(), resultSetConfig, dataProvider);
         return result;
     }
 
@@ -182,6 +183,11 @@ public abstract class AbstractClientService implements IClientService,
                     throw new IllegalStateException("Data not found in the cache");
                 }
             };
+    }
+
+    public final void setMaxResults(String maxResults)
+    {
+        this.maxResults = Integer.parseInt(maxResults);
     }
 
     public final void setCifexURL(String cifexURL)
@@ -365,7 +371,8 @@ public abstract class AbstractClientService implements IClientService,
                         public List<TableModelRowWithObject<Null>> getOriginalData()
                                 throws UserFailureException
                         {
-                            return TableModelUtils.asTableModelRowsWithNullObject(tableModel.getRows());
+                            return TableModelUtils.asTableModelRowsWithNullObject(tableModel
+                                    .getRows());
                         }
 
                         public List<TableModelColumnHeader> getHeaders()
@@ -390,12 +397,14 @@ public abstract class AbstractClientService implements IClientService,
         {
             applicationInfo.setCIFEXURL(cifexURL);
             applicationInfo.setCifexRecipient(cifexRecipient);
+            applicationInfo.setMaxResults(maxResults);
             applicationInfo.setWebClientConfiguration(webClientConfigurationProvider
                     .getWebClientConfiguration());
         } else
         {
             ApplicationInfo commonApplicationInfo = commonClientService.getApplicationInfo();
             applicationInfo.setCIFEXURL(commonApplicationInfo.getCIFEXURL());
+            applicationInfo.setMaxResults(commonApplicationInfo.getMaxResults());
             applicationInfo.setCifexRecipient(commonApplicationInfo.getCifexRecipient());
             applicationInfo.setWebClientConfiguration(commonApplicationInfo
                     .getWebClientConfiguration());
@@ -461,13 +470,13 @@ public abstract class AbstractClientService implements IClientService,
             {
                 httpSession.setMaxInactiveInterval(sessionExpirationTimeInSeconds - 10);
             }
-            httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, session
-                    .getSessionToken());
+            httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY,
+                    session.getSessionToken());
             httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
             httpSession.setAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER,
                     createCachedResultSetManager());
-            httpSession.setAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER, CacheManager
-                    .createCacheManager());
+            httpSession.setAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER,
+                    CacheManager.createCacheManager());
             return createSessionContext(session);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
