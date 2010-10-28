@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -86,6 +88,7 @@ public interface IGeneralInformationService extends IRpcService
      * Return all samples that match the search criteria. Available since minor version 1.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
+     * @since 1.1
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
@@ -99,5 +102,18 @@ public interface IGeneralInformationService extends IRpcService
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSets(String sessionToken, List<Sample> samples);
+
+    /**
+     * Return all experiments of the given type that belong to the supplied projects. Available
+     * since minor version 2.
+     * 
+     * @param projects The projects for which we return attached experiments.
+     * @param experimentType The experiment type of the experiments we want to list.
+     * @since 1.2
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
+            String experimentType);
 
 }

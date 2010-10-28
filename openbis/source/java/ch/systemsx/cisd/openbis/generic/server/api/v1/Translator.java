@@ -22,6 +22,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -59,6 +61,24 @@ class Translator
         }
 
         return new Sample(initializer);
+    }
+
+    static Experiment translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment privateExperiment)
+    {
+        ExperimentInitializer initializer = new ExperimentInitializer();
+        initializer.setId(privateExperiment.getId());
+        initializer.setPermId(privateExperiment.getPermId());
+        initializer.setCode(privateExperiment.getCode());
+        initializer.setIdentifier(privateExperiment.getIdentifier());
+        initializer.setExperimentTypeCode(privateExperiment.getExperimentType().getCode());
+        List<IEntityProperty> properties = privateExperiment.getProperties();
+        for (IEntityProperty prop : properties)
+        {
+            initializer.putProperty(prop.getPropertyType().getCode(), prop.getValue());
+        }
+
+        return new Experiment(initializer);
     }
 
     private Translator()

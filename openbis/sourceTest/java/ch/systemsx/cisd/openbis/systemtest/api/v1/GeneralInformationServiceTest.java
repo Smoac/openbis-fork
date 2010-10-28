@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -89,8 +90,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
         checkSpace("CISD", "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE]",
-                "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance), ETL_SERVER(space)]", spaces
-                        .get(0));
+                "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance), ETL_SERVER(space)]",
+                spaces.get(0));
         checkSpace("TESTGROUP", "[/TESTGROUP/TESTPROJ]",
                 "[ADMIN(instance), ADMIN(space), ETL_SERVER(instance)]", spaces.get(1));
         assertEquals(2, spaces.size());
@@ -173,5 +174,23 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
         assertEquals(expectedRoles, roles.toString());
+    }
+
+    @Test
+    public void testListExperiments()
+    {
+        List<SpaceWithProjectsAndRoleAssignments> spaces =
+                generalInformationService.listSpacesWithProjectsAndRoleAssignments(sessionToken,
+                        null);
+        ArrayList<Project> projects = new ArrayList<Project>();
+        for (SpaceWithProjectsAndRoleAssignments space : spaces)
+        {
+            projects.addAll(space.getProjects());
+        }
+        List<Experiment> result =
+                generalInformationService.listExperiments(sessionToken, projects, "SIRNA_HCS");
+        assertEquals(true, result.size() > 0);
+        Experiment resultExperiment = result.get(0);
+        assertEquals("/CISD/DEFAULT/EXP-REUSE", resultExperiment.getIdentifier());
     }
 }

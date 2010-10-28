@@ -33,6 +33,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRo
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -280,6 +283,75 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         ArrayList<Sample> samples = new ArrayList<Sample>();
         List<DataSet> result = service.listDataSets(SESSION_TOKEN, samples);
         assertEquals(0, result.size());
+        context.assertIsSatisfied();
+    }
+
+    private void prepareSearchForExperiments()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(roleAssignmentDAO).listRoleAssignments();
+                    RoleAssignmentPE assignment0 =
+                            createUserAssignment("user0", null, RoleCode.ADMIN);
+                    RoleAssignmentPE assignment1 =
+                            createUserAssignment("user1", "SPACE-1", RoleCode.USER);
+                    RoleAssignmentPE assignment2 =
+                            createUserAssignment("user1", "SPACE-2", RoleCode.ADMIN);
+                    will(returnValue(Arrays.asList(assignment0, assignment1, assignment2)));
+
+                    one(groupDAO).listGroups(daoFactory.getHomeDatabaseInstance());
+                    List<GroupPE> spaces = createSpaces("SPACE-1", "SPACE-2");
+                    will(returnValue(spaces));
+
+                    one(projectDAO).listProjects(spaces.get(0));
+                    ProjectPE project1 = new ProjectPE();
+                    project1.setCode("PROJECT-1");
+                    project1.setGroup(spaces.get(0));
+                    will(returnValue(Collections.singletonList(project1)));
+
+                    one(projectDAO).listProjects(spaces.get(1));
+                    will(returnValue(Collections.emptyList()));
+
+                    ExperimentType returnExperimentType = new ExperimentType();
+                    returnExperimentType.setCode("EXP-TYPE-CODE");
+                    one(commonServer).listExperimentTypes(SESSION_TOKEN);
+                    will(returnValue(Collections.singletonList(returnExperimentType)));
+
+                    ProjectIdentifier projectIdentifier =
+                            new ProjectIdentifier("SPACE-1", "PROJECT-1");
+                    one(commonServer).listExperiments(SESSION_TOKEN, returnExperimentType,
+                            projectIdentifier);
+
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment returnExperiment =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
+                    returnExperiment.setId(new Long(1));
+                    returnExperiment.setPermId("EXP-PERMID");
+                    returnExperiment.setCode("EXP-CODE");
+                    returnExperiment.setIdentifier("/SPACE-1/PROJECT-1/EXP-CODE");
+                    returnExperiment.setExperimentType(returnExperimentType);
+                    returnExperiment.setProperties(new ArrayList<IEntityProperty>());
+                    will(returnValue(Collections.singletonList(returnExperiment)));
+                }
+            });
+    }
+
+    @Test
+    public void testListExperiments()
+    {
+        prepareGetSession();
+        prepareSearchForExperiments();
+        List<SpaceWithProjectsAndRoleAssignments> enrichedSpaces =
+                service.listSpacesWithProjectsAndRoleAssignments(SESSION_TOKEN, null);
+        ArrayList<Project> projects = new ArrayList<Project>();
+        for (SpaceWithProjectsAndRoleAssignments space : enrichedSpaces)
+        {
+            projects.addAll(space.getProjects());
+        }
+        List<Experiment> result = service.listExperiments(SESSION_TOKEN, projects, "EXP-TYPE-CODE");
+        assertEquals(1, result.size());
+        Experiment resultExperiment = result.get(0);
+        assertEquals("/SPACE-1/PROJECT-1/EXP-CODE", resultExperiment.getIdentifier());
         context.assertIsSatisfied();
     }
 

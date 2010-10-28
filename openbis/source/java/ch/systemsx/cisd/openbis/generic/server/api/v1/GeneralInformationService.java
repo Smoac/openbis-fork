@@ -31,12 +31,14 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -44,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -54,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * @author Franz-Josef Elmer
@@ -243,5 +247,43 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             dataSets.add(Translator.translate(externalDatum));
         }
         return dataSets;
+    }
+
+    public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
+            String experimentTypeString)
+    {
+        checkSession(sessionToken);
+
+        // Convert the string to an experiment type
+        List<ExperimentType> experimentTypes = commonServer.listExperimentTypes(sessionToken);
+        ExperimentType experimentType = null;
+        for (ExperimentType anExperimentType : experimentTypes)
+        {
+            if (anExperimentType.getCode().equals(experimentTypeString))
+            {
+                experimentType = anExperimentType;
+            }
+        }
+        if (null == experimentType)
+        {
+            throw new UserFailureException("Unknown experiment type : " + experimentTypeString);
+        }
+
+        // Retrieve the matches for each project
+        ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+
+        for (Project project : projects)
+        {
+            ProjectIdentifier projectIdentifier =
+                    new ProjectIdentifier(project.getSpaceCode(), project.getCode());
+
+            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment> basicExperiments =
+                    commonServer.listExperiments(sessionToken, experimentType, projectIdentifier);
+            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment basicExperiment : basicExperiments)
+            {
+                experiments.add(Translator.translate(basicExperiment));
+            }
+        }
+        return experiments;
     }
 }
