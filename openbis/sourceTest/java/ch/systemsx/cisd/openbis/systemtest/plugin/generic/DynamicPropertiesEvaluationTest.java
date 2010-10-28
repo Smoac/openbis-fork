@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
@@ -113,4 +114,9 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         return null; // satisfy compiler
     }
 
+    @AfterClass
+    public void cleanup()
+    {
+        commonClientService.unassignPropertyType(EntityKind.SAMPLE, DESCRIPTION, CELL_PLATE);
+    }
 }
