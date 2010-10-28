@@ -28,8 +28,12 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -122,6 +126,49 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
         assertEquals(facade.getSessionToken(), SESSION_TOKEN);
         String result = facade.generateSampleCode(sampleTypeCode);
         assertEquals("STC-1", result);
+        facade.logout();
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListVisibleExperiments()
+    {
+        final ArrayList<Project> projects = new ArrayList<Project>();
+        Project project = new Project("PROJECT-1", "SPACE-1");
+        projects.add(project);
+
+        final ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+
+        final ArrayList<SpaceWithProjectsAndRoleAssignments> spaces =
+                new ArrayList<SpaceWithProjectsAndRoleAssignments>();
+        SpaceWithProjectsAndRoleAssignments space =
+                new SpaceWithProjectsAndRoleAssignments("SPACE-1");
+        space.add(project);
+        space.add("user", new Role("ADMIN", true));
+        spaces.add(space);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryToAuthenticateForAllServices(USER_ID, PASSWORD);
+                    will(returnValue(SESSION_TOKEN));
+
+                    one(service).getMinorVersion();
+                    will(returnValue(2));
+
+                    one(service).listSpacesWithProjectsAndRoleAssignments(SESSION_TOKEN, null);
+                    will(returnValue(spaces));
+
+                    one(service).listExperiments(SESSION_TOKEN, projects, "EXP-TYPE");
+                    will(returnValue(experiments));
+
+                    one(service).logout(SESSION_TOKEN);
+                }
+            });
+        CinaUtilitiesFacade facade = createFacade(service, openbisService);
+        facade.login(USER_ID, PASSWORD);
+        assertEquals(facade.getSessionToken(), SESSION_TOKEN);
+        List<Experiment> result = facade.listVisibleExperiments("EXP-TYPE");
+        assertEquals(0, result.size());
         facade.logout();
         context.assertIsSatisfied();
     }

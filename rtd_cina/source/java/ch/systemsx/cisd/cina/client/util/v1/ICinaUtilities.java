@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cina.client.util.v1;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 
@@ -60,6 +61,18 @@ public interface ICinaUtilities
      */
     public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
             EnvironmentFailureException;
+
+    /**
+     * Return a list of experiments of the given type for which the user has write priveledges.
+     * 
+     * @param experimentType The type of experiment we want listed
+     * @return A list of experiments for the given experiment type
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<Experiment> listVisibleExperiments(String experimentType)
+            throws IllegalStateException, EnvironmentFailureException;
 
     /**
      * Logs the current user out.

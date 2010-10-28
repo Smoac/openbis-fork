@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cina.client.util.v1.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.remoting.RemoteConnectFailureException;
@@ -28,8 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -177,6 +181,12 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     {
         return state.generateSampleCode(sampleTypeCode);
     }
+
+    public List<Experiment> listVisibleExperiments(String experimentType)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        return state.listVisibleExperiments(experimentType);
+    }
 }
 
 /**
@@ -209,6 +219,12 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
 
     public String generateSampleCode(String sampleTypeCode) throws IllegalStateException,
             EnvironmentFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public List<Experiment> listVisibleExperiments(String experimentType)
+            throws IllegalStateException, EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
@@ -337,4 +353,29 @@ class AuthenticatedState extends AbstractCinaFacadeState
                 String.format("%s%d", replicaSampleType.getGeneratedCodePrefix(), sampleCodeSuffix);
         return sampleCode;
     }
+
+    @Override
+    public List<Experiment> listVisibleExperiments(String experimentType)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        // This functionality has only been supported since version 1.2
+        int minorVersion = service.getMinorVersion();
+        if (minorVersion < 2)
+        {
+            throw new EnvironmentFailureException("Server does not support this feature.");
+        }
+
+        // First get a list of spaces the user has access to
+        List<SpaceWithProjectsAndRoleAssignments> spaces =
+                service.listSpacesWithProjectsAndRoleAssignments(sessionToken, null);
+        ArrayList<Project> projects = new ArrayList<Project>();
+        for (SpaceWithProjectsAndRoleAssignments space : spaces)
+        {
+            projects.addAll(space.getProjects());
+        }
+
+        // Then get the experiments for these spaces
+        return service.listExperiments(sessionToken, projects, experimentType);
+    }
+
 }
