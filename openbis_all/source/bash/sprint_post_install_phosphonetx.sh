@@ -18,4 +18,4 @@ function copy_or_die {
 	fi
 }
 
-copy_or_die ~/config/openbis-as/genericCommonContext.xml ~/sprint/openBIS-server/jetty/webapps/openbis/WEB-INF/classes
+copy_or_die ~/config/genericCommonContext.xml ~/sprint/openBIS-server/jetty/webapps/openbis/WEB-INF/classes
