@@ -286,7 +286,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public final void testDefineWithXmlPropertyWithSchemaFails()
     {
         prepareDefineXmlPropertyType();
@@ -309,7 +309,7 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups = "broken")
     public final void testDefineWithXmlPropertyWithXsltFails()
     {
         prepareDefineXmlPropertyType();
