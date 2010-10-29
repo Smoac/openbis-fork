@@ -162,7 +162,7 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, schema);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testParseAndValidateXmlSchemaDocumentFails() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -181,7 +181,7 @@ public class XmlUtilsTest extends AssertJUnit
         assertTrue(exceptionThrown);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testParseAndValidateXsltXmlDocument() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
@@ -193,7 +193,7 @@ public class XmlUtilsTest extends AssertJUnit
         XmlUtils.validate(document, schema);
     }
 
-    @Test
+    @Test(groups = "broken")
     public void testParseAndValidateXsltXmlDocumentFails() throws SAXException, IOException
     {
         // this test doesn't work offline! online namespaces are needed
