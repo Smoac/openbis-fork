@@ -136,6 +136,11 @@ case "$SERVER" in
 	create_individual_greeting_message
     	$BIN/sprint_post_install_plasmids.sh
 	;;
+	$LIMB)
+	echo LIMB:$LIMB;
+	restore_common
+	create_individual_greeting_message
+	;;
 	*)
 	echo Wrong Server! $SERVER is not in the list of openBIS Servers.;
 	exit 1;
