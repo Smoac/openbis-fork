@@ -57,6 +57,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 
     private static final String NEW_SAMPLE_IDENTIFIER = "/CISD/" + NEW_SAMPLE_CODE;
 
+    private static long SLEEP_TIME = 3000; // 3s
+
     private TechId createdSampleId = null;
 
     private NewETPTAssignment createDynamicPropertyAssignment(final EntityKind entityKind,
@@ -86,7 +88,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         commonClientService.assignPropertyType(assignment);
 
         // properties should be evaluated asynchronously - check values after a few seconds
-        sleep(3000);
+        sleep(SLEEP_TIME);
 
         ListSampleCriteria listCriteria = new ListSampleCriteria();
         listCriteria.setIncludeSpace(true);
@@ -134,7 +136,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         genericClientService.registerSample("session", newSample);
 
         // properties should be evaluated asynchronously - check values after a few seconds
-        sleep(1000);
+        sleep(SLEEP_TIME);
         Sample loadedSample = getSpaceSample(identifier);
         createdSampleId = TechId.create(loadedSample);
         boolean found = false;
@@ -168,7 +170,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         // properties should be evaluated asynchronously - check values after a few seconds
         final Date dateBefore = new Date();
         commonClientService.updatePropertyTypeAssignment(assignmentUpdates);
-        sleep(3000);
+        sleep(SLEEP_TIME);
         final Date dateAfter = new Date();
 
         ListSampleCriteria listCriteria = new ListSampleCriteria();
@@ -218,7 +220,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         // properties should be evaluated asynchronously - check values after a few seconds
         final Date dateBefore = new Date();
         genericClientService.updateSample(updates);
-        sleep(1000);
+        sleep(SLEEP_TIME);
         final Date dateAfter = new Date();
 
         Sample loadedSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
