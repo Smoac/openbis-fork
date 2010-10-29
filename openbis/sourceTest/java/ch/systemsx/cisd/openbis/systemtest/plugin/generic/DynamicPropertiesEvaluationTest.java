@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -50,6 +52,10 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
     private static final String CELL_PLATE = "CELL_PLATE";
 
     private static final String DESCRIPTION = "DESCRIPTION";
+
+    private static final String NEW_SAMPLE_CODE = "NEW_SAMPLE_CODE";
+
+    private static final String NEW_SAMPLE_IDENTIFIER = "/CISD/" + NEW_SAMPLE_CODE;
 
     private TechId createdSampleId = null;
 
@@ -119,8 +125,8 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 
         // register new cell plate sample
         final NewSample newSample = new NewSample();
-        final String sampleCode = "NEW_CELL_PLATE_SAMPLE";
-        final String identifier = "/CISD/" + sampleCode;
+        final String sampleCode = NEW_SAMPLE_CODE;
+        final String identifier = NEW_SAMPLE_IDENTIFIER;
         newSample.setIdentifier(identifier);
         final SampleType sampleType = new SampleType();
         sampleType.setCode(CELL_PLATE);
@@ -194,6 +200,42 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                     "property " + propertyTypeCode + " not found for sample " + sample.getCode(),
                     found);
         }
+    }
+
+    @Test(dependsOnMethods = "testUpdateDynamicPropertyAssignment")
+    public void testUpdateSampleWithDynamicProperty()
+    {
+        logIntoCommonClientService();
+
+        Sample oldSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
+
+        @SuppressWarnings("unchecked")
+        SampleUpdates updates =
+                new SampleUpdates("session", TechId.create(oldSample), Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST, null, oldSample.getModificationDate(),
+                        oldSample.getIdentifier(), null, null);
+
+        // properties should be evaluated asynchronously - check values after a few seconds
+        final Date dateBefore = new Date();
+        genericClientService.updateSample(updates);
+        sleep(1000);
+        final Date dateAfter = new Date();
+
+        Sample loadedSample = getSpaceSample(NEW_SAMPLE_IDENTIFIER);
+        createdSampleId = TechId.create(loadedSample);
+        boolean found = false;
+        for (IEntityProperty property : loadedSample.getProperties())
+        {
+            if (property.getPropertyType().getCode().equals(DESCRIPTION))
+            {
+                assertTrue(dateBefore.getTime() < Long.parseLong(property.getValue()));
+                assertTrue(dateAfter.getTime() > Long.parseLong(property.getValue()));
+                found = true;
+                break;
+            }
+        }
+        assertTrue("property " + DESCRIPTION + " not found for sample " + loadedSample.getCode(),
+                found);
     }
 
     private SampleType getSampleType(String sampleTypeCode)
