@@ -42,11 +42,8 @@ public interface IMaterialTable
     /**
      * Changes given materials. Currently allowed changes: properties.<br>
      * Calls of this method cannot be mixed with calls to {@link #add}.
-     * 
-     * @param deleteUntouchedProperties if true all old properties which have not been mentioned in
-     *            the update list will be deleted.
      */
-    public void update(List<MaterialUpdateDTO> materialsUpdate, boolean deleteUntouchedProperties);
+    public void update(List<MaterialUpdateDTO> materialsUpdate);
 
     /**
      * Saves new materials in the database.

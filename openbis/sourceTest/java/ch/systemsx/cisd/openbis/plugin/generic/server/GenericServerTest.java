@@ -590,7 +590,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                         one(genericBusinessObjectFactory).createMaterialTable(SESSION);
                         will(returnValue(materialTable));
 
-                        one(materialTable).update(updates, false);
+                        one(materialTable).update(updates);
                         one(materialTable).save();
                     }
                 }

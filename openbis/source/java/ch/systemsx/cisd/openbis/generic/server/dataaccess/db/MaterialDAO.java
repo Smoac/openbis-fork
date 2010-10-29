@@ -25,6 +25,7 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
@@ -128,6 +129,19 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
                     + "code '%s' and type '%s'.", material, code, typeCode));
         }
         return material;
+    }
+
+    public List<MaterialPE> listMaterialsById(final List<Long> ids)
+    {
+        Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        criteria.add(Restrictions.in("id", ids));
+        final List<MaterialPE> list = cast(criteria.list());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d materials have been found for ids: %s.",
+                    list.size(), CollectionUtils.abbreviate(ids, 10)));
+        }
+        return list;
     }
 
 }

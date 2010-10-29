@@ -142,54 +142,56 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
 
     // -----------------
 
-    public void update(List<MaterialUpdateDTO> materialsUpdate, boolean deleteUntouchedProperties)
+    public void update(List<MaterialUpdateDTO> materialsUpdate)
     {
-        if (materials == null)
-        {
-            materials = new ArrayList<MaterialPE>();
-        }
         setBatchUpdateMode(true);
+
+        // load all materials to be updated in one query
+        final List<Long> materialIds = new ArrayList<Long>();
         for (MaterialUpdateDTO materialUpdate : materialsUpdate)
         {
-            MaterialPE materialPE = update(materialUpdate, deleteUntouchedProperties);
-            materials.add(materialPE);
+            materialIds.add(materialUpdate.getMaterialId().getId());
         }
+        materials = getMaterialDAO().listMaterialsById(materialIds);
+        Map<Long, MaterialPE> materialsById = new HashMap<Long, MaterialPE>();
+        for (MaterialPE material : materials)
+        {
+            materialsById.put(material.getId(), material);
+        }
+
+        // update
+        for (MaterialUpdateDTO materialUpdate : materialsUpdate)
+        {
+            MaterialPE material = materialsById.get(materialUpdate.getMaterialId().getId());
+            update(material, materialUpdate);
+        }
+
         setBatchUpdateMode(false);
 
         dataChanged = true;
     }
 
-    private MaterialPE update(MaterialUpdateDTO materialUpdate, boolean deleteUntouchedProperties)
+    private void update(MaterialPE material, MaterialUpdateDTO materialUpdate)
     {
-        MaterialPE material = getMaterialById(materialUpdate.getMaterialId());
         if (materialUpdate.getVersion().equals(material.getModificationDate()) == false)
         {
             throwModifiedEntityException("Material");
         }
         Set<MaterialPropertyPE> newProperties =
-                calculateNewProperties(material, materialUpdate.getProperties(),
-                        deleteUntouchedProperties);
+                calculateNewProperties(material, materialUpdate.getProperties());
         material.setProperties(newProperties);
-        return material;
     }
 
     private Set<MaterialPropertyPE> calculateNewProperties(MaterialPE material,
-            List<IEntityProperty> propertiesToUpdate, boolean deleteUntouchedProperties)
+            List<IEntityProperty> propertiesToUpdate)
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final MaterialTypePE type = material.getMaterialType();
         final PersonPE registrator = findRegistrator();
-        if (deleteUntouchedProperties)
-        {
-            return entityPropertiesConverter.updateProperties(existingProperties, type,
-                    propertiesToUpdate, registrator, extractDynamicProperties(type));
-        } else
-        {
-            Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
-            return entityPropertiesConverter.updateProperties(existingProperties, type,
-                    propertiesToUpdate, registrator, propertiesToUpdateNames,
-                    extractDynamicProperties(type));
-        }
+        final Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
+        return entityPropertiesConverter.updateProperties(existingProperties, type,
+                propertiesToUpdate, registrator, propertiesToUpdateNames,
+                extractDynamicProperties(type));
     }
 
     private static Set<String> extractCodes(List<IEntityProperty> propertiesToUpdate)

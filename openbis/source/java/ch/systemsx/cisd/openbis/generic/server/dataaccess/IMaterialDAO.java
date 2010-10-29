@@ -46,4 +46,6 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
     /** @return material with the given identifier or null if it is not found. */
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier);
 
+    public List<MaterialPE> listMaterialsById(final List<Long> ids);
+
 }

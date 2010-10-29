@@ -843,7 +843,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
         final Session session = getSession(sessionToken);
         IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
-        materialTable.update(updates, false);
+        materialTable.update(updates);
         materialTable.save();
     }
 
