@@ -14,3 +14,4 @@ wget $SVN_DIR/svn-update.sh
 wget $SVN_DIR/env
 wget $SVN_DIR/empty-screening-database.sql
 . ./svn-update.sh
+cd ..
