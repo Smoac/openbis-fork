@@ -196,7 +196,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
         try
         {
-            checkBusinessRules();
+            checkBusinessRules(); // TODO 2010-10-29, Piotr Buczek: improve speed
             getSampleDAO().createSamples(samples);
         } catch (final DataAccessException ex)
         {
@@ -216,20 +216,17 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
     }
 
-    private SamplePE prepareBatchUpdate(SampleBatchUpdatesDTO updates,
+    private void prepareBatchUpdate(SamplePE sample, SampleBatchUpdatesDTO updates,
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
             Map<String, ExperimentPE> experimentCache)
     {
-        // batch update doesn't use tech id, check version and update attributes
-        SampleIdentifier identifier = updates.getOldSampleIdentifierOrNull();
-        SamplePE sample = tryToGetSampleByIdentifier(identifier);
         if (sample == null)
         {
             throw UserFailureException.fromTemplate(
-                    "No sample could be found with given identifier '%s'.", identifier);
+                    "No sample could be found with given identifier '%s'.",
+                    updates.getOldSampleIdentifierOrNull());
         }
         SampleBatchUpdateDetails details = updates.getDetails();
-
         batchUpdateProperties(sample, updates.getProperties(), details.getPropertiesToUpdate());
 
         if (details.isExperimentUpdateRequested())
@@ -247,7 +244,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             setContainer(updates.getSampleIdentifier(), sample,
                     updates.getContainerIdentifierOrNull());
         }
-        return sample;
     }
 
     private void batchUpdateProperties(SamplePE sample, List<IEntityProperty> properties,
@@ -266,16 +262,53 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         assert updates != null : "Unspecified samples.";
 
         setBatchUpdateMode(true);
-        samples = new ArrayList<SamplePE>();
         final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
                 new HashMap<SampleOwnerIdentifier, SampleOwner>();
         final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
-        for (SampleBatchUpdatesDTO sample : updates)
+        samples = loadSamples(updates, sampleOwnerCache);
+        Map<SampleIdentifier, SamplePE> samplesByIdentifiers =
+                new HashMap<SampleIdentifier, SamplePE>();
+        for (SamplePE sample : samples)
         {
-            samples.add(prepareBatchUpdate(sample, sampleOwnerCache, experimentCache));
+            samplesByIdentifiers.put(sample.getSampleIdentifier(), sample);
         }
+        for (SampleBatchUpdatesDTO sampleUpdates : updates)
+        {
+            final SamplePE sample =
+                    samplesByIdentifiers.get(sampleUpdates.getOldSampleIdentifierOrNull());
+            prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache);
+        }
+
         dataChanged = true;
         setBatchUpdateMode(false);
+    }
+
+    private List<SamplePE> loadSamples(List<SampleBatchUpdatesDTO> updates,
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache)
+    {
+        final List<SamplePE> results = new ArrayList<SamplePE>();
+        List<SampleIdentifier> identifiersToLoadInBatch = new ArrayList<SampleIdentifier>();
+        for (SampleBatchUpdatesDTO sampleUpdates : updates)
+        {
+            SampleIdentifier identifier = sampleUpdates.getOldSampleIdentifierOrNull();
+            if (identifier.getSampleCode().contains(
+                    SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING))
+            {
+                // contained samples can't be loaded in batch
+                SamplePE sample = tryToGetSampleByIdentifier(identifier);
+                if (sample == null)
+                {
+                    throw UserFailureException.fromTemplate(
+                            "No sample could be found with given identifier '%s'.", identifier);
+                }
+                results.add(sample);
+            } else
+            {
+                identifiersToLoadInBatch.add(identifier);
+            }
+        }
+        results.addAll(listSamplesByIdentifiers(identifiersToLoadInBatch, sampleOwnerCache));
+        return results;
     }
 
     public void deleteByTechIds(List<TechId> sampleIds, String reason) throws UserFailureException

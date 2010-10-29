@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
@@ -53,5 +55,51 @@ public final class SampleOwner
     public DatabaseInstancePE tryGetDatabaseInstance()
     {
         return databaseInstanceOrNull;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public String toString()
+    {
+        if (isGroupLevel())
+        {
+            return "group: " + groupOrNull;
+        } else
+        {
+            return "db instance: " + databaseInstanceOrNull;
+        }
+    }
+
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof SampleOwner == false)
+        {
+            return false;
+        }
+        final SampleOwner that = (SampleOwner) obj;
+        if (isGroupLevel())
+        {
+            return this.groupOrNull.equals(that.groupOrNull);
+        } else
+        {
+            return this.databaseInstanceOrNull.equals(that.databaseInstanceOrNull);
+        }
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        final HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(groupOrNull);
+        builder.append(databaseInstanceOrNull);
+        return builder.toHashCode();
     }
 }

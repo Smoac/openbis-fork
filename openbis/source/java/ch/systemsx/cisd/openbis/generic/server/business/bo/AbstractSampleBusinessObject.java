@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -28,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -547,5 +550,46 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             }
         }
         return dynamicProperties;
+    }
+
+    protected List<SamplePE> listSamplesByIdentifiers(
+            final List<SampleIdentifier> sampleIdentifiers,
+            Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache)
+    {
+        assert sampleIdentifiers != null : "Sample identifiers unspecified.";
+        Map<SampleOwner, List<String>> samplesByOwner = new HashMap<SampleOwner, List<String>>();
+        for (SampleIdentifier sampleIdentifier : sampleIdentifiers)
+        {
+            final SampleOwner sampleOwner = getSampleOwner(sampleOwnerCache, sampleIdentifier);
+            List<String> ownerSamples = samplesByOwner.get(sampleOwner);
+            if (ownerSamples == null)
+            {
+                ownerSamples = new ArrayList<String>();
+                samplesByOwner.put(sampleOwner, ownerSamples);
+            }
+            ownerSamples.add(sampleIdentifier.getSampleCode());
+        }
+
+        final ISampleDAO sampleDAO = getSampleDAO();
+        final List<SamplePE> results = new ArrayList<SamplePE>();
+        for (Entry<SampleOwner, List<String>> entry : samplesByOwner.entrySet())
+        {
+            SampleOwner sampleOwner = entry.getKey();
+            List<String> sampleCodes = entry.getValue();
+            List<SamplePE> samples = null;
+            if (sampleOwner.isDatabaseInstanceLevel())
+            {
+                samples =
+                        sampleDAO.listByCodesAndDatabaseInstance(sampleCodes,
+                                sampleOwner.tryGetDatabaseInstance());
+            } else
+            {
+                assert sampleOwner.isGroupLevel() : "Must be of space level.";
+                samples = sampleDAO.listByCodesAndGroup(sampleCodes, sampleOwner.tryGetGroup());
+            }
+            results.addAll(samples);
+        }
+        // TODO 2010-10-29, Piotr Buczek: need to initialize experiments?
+        return results;
     }
 }

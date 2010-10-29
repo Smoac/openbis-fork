@@ -206,6 +206,22 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return sample;
     }
 
+    public final List<SamplePE> listByCodesAndDatabaseInstance(final List<String> sampleCodes,
+            final DatabaseInstancePE databaseInstance)
+    {
+        assert sampleCodes != null : "Unspecified sample codes.";
+        assert databaseInstance != null : "Unspecified database instance.";
+
+        Criteria criteria = createDatabaseInstanceCriteria(databaseInstance);
+        addSampleCodesCriterion(criteria, sampleCodes);
+        List<SamplePE> result = cast(criteria.list());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s samples has been found", result.size()));
+        }
+        return result;
+    }
+
     public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
     {
         assert sampleCode != null : "Unspecified sample code.";
@@ -226,6 +242,22 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     sampleCode, group));
         }
         return sample;
+    }
+
+    public final List<SamplePE> listByCodesAndGroup(final List<String> sampleCodes,
+            final GroupPE group)
+    {
+        assert sampleCodes != null : "Unspecified sample codes.";
+        assert group != null : "Unspecified space.";
+
+        Criteria criteria = createGroupCriteria(group);
+        addSampleCodesCriterion(criteria, sampleCodes);
+        List<SamplePE> result = cast(criteria.list());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s samples has been found", result.size()));
+        }
+        return result;
     }
 
     private boolean isFullCode(String sampleCode)
@@ -256,6 +288,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     private Criteria createGroupCriteria(final GroupPE group)
     {
         return createFindCriteria(Restrictions.eq("group", group));
+    }
+
+    private void addSampleCodesCriterion(Criteria criteria, List<String> sampleCodes)
+    {
+        // no support for contained samples
+        criteria.add(Restrictions.in("code", sampleCodes));
+        criteria.add(Restrictions.isNull("container"));
     }
 
     private void addSampleCodeCriterion(Criteria criteria, String sampleCode)

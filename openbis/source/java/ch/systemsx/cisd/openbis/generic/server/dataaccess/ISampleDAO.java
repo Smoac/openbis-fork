@@ -53,10 +53,21 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
             final DatabaseInstancePE databaseInstance) throws DataAccessException;
 
     /**
+     * Returns a list of samples with given <var>databaseInstance</var> and one of given codes.
+     */
+    List<SamplePE> listByCodesAndDatabaseInstance(final List<String> sampleCodes,
+            final DatabaseInstancePE databaseInstance);
+
+    /**
      * Returns the sample specified by given <var>sampleCode</var> and given <var>group</var>.
      */
     SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
             throws DataAccessException;
+
+    /**
+     * Returns a list of samples with given <var>group</var> and one of given codes.
+     */
+    List<SamplePE> listByCodesAndGroup(final List<String> sampleCodes, final GroupPE group);
 
     /**
      * Inserts given list of {@link SamplePE} into the database in one go.
