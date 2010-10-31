@@ -55,11 +55,11 @@ class UserManager extends AbstractManager implements IUserManager
 {
     static final int PASSWORD_LENGTH = 20;
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, UserManager.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            UserManager.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, UserManager.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            UserManager.class);
 
     private final IAuthenticationService authenticationServiceOrNull;
 
@@ -137,9 +137,7 @@ class UserManager extends AbstractManager implements IUserManager
             return userBO.getUser();
         } catch (final DataIntegrityViolationException ex)
         {
-            final String msg =
-                    "Cannot create user '" + user.getUserCode()
-                            + "' since a user with this user id already exists in the database.";
+            final String msg = "Cannot create user '" + user.getUserCode() + "': user exists.";
             operationLog.error(msg, ex);
             throw new UserFailureException(msg);
         }
@@ -434,8 +432,8 @@ class UserManager extends AbstractManager implements IUserManager
         oldUserOrNull = userDAO.tryFindUserByCode(before);
         if (oldUserOrNull == null)
         {
-            throw new UserFailureException(String
-                    .format("User with code %s doesn't exist.", before));
+            throw new UserFailureException(
+                    String.format("User with code %s doesn't exist.", before));
         }
         if (oldUserOrNull.isExternallyAuthenticated())
         {
@@ -445,8 +443,8 @@ class UserManager extends AbstractManager implements IUserManager
         newUserOrNull = userDAO.tryFindUserByCode(after);
         if (newUserOrNull != null)
         {
-            throw new UserFailureException(String
-                    .format("User with code %s already exist.", before));
+            throw new UserFailureException(
+                    String.format("User with code %s already exist.", before));
         }
         userDAO.changeUserCode(before, after);
     }
@@ -485,8 +483,9 @@ class UserManager extends AbstractManager implements IUserManager
             if (principalOrNull != null)
             {
                 final UserDTO userDTO =
-                        createExternalUser(principalOrNull.getUserId(), UserUtils
-                                .extractDisplayName(principalOrNull), principalOrNull.getEmail(),
+                        createExternalUser(principalOrNull.getUserId(),
+                                UserUtils.extractDisplayName(principalOrNull),
+                                principalOrNull.getEmail(),
                                 businessContext.isNewExternallyAuthenticatedUserStartActive());
                 boolean success = false;
                 try
@@ -522,8 +521,9 @@ class UserManager extends AbstractManager implements IUserManager
             if (principalOrNull != null)
             {
                 UserDTO userDTO =
-                        createExternalUser(principalOrNull.getUserId(), UserUtils
-                                .extractDisplayName(principalOrNull), principalOrNull.getEmail(),
+                        createExternalUser(principalOrNull.getUserId(),
+                                UserUtils.extractDisplayName(principalOrNull),
+                                principalOrNull.getEmail(),
                                 businessContext.isNewExternallyAuthenticatedUserStartActive());
                 boolean createUser = true;
                 boolean success = false;
