@@ -377,18 +377,24 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     }
 
     private UserDTO tryCreateUserFromExternalAuthenticationService(final UserInfoDTO user)
-            throws EnvironmentFailureException
+            throws EnvironmentFailureException, UserFailureException, InvalidSessionException
     {
         if (hasExternalAuthenticationService() == false)
         {
             return null;
         }
-        final String userOrEmail = user.getUserCode();
+        final String userCode = user.getUserCode();
 
         final Principal principalOrNull =
-                externalAuthenticationService.tryGetAndAuthenticateUser(userOrEmail, null);
+                externalAuthenticationService.tryGetAndAuthenticateUser(userCode, null);
         if (principalOrNull != null)
         {
+            if (privGetCurrentUser().isAdmin() == false)
+            {
+                final String msg = "Cannot create user '" + user.getUserCode() + "': user exists.";
+                operationLog.error(msg);
+                throw new UserFailureException(msg);
+            }
             return createOrUpdateUserFromExternalAuthenticationService(principalOrNull, user);
         } else
         {
