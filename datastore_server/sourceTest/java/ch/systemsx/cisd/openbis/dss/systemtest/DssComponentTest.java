@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  *
  * @author Franz-Josef Elmer
  */
+@Test(groups = "slow")
 public class DssComponentTest extends SystemTestCase
 {
     private static final Comparator<FileInfoDssDTO> FILE_INFO_COMPARATOR =

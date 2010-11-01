@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
  *
  * @author Franz-Josef Elmer
  */
-public class SystemTestCase extends AssertJUnit
+public abstract class SystemTestCase extends AssertJUnit
 {
     private static final String UNIT_TEST_WORKING_DIRECTORY = "unit-test-wd";
     private static final String TARGETS_DIRECTORY = "targets";
