@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.systemtest;
+package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

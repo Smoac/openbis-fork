@@ -10,6 +10,7 @@
         <packages>
             <package name="ch.systemsx.cisd.etlserver.*" />
             <package name="ch.systemsx.cisd.openbis.dss.*" />
+            <package name="ch.systemsx.cisd.openbis.datastoreserver.*" />
         </packages>
     </test>
 </suite>
