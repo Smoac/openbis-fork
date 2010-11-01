@@ -294,7 +294,6 @@ public class DataStoreServiceTest extends AssertJUnit
         MockDataStoreService service =
                 new MockDataStoreService(sessionTokenManager, commandExecutorFactory,
                         mailClientParameters, cifexServiceFactory, CIFEX_URL, pluginTaskParameters);
-        service.setStoreRoot(TEST_STORE);
         service.afterPropertiesSet();
         return service;
     }

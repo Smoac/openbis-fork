@@ -30,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
  */
 public class PluginTaskProviders
 {
+    public static final String STOREROOT_DIR_KEY = "storeroot-dir";
+
     /** property with repotring plugins names separated by delimiter */
     @Private
     static final String REPORTING_PLUGIN_NAMES = "reporting-plugins";
@@ -48,10 +50,14 @@ public class PluginTaskProviders
 
     private final ArchiverTaskFactory archiverTaskFactory;
 
+    private final File storeRoot;
+
     /** for external injections */
-    public static PluginTaskProviders create(File storeRoot)
+    public static PluginTaskProviders create()
     {
         Properties properties = DssPropertyParametersUtil.loadServiceProperties();
+        String property = properties.getProperty(STOREROOT_DIR_KEY);
+        File storeRoot = new File(property);
         PluginTaskProviders providers = new PluginTaskProviders(properties, storeRoot);
         providers.check();
         providers.logConfigurations();
@@ -62,12 +68,18 @@ public class PluginTaskProviders
     // public only for tests
     public PluginTaskProviders(Properties serviceProperties, File storeRoot)
     {
+        this.storeRoot = storeRoot;
         String datastoreCode = DssPropertyParametersUtil.getDataStoreCode(serviceProperties);
         this.reportingPlugins =
                 createReportingPluginsFactories(serviceProperties, datastoreCode, storeRoot);
         this.processingPlugins =
                 createProcessingPluginsFactories(serviceProperties, datastoreCode, storeRoot);
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
+    }
+
+    public final File getStoreRoot()
+    {
+        return storeRoot;
     }
 
     public PluginTaskProvider<IReportingPluginTask> getReportingPluginsProvider()

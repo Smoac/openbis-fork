@@ -96,11 +96,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         this.commandExecutorFactory = commandExecutorFactory;
         this.mailClientParameters = mailClientParameters;
         this.pluginTaskParameters = pluginTaskParameters;
-    }
-
-    public final void setStoreRoot(File storeRoot)
-    {
-        this.storeRoot = storeRoot;
+        storeRoot = pluginTaskParameters.getStoreRoot();
     }
 
     public final void setCommandQueueDir(String queueDirOrNull)
