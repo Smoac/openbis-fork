@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  */
 public class TestInitializer
 {
-    public static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
+    public static final String LUCENE_INDEX_PATH = "../openbis/targets/lucene/indices";
     
     public static void init()
     {
