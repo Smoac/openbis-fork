@@ -461,6 +461,11 @@ public final class ETLDaemon
     public final static void main(final String[] args)
     {
         final Parameters parameters = new Parameters(args);
+        run(parameters);
+    }
+
+    private static void run(final Parameters parameters)
+    {
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)
         {
@@ -474,6 +479,23 @@ public final class ETLDaemon
         startupServer(parameters);
         MaintenanceTaskUtils.startupMaintenancePlugins(parameters.getMaintenancePlugins());
         operationLog.info("Data Store Server ready and waiting for data.");
+    }
+
+    /**
+     * Runs ETL Daemon for system testing: Replaces default {@link IExitHandler} by a one which
+     * throws an {@link AssertionError}.
+     */
+    public static void runForTesting(String[] args)
+    {
+        exitHandler = new IExitHandler()
+            {
+                public void exit(int exitCode)
+                {
+                    throw new AssertionError("Unexpected exit: " + exitCode);
+                }
+            };
+        Parameters parameters = new Parameters(args, exitHandler);
+        run(parameters);
     }
 
 }

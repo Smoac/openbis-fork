@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -31,6 +33,9 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public class DssPropertyParametersUtil
 {
+    /** Prefix of system properties which may override service.properties. */
+    public static final String OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX = "openbis.dss.";
+
     @Private
     static final String DSS_CODE_KEY = "data-store-server-code";
 
@@ -39,7 +44,8 @@ public class DssPropertyParametersUtil
 
     public static final String DOWNLOAD_URL_KEY = "download-url";
 
-    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
+    /** Location of service properties file. */
+    public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     /** loads server configuration */
     public static ExtendedProperties loadServiceProperties()
@@ -50,6 +56,14 @@ public class DssPropertyParametersUtil
     public static ExtendedProperties loadProperties(String filePath)
     {
         Properties properties = PropertyUtils.loadProperties(filePath);
+        Properties systemProperties = System.getProperties();
+        ExtendedProperties dssSystemProperties =
+                ExtendedProperties.getSubset(systemProperties, OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX, true);
+        Set<Entry<Object, Object>> entrySet = dssSystemProperties.entrySet();
+        for (Entry<Object, Object> entry : entrySet)
+        {
+            properties.put(entry.getKey(), entry.getValue());
+        }
         return ExtendedProperties.createWith(properties);
     }
 
