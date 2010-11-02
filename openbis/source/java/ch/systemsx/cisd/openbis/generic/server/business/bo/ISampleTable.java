@@ -51,11 +51,13 @@ public interface ISampleTable
 
     /**
      * Prepares given samples for update and stores them in this table.
+     * <p>
+     * NOTE: Business rules are checked in this step as well for better performance.
      */
     public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates) throws UserFailureException;
 
     /**
-     * Writes changed or added data to the Data Access Layers.
+     * Writes added data to the Data Access Layers.
      */
     public void save() throws UserFailureException;
 

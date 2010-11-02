@@ -62,6 +62,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     private boolean dataChanged;
 
+    private boolean businessRulesChecked;
+
     public SampleTable(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
@@ -178,6 +180,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
 
         setBatchUpdateMode(false);
+
+        businessRulesChecked = true;
     }
 
     private void add(final NewSample newSample, final Map<String, SampleTypePE> sampleTypeCache,
@@ -196,29 +200,34 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
         try
         {
-            checkBusinessRules(); // TODO 2010-10-29, Piotr Buczek: improve speed
+            if (businessRulesChecked == false)
+            {
+                checkAllBusinessRules();
+            }
             getSampleDAO().createSamples(samples);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of samples"));
         }
         dataChanged = false;
+        businessRulesChecked = false;
         onlyNewSamples = false;
     }
 
-    private void checkBusinessRules()
+    private void checkAllBusinessRules()
     {
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (SamplePE s : samples)
         {
-            checkBusinessRules(s, getExternalDataDAO(), cache);
+            checkAllBusinessRules(s, getExternalDataDAO(), cache);
         }
     }
 
     private void prepareBatchUpdate(SamplePE sample, SampleBatchUpdatesDTO updates,
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
-            Map<String, ExperimentPE> experimentCache)
+            Map<String, ExperimentPE> experimentCache,
+            Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache)
     {
         if (sample == null)
         {
@@ -228,11 +237,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
         SampleBatchUpdateDetails details = updates.getDetails();
         batchUpdateProperties(sample, updates.getProperties(), details.getPropertiesToUpdate());
+        checkPropertiesBusinessRules(sample, propertiesCache);
 
         if (details.isExperimentUpdateRequested())
         {
             updateGroup(sample, updates.getSampleIdentifier(), sampleOwnerCache);
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
+            checkExperimentBusinessRules(getExternalDataDAO(), sample);
         }
         if (details.isParentUpdateRequested())
         {
@@ -243,6 +254,16 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             setContainer(updates.getSampleIdentifier(), sample,
                     updates.getContainerIdentifierOrNull());
+        }
+        // NOTE: Checking business rules with relationships is expensive.
+        // Don't perform them unless relevant data were changed.
+        if (details.isExperimentUpdateRequested() || details.isParentUpdateRequested())
+        {
+            checkParentBusinessRules(sample);
+        }
+        if (details.isExperimentUpdateRequested() || details.isContainerUpdateRequested())
+        {
+            checkContainerBusinessRules(sample);
         }
     }
 
@@ -265,6 +286,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache =
                 new HashMap<SampleOwnerIdentifier, SampleOwner>();
         final Map<String, ExperimentPE> experimentCache = new HashMap<String, ExperimentPE>();
+        final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
+                new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamples(updates, sampleOwnerCache);
         Map<SampleIdentifier, SamplePE> samplesByIdentifiers =
                 new HashMap<SampleIdentifier, SamplePE>();
@@ -276,7 +299,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         {
             final SamplePE sample =
                     samplesByIdentifiers.get(sampleUpdates.getOldSampleIdentifierOrNull());
-            prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache);
+            prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
+                    propertiesCache);
         }
 
         dataChanged = true;

@@ -352,7 +352,16 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return project;
     }
 
-    protected void checkBusinessRules(SamplePE sample, IExternalDataDAO externalDataDAO,
+    protected void checkAllBusinessRules(SamplePE sample, IExternalDataDAO externalDataDAO,
+            Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull)
+    {
+        checkPropertiesBusinessRules(sample, cacheOrNull);
+        checkExperimentBusinessRules(externalDataDAO, sample);
+        checkParentBusinessRules(sample);
+        checkContainerBusinessRules(sample);
+    }
+
+    protected void checkPropertiesBusinessRules(SamplePE sample,
             Map<EntityTypePE, List<EntityTypePropertyTypePE>> cacheOrNull)
     {
         if (cacheOrNull != null)
@@ -364,6 +373,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             entityPropertiesConverter.checkMandatoryProperties(sample.getProperties(),
                     sample.getSampleType());
         }
+    }
+
+    protected void checkExperimentBusinessRules(IExternalDataDAO externalDataDAO, SamplePE sample)
+    {
         final boolean hasDatasets = hasDatasets(externalDataDAO, sample);
         if (hasDatasets && sample.getExperiment() == null)
         {
@@ -385,8 +398,18 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             throw new UserFailureException(
                     "Sample space must be the same as experiment space. Shared samples cannot be attached to experiments.");
         }
+    }
+
+    protected void checkParentBusinessRules(SamplePE sample)
+    {
         SampleGenericBusinessRules.assertValidParents(sample);
         SampleGenericBusinessRules.assertValidChildren(sample);
+    }
+
+    protected void checkContainerBusinessRules(SamplePE sample)
+    {
+        SampleGenericBusinessRules.assertValidContainer(sample);
+        SampleGenericBusinessRules.assertValidComponents(sample);
     }
 
     protected boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)
@@ -589,7 +612,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             }
             results.addAll(samples);
         }
-        // TODO 2010-10-29, Piotr Buczek: need to initialize experiments?
         return results;
     }
 }

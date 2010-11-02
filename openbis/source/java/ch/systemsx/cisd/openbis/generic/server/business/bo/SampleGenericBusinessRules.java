@@ -84,19 +84,31 @@ public class SampleGenericBusinessRules
     {
         if (sample == null)
             return;
-        assertValidParentRelation(sample.getContainer(), sample, "contained in");
         for (SamplePE parent : sample.getParents())
         {
             assertValidParentRelation(parent, sample, "child of");
         }
     }
 
+    static public void assertValidContainer(SamplePE sample)
+    {
+        if (sample == null)
+            return;
+        assertValidParentRelation(sample.getContainer(), sample, "contained in");
+    }
+
     static public void assertValidChildren(SamplePE sample)
     {
         if (sample == null)
             return;
-        assertValidChildrenRelation(sample.getContained(), sample, "contained");
         assertValidChildrenRelation(sample.getGenerated(), sample, "child");
+    }
+
+    static public void assertValidComponents(SamplePE sample)
+    {
+        if (sample == null)
+            return;
+        assertValidChildrenRelation(sample.getContained(), sample, "contained");
     }
 
     static private void throwUserFailureException(String messageTemplate, SamplePE sample1,

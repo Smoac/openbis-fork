@@ -170,7 +170,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             }
             attachments.clear();
         }
-        checkBusinessRules(sample, getExternalDataDAO(), null);
+        checkAllBusinessRules(sample, getExternalDataDAO(), null);
         onlyNewSamples = false;
     }
 

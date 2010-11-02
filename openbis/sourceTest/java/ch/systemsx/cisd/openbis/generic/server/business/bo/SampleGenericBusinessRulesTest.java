@@ -146,10 +146,10 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
         // two asserts need to fail
         try
         {
-            SampleGenericBusinessRules.assertValidParents(child);
+            SampleGenericBusinessRules.assertValidContainer(child);
         } catch (UserFailureException e)
         {
-            SampleGenericBusinessRules.assertValidChildren(container);
+            SampleGenericBusinessRules.assertValidComponents(container);
         }
     }
 
