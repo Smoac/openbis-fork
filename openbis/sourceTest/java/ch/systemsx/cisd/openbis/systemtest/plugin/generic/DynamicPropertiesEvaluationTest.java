@@ -88,7 +88,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         commonClientService.assignPropertyType(assignment);
 
         // properties should be evaluated asynchronously - check values after a few seconds
-        sleep(SLEEP_TIME);
+        sleep(SLEEP_TIME * 2);
 
         ListSampleCriteria listCriteria = new ListSampleCriteria();
         listCriteria.setIncludeSpace(true);
@@ -170,7 +170,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
         // properties should be evaluated asynchronously - check values after a few seconds
         final Date dateBefore = new Date();
         commonClientService.updatePropertyTypeAssignment(assignmentUpdates);
-        sleep(SLEEP_TIME);
+        sleep(SLEEP_TIME * 2);
         final Date dateAfter = new Date();
 
         ListSampleCriteria listCriteria = new ListSampleCriteria();
