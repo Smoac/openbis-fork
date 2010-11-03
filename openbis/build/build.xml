@@ -156,10 +156,7 @@
 				<include name="*Context.xml" />
 			</fileset>
 			<fileset dir="../openbis/${sources}">
-				<include name="applicationContext.xml" />
-				<include name="dbConfigurationContext.xml" />
-				<include name="genericApplicationContext.xml" />
-				<include name="hibernateContext.xml" />
+				<include name="*Context.xml" />
 			</fileset>
 			<fileset dir="../server-common/${sources}">
 				<include name="*Context.xml" />
