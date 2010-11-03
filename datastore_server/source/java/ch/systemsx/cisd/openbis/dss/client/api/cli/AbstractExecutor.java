@@ -37,7 +37,7 @@ abstract class AbstractExecutor<A extends GlobalArguments>
         parser = new CmdLineParser(arguments);
     }
 
-    final int execute(String[] args)
+    final ResultCode execute(String[] args)
     {
         parser.parseArgument(args);
 
@@ -45,14 +45,14 @@ abstract class AbstractExecutor<A extends GlobalArguments>
         if (arguments.isHelp())
         {
             command.printUsage(System.out);
-            return 0;
+            return ResultCode.OK;
         }
 
         // Show usage and exit
         if (arguments.isComplete() == false)
         {
             command.printUsage(System.err);
-            return 1;
+            return ResultCode.INVALID_ARGS;
         }
 
         IDssComponent component = null;
@@ -61,7 +61,7 @@ abstract class AbstractExecutor<A extends GlobalArguments>
             component = command.login(arguments);
             if (null == component)
             {
-                return 1;
+                return ResultCode.INVALID_UNAME_PASS;
             }
             return doExecute(component);
         } finally
@@ -75,5 +75,5 @@ abstract class AbstractExecutor<A extends GlobalArguments>
 
     }
 
-    protected abstract int doExecute(IDssComponent component);
+    protected abstract ResultCode doExecute(IDssComponent component);
 }

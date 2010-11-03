@@ -20,6 +20,7 @@ import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.GlobalArguments;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -65,12 +66,12 @@ public class CommandGenerateSampleCode extends
         }
 
         @Override
-        protected int doExecute(ICinaUtilities component)
+        protected ResultCode doExecute(ICinaUtilities component)
         {
             String sampleTypeCode = arguments.getSampleTypeCode();
             String result = component.generateSampleCode(sampleTypeCode);
             System.out.println(result);
-            return 0;
+            return ResultCode.OK;
         }
 
     }
@@ -80,7 +81,8 @@ public class CommandGenerateSampleCode extends
         super(new CommandGenerateSampleCodeArguments());
     }
 
-    public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
+    public ResultCode execute(String[] args) throws UserFailureException,
+            EnvironmentFailureException
     {
         return new GenerateSampleIdExecutor(this).execute(args);
     }

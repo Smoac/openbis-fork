@@ -23,6 +23,7 @@ import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.GlobalArguments;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
@@ -44,7 +45,7 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
         }
 
         @Override
-        protected int doExecute(ICinaUtilities component)
+        protected ResultCode doExecute(ICinaUtilities component)
         {
             SearchCriteria searchCriteria = new SearchCriteria();
             searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
@@ -54,7 +55,7 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
             {
                 System.out.println(sample.toString());
             }
-            return 0;
+            return ResultCode.OK;
         }
 
     }
@@ -64,7 +65,8 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
         super(new GlobalArguments());
     }
 
-    public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
+    public ResultCode execute(String[] args) throws UserFailureException,
+            EnvironmentFailureException
     {
         return new SampleListerExecutor(this).execute(args);
     }

@@ -45,24 +45,25 @@ public class CommandHelp extends AbstractCommand<CommandHelp.CommandHelpArgument
         this.programCallString = programCallString;
     }
 
-    public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
+    public ResultCode execute(String[] args) throws UserFailureException,
+            EnvironmentFailureException
     {
         parser.parseArgument(args);
         if (arguments.getArguments().size() < 1)
         {
             printUsage(System.out);
-            return 0;
+            return ResultCode.INVALID_ARGS;
         }
 
         ICommand cmd = commandFactory.tryCommandForName(arguments.getArguments().get(0));
         if (null == cmd)
         {
             printUsage(System.out);
-            return 0;
+            return ResultCode.INVALID_ARGS;
         }
 
         cmd.printUsage(System.out);
-        return 0;
+        return ResultCode.OK;
     }
 
     public String getName()

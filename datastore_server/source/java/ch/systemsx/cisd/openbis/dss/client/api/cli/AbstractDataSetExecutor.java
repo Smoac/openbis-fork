@@ -32,12 +32,12 @@ abstract class AbstractDataSetExecutor<A extends DataSetArguments> extends Abstr
     }
 
     @Override
-    protected final int doExecute(IDssComponent component)
+    protected final ResultCode doExecute(IDssComponent component)
     {
         IDataSetDss dataSet = component.getDataSet(arguments.getDataSetCode());
         FileInfoDssDTO[] fileInfos = getFileInfos(dataSet);
         handle(fileInfos, dataSet);
-        return 0;
+        return ResultCode.OK;
     }
 
     private FileInfoDssDTO[] getFileInfos(IDataSetDss dataSet)

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cina.client.util.cli;
 import ch.systemsx.cisd.args4j.CmdLineParser;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.GlobalArguments;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -38,7 +39,7 @@ abstract class AbstractExecutor<A extends GlobalArguments>
         parser = command.getParser();
     }
 
-    final int execute(String[] args)
+    final ResultCode execute(String[] args)
     {
         parser.parseArgument(args);
 
@@ -46,14 +47,14 @@ abstract class AbstractExecutor<A extends GlobalArguments>
         if (arguments.isHelp())
         {
             command.printUsage(System.out);
-            return 0;
+            return ResultCode.OK;
         }
 
         // Show usage and exit
         if (arguments.isComplete() == false)
         {
             command.printUsage(System.err);
-            return 1;
+            return ResultCode.INVALID_ARGS;
         }
 
         ICinaUtilities component = null;
@@ -62,7 +63,7 @@ abstract class AbstractExecutor<A extends GlobalArguments>
             component = command.login();
             if (null == component)
             {
-                return 1;
+                return ResultCode.INVALID_UNAME_PASS;
             }
             return doExecute(component);
         } finally
@@ -76,5 +77,5 @@ abstract class AbstractExecutor<A extends GlobalArguments>
 
     }
 
-    protected abstract int doExecute(ICinaUtilities component);
+    protected abstract ResultCode doExecute(ICinaUtilities component);
 }

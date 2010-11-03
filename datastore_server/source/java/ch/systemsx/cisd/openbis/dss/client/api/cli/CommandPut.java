@@ -24,6 +24,7 @@ import java.util.HashMap;
 
 import ch.systemsx.cisd.args4j.ExampleMode;
 import ch.systemsx.cisd.args4j.Option;
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -134,7 +135,7 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
         }
 
         @Override
-        protected int doExecute(IDssComponent component)
+        protected ResultCode doExecute(IDssComponent component)
         {
             try
             {
@@ -152,17 +153,16 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
                     {
                         System.err.println("Data set is empty.");
                     }
-                    return -1;
+                    return ResultCode.INVALID_ARGS;
                 }
                 IDataSetDss dataSet = component.putDataSet(newDataSet, arguments.getFile());
                 System.out.println("Registered new data set " + dataSet.getCode());
             } catch (IOException e)
             {
-                e.printStackTrace();
-                return -1;
+                throw new IOExceptionUnchecked(e);
             }
 
-            return 0;
+            return ResultCode.OK;
         }
 
         private NewDataSetDTO getNewDataSet() throws IOException
@@ -218,7 +218,8 @@ class CommandPut extends AbstractDssCommand<CommandPut.CommandPutArguments>
         super(new CommandPutArguments());
     }
 
-    public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
+    public ResultCode execute(String[] args) throws UserFailureException,
+            EnvironmentFailureException
     {
         return new CommandPutExecutor(arguments, this).execute(args);
     }

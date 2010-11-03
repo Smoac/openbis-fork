@@ -61,7 +61,8 @@ class CommandLs extends AbstractDssCommand<DataSetArguments>
         super(new DataSetArguments());
     }
 
-    public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
+    public ResultCode execute(String[] args) throws UserFailureException,
+            EnvironmentFailureException
     {
         return new CommandLsExecutor(arguments, this).execute(args);
     }

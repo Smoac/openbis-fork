@@ -22,6 +22,7 @@ import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.GlobalArguments;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 
 /**
@@ -68,7 +69,7 @@ public class CommandExperimentLister extends
         }
 
         @Override
-        protected int doExecute(ICinaUtilities component)
+        protected ResultCode doExecute(ICinaUtilities component)
         {
             List<Experiment> results =
                     component.listVisibleExperiments(arguments.getExperimentTypeCode());
@@ -76,7 +77,7 @@ public class CommandExperimentLister extends
             {
                 System.out.println(experiment.toString());
             }
-            return 0;
+            return ResultCode.OK;
         }
     }
 
@@ -85,7 +86,8 @@ public class CommandExperimentLister extends
         super(new CommandExperimentListerArguments());
     }
 
-    public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
+    public ResultCode execute(String[] args) throws UserFailureException,
+            EnvironmentFailureException
     {
         return new ExperimentListerExecutor(this).execute(args);
     }

@@ -82,10 +82,10 @@ public class CommandGetTest extends AssertJUnit
             });
         ICommand command = new MockCommandGet();
 
-        int exitCode = command.execute(new String[]
+        ResultCode exitCode = command.execute(new String[]
             { "-s", "url", "-u", "user", "-p", "pswd", "ds1", "root-dir" });
 
-        assertEquals(0, exitCode);
+        assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
     }
 
@@ -109,10 +109,10 @@ public class CommandGetTest extends AssertJUnit
             });
         ICommand command = new MockCommandGet();
 
-        int exitCode = command.execute(new String[]
+        ResultCode exitCode = command.execute(new String[]
             { "-s", "url", "-u", "user", "-p", "pswd", "-l", "ds1" });
 
-        assertEquals(0, exitCode);
+        assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
     }
 }

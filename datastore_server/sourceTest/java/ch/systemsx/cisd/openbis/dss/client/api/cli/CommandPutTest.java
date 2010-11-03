@@ -111,12 +111,12 @@ public class CommandPutTest extends AbstractFileSystemTestCase
             });
         ICommand command = new MockCommandPut();
 
-        int exitCode =
+        ResultCode exitCode =
                 command.execute(new String[]
                     { "-s", "url", "-u", "user", "-p", "pswd", "-t", "my_type", "EXPERIMENT",
                             "/s/p/e", dataSetExample.getPath() });
 
-        assertEquals(0, exitCode);
+        assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
     }
 }

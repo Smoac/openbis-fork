@@ -73,35 +73,36 @@ public class AbstractClient
     protected void runWithArgs(String[] args)
     {
         ICommand command = getCommandOrDie(args);
-    
-        int resultCode = 0;
+
+        int exitCode = 0;
         try
         {
             // Strip the name of the command and pass the rest of the arguments to the command
             String[] cmdArgs = new String[args.length - 1];
             Arrays.asList(args).subList(1, args.length).toArray(cmdArgs);
-            resultCode = command.execute(cmdArgs);
+            ResultCode result = command.execute(cmdArgs);
+            exitCode = result.getValue();
         } catch (final InvalidSessionException ex)
         {
             System.err
                     .println("Your session is no longer valid. Please login again. [server said: '"
                             + ex.getMessage() + "']");
-            resultCode = 1;
+            exitCode = ResultCode.INVALID_SESSION.getValue();
         } catch (final UserFailureException ex)
         {
             System.err.println();
             System.err.println(ex.getMessage());
-            resultCode = 1;
+            exitCode = ResultCode.USER_ERROR.getValue();
         } catch (final EnvironmentFailureException ex)
         {
             System.err.println();
             System.err.println(ex.getMessage() + " (environment failure)");
-            resultCode = 1;
+            exitCode = ResultCode.ENVIRONMENT_ERROR.getValue();
         } catch (final RemoteConnectFailureException ex)
         {
             System.err.println();
             System.err.println("Remote server cannot be reached (environment failure)");
-            resultCode = 1;
+            exitCode = ResultCode.NO_CONNECTION_TO_SERVER.getValue();
         } catch (final RemoteAccessException ex)
         {
             System.err.println();
@@ -113,43 +114,48 @@ public class AbstractClient
                     System.err.println(String.format(
                             "Given host '%s' can not be reached  (environment failure)",
                             cause.getMessage()));
+                    exitCode = ResultCode.NO_CONNECTION_TO_SERVER.getValue();
                 } else if (cause instanceof IllegalArgumentException)
                 {
                     System.err.println(cause.getMessage());
+                    exitCode = ResultCode.UNKNOWN_ERROR.getValue();
                 } else if (cause instanceof SSLHandshakeException)
                 {
                     final String property = "javax.net.ssl.trustStore";
                     System.err.println(String.format(
                             "Validation of SSL certificate failed [%s=%s] (configuration failure)",
                             property, StringUtils.defaultString(System.getProperty(property))));
+                    exitCode = ResultCode.ENVIRONMENT_ERROR.getValue();
                 } else
                 {
                     ex.printStackTrace();
+                    exitCode = ResultCode.UNKNOWN_ERROR.getValue();
                 }
             } else
             {
                 ex.printStackTrace();
+                exitCode = ResultCode.UNKNOWN_ERROR.getValue();
             }
-            resultCode = 1;
+
         } catch (final SystemExitException e)
         {
-            resultCode = 1;
+            exitCode = ResultCode.UNKNOWN_ERROR.getValue();
         } catch (MasqueradingException e)
         {
             System.err.println(e);
-            resultCode = 1;
+            exitCode = ResultCode.UNKNOWN_ERROR.getValue();
         } catch (IllegalArgumentException e)
         {
             System.err.println(e.getMessage());
-            resultCode = 1;
+            exitCode = ResultCode.UNKNOWN_ERROR.getValue();
         } catch (final Exception e)
         {
             System.err.println();
             e.printStackTrace();
-            resultCode = 1;
+            exitCode = ResultCode.UNKNOWN_ERROR.getValue();
         }
-    
-        exitHandler.exit(resultCode);
+
+        exitHandler.exit(exitCode);
     }
 
     private ICommand getCommandOrDie(String[] args)
@@ -160,11 +166,11 @@ public class AbstractClient
             ICommand help = commandFactory.getHelpCommand();
             help.printUsage(System.err);
             exitHandler.exit(1);
-    
+
             // Never gets here
             return null;
         }
-    
+
         String commandName = args[0];
         ICommand command = commandFactory.tryCommandForName(commandName);
         if (null == command)
@@ -172,7 +178,7 @@ public class AbstractClient
             ICommand help = commandFactory.getHelpCommand();
             help.printUsage(System.err);
             exitHandler.exit(1);
-    
+
             // Never gets here
             return null;
         }

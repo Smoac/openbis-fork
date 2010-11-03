@@ -149,7 +149,8 @@ class CommandGet extends AbstractDssCommand<CommandGet.CommandGetArguments>
         super(new CommandGetArguments());
     }
 
-    public int execute(String[] args) throws UserFailureException, EnvironmentFailureException
+    public ResultCode execute(String[] args) throws UserFailureException,
+            EnvironmentFailureException
     {
         return new CommandGetExecutor(arguments, this).execute(args);
     }

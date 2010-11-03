@@ -80,10 +80,10 @@ public class CommandLsTest extends AssertJUnit
             });
         ICommand command = new MockCommandLs();
 
-        int exitCode = command.execute(new String[]
+        ResultCode exitCode = command.execute(new String[]
             { "-s", "url", "-u", "user", "-p", "pswd", "ds1", "root-dir" });
 
-        assertEquals(0, exitCode);
+        assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
     }
 }

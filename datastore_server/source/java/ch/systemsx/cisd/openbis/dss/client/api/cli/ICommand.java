@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * A <code>ICommand</code> encapsulates one action that gets called on the client side using the
  * prompt or terminal window.
  * 
- * @author Bernd Rinn
+ * @author Chandrasekhar Ramakrishnan
  */
 public interface ICommand
 {
@@ -40,7 +40,7 @@ public interface ICommand
      * 
      * @return exit code, will be used in <code>System.exit()</code>.
      */
-    public int execute(final String[] args) throws UserFailureException,
+    public ResultCode execute(final String[] args) throws UserFailureException,
             EnvironmentFailureException;
 
     /**

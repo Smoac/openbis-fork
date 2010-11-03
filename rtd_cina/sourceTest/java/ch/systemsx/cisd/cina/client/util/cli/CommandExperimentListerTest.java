@@ -25,25 +25,23 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.cina.client.util.cli.CommandSampleLister;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
-import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CommandSampleListerTest extends AssertJUnit
+public class CommandExperimentListerTest extends AssertJUnit
 {
-    private final class MockCommandSampleLister extends CommandSampleLister
+    private final class MockCommandExperimentLister extends CommandExperimentLister
     {
         @Override
         protected ICinaUtilities login()
@@ -91,29 +89,40 @@ public class CommandSampleListerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    final SearchCriteria searchCriteria = new SearchCriteria();
-                    searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                            MatchClauseAttribute.TYPE, CinaConstants.REPLICA_SAMPLE_TYPE_CODE));
+                    final ArrayList<Project> projects = new ArrayList<Project>();
+                    Project project = new Project("PROJECT-1", "SPACE-1");
+                    projects.add(project);
 
-                    final ArrayList<Sample> samples = new ArrayList<Sample>();
+                    final ArrayList<Experiment> experiments = new ArrayList<Experiment>();
+
+                    final ArrayList<SpaceWithProjectsAndRoleAssignments> spaces =
+                            new ArrayList<SpaceWithProjectsAndRoleAssignments>();
+                    SpaceWithProjectsAndRoleAssignments space =
+                            new SpaceWithProjectsAndRoleAssignments("SPACE-1");
+                    space.add(project);
+                    space.add("user", new Role("ADMIN", true));
+                    spaces.add(space);
 
                     one(service).tryToAuthenticateForAllServices(USER_ID, PASSWORD);
                     will(returnValue(SESSION_TOKEN));
 
                     one(service).getMinorVersion();
-                    will(returnValue(1));
+                    will(returnValue(2));
 
-                    one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
-                    will(returnValue(samples));
+                    one(service).listSpacesWithProjectsAndRoleAssignments(SESSION_TOKEN, null);
+                    will(returnValue(spaces));
+
+                    one(service).listExperiments(SESSION_TOKEN, projects, "EXP-TYPE");
+                    will(returnValue(experiments));
 
                     one(service).logout(SESSION_TOKEN);
                 }
             });
 
-        ICommand command = new MockCommandSampleLister();
+        ICommand command = new MockCommandExperimentLister();
 
         ResultCode exitCode = command.execute(new String[]
-            { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
+            { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "EXP-TYPE" });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
@@ -130,18 +139,18 @@ public class CommandSampleListerTest extends AssertJUnit
 
                     // The service used wasn't available in version 0
                     one(service).getMinorVersion();
-                    will(returnValue(0));
+                    will(returnValue(1));
 
                     one(service).logout(SESSION_TOKEN);
                 }
             });
 
-        ICommand command = new MockCommandSampleLister();
+        ICommand command = new MockCommandExperimentLister();
 
         try
         {
             command.execute(new String[]
-                { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "EXP-TYPE" });
             fail("Command should throw an exception when run against an older version of the interface.");
         } catch (EnvironmentFailureException e)
         {

@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
+import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -102,10 +103,10 @@ public class CommandGenerateSampleCodeTest extends AssertJUnit
             });
         ICommand command = new MockCommandGenerateSampleCode();
 
-        int exitCode = command.execute(new String[]
+        ResultCode exitCode = command.execute(new String[]
             { "-s", "url", "-u", USER_ID, "-p", PASSWORD, sampleTypeCode });
 
-        assertEquals(0, exitCode);
+        assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
     }
 
@@ -120,10 +121,10 @@ public class CommandGenerateSampleCodeTest extends AssertJUnit
             });
         ICommand command = new MockCommandGenerateSampleCode();
 
-        int exitCode = command.execute(new String[]
+        ResultCode exitCode = command.execute(new String[]
             { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
 
-        assertEquals(1, exitCode);
+        assertEquals(ResultCode.INVALID_ARGS, exitCode);
         context.assertIsSatisfied();
     }
 }
