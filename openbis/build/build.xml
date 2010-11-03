@@ -152,6 +152,9 @@
   -->
 	<target name="compute-separate-checksums">
 		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/classes/{1}">
+			<fileset dir="${sources}">
+				<include name="*Context.xml" />
+			</fileset>
 			<fileset dir="../openbis/${sources}">
 				<include name="applicationContext.xml" />
 				<include name="dbConfigurationContext.xml" />
@@ -159,7 +162,7 @@
 				<include name="hibernateContext.xml" />
 			</fileset>
 			<fileset dir="../server-common/${sources}">
-				<include name="genericCommonContext.xml" />
+				<include name="*Context.xml" />
 			</fileset>
 		</checksum>
 		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/classes/{1}">
