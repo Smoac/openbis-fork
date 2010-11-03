@@ -999,6 +999,10 @@ public abstract class Dict
 
     public static final String LOGGING_CONSOLE = "LOGGING_CONSOLE";
 
+    public static final String MORE_RESULTS_FOUND_MESSAGE = "more_results_found_message";
+
+    public static final String MORE_RESULTS_FOUND_TITLE = "more_results_found_title";
+
     // Material Viewer
 
     public static final String MATERIAL_PROPERTIES_HEADING = "material_properties_heading";

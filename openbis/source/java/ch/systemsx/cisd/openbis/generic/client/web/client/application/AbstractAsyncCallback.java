@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -42,6 +45,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
+
+    List<IOnSuccessAction<T>> successActions = new ArrayList<IOnSuccessAction<T>>();
+
+    public void addOnSuccessAction(IOnSuccessAction<T> action)
+    {
+        successActions.add(action);
+    }
+
     public static final ICallbackListener<Object> DEFAULT_CALLBACK_LISTENER =
             new CallbackListenerAdapter<Object>()
                 {
@@ -285,6 +296,10 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     public final void onSuccess(final T result)
     {
         process(result);
+        for (IOnSuccessAction<T> a : successActions)
+        {
+            a.execute(result);
+        }
         callbackListener.finishOnSuccessOf(this, result);
     }
 

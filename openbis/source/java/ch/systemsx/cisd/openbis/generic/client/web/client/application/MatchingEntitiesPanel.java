@@ -187,6 +187,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     protected void listEntities(DefaultResultSetConfig<String, MatchingEntity> resultSetConfig,
             AbstractAsyncCallback<ResultSet<MatchingEntity>> callback)
     {
+        callback.addOnSuccessAction(new ShowResultSetCutInfo<ResultSet<MatchingEntity>>(viewContext));
         viewContext.getService().listMatchingEntities(searchableEntity, queryText,
                 useWildcardSearchMode, resultSetConfig, callback);
     }

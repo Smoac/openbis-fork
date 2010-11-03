@@ -24,19 +24,24 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowResultSetCutInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Grid with detailed sample search results.
@@ -46,8 +51,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedSearchHitGrid
 {
     // browser consists of the grid and the paging toolbar
-    public static final String SEARCH_BROWSER_ID =
-            GenericConstants.ID_PREFIX + "sample-search-hit-browser";
+    public static final String SEARCH_BROWSER_ID = GenericConstants.ID_PREFIX
+            + "sample-search-hit-browser";
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -149,5 +154,13 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     protected EntityType tryToGetEntityType()
     {
         return null;
+    }
+
+    @Override
+    protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<Sample>> callback)
+    {
+        callback.addOnSuccessAction(new ShowResultSetCutInfo<ResultSet<Sample>>(viewContext));
+        super.listEntities(resultSetConfig, callback);
     }
 }

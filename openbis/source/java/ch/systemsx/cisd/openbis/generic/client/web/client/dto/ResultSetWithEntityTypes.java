@@ -32,7 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
  * 
  * @author Tomasz Pylak
  */
-public class ResultSetWithEntityTypes<T extends IEntityInformationHolder> implements IsSerializable
+public class ResultSetWithEntityTypes<T extends IEntityInformationHolder> implements
+        IsSerializable, IResultSetHolder<T>
 {
     private ResultSet<T> resultSet;
 

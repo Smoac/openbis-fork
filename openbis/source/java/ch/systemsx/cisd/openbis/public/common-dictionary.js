@@ -150,6 +150,8 @@ var common = {
   show_related_datasets: "Show Related Data Sets",
   show_related_datasets_message: "Select between showing Data Sets related to selected ({0}) entities or to all entities from the table and click on OK button.",
   show_related_datasets_radio_label: "Related entities",
+  more_results_found_message: "More search results were found, but are not shown. Consider making the search more specific.",
+  more_results_found_title: "More results found",
   
   //
   // Sample Browser

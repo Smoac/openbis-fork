@@ -26,7 +26,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class ResultSet<T> implements IsSerializable
+public final class ResultSet<T> implements IsSerializable, IResultSetHolder<T>
 {
     private GridRowModels<T> list;
 
@@ -76,5 +76,10 @@ public final class ResultSet<T> implements IsSerializable
     public int getTotalLength()
     {
         return totalLength;
+    }
+
+    public ResultSet<T> getResultSet()
+    {
+        return this;
     }
 }
