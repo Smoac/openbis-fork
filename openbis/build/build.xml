@@ -156,8 +156,10 @@
 				<include name="applicationContext.xml" />
 				<include name="dbConfigurationContext.xml" />
 				<include name="genericApplicationContext.xml" />
-				<include name="genericCommonContext.xml" />
 				<include name="hibernateContext.xml" />
+			</fileset>
+			<fileset dir="../server-common/${sources}">
+				<include name="genericCommonContext.xml" />
 			</fileset>
 		</checksum>
 		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/classes/{1}">
