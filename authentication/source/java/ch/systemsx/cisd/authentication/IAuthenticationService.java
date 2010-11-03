@@ -93,6 +93,9 @@ public interface IAuthenticationService extends ISelfTestable
      * <p>
      * <b>Note: if multiple users with this email address exist in the authentication repository,
      * the first one regarding an arbitrary (repository determined) order will be returned.</b>
+     * <p>
+     * <i>Only available, if {@link #supportsListingByEmail()} returns <code>true</code>, otherwise
+     * will throw an {@link UnsupportedOperationException}.</i>
      * 
      * @param email The email of the user to get the details for.
      * @param passwordOrNull The password to use for the authentication request. If
@@ -103,7 +106,6 @@ public interface IAuthenticationService extends ISelfTestable
      *         been successful.
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
-     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
     public Principal tryGetAndAuthenticateUserByEmail(String email, String passwordOrNull);
 
@@ -114,7 +116,6 @@ public interface IAuthenticationService extends ISelfTestable
      *            characters (<code>*</code>).
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
-     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
     public List<Principal> listPrincipalsByEmail(String emailQuery) throws IllegalArgumentException;
 
@@ -131,7 +132,6 @@ public interface IAuthenticationService extends ISelfTestable
      *            characters (<code>*</code>).
      * @throws UnsupportedOperationException if this authentication service does not support this
      *             operation.
-     * @throws IllegalArgumentException If the <var>applicationToken</var> is invalid.
      */
     public List<Principal> listPrincipalsByLastName(String lastNameQuery)
             throws IllegalArgumentException;
