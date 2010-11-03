@@ -609,6 +609,8 @@ public abstract class Dict
 
     public static final String SAMPLES_LIST = "samples_list";
 
+    public static final String EXPERIMENT_IMPORT = "experiment_import";
+
     //
     // Data Set Edition
     //

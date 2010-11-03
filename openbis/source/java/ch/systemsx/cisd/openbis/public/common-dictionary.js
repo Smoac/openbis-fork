@@ -366,6 +366,7 @@ var common = {
   property_type_registration: "Property Type Registration",
   property_types: "Property Types",
   experiment_browser: "Experiment Browser",
+  experiment_import: "Import Experiments",
   vocabulary_registration: "Vocabulary Registration",
   sample_batch_registration: "Sample Batch Registration",
   sample_batch_update: "Sample Batch Update",
