@@ -61,14 +61,15 @@ class UserManager extends AbstractManager implements IUserManager
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             UserManager.class);
 
-    private final IAuthenticationService authenticationServiceOrNull;
+    private final IAuthenticationService authenticationService;
 
     public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
             final IBusinessContext businessContext,
-            IAuthenticationService authenticationServiceOrNull)
+            IAuthenticationService authenticationService)
     {
         super(daoFactory, boFactory, businessContext);
-        this.authenticationServiceOrNull = authenticationServiceOrNull;
+        assert authenticationService != null;
+        this.authenticationService = authenticationService;
     }
 
     private final static String getUserDescription(final UserDTO user)
@@ -454,8 +455,7 @@ class UserManager extends AbstractManager implements IUserManager
             List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
     {
         final Collection<UserDTO> users = getUsersInDB(userCodesOrNull, emailAddressesOrNull);
-        if (authenticationServiceOrNull != null
-                && authenticationServiceOrNull instanceof NullAuthenticationService == false)
+        if (authenticationService instanceof NullAuthenticationService == false)
         {
             final List<String> unknownUserCodes = findUnknownUserCodes(users, userCodesOrNull);
             createUsersInExternalAuthenticationRepositoryByUserCode(users, unknownUserCodes,
@@ -479,7 +479,7 @@ class UserManager extends AbstractManager implements IUserManager
         for (String userCode : userCodes)
         {
             final Principal principalOrNull =
-                    authenticationServiceOrNull.tryGetAndAuthenticateUser(userCode, null);
+                    authenticationService.tryGetAndAuthenticateUser(userCode, null);
             if (principalOrNull != null)
             {
                 final UserDTO userDTO =
@@ -509,14 +509,14 @@ class UserManager extends AbstractManager implements IUserManager
             final IUserActionLog logOrNull)
     {
         if (emailAddresses.isEmpty()
-                || authenticationServiceOrNull.supportsListingByEmail() == false)
+                || authenticationService.supportsListingByEmail() == false)
         {
             return;
         }
         for (String emailAddress : emailAddresses)
         {
             Principal principalOrNull =
-                    authenticationServiceOrNull
+                    authenticationService
                             .tryGetAndAuthenticateUserByEmail(emailAddress, null);
             if (principalOrNull != null)
             {
