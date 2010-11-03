@@ -71,7 +71,7 @@ public final class ExperimentBatchRegistrationPanel extends LayoutContainer
         this.viewContext = viewContext;
         setId(getId(update));
         setScrollMode(Scroll.AUTO);
-        experimentTypeSelection = new ExperimentTypeSelectionWidget(viewContext, null, ID_SUFFIX);
+        experimentTypeSelection = new ExperimentTypeSelectionWidget(viewContext, ID_SUFFIX, null);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
         experimentTypeSelection

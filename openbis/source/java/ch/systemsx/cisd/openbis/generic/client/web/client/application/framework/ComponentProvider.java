@@ -500,7 +500,7 @@ public final class ComponentProvider
                 @Override
                 public String getTabTitle()
                 {
-                    return getMessage(Dict.MATERIAL_IMPORT);
+                    return getMessage(Dict.EXPERIMENT_IMPORT);
                 }
 
                 @Override
