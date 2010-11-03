@@ -180,8 +180,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
 
         setBatchUpdateMode(false);
-
-        businessRulesChecked = true;
     }
 
     private void add(final NewSample newSample, final Map<String, SampleTypePE> sampleTypeCache,
@@ -304,6 +302,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
 
         dataChanged = true;
+        businessRulesChecked = true;
+
         setBatchUpdateMode(false);
     }
 
