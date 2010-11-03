@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -287,16 +289,17 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamples(updates, sampleOwnerCache);
-        Map<SampleIdentifier, SamplePE> samplesByIdentifiers =
-                new HashMap<SampleIdentifier, SamplePE>();
+        Map<String, SamplePE> samplesByIdentifiers = new HashMap<String, SamplePE>();
         for (SamplePE sample : samples)
         {
-            samplesByIdentifiers.put(sample.getSampleIdentifier(), sample);
+            samplesByIdentifiers.put(sample.getSampleIdentifier().toString(), sample);
         }
+        final DatabaseInstancePE homeDbInstance = getDatabaseInstanceDAO().getHomeInstance();
         for (SampleBatchUpdatesDTO sampleUpdates : updates)
         {
-            final SamplePE sample =
-                    samplesByIdentifiers.get(sampleUpdates.getOldSampleIdentifierOrNull());
+            final String updatedSampleIdentifier =
+                    getFullIdentifier(homeDbInstance, sampleUpdates.getOldSampleIdentifierOrNull());
+            final SamplePE sample = samplesByIdentifiers.get(updatedSampleIdentifier);
             prepareBatchUpdate(sample, sampleUpdates, sampleOwnerCache, experimentCache,
                     propertiesCache);
         }
@@ -305,6 +308,17 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         businessRulesChecked = true;
 
         setBatchUpdateMode(false);
+    }
+
+    private String getFullIdentifier(DatabaseInstancePE homeDbInstance, SampleIdentifier identifier)
+    {
+        String result = identifier.toString();
+        if (identifier.isSpaceLevel()
+                && identifier.getSpaceLevel().getDatabaseInstanceCode() == null)
+        {
+            result = homeDbInstance.getCode() + Constants.DATABASE_INSTANCE_SEPARATOR + result;
+        }
+        return result;
     }
 
     private List<SamplePE> loadSamples(List<SampleBatchUpdatesDTO> updates,
