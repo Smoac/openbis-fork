@@ -121,6 +121,10 @@ public class StackedAuthenticationService implements IAuthenticationService
     {
         for (IAuthenticationService service : delegates)
         {
+            if (service.supportsListingByEmail() == false)
+            {
+                continue;
+            }
             final Principal principal =
                     service.tryGetAndAuthenticateUserByEmail(email, passwordOrNull);
             if (principal != null)
