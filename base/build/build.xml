@@ -24,7 +24,7 @@
 	<property name="dist.common.lib" value="${dist.common}/lib" />
 
 
-	<target name="ci" depends="build-common.ci, check-dependencies" />
+	<target name="ci" depends="build-common.ci, check-dependencies, dist" />
 
 	<target name="jar" depends="compile">
 		<mkdir dir="${dist.common.lib}" />
