@@ -49,7 +49,7 @@
             <Arg>
               <New class="org.eclipse.jetty.deploy.providers.WebAppProvider">
                 <Set name="monitoredDir"><Property name="jetty.home" default="." />/webapps</Set>
-                <Set name="scanInterval">5</Set>
+                <Set name="scanInterval">0</Set>
                 <Set name="extractWars">true</Set>
               </New>
             </Arg>
