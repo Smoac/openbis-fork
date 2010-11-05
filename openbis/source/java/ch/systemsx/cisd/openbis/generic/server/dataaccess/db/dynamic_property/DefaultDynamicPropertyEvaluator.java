@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -59,6 +61,8 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             DefaultDynamicPropertyEvaluator.class);
 
     private static String ID_PROPERTY_NAME = "id";
+
+    private static String ERROR_PREFIX = "ERROR: ";
 
     private final static Map<Class<? extends IEntityInformationWithPropertiesHolder>, EntityKind> entityKindsByClass;
 
@@ -92,8 +96,9 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         operationLog.info(String.format("Evaluating dynamic properties for all %ss...",
                 clazz.getSimpleName()));
 
-        Transaction transaction = null;
+        final Evaluator evaluator = new Evaluator();
 
+        Transaction transaction = null;
         try
         {
             transaction = hibernateSession.beginTransaction();
@@ -118,7 +123,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 final long maxId = ids.get(nextIndex);
                 final List<T> results =
                         listEntitiesWithRestrictedId(hibernateSession, clazz, minId, maxId);
-                evaluateProperties(hibernateSession, results);
+                evaluateProperties(hibernateSession, evaluator, results);
                 index = nextIndex;
                 operationLog.info(String.format("%d/%d %ss have been updated...", index + 1,
                         maxIndex + 1, clazz.getSimpleName()));
@@ -146,6 +151,8 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         operationLog.info(String.format("Evaluating dynamic properties for %ss...",
                 clazz.getSimpleName()));
 
+        final Evaluator evaluator = new Evaluator();
+
         Transaction transaction = null;
         try
         {
@@ -164,7 +171,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 List<Long> subList = dynamicIds.subList(index, nextIndex);
                 final List<T> results =
                         listEntitiesWithRestrictedId(hibernateSession, clazz, subList);
-                evaluateProperties(hibernateSession, results);
+                evaluateProperties(hibernateSession, evaluator, results);
                 index = nextIndex;
                 operationLog.info(String.format("%d/%d %ss have been updated...", index, maxIndex,
                         clazz.getSimpleName()));
@@ -190,13 +197,18 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         return Math.min(index + batchSize, maxIndex);
     }
 
+    /**
+     * Evaluates properties of specified entities.
+     * <p>
+     * After evaluation the properties are flushed to DB and session is cleared for better
+     * performance and memory management.
+     */
     private static final <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(
-            final Session session, final List<T> entities)
+            Session session, Evaluator evaluator, final List<T> entities)
     {
-        // TODO 2010-10-28, Piotr Buczek: group properties by ETPT and evaluate efficiently
         for (T entity : entities)
         {
-            evaluateProperties(session, entity);
+            evaluator.evaluateProperties(entity);
         }
         session.flush();
         session.clear();
@@ -247,35 +259,60 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         return query.list();
     }
 
-    /** Evaluates properties of specified entity using given session. */
-    private static final <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(
-            final Session session, T entity)
+    /**
+     * Helper class for evaluation of properties in an efficient way using cache of compiled
+     * scripts.
+     */
+    private static class Evaluator
     {
-        if (operationLog.isDebugEnabled())
+        /** cache of calculators with precompiled expressions */
+        private final Map<ScriptPE, DynamicPropertyCalculator> calculatorsByScript =
+                new HashMap<ScriptPE, DynamicPropertyCalculator>();
+
+        /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
+        private DynamicPropertyCalculator getCalculator(ScriptPE scriptPE)
         {
-            operationLog.debug(String.format("Evaluating dynamic properties of entity '%s'.",
-                    entity));
-        }
-        for (EntityPropertyPE property : entity.getProperties())
-        {
-            EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
-            if (etpt.isDynamic())
+            // Creation of a calculator involves takes time because of compilation of the script.
+            // That is why a cache is used.
+            DynamicPropertyCalculator result = calculatorsByScript.get(scriptPE);
+            if (result == null)
             {
-                try
+                result = DynamicPropertyCalculator.create(scriptPE.getScript());
+                calculatorsByScript.put(scriptPE, result);
+            }
+            return result;
+        }
+
+        /** Evaluates properties of specified entity using given session. */
+        public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity)
+        {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("Evaluating dynamic properties of entity '%s'.",
+                        entity));
+            }
+            for (EntityPropertyPE property : entity.getProperties())
+            {
+                EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
+                if (etpt.isDynamic())
                 {
-                    final DynamicPropertyCalculator calculator =
-                            DynamicPropertyCalculator.create(etpt.getScript().getScript());
-                    final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity);
-                    calculator.setEntity(entityAdaptor);
-                    final String dynamicValue = calculator.evalAsString();
-                    final String validatedValue =
-                            validator.validatePropertyValue(etpt.getPropertyType(), dynamicValue);
-                    property.setValue(validatedValue);
-                } catch (Exception e)
-                {
-                    String errorMsg = "ERROR: " + e.getMessage();
-                    operationLog.info(errorMsg);
-                    property.setValue(BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg);
+                    try
+                    {
+                        final DynamicPropertyCalculator calculator =
+                                getCalculator(etpt.getScript());
+                        final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity);
+                        calculator.setEntity(entityAdaptor);
+                        final String dynamicValue = calculator.evalAsString();
+                        final String validatedValue =
+                                validator.validatePropertyValue(etpt.getPropertyType(),
+                                        dynamicValue);
+                        property.setValue(validatedValue);
+                    } catch (Exception e)
+                    {
+                        String errorMsg = ERROR_PREFIX + e.getMessage();
+                        operationLog.info(errorMsg);
+                        property.setValue(BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg);
+                    }
                 }
             }
         }
