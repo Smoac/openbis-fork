@@ -66,7 +66,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
      * it
      */
     private static final int MAX_SHOWN_COLUMNS = 200;
-    
+
     private final class CellListenerAndLinkGenerator implements ICellListenerAndLinkGenerator<T>
     {
         private final EntityKind entityKind;
@@ -81,7 +81,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
 
         public String tryGetLink(T entity)
         {
-            return null;
+            return null; // FIXME LMS-1848
         }
 
         public void handle(TableModelRowWithObject<T> rowItem, boolean specialKeyPressed)
@@ -96,7 +96,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
             new HashMap<String, ICellListenerAndLinkGenerator<T>>();
 
     private List<TableModelColumnHeader> headers;
-    
+
     private String downloadURL;
 
     private Map<String, IColumnDefinition<TableModelRowWithObject<T>>> columnDefinitions;
@@ -114,7 +114,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
         super(viewContext, browserId + GRID_POSTFIX, displayTypeIDGenerator);
         setId(browserId);
     }
-    
+
     protected void setDownloadURL(String downloadURL)
     {
         this.downloadURL = downloadURL;
@@ -190,8 +190,11 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                 String title = header.getTitle();
                 if (title == null)
                 {
-                    title = viewContext.getMessage(translateColumnIdToDictionaryKey(header.getId()));
+                    title =
+                            viewContext
+                                    .getMessage(translateColumnIdToDictionaryKey(header.getId()));
                 }
+                // support for links in queries
                 ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
                         listenerLinkGenerators.get(header.getId());
                 final EntityKind entityKind = header.tryGetEntityKind();
@@ -201,6 +204,7 @@ public abstract class TypedTableGrid<T extends IsSerializable>
                     linkGeneratorOrNull = new CellListenerAndLinkGenerator(entityKind, header);
                     registerListenerAndLinkGenerator(header.getId(), linkGeneratorOrNull);
                 }
+                //
                 TypedTableGridColumnDefinitionUI<T> definition =
                         new TypedTableGridColumnDefinitionUI<T>(header, title, downloadURL,
                                 sessionID, linkGeneratorOrNull);
@@ -210,10 +214,10 @@ public abstract class TypedTableGrid<T extends IsSerializable>
         }
         return list;
     }
-    
+
     /**
-     * Translates a column ID to a key used to get title of the column from a dictionary.
-     * This method can be overridden by subclasses.
+     * Translates a column ID to a key used to get title of the column from a dictionary. This
+     * method can be overridden by subclasses.
      * 
      * @return <code>getId() + "_" + columnID</code>
      */

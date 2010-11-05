@@ -364,7 +364,6 @@ public class QueryEditor extends Dialog
         }
     }
 
-    // FIXME
     private String tryExtractEntityTypeCode(QueryType selectedQueryType)
     {
         DropDownList<?, ? extends EntityType> entityTypeFieldOrNull =

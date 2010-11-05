@@ -61,14 +61,16 @@ public class LinkRenderer
                     {
                         String originalValue = model.get(property).toString();
                         String tokenOrNull = model.tryGetLink(property);
-                        if (tokenOrNull == null && renderOriginalValueForEmptyToken)
+                        if (tokenOrNull == null
+                                && (renderOriginalValueForEmptyToken || ClientStaticState
+                                        .isSimpleMode()))
                         {
                             return new MultilineHTML(originalValue).toString();
                         } else
                         {
                             if (ClientStaticState.isSimpleMode())
                             {
-                                String href = "#" + (tokenOrNull != null ? tokenOrNull : "");
+                                String href = "#" + tokenOrNull;
                                 return LinkRenderer.renderAsLinkWithAnchor(originalValue, href,
                                         false);
                             } else
