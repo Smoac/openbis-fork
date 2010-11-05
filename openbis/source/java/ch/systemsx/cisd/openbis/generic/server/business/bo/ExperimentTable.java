@@ -133,10 +133,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
     public void add(List<NewBasicExperiment> entities, ExperimentTypePE experimentTypePE)
     {
-        if (experiments == null)
-        {
-            experiments = new ArrayList<ExperimentPE>();
-        }
+        experiments = new ArrayList<ExperimentPE>();
         setBatchUpdateMode(true);
         for (NewBasicExperiment ne : entities)
         {
@@ -199,8 +196,8 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         assert dataChanged : "Data has not been changed.";
         try
         {
-            getExperimentDAO().createExperiments(experiments);
             checkBusinessRules();
+            getExperimentDAO().createExperiments(experiments);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("One of experiments"));
