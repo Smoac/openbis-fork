@@ -40,7 +40,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -365,6 +364,7 @@ public class QueryEditor extends Dialog
         }
     }
 
+    // FIXME
     private String tryExtractEntityTypeCode(QueryType selectedQueryType)
     {
         DropDownList<?, ? extends EntityType> entityTypeFieldOrNull =
@@ -375,14 +375,10 @@ public class QueryEditor extends Dialog
         } else
         {
             EntityType entityTypeOrNull = entityTypeFieldOrNull.tryGetSelected();
-            if (entityTypeOrNull == null)
-            {
-                String rawValue = entityTypeFieldOrNull.getRawValue();
-                return StringUtils.isBlank(rawValue) ? null : rawValue;
-            } else
-            {
-                return entityTypeOrNull.isAllTypesCode() ? null : entityTypeOrNull.getCode();
-            }
+            String entityTypeCode =
+                    entityTypeOrNull == null ? entityTypeFieldOrNull.getRawValue()
+                            : entityTypeOrNull.getCode();
+            return EntityType.isAllTypesCode(entityTypeCode) ? null : entityTypeCode;
         }
     }
 
