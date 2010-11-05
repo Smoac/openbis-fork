@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
@@ -45,32 +46,33 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     {
         for (EntityPropertyPE property : propertiesHolder.getProperties())
         {
-            if (property.getEntityTypePropertyType().isDynamic())
-            {
-                // values of dynamic properties can't be referred to - it wouldn't be deterministic
-                continue;
-            }
-            final PropertyTypePE propertyType =
-                    property.getEntityTypePropertyType().getPropertyType();
+            EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
+            final PropertyTypePE propertyType = etpt.getPropertyType();
             final String propertyTypeCode = propertyType.getCode();
-            final String value;
-            if (property.getMaterialValue() != null)
+            if (etpt.isDynamic())
             {
-                value = property.getMaterialValue().getCode();
-            } else if (property.getVocabularyTerm() != null)
-            {
-                value = property.getVocabularyTerm().getCode();
+                addProperty(new DynamicPropertyAdaptor(propertyTypeCode, this, property));
             } else
             {
-                value = property.getValue();
-            }
-            if (propertyType.getTransformation() == null)
-            {
-                addProperty(new BasicPropertyAdaptor(propertyTypeCode, value, property));
-            } else
-            {
-                addProperty(new XmlPropertyAdaptor(propertyTypeCode, value, property,
-                        propertyType.getTransformation()));
+                final String value;
+                if (property.getMaterialValue() != null)
+                {
+                    value = property.getMaterialValue().getCode();
+                } else if (property.getVocabularyTerm() != null)
+                {
+                    value = property.getVocabularyTerm().getCode();
+                } else
+                {
+                    value = property.getValue();
+                }
+                if (propertyType.getTransformation() == null)
+                {
+                    addProperty(new BasicPropertyAdaptor(propertyTypeCode, value, property));
+                } else
+                {
+                    addProperty(new XmlPropertyAdaptor(propertyTypeCode, value, property,
+                            propertyType.getTransformation()));
+                }
             }
         }
     }

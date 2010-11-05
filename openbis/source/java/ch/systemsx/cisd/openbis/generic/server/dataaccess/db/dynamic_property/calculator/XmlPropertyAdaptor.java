@@ -20,13 +20,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtils;
 
 /**
- * {@link IEntityPropertyAdaptor} implementation for xml property.
+ * {@link IEntityPropertyAdaptor} implementation for xml property with lazy evaluation of rendered
+ * value using XSLT script.
  * 
  * @author Piotr Buczek
  */
 class XmlPropertyAdaptor extends BasicPropertyAdaptor
 {
     private final String xsltTransformation;
+
+    private String renderedValue = null;
 
     public XmlPropertyAdaptor(String code, String value, EntityPropertyPE propertyPE,
             String xsltTransformation)
@@ -42,6 +45,15 @@ class XmlPropertyAdaptor extends BasicPropertyAdaptor
 
     @Override
     public String renderedValue()
+    {
+        if (renderedValue == null)
+        {
+            renderedValue = doRenderValue();
+        }
+        return renderedValue;
+    }
+
+    private String doRenderValue()
     {
         final String xml = super.valueAsString();
         return XmlUtils.transform(xsltTransformation, xml);
