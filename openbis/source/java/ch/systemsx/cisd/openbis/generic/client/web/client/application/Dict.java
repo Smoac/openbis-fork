@@ -332,7 +332,6 @@ public abstract class Dict
 
     public static final String IS_DYNAMIC = "is_dynamic";
 
-    // TODO 2010-10-14, IA: would PYTHON_SCRIPT be more self explanatory?? Will it always be python?
     public static final String SCRIPT = "script";
 
     public static final String PROPERTY_TYPE = "property_type";
