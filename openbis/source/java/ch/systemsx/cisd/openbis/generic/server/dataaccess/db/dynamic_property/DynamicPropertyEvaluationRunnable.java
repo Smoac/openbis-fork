@@ -52,7 +52,7 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DynamicPropertyEvaluationRunnable.class);
 
-    private final IDynamicPropertyEvaluator evaluator;
+    private final IBatchDynamicPropertyEvaluator evaluator;
 
     private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
 
@@ -63,7 +63,7 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     {
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         setSessionFactory(sessionFactory);
-        evaluator = new DefaultDynamicPropertyEvaluator(BATCH_SIZE);
+        evaluator = new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE);
 
         final File queueFile = getEvaluatorQueueFile();
         operationLog.info(String.format("Evaluator queue file: %s.", queueFile.getAbsolutePath()));

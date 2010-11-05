@@ -51,14 +51,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * A default {@link IDynamicPropertyEvaluator}.
+ * A default {@link IBatchDynamicPropertyEvaluator}.
  * 
  * @author Piotr Buczek
  */
-final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
+final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropertyEvaluator
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            DefaultDynamicPropertyEvaluator.class);
+            DefaultBatchDynamicPropertyEvaluator.class);
 
     private static String ID_PROPERTY_NAME = "id";
 
@@ -80,7 +80,7 @@ final class DefaultDynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     private final int batchSize;
 
-    DefaultDynamicPropertyEvaluator(final int batchSize)
+    DefaultBatchDynamicPropertyEvaluator(final int batchSize)
     {
         assert batchSize > -1 : "Batch size can not be negative.";
         this.batchSize = batchSize;
