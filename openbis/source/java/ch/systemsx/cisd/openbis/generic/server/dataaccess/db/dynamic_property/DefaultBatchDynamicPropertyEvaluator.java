@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,20 +33,11 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.DynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.EntityAdaptorFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -62,8 +52,6 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
 
     private static String ID_PROPERTY_NAME = "id";
 
-    private static String ERROR_PREFIX = "ERROR: ";
-
     private final static Map<Class<? extends IEntityInformationWithPropertiesHolder>, EntityKind> entityKindsByClass;
 
     static
@@ -75,8 +63,6 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         entityKindsByClass.put(MaterialPE.class, EntityKind.MATERIAL);
         entityKindsByClass.put(ExternalDataPE.class, EntityKind.DATA_SET);
     }
-
-    private static IPropertyValueValidator validator = new PropertyValidator();
 
     private final int batchSize;
 
@@ -96,7 +82,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         operationLog.info(String.format("Evaluating dynamic properties for all %ss...",
                 clazz.getSimpleName()));
 
-        final Evaluator evaluator = new Evaluator();
+        final IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
 
         Transaction transaction = null;
         try
@@ -151,7 +137,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         operationLog.info(String.format("Evaluating dynamic properties for %ss...",
                 clazz.getSimpleName()));
 
-        final Evaluator evaluator = new Evaluator();
+        final IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
 
         Transaction transaction = null;
         try
@@ -204,7 +190,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
      * performance and memory management.
      */
     private static final <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(
-            Session session, Evaluator evaluator, final List<T> entities)
+            Session session, IDynamicPropertyEvaluator evaluator, final List<T> entities)
     {
         for (T entity : entities)
         {
@@ -257,65 +243,6 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     private static final <T> List<T> list(final Query query)
     {
         return query.list();
-    }
-
-    /**
-     * Helper class for evaluation of properties in an efficient way using cache of compiled
-     * scripts.
-     */
-    private static class Evaluator
-    {
-        /** cache of calculators with precompiled expressions */
-        private final Map<ScriptPE, DynamicPropertyCalculator> calculatorsByScript =
-                new HashMap<ScriptPE, DynamicPropertyCalculator>();
-
-        /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
-        private DynamicPropertyCalculator getCalculator(ScriptPE scriptPE)
-        {
-            // Creation of a calculator involves takes time because of compilation of the script.
-            // That is why a cache is used.
-            DynamicPropertyCalculator result = calculatorsByScript.get(scriptPE);
-            if (result == null)
-            {
-                result = DynamicPropertyCalculator.create(scriptPE.getScript());
-                calculatorsByScript.put(scriptPE, result);
-            }
-            return result;
-        }
-
-        /** Evaluates properties of specified entity using given session. */
-        public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity)
-        {
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format("Evaluating dynamic properties of entity '%s'.",
-                        entity));
-            }
-            for (EntityPropertyPE property : entity.getProperties())
-            {
-                EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
-                if (etpt.isDynamic())
-                {
-                    try
-                    {
-                        final DynamicPropertyCalculator calculator =
-                                getCalculator(etpt.getScript());
-                        final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity);
-                        calculator.setEntity(entityAdaptor);
-                        final String dynamicValue = calculator.evalAsString();
-                        final String validatedValue =
-                                validator.validatePropertyValue(etpt.getPropertyType(),
-                                        dynamicValue);
-                        property.setValue(validatedValue);
-                    } catch (Exception e)
-                    {
-                        String errorMsg = ERROR_PREFIX + e.getMessage();
-                        operationLog.info(errorMsg);
-                        property.setValue(BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg);
-                    }
-                }
-            }
-        }
     }
 
     /**
