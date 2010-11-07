@@ -16,13 +16,16 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.IMultiKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.collections.TableMapNonUniqueKey;
 
@@ -62,11 +65,17 @@ public class UserUtils
             final Collection<UserDTO> users)
     {
         return new TableMapNonUniqueKey<String, UserDTO>(users,
-                new IKeyExtractor<String, UserDTO>()
+                new IMultiKeyExtractor<String, UserDTO>()
                     {
-                        public String getKey(final UserDTO user)
+                        public Collection<String> getKey(final UserDTO user)
                         {
-                            return user.getEmail();
+                            if (user.getEmailAlias() == null)
+                            {
+                                return Collections.singleton(user.getEmail());
+                            } else
+                            {
+                                return Arrays.asList(user.getEmail(), user.getEmailAlias());
+                            }
                         }
                     });
     }

@@ -36,6 +36,11 @@ public class UserDTO extends ID
      */
     private String email;
 
+    /**
+     * An alias of the email. Only set if the user has been found by this alias.
+     */
+    private String emailAlias;
+
     private Password password;
     
     private String passwordHash;
@@ -137,6 +142,16 @@ public class UserDTO extends ID
     public final void setEmail(final String email)
     {
         this.email = (email == null) ? null : email.toLowerCase().trim();
+    }
+
+    public String getEmailAlias()
+    {
+        return emailAlias;
+    }
+
+    public void setEmailAlias(String emailAlias)
+    {
+        this.emailAlias = (emailAlias == null) ? null : emailAlias.toLowerCase().trim();
     }
 
     public final Password getPassword()

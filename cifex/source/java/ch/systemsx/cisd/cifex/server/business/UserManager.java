@@ -536,6 +536,7 @@ class UserManager extends AbstractManager implements IUserManager
                         if (existingUserForAliasEmailOrNull != null)
                         {
                             userDTO = existingUserForAliasEmailOrNull;
+                            userDTO.setEmailAlias(emailAddress);
                             createUser = false;
                         }
                     }
