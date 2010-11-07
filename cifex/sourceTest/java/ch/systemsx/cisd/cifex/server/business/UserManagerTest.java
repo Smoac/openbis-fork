@@ -646,24 +646,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetUsersNoAuthenticationService() throws Exception
-    {
-        final String userId = "newuser";
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getUserDAO();
-                    will(returnValue(userDAO));
-
-                    one(userDAO).listUsersByCode(userId);
-                }
-            });
-        assertTrue(new UserManager(daoFactory, boFactory, businessContext, null).getUsers(
-                Arrays.asList(userId), null, null).isEmpty());
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void testGetUsersNullAuthenticationService() throws Exception
     {
         final String userId = "newuser";
