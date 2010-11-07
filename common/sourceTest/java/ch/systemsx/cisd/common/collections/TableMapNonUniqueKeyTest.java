@@ -16,13 +16,16 @@
 
 package ch.systemsx.cisd.common.collections;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import static org.testng.AssertJUnit.*;
 
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
 /**
@@ -33,17 +36,24 @@ import org.testng.annotations.Test;
 public class TableMapNonUniqueKeyTest
 {
 
-    final IKeyExtractor<Integer, String> integerExtractor = new IKeyExtractor<Integer, String>()
+    final IMultiKeyExtractor<Integer, String> integerExtractor = new IMultiKeyExtractor<Integer, String>()
         {
-            public Integer getKey(String e)
+            public Collection<Integer> getKey(String e)
             {
                 final int i = e.indexOf(':');
                 if (i >= 0)
                 {
-                    return Integer.parseInt(e.substring(i + 1));
+                    String intStr = e.substring(i + 1);
+                    String[] intStrs = StringUtils.split(intStr, ',');
+                    Collection<Integer> ints = new ArrayList<Integer>(intStrs.length);
+                    for (String inStr : intStrs) 
+                    {
+                        ints.add(Integer.parseInt(inStr));
+                    }
+                    return ints;
                 } else
                 {
-                    return Integer.parseInt(e);
+                    return Collections.singleton(Integer.parseInt(e));
                 }
             }
         };
@@ -144,6 +154,21 @@ public class TableMapNonUniqueKeyTest
         assertEquals(new HashSet<String>(Arrays.asList("7", "b:7")), tableMap.tryGet(7));
         assertEquals(new HashSet<String>(Arrays.asList("a:42", "b:42", "c:42")), tableMap
                 .tryGet(42));
+    }
+
+    @Test
+    public void testTryGetNonUniqueMultiKey()
+    {
+        final TableMapNonUniqueKey<Integer, String> tableMap =
+                new TableMapNonUniqueKey<Integer, String>(Arrays.asList("a:42,8", "7", "b:42", "0",
+                        "b:7", "c:42"), integerExtractor);
+        assertNull(tableMap.tryGet(10));
+        assertEquals(Collections.singleton("0"), tableMap.tryGet(0));
+        assertEquals(new HashSet<String>(Arrays.asList("7", "b:7")), tableMap.tryGet(7));
+        assertEquals(new HashSet<String>(Arrays.asList("a:42,8", "b:42", "c:42")), tableMap
+                .tryGet(42));
+        assertEquals(new HashSet<String>(Arrays.asList("a:42,8")), tableMap
+                .tryGet(8));
     }
 
 }

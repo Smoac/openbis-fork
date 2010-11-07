@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.common.collections;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -58,7 +60,7 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
 
     private final Map<K, Set<E>> map = new LinkedHashMap<K, Set<E>>();
 
-    private final IKeyExtractor<K, E> extractor;
+    private final IMultiKeyExtractor<K, E> extractor;
 
     private final UniqueValueViolationStrategy uniqueValueViolationStrategy;
 
@@ -81,7 +83,46 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
      * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
      *            <code>E</code>.
      */
+    public TableMapNonUniqueKey(final Iterable<E> rows, final IMultiKeyExtractor<K, E> extractor)
+    {
+        this(rows, extractor, UniqueValueViolationStrategy.ERROR);
+    }
+
+    /**
+     * Creates a new instance for the specified rows and key extractor.
+     * 
+     * @param rows Collection of rows of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
+     */
     public TableMapNonUniqueKey(final Iterable<E> rows, final IKeyExtractor<K, E> extractor,
+            UniqueValueViolationStrategy uniqueValueViolationStrategy)
+    {
+        assert rows != null : "Unspecified collection of rows.";
+        assert extractor != null : "Unspecified key extractor.";
+        assert uniqueValueViolationStrategy != null : "Unspecified unique value violation strategy.";
+        this.extractor = new IMultiKeyExtractor<K, E>()
+            {
+                public Collection<K> getKey(E e)
+                {
+                    return Collections.singleton(extractor.getKey(e));
+                }
+            };
+        this.uniqueValueViolationStrategy = uniqueValueViolationStrategy;
+        for (final E row : rows)
+        {
+            add(row);
+        }
+    }
+
+    /**
+     * Creates a new instance for the specified rows and key extractor.
+     * 
+     * @param rows Collection of rows of type <code>E</code>.
+     * @param extractor Strategy to extract a key of type <code>E</code> for an object of type
+     *            <code>E</code>.
+     */
+    public TableMapNonUniqueKey(final Iterable<E> rows, final IMultiKeyExtractor<K, E> extractor,
             UniqueValueViolationStrategy uniqueValueViolationStrategy)
     {
         assert rows != null : "Unspecified collection of rows.";
@@ -115,25 +156,28 @@ public class TableMapNonUniqueKey<K, E> implements Iterable<E>
      */
     public final void add(final E row) throws UniqueValueViolationException
     {
-        final K key = extractor.getKey(row);
-        Set<E> set = map.get(key);
-        if (set == null)
+        final Collection<K> keys = extractor.getKey(row);
+        for (K key : keys)
         {
-            set = new LinkedHashSet<E>();
-            map.put(key, set);
-            set.add(row);
-        } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.KEEP_FIRST
-                || set.contains(row) == false)
-        {
-            set.add(row);
-        } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.KEEP_LAST)
-        {
-            set.remove(row);
-            set.add(row);
-        } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.ERROR)
-        {
-            throw new UniqueValueViolationException("Row '" + row.toString()
-                    + "' already stored in the map.");
+            Set<E> set = map.get(key);
+            if (set == null)
+            {
+                set = new LinkedHashSet<E>();
+                map.put(key, set);
+                set.add(row);
+            } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.KEEP_FIRST
+                    || set.contains(row) == false)
+            {
+                set.add(row);
+            } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.KEEP_LAST)
+            {
+                set.remove(row);
+                set.add(row);
+            } else if (uniqueValueViolationStrategy == UniqueValueViolationStrategy.ERROR)
+            {
+                throw new UniqueValueViolationException("Row '" + row.toString()
+                        + "' already stored in the map.");
+            }
         }
     }
 
