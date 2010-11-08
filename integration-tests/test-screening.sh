@@ -140,6 +140,8 @@ function integration_tests_screening {
 		install_screening
 
     prepare_data_first_phase
+    # let openBIS AS start before starting DSS
+    sleep 15
     switch_dss "on" datastore_server_screening
     sleep 30
     assertSpotSizes "24x16,24x16" 
