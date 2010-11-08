@@ -72,6 +72,14 @@ CREATE DOMAIN data_store_service_kind AS character varying(40)
 
 
 --
+-- Name: data_store_service_reporting_plugin_type; Type: DOMAIN; Schema: public; Owner: -
+--
+
+CREATE DOMAIN data_store_service_reporting_plugin_type AS character varying(40)
+	CONSTRAINT data_store_service_reporting_plugin_type_check CHECK (((VALUE)::text = ANY ((ARRAY['TABLE_MODEL'::character varying, 'DSS_LINK'::character varying])::text[])));
+
+
+--
 -- Name: description_2000; Type: DOMAIN; Schema: public; Owner: -
 --
 
@@ -98,13 +106,6 @@ CREATE DOMAIN file AS bytea;
 --
 
 CREATE DOMAIN file_name AS character varying(100);
-
-
---
--- Name: generic_value; Type: DOMAIN; Schema: public; Owner: -
---
-
-CREATE DOMAIN generic_value AS character varying(1024);
 
 
 --
@@ -137,6 +138,14 @@ CREATE DOMAIN ordinal_int AS bigint
 
 
 --
+-- Name: query_type; Type: DOMAIN; Schema: public; Owner: -
+--
+
+CREATE DOMAIN query_type AS character varying(40)
+	CONSTRAINT query_type_check CHECK (((VALUE)::text = ANY ((ARRAY['GENERIC'::character varying, 'EXPERIMENT'::character varying, 'SAMPLE'::character varying, 'DATA_SET'::character varying, 'MATERIAL'::character varying])::text[])));
+
+
+--
 -- Name: real_value; Type: DOMAIN; Schema: public; Owner: -
 --
 
@@ -148,6 +157,13 @@ CREATE DOMAIN real_value AS real;
 --
 
 CREATE DOMAIN tech_id AS bigint;
+
+
+--
+-- Name: text_value; Type: DOMAIN; Schema: public; Owner: -
+--
+
+CREATE DOMAIN text_value AS text;
 
 
 --
@@ -176,55 +192,6 @@ CREATE DOMAIN title_100 AS character varying(100);
 --
 
 CREATE DOMAIN user_id AS character varying(50);
-
-
---
--- Name: check_dataset_relationships_on_data_table_modification(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION check_dataset_relationships_on_data_table_modification() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	counter	INTEGER;
-BEGIN
-	-- if there is a connection with a Sample there should not be any connection with a parent Data Set
-	IF (NEW.samp_id IS NOT NULL) THEN
-		-- count number of parents
-		SELECT count(*) INTO counter 
-			FROM data_set_relationships 
-			WHERE data_id_child = NEW.id;
-		IF (counter > 0) THEN
-			RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected with a Sample and a parent Data Set at the same time.', NEW.code;
-		END IF;
-	END IF;
-  RETURN NEW;
-END;
-$$;
-
-
---
--- Name: check_dataset_relationships_on_relationships_table_modification(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION check_dataset_relationships_on_relationships_table_modification() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	counter	INTEGER;
-	sample_id	TECH_ID;
-	data_code	CODE;
-BEGIN
-	-- child will have a parent added so it should not be connected with any sample
-	SELECT samp_id, code INTO sample_id, data_code 
-		FROM data 
-		WHERE id = NEW.data_id_child;
-	IF (sample_id IS NOT NULL) THEN
-		RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected to a Sample and to a parent Data Set at the same time.', data_code;
-	END IF;
-	RETURN NEW;
-END;
-$$;
 
 
 --
@@ -407,37 +374,39 @@ CREATE FUNCTION sample_code_uniqueness_check() RETURNS trigger
 DECLARE
    counter  INTEGER;
 BEGIN
-    LOCK TABLE samples IN EXCLUSIVE MODE;
-	IF (NEW.samp_id_part_of is NULL) THEN
-		IF (NEW.dbin_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;
-			END IF;
-		ELSIF (NEW.grou_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code already exists.', NEW.code;
-			END IF;
-		END IF;
-        ELSE
-		IF (NEW.dbin_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same parent already exists.', NEW.code;
-			END IF;
-		ELSIF (NEW.grou_id is not NULL) THEN
-			SELECT count(*) into counter FROM samples 
-				where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;
-			IF (counter > 0) THEN
-				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code and being the part of the same parent already exists.', NEW.code;
-			END IF;
-		END IF;
-        END IF;   
-   RETURN NEW;
+  LOCK TABLE samples IN EXCLUSIVE MODE;
+  
+	  IF (NEW.samp_id_part_of is NULL) THEN
+		  IF (NEW.dbin_id is not NULL) THEN
+			  SELECT count(*) into counter FROM samples 
+		      where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;
+        IF (counter > 0) THEN
+				  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;
+        END IF;
+		  ELSIF (NEW.grou_id is not NULL) THEN
+			  SELECT count(*) into counter FROM samples 
+				  where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;
+			  IF (counter > 0) THEN
+				  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample with the same code already exists.', NEW.code;
+			  END IF;
+      END IF;
+    ELSE
+		  IF (NEW.dbin_id is not NULL) THEN
+			  SELECT count(*) into counter FROM samples 
+				  where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;
+			  IF (counter > 0) THEN
+				  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same container already exists.', NEW.code;
+			  END IF;
+		  ELSIF (NEW.grou_id is not NULL) THEN
+			  SELECT count(*) into counter FROM samples 
+				  where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;
+			  IF (counter > 0) THEN
+				  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample with the same code and being the part of the same container already exists.', NEW.code;
+			  END IF;
+		  END IF;
+     END IF;   
+  
+  RETURN NEW;
 END;
 $$;
 
@@ -471,6 +440,42 @@ BEGIN
 			end if;
    end if;
    RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: sample_subcode_uniqueness_check(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION sample_subcode_uniqueness_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+   counter  INTEGER;
+   unique_subcode  BOOLEAN_CHAR;
+BEGIN
+  LOCK TABLE samples IN EXCLUSIVE MODE;
+  
+  SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;
+  
+  IF (unique_subcode) THEN
+    IF (NEW.dbin_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and dbin_id = NEW.dbin_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample of the same type with the same subcode already exists.', NEW.code;
+			END IF;
+		ELSIF (NEW.grou_id is not NULL) THEN
+			SELECT count(*) into counter FROM samples 
+				where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and grou_id = NEW.grou_id;
+			IF (counter > 0) THEN
+				RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample of the same type with the same subcode already exists.', NEW.code;
+			END IF;
+		END IF;
+  END IF;
+  
+  RETURN NEW;
 END;
 $$;
 
@@ -701,7 +706,8 @@ CREATE TABLE data (
     is_placeholder boolean_char DEFAULT false,
     is_valid boolean_char DEFAULT true,
     modification_timestamp time_stamp DEFAULT now(),
-    is_derived boolean_char NOT NULL
+    is_derived boolean_char NOT NULL,
+    pers_id_registerer tech_id
 );
 
 
@@ -732,7 +738,7 @@ CREATE TABLE data_set_properties (
     id tech_id NOT NULL,
     ds_id tech_id NOT NULL,
     dstpt_id tech_id NOT NULL,
-    value generic_value,
+    value text_value,
     cvte_id tech_id,
     mate_prop_id tech_id,
     pers_id_registerer tech_id NOT NULL,
@@ -822,7 +828,10 @@ CREATE TABLE data_set_type_property_types (
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     ordinal ordinal_int NOT NULL,
-    section description_2000
+    section description_2000,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT dstpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 
 
@@ -879,7 +888,8 @@ CREATE TABLE data_store_services (
     key character varying(256) NOT NULL,
     label character varying(256) NOT NULL,
     kind data_store_service_kind NOT NULL,
-    data_store_id tech_id NOT NULL
+    data_store_id tech_id NOT NULL,
+    reporting_plugin_type data_store_service_reporting_plugin_type
 );
 
 
@@ -935,7 +945,7 @@ CREATE SEQUENCE data_type_id_seq
 -- Name: data_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('data_type_id_seq', 9, true);
+SELECT pg_catalog.setval('data_type_id_seq', 10, true);
 
 
 --
@@ -1096,7 +1106,7 @@ CREATE TABLE experiment_properties (
     id tech_id NOT NULL,
     expe_id tech_id NOT NULL,
     etpt_id tech_id NOT NULL,
-    value generic_value,
+    value text_value,
     cvte_id tech_id,
     mate_prop_id tech_id,
     pers_id_registerer tech_id NOT NULL,
@@ -1157,7 +1167,10 @@ CREATE TABLE experiment_type_property_types (
     pers_id_registerer tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     ordinal ordinal_int NOT NULL,
-    section description_2000
+    section description_2000,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT etpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 
 
@@ -1256,7 +1269,7 @@ CREATE SEQUENCE filter_id_seq
 -- Name: filter_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('filter_id_seq', 100, true);
+SELECT pg_catalog.setval('filter_id_seq', 101, true);
 
 
 --
@@ -1312,7 +1325,7 @@ CREATE SEQUENCE grid_custom_columns_id_seq
 -- Name: grid_custom_columns_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('grid_custom_columns_id_seq', 1, false);
+SELECT pg_catalog.setval('grid_custom_columns_id_seq', 101, true);
 
 
 --
@@ -1436,7 +1449,7 @@ CREATE TABLE material_properties (
     id tech_id NOT NULL,
     mate_id tech_id NOT NULL,
     mtpt_id tech_id NOT NULL,
-    value generic_value,
+    value text_value,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
     pers_id_registerer tech_id NOT NULL,
@@ -1497,7 +1510,10 @@ CREATE TABLE material_type_property_types (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     ordinal ordinal_int NOT NULL,
-    section description_2000
+    section description_2000,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT mtpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 
 
@@ -1545,7 +1561,7 @@ CREATE SEQUENCE mtpt_id_seq
 -- Name: mtpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('mtpt_id_seq', 102, true);
+SELECT pg_catalog.setval('mtpt_id_seq', 103, true);
 
 
 --
@@ -1655,7 +1671,7 @@ CREATE SEQUENCE property_type_id_seq
 -- Name: property_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('property_type_id_seq', 101, true);
+SELECT pg_catalog.setval('property_type_id_seq', 103, true);
 
 
 --
@@ -1674,7 +1690,9 @@ CREATE TABLE property_types (
     is_managed_internally boolean_char DEFAULT false NOT NULL,
     is_internal_namespace boolean_char DEFAULT false NOT NULL,
     dbin_id tech_id NOT NULL,
-    maty_prop_id tech_id
+    maty_prop_id tech_id,
+    schema text_value,
+    transformation text_value
 );
 
 
@@ -1691,7 +1709,10 @@ CREATE TABLE queries (
     pers_id_registerer tech_id NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
     expression character varying(2000) NOT NULL,
-    is_public boolean NOT NULL
+    is_public boolean NOT NULL,
+    query_type query_type NOT NULL,
+    db_key code DEFAULT '1'::character varying NOT NULL,
+    entity_type_code code
 );
 
 
@@ -1711,7 +1732,45 @@ CREATE SEQUENCE query_id_seq
 -- Name: query_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('query_id_seq', 1, false);
+SELECT pg_catalog.setval('query_id_seq', 101, true);
+
+
+--
+-- Name: relationship_type_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE relationship_type_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+--
+-- Name: relationship_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('relationship_type_id_seq', 2, true);
+
+
+--
+-- Name: relationship_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE relationship_types (
+    id tech_id NOT NULL,
+    code code NOT NULL,
+    label column_label,
+    parent_label column_label,
+    child_label column_label,
+    description description_2000,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    pers_id_registerer tech_id NOT NULL,
+    is_managed_internally boolean_char DEFAULT false NOT NULL,
+    is_internal_namespace boolean_char DEFAULT false NOT NULL,
+    dbin_id tech_id NOT NULL
+);
 
 
 --
@@ -1778,7 +1837,7 @@ CREATE TABLE sample_properties (
     id tech_id NOT NULL,
     samp_id tech_id NOT NULL,
     stpt_id tech_id NOT NULL,
-    value generic_value,
+    value text_value,
     cvte_id tech_id,
     mate_prop_id tech_id,
     pers_id_registerer tech_id NOT NULL,
@@ -1805,6 +1864,37 @@ CREATE SEQUENCE sample_property_id_seq
 --
 
 SELECT pg_catalog.setval('sample_property_id_seq', 1, false);
+
+
+--
+-- Name: sample_relationship_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE sample_relationship_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+--
+-- Name: sample_relationship_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('sample_relationship_id_seq', 1, false);
+
+
+--
+-- Name: sample_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE sample_relationships (
+    id tech_id NOT NULL,
+    sample_id_parent tech_id NOT NULL,
+    relationship_id tech_id NOT NULL,
+    sample_id_child tech_id NOT NULL
+);
 
 
 --
@@ -1840,7 +1930,10 @@ CREATE TABLE sample_type_property_types (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     is_displayed boolean_char DEFAULT true NOT NULL,
     ordinal ordinal_int NOT NULL,
-    section description_2000
+    section description_2000,
+    is_dynamic boolean DEFAULT false NOT NULL,
+    script_id tech_id,
+    CONSTRAINT stpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
 );
 
 
@@ -1858,7 +1951,8 @@ CREATE TABLE sample_types (
     part_of_depth integer DEFAULT 0 NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
     is_auto_generated_code boolean_char DEFAULT false NOT NULL,
-    generated_code_prefix code DEFAULT 'S'::character varying NOT NULL
+    generated_code_prefix code DEFAULT 'S'::character varying NOT NULL,
+    is_subcode_unique boolean_char DEFAULT false NOT NULL
 );
 
 
@@ -1871,18 +1965,49 @@ CREATE TABLE samples (
     perm_id code NOT NULL,
     code code NOT NULL,
     expe_id tech_id,
-    samp_id_top tech_id,
-    samp_id_generated_from tech_id,
     saty_id tech_id NOT NULL,
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
     pers_id_registerer tech_id NOT NULL,
     inva_id tech_id,
-    samp_id_control_layout tech_id,
     dbin_id tech_id,
     grou_id tech_id,
     samp_id_part_of tech_id,
     CONSTRAINT samp_dbin_grou_arc_ck CHECK ((((dbin_id IS NOT NULL) AND (grou_id IS NULL)) OR ((dbin_id IS NULL) AND (grou_id IS NOT NULL))))
+);
+
+
+--
+-- Name: script_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE script_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MAXVALUE
+    NO MINVALUE
+    CACHE 1;
+
+
+--
+-- Name: script_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('script_id_seq', 1, false);
+
+
+--
+-- Name: scripts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE scripts (
+    id tech_id NOT NULL,
+    dbin_id tech_id NOT NULL,
+    name character varying(200) NOT NULL,
+    description description_2000,
+    script text_value NOT NULL,
+    registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
+    pers_id_registerer tech_id NOT NULL
 );
 
 
@@ -1902,7 +2027,7 @@ CREATE SEQUENCE stpt_id_seq
 -- Name: stpt_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('stpt_id_seq', 100, true);
+SELECT pg_catalog.setval('stpt_id_seq', 101, true);
 
 
 --
@@ -1968,7 +2093,7 @@ COPY controlled_vocabulary_terms (id, code, registration_timestamp, covo_id, per
 -- Data for Name: data; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY data (id, code, dsty_id, dast_id, expe_id, data_producer_code, production_timestamp, samp_id, registration_timestamp, is_placeholder, is_valid, modification_timestamp, is_derived) FROM stdin;
+COPY data (id, code, dsty_id, dast_id, expe_id, data_producer_code, production_timestamp, samp_id, registration_timestamp, is_placeholder, is_valid, modification_timestamp, is_derived, pers_id_registerer) FROM stdin;
 \.
 
 
@@ -1992,7 +2117,7 @@ COPY data_set_relationships (data_id_parent, data_id_child) FROM stdin;
 -- Data for Name: data_set_type_property_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section) FROM stdin;
+COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section, is_dynamic, script_id) FROM stdin;
 \.
 
 
@@ -2020,11 +2145,11 @@ COPY data_store_service_data_set_types (data_store_service_id, data_set_type_id)
 -- Data for Name: data_store_services; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY data_store_services (id, key, label, kind, data_store_id) FROM stdin;
-1	plate-image-analysis-graph	Show Image Analysis Graphs	QUERIES	2
-2	default-plate-image-analysis-merger	Image Analysis	QUERIES	2
-3	plate-image-params-reporter	Plate Image Parameters	QUERIES	2
-4	plate-image-reporter	Plate Images	QUERIES	2
+COPY data_store_services (id, key, label, kind, data_store_id, reporting_plugin_type) FROM stdin;
+1	plate-image-analysis-graph	Show Image Analysis Graphs	QUERIES	2	\N
+2	default-plate-image-analysis-merger	Image Analysis	QUERIES	2	\N
+3	plate-image-params-reporter	Plate Image Parameters	QUERIES	2	\N
+4	plate-image-reporter	Plate Images	QUERIES	2	\N
 \.
 
 
@@ -2052,6 +2177,7 @@ COPY data_types (id, code, description) FROM stdin;
 7	CONTROLLEDVOCABULARY	Controlled Vocabulary
 8	MATERIAL	Reference to a material
 9	HYPERLINK	Address of a web page
+10	XML	XML document
 \.
 
 
@@ -2074,6 +2200,15 @@ COPY database_version_logs (db_version, module_name, run_status, run_status_time
 051	./sql/postgresql/051/function-051.sql	SUCCESS	2010-05-10 17:57:13.907	-- Creating Functions\\012\\012------------------------------------------------------------------------------------\\012--  Purpose:  Create function RENAME_SEQUENCE() that is required for renaming the sequences belonging to tables\\012------------------------------------------------------------------------------------\\012CREATE FUNCTION RENAME_SEQUENCE(OLD_NAME VARCHAR, NEW_NAME VARCHAR) RETURNS INTEGER AS $$\\012DECLARE\\012  CURR_SEQ_VAL   INTEGER;\\012BEGIN\\012  SELECT INTO CURR_SEQ_VAL NEXTVAL(OLD_NAME);\\012  EXECUTE 'CREATE SEQUENCE ' || NEW_NAME || ' START WITH ' || CURR_SEQ_VAL;\\012  EXECUTE 'DROP SEQUENCE ' || OLD_NAME;\\012  RETURN CURR_SEQ_VAL;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012\\012------------------------------------------------------------------------------------\\012--  Purpose:  Create trigger CONTROLLED_VOCABULARY_CHECK \\012------------------------------------------------------------------------------------\\012\\012CREATE OR REPLACE FUNCTION CONTROLLED_VOCABULARY_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   v_code  CODE;\\012BEGIN\\012\\012   select code into v_code from data_types where id = NEW.daty_id;\\012\\012   -- Check if the data is of type "CONTROLLEDVOCABULARY"\\012   if v_code = 'CONTROLLEDVOCABULARY' then\\012      if NEW.covo_id IS NULL then\\012         RAISE EXCEPTION 'Insert/Update of Property Type (Code: %) failed, as its Data Type is CONTROLLEDVOCABULARY, but it is not linked to a Controlled Vocabulary.', NEW.code;\\012      end if;\\012   end if;\\012\\012   RETURN NEW;\\012\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER CONTROLLED_VOCABULARY_CHECK BEFORE INSERT OR UPDATE ON PROPERTY_TYPES\\012    FOR EACH ROW EXECUTE PROCEDURE CONTROLLED_VOCABULARY_CHECK();\\012\\012\\012------------------------------------------------------------------------------------\\012--  Purpose:  Create trigger EXTERNAL_DATA_STORAGE_FORMAT_CHECK \\012------------------------------------------------------------------------------------\\012\\012CREATE OR REPLACE FUNCTION EXTERNAL_DATA_STORAGE_FORMAT_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   v_covo_code  CODE;\\012   data_code CODE;\\012BEGIN\\012\\012   select code into v_covo_code from controlled_vocabularies\\012      where is_internal_namespace = true and \\012         id = (select covo_id from controlled_vocabulary_terms where id = NEW.cvte_id_stor_fmt);\\012   -- Check if the data storage format is a term of the controlled vocabulary "STORAGE_FORMAT"\\012   if v_covo_code != 'STORAGE_FORMAT' then\\012      select code into data_code from data where id = NEW.data_id; \\012      RAISE EXCEPTION 'Insert/Update of Data (Code: %) failed, as its Storage Format is %, but is required to be STORAGE_FORMAT.', data_code, v_covo_code;\\012   end if;\\012\\012   RETURN NEW;\\012\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER EXTERNAL_DATA_STORAGE_FORMAT_CHECK BEFORE INSERT OR UPDATE ON EXTERNAL_DATA\\012    FOR EACH ROW EXECUTE PROCEDURE EXTERNAL_DATA_STORAGE_FORMAT_CHECK();\\012\\012   \\012------------------------------------------------------------------------------------\\012--  Purpose:  Create trigger SAMPLE_CODE_UNIQUENESS_CHECK \\012------------------------------------------------------------------------------------\\012\\012CREATE OR REPLACE FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   counter  INTEGER;\\012BEGIN\\012    LOCK TABLE samples IN EXCLUSIVE MODE;\\012\\011IF (NEW.samp_id_part_of is NULL) THEN\\012\\011\\011IF (NEW.dbin_id is not NULL) THEN\\012\\011\\011\\011SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;\\012\\011\\011\\011IF (counter > 0) THEN\\012\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;\\012\\011\\011\\011END IF;\\012\\011\\011ELSIF (NEW.grou_id is not NULL) THEN\\012\\011\\011\\011SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;\\012\\011\\011\\011IF (counter > 0) THEN\\012\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code already exists.', NEW.code;\\012\\011\\011\\011END IF;\\012\\011\\011END IF;\\012        ELSE\\012\\011\\011IF (NEW.dbin_id is not NULL) THEN\\012\\011\\011\\011SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;\\012\\011\\011\\011IF (counter > 0) THEN\\012\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same parent already exists.', NEW.code;\\012\\011\\011\\011END IF;\\012\\011\\011ELSIF (NEW.grou_id is not NULL) THEN\\012\\011\\011\\011SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;\\012\\011\\011\\011IF (counter > 0) THEN\\012\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because group sample with the same code and being the part of the same parent already exists.', NEW.code;\\012\\011\\011\\011END IF;\\012\\011\\011END IF;\\012        END IF;   \\012   RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER SAMPLE_CODE_UNIQUENESS_CHECK BEFORE INSERT OR UPDATE ON SAMPLES\\012    FOR EACH ROW EXECUTE PROCEDURE SAMPLE_CODE_UNIQUENESS_CHECK();\\012    \\012------------------------------------------------------------------------------------\\012--  Purpose:  Create trigger MATERIAL/SAMPLE/EXPERIMENT/DATA_SET _PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK\\012--            It checks that if material property value is assigned to the entity,\\012--\\011\\011\\011\\011\\011\\011then the material type is equal to the one described by property type.\\012------------------------------------------------------------------------------------\\012\\012CREATE OR REPLACE FUNCTION MATERIAL_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   v_type_id  CODE;\\012   v_type_id_prop  CODE;\\012BEGIN\\012   if NEW.mate_prop_id IS NOT NULL then\\012\\011\\011\\011-- find material type id of the property type \\012\\011\\011\\011select pt.maty_prop_id into v_type_id_prop \\012\\011\\011\\011  from material_type_property_types etpt, property_types pt \\012\\011\\011\\011 where NEW.mtpt_id = etpt.id AND etpt.prty_id = pt.id;\\012\\011\\011\\012\\011\\011\\011if v_type_id_prop IS NOT NULL then\\012\\011\\011\\011\\011-- find material type id of the material which consists the entity's property value\\012\\011\\011\\011\\011select entity.maty_id into v_type_id \\012\\011\\011\\011\\011  from materials entity\\012\\011\\011\\011\\011 where NEW.mate_prop_id = entity.id;\\012\\011\\011\\011\\011if v_type_id != v_type_id_prop then\\012\\011\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', \\012\\011\\011\\011\\011\\011\\011\\011 NEW.mate_prop_id, v_type_id, v_type_id_prop;\\012\\011\\011\\011\\011end if;\\012\\011\\011\\011end if;\\012   end if;\\012   RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER MATERIAL_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK BEFORE INSERT OR UPDATE ON material_properties\\012    FOR EACH ROW EXECUTE PROCEDURE MATERIAL_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK();\\012    \\012CREATE OR REPLACE FUNCTION SAMPLE_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   v_type_id  CODE;\\012   v_type_id_prop  CODE;\\012BEGIN\\012   if NEW.mate_prop_id IS NOT NULL then\\012\\011\\011\\011-- find material type id of the property type \\012\\011\\011\\011select pt.maty_prop_id into v_type_id_prop \\012\\011\\011\\011  from sample_type_property_types etpt, property_types pt \\012\\011\\011\\011 where NEW.stpt_id = etpt.id AND etpt.prty_id = pt.id;\\012\\011\\011\\012\\011\\011\\011if v_type_id_prop IS NOT NULL then\\012\\011\\011\\011\\011-- find material type id of the material which consists the entity's property value\\012\\011\\011\\011\\011select entity.maty_id into v_type_id \\012\\011\\011\\011\\011  from materials entity\\012\\011\\011\\011\\011 where NEW.mate_prop_id = entity.id;\\012\\011\\011\\011\\011if v_type_id != v_type_id_prop then\\012\\011\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', \\012\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011 NEW.mate_prop_id, v_type_id, v_type_id_prop;\\012\\011\\011\\011\\011end if;\\012\\011\\011\\011end if;\\012   end if;\\012   RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER SAMPLE_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK BEFORE INSERT OR UPDATE ON sample_properties\\012    FOR EACH ROW EXECUTE PROCEDURE SAMPLE_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK();\\012    \\012CREATE OR REPLACE FUNCTION EXPERIMENT_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   v_type_id  CODE;\\012   v_type_id_prop  CODE;\\012BEGIN\\012   if NEW.mate_prop_id IS NOT NULL then\\012\\011\\011\\011-- find material type id of the property type \\012\\011\\011\\011select pt.maty_prop_id into v_type_id_prop \\012\\011\\011\\011  from experiment_type_property_types etpt, property_types pt \\012\\011\\011\\011 where NEW.etpt_id = etpt.id AND etpt.prty_id = pt.id;\\012\\011\\011\\012\\011\\011\\011if v_type_id_prop IS NOT NULL then\\012\\011\\011\\011\\011-- find material type id of the material which consists the entity's property value\\012\\011\\011\\011\\011select entity.maty_id into v_type_id \\012\\011\\011\\011\\011  from materials entity\\012\\011\\011\\011\\011 where NEW.mate_prop_id = entity.id;\\012\\011\\011\\011\\011if v_type_id != v_type_id_prop then\\012\\011\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', \\012\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011 NEW.mate_prop_id, v_type_id, v_type_id_prop;\\012\\011\\011\\011\\011end if;\\012\\011\\011\\011end if;\\012   end if;\\012   RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER EXPERIMENT_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK BEFORE INSERT OR UPDATE ON experiment_properties\\012    FOR EACH ROW EXECUTE PROCEDURE EXPERIMENT_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK();\\012 \\012 -- data set\\012CREATE OR REPLACE FUNCTION DATA_SET_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   v_type_id  CODE;\\012   v_type_id_prop  CODE;\\012BEGIN\\012   if NEW.mate_prop_id IS NOT NULL then\\012\\011\\011\\011-- find material type id of the property type \\012\\011\\011\\011select pt.maty_prop_id into v_type_id_prop \\012\\011\\011\\011  from data_set_type_property_types dstpt, property_types pt \\012\\011\\011\\011 where NEW.dstpt_id = dstpt.id AND dstpt.prty_id = pt.id;\\012\\011\\011\\012\\011\\011\\011if v_type_id_prop IS NOT NULL then\\012\\011\\011\\011\\011-- find material type id of the material which consists the entity's property value\\012\\011\\011\\011\\011select entity.maty_id into v_type_id \\012\\011\\011\\011\\011  from materials entity\\012\\011\\011\\011\\011 where NEW.mate_prop_id = entity.id;\\012\\011\\011\\011\\011if v_type_id != v_type_id_prop then\\012\\011\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of property value referencing material (id: %) failed, as referenced material type is different than expected (id %, expected id: %).', \\012\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011\\011 NEW.mate_prop_id, v_type_id, v_type_id_prop;\\012\\011\\011\\011\\011end if;\\012\\011\\011\\011end if;\\012   end if;\\012   RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER DATA_SET_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK BEFORE INSERT OR UPDATE ON data_set_properties\\012    FOR EACH ROW EXECUTE PROCEDURE DATA_SET_PROPERTY_WITH_MATERIAL_DATA_TYPE_CHECK();   \\012    \\012---------------------------------------------------------------------------------------------------\\012--  Purpose:  Create DEFERRED triggers:\\012--            * check_dataset_relationships_on_data_table_modification,\\012--            * check_dataset_relationships_on_relationships_table_modification.\\012--            They check that after all modifications of database (just before commit) \\012--            if 'data'/'data_set_relationships' tables are among modified tables \\012--            dataset is not connected with a sample and a parent dataset at the same time.\\012--            This connections are held in two different tables so simple immediate trigger \\012--            with arc check cannot be used and we need two deferred triggers.\\012----------------------------------------------------------------------------------------------------\\012\\012-- trigger for 'data' table\\012\\012CREATE OR REPLACE FUNCTION check_dataset_relationships_on_data_table_modification() RETURNS trigger AS $$\\012DECLARE\\012\\011counter\\011INTEGER;\\012BEGIN\\012\\011-- if there is a connection with a Sample there should not be any connection with a parent Data Set\\012\\011IF (NEW.samp_id IS NOT NULL) THEN\\012\\011\\011-- count number of parents\\012\\011\\011SELECT count(*) INTO counter \\012\\011\\011\\011FROM data_set_relationships \\012\\011\\011\\011WHERE data_id_child = NEW.id;\\012\\011\\011IF (counter > 0) THEN\\012\\011\\011\\011RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected with a Sample and a parent Data Set at the same time.', NEW.code;\\012\\011\\011END IF;\\012\\011END IF;\\012  RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE CONSTRAINT TRIGGER check_dataset_relationships_on_data_table_modification \\012  AFTER INSERT OR UPDATE ON data\\012\\011DEFERRABLE INITIALLY DEFERRED\\012\\011FOR EACH ROW \\012\\011EXECUTE PROCEDURE check_dataset_relationships_on_data_table_modification();\\012\\012-- trigger for 'data_set_relationships'\\012\\012CREATE OR REPLACE FUNCTION check_dataset_relationships_on_relationships_table_modification() RETURNS trigger AS $$\\012DECLARE\\012\\011counter\\011INTEGER;\\012\\011sample_id\\011TECH_ID;\\012\\011data_code\\011CODE;\\012BEGIN\\012\\011-- child will have a parent added so it should not be connected with any sample\\012\\011SELECT samp_id, code INTO sample_id, data_code \\012\\011\\011FROM data \\012\\011\\011WHERE id = NEW.data_id_child;\\012\\011IF (sample_id IS NOT NULL) THEN\\012\\011\\011RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected to a Sample and to a parent Data Set at the same time.', data_code;\\012\\011END IF;\\012\\011RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012  \\012CREATE CONSTRAINT TRIGGER check_dataset_relationships_on_relationships_table_modification \\012  AFTER INSERT OR UPDATE ON data_set_relationships\\012\\011DEFERRABLE INITIALLY DEFERRED\\012\\011FOR EACH ROW \\012\\011EXECUTE PROCEDURE check_dataset_relationships_on_relationships_table_modification();\\012	\N
 051	./sql/postgresql/051/grants-051.sql	SUCCESS	2010-05-10 17:57:14.112	-- Granting SELECT privilege to group OPENBIS_READONLY\\012\\012GRANT SELECT ON SEQUENCE attachment_content_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE attachment_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE code_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE controlled_vocabulary_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE cvte_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE data_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE data_set_property_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE data_set_relationship_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE data_set_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE data_store_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE DATA_STORE_SERVICES_ID_SEQ TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE data_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE database_instance_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE dstpt_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE etpt_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE event_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE experiment_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE experiment_property_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE experiment_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE file_format_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE group_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE invalidation_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE locator_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE material_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE material_property_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE material_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE mtpt_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE perm_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE person_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE project_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE property_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE role_assignment_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE sample_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE sample_property_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE sample_type_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE stpt_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE authorization_group_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE filter_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON SEQUENCE query_id_seq TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE attachment_contents TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE attachments TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE controlled_vocabularies TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE controlled_vocabulary_terms TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE data TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE data_set_properties TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE data_set_relationships TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE data_set_type_property_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE data_set_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE data_stores TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE data_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE DATA_STORE_SERVICES TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE DATA_STORE_SERVICE_DATA_SET_TYPES TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE database_instances TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE database_version_logs TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE events TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE experiment_properties TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE experiment_type_property_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE experiment_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE experiments TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE external_data TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE file_format_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE groups TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE invalidations TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE locator_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE material_properties TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE material_type_property_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE material_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE materials TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE persons TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE projects TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE property_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE role_assignments TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE sample_properties TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE sample_type_property_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE sample_types TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE samples TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE authorization_groups TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE authorization_group_persons TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE filters TO GROUP OPENBIS_READONLY;\\012GRANT SELECT ON TABLE queries TO GROUP OPENBIS_READONLY;\\012	\N
 051	./sql/generic/051/data-051.sql	SUCCESS	2010-05-10 17:57:14.533	----------------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table DATABASE_INSTANCES\\012----------------------------------------------------------------------------\\012\\012INSERT INTO database_instances(\\012              id\\012            , code\\012\\011    \\011, uuid\\012            , is_original_source)\\012    VALUES (  nextval('DATABASE_INSTANCE_ID_SEQ')\\012            , 'SYSTEM_DEFAULT'\\012\\011    \\011, 'SYSTEM_DEFAULT'\\012            , 'T');\\012\\012----------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table DATA_STORES\\012----------------------------------------------------------------------\\012\\012insert into data_stores\\012(id\\012,code\\012,download_url\\012,remote_url\\012,session_token\\012,dbin_id)\\012values\\012(nextval('DATA_STORE_ID_SEQ')\\012,'STANDARD'\\012,''\\012,''\\012,''\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012----------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table PERSONS\\012-----------------------------------------------------------------------\\012\\012insert into persons\\012(id\\012,first_name\\012,last_name\\012,user_id\\012,email\\012,dbin_id)\\012values\\012(nextval('PERSON_ID_SEQ')\\012,''\\012,'System User'\\012,'system'\\012,''\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT') );\\012\\012-----------------------------------------------------------------------------------\\012--  Purpose:  Create Controlled Vocabulary STORAGE_FORMAT\\012-----------------------------------------------------------------------------------\\012insert into controlled_vocabularies \\012       ( id\\012       , code\\012       , is_internal_namespace      \\012       , description\\012       , pers_id_registerer\\012       , is_managed_internally\\012       , dbin_id)\\012values  (nextval('CONTROLLED_VOCABULARY_ID_SEQ')\\012       , 'STORAGE_FORMAT'\\012       , true\\012       , 'The on-disk storage format of a data set'\\012       , (select id from persons where user_id ='system')\\012       , true\\012       , (select id from database_instances where code = 'SYSTEM_DEFAULT'));\\012\\012\\012-----------------------------------------------------------------------------------\\012--  Purpose:  Create Controlled Vocabulary Terms for STORAGE_FORMAT\\012-----------------------------------------------------------------------------------\\012insert into controlled_vocabulary_terms \\012       ( id\\012       , code\\012       , covo_id \\012       , pers_id_registerer\\012       , ordinal )\\012values  (nextval('CVTE_ID_SEQ')\\012       , 'PROPRIETARY'\\012       , (select id from controlled_vocabularies where code = 'STORAGE_FORMAT' and is_internal_namespace = true)\\012       , (select id from persons where user_id ='system')\\012       , 1);\\012\\012insert into controlled_vocabulary_terms \\012       ( id\\012       , code\\012       , covo_id \\012       , pers_id_registerer\\012       , ordinal)\\012values  (nextval('CVTE_ID_SEQ')\\012       , 'BDS_DIRECTORY'\\012       , (select id from controlled_vocabularies where code = 'STORAGE_FORMAT' and is_internal_namespace = true)\\012       , (select id from persons where user_id ='system')\\012       , 2);\\012\\012------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table DATA_TYPES\\012------------------------------------------------------------------\\012\\012insert into data_types\\012(id\\012,code\\012,description)\\012values \\012(nextval('DATA_TYPE_ID_SEQ')\\012,'VARCHAR'\\012,'Short text'\\012);\\012\\012insert into data_types\\012(id\\012 ,code\\012 ,description)\\012 values \\012 (nextval('DATA_TYPE_ID_SEQ')\\012 ,'MULTILINE_VARCHAR'\\012 ,'Long text'\\012);\\012\\012insert into data_types\\012(id\\012,code\\012,description)\\012values \\012(nextval('DATA_TYPE_ID_SEQ')\\012,'INTEGER'\\012,'Integer number'\\012);\\012\\012insert into data_types\\012(id\\012,code\\012,description)\\012values \\012(nextval('DATA_TYPE_ID_SEQ')\\012,'REAL'\\012,'Real number, i.e. an inexact, variable-precision numeric type'\\012);\\012\\012insert into data_types\\012(id\\012,code\\012,description)\\012values \\012(nextval('DATA_TYPE_ID_SEQ')\\012,'BOOLEAN'\\012,'True or False'\\012);\\012\\012insert into data_types\\012(id\\012,code\\012,description)\\012values \\012(nextval('DATA_TYPE_ID_SEQ')\\012,'TIMESTAMP'\\012,'Both date and time. Format: yyyy-mm-dd hh:mm:ss'\\012);\\012\\012insert into data_types\\012(id\\012 ,code\\012 ,description)\\012 values \\012 (nextval('DATA_TYPE_ID_SEQ')\\012 ,'CONTROLLEDVOCABULARY'\\012 ,'Controlled Vocabulary'\\012);\\012\\012insert into data_types\\012(id\\012 ,code\\012 ,description)\\012 values \\012 (nextval('DATA_TYPE_ID_SEQ')\\012 ,'MATERIAL'\\012 ,'Reference to a material'\\012);\\012\\012insert into data_types\\012(id\\012 ,code\\012 ,description)\\012 values \\012 (nextval('DATA_TYPE_ID_SEQ')\\012 ,'HYPERLINK'\\012 ,'Address of a web page'\\012);\\012\\012----------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table PROPERTY_TYPES\\012-----------------------------------------------------------------------\\012\\012insert into property_types\\012(id\\012,code\\012,description\\012,label\\012,daty_id\\012,pers_id_registerer\\012,dbin_id)\\012values \\012(nextval('PROPERTY_TYPE_ID_SEQ')\\012,'DESCRIPTION'\\012,'A Description'\\012,'Description'\\012,(select id from data_types where code ='VARCHAR')\\012,(select id from persons where user_id ='system')\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012--------------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table DATA_SET_TYPES\\012--------------------------------------------------------------------------\\012\\012insert into data_set_types\\012(id\\012,code\\012,description\\012,dbin_id)\\012values \\012(nextval('DATA_SET_TYPE_ID_SEQ')\\012,'UNKNOWN'\\012,'Unknown'\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012-------------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table FILE_FORMAT_TYPES\\012-------------------------------------------------------------------------\\012\\012insert into file_format_types\\012(id\\012,code\\012,description\\012,dbin_id)\\012values \\012(nextval('FILE_FORMAT_TYPE_ID_SEQ')\\012,'HDF5'\\012,'Hierarchical Data Format File, version 5'\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012insert into file_format_types\\012(id\\012,code\\012,description\\012,dbin_id)\\012values \\012(nextval('FILE_FORMAT_TYPE_ID_SEQ')\\012,'PROPRIETARY'\\012,'Proprietary Format File'\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012insert into file_format_types\\012(id\\012,code\\012,description\\012,dbin_id)\\012values \\012(nextval('FILE_FORMAT_TYPE_ID_SEQ')\\012,'SRF'\\012,'Sequence Read Format File'\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012insert into file_format_types\\012(id\\012,code\\012,description\\012,dbin_id)\\012values \\012(nextval('FILE_FORMAT_TYPE_ID_SEQ')\\012,'TIFF'\\012,'TIFF File'\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012insert into file_format_types\\012(id\\012,code\\012,description\\012,dbin_id)\\012values \\012(nextval('FILE_FORMAT_TYPE_ID_SEQ')\\012,'TSV'\\012,'Tab Separated Values File'\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012insert into file_format_types\\012(id\\012,code\\012,description\\012,dbin_id)\\012values \\012(nextval('FILE_FORMAT_TYPE_ID_SEQ')\\012,'XML'\\012,'XML File'\\012,(select id from database_instances where code = 'SYSTEM_DEFAULT')\\012);\\012\\012---------------------------------------------------------------------\\012--  Purpose:  Insert an initial data set into the table LOCATOR_TYPES\\012---------------------------------------------------------------------\\012\\012insert into locator_types\\012(id\\012,code\\012,description)\\012values \\012(nextval('LOCATOR_TYPE_ID_SEQ')\\012,'RELATIVE_LOCATION'\\012,'Relative Location'\\012);\\012	\N
+052	./sql/postgresql/migration/migration-051-052.sql	SUCCESS	2010-10-29 13:39:25.352	-- Migration from 051 to 052\\012\\012-- Add QUERY_TYPE column to QUERIES\\012CREATE DOMAIN QUERY_TYPE AS VARCHAR(40) CHECK (VALUE IN ('GENERIC', 'EXPERIMENT', 'SAMPLE', 'DATA_SET', 'MATERIAL'));\\012ALTER TABLE QUERIES ADD COLUMN QUERY_TYPE QUERY_TYPE;\\012UPDATE QUERIES SET QUERY_TYPE = 'GENERIC';\\012ALTER TABLE QUERIES ALTER COLUMN QUERY_TYPE SET NOT NULL; \\012\\012-- add DB_KEY column to QUERIES\\012\\012ALTER TABLE queries ADD COLUMN db_key code NOT NULL DEFAULT '1';\\012	\N
+053	./sql/postgresql/migration/migration-052-053.sql	SUCCESS	2010-10-29 13:39:25.458	-- Migration from 052 to 053\\012\\012-- Change code uniqueness check for samples of specific type.\\012-- If sample_types.is_subcode_unique flag is set to 'true', additional check is performed \\012-- on codes of samples of the type. Subcodes will have to be unique as well.\\012\\012ALTER TABLE sample_types ADD COLUMN is_subcode_unique boolean_char NOT NULL DEFAULT false;\\012\\012CREATE OR REPLACE FUNCTION SAMPLE_SUBCODE_UNIQUENESS_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   counter  INTEGER;\\012   unique_subcode  BOOLEAN_CHAR;\\012BEGIN\\012  LOCK TABLE samples IN EXCLUSIVE MODE;\\012  \\012  SELECT is_subcode_unique into unique_subcode FROM sample_types WHERE id = NEW.saty_id;\\012  \\012  IF (unique_subcode) THEN\\012    IF (NEW.dbin_id is not NULL) THEN\\012\\011\\011\\011SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and dbin_id = NEW.dbin_id;\\012\\011\\011\\011IF (counter > 0) THEN\\012\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample of the same type with the same subcode already exists.', NEW.code;\\012\\011\\011\\011END IF;\\012\\011\\011ELSIF (NEW.grou_id is not NULL) THEN\\012\\011\\011\\011SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011where id != NEW.id and code = NEW.code and saty_id = NEW.saty_id and grou_id = NEW.grou_id;\\012\\011\\011\\011IF (counter > 0) THEN\\012\\011\\011\\011\\011RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample of the same type with the same subcode already exists.', NEW.code;\\012\\011\\011\\011END IF;\\012\\011\\011END IF;\\012  END IF;\\012  \\012  RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER SAMPLE_SUBCODE_UNIQUENESS_CHECK BEFORE INSERT OR UPDATE ON SAMPLES\\012    FOR EACH ROW EXECUTE PROCEDURE SAMPLE_SUBCODE_UNIQUENESS_CHECK();\\012    \\012-- Fixing error messages in old trigger\\012\\012CREATE OR REPLACE FUNCTION SAMPLE_CODE_UNIQUENESS_CHECK() RETURNS trigger AS $$\\012DECLARE\\012   counter  INTEGER;\\012BEGIN\\012  LOCK TABLE samples IN EXCLUSIVE MODE;\\012  \\012\\011  IF (NEW.samp_id_part_of is NULL) THEN\\012\\011\\011  IF (NEW.dbin_id is not NULL) THEN\\012\\011\\011\\011  SELECT count(*) into counter FROM samples \\012\\011\\011      where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and dbin_id = NEW.dbin_id;\\012        IF (counter > 0) THEN\\012\\011\\011\\011\\011  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code already exists.', NEW.code;\\012        END IF;\\012\\011\\011  ELSIF (NEW.grou_id is not NULL) THEN\\012\\011\\011\\011  SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011  where id != NEW.id and code = NEW.code and samp_id_part_of is NULL and grou_id = NEW.grou_id;\\012\\011\\011\\011  IF (counter > 0) THEN\\012\\011\\011\\011\\011  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample with the same code already exists.', NEW.code;\\012\\011\\011\\011  END IF;\\012      END IF;\\012    ELSE\\012\\011\\011  IF (NEW.dbin_id is not NULL) THEN\\012\\011\\011\\011  SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011  where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and dbin_id = NEW.dbin_id;\\012\\011\\011\\011  IF (counter > 0) THEN\\012\\011\\011\\011\\011  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because database instance sample with the same code and being the part of the same container already exists.', NEW.code;\\012\\011\\011\\011  END IF;\\012\\011\\011  ELSIF (NEW.grou_id is not NULL) THEN\\012\\011\\011\\011  SELECT count(*) into counter FROM samples \\012\\011\\011\\011\\011  where id != NEW.id and code = NEW.code and samp_id_part_of = NEW.samp_id_part_of and grou_id = NEW.grou_id;\\012\\011\\011\\011  IF (counter > 0) THEN\\012\\011\\011\\011\\011  RAISE EXCEPTION 'Insert/Update of Sample (Code: %) failed because space sample with the same code and being the part of the same container already exists.', NEW.code;\\012\\011\\011\\011  END IF;\\012\\011\\011  END IF;\\012     END IF;   \\012  \\012  RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012	\N
+054	./sql/postgresql/migration/migration-053-054.sql	SUCCESS	2010-10-29 13:39:25.593	-- Migration from 053 to 054\\012\\012\\012-- Add RELATIONSHIP_TYPES table\\012CREATE TABLE relationship_types (id TECH_ID NOT NULL, code CODE NOT NULL, label COLUMN_LABEL, parent_label COLUMN_LABEL, child_label COLUMN_LABEL, description DESCRIPTION_2000, registration_timestamp TIME_STAMP_DFL NOT NULL DEFAULT CURRENT_TIMESTAMP, pers_id_registerer TECH_ID NOT NULL, is_managed_internally BOOLEAN_CHAR NOT NULL DEFAULT 'F', is_internal_namespace BOOLEAN_CHAR NOT NULL DEFAULT 'F', dbin_id TECH_ID NOT NULL);\\012\\012-- Add SAMPLE_RELATIONSHIPS table\\012CREATE TABLE sample_relationships (id TECH_ID NOT NULL, sample_id_parent TECH_ID NOT NULL, relationship_id TECH_ID NOT NULL, sample_id_child TECH_ID NOT NULL);\\012\\012-- Add/update constraints\\012ALTER TABLE relationship_types ADD CONSTRAINT rety_pk PRIMARY KEY (id);\\012ALTER TABLE relationship_types ADD CONSTRAINT rety_uk UNIQUE(code,dbin_id);\\012ALTER TABLE sample_relationships ADD CONSTRAINT sare_pk PRIMARY KEY (id);\\012ALTER TABLE sample_relationships ADD CONSTRAINT sare_bk_uk UNIQUE(sample_id_child,sample_id_parent,relationship_id);\\012ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_child FOREIGN KEY (sample_id_child) REFERENCES samples(id) ON DELETE CASCADE;\\012ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_parent FOREIGN KEY (sample_id_parent) REFERENCES samples(id) ON DELETE CASCADE;\\012ALTER TABLE sample_relationships ADD CONSTRAINT sare_data_fk_relationship FOREIGN KEY (relationship_id) REFERENCES relationship_types(id);\\012\\012-- Create index\\012CREATE INDEX sare_data_fk_i_child ON sample_relationships (sample_id_child);\\012CREATE INDEX sare_data_fk_i_parent ON sample_relationships (sample_id_parent);\\012CREATE INDEX sare_data_fk_i_relationship ON sample_relationships (relationship_id);\\012\\012-- Create sequence for RELATIONSHIP_TYPES\\012CREATE SEQUENCE RELATIONSHIP_TYPE_ID_SEQ;\\012CREATE SEQUENCE SAMPLE_RELATIONSHIP_ID_SEQ;\\012\\012-- Create initial relationships\\012insert into relationship_types\\012(id, \\012code, \\012label, \\012parent_label, \\012child_label, \\012description, \\012pers_id_registerer, \\012is_managed_internally, \\012is_internal_namespace, \\012dbin_id) \\012values\\012(\\012nextval('RELATIONSHIP_TYPE_ID_SEQ'),\\012'PARENT_CHILD',\\012'Parent - Child', \\012'Parent', \\012'Child', \\012'Parent - Child relationship', \\012(select id from persons where user_id ='system'), \\012'T', \\012'T', \\012(select id from database_instances where is_original_source = 'T')\\012);\\012\\012insert into relationship_types\\012(id, \\012code, \\012label, \\012parent_label, \\012child_label, \\012description, \\012pers_id_registerer, \\012is_managed_internally, \\012is_internal_namespace, \\012dbin_id) \\012values\\012(\\012nextval('RELATIONSHIP_TYPE_ID_SEQ'),\\012'PLATE_CONTROL_LAYOUT',\\012'Plate - Control Layout', \\012'Plate', \\012'Control Layout', \\012'Plate - Control Layout relationship', \\012(select id from persons where user_id ='system'), \\012'T', \\012'T', \\012(select id from database_instances where is_original_source = 'T')\\012); \\012\\012\\012-- Migrate sample relationships to new schema\\012INSERT INTO sample_relationships (id, sample_id_parent,sample_id_child,relationship_id) (select distinct nextval('SAMPLE_RELATIONSHIP_ID_SEQ') as id, s.SAMP_ID_GENERATED_FROM as parent_id, s.ID as child_id, rt.id as relationship_id from samples s, relationship_types rt  WHERE rt.code = 'PARENT_CHILD' and s.SAMP_ID_GENERATED_FROM is not null); \\012INSERT INTO sample_relationships (id, sample_id_parent,sample_id_child,relationship_id) (select distinct nextval('SAMPLE_RELATIONSHIP_ID_SEQ') as id, s.SAMP_ID_CONTROL_LAYOUT as parent_id, s.ID as child_id, rt.id as relationship_id from samples s, relationship_types rt  WHERE rt.code = 'PLATE_CONTROL_LAYOUT' and s.SAMP_ID_CONTROL_LAYOUT is not null);\\012\\012-- Drop old sample relations\\012ALTER TABLE SAMPLES DROP COLUMN SAMP_ID_TOP;\\012ALTER TABLE SAMPLES DROP COLUMN SAMP_ID_GENERATED_FROM;\\012ALTER TABLE SAMPLES DROP COLUMN SAMP_ID_CONTROL_LAYOUT;\\012\\012--------------------------------------------------------------------------------------\\012--------------------------------------------------------------------------------------\\012-- This is a screening specific migration. Nothing will be performed on openBIS databases \\012-- which are not screening specific.\\012-- \\012-- This migration for each existing connection between oligo well, oligo material and gene material\\012-- creates a direct connection between the well and the gene. \\012--------------------------------------------------------------------------------------\\012--------------------------------------------------------------------------------------\\012 \\012\\011\\012CREATE OR REPLACE FUNCTION CONNECT_WELLS_WITH_GENES() RETURNS void AS $$\\012DECLARE\\012\\011counter  int;\\012\\011oligo_well_exists bool;\\012BEGIN\\012\\011--------------------------------------------------\\012\\011-- create a gene property and assign it to oligo well\\012\\011--------------------------------------------------\\012\\011\\012\\011select true \\012\\011into oligo_well_exists\\012\\011from sample_types \\012\\011where code = 'OLIGO_WELL';\\012\\011\\012\\011if oligo_well_exists IS NULL then \\012\\011\\011-- skip migration if there are no oligo wells\\012\\011\\011return;\\012\\011end if;   \\012\\011\\012\\011insert into property_types(\\012\\011\\011id, \\012\\011\\011code, description, label, \\012\\011\\011daty_id,\\012\\011\\011pers_id_registerer,\\012\\011\\011dbin_id,\\012\\011\\011maty_prop_id) \\012\\011values(\\012\\011\\011\\011nextval('PROPERTY_TYPE_ID_SEQ'), \\012\\011\\011\\011'GENE','Inhibited gene','Gene',\\012\\011\\011\\011(select id from data_types where code = 'MATERIAL'), \\012\\011\\011\\011(select id from persons where user_id ='system'), \\012\\011\\011\\011(select id from database_instances where is_original_source = 'T'), \\012\\011\\011\\011(select id from material_types where code = 'GENE')\\012\\011\\011);\\012\\011\\011\\012\\011insert into sample_type_property_types( \\012\\011  id,\\012\\011  saty_id,\\012\\011  prty_id,\\012\\011  is_mandatory,\\012\\011  pers_id_registerer,\\012\\011  ordinal\\012\\011) values(\\012\\011\\011\\011nextval('stpt_id_seq'), \\012\\011\\011\\011(select id from sample_types where code = 'OLIGO_WELL'),\\012\\011\\011\\011(select id from property_types where code = 'GENE'),\\012\\011\\011\\011false,\\012\\011\\011\\011(select id from persons where user_id ='system'),\\012\\011\\011\\011(select max(ordinal)+1 from sample_type_property_types \\012\\011\\011\\011\\011where saty_id = (select id from sample_types where code = 'OLIGO_WELL'))\\012\\011\\011);\\012\\012\\011--------------------------------------------------\\012\\011-- create a gene material property for each oligo well\\012\\011--------------------------------------------------\\012\\011\\011\\012\\011select \\011count(*)\\012\\011into counter\\012\\011from\\012\\011\\011samples well, sample_types well_type, sample_properties well_props, \\012\\011\\011materials well_material, material_properties well_material_props,\\012\\011\\011materials nested_well_material\\012\\011where\\012\\011\\011well_type.code = 'OLIGO_WELL' and\\012\\011\\011-- find 'well_material' assigned to the well\\012\\011\\011well_props.samp_id = well.id and well_material.id = well_props.mate_prop_id and \\012\\011\\011-- additional joins to entity type tables\\012\\011\\011well_type.id = well.saty_id and\\012\\011\\011-- well content material property\\012\\011\\011well_material_props.mate_id = well_material.id and \\012\\011\\011-- material connected to the material in the well (e.g. gene)\\012\\011\\011well_material_props.mate_prop_id = nested_well_material.id and\\012\\011\\011nested_well_material.maty_id = (select id from material_types where code = 'GENE');\\012\\011\\012\\011if counter = 0 then \\012\\011\\011-- skip migration if there are no genes indirectly connected to oligo wells\\012\\011\\011return;\\012\\011end if;   \\012\\012\\011insert into sample_properties(id, samp_id, stpt_id, mate_prop_id, pers_id_registerer) (\\012\\011\\011select \\011nextval('sample_property_id_seq') id, \\012\\011\\011\\011well.id samp_id, \\012\\011\\011\\011(select stpt.id from sample_type_property_types stpt, property_types props where stpt.prty_id = props.id and props.code='GENE') stpt_id,\\012\\011\\011\\011nested_well_material.id mate_prop_id,\\012\\011\\011\\011(select id from persons where user_id ='system') pers_id_registerer \\012\\011\\011from\\012\\011\\011\\011samples well, sample_types well_type, sample_properties well_props, \\012\\011\\011\\011materials well_material, material_properties well_material_props,\\012\\011\\011\\011materials nested_well_material\\012\\011\\011where\\012\\011\\011\\011well_type.code = 'OLIGO_WELL' and\\012\\011\\011\\011-- find 'well_material' assigned to the well\\012\\011\\011\\011well_props.samp_id = well.id and well_material.id = well_props.mate_prop_id and \\012\\011\\011\\011-- additional joins to entity type tables\\012\\011\\011\\011well_type.id = well.saty_id and\\012\\011\\011\\011-- well content material property\\012\\011\\011\\011well_material_props.mate_id = well_material.id and \\012\\011\\011\\011-- material connected to the material in the well (e.g. gene)\\012\\011\\011\\011well_material_props.mate_prop_id = nested_well_material.id and\\012\\011\\011\\011nested_well_material.maty_id = (select id from material_types where code = 'GENE')\\012\\011);\\012\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012select CONNECT_WELLS_WITH_GENES();\\012drop function CONNECT_WELLS_WITH_GENES();\\012\\012--------------------------------------------------------------------------------------\\012--------------------------------------------------------------------------------------\\012\\012-- drop dataset triggers\\012\\012DROP TRIGGER check_dataset_relationships_on_data_table_modification ON data;\\012DROP FUNCTION check_dataset_relationships_on_data_table_modification();\\012DROP TRIGGER check_dataset_relationships_on_relationships_table_modification ON data_set_relationships;\\012DROP FUNCTION check_dataset_relationships_on_relationships_table_modification();\\012 \\012\\012\\012\\012\\012\\012\\012\\012	\N
+055	./sql/postgresql/migration/migration-054-055.sql	SUCCESS	2010-10-29 13:39:25.602	-- Migration from 054 to 055\\012\\012UPDATE sample_types SET generated_from_depth = 1 WHERE generated_from_depth > 1;\\012	\N
+056	./sql/postgresql/migration/migration-055-056.sql	SUCCESS	2010-10-29 13:39:25.663	-- Migration from 055 to 056\\012\\012--------------------------------------------------------------------------------------\\012--------------------------------------------------------------------------------------\\012-- Screening specific migration. Nothing will be performed on openBIS databases \\012-- which are not screening specific.\\012--------------------------------------------------------------------------------------\\012--------------------------------------------------------------------------------------\\012\\012CREATE OR REPLACE FUNCTION merge_words(text, text) RETURNS text AS $$\\012DECLARE\\012  BEGIN\\012    IF  character_length($1) > 0 THEN\\012      RETURN $1 || ' ' || $2;\\012    ELSE\\012      RETURN $2;\\012    END IF;\\012  END;\\012$$ LANGUAGE plpgsql;\\012\\012CREATE AGGREGATE merge_words(text)\\012(\\012  SFUNC = merge_words,\\012  STYPE = text\\012);\\012\\012\\012CREATE OR REPLACE FUNCTION REPLACE_GENE_SYMBOL_BY_GENE_ID() RETURNS void AS $$\\012DECLARE\\012\\011counter  int;\\012\\011library_id_assigned_to_gene bool;\\012BEGIN\\012\\011--------------------------------------------------\\012\\011-- create a GENE_SYMBOL property and assign it to GENE\\012\\011--------------------------------------------------\\012\\011\\012\\011select true  \\012\\011into library_id_assigned_to_gene \\012\\011from material_type_property_types mtpt, material_types mt, property_types pt  \\012\\011where mtpt.maty_id = mt.id and mtpt.prty_id = pt.id \\012\\011\\011and mt.code = 'GENE' and pt.code = 'LIBRARY_ID';\\012\\011\\012\\011if library_id_assigned_to_gene IS NULL then \\012\\011\\011-- skip migration if gene has no library_id property\\012\\011\\011return;\\012\\011end if; \\012\\011\\012\\011\\012\\011select count(*)\\012\\011into counter \\012\\011from  \\012\\011\\011(select m.id, count(mp.id) as c \\012\\011\\011\\011from materials m, material_types mt, material_properties mp, material_type_property_types mtpt, property_types pt \\012\\011\\011\\011where m.maty_id = mt.id and mp.mate_id = m.id and mp.mtpt_id = mtpt.id and mtpt.maty_id = mt.id and pt.id = mtpt.prty_id\\012\\011\\011\\011\\011and mt.code = 'GENE' and pt.code = 'LIBRARY_ID' \\012\\011\\011\\011group by m.id) as counter_table \\012\\011where c < 1; \\012\\011\\012\\011if counter > 0 then \\012\\011\\011-- skip migration if there is at least one gene without library_id\\012\\011\\011return;\\012\\011end if;\\012\\011\\012\\011\\012\\011insert into property_types\\012\\011\\011(id\\012\\011\\011,code\\012\\011\\011,description\\012\\011\\011,label\\012\\011\\011,daty_id\\012\\011\\011,pers_id_registerer\\012\\011\\011,dbin_id)\\012\\011values \\012\\011\\011(nextval('PROPERTY_TYPE_ID_SEQ')\\012\\011\\011,'GENE_SYMBOLS'\\012\\011\\011,'Gene symbols'\\012\\011\\011,'Gene symbols'\\012\\011\\011,(select id from data_types where code ='VARCHAR')\\012\\011\\011,(select id from persons where user_id ='system')\\012\\011\\011,(select id from database_instances where is_original_source = 'T')\\012\\011);\\012\\011\\011\\012\\011insert into material_type_property_types( \\012\\011  id,\\012\\011  maty_id,\\012\\011  prty_id,\\012\\011  is_mandatory,\\012\\011  pers_id_registerer,\\012\\011  ordinal\\012\\011) values(\\012\\011\\011\\011nextval('mtpt_id_seq'), \\012\\011\\011\\011(select id from material_types where code = 'GENE'),\\012\\011\\011\\011(select id from property_types where code = 'GENE_SYMBOLS'),\\012\\011\\011\\011false,\\012\\011\\011\\011(select id from persons where user_id ='system'),\\012\\011\\011\\011(select max(ordinal)+1 from material_type_property_types \\012\\011\\011\\011\\011where maty_id = (select id from material_types where code = 'GENE'))\\012\\011\\011);\\012\\012\\011--------------------------------------------------\\012\\011-- create temporary table with all gene migration information\\012\\011--------------------------------------------------\\012\\012\\011create temp table genes \\012\\011(\\012\\011\\011id tech_id,\\012\\011\\011code code,\\012\\011\\011library_id generic_value,\\012\\011\\011gene_codes generic_value,\\012\\011\\011new_id tech_id,\\012\\011\\011library_tech_id tech_id\\011\\011\\012\\011);\\012\\011\\012\\011insert into genes (id, code, library_id, library_tech_id)\\012\\011\\011(select m.id, m.code, mp.value as library_id, mp.id as library_tech_id from materials m, material_properties mp, material_type_property_types mtpt, property_types pt, material_types mt\\012\\011\\011where mp.mate_id = m.id and  mp.mtpt_id = mtpt.id and pt.id = mtpt.prty_id and pt.code = 'LIBRARY_ID' and mt.id = m.maty_id and mt.id = mtpt.maty_id and mt.code = 'GENE');\\012\\011\\012\\011update genes set new_id = map.to_id from (select g_from.id as from_id, min(g_to.id) as to_id  from genes g_from, genes g_to where g_from.library_id = g_to.library_id group by g_from.id) as map where map.from_id = id;\\011\\012\\011\\012\\011update genes set gene_codes = map.gene_codes from (select g_from.library_id as lib_id, merge_words(distinct g_to.code) as gene_codes from genes g_from, genes g_to where g_from.library_id = g_to.library_id group by g_from.library_id) as map where map.lib_id = library_id;\\011\\012\\012\\011--------------------------------------------------\\012\\011-- update gene references\\012\\011--------------------------------------------------\\012\\012\\011update EXPERIMENTS set MATE_ID_STUDY_OBJECT = genes.new_id from genes where genes.id = MATE_ID_STUDY_OBJECT and not genes.id = genes.new_id;\\012\\011update EXPERIMENT_PROPERTIES set  MATE_PROP_ID = genes.new_id from genes where genes.id = MATE_PROP_ID and not genes.id = genes.new_id;\\012\\011update MATERIAL_PROPERTIES set  MATE_PROP_ID = genes.new_id from genes where genes.id = MATE_PROP_ID and not genes.id = genes.new_id;\\012\\011update SAMPLE_PROPERTIES set  MATE_PROP_ID = genes.new_id from genes where genes.id = MATE_PROP_ID and not genes.id = genes.new_id;\\012\\011update DATA_SET_PROPERTIES set  MATE_PROP_ID = genes.new_id from genes where genes.id = MATE_PROP_ID and not genes.id = genes.new_id;\\012\\011\\012\\011delete from  material_properties where mate_id in (select id from genes where not genes.id = genes.new_id);\\012\\011delete from MATERIALS where id in (select id from genes where not genes.id = genes.new_id);\\012\\012\\011delete from genes where id in (select id from genes where not genes.id = genes.new_id);\\012\\012\\012\\011--------------------------------------------------\\012\\011-- replace gene code with library_id\\012\\011--------------------------------------------------\\012\\011\\012\\011update materials set code = genes.library_id from genes where materials.id = genes.id ;\\012\\011delete from material_properties where id in (select library_tech_id from genes);\\012\\011\\012\\011--------------------------------------------------\\012\\011-- create a gene symbols property for each gene\\012\\011--------------------------------------------------\\012\\011\\012\\011insert into material_properties\\012\\011\\011(id\\012\\011  , mate_id\\012\\011  , mtpt_id\\012\\011  , "value"\\012\\011  , pers_id_registerer)\\012\\011\\011(select nextval('material_property_id_seq') id\\012\\011  \\011, genes.id  mate_id\\012\\011    , (select mtpt.id\\012\\011    \\011\\011from   material_type_property_types mtpt, material_types mt, property_types pt\\012\\011    \\011\\011where  pt.code = 'GENE_SYMBOLS' and mt.code = 'GENE' and mtpt.prty_id = pt.id\\012\\011        \\011and mtpt.maty_id = mt.id) mtpt_id\\012\\011    , genes.gene_codes "value"\\012\\011    , (select id from persons where user_id = 'system') pers_id_registerer\\012\\011 \\011from genes); \\012\\012\\011--------------------------------------------------\\012\\011-- delete temporary table\\012\\011--------------------------------------------------\\012\\011\\012\\011drop table genes;\\012\\011\\012\\011delete from material_type_property_types where id = \\012\\011\\011(select mtpt.id from material_type_property_types mtpt, material_types mt, property_types pt \\012\\011\\011\\011where pt.id = mtpt.prty_id and mtpt.maty_id = mt.id \\012\\011\\011\\011and pt.code = 'LIBRARY_ID' and mt.code = 'GENE');\\012\\011\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012select REPLACE_GENE_SYMBOL_BY_GENE_ID();\\012drop function REPLACE_GENE_SYMBOL_BY_GENE_ID();\\012DROP AGGREGATE merge_words(text);\\012drop function merge_words(text,text);\\012\\012\\012--------------------------------------------------------------------------------------\\012--------------------------------------------------------------------------------------\\012\\012UPDATE sample_types SET code = 'SIRNA_WELL' WHERE code = 'OLIGO_WELL';\\012UPDATE material_types SET code = 'SIRNA' WHERE code = 'OLIGO';\\012UPDATE property_types SET code = 'SIRNA', label = 'siRNA' WHERE code = 'OLIGO';\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012\\012	\N
+057	./sql/postgresql/migration/migration-056-057.sql	SUCCESS	2010-10-29 13:39:25.755	-- Migration from 056 to 057\\012\\012-- Introduction of a new data type - XML.\\012\\012INSERT INTO data_types (id, code, description) VALUES (nextval('data_type_id_seq'), 'XML', 'XML document');\\012\\012-- Property types of XML data type can optionally hold XMLSchema and XSLT. \\012\\012CREATE DOMAIN text_value AS text;\\012\\012ALTER TABLE property_types ADD COLUMN schema text_value;\\012ALTER TABLE property_types ADD COLUMN transformation text_value;\\012\\012-- Remove length restriction for property values - change domain from generic_value to text_value.\\012ALTER TABLE data_set_properties ALTER COLUMN value TYPE text_value;\\012ALTER TABLE experiment_properties ALTER COLUMN value TYPE text_value;\\012ALTER TABLE material_properties ALTER COLUMN value TYPE text_value;\\012ALTER TABLE sample_properties ALTER COLUMN value TYPE text_value;\\012DROP DOMAIN generic_value;\\012	\N
+058	./sql/postgresql/migration/migration-057-058.sql	SUCCESS	2010-10-29 13:39:25.775	-- Migration from 057 to 058\\012\\012ALTER TABLE DATA ADD COLUMN PERS_ID_REGISTERER TECH_ID;\\012ALTER TABLE DATA ADD CONSTRAINT DATA_PERS_FK FOREIGN KEY (PERS_ID_REGISTERER) REFERENCES PERSONS(ID);\\012	\N
+059	./sql/postgresql/migration/migration-058-059.sql	SUCCESS	2010-10-29 13:39:25.812	-- Migration from 058 to 059\\012\\012-- Add ENTITY_TYPE_CODE column to QUERIES\\012ALTER TABLE queries ADD COLUMN entity_type_code CODE;\\012\\012------------------------------------------------------------------------------------\\012--  Purpose:  Create trigger that checks if entity_type_code specified in a query\\012--            matches a code of an entity of type specified in query_type.\\012------------------------------------------------------------------------------------\\012\\012CREATE OR REPLACE FUNCTION query_entity_type_code_check() RETURNS trigger AS $$\\012DECLARE\\012   counter  INTEGER;\\012BEGIN\\012   if (NEW.entity_type_code IS NOT NULL) then\\012     if (NEW.query_type = 'GENERIC') then\\012       RAISE EXCEPTION 'Insert/Update of Query (Name: %) failed because entity_type has to be null for GENERIC queries.', NEW.name;\\012     elsif (NEW.query_type = 'EXPERIMENT') then\\012       SELECT count(*) INTO counter FROM experiment_types WHERE code = NEW.entity_type_code;\\012\\011\\011 elsif (NEW.query_type = 'DATA_SET') then\\012       SELECT count(*) INTO counter FROM data_set_types WHERE code = NEW.entity_type_code;\\012\\011\\011 elsif (NEW.query_type = 'MATERIAL') then\\012       SELECT count(*) INTO counter FROM material_types WHERE code = NEW.entity_type_code;\\012\\011\\011 elsif (NEW.query_type = 'SAMPLE') then\\012       SELECT count(*) INTO counter FROM sample_types WHERE code = NEW.entity_type_code;\\012\\011\\011 end if;\\012\\011\\011 if (counter = 0) then\\012\\011\\011\\011 RAISE EXCEPTION 'Insert/Update of Query (Name: %) failed because % Type (Code: %) does not exist.', NEW.name, NEW.query_type, NEW.entity_type_code;\\012\\011\\011 end if;\\011\\011\\011\\012   end if;\\012   RETURN NEW;\\012END;\\012$$ LANGUAGE 'plpgsql';\\012\\012CREATE TRIGGER query_entity_type_code_check BEFORE INSERT OR UPDATE ON queries\\012    FOR EACH ROW EXECUTE PROCEDURE query_entity_type_code_check();\\012    \\012------------------------------------------------------------------------------------\\012--  Add a new domain to capture the allowed values for ReportingPluginType\\012--  Store the ReportingPluginType on the DATA_STORE_SERVICES table\\012------------------------------------------------------------------------------------\\012CREATE DOMAIN DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE AS VARCHAR(40) CHECK (VALUE IN ('TABLE_MODEL', 'DSS_LINK'));\\012ALTER TABLE DATA_STORE_SERVICES ADD COLUMN REPORTING_PLUGIN_TYPE DATA_STORE_SERVICE_REPORTING_PLUGIN_TYPE;\\012\\012------------------------------------------------------------------------------------\\012-- Put the sequences query_id_seq and grid_custom_columns in use\\012--  (by mistake, filter_id_seq had been used for queries and grid custom columns)\\012------------------------------------------------------------------------------------\\012SELECT setval('query_id_seq', nextval('filter_id_seq'));\\012SELECT setval('grid_custom_columns_id_seq', currval('filter_id_seq'));\\012	\N
+060	./sql/postgresql/migration/migration-059-060.sql	SUCCESS	2010-10-29 13:39:26.04	-- Migration from 059 to 060\\012\\012------------------------------------------------------------------------------------\\012--  Drop trigger on queries.entity_type_code column to enable storing a regexp there.\\012------------------------------------------------------------------------------------\\012\\012DROP TRIGGER query_entity_type_code_check ON queries;\\012DROP FUNCTION query_entity_type_code_check();\\012\\012------------------------------------------------------------------------------------\\012-- Dynamic properties\\012------------------------------------------------------------------------------------\\012\\012-- Create SCRIPTS table\\012\\012CREATE TABLE SCRIPTS (ID TECH_ID NOT NULL,DBIN_ID TECH_ID NOT NULL,NAME VARCHAR(200) NOT NULL,DESCRIPTION DESCRIPTION_2000,SCRIPT TEXT_VALUE NOT NULL,REGISTRATION_TIMESTAMP TIME_STAMP_DFL NOT NULL DEFAULT CURRENT_TIMESTAMP,PERS_ID_REGISTERER TECH_ID NOT NULL);\\012CREATE SEQUENCE SCRIPT_ID_SEQ;\\012ALTER TABLE SCRIPTS ADD CONSTRAINT SCRI_PK PRIMARY KEY(ID);\\012ALTER TABLE SCRIPTS ADD CONSTRAINT SCRI_UK UNIQUE(NAME,DBIN_ID);\\012ALTER TABLE SCRIPTS ADD CONSTRAINT SCRI_DBIN_FK FOREIGN KEY (DBIN_ID) REFERENCES DATABASE_INSTANCES(ID);\\012ALTER TABLE SCRIPTS ADD CONSTRAINT SCRI_PERS_FK FOREIGN KEY (PERS_ID_REGISTERER) REFERENCES PERSONS(ID);\\012CREATE INDEX SCRIPT_PERS_FK_I ON SCRIPTS (PERS_ID_REGISTERER);\\012CREATE INDEX SCRIPT_DBIN_FK_I ON SCRIPTS (DBIN_ID);\\012\\012-- Add IS_DYNAMIC column to *_PROPERTY_TYPES tables \\012\\012ALTER TABLE MATERIAL_TYPE_PROPERTY_TYPES ADD COLUMN IS_DYNAMIC BOOLEAN NOT NULL DEFAULT FALSE;\\012ALTER TABLE SAMPLE_TYPE_PROPERTY_TYPES ADD COLUMN IS_DYNAMIC BOOLEAN NOT NULL DEFAULT FALSE;\\012ALTER TABLE EXPERIMENT_TYPE_PROPERTY_TYPES ADD COLUMN IS_DYNAMIC BOOLEAN NOT NULL DEFAULT FALSE;\\012ALTER TABLE DATA_SET_TYPE_PROPERTY_TYPES ADD COLUMN IS_DYNAMIC BOOLEAN NOT NULL DEFAULT FALSE;\\012\\012-- Add SCRIPT_ID column to *_PROPERTY_TYPES tables \\012\\012ALTER TABLE MATERIAL_TYPE_PROPERTY_TYPES ADD COLUMN SCRIPT_ID TECH_ID;\\012ALTER TABLE SAMPLE_TYPE_PROPERTY_TYPES ADD COLUMN SCRIPT_ID TECH_ID;\\012ALTER TABLE EXPERIMENT_TYPE_PROPERTY_TYPES ADD COLUMN SCRIPT_ID TECH_ID;\\012ALTER TABLE DATA_SET_TYPE_PROPERTY_TYPES ADD COLUMN SCRIPT_ID TECH_ID;\\012\\012-- Make SCRIPT_ID reference SCRIPTS\\012\\012ALTER TABLE MATERIAL_TYPE_PROPERTY_TYPES ADD CONSTRAINT MTPT_SCRIPT_FK FOREIGN KEY (SCRIPT_ID) REFERENCES SCRIPTS(ID);\\012ALTER TABLE SAMPLE_TYPE_PROPERTY_TYPES ADD CONSTRAINT STPT_SCRIPT_FK FOREIGN KEY (SCRIPT_ID) REFERENCES SCRIPTS(ID);\\012ALTER TABLE EXPERIMENT_TYPE_PROPERTY_TYPES ADD CONSTRAINT ETPT_SCRIPT_FK FOREIGN KEY (SCRIPT_ID) REFERENCES SCRIPTS(ID);\\012ALTER TABLE DATA_SET_TYPE_PROPERTY_TYPES ADD CONSTRAINT DSTPT_SCRIPT_FK FOREIGN KEY (SCRIPT_ID) REFERENCES SCRIPTS(ID);\\012\\012-- Check SCRIPT_ID is filled when IS_DYNAMIC is TRUE\\012\\012ALTER TABLE MATERIAL_TYPE_PROPERTY_TYPES ADD CONSTRAINT MTPT_CK CHECK ((IS_DYNAMIC IS TRUE AND SCRIPT_ID IS NOT NULL) OR (IS_DYNAMIC IS FALSE AND SCRIPT_ID IS NULL));\\012ALTER TABLE SAMPLE_TYPE_PROPERTY_TYPES ADD CONSTRAINT STPT_CK CHECK ((IS_DYNAMIC IS TRUE AND SCRIPT_ID IS NOT NULL) OR (IS_DYNAMIC IS FALSE AND SCRIPT_ID IS NULL));\\012ALTER TABLE EXPERIMENT_TYPE_PROPERTY_TYPES ADD CONSTRAINT ETPT_CK CHECK ((IS_DYNAMIC IS TRUE AND SCRIPT_ID IS NOT NULL) OR (IS_DYNAMIC IS FALSE AND SCRIPT_ID IS NULL));\\012ALTER TABLE DATA_SET_TYPE_PROPERTY_TYPES ADD CONSTRAINT DSTPT_CK CHECK ((IS_DYNAMIC IS TRUE AND SCRIPT_ID IS NOT NULL) OR (IS_DYNAMIC IS FALSE AND SCRIPT_ID IS NULL));\\012\\012	\N
 \.
 
 
@@ -2099,10 +2234,10 @@ COPY experiment_properties (id, expe_id, etpt_id, value, cvte_id, mate_prop_id, 
 -- Data for Name: experiment_type_property_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY experiment_type_property_types (id, exty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section) FROM stdin;
-1	1	1	t	t	1	2008-06-17 16:38:49.023295+02	1	\N
-2	2	1	t	t	1	2008-06-17 16:38:49.301922+02	1	\N
-5	1	13	f	f	1	2009-12-17 10:54:01.261178+01	2	\N
+COPY experiment_type_property_types (id, exty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section, is_dynamic, script_id) FROM stdin;
+1	1	1	t	t	1	2008-06-17 16:38:49.023295+02	1	\N	f	\N
+2	2	1	t	t	1	2008-06-17 16:38:49.301922+02	1	\N	f	\N
+5	1	13	f	f	1	2009-12-17 10:54:01.261178+01	2	\N	f	\N
 \.
 
 
@@ -2207,17 +2342,17 @@ COPY material_properties (id, mate_id, mtpt_id, value, registration_timestamp, m
 -- Data for Name: material_type_property_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY material_type_property_types (id, maty_id, prty_id, is_mandatory, is_managed_internally, registration_timestamp, pers_id_registerer, ordinal, section) FROM stdin;
-10	4	7	t	f	2009-11-27 16:02:45.060699+01	1	4	\N
-9	5	1	f	f	2008-02-28 13:03:03.358532+01	1	1	\N
-8	4	1	f	f	2008-02-28 13:03:03.358532+01	1	3	\N
-6	4	3	t	f	2008-02-28 13:03:03.358532+01	1	1	\N
-5	3	1	f	f	2008-02-28 13:03:03.358532+01	1	2	\N
-3	7	1	t	f	2008-02-28 13:03:03.358532+01	1	1	\N
-2	6	1	t	f	2008-02-28 13:03:03.358532+01	1	1	\N
-1	1	1	t	f	2008-02-28 13:03:03.358532+01	1	1	\N
-101	3	101	f	f	2010-05-10 19:11:57.786913+02	3	3	\N
-102	4	101	f	f	2010-05-10 19:12:07.600654+02	3	5	\N
+COPY material_type_property_types (id, maty_id, prty_id, is_mandatory, is_managed_internally, registration_timestamp, pers_id_registerer, ordinal, section, is_dynamic, script_id) FROM stdin;
+10	4	7	t	f	2009-11-27 16:02:45.060699+01	1	4	\N	f	\N
+9	5	1	f	f	2008-02-28 13:03:03.358532+01	1	1	\N	f	\N
+8	4	1	f	f	2008-02-28 13:03:03.358532+01	1	3	\N	f	\N
+6	4	3	t	f	2008-02-28 13:03:03.358532+01	1	1	\N	f	\N
+5	3	1	f	f	2008-02-28 13:03:03.358532+01	1	2	\N	f	\N
+3	7	1	t	f	2008-02-28 13:03:03.358532+01	1	1	\N	f	\N
+2	6	1	t	f	2008-02-28 13:03:03.358532+01	1	1	\N	f	\N
+1	1	1	t	f	2008-02-28 13:03:03.358532+01	1	1	\N	f	\N
+102	4	101	f	f	2010-05-10 19:12:07.600654+02	3	5	\N	f	\N
+103	3	103	f	f	2010-10-29 13:39:25.611453+02	1	4	\N	f	\N
 \.
 
 
@@ -2229,10 +2364,10 @@ COPY material_types (id, code, description, dbin_id, modification_timestamp) FRO
 1	VIRUS	Virus	1	2009-11-27 16:02:26.451046+01
 2	CELL_LINE	Cell Line or Cell Culture. The growing of cells under controlled conditions.	1	2009-11-27 16:02:26.451046+01
 3	GENE	Gene	1	2009-11-27 16:02:26.451046+01
-4	OLIGO	Oligo nucleotide	1	2009-11-27 16:02:26.451046+01
 5	CONTROL	Control of a control layout	1	2009-11-27 16:02:26.451046+01
 6	BACTERIUM	Bacterium	1	2009-11-27 16:02:26.451046+01
 7	COMPOUND	Compound	1	2009-11-27 16:02:26.451046+01
+4	SIRNA	Oligo nucleotide	1	2009-11-27 16:02:26.451046+01
 \.
 
 
@@ -2268,17 +2403,19 @@ COPY projects (id, code, grou_id, pers_id_leader, description, pers_id_registere
 -- Data for Name: property_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY property_types (id, code, description, label, daty_id, registration_timestamp, pers_id_registerer, covo_id, is_managed_internally, is_internal_namespace, dbin_id, maty_prop_id) FROM stdin;
-1	DESCRIPTION	A Description	Description	1	2010-05-10 17:57:14.310868+02	1	\N	f	f	1	\N
-3	NUCLEOTIDE_SEQUENCE	A sequence of nucleotides	Nucleotide Sequence	1	2008-02-28 13:03:03.358532+01	1	\N	f	f	1	\N
-4	REFSEQ	NCBI Reference Sequence code, applicable to sequences of type: DNA, RNA, protein	RefSeq	1	2008-02-28 13:03:03.358532+01	1	\N	f	f	1	\N
-13	MICROSCOPE	 	Microscope	7	2009-11-29 23:57:05.85618+01	1	3	f	f	1	\N
-7	INHIBITOR_OF	Inhibitor Of	Inhibitor Of	8	2009-11-27 16:02:45.060699+01	1	\N	f	f	1	3
-11	OLIGO	Oligo	Oligo	8	2009-11-29 23:56:19.39967+01	1	\N	f	f	1	4
-12	CONTROL	Control	Control	8	2009-11-29 23:56:37.355313+01	1	\N	f	f	1	5
-6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	7	2008-06-17 16:38:30.723292+02	1	2	t	t	1	\N
-15	NUMBER_OF_CHANNEL	 	Channels	3	2009-12-17 10:56:17.239319+01	1	\N	f	f	1	\N
-101	LIBRARY_ID	ID in the library	Library ID	1	2010-05-10 19:11:46.382687+02	3	\N	f	f	1	\N
+COPY property_types (id, code, description, label, daty_id, registration_timestamp, pers_id_registerer, covo_id, is_managed_internally, is_internal_namespace, dbin_id, maty_prop_id, schema, transformation) FROM stdin;
+1	DESCRIPTION	A Description	Description	1	2010-05-10 17:57:14.310868+02	1	\N	f	f	1	\N	\N	\N
+3	NUCLEOTIDE_SEQUENCE	A sequence of nucleotides	Nucleotide Sequence	1	2008-02-28 13:03:03.358532+01	1	\N	f	f	1	\N	\N	\N
+4	REFSEQ	NCBI Reference Sequence code, applicable to sequences of type: DNA, RNA, protein	RefSeq	1	2008-02-28 13:03:03.358532+01	1	\N	f	f	1	\N	\N	\N
+13	MICROSCOPE	 	Microscope	7	2009-11-29 23:57:05.85618+01	1	3	f	f	1	\N	\N	\N
+7	INHIBITOR_OF	Inhibitor Of	Inhibitor Of	8	2009-11-27 16:02:45.060699+01	1	\N	f	f	1	3	\N	\N
+12	CONTROL	Control	Control	8	2009-11-29 23:56:37.355313+01	1	\N	f	f	1	5	\N	\N
+6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	7	2008-06-17 16:38:30.723292+02	1	2	t	t	1	\N	\N	\N
+15	NUMBER_OF_CHANNEL	 	Channels	3	2009-12-17 10:56:17.239319+01	1	\N	f	f	1	\N	\N	\N
+101	LIBRARY_ID	ID in the library	Library ID	1	2010-05-10 19:11:46.382687+02	3	\N	f	f	1	\N	\N	\N
+102	GENE	Inhibited gene	Gene	8	2010-10-29 13:39:25.49557+02	1	\N	f	f	1	3	\N	\N
+103	GENE_SYMBOLS	Gene symbols	Gene symbols	1	2010-10-29 13:39:25.611453+02	1	\N	f	f	1	\N	\N	\N
+11	SIRNA	Oligo	siRNA	8	2009-11-29 23:56:19.39967+01	1	\N	f	f	1	4	\N	\N
 \.
 
 
@@ -2286,7 +2423,17 @@ COPY property_types (id, code, description, label, daty_id, registration_timesta
 -- Data for Name: queries; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY queries (id, dbin_id, name, description, registration_timestamp, pers_id_registerer, modification_timestamp, expression, is_public) FROM stdin;
+COPY queries (id, dbin_id, name, description, registration_timestamp, pers_id_registerer, modification_timestamp, expression, is_public, query_type, db_key, entity_type_code) FROM stdin;
+\.
+
+
+--
+-- Data for Name: relationship_types; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY relationship_types (id, code, label, parent_label, child_label, description, registration_timestamp, pers_id_registerer, is_managed_internally, is_internal_namespace, dbin_id) FROM stdin;
+1	PARENT_CHILD	Parent - Child	Parent	Child	Parent - Child relationship	2010-10-29 13:39:25.49557+02	1	t	t	1
+2	PLATE_CONTROL_LAYOUT	Plate - Control Layout	Plate	Control Layout	Plate - Control Layout relationship	2010-10-29 13:39:25.49557+02	1	t	t	1
 \.
 
 
@@ -2309,13 +2456,22 @@ COPY sample_properties (id, samp_id, stpt_id, value, cvte_id, mate_prop_id, pers
 
 
 --
+-- Data for Name: sample_relationships; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY sample_relationships (id, sample_id_parent, relationship_id, sample_id_child) FROM stdin;
+\.
+
+
+--
 -- Data for Name: sample_type_property_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY sample_type_property_types (id, saty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, is_displayed, ordinal, section) FROM stdin;
-8	7	11	f	f	1	2009-11-29 23:57:38.268212+01	t	1	\N
-9	8	12	f	f	1	2009-11-29 23:57:49.098187+01	t	1	\N
-10	3	6	f	f	1	2009-11-30 01:28:20.972263+01	t	1	\N
+COPY sample_type_property_types (id, saty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, is_displayed, ordinal, section, is_dynamic, script_id) FROM stdin;
+8	7	11	f	f	1	2009-11-29 23:57:38.268212+01	t	1	\N	f	\N
+9	8	12	f	f	1	2009-11-29 23:57:49.098187+01	t	1	\N	f	\N
+10	3	6	f	f	1	2009-11-30 01:28:20.972263+01	t	1	\N	f	\N
+101	7	102	f	f	1	2010-10-29 13:39:25.49557+02	t	2	\N	f	\N
 \.
 
 
@@ -2323,11 +2479,11 @@ COPY sample_type_property_types (id, saty_id, prty_id, is_mandatory, is_managed_
 -- Data for Name: sample_types; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix) FROM stdin;
-3	PLATE	Cell Plate	1	t	2	0	2009-11-27 16:02:26.451046+01	f	S
-7	OLIGO_WELL	\N	1	f	0	1	2009-11-27 19:42:03.483115+01	f	O
-8	CONTROL_WELL	\N	1	f	0	1	2009-11-27 19:42:25.791288+01	f	C
-9	LIBRARY	\N	1	f	0	0	2009-11-27 19:42:25.791288+01	f	L
+COPY sample_types (id, code, description, dbin_id, is_listable, generated_from_depth, part_of_depth, modification_timestamp, is_auto_generated_code, generated_code_prefix, is_subcode_unique) FROM stdin;
+8	CONTROL_WELL	\N	1	f	0	1	2009-11-27 19:42:25.791288+01	f	C	f
+9	LIBRARY	\N	1	f	0	0	2009-11-27 19:42:25.791288+01	f	L	f
+3	PLATE	Cell Plate	1	t	1	0	2009-11-27 16:02:26.451046+01	f	S	f
+7	SIRNA_WELL	\N	1	f	0	1	2009-11-27 19:42:03.483115+01	f	O	f
 \.
 
 
@@ -2335,7 +2491,15 @@ COPY sample_types (id, code, description, dbin_id, is_listable, generated_from_d
 -- Data for Name: samples; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY samples (id, perm_id, code, expe_id, samp_id_top, samp_id_generated_from, saty_id, registration_timestamp, modification_timestamp, pers_id_registerer, inva_id, samp_id_control_layout, dbin_id, grou_id, samp_id_part_of) FROM stdin;
+COPY samples (id, perm_id, code, expe_id, saty_id, registration_timestamp, modification_timestamp, pers_id_registerer, inva_id, dbin_id, grou_id, samp_id_part_of) FROM stdin;
+\.
+
+
+--
+-- Data for Name: scripts; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY scripts (id, dbin_id, name, description, script, registration_timestamp, pers_id_registerer) FROM stdin;
 \.
 
 
@@ -2900,6 +3064,22 @@ ALTER TABLE ONLY queries
 
 
 --
+-- Name: rety_pk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY relationship_types
+    ADD CONSTRAINT rety_pk PRIMARY KEY (id);
+
+
+--
+-- Name: rety_uk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY relationship_types
+    ADD CONSTRAINT rety_uk UNIQUE (code, dbin_id);
+
+
+--
 -- Name: roas_ag_group_bk_uk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2972,6 +3152,22 @@ ALTER TABLE ONLY sample_properties
 
 
 --
+-- Name: sare_bk_uk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY sample_relationships
+    ADD CONSTRAINT sare_bk_uk UNIQUE (sample_id_child, sample_id_parent, relationship_id);
+
+
+--
+-- Name: sare_pk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY sample_relationships
+    ADD CONSTRAINT sare_pk PRIMARY KEY (id);
+
+
+--
 -- Name: saty_bk_uk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2985,6 +3181,22 @@ ALTER TABLE ONLY sample_types
 
 ALTER TABLE ONLY sample_types
     ADD CONSTRAINT saty_pk PRIMARY KEY (id);
+
+
+--
+-- Name: scri_pk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_pk PRIMARY KEY (id);
+
+
+--
+-- Name: scri_uk; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_uk UNIQUE (name, dbin_id);
 
 
 --
@@ -3515,31 +3727,10 @@ CREATE INDEX samp_pers_fk_i ON samples USING btree (pers_id_registerer);
 
 
 --
--- Name: samp_samp_fk_i_control_layout; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX samp_samp_fk_i_control_layout ON samples USING btree (samp_id_control_layout);
-
-
---
--- Name: samp_samp_fk_i_generated_from; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX samp_samp_fk_i_generated_from ON samples USING btree (samp_id_generated_from);
-
-
---
 -- Name: samp_samp_fk_i_part_of; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
 CREATE INDEX samp_samp_fk_i_part_of ON samples USING btree (samp_id_part_of);
-
-
---
--- Name: samp_samp_fk_i_top; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX samp_samp_fk_i_top ON samples USING btree (samp_id_top);
 
 
 --
@@ -3578,6 +3769,41 @@ CREATE INDEX sapr_stpt_fk_i ON sample_properties USING btree (stpt_id);
 
 
 --
+-- Name: sare_data_fk_i_child; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX sare_data_fk_i_child ON sample_relationships USING btree (sample_id_child);
+
+
+--
+-- Name: sare_data_fk_i_parent; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX sare_data_fk_i_parent ON sample_relationships USING btree (sample_id_parent);
+
+
+--
+-- Name: sare_data_fk_i_relationship; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX sare_data_fk_i_relationship ON sample_relationships USING btree (relationship_id);
+
+
+--
+-- Name: script_dbin_fk_i; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX script_dbin_fk_i ON scripts USING btree (dbin_id);
+
+
+--
+-- Name: script_pers_fk_i; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX script_pers_fk_i ON scripts USING btree (pers_id_registerer);
+
+
+--
 -- Name: stpt_pers_fk_i; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -3596,28 +3822,6 @@ CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 --
 
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
-
-
---
--- Name: check_dataset_relationships_on_data_table_modification; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE CONSTRAINT TRIGGER check_dataset_relationships_on_data_table_modification
-    AFTER INSERT OR UPDATE ON data
-DEFERRABLE INITIALLY DEFERRED
-    FOR EACH ROW
-    EXECUTE PROCEDURE check_dataset_relationships_on_data_table_modification();
-
-
---
--- Name: check_dataset_relationships_on_relationships_table_modification; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE CONSTRAINT TRIGGER check_dataset_relationships_on_relationships_table_modification
-    AFTER INSERT OR UPDATE ON data_set_relationships
-DEFERRABLE INITIALLY DEFERRED
-    FOR EACH ROW
-    EXECUTE PROCEDURE check_dataset_relationships_on_relationships_table_modification();
 
 
 --
@@ -3688,6 +3892,16 @@ CREATE TRIGGER sample_property_with_material_data_type_check
     BEFORE INSERT OR UPDATE ON sample_properties
     FOR EACH ROW
     EXECUTE PROCEDURE sample_property_with_material_data_type_check();
+
+
+--
+-- Name: sample_subcode_uniqueness_check; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER sample_subcode_uniqueness_check
+    BEFORE INSERT OR UPDATE ON samples
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_subcode_uniqueness_check();
 
 
 --
@@ -3827,6 +4041,14 @@ ALTER TABLE ONLY data
 
 
 --
+-- Name: data_pers_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY data
+    ADD CONSTRAINT data_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+
+
+--
 -- Name: data_samp_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3939,6 +4161,14 @@ ALTER TABLE ONLY data_set_type_property_types
 
 
 --
+-- Name: dstpt_script_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY data_set_type_property_types
+    ADD CONSTRAINT dstpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
+
+
+--
 -- Name: dsty_dbin_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3968,6 +4198,14 @@ ALTER TABLE ONLY experiment_type_property_types
 
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
+
+
+--
+-- Name: etpt_script_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY experiment_type_property_types
+    ADD CONSTRAINT etpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
 
 
 --
@@ -4267,6 +4505,14 @@ ALTER TABLE ONLY material_type_property_types
 
 
 --
+-- Name: mtpt_script_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY material_type_property_types
+    ADD CONSTRAINT mtpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
+
+
+--
 -- Name: pers_dbin_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4451,35 +4697,11 @@ ALTER TABLE ONLY samples
 
 
 --
--- Name: samp_samp_fk_control_layout; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY samples
-    ADD CONSTRAINT samp_samp_fk_control_layout FOREIGN KEY (samp_id_control_layout) REFERENCES samples(id);
-
-
---
--- Name: samp_samp_fk_generated_from; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY samples
-    ADD CONSTRAINT samp_samp_fk_generated_from FOREIGN KEY (samp_id_generated_from) REFERENCES samples(id);
-
-
---
 -- Name: samp_samp_fk_part_of; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY samples
     ADD CONSTRAINT samp_samp_fk_part_of FOREIGN KEY (samp_id_part_of) REFERENCES samples(id);
-
-
---
--- Name: samp_samp_fk_top; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY samples
-    ADD CONSTRAINT samp_samp_fk_top FOREIGN KEY (samp_id_top) REFERENCES samples(id);
 
 
 --
@@ -4531,11 +4753,51 @@ ALTER TABLE ONLY sample_properties
 
 
 --
+-- Name: sare_data_fk_child; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY sample_relationships
+    ADD CONSTRAINT sare_data_fk_child FOREIGN KEY (sample_id_child) REFERENCES samples(id) ON DELETE CASCADE;
+
+
+--
+-- Name: sare_data_fk_parent; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY sample_relationships
+    ADD CONSTRAINT sare_data_fk_parent FOREIGN KEY (sample_id_parent) REFERENCES samples(id) ON DELETE CASCADE;
+
+
+--
+-- Name: sare_data_fk_relationship; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY sample_relationships
+    ADD CONSTRAINT sare_data_fk_relationship FOREIGN KEY (relationship_id) REFERENCES relationship_types(id);
+
+
+--
 -- Name: saty_dbin_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY sample_types
     ADD CONSTRAINT saty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
+
+
+--
+-- Name: scri_dbin_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
+
+
+--
+-- Name: scri_pers_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY scripts
+    ADD CONSTRAINT scri_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 
 
 --
@@ -4563,14 +4825,11 @@ ALTER TABLE ONLY sample_type_property_types
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: -
+-- Name: stpt_script_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
-
+ALTER TABLE ONLY sample_type_property_types
+    ADD CONSTRAINT stpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
 
 --
 -- PostgreSQL database dump complete
