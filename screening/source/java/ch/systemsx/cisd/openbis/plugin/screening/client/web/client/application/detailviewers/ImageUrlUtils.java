@@ -74,7 +74,8 @@ public class ImageUrlUtils
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
 
         String imageURL = methodWithParameters.toString();
-        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL, width, height);
+        // do not specify width to get correct aspect ratio of the original image
+        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL, -1, height);
     }
 
     /** creates a widget which displays the specified URL and adds it to the container */
@@ -106,7 +107,8 @@ public class ImageUrlUtils
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
 
         String imageURL = methodWithParameters.toString();
-        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL, width, height);
+        // do not specify width to get correct aspect ratio of the original image
+        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL, -1, height);
     }
 
     private static URLMethodWithParameters createBasicImageURL(String sessionID, WellImages images,
