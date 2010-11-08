@@ -35,8 +35,13 @@ public class ReflectionStringTraverser
 {
     public static interface ReflectionFieldVisitor
     {
-        /** @return changed value or null if the value should not be changed */
-        String tryVisit(String value);
+        /**
+         * @param value The value to modify
+         * @param fieldOrNull The field the modification applies to; Can be null if the modification
+         *            is applied to an array.
+         * @return changed value or null if the value should not be changed
+         */
+        String tryVisit(String value, Object object, Field fieldOrNull);
     }
 
     /** cannot be called for primitive types or collections */
@@ -94,8 +99,10 @@ public class ReflectionStringTraverser
                     traverseField(object, field);
                 } catch (Exception ex)
                 {
+                    System.err.println("Failed accessing field <" + field.getName() + "> of "
+                            + object.getClass() + ":\n\t" + field);
                     ex.printStackTrace();
-                    throw new IllegalStateException("Sould not happen: " + ex.getMessage());
+                    throw new IllegalStateException("Should not happen: " + ex.getMessage());
                 }
             }
         }
@@ -122,7 +129,7 @@ public class ReflectionStringTraverser
             // do nothing
         } else if (isString(fieldValue))
         {
-            String newValue = visitor.tryVisit((String) fieldValue);
+            String newValue = visitor.tryVisit((String) fieldValue, object, field);
             if (newValue != null)
             {
                 field.set(object, newValue);
@@ -149,7 +156,7 @@ public class ReflectionStringTraverser
 
         if (isStringClass(componentType))
         {
-            Collection<?> newCollection = visitStringCollection(collection);
+            Collection<?> newCollection = visitStringCollection(collection, field);
             field.set(object, newCollection);
         } else
         {
@@ -157,7 +164,7 @@ public class ReflectionStringTraverser
             {
                 if (isMutable(element))
                 {
-                    traverseMutable(element, componentType);
+                    traverseMutable(element, element.getClass());
                 } else
                 {
                     // NOTE: we do not handle e.g. list of list of Strings
@@ -179,13 +186,13 @@ public class ReflectionStringTraverser
                 && isStringCollection(element) == false;
     }
 
-    private Collection<String> visitStringCollection(Object collection)
+    private Collection<String> visitStringCollection(Object collection, Field fieldOrNull)
     {
         Collection<String> castedSource = asStringCollection(collection);
         Collection<String> newCollection = createEmptyCollection(castedSource);
         for (String element : castedSource)
         {
-            String newElement = tryVisitString(element);
+            String newElement = tryVisitString(element, fieldOrNull);
             newCollection.add(newElement != null ? newElement : element);
         }
         return newCollection;
@@ -222,7 +229,7 @@ public class ReflectionStringTraverser
     // array[index] contains collection of primitive types which will be modified if necessary
     private void visitStringCollectionArrayElement(Object array, int index, Object collection)
     {
-        Collection<String> newCollection = visitStringCollection(collection);
+        Collection<String> newCollection = visitStringCollection(collection, null);
         Array.set(array, index, newCollection);
     }
 
@@ -230,16 +237,16 @@ public class ReflectionStringTraverser
     private void visitStringArrayElement(Object array, int index, Object element,
             Class<?> componentType)
     {
-        Object newElement = tryVisitString(element);
+        Object newElement = tryVisitString(element, null);
         if (newElement != null)
         {
             Array.set(array, index, newElement);
         }
     }
 
-    private String tryVisitString(Object element)
+    private String tryVisitString(Object element, Field fieldOrNull)
     {
-        return visitor.tryVisit((String) element);
+        return visitor.tryVisit((String) element, element, fieldOrNull);
     }
 
     // assumes that all elements are of the same type

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ReflectionPrimitiveFieldTraverserTest extends AssertJUnit
 {
     private static class ReflectionStringCapitalizerVisitor implements ReflectionFieldVisitor
     {
-        public String tryVisit(String value)
+        public String tryVisit(String value, Object object, Field fieldOrNull)
         {
             return value.toUpperCase();
         }
