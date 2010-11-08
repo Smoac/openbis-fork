@@ -94,7 +94,11 @@ class ExtendedGridView extends GridView
             {
                 if (Element.is(n))
                 {
-                    Element.as(n).getStyle().setWidth(0, com.google.gwt.dom.client.Style.Unit.PX);
+                    com.google.gwt.dom.client.Element e = Element.as(n);
+                    if (e.getTagName().equalsIgnoreCase("img") == false)
+                    {
+                        e.getStyle().setWidth(0, com.google.gwt.dom.client.Style.Unit.PX);
+                    }
                 }
             }
             Element element = (Element) td.getFirstChildElement();
