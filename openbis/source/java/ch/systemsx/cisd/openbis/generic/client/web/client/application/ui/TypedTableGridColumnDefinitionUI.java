@@ -22,19 +22,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypedTableGridColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ILinkGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
-        TypedTableGridColumnDefinition<T> implements IColumnDefinitionUI<TableModelRowWithObject<T>>
+        TypedTableGridColumnDefinition<T> implements
+        IColumnDefinitionUI<TableModelRowWithObject<T>>
 {
     private transient final ILinkGenerator<T> linkGeneratorOrNull;
-    
+
     private boolean hidden;
 
     public TypedTableGridColumnDefinitionUI(TableModelColumnHeader header, String title,
@@ -54,7 +54,7 @@ public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
     {
         this(null, null, null, null, null);
     }
-    
+
     public int getWidth()
     {
         return header.getDefaultColumnWidth();
@@ -81,8 +81,9 @@ public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
         {
             return null;
         }
-        T objectOrNull = entity.getObjectOrNull();
-        return objectOrNull == null ? null : linkGeneratorOrNull.tryGetLink(objectOrNull);
+        final ISerializableComparable value = entity.getValues().get(header.getIndex());
+        final T objectOrNull = entity.getObjectOrNull();
+        return objectOrNull == null ? null : linkGeneratorOrNull.tryGetLink(objectOrNull, value);
     }
 
     public boolean isNumeric()

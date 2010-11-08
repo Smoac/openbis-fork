@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
@@ -79,9 +80,10 @@ public abstract class TypedTableGrid<T extends IsSerializable>
             this.header = header;
         }
 
-        public String tryGetLink(T entity)
+        public String tryGetLink(T entity, final ISerializableComparable value)
         {
-            return null; // FIXME LMS-1848
+            return (value == null) ? null : LinkExtractor.createPermlink(entityKind,
+                    value.toString());
         }
 
         public void handle(TableModelRowWithObject<T> rowItem, boolean specialKeyPressed)

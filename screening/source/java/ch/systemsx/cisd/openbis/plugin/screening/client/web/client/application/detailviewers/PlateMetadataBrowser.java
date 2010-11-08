@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
@@ -53,7 +54,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "plate_metadata_browser";
-    
+
     /**
      * Fetches information about the plate with the specified plate id and opens plate metadata
      * browser tab for that plate.
@@ -155,7 +156,7 @@ public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
                                     .getWellSample(), false, specialKeyPressed);
                         }
 
-                        public String tryGetLink(WellMetadata entity)
+                        public String tryGetLink(WellMetadata entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getWellSample());
                         }
@@ -171,7 +172,8 @@ public class PlateMetadataBrowser extends TypedTableGrid<WellMetadata>
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         screeningViewContext.getService().prepareExportPlateMetadata(exportCriteria, callback);

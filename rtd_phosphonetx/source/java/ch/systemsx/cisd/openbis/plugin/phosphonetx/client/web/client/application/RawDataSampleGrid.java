@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -53,7 +54,8 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         RawDataSampleGrid grid = new RawDataSampleGrid(viewContext);
-        DisposableEntityChooser<TableModelRowWithObject<Sample>> disposable = grid.asDisposableWithoutToolbar();
+        DisposableEntityChooser<TableModelRowWithObject<Sample>> disposable =
+                grid.asDisposableWithoutToolbar();
         return new DatabaseModificationAwareComponent(disposable.getComponent(), disposable);
     }
 
@@ -80,7 +82,7 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
         linkMSInjectionSample();
         linkBiologicalSample();
     }
-    
+
     private void linkMSInjectionSample()
     {
         registerListenerAndLinkGenerator(RawDataSampleGridIDs.CODE,
@@ -94,10 +96,11 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
                                     specialKeyPressed);
                         }
 
-                        public String tryGetLink(Sample entity)
+                        public String tryGetLink(Sample entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity);
                         }
+
                     });
     }
 
@@ -114,7 +117,8 @@ class RawDataSampleGrid extends TypedTableGrid<Sample>
                                     .getGeneratedFrom(), false, specialKeyPressed);
                         }
 
-                        public String tryGetLink(Sample entity)
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
                         {
                             return LinkExtractor.tryExtract(entity.getGeneratedFrom());
                         }

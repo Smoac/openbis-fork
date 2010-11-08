@@ -18,12 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface ILinkGenerator<T extends IsSerializable>
 {
-    public String tryGetLink(T entity);
+    public String tryGetLink(T entity, ISerializableComparable comparableValue);
 }

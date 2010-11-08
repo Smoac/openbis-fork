@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
@@ -247,7 +248,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         registerListenerAndLinkGenerator(WELL_CONTENT_MATERIAL,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
-                        public String tryGetLink(WellContent entity)
+                        public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             Material material = entity.getMaterialContent();
                             String experimentIdentifier =
@@ -279,7 +280,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.EXPERIMENT,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
-                        public String tryGetLink(WellContent entity)
+                        public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getExperiment());
                         }
@@ -298,7 +299,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.PLATE,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
-                        public String tryGetLink(WellContent entity)
+                        public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getPlate());
                         }
@@ -317,7 +318,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.WELL,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
-                        public String tryGetLink(WellContent entity)
+                        public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             return LinkExtractor.tryExtract(entity.getWell());
                         }
@@ -336,7 +337,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.IMAGE_DATA_SET,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
-                        public String tryGetLink(WellContent entity)
+                        public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             DatasetImagesReference imageDataset = entity.tryGetImageDataset();
                             if (imageDataset != null)
@@ -366,7 +367,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         registerListenerAndLinkGenerator(WellSearchGridColumnIds.IMAGE_ANALYSIS_DATA_SET,
                 new ICellListenerAndLinkGenerator<WellContent>()
                     {
-                        public String tryGetLink(WellContent entity)
+                        public String tryGetLink(WellContent entity, ISerializableComparable value)
                         {
                             DatasetReference dataset = entity.tryGetFeatureVectorDataset();
                             if (dataset != null)

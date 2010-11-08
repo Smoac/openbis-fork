@@ -105,12 +105,18 @@ public class LinkExtractor
             return tryExtractMaterial(entityOrNull);
         } else
         {
-            URLMethodWithParameters url = new URLMethodWithParameters("");
-            url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityOrNull
-                    .getEntityKind().name());
-            url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, entityOrNull.getPermId());
-            return tryPrint(url);
+            return createPermlink(entityOrNull.getEntityKind(), entityOrNull.getPermId());
         }
+    }
+
+    /** creates permid for entities other than material */
+    public static String createPermlink(EntityKind entityKind, String permId)
+    {
+        assert entityKind != EntityKind.MATERIAL;
+        URLMethodWithParameters url = new URLMethodWithParameters("");
+        url.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityKind.name());
+        url.addParameter(PermlinkUtilities.PERM_ID_PARAMETER_KEY, permId);
+        return tryPrint(url);
     }
 
     public static final String tryExtract(Project p)
