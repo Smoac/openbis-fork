@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.testng.AssertJUnit;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.ca
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -45,74 +47,9 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
 {
 
     @Test
-    public void testEvaluateProperties()
-    {
-        final DynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
-
-        // in this test we check
-        // - successful evaluation of varchar dynamic property
-        // - successful evaluation of integer dynamic property
-        // - error handling
-        // -- storing validation error when script evaluates to string instead of expected integer
-        // -- storing python error when script tries to invoke nonexisting method
-
-        Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
-        // create normal properties
-        SamplePropertyPE p1 = createSampleProperty("p1", "v1");
-        SamplePropertyPE p2 = createSampleProperty("p2", "v2");
-        SamplePropertyPE p3 = createSampleProperty("p3", "v3");
-        properties.add(p1);
-        properties.add(p2);
-        properties.add(p3);
-
-        // create dynamic properties
-        final ScriptPE script1 =
-                createScript("s1", "entity.propertyValue('p1') + ' ' + entity.propertyValue('p2')");
-        final ScriptPE script2 = createScript("s2", "entity.properties().size()");
-        final String s3 = "entity.getCode()";
-        final ScriptPE script3 = createScript("s3", s3);
-        final SamplePropertyPE dp1 = createDynamicSampleProperty("p_d1", script1);
-        final SamplePropertyPE dp1Error =
-                createDynamicSampleProperty(createPropertyType("p_d1_error", DataTypeCode.INTEGER),
-                        script1);
-        final SamplePropertyPE dp2 =
-                createDynamicSampleProperty(createPropertyType("p_d2", DataTypeCode.INTEGER),
-                        script2);
-        final SamplePropertyPE dp3Error = createDynamicSampleProperty("p_d3_error", script3);
-        properties.add(dp1);
-        properties.add(dp1Error);
-        properties.add(dp2);
-        properties.add(dp3Error);
-
-        // create sample with all properties created above and evaluate dynamic properties
-        final SamplePE sample = createSample("s1", properties);
-        evaluator.evaluateProperties(sample);
-
-        // check if evaluated values are correct
-        final String expectedDp1Value = String.format("%s %s", p1.getValue(), p2.getValue());
-        assertEquals(expectedDp1Value, dp1.getValue());
-        final String expectedDp1ErrorValue =
-                String.format("%sERROR: Integer value '%s' has improper format.",
-                        BasicConstant.ERROR_PROPERTY_PREFIX, expectedDp1Value);
-        assertEquals(expectedDp1ErrorValue, dp1Error.getValue());
-        assertEquals(properties.size() + "", dp2.getValue());
-        final String expectedDp3ErrorValue =
-                String.format("%sERROR: Error evaluating '%s': AttributeError: getCode",
-                        BasicConstant.ERROR_PROPERTY_PREFIX, s3);
-        assertEquals(expectedDp3ErrorValue, dp3Error.getValue());
-    }
-
-    private SamplePE createSample(String code, Set<SamplePropertyPE> properties)
-    {
-        final SamplePE result = new SamplePE();
-        result.setCode(code);
-        result.setProperties(properties);
-        return result;
-    }
-
-    @Test
     public void testEvaluateProperty()
     {
+        // test evaluation of a single dynamic property
         final DynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
 
         IEntityPropertyAdaptor p1 = createProperty("p1", "v1");
@@ -131,29 +68,154 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         assertEquals(p1.valueAsString() + " " + p2.valueAsString(), result);
     }
 
-    // @Test
-    // public void testEvaluatePropertyFailsValidation()
-    // {
-    //
-    // }
-    //
-    // @Test
-    // public void testEvaluatePropertyDependingOnAnotherDynamicProperty()
-    // {
-    //
-    // }
-
-    private static IEntityAdaptor createEntity(final String code,
-            final Collection<IEntityPropertyAdaptor> properties)
+    @Test
+    public void testEvaluateProperties()
     {
-        final AbstractEntityAdaptor result = new AbstractEntityAdaptor(code);
-        if (properties != null)
-        {
-            for (IEntityPropertyAdaptor property : properties)
-            {
-                result.addProperty(property);
-            }
-        }
+        // check
+        // - successful evaluation of varchar dynamic property
+        // - successful evaluation of integer dynamic property
+        // - error handling (error messages are stored as property values)
+        // -- storing validation error when script evaluates to string instead of expected integer
+        // -- storing python error when script tries to invoke nonexisting method
+        final DynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
+
+        Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
+        // create normal properties
+        SamplePropertyPE p1 = createSampleProperty("p1", "v1");
+        SamplePropertyPE p2 = createSampleProperty("p2", "v2");
+        SamplePropertyPE p3 = createSampleProperty("p3", "v3");
+        properties.add(p1);
+        properties.add(p2);
+        properties.add(p3);
+
+        // create dynamic properties
+        final ScriptPE script1 =
+                createScript("s1", "entity.propertyValue('p1') + ' ' + entity.propertyValue('p2')");
+        final ScriptPE script2 = createScript("s2", "entity.properties().size()");
+        final String s3 = "entity.getCode()";
+        final ScriptPE script3 = createScript("s3", s3);
+        final SamplePropertyPE dp1 = createDynamicSampleProperty("dp1", script1);
+        final SamplePropertyPE dp1Error =
+                createDynamicSampleProperty(createPropertyType("dp1_error", DataTypeCode.INTEGER),
+                        script1);
+        final SamplePropertyPE dp2 =
+                createDynamicSampleProperty(createPropertyType("dp2", DataTypeCode.INTEGER),
+                        script2);
+        final SamplePropertyPE dp3Error = createDynamicSampleProperty("dp3_error", script3);
+        properties.add(dp1);
+        properties.add(dp1Error);
+        properties.add(dp2);
+        properties.add(dp3Error);
+
+        // create sample with all properties created above and evaluate dynamic properties
+        final SamplePE sample = createSample("s1", properties);
+        evaluator.evaluateProperties(sample);
+
+        // check if evaluated values are correct
+        final String expectedDp1Value = String.format("%s %s", p1.getValue(), p2.getValue());
+        assertEquals(expectedDp1Value, dp1.getValue());
+        final String expectedDp1ErrorValue =
+                expectedErrorMessage("Integer value '" + expectedDp1Value
+                        + "' has improper format.");
+        assertEquals(expectedDp1ErrorValue, dp1Error.getValue());
+        assertEquals(properties.size() + "", dp2.getValue());
+        final String expectedDp3ErrorValue =
+                expectedErrorMessage("Error evaluating '" + s3 + "': AttributeError: getCode");
+        assertEquals(expectedDp3ErrorValue, dp3Error.getValue());
+    }
+
+    @Test
+    public void testEvaluatePropertyDependingOnAnotherDynamicProperty()
+    {
+        // check evaluation of dynamic properties that depend on other dynamic properties
+        // (with and without cyclic dependencies)
+        final DynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
+
+        final SamplePropertyPE p1 = createSampleProperty("p1", "v1"); // normal property
+        final ScriptPE scriptP1 = createScript("get p1", "entity.propertyValue('p1')");
+        final ScriptPE scriptDp1 = createScript("get dp1", "entity.propertyValue('dp1')");
+        final ScriptPE scriptDp2 = createScript("get dp2", "entity.propertyValue('dp2')");
+        final ScriptPE scriptDp3 = createScript("get dp3", "entity.propertyValue('dp3')");
+
+        // create sample with dependency
+        // p1 <- dp1 <- dp2, dp3
+        Set<SamplePropertyPE> properties = new LinkedHashSet<SamplePropertyPE>();
+        SamplePropertyPE dp1 = createDynamicSampleProperty("dp1", scriptP1);
+        SamplePropertyPE dp2 = createDynamicSampleProperty("dp2", scriptDp1);
+        SamplePropertyPE dp3 = createDynamicSampleProperty("dp3", scriptDp1);
+        properties.add(p1);
+        properties.add(dp1);
+        properties.add(dp2);
+        properties.add(dp3);
+        SamplePE sample = createSample("s1", properties);
+        evaluator.evaluateProperties(sample);
+        // all values should be equal to value of p1
+        assertEquals(p1.getValue(), dp1.getValue());
+        assertEquals(p1.getValue(), dp2.getValue());
+        assertEquals(p1.getValue(), dp3.getValue());
+
+        // create sample with circular dependency
+        // dp1 <- dp1
+        properties = new LinkedHashSet<SamplePropertyPE>();
+        dp1 = createDynamicSampleProperty("dp1", scriptDp1);
+        properties.add(p1);
+        properties.add(dp1);
+        sample = createSample("s1", properties);
+        evaluator.evaluateProperties(sample);
+        // cyclic dependency should be found
+        assertEquals(expectedCyclicDependencyErrorMessage(dp1), dp1.getValue());
+
+        // dp1 <- dp2 <- dp1
+        properties = new LinkedHashSet<SamplePropertyPE>();
+        dp1 = createDynamicSampleProperty("dp1", scriptDp2);
+        dp2 = createDynamicSampleProperty("dp2", scriptDp1);
+        properties.add(p1);
+        properties.add(dp1);
+        properties.add(dp2);
+        sample = createSample("s1", properties);
+        evaluator.evaluateProperties(sample);
+        // cyclic dependency should be found
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp2.getValue());
+
+        // dp1 <- dp2 <- dp3 <- dp1
+        properties = new LinkedHashSet<SamplePropertyPE>();
+        dp1 = createDynamicSampleProperty("dp1", scriptDp3);
+        dp2 = createDynamicSampleProperty("dp2", scriptDp1);
+        dp3 = createDynamicSampleProperty("dp3", scriptDp2);
+        properties.add(p1);
+        properties.add(dp1);
+        properties.add(dp2);
+        properties.add(dp3);
+        sample = createSample("s1", properties);
+        evaluator.evaluateProperties(sample);
+        // cyclic dependency should be found
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp2.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp3.getValue());
+    }
+
+    //
+    // helper methods
+    //
+
+    private static String expectedErrorMessage(String message)
+    {
+        return String.format("%sERROR: %s", BasicConstant.ERROR_PROPERTY_PREFIX, message);
+    }
+
+    private static String expectedCyclicDependencyErrorMessage(EntityPropertyPE property)
+    {
+        return expectedErrorMessage(String.format(
+                "cycle of dependencies found for dynamic property '%s'", property
+                        .getEntityTypePropertyType().getPropertyType().getCode().toUpperCase()));
+    }
+
+    private static SamplePE createSample(String code, Set<SamplePropertyPE> properties)
+    {
+        final SamplePE result = new SamplePE();
+        result.setCode(code);
+        result.setProperties(properties);
         return result;
     }
 
@@ -163,16 +225,6 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         result.setName(name);
         result.setScript(script);
         return result;
-    }
-
-    private static SampleTypePropertyTypePE createDynamicSamplePropertyAssignment(
-            final PropertyTypePE propertyType, ScriptPE script)
-    {
-        final SampleTypePropertyTypePE assignment = new SampleTypePropertyTypePE();
-        assignment.setPropertyType(propertyType);
-        assignment.setDynamic(true);
-        assignment.setScript(script);
-        return assignment;
     }
 
     private static PropertyTypePE createPropertyType(String propertyCode)
@@ -222,6 +274,30 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         final SampleTypePropertyTypePE entityTypePropertyType =
                 createDynamicSamplePropertyAssignment(propertyType, script);
         result.setEntityTypePropertyType(entityTypePropertyType);
+        return result;
+    }
+
+    private static SampleTypePropertyTypePE createDynamicSamplePropertyAssignment(
+            final PropertyTypePE propertyType, ScriptPE script)
+    {
+        final SampleTypePropertyTypePE assignment = new SampleTypePropertyTypePE();
+        assignment.setPropertyType(propertyType);
+        assignment.setDynamic(true);
+        assignment.setScript(script);
+        return assignment;
+    }
+
+    private static IEntityAdaptor createEntity(final String code,
+            final Collection<IEntityPropertyAdaptor> properties)
+    {
+        final AbstractEntityAdaptor result = new AbstractEntityAdaptor(code);
+        if (properties != null)
+        {
+            for (IEntityPropertyAdaptor property : properties)
+            {
+                result.addProperty(property);
+            }
+        }
         return result;
     }
 
