@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
  * 
  * @author Piotr Buczek
  */
-class BasicPropertyAdaptor implements IEntityPropertyAdaptor
+public class BasicPropertyAdaptor implements IEntityPropertyAdaptor
 {
 
     private final String code;

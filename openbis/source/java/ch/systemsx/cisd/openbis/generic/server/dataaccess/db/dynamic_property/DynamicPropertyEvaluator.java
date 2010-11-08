@@ -47,7 +47,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     private static final IPropertyValueValidator validator = new PropertyValidator();
 
-    private static final String ERROR_PREFIX = "ERROR: ";
+    public static final String ERROR_PREFIX = "ERROR: ";
 
     /** cache of calculators with precompiled expressions */
     private final Map<ScriptPE, DynamicPropertyCalculator> calculatorsByScript =

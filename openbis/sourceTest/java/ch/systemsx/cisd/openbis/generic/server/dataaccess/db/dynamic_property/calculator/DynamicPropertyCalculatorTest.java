@@ -63,7 +63,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
 
         calculator.setEntity(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
             { p1 })));
-        assertEquals("", calculator.evalAsString());
+        assertEquals("", calculator.evalAsString()); // non-existent property
 
         calculator.setEntity(createEntity(entityCode, Arrays.asList(new IEntityPropertyAdaptor[]
             { p1, p21 })));
