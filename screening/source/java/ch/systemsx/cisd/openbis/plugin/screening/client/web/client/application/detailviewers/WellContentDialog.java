@@ -455,29 +455,23 @@ public class WellContentDialog extends Dialog
 
     }
 
-    private Widget createEntityExternalLink(Material gene)
+    private Widget createEntityExternalLink(Material material)
     {
-        String value = null;
-        for (IEntityProperty prop : gene.getProperties())
-        {
-            if (prop.getPropertyType().getCode().equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
-            {
-                value = prop.getValue();
-            }
-        }
         final LayoutContainer container = new LayoutContainer();
         HBoxLayout layout = new HBoxLayout();
         container.setLayout(layout);
         container.setWidth(300);
-        container.add(createPlateLocationsMaterialViewerLink(gene));
+        container.add(createPlateLocationsMaterialViewerLink(material));
         LayoutContainer spacer = new LayoutContainer();
         spacer.setWidth(10);
         container.add(spacer);
+
         container.add(new Text("["));
+        String geneSymbolsOrNull = tryGetGeneSymbols(material);
         // TODO 2010-10-11, Piotr Buczek: change links in normal view mode not to change URL
-        if (value != null && StringUtils.isBlank(value) == false)
+        if (geneSymbolsOrNull != null && StringUtils.isBlank(geneSymbolsOrNull) == false)
         {
-            String[] symbols = value.split(" ");
+            String[] symbols = geneSymbolsOrNull.split(" ");
             for (int i = 0; i < symbols.length; i++)
             {
                 String symbol = symbols[i];
@@ -486,17 +480,29 @@ public class WellContentDialog extends Dialog
                     container.add(new Text(","));
                 }
                 String message = viewContext.getMessage(Dict.GENE_LIBRARY_URL, symbol);
-
                 String link = LinkRenderer.renderAsLinkWithAnchor(symbol, message, true);
                 container.add(new Html(link));
             }
         } else
         {
-            container.add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database",
-                    viewContext.getMessage(Dict.GENE_LIBRARY_SEARCH_URL, gene.getCode()), true)));
+            container
+                    .add(new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", viewContext
+                            .getMessage(Dict.GENE_LIBRARY_SEARCH_URL, material.getCode()), true)));
         }
         container.add(new Text("]"));
         return container;
+    }
+
+    private static String tryGetGeneSymbols(Material material)
+    {
+        for (IEntityProperty prop : material.getProperties())
+        {
+            if (prop.getPropertyType().getCode().equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
+            {
+                return prop.getValue();
+            }
+        }
+        return null;
     }
 
     private Widget createPlateLocationsMaterialViewerLink(
