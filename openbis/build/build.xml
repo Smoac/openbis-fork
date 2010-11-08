@@ -161,14 +161,42 @@
 			<fileset dir="../server-common/${sources}">
 				<include name="*Context.xml" />
 			</fileset>
-		</checksum>
-		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/classes/{1}">
 			<fileset dir="dist/server">
 				<include name="service.properties" />
+				<include name="log.xml" />
+			</fileset>
+		</checksum>
+		<checksum todir="${dist}" pattern="{0}  webapps/openbis/WEB-INF/{1}">
+			<fileset dir="resource/server">
+				<include name="web.xml" />
+				<include name="spring-servlet.xml" />
+			</fileset>
+			<fileset dir="../server-common/resource/server">
+				<include name="web-common.xml" />
+			</fileset>
+		</checksum>
+		<checksum todir="${dist}" pattern="{0}  webapps/openbis/{1}">
+			<fileset dir="${sources}/ch/systemsx/cisd/openbis">
+				<include name="common.dictionary.js" />
+				<include name="*.html" />
+			</fileset>
+			<fileset dir="../server-common/resource/server">
+				<include name="web-common.xml" />
+			</fileset>
+		</checksum>
+		<checksum todir="${dist}" pattern="{0}  bin/{1}">
+			<fileset dir="dist/server">
+				<include name="openbis.conf" />
+				<include name="passwd.sh" />
+				<include name="setup-env" />
+				<include name="shutdown.sh" />
+				<include name="startup.sh" />
 			</fileset>
 		</checksum>
 		<checksum todir="${dist}" pattern="{0}  etc/{1}">
 			<fileset dir="dist/server">
+				<include name="jetty.xml" />
+				<include name="openBIS.keystore" />
 				<include name="web-client.properties" />
 			</fileset>
 		</checksum>
