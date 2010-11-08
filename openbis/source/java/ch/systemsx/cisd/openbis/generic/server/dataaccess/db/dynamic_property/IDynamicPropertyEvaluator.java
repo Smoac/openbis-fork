@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
- * Interface for evaluation of all dynamic properties of an entity.
+ * Interface for evaluation of dynamic properties of an entity.
  * 
  * @author Piotr Buczek
  */
@@ -31,5 +33,13 @@ public interface IDynamicPropertyEvaluator
      * values.
      */
     public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity);
+
+    /**
+     * Evaluates value of specified dynamic property on specified entity.
+     * 
+     * @return computed value
+     */
+    public String evaluateProperty(IEntityAdaptor entityAdaptor,
+            EntityTypePropertyTypePE dynamicPropertyETPT);
 
 }

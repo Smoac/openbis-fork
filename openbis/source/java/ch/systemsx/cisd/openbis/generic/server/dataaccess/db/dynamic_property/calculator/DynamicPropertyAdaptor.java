@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 
@@ -28,17 +27,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
  * 
  * @author Piotr Buczek
  */
-// TODO 2010-11-05, Piotr Buczek: refactor to use DynamicPropertyEvaluator
 class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
 {
+    /** state of lazy evaluation of the property value (analogy to graph search) */
     private enum State
     {
-        EMPTY, EVALUATING, EVALUATED
+        /** initial state before evaluation has been triggered */
+        EMPTY,
+
+        /** state reached when evaluation is triggered */
+        EVALUATING,
+
+        /** state reached when evaluation has been finished */
+        EVALUATED
     }
-
-    private static final IPropertyValueValidator validator = new PropertyValidator();
-
-    private static final String ERROR_PREFIX = "ERROR: ";
 
     private State state = State.EMPTY;
 
@@ -50,20 +52,18 @@ class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
 
     private final IEntityAdaptor entityAdaptor;
 
+    private final IDynamicPropertyEvaluator evaluator;
+
     public DynamicPropertyAdaptor(String code, IEntityAdaptor entityAdaptor,
-            EntityPropertyPE propertyPE)
+            EntityPropertyPE propertyPE, IDynamicPropertyEvaluator evaluator)
     {
         this.code = code;
         this.entityAdaptor = entityAdaptor;
         this.propertyPE = propertyPE;
+        this.evaluator = evaluator;
     }
 
-    public String propertyTypeCode()
-    {
-        return code;
-    }
-
-    private String doGetValue()
+    public String valueAsString()
     {
         switch (state)
         {
@@ -71,14 +71,15 @@ class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
                 // start evaluation
                 state = State.EVALUATING;
                 value = doEvaluate();
+                state = State.EVALUATED;
                 break;
             case EVALUATING:
                 // cycle found - return an error
-                state = State.EVALUATED;
                 String errorMsg =
-                        ERROR_PREFIX + "cycle found in dependencies of property "
-                                + propertyTypeCode();
-                value = BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg;
+                        String.format("cycle of dependencies found for dynamic property '%s'",
+                                propertyTypeCode());
+                value = DynamicPropertyEvaluator.errorPropertyValue(errorMsg);
+                state = State.EVALUATED;
                 break;
             case EVALUATED:
                 // value was already computed
@@ -90,33 +91,17 @@ class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
     private String doEvaluate()
     {
         EntityTypePropertyTypePE etpt = propertyPE.getEntityTypePropertyType();
-        assert etpt != null;
-        try
-        {
-            // TODO 2010-11-05, Piotr Buczek: use cache
-            final DynamicPropertyCalculator calculator =
-                    DynamicPropertyCalculator.create(etpt.getScript().getScript());
-            calculator.setEntity(entityAdaptor);
-            final String dynamicValue = calculator.evalAsString();
-            final String validatedValue =
-                    validator.validatePropertyValue(etpt.getPropertyType(), dynamicValue);
-            return validatedValue;
-        } catch (Exception e)
-        {
-            String errorMsg = ERROR_PREFIX + e.getMessage();
-            // operationLog.info(errorMsg);
-            return BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg;
-        }
-    }
-
-    public String valueAsString()
-    {
-        return doGetValue();
+        return evaluator.evaluateProperty(entityAdaptor, etpt);
     }
 
     public String renderedValue()
     {
         return valueAsString();
+    }
+
+    public String propertyTypeCode()
+    {
+        return code;
     }
 
     public EntityPropertyPE getPropertyPE()

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -30,18 +31,19 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class EntityAdaptorFactory
 {
     /** Returns an adaptor for specified entity based on its kind. */
-    public static IEntityAdaptor create(IEntityInformationWithPropertiesHolder entity)
+    public static IEntityAdaptor create(IEntityInformationWithPropertiesHolder entity,
+            IDynamicPropertyEvaluator evaluator)
     {
         switch (entity.getEntityKind())
         {
             case SAMPLE:
-                return new SampleAdaptor((SamplePE) entity);
+                return new SampleAdaptor((SamplePE) entity, evaluator);
             case EXPERIMENT:
-                return new ExperimentAdaptor((ExperimentPE) entity);
+                return new ExperimentAdaptor((ExperimentPE) entity, evaluator);
             case DATA_SET:
-                return new ExternalDataAdaptor((ExternalDataPE) entity);
+                return new ExternalDataAdaptor((ExternalDataPE) entity, evaluator);
             case MATERIAL:
-                return new MaterialAdaptor((MaterialPE) entity);
+                return new MaterialAdaptor((MaterialPE) entity, evaluator);
             default:
                 throw new UnsupportedOperationException(""); // can't happen
         }

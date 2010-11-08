@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -27,10 +28,10 @@ public class SampleAdaptor extends AbstractEntityAdaptor
 {
     private final SamplePE samplePE;
 
-    public SampleAdaptor(SamplePE samplePE)
+    public SampleAdaptor(SamplePE samplePE, IDynamicPropertyEvaluator evaluator)
     {
         super(samplePE.getCode());
-        initProperties(samplePE);
+        initProperties(samplePE, evaluator);
         this.samplePE = samplePE;
     }
 

@@ -56,7 +56,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
     private DynamicPropertyCalculator getCalculator(ScriptPE scriptPE)
     {
-        // Creation of a calculator involves takes time because of compilation of the script.
+        // Creation of a calculator takes some time because of compilation of the script.
         // That is why a cache is used.
         DynamicPropertyCalculator result = calculatorsByScript.get(scriptPE);
         if (result == null)
@@ -74,27 +74,41 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             operationLog.debug(String.format("Evaluating dynamic properties of entity '%s'.",
                     entity));
         }
+        final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity, this);
         for (EntityPropertyPE property : entity.getProperties())
         {
             EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
             if (etpt.isDynamic())
             {
-                try
-                {
-                    final DynamicPropertyCalculator calculator = getCalculator(etpt.getScript());
-                    final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity);
-                    calculator.setEntity(entityAdaptor);
-                    final String dynamicValue = calculator.evalAsString();
-                    final String validatedValue =
-                            validator.validatePropertyValue(etpt.getPropertyType(), dynamicValue);
-                    property.setValue(validatedValue);
-                } catch (Exception e)
-                {
-                    String errorMsg = ERROR_PREFIX + e.getMessage();
-                    operationLog.info(errorMsg);
-                    property.setValue(BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg);
-                }
+                final String dynamicValue = evaluateProperty(entityAdaptor, etpt);
+                property.setValue(dynamicValue);
             }
         }
+    }
+
+    public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt)
+    {
+        assert etpt.isDynamic() == true : "expected dynamic property";
+        try
+        {
+            final DynamicPropertyCalculator calculator = getCalculator(etpt.getScript());
+            calculator.setEntity(entityAdaptor);
+            final String dynamicValue = calculator.evalAsString();
+            final String validatedValue =
+                    validator.validatePropertyValue(etpt.getPropertyType(), dynamicValue);
+            return validatedValue;
+        } catch (Exception e)
+        {
+            final String errorValue = errorPropertyValue(e.getMessage());
+            return errorValue;
+        }
+    }
+
+    /** @return value for property storing specified error message */
+    public static String errorPropertyValue(String error)
+    {
+        String errorMsg = ERROR_PREFIX + error;
+        operationLog.info(errorMsg);
+        return BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg;
     }
 }

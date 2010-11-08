@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
@@ -42,7 +43,8 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
         this.code = code;
     }
 
-    protected void initProperties(IEntityPropertiesHolder propertiesHolder)
+    protected void initProperties(IEntityPropertiesHolder propertiesHolder,
+            IDynamicPropertyEvaluator evaluator)
     {
         for (EntityPropertyPE property : propertiesHolder.getProperties())
         {
@@ -51,7 +53,7 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
             final String propertyTypeCode = propertyType.getCode();
             if (etpt.isDynamic())
             {
-                addProperty(new DynamicPropertyAdaptor(propertyTypeCode, this, property));
+                addProperty(new DynamicPropertyAdaptor(propertyTypeCode, this, property, evaluator));
             } else
             {
                 final String value;
