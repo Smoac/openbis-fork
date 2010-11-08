@@ -724,7 +724,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                             "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
                             dataStores.size()));
         }
-        return dataStores.get(0).getRemoteUrl();
+        return dataStores.get(0).getDownloadUrl();
     }
 
     public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
