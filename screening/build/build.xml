@@ -233,13 +233,14 @@
 	</target>
 	
 	<target name="copy-and-sign-jar">
-		<copy file="${dir}/${jar}" todir="${targets.www.openbis}" />
+		<copy file="${dir}/${jar}" todir="${webapp.dist}" />
 		<copy file="${dir}/${jar}" todir="${jars.to.be.signed.dir}" />
-		<signjar jar="${targets.www}/${jar}"
+		<signjar jar="${webapp.dist}/${jar}"
 		         keystore="etc/dev.keystore"
 		         alias="openbis"
 		         storepass="openbistest"
 		         keypass="openbistest" />
+		<copy file="${webapp.dist}/${jar}" todir="${targets.www.openbis}"/>
 	</target>
 
 
@@ -392,9 +393,9 @@
       <arg value="-style" />
       <arg value="PRETTY" />
     </java>
-    <move todir="${targets.www}/${module-test.path}">
+    <copy todir="${targets.www}/${module-test.path}">
       <fileset dir="${targets.www}/${module-test.module}" />
-    </move>
+    </copy>
   </target>
 
   <!--
