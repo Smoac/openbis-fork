@@ -19,13 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Constants
 {
-    public static final String QUERY_ID_PREFIX = GenericConstants.ID_PREFIX + "query-module" ;
-    public static final String ALL_ENTITY_KINDS = "(All)";
+    public static final String QUERY_ID_PREFIX = GenericConstants.ID_PREFIX + "query-module";
 
 }
