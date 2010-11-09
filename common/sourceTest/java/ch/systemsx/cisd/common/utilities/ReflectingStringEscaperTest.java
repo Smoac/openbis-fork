@@ -47,10 +47,10 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         bean.wrappedBean.bar = "<b>bar</b>";
         bean.wrappedBean.baz = "<i>baz</i>";
 
-        TestBean escaped = ReflectingStringEscaper.escapeShallow(bean, "foo", "baz");
+        TestBean escaped = ReflectingStringEscaper.escapeShallow(bean);
         assertEquals(bean, escaped);
         assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
-        assertEquals("<b>bar</b>", bean.bar);
+        assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.bar);
         assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
 
         assertEquals("<a>foo</a>", bean.wrappedBean.foo);
@@ -70,7 +70,53 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         bean.wrappedBean.bar = "<b>bar</b>";
         bean.wrappedBean.baz = "<i>baz</i>";
 
-        TestBean escaped = ReflectingStringEscaper.escapeDeep(bean, "foo", "baz");
+        TestBean escaped = ReflectingStringEscaper.escapeDeep(bean);
+        assertEquals(bean, escaped);
+        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
+        assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.bar);
+        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
+
+        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.wrappedBean.foo);
+        assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.wrappedBean.bar);
+        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.wrappedBean.baz);
+    }
+
+    @Test
+    public void testShallowEscaperRestricted()
+    {
+        TestBean bean = new TestBean();
+        bean.foo = "<a>foo</a>";
+        bean.bar = "<b>bar</b>";
+        bean.baz = "<i>baz</i>";
+        bean.wrappedBean = new TestBean();
+        bean.wrappedBean.foo = "<a>foo</a>";
+        bean.wrappedBean.bar = "<b>bar</b>";
+        bean.wrappedBean.baz = "<i>baz</i>";
+
+        TestBean escaped = ReflectingStringEscaper.escapeShallowRestricted(bean, "foo", "baz");
+        assertEquals(bean, escaped);
+        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
+        assertEquals("<b>bar</b>", bean.bar);
+        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
+
+        assertEquals("<a>foo</a>", bean.wrappedBean.foo);
+        assertEquals("<b>bar</b>", bean.wrappedBean.bar);
+        assertEquals("<i>baz</i>", bean.wrappedBean.baz);
+    }
+
+    @Test
+    public void testDeepEscaperRestricted()
+    {
+        TestBean bean = new TestBean();
+        bean.foo = "<a>foo</a>";
+        bean.bar = "<b>bar</b>";
+        bean.baz = "<i>baz</i>";
+        bean.wrappedBean = new TestBean();
+        bean.wrappedBean.foo = "<a>foo</a>";
+        bean.wrappedBean.bar = "<b>bar</b>";
+        bean.wrappedBean.baz = "<i>baz</i>";
+
+        TestBean escaped = ReflectingStringEscaper.escapeDeepRestricted(bean, "foo", "baz");
         assertEquals(bean, escaped);
         assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
         assertEquals("<b>bar</b>", bean.bar);

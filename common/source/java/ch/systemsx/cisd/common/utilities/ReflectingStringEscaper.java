@@ -23,31 +23,98 @@ import java.util.HashSet;
 import org.apache.commons.lang.StringEscapeUtils;
 
 /**
- * Performs HTML escaping the string fields of an object. Restricts itself to the properties
- * specified by the invoker.
+ * Performs HTML escaping the string fields of an object. If desired, users can restrict the fields
+ * that are escaped by the invoker. Support for controlling the behavior of the escaper by using
+ * annotations may come in the future.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class ReflectingStringEscaper<T>
+public class ReflectingStringEscaper
 {
-    public static <T> T escapeShallow(T bean, String... escapedProperties)
+
+    /**
+     * Escape all the string fields on the bean.
+     */
+    public static <T> T escapeShallow(T bean)
     {
-        ReflectingStringEscaper<T> escaper =
-                new ReflectingStringEscaper<T>(false, bean, escapedProperties);
+        ReflectingStringEscaperUnrestricted<T> escaper =
+                new ReflectingStringEscaperUnrestricted<T>(false, bean);
         return escaper.escape();
     }
 
-    public static <T> T escapeDeep(T bean, String... escapedProperties)
+    /**
+     * Escape all the string fields on the bean and all fields of objects referred to by the bean.
+     */
+    public static <T> T escapeDeep(T bean)
     {
-        ReflectingStringEscaper<T> escaper =
-                new ReflectingStringEscaper<T>(true, bean, escapedProperties);
+        ReflectingStringEscaperUnrestricted<T> escaper =
+                new ReflectingStringEscaperUnrestricted<T>(true, bean);
         return escaper.escape();
     }
 
-    private final boolean isDeep;
+    /**
+     * Escape the specified string fields on the bean.
+     */
+    public static <T> T escapeShallowRestricted(T bean, String... escapedProperties)
+    {
+        ReflectingStringEscaperRestricted<T> escaper =
+                new ReflectingStringEscaperRestricted<T>(false, bean, escapedProperties);
+        return escaper.escape();
+    }
 
-    private final T bean;
+    /**
+     * Escape all the string fields on the bean and all fields of objects referred to by the bean,
+     * restricting the field names to those specified.
+     */
+    public static <T> T escapeDeepRestricted(T bean, String... escapedProperties)
+    {
+        ReflectingStringEscaperRestricted<T> escaper =
+                new ReflectingStringEscaperRestricted<T>(true, bean, escapedProperties);
+        return escaper.escape();
+    }
+}
 
+/**
+ * @author Chandrasekhar Ramakrishnan
+ */
+class ReflectingStringEscaperImpl<T>
+{
+
+    protected final boolean isDeep;
+
+    protected final T bean;
+
+    /**
+     *
+     *
+     */
+    protected ReflectingStringEscaperImpl(boolean isDeep, T bean)
+    {
+        this.isDeep = isDeep;
+        this.bean = bean;
+    }
+
+    protected T escape(ReflectionStringTraverser.ReflectionFieldVisitor visitor)
+    {
+        if (isDeep)
+        {
+            ReflectionStringTraverser.traverseDeep(bean, visitor);
+        } else
+        {
+            ReflectionStringTraverser.traverseShallow(bean, visitor);
+        }
+        return bean;
+    }
+
+}
+
+/**
+ * Utility Class that preforms the restricted escaping.
+ * 
+ * @author Chandrasekhar Ramakrishnan
+ */
+class ReflectingStringEscaperRestricted<T> extends ReflectingStringEscaperImpl<T>
+{
     private final HashSet<String> escapedProperties;
 
     private class Visitor implements ReflectionStringTraverser.ReflectionFieldVisitor
@@ -66,23 +133,50 @@ public class ReflectingStringEscaper<T>
         }
     }
 
-    private ReflectingStringEscaper(boolean isDeep, T bean, String... escapedProperties)
+    ReflectingStringEscaperRestricted(boolean isDeep, T bean, String... escapedProperties)
     {
-        this.isDeep = isDeep;
-        this.bean = bean;
+        super(isDeep, bean);
         this.escapedProperties = new HashSet<String>();
         Collections.addAll(this.escapedProperties, escapedProperties);
     }
 
-    private T escape()
+    T escape()
     {
-        if (isDeep)
+        return escape(new Visitor());
+    }
+}
+
+/**
+ * Utility Class that preforms the unrestricted escaping.
+ * 
+ * @author Chandrasekhar Ramakrishnan
+ */
+class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl<T>
+{
+
+    private static class Visitor implements ReflectionStringTraverser.ReflectionFieldVisitor
+    {
+
+        public String tryVisit(String value, Object object, Field fieldOrNull)
         {
-            ReflectionStringTraverser.traverseDeep(bean, new Visitor());
-        } else
-        {
-            ReflectionStringTraverser.traverseShallow(bean, new Visitor());
+            // Only change the value if the name of the field is in the list provided
+            if (null == fieldOrNull)
+            {
+                return null;
+            }
+
+            return StringEscapeUtils.escapeHtml(value);
+
         }
-        return bean;
+    }
+
+    ReflectingStringEscaperUnrestricted(boolean isDeep, T bean)
+    {
+        super(isDeep, bean);
+    }
+
+    T escape()
+    {
+        return escape(new Visitor());
     }
 }
