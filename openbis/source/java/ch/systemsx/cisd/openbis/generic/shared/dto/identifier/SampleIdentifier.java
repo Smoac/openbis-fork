@@ -37,6 +37,8 @@ public class SampleIdentifier extends SampleOwnerIdentifier
 
     private String sampleSubCode;
 
+    private String containerCodeOrNull;
+
     private SampleIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentOrNull,
             final SpaceIdentifier spaceIdentOrNull, final String sampleCode)
     {
@@ -88,6 +90,11 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         return sampleSubCode;
     }
 
+    public String getContainerCodeOrNull()
+    {
+        return containerCodeOrNull;
+    }
+
     /**
      * Returns an object that only contains the owner information of this sample identifier.
      * {@link #hashCode()} will be the same when called on two different samples with same owner.
@@ -111,6 +118,10 @@ public class SampleIdentifier extends SampleOwnerIdentifier
         {
             String[] sampleCodeTokens = sampleCode.split(CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
             this.sampleSubCode = sampleCodeTokens[sampleCodeTokens.length - 1];
+            if (sampleCodeTokens.length > 1)
+            {
+                containerCodeOrNull = sampleCodeTokens[0];
+            }
         } else
         {
             this.sampleSubCode = sampleCode;

@@ -580,38 +580,132 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache)
     {
         assert sampleIdentifiers != null : "Sample identifiers unspecified.";
-        Map<SampleOwner, List<String>> samplesByOwner = new HashMap<SampleOwner, List<String>>();
+
+        Map<SampleOwnerWithContainer, List<String>> samplesByOwner =
+                new HashMap<SampleOwnerWithContainer, List<String>>();
         for (SampleIdentifier sampleIdentifier : sampleIdentifiers)
         {
             final SampleOwner sampleOwner = getSampleOwner(sampleOwnerCache, sampleIdentifier);
-            List<String> ownerSamples = samplesByOwner.get(sampleOwner);
+            final String containerCodeOrNull = sampleIdentifier.getContainerCodeOrNull();
+            final SampleOwnerWithContainer owner =
+                    new SampleOwnerWithContainer(sampleOwner, containerCodeOrNull);
+
+            List<String> ownerSamples = samplesByOwner.get(owner);
             if (ownerSamples == null)
             {
                 ownerSamples = new ArrayList<String>();
-                samplesByOwner.put(sampleOwner, ownerSamples);
+                samplesByOwner.put(owner, ownerSamples);
             }
-            ownerSamples.add(sampleIdentifier.getSampleCode());
+            ownerSamples.add(sampleIdentifier.getSampleSubCode());
         }
 
         final ISampleDAO sampleDAO = getSampleDAO();
         final List<SamplePE> results = new ArrayList<SamplePE>();
-        for (Entry<SampleOwner, List<String>> entry : samplesByOwner.entrySet())
+        for (Entry<SampleOwnerWithContainer, List<String>> entry : samplesByOwner.entrySet())
         {
-            SampleOwner sampleOwner = entry.getKey();
-            List<String> sampleCodes = entry.getValue();
+            final SampleOwnerWithContainer owner = entry.getKey();
+            final List<String> sampleCodes = entry.getValue();
+
+            final SampleOwner sampleOwner = owner.getSampleOwner();
+            final String containerCodeOrNull = owner.getContainerCodeOrNull();
+
             List<SamplePE> samples = null;
             if (sampleOwner.isDatabaseInstanceLevel())
             {
                 samples =
-                        sampleDAO.listByCodesAndDatabaseInstance(sampleCodes,
+                        sampleDAO.listByCodesAndDatabaseInstance(sampleCodes, containerCodeOrNull,
                                 sampleOwner.tryGetDatabaseInstance());
             } else
             {
                 assert sampleOwner.isGroupLevel() : "Must be of space level.";
-                samples = sampleDAO.listByCodesAndGroup(sampleCodes, sampleOwner.tryGetGroup());
+                samples =
+                        sampleDAO.listByCodesAndGroup(sampleCodes, containerCodeOrNull,
+                                sampleOwner.tryGetGroup());
             }
             results.addAll(samples);
         }
         return results;
+    }
+
+    /** Helper class encapsulating {@link SampleOwner} and code of container of a sample. */
+    private static class SampleOwnerWithContainer
+    {
+        private final SampleOwner sampleOwner;
+
+        private final String containerCodeOrNull;
+
+        public SampleOwnerWithContainer(SampleOwner sampleOwner, String containerCodeOrNull)
+        {
+            assert sampleOwner != null;
+            this.sampleOwner = sampleOwner;
+            this.containerCodeOrNull = containerCodeOrNull;
+        }
+
+        public SampleOwner getSampleOwner()
+        {
+            return sampleOwner;
+        }
+
+        public String getContainerCodeOrNull()
+        {
+            return containerCodeOrNull;
+        }
+
+        //
+        // Object
+        //
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result =
+                    prime * result
+                            + ((containerCodeOrNull == null) ? 0 : containerCodeOrNull.hashCode());
+            result = prime * result + sampleOwner.hashCode();
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (!(obj instanceof SampleOwnerWithContainer))
+            {
+                return false;
+            }
+            SampleOwnerWithContainer other = (SampleOwnerWithContainer) obj;
+            if (containerCodeOrNull == null)
+            {
+                if (other.containerCodeOrNull != null)
+                {
+                    return false;
+                }
+            } else if (!containerCodeOrNull.equals(other.containerCodeOrNull))
+            {
+                return false;
+            }
+            if (!sampleOwner.equals(other.sampleOwner))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "SampleOwnerWithContainer [sampleOwner=" + sampleOwner
+                    + ", containerCodeOrNull=" + containerCodeOrNull + "]";
+        }
+
     }
 }

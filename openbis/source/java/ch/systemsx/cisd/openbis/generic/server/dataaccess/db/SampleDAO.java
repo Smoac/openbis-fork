@@ -207,13 +207,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     public final List<SamplePE> listByCodesAndDatabaseInstance(final List<String> sampleCodes,
-            final DatabaseInstancePE databaseInstance)
+            final String containerCodeOrNull, final DatabaseInstancePE databaseInstance)
     {
         assert sampleCodes != null : "Unspecified sample codes.";
         assert databaseInstance != null : "Unspecified database instance.";
 
         Criteria criteria = createDatabaseInstanceCriteria(databaseInstance);
-        addSampleCodesCriterion(criteria, sampleCodes);
+        addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
@@ -245,13 +245,13 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     public final List<SamplePE> listByCodesAndGroup(final List<String> sampleCodes,
-            final GroupPE group)
+            final String containerCodeOrNull, final GroupPE group)
     {
         assert sampleCodes != null : "Unspecified sample codes.";
         assert group != null : "Unspecified space.";
 
         Criteria criteria = createGroupCriteria(group);
-        addSampleCodesCriterion(criteria, sampleCodes);
+        addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
         {
@@ -267,7 +267,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     private SamplePE tryFindContainedSampleWithUniqueSubcode(Criteria criteria, String sampleCode)
     {
-        addContainedSampleCodeCriterion(criteria, sampleCode);
+        addContainedCodeCriterion(criteria, sampleCode);
         List<SamplePE> list = cast(criteria.list());
         return list.size() == 1 ? list.get(0) : null;
     }
@@ -290,32 +290,41 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return createFindCriteria(Restrictions.eq("group", group));
     }
 
-    private void addSampleCodesCriterion(Criteria criteria, List<String> sampleCodes)
+    private void addSampleCodesCriterion(Criteria criteria, List<String> sampleCodes,
+            String containerCodeOrNull)
     {
-        // no support for contained samples
-        criteria.add(Restrictions.in("code", sampleCodes));
-        criteria.add(Restrictions.isNull("container"));
+        List<String> convertedCodes = new ArrayList<String>();
+        for (String sampleCode : sampleCodes)
+        {
+            convertedCodes.add(CodeConverter.tryToDatabase(sampleCode));
+        }
+        criteria.add(Restrictions.in("code", convertedCodes));
+        addSampleContainerCriterion(criteria, containerCodeOrNull);
+    }
+
+    private void addSampleContainerCriterion(Criteria criteria, String containerCodeOrNull)
+    {
+        if (containerCodeOrNull != null)
+        {
+            criteria.createAlias("container", "c");
+            criteria.add(Restrictions.eq("c.code", CodeConverter.tryToDatabase(containerCodeOrNull)));
+        } else
+        {
+            criteria.add(Restrictions.isNull("container"));
+        }
     }
 
     private void addSampleCodeCriterion(Criteria criteria, String sampleCode)
     {
         String[] sampleCodeTokens =
                 sampleCode.split(SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
-        if (sampleCodeTokens.length > 1)
-        {
-            final String containerCode = sampleCodeTokens[0];
-            final String code = sampleCodeTokens[1];
-            criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
-            criteria.createAlias("container", "c");
-            criteria.add(Restrictions.eq("c.code", CodeConverter.tryToDatabase(containerCode)));
-        } else
-        {
-            criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
-            criteria.add(Restrictions.isNull("container"));
-        }
+        String subCode = sampleCodeTokens.length > 1 ? sampleCodeTokens[1] : sampleCode;
+        String containerCodeOrNull = sampleCodeTokens.length > 1 ? sampleCodeTokens[0] : null;
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(subCode)));
+        addContainedCodeCriterion(criteria, containerCodeOrNull);
     }
 
-    private void addContainedSampleCodeCriterion(Criteria criteria, String sampleCode)
+    private void addContainedCodeCriterion(Criteria criteria, String sampleCode)
     {
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
         criteria.add(Restrictions.isNotNull("container"));

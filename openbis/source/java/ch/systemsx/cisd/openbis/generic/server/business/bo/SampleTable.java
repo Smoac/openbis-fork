@@ -239,6 +239,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         batchUpdateProperties(sample, updates.getProperties(), details.getPropertiesToUpdate());
         checkPropertiesBusinessRules(sample, propertiesCache);
 
+        // TODO 2010-10-09, Piotr Buczek: don't check business rules if value wasn't changed
         if (details.isExperimentUpdateRequested())
         {
             updateGroup(sample, updates.getSampleIdentifier(), sampleOwnerCache);
@@ -325,27 +326,13 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache)
     {
         final List<SamplePE> results = new ArrayList<SamplePE>();
-        List<SampleIdentifier> identifiersToLoadInBatch = new ArrayList<SampleIdentifier>();
+        List<SampleIdentifier> identifiers = new ArrayList<SampleIdentifier>();
         for (SampleBatchUpdatesDTO sampleUpdates : updates)
         {
             SampleIdentifier identifier = sampleUpdates.getOldSampleIdentifierOrNull();
-            if (identifier.getSampleCode().contains(
-                    SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING))
-            {
-                // contained samples can't be loaded in batch
-                SamplePE sample = tryToGetSampleByIdentifier(identifier);
-                if (sample == null)
-                {
-                    throw UserFailureException.fromTemplate(
-                            "No sample could be found with given identifier '%s'.", identifier);
-                }
-                results.add(sample);
-            } else
-            {
-                identifiersToLoadInBatch.add(identifier);
-            }
+            identifiers.add(identifier);
         }
-        results.addAll(listSamplesByIdentifiers(identifiersToLoadInBatch, sampleOwnerCache));
+        results.addAll(listSamplesByIdentifiers(identifiers, sampleOwnerCache));
         return results;
     }
 
