@@ -17,25 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.AbstractController;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 
 /**
  * Superclass for servlets supporting file download.
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractFileDownloadServlet extends AbstractController
+abstract public class AbstractFileDownloadServlet extends AbstractServlet
 {
     protected AbstractFileDownloadServlet()
     {
@@ -45,50 +37,22 @@ abstract public class AbstractFileDownloadServlet extends AbstractController
     abstract protected FileContent getFileContent(final HttpServletRequest request)
             throws Exception;
 
-    protected final String getSessionToken(final HttpServletRequest request)
-    {
-        // We must have a session reaching this point. See the constructor where we set
-        // 'setRequireSession(true)'.
-        final HttpSession session = request.getSession(false);
-        assert session != null : "Session must be specified.";
-        return ((String) session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY));
-    }
-
-    protected final void writeResponse(final HttpServletResponse response, final String value)
-            throws IOException
-    {
-        final PrintWriter writer = response.getWriter();
-        writer.write(value);
-        writer.flush();
-        writer.close();
-    }
-
-    //
-    // AbstractController
-    //
 
     @Override
-    protected final ModelAndView handleRequestInternal(final HttpServletRequest request,
-            final HttpServletResponse response) throws Exception
+    protected void respondToRequest(final HttpServletRequest request,
+            final HttpServletResponse response) throws Exception, IOException
     {
-        try
+        FileContent fileContent = getFileContent(request);
+        if (fileContent != null)
         {
-            FileContent fileContent = getFileContent(request);
-            if (fileContent != null)
-            {
-                response.setContentLength(fileContent.getContent().length);
-                response.setHeader("Content-Disposition", "attachment; filename=\""
-                        + fileContent.getFileName() + "\"");
-                final ServletOutputStream outputStream = response.getOutputStream();
-                outputStream.write(fileContent.getContent());
-                outputStream.flush();
-                outputStream.close();
-            }
-        } catch (final UserFailureException ex)
-        {
-            writeResponse(response, ex.getMessage());
+            response.setContentLength(fileContent.getContent().length);
+            response.setHeader("Content-Disposition", "attachment; filename=\""
+                    + fileContent.getFileName() + "\"");
+            final ServletOutputStream outputStream = response.getOutputStream();
+            outputStream.write(fileContent.getContent());
+            outputStream.flush();
+            outputStream.close();
         }
-        return null;
     }
 
     //
