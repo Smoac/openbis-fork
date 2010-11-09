@@ -82,7 +82,7 @@ public class ReflectionPrimitiveFieldTraverserTest extends AssertJUnit
         object.stringArray = new String[]
             { "stringArray1" };
 
-        ReflectionStringTraverser.traverse(object, new ReflectionStringCapitalizerVisitor());
+        ReflectionStringTraverser.traverseDeep(object, new ReflectionStringCapitalizerVisitor());
 
         assertEquals("OBJECT", object.text);
 

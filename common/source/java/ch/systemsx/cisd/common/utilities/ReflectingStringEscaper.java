@@ -30,12 +30,21 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public class ReflectingStringEscaper<T>
 {
-    public static <T> T escape(T bean, String... escapedProperties)
+    public static <T> T escapeShallow(T bean, String... escapedProperties)
     {
         ReflectingStringEscaper<T> escaper =
-                new ReflectingStringEscaper<T>(bean, escapedProperties);
+                new ReflectingStringEscaper<T>(false, bean, escapedProperties);
         return escaper.escape();
     }
+
+    public static <T> T escapeDeep(T bean, String... escapedProperties)
+    {
+        ReflectingStringEscaper<T> escaper =
+                new ReflectingStringEscaper<T>(true, bean, escapedProperties);
+        return escaper.escape();
+    }
+
+    private final boolean isDeep;
 
     private final T bean;
 
@@ -46,11 +55,6 @@ public class ReflectingStringEscaper<T>
 
         public String tryVisit(String value, Object object, Field fieldOrNull)
         {
-            // Only change the value on the top-level object
-            if (object != bean)
-            {
-                return null;
-            }
             // Only change the value if the name of the field is in the list provided
             if (null == fieldOrNull)
             {
@@ -62,8 +66,9 @@ public class ReflectingStringEscaper<T>
         }
     }
 
-    private ReflectingStringEscaper(T bean, String... escapedProperties)
+    private ReflectingStringEscaper(boolean isDeep, T bean, String... escapedProperties)
     {
+        this.isDeep = isDeep;
         this.bean = bean;
         this.escapedProperties = new HashSet<String>();
         Collections.addAll(this.escapedProperties, escapedProperties);
@@ -71,7 +76,13 @@ public class ReflectingStringEscaper<T>
 
     private T escape()
     {
-        ReflectionStringTraverser.traverse(bean, new Visitor());
+        if (isDeep)
+        {
+            ReflectionStringTraverser.traverseDeep(bean, new Visitor());
+        } else
+        {
+            ReflectionStringTraverser.traverseShallow(bean, new Visitor());
+        }
         return bean;
     }
 }

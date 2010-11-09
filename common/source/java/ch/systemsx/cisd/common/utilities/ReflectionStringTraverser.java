@@ -26,8 +26,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Allows to change all non-final and non-static strings referenced within the specified object.
- * Traverses the object recursively. Handles lists and sets of strings.
+ * Allows to change all non-final and non-static strings referenced within the specified object. If
+ * isDeep is true, traverses the object recursively; otherwise, performs a shallow traversal.
+ * Handles lists and sets of strings.
  * 
  * @author Tomasz Pylak
  */
@@ -45,10 +46,17 @@ public class ReflectionStringTraverser
     }
 
     /** cannot be called for primitive types or collections */
-    public static void traverse(Object object, ReflectionFieldVisitor fieldVisitor)
+    public static void traverseDeep(Object object, ReflectionFieldVisitor fieldVisitor)
     {
         Class<?> clazz = object.getClass();
         new ReflectionStringTraverser(fieldVisitor).traverseMutable(object, clazz);
+    }
+
+    /** cannot be called for primitive types or collections */
+    public static void traverseShallow(Object object, ReflectionFieldVisitor fieldVisitor)
+    {
+        Class<?> clazz = object.getClass();
+        new ReflectionStringTraverser(fieldVisitor, false).traverseMutable(object, clazz);
     }
 
     // mutable classes are arrays and classes which are not primitives or collections of primitive
@@ -71,9 +79,17 @@ public class ReflectionStringTraverser
 
     private final ReflectionFieldVisitor visitor;
 
+    private final boolean isDeep;
+
     private ReflectionStringTraverser(ReflectionFieldVisitor fieldVisitor)
     {
+        this(fieldVisitor, true);
+    }
+
+    private ReflectionStringTraverser(ReflectionFieldVisitor fieldVisitor, boolean isDeep)
+    {
         this.visitor = fieldVisitor;
+        this.isDeep = isDeep;
     }
 
     /**
@@ -118,10 +134,10 @@ public class ReflectionStringTraverser
         }
         Class<?> clazz = fieldValue.getClass();
 
-        if (clazz.isArray())
+        if (clazz.isArray() && isDeep)
         {
             traverseArray(fieldValue);
-        } else if (isCollection(fieldValue))
+        } else if (isCollection(fieldValue) && isDeep)
         {
             traverseCollectionField(object, field, (Collection<?>) fieldValue);
         } else if (clazz.isPrimitive())
@@ -136,7 +152,10 @@ public class ReflectionStringTraverser
             }
         } else
         {
-            traverseFields(fieldValue, clazz);
+            if (isDeep)
+            {
+                traverseFields(fieldValue, clazz);
+            }
         }
     }
 
