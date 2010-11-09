@@ -28,7 +28,7 @@
         -->
 	
   <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api">
-  	<zip destfile="${server.dist.file" update="true">
+  	<zip destfile="${server.dist.file}" update="true">
   		<zipfileset file="${jars.to.be.signed.zip}"/>
   	</zip>
  	</target>
@@ -163,8 +163,6 @@
 	  <property name="jars.to.be.signed.zip" value="${dist}/${jars.to.be.signed}.zip" />
 		<property name="targets.www.openbis" value="${targets.www}/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS"/>
 			
-
-		<delete dir="${targets.www.openbis}" />
 		<mkdir dir="${targets.www.openbis}" />
 		<delete dir="${jars.to.be.signed.dir}" />
 		<mkdir dir="${jars.to.be.signed.dir}" />
