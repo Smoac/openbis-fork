@@ -101,9 +101,7 @@ public final class ExperimentTranslator
             }
         }
 
-        return ReflectingStringEscaper.escapeDeep(result, "code", "permId", "identifier",
-                "description", "reason", "fileName", "title", "description", "code", "label",
-                "url", "value", "uuid");
+        return ReflectingStringEscaper.escapeDeep(result);
     }
 
     public final static List<Experiment> translate(final List<ExperimentPE> experiments,
@@ -142,7 +140,7 @@ public final class ExperimentTranslator
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));
 
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public final static ExperimentTypePE translate(final ExperimentType experimentType)
@@ -153,7 +151,7 @@ public final class ExperimentTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
 
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public final static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes)

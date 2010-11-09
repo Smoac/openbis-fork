@@ -41,7 +41,7 @@ public class DataTypeTranslator
         final DataType result = new DataType();
         result.setCode(dataTypePE.getCode());
         result.setDescription(dataTypePE.getDescription());
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public static List<DataType> translate(List<DataTypePE> dataTypePEs)

@@ -61,6 +61,6 @@ public final class GroupTranslator
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
         result.setIdentifier(IdentifierHelper.createGroupIdentifier(group).toString());
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description", "identifier");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 }

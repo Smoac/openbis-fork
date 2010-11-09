@@ -47,7 +47,7 @@ public final class DatabaseInstanceTranslator
         result.setUuid(databaseInstance.getUuid());
         result.setIdentifier(IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstance)
                 .toString());
-        return ReflectingStringEscaper.escapeShallow(result, "code", "uuid", "identifier");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public final static DatabaseInstance translateWithoutEscaping(

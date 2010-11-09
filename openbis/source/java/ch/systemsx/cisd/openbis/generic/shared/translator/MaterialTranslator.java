@@ -77,7 +77,7 @@ public final class MaterialTranslator
             setProperties(materialPE, result);
         }
 
-        return ReflectingStringEscaper.escapeShallow(result, "code");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public final static Material translateWithoutEscaping(final MaterialPE materialPE,

@@ -190,7 +190,7 @@ public class ExternalDataTranslator
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
                     new HashMap<PropertyTypePE, PropertyType>()));
         }
-        return ReflectingStringEscaper.escapeShallow(sample, "permId", "identifier");
+        return ReflectingStringEscaper.escapeShallow(sample);
     }
 
     private static void setChildren(ExternalDataPE externalDataPE, ExternalData externalData)
@@ -216,6 +216,6 @@ public class ExternalDataTranslator
         externalData.setCode(StringEscapeUtils.escapeHtml(dataPE.getCode()));
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
-        return ReflectingStringEscaper.escapeShallow(externalData, "code");
+        return ReflectingStringEscaper.escapeShallow(externalData);
     }
 }

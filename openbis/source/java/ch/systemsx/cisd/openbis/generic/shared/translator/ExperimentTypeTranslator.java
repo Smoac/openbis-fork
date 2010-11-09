@@ -43,7 +43,7 @@ public class ExperimentTypeTranslator
                         experimentTypePE.getExperimentTypePropertyTypes(), result, cachedOrNull)));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentTypePE
                 .getDatabaseInstance()));
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes,

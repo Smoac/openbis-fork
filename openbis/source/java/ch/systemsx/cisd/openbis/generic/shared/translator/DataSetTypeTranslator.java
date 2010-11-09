@@ -56,8 +56,7 @@ public class DataSetTypeTranslator
                         entityTypeOrNull.getDataSetTypePropertyTypes(), result, cacheOrNull)));
         result.setMainDataSetPath(entityTypeOrNull.getMainDataSetPath());
         result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description",
-                "mainDataSetPath", "mainDataSetPattern");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public static List<DataSetType> translate(List<DataSetTypePE> dataSetTypes,

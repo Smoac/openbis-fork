@@ -43,7 +43,7 @@ public final class InvalidationTranslator
         newInvalidation.setReason(invalidation.getReason());
         newInvalidation.setRegistrationDate(invalidation.getRegistrationDate());
         newInvalidation.setRegistrator(PersonTranslator.translate(invalidation.getRegistrator()));
-        return ReflectingStringEscaper.escapeShallow(newInvalidation, "reason");
+        return ReflectingStringEscaper.escapeShallow(newInvalidation);
     }
 
     public final static Invalidation translateWithoutEscaping(final InvalidationPE invalidation)

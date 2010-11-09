@@ -60,7 +60,7 @@ public final class EntityPropertyTranslator
                 break;
             default:
                 result.setValue(propertyPE.tryGetUntypedValue());
-                ReflectingStringEscaper.escapeShallow(result, "value");
+                ReflectingStringEscaper.escapeShallow(result);
         }
         return result;
     }

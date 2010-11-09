@@ -70,7 +70,7 @@ public final class ProjectTranslator
         // we don't use attachments collection directly from project
         List<Attachment> attachments = DtoConverters.createUnmodifiableEmptyList();
         result.setAttachments(attachments);
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description", "identifier");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public final static Project translateWithoutEscaping(final ProjectPE project)

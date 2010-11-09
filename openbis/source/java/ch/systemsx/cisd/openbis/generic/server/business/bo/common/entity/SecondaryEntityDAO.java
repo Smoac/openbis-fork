@@ -123,10 +123,10 @@ public class SecondaryEntityDAO
         experimentType.setCode(record.et_code);
         experiment.setExperimentType(experimentType);
 
-        ReflectingStringEscaper.escapeShallow(space, "code");
-        ReflectingStringEscaper.escapeShallow(experiment, "code", "permId");
-        ReflectingStringEscaper.escapeShallow(project, "code");
-        ReflectingStringEscaper.escapeShallow(experimentType, "code");
+        ReflectingStringEscaper.escapeShallow(space);
+        ReflectingStringEscaper.escapeShallow(experiment);
+        ReflectingStringEscaper.escapeShallow(project);
+        ReflectingStringEscaper.escapeShallow(experimentType);
 
         return experiment;
     }
@@ -142,8 +142,7 @@ public class SecondaryEntityDAO
         registrator.setEmail(registrator.getEmail());
         registrator.setFirstName(registrator.getFirstName());
         registrator.setLastName(registrator.getLastName());
-        return ReflectingStringEscaper.escapeShallow(registrator, "userId", "email", "firstName",
-                "lastName");
+        return ReflectingStringEscaper.escapeShallow(registrator);
     }
 
     public Long getSampleTypeIdForSampleTypeCode(String sampleTypeCode)
@@ -191,7 +190,7 @@ public class SecondaryEntityDAO
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.g_code, databaseInstance));
         sample.setPermId(record.perm_id);
         sample.setIdentifier(createIdentifier(sample).toString());
-        return ReflectingStringEscaper.escapeShallow(sample, "permId", "identifier");
+        return ReflectingStringEscaper.escapeShallow(sample);
     }
 
     private static SampleIdentifier createIdentifier(Sample sample)
@@ -221,7 +220,7 @@ public class SecondaryEntityDAO
             Space space = new Space();
             space.setCode(codeOrNull);
             space.setInstance(databaseInstance);
-            return ReflectingStringEscaper.escapeShallow(space, "code");
+            return ReflectingStringEscaper.escapeShallow(space);
         }
     }
 
@@ -241,6 +240,6 @@ public class SecondaryEntityDAO
         SampleType sampleType = new SampleType();
         sampleType.setCode(code);
         sampleType.setDatabaseInstance(databaseInstance);
-        return ReflectingStringEscaper.escapeShallow(sampleType, "code");
+        return ReflectingStringEscaper.escapeShallow(sampleType);
     }
 }

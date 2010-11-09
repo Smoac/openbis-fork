@@ -296,7 +296,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             into.setGeneratedFromHierarchyDepth(row.getInt("generated_from_depth"));
             into.setShowContainer(row.getInt("part_of_depth") > 0);
 
-            ReflectingStringEscaper.escapeShallow(into, "code");
+            ReflectingStringEscaper.escapeShallow(into);
         }
     }
 

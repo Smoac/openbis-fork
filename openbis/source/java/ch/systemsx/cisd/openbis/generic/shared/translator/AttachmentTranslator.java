@@ -59,7 +59,7 @@ public final class AttachmentTranslator
         result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
         result.setRegistrationDate(attachment.getRegistrationDate());
         result.setVersion(attachment.getVersion());
-        return ReflectingStringEscaper.escapeShallow(result, "fileName", "title", "description");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     private final static Attachment translateWithoutEscaping(final AttachmentPE attachment,
@@ -111,7 +111,7 @@ public final class AttachmentTranslator
         result.setRegistrationDate(attachment.getRegistrationDate());
         result.setVersion(attachment.getVersion());
         result.setContent(attachment.getAttachmentContent().getValue());
-        return ReflectingStringEscaper.escapeShallow(result, "fileName", "title", "description");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public final static List<Attachment> translate(final Collection<AttachmentPE> attachments,

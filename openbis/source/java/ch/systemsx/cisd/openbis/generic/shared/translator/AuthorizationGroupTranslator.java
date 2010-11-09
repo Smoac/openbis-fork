@@ -58,7 +58,7 @@ public final class AuthorizationGroupTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
-        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
 }

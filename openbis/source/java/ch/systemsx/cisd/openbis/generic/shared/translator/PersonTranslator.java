@@ -75,8 +75,7 @@ public class PersonTranslator
             result.setRegistrator(PersonTranslator.translate(person.getRegistrator(), false));
         }
 
-        return ReflectingStringEscaper.escapeShallow(result, "firstName", "lastName", "email",
-                "userId");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     private final static Person translateWithoutEscaping(final PersonPE person,

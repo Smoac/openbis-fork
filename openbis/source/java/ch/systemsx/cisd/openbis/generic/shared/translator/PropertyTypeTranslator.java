@@ -86,8 +86,7 @@ public final class PropertyTypeTranslator
         result.setSchema(propertyType.getSchema());
         result.setTransformation(propertyType.getTransformation());
 
-        return ReflectingStringEscaper.escapeShallow(result, "code", "simpleCode", "label",
-                "description", "schema", "transformation");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public final static PropertyType translate(final PropertyTypePE propertyType,

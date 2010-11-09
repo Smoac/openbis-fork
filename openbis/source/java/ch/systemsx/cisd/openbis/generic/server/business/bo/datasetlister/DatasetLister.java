@@ -534,7 +534,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataset.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
         dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
 
-        ReflectingStringEscaper.escapeShallow(dataset, "dataProducerCode", "location");
+        ReflectingStringEscaper.escapeShallow(dataset);
 
         if (record.samp_id != null)
         {
@@ -568,7 +568,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.DATA_SET,
                 record.code));
 
-        ReflectingStringEscaper.escapeShallow(dataset, "code");
+        ReflectingStringEscaper.escapeShallow(dataset);
         return dataset;
     }
 
@@ -602,7 +602,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private static void setCode(Code<?> codeHolder, CodeRecord codeRecord)
     {
         codeHolder.setCode(codeRecord.code);
-        ReflectingStringEscaper.escapeShallow(codeHolder, "code");
+        ReflectingStringEscaper.escapeShallow(codeHolder);
     }
 
     private static DataStore createDataStore(DataStoreRecord codeRecord)

@@ -34,7 +34,7 @@ public class DataStoreTranslator
         downloadUrl = translateDownloadUrl(downloadUrl);
         dataStore.setDownloadUrl(downloadUrl);
         dataStore.setCode(dataStorePE.getCode());
-        return ReflectingStringEscaper.escapeShallow(dataStore, "code");
+        return ReflectingStringEscaper.escapeShallow(dataStore);
     }
 
     public static String translateDownloadUrl(String downloadUrl)

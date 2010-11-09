@@ -66,7 +66,7 @@ public final class GridCustomExpressionTranslator
             result.setCode(original.getCode());
             result.setName(original.getLabel());
 
-            ReflectingStringEscaper.escapeShallow(result, "code", "name");
+            ReflectingStringEscaper.escapeShallow(result);
 
             translateExpression(original, result);
             return result;

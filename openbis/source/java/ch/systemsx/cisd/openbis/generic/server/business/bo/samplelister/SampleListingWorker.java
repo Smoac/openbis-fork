@@ -617,7 +617,7 @@ final class SampleListingWorker extends AbstractLister
             addRelatedContainerSampleToRequested(row.samp_id_part_of);
         }
 
-        ReflectingStringEscaper.escapeShallow(sample, "permId");
+        ReflectingStringEscaper.escapeShallow(sample);
         return sample;
     }
 

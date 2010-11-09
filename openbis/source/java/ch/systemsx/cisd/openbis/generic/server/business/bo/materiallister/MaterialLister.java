@@ -176,7 +176,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
 
         material.setProperties(new ArrayList<IEntityProperty>());
 
-        ReflectingStringEscaper.escapeShallow(material, "code");
+        ReflectingStringEscaper.escapeShallow(material);
 
         return material;
     }

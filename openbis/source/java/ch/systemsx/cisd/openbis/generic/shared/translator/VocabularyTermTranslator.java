@@ -51,7 +51,7 @@ public class VocabularyTermTranslator
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
 
-        return ReflectingStringEscaper.escapeShallow(result, "code", "label", "description", "url");
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public static VocabularyTerm translateWithoutEscaping(VocabularyTermPE vt)
