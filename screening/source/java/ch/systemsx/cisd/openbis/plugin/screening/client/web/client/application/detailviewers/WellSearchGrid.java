@@ -27,12 +27,14 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionProvider;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
@@ -575,6 +577,13 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                             {
                                 return WellContentDialog.createImageViewerForChannel(viewContext,
                                         entity, IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX, channel);
+                            }
+
+                            public void setChannelChooser(
+                                    SelectionProvider<SimpleComboValue<String>> selectionProvider)
+                            {
+                                // TODO Auto-generated method stub
+                                
                             }
                         };
                     ChannelWidgetWithListener widgetWithListener =

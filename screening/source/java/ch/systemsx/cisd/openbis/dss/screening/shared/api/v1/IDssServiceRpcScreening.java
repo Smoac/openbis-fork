@@ -27,9 +27,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorWithDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 
 /**
@@ -141,6 +143,11 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadImages(
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences);
+    
+    public InputStream loadImages(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            List<String> wellsOrNull, String channel, ImageSize thumbnailSizeOrNull);
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and

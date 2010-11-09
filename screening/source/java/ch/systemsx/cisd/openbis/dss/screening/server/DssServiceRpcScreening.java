@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
@@ -320,7 +321,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             final IHCSImageDatasetLoader imageAccessor =
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-            IContent content = tryGetImageContent(imageAccessor, imageReference, convertToPng);
+            IContent content = tryGetImageContent(imageAccessor, imageReference, null, convertToPng);
             imageContents.add(content);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
@@ -329,6 +330,124 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
         return loadImages(sessionToken, imageReferences, true);
+    }
+
+    public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
+            List<String> wellsOrNull, String channel, ImageSize thumbnailSizeOrNull)
+    {
+        String datasetCode = dataSetIdentifier.getDatasetCode();
+        File rootDir = getRootDirectoryForDataSet(datasetCode);
+        IHCSImageDatasetLoader imageAccessor =
+                HCSImageDatasetLoaderFactory.create(rootDir, datasetCode);
+        List<PlateImageReference> imageReferences =
+                createPlateImageReferences(imageAccessor, dataSetIdentifier, wellsOrNull, channel);
+        Size size = null;
+        if (thumbnailSizeOrNull != null)
+        {
+            size = new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
+        }
+        List<IContent> imageContents = new ArrayList<IContent>();
+        for (PlateImageReference imageReference : imageReferences)
+        {
+            IContent content = tryGetImageContent(imageAccessor, imageReference, size, true);
+            imageContents.add(content);
+        }
+        return new ConcatenatedContentInputStream(true, imageContents);
+    }
+
+    private List<PlateImageReference> createPlateImageReferences(
+            IHCSImageDatasetLoader imageAccessor, IDatasetIdentifier dataSetIdentifier,
+            List<String> wellsOrNull, String channel)
+    {
+        PlateImageParameters imageParameters = imageAccessor.getImageParameters();
+        int rowsNum = imageParameters.getRowsNum();
+        int colsNum = imageParameters.getColsNum();
+        List<PlateImageReference> imageReferences = new ArrayList<PlateImageReference>();
+        int numberOfTiles = imageParameters.getTileRowsNum() * imageParameters.getTileColsNum();
+        if (wellsOrNull == null || wellsOrNull.isEmpty())
+        {
+            // all wells
+            for (int i = 1; i <= rowsNum; i++)
+            {
+                for (int j = 1; j <= colsNum; j++)
+                {
+                    addImageReferencesForAllTiles(imageReferences, i, j, channel,
+                            dataSetIdentifier, numberOfTiles);
+                }
+            }
+        } else
+        {
+            for (String well : wellsOrNull)
+            {
+                int indexOfDot = well.indexOf('.');
+                if (indexOfDot < 1)
+                {
+                    throw createException("Expecting a '.'", well);
+                }
+                int row = getAndCheckRowNumber(indexOfDot, well, rowsNum);
+                int col = getAndCheckColumnNumber(indexOfDot, well, colsNum);
+                addImageReferencesForAllTiles(imageReferences, row, col, channel,
+                        dataSetIdentifier, numberOfTiles);
+            }
+        }
+        return imageReferences;
+    }
+
+    private int getAndCheckColumnNumber(int indexOfDot, String well, int colsNum)
+    {
+        int col;
+        try
+        {
+            col = Integer.parseInt(well.substring(indexOfDot + 1));
+        } catch (NumberFormatException ex)
+        {
+            throw createException("String after '.' isn't a number", well);
+        }
+        if (col < 1)
+        {
+            throw createException("Column number starts with 1", well);
+        }
+        if (col > colsNum)
+        {
+            throw createException("There are only " + colsNum + " columns", well);
+        }
+        return col;
+    }
+
+    private int getAndCheckRowNumber(int indexOfDot, String well, int rowsNum)
+    {
+        int row;
+        try
+        {
+            row = Integer.parseInt(well.substring(0, indexOfDot));
+        } catch (NumberFormatException ex)
+        {
+            throw createException("String before '.' isn't a number", well);
+        }
+        if (row < 1)
+        {
+            throw createException("Row number starts with 1", well);
+        }
+        if (row > rowsNum)
+        {
+            throw createException("There are only " + rowsNum + " rows", well);
+        }
+        return row;
+    }
+
+    private UserFailureException createException(String description, String well)
+    {
+        return new UserFailureException("Invalid well description: " + description + ": " + well);
+    }
+    
+    private void addImageReferencesForAllTiles(List<PlateImageReference> imageReferences,
+            int wellRow, int wellColumn, String channel, IDatasetIdentifier dataset,
+            int numberOfTiles)
+    {
+        for (int i = 0; i < numberOfTiles; i++)
+        {
+            imageReferences.add(new PlateImageReference(wellRow, wellColumn, i, channel, dataset));
+        }
     }
 
     // throws exception if some datasets cannot be found
@@ -359,7 +478,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     }
 
     private IContent tryGetImageContent(IHCSImageDatasetLoader imageAccessor,
-            PlateImageReference imageRef, boolean convertToPng)
+            PlateImageReference imageRef, Size thumbnailSizeOrNull, boolean convertToPng)
     {
         Location wellLocation = asLocation(imageRef.getWellPosition());
         Location tileLocation =
@@ -370,14 +489,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             ImageChannelStackReference channelStackReference =
                     ImageChannelStackReference.createFromLocations(wellLocation, tileLocation);
             return ImageChannelsUtils.getImage(imageAccessor, channelStackReference,
-                    imageRef.getChannel(), null, convertToPng);
+                    imageRef.getChannel(), thumbnailSizeOrNull, convertToPng);
         } catch (EnvironmentFailureException e)
         {
             operationLog.error("Error reading image.", e);
             return null; // no image found
         }
     }
-
+    
     // tile - start from 0
     private static Location getTileLocation(int tile, int tileColumnsNum)
     {

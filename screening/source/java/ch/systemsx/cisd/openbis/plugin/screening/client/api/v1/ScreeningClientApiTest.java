@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -33,6 +37,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
@@ -45,6 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdent
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -59,7 +70,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
  */
 public class ScreeningClientApiTest
 {
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         if (args.length != 3)
         {
@@ -83,6 +94,24 @@ public class ScreeningClientApiTest
             System.exit(1);
             return;
         }
+        IDatasetIdentifier dataSetID = facade.getDatasetIdentifiers(Arrays.asList("20101006020318852-10")).get(0);
+        List<byte[]> images = facade.loadImages(dataSetID, Arrays.asList("1.3"), "DAPI", new ImageSize(100, 60));
+        for (int i = 0; i < images.size(); i++)
+        {
+            byte[] imageBytes = images.get(i);
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            JFrame frame = new JFrame("image " + i);
+            frame.getContentPane().add(new JLabel(new ImageIcon(image)));
+            frame.pack();
+            frame.setLocation(10 * i, 10 * i);
+            frame.setVisible(true);
+            
+            System.out.println(image.getWidth()+"x"+image.getHeight());
+        }
+        Thread.sleep(10000);
+        System.exit(0);
+        
+        
         List<ExperimentIdentifier> experiments = facade.listExperiments();
         print("Experiments: " + experiments);
 

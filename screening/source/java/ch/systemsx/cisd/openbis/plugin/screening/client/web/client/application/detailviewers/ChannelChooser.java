@@ -21,6 +21,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionProvider;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -42,6 +43,7 @@ class ChannelChooser
     public static interface IChanneledViewerFactory
     {
         Widget create(String value);
+        void setChannelChooser(SelectionProvider<SimpleComboValue<String>> selectionProvider);
     }
 
     public static LayoutContainer createViewerWithChannelChooser(
@@ -61,6 +63,7 @@ class ChannelChooser
         {
             ComboBox<SimpleComboValue<String>> channelChooser =
                     new ChannelComboBox(channelsNames, initialChannel);
+            viewerFactory.setChannelChooser(channelChooser);
             channelChooser
                     .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
                         {

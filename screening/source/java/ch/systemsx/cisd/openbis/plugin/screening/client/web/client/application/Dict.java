@@ -40,6 +40,8 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
 
     public static final String WELL_CONTENT_FEATURE_VECTORS = "WELL_CONTENT_FEATURE_VECTORS";
 
+    public static final String IMAGE_VIEWER_BUTTON = "image_viewer_button";
+    
     public static final String IMAGE_ANALYSIS_DATA_SET = "IMAGE_ANALYSIS_DATA_SET";
 
     public static final String IMAGE_DATA_SET = "IMAGE_DATA_SET";
@@ -74,6 +76,7 @@ public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.clie
             "PLATE_MATERIAL_REVIEWER_SPECIFY_METERIAL_ITEMS";
 
     public static final String EXACT_MATCH_ONLY = "EXACT_MATCH_ONLY";
+
 
     private Dict()
     {

@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -79,6 +81,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private final int minorVersionApplicationServer;
 
+    private IDssServiceFactory dssServiceCache;
+
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL.
      * Authenticates the user.
@@ -126,7 +130,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         this.openbisScreeningServer = screeningServer;
         this.sessionToken = sessionToken;
         this.minorVersionApplicationServer = minorVersion;
-        IDssServiceFactory dssServiceCache = new IDssServiceFactory()
+        dssServiceCache = new IDssServiceFactory()
             {
                 private final Map<String/* url */, DssServiceRpcScreeningHolder> cache =
                         new HashMap<String, DssServiceRpcScreeningHolder>();
@@ -534,6 +538,31 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             throw ex.getIoException();
         }
+    }
+    
+    public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier, List<String> wellsOrNull,
+            String channel, ImageSize thumbnailSizeOrNull) throws IOException
+    {
+        DssServiceRpcScreeningHolder dssServiceHolder =
+                dssServiceCache.createDssService(dataSetIdentifier.getDatastoreServerUrl());
+        InputStream stream =
+                dssServiceHolder.getService().loadImages(sessionToken, dataSetIdentifier,
+                        wellsOrNull, channel, thumbnailSizeOrNull);
+        ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(stream);
+        List<byte[]> result = new ArrayList<byte[]>();
+        long size;
+        do
+        {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            size = imagesWriter.writeNextBlock(outputStream);
+            if (size > 0)
+            {
+                result.add(outputStream.toByteArray());
+            }
+            System.out.println("size "+ size);
+        } while (size >= 0);
+        return result;
     }
 
     /**

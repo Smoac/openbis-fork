@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -248,6 +249,9 @@ public interface IScreeningOpenbisServiceFacade
     public void loadImages(List<PlateImageReference> imageReferences,
             IImageOutputStreamProvider outputStreamProvider, boolean convertToPNG)
             throws IOException;
+    
+    public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
+            List<String> wellsOrNull, String channel, ImageSize thumbnailSizeOrNull) throws IOException;
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
