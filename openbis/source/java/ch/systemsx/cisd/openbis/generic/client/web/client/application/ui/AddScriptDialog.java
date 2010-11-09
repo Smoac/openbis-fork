@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -64,8 +65,7 @@ public class AddScriptDialog extends AbstractRegistrationDialog
     private static MultilineVarcharField createScriptField(
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final MultilineVarcharField field =
-                new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
+        final MultilineVarcharField field = new ScriptField(viewContext);
         field.treatTabKeyAsInput();
         return field;
     }

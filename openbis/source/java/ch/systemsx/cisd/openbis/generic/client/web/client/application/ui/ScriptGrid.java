@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ScriptColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -164,8 +165,8 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
                     addField(descriptionField);
 
-                    this.scriptField =
-                            new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
+                    this.scriptField = new ScriptField(viewContext);
+                    // new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
                     this.scriptField.setValue(StringEscapeUtils.unescapeHtml(script.getScript()));
                     addField(scriptField);
                 }
