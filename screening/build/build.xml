@@ -238,8 +238,7 @@
 		<signjar jar="${webapp.dist}/${jar}"
 		         keystore="etc/dev.keystore"
 		         alias="openbis"
-		         storepass="openbistest"
-		         keypass="openbistest" />
+		         storepass="openbistest"/>
 		<copy file="${webapp.dist}/${jar}" todir="${targets.www.openbis}"/>
 	</target>
 
