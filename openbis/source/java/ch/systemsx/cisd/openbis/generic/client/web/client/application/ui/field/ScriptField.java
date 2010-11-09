@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 public class ScriptField extends MultilineVarcharField
 {
 
-    private final static String CALCULATE_DEFINITION = "def calculate()";
+    private final static String CALCULATE_DEFINITION = "def calculate():";
 
     private final static String CALCULATE_DEFINITION_NOT_FOUND_MSG =
             "Multiline script should contain definition of 'calculate()' function.";
