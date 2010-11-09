@@ -153,15 +153,15 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         setScrollMode(Scroll.AUTO);
         add(infoBox = createInfoBox());
         add(formPanel = createFormPanel());
-        scriptChooser = createScriptChooserField(viewContext);
+        scriptChooser = createScriptChooserField(viewContext, entityKind);
     }
 
     private static ScriptChooserField createScriptChooserField(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKindOrNull)
     {
         ScriptChooserField field =
                 ScriptChooserField.create(viewContext.getMessage(Dict.SCRIPT), true, null,
-                        viewContext);
+                        viewContext, entityKindOrNull);
         FieldUtil.setVisibility(false, field);
         return field;
     }

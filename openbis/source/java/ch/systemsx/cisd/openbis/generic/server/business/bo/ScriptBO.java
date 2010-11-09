@@ -113,6 +113,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setDescription(newScript.getDescription());
         script.setRegistrator(findRegistrator());
         script.setScript(newScript.getScript());
+        script.setEntityKind(newScript.getEntityKind());
     }
 
     public void update(IScriptUpdates updates)

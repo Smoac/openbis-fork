@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
@@ -50,6 +51,16 @@ public enum ScriptColDefKind implements IColumnDefinitionKind<Script>
             public String tryGetValue(Script entity)
             {
                 return entity.getScript();
+            }
+        }),
+
+    ENTITY_KIND(new AbstractColumnDefinitionKind<Script>(Dict.ENTITY_KIND)
+        {
+            @Override
+            public String tryGetValue(Script entity)
+            {
+                EntityKind kind = entity.getEntityKind();
+                return kind == null ? "All" : kind.getDescription();
             }
         }),
 

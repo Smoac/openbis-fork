@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -118,14 +119,14 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all groups.
      */
-    public TypedTableResultSet<Space> listGroups(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
+    public TypedTableResultSet<Space> listGroups(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
             throws UserFailureException;
 
     /**
      * Returns a list of all scripts.
      */
-    public ResultSet<Script> listScripts(DefaultResultSetConfig<String, Script> criteria)
-            throws UserFailureException;
+    public ResultSet<Script> listScripts(ListScriptsCriteria criteria) throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for scripts.
@@ -136,7 +137,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for groups.
      */
-    public String prepareExportGroups(final TableExportCriteria<TableModelRowWithObject<Space>> criteria)
+    public String prepareExportGroups(
+            final TableExportCriteria<TableModelRowWithObject<Space>> criteria)
             throws UserFailureException;
 
     /**
@@ -338,14 +340,16 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all vocabulary terms for a specified vocabulary.
      */
-    public TypedTableResultSet<VocabularyTermWithStats> listVocabularyTerms(Vocabulary vocabulary,
+    public TypedTableResultSet<VocabularyTermWithStats> listVocabularyTerms(
+            Vocabulary vocabulary,
             DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabulary Terms.
      */
-    public String prepareExportVocabularyTerms(TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
+    public String prepareExportVocabularyTerms(
+            TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
             throws UserFailureException;
 
     public ResultSet<MaterialType> listMaterialTypes(

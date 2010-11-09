@@ -230,14 +230,16 @@ public abstract class AbstractDAOWithoutContextTest extends
         return createGroup(groupCode, databaseInstance);
     }
 
-    protected ScriptPE createScriptInDB(final String name, String script, String description)
+    protected ScriptPE createScriptInDB(final String name, String script, String description,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind)
     {
-        final ScriptPE result = createScriptPE(name, script, description);
+        final ScriptPE result = createScriptPE(name, script, description, kind);
         daoFactory.getScriptDAO().createOrUpdate(result);
         return result;
     }
 
-    protected ScriptPE createScriptPE(final String name, String script, String description)
+    protected ScriptPE createScriptPE(final String name, String script, String description,
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind)
     {
         final ScriptPE result = new ScriptPE();
         result.setName(name);
@@ -245,6 +247,7 @@ public abstract class AbstractDAOWithoutContextTest extends
         result.setDescription(description);
         result.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         result.setRegistrator(getSystemPerson());
+        result.setEntityKind(kind);
         return result;
     }
 

@@ -54,6 +54,7 @@ public final class ScriptTranslator
         }
         final Script result = new Script();
         result.setId(HibernateUtils.getId(script));
+        result.setEntityKind(script.getEntityKind());
         result.setName(StringEscapeUtils.escapeHtml(script.getName()));
         result.setDescription(StringEscapeUtils.escapeHtml(script.getDescription()));
         result.setScript(StringEscapeUtils.escapeHtml(script.getScript()));

@@ -242,11 +242,11 @@ public class PropertyTypeAssignmentGrid extends
 
     private static ScriptChooserField createScriptChooserField(
             final IViewContext<ICommonClientServiceAsync> viewContext, String initialValue,
-            boolean visible)
+            boolean visible, EntityKind entityKindOrNull)
     {
         ScriptChooserField field =
                 ScriptChooserField.create(viewContext.getMessage(Dict.SCRIPT), true, initialValue,
-                        viewContext);
+                        viewContext, entityKindOrNull);
         FieldUtil.setVisibility(visible, field);
         return field;
     }
@@ -280,7 +280,7 @@ public class PropertyTypeAssignmentGrid extends
                 Script script = etpt.getScript();
 
                 final ScriptChooserField scriptChooser = createScriptChooserField(viewContext,
-                        script != null ? script.getName() : null, etpt.isDynamic());
+                        script != null ? script.getName() : null, etpt.isDynamic(), entityKind);
 
                 private final boolean originalIsMandatory;
 

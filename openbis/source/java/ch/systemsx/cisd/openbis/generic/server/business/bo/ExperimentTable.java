@@ -160,7 +160,6 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         return result;
     }
 
-    // FIXME 2010-10-26, IA: merge with ExperimntBO, improve speed (number of DB reads)
     static final String ERR_PROJECT_NOT_FOUND =
             "No project for experiment '%s' could be found in the database.";
 

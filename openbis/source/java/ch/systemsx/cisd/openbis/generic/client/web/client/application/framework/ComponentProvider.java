@@ -243,7 +243,7 @@ public final class ComponentProvider
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = ScriptGrid.create(viewContext);
+                    IDisposableComponent component = ScriptGrid.create(viewContext, null);
                     return createTab(getTabTitle(), component);
                 }
 

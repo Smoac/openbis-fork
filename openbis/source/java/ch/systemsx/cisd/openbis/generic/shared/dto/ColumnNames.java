@@ -24,6 +24,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 public final class ColumnNames
 {
 
+    public static final String ENTITY_KIND = "entity_kind";
+
     public static final String AMOUNT_COLUMN = "amount";
 
     public static final String GRID_ID_COLUMN = "grid_id";

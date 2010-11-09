@@ -26,6 +26,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
@@ -68,7 +69,7 @@ public final class ScriptDAOTest extends AbstractDAOTest
         AssertJUnit.assertNull(daoFactory.getScriptDAO().tryFindByName(name));
         String scriptText = SCRIPT;
         String description = DESCRIPTION;
-        final ScriptPE script = createScriptInDB(name, scriptText, description);
+        final ScriptPE script = createScriptInDB(name, scriptText, description, null);
         final ScriptPE retrievedScript = daoFactory.getScriptDAO().tryFindByName(name);
         AssertJUnit.assertNotNull(retrievedScript);
         assertEquals(script.getRegistrator(), retrievedScript.getRegistrator());
@@ -79,12 +80,31 @@ public final class ScriptDAOTest extends AbstractDAOTest
     }
 
     @Test
+    public void testCreateSampleScript()
+    {
+        String name = NAME;
+        AssertJUnit.assertNull(daoFactory.getScriptDAO().tryFindByName(name));
+        String scriptText = SCRIPT;
+        String description = DESCRIPTION;
+        EntityKind entityKind = EntityKind.SAMPLE;
+        final ScriptPE script = createScriptInDB(name, scriptText, description, entityKind);
+        final ScriptPE retrievedScript = daoFactory.getScriptDAO().tryFindByName(name);
+        AssertJUnit.assertNotNull(retrievedScript);
+        assertEquals(script.getRegistrator(), retrievedScript.getRegistrator());
+        assertEquals(script.getDatabaseInstance(), daoFactory.getHomeDatabaseInstance());
+        assertEquals(script.getScript(), scriptText);
+        assertEquals(script.getDescription(), description);
+        assertEquals(script.getName(), name);
+        assertEquals(script.getEntityKind(), entityKind);
+    }
+
+    @Test
     public void testListScripts()
     {
         int initialNumberOfScripts = daoFactory.getScriptDAO().listAllEntities().size();
         int scriptNumber = 1;
         createScriptInDB(createScriptName(scriptNumber), createScriptText(scriptNumber),
-                createScriptDescription(scriptNumber));
+                createScriptDescription(scriptNumber), null);
         final List<ScriptPE> scripts = daoFactory.getScriptDAO().listAllEntities();
         assertEquals(1 + initialNumberOfScripts, scripts.size());
         ScriptPE registered = null;
@@ -104,10 +124,26 @@ public final class ScriptDAOTest extends AbstractDAOTest
     }
 
     @Test
+    public void testListSampleCompatibleScripts()
+    {
+        EntityKind entityKind = EntityKind.SAMPLE;
+        int initialNumberOfScripts = daoFactory.getScriptDAO().listEntities(entityKind).size();
+        int scriptNumber = 1;
+        createScriptInDB(createScriptName(scriptNumber), createScriptText(scriptNumber),
+                createScriptDescription(scriptNumber), entityKind);
+        final List<ScriptPE> scripts = daoFactory.getScriptDAO().listAllEntities();
+        assertEquals(1 + initialNumberOfScripts, scripts.size());
+        for (ScriptPE s : scripts)
+        {
+            AssertJUnit.assertTrue(s.getEntityKind() == null || s.getEntityKind() == entityKind);
+        }
+    }
+
+    @Test
     public final void testDelete()
     {
         assertNull(daoFactory.getScriptDAO().tryFindByName(NAME));
-        ScriptPE script = createScriptInDB(NAME, SCRIPT, DESCRIPTION);
+        ScriptPE script = createScriptInDB(NAME, SCRIPT, DESCRIPTION, null);
         assertNotNull(daoFactory.getScriptDAO().tryFindByName(NAME));
         daoFactory.getScriptDAO().delete(script);
         assertNull(daoFactory.getScriptDAO().tryFindByName(NAME));

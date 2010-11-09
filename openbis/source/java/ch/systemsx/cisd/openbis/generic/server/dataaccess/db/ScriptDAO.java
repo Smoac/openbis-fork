@@ -16,16 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
@@ -72,4 +78,20 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
         return (ScriptPE) criteria.uniqueResult();
     }
 
+    public List<ScriptPE> listEntities(EntityKind entityKindOrNull) throws DataAccessException
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(ScriptPE.class);
+        if (entityKindOrNull != null)
+        {
+            criteria.add(Restrictions.or(Restrictions.isNull("entityKind"),
+                    Restrictions.eq("entityKind", entityKindOrNull)));
+        }
+        final List<ScriptPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s): %d scripts(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), entityKindOrNull, list.size()));
+        }
+        return list;
+    }
 }

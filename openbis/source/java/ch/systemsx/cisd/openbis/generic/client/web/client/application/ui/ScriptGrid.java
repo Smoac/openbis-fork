@@ -48,12 +48,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
@@ -76,17 +78,21 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
 
     private final IDelegatedAction postRegistrationCallback;
 
+    private final EntityKind entityKindOrNull;
+
     public static DisposableEntityChooser<Script> create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+            final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKindOrNull)
     {
-        final ScriptGrid grid = new ScriptGrid(viewContext);
+        final ScriptGrid grid = new ScriptGrid(viewContext, entityKindOrNull);
         grid.extendBottomToolbar();
         return grid.asDisposableWithoutToolbar();
     }
 
-    private ScriptGrid(IViewContext<ICommonClientServiceAsync> viewContext)
+    private ScriptGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+            EntityKind entityKindOrNull)
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.SCRIPTS_BROWSER_GRID);
+        this.entityKindOrNull = entityKindOrNull;
         postRegistrationCallback = createRefreshGridAction();
     }
 
@@ -102,7 +108,8 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                         public void componentSelected(ButtonEvent ce)
                         {
                             AddScriptDialog dialog =
-                                    new AddScriptDialog(viewContext, createRefreshGridAction());
+                                    new AddScriptDialog(viewContext, createRefreshGridAction(),
+                                            entityKindOrNull);
                             dialog.show();
                         }
                     });
@@ -204,7 +211,10 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     protected void listEntities(DefaultResultSetConfig<String, Script> resultSetConfig,
             AbstractAsyncCallback<ResultSet<Script>> callback)
     {
-        viewContext.getService().listScripts(resultSetConfig, callback);
+        ListScriptsCriteria criteria = new ListScriptsCriteria();
+        criteria.copyPagingConfig(resultSetConfig);
+        criteria.setEntityKind(entityKindOrNull);
+        viewContext.getService().listScripts(criteria, callback);
     }
 
     @Override

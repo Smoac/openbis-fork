@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ScriptGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
@@ -35,7 +36,8 @@ public class ScriptChooserField extends ChosenEntitySetter<Script>
 {
 
     public static ScriptChooserField create(final String labelField, final boolean mandatory,
-            String initialValueOrNull, final IViewContext<ICommonClientServiceAsync> viewContext)
+            String initialValueOrNull, final IViewContext<ICommonClientServiceAsync> viewContext,
+            final EntityKind entityKindOrNull)
     {
         final ScriptChooserField field =
                 new ScriptChooserField(mandatory, initialValueOrNull, viewContext)
@@ -44,7 +46,7 @@ public class ScriptChooserField extends ChosenEntitySetter<Script>
                         protected void onTriggerClick(ComponentEvent ce)
                         {
                             super.onTriggerClick(ce);
-                            browseScripts(viewContext, this);
+                            browseScripts(viewContext, this, entityKindOrNull);
                         }
                     };
 
@@ -53,9 +55,10 @@ public class ScriptChooserField extends ChosenEntitySetter<Script>
     }
 
     private static void browseScripts(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<Script> chosenScriptField)
+            final ChosenEntitySetter<Script> chosenScriptField, EntityKind entityKindOrNull)
     {
-        DisposableEntityChooser<Script> scriptBrowser = ScriptGrid.create(viewContext);
+        DisposableEntityChooser<Script> scriptBrowser =
+                ScriptGrid.create(viewContext, entityKindOrNull);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SCRIPT);
         new EntityChooserDialog<Script>(scriptBrowser, chosenScriptField, title, viewContext)
                 .show();

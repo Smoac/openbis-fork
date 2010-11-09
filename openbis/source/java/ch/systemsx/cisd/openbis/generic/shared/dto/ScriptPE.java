@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -42,6 +44,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -66,6 +69,8 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     private DatabaseInstancePE databaseInstance;
 
     private String script;
+
+    private EntityKind entityKind;
 
     //
     // assignments using the script - readonly
@@ -261,4 +266,17 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     {
         this.dataSetAssignments = dataSetAssignments;
     }
+
+    @Column(name = ColumnNames.ENTITY_KIND)
+    @Enumerated(EnumType.STRING)
+    public EntityKind getEntityKind()
+    {
+        return entityKind;
+    }
+
+    public void setEntityKind(EntityKind entityKind)
+    {
+        this.entityKind = entityKind;
+    }
+
 }

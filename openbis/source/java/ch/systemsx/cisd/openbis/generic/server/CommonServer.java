@@ -1815,10 +1815,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return AuthorizationGroupTranslator.translate(persons);
     }
 
-    public List<Script> listScripts(String sessionToken)
+    public List<Script> listScripts(String sessionToken, EntityKind entityKindOrNull)
     {
         checkSession(sessionToken);
-        final List<ScriptPE> scripts = getDAOFactory().getScriptDAO().listAllEntities();
+        final List<ScriptPE> scripts =
+                getDAOFactory().getScriptDAO().listEntities(entityKindOrNull);
         Collections.sort(scripts);
         return ScriptTranslator.translate(scripts);
     }

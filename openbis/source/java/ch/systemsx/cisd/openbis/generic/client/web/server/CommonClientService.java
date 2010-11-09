@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
@@ -436,7 +437,8 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportVocabularyTerms(TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
+    public String prepareExportVocabularyTerms(
+            TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -612,7 +614,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public TypedTableResultSet<Space> listGroups(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
+    public TypedTableResultSet<Space> listGroups(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria)
     {
         SpacesProvider spacesProvider = new SpacesProvider(commonServer, getSessionToken());
         DataProviderAdapter<Space> dataProvider = new DataProviderAdapter<Space>(spacesProvider);
@@ -620,24 +623,24 @@ public final class CommonClientService extends AbstractClientService implements
         return new TypedTableResultSet<Space>(resultSet);
     }
 
-    public ResultSet<Script> listScripts(DefaultResultSetConfig<String, Script> criteria)
+    public ResultSet<Script> listScripts(final ListScriptsCriteria criteria)
     {
         return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Script>()
             {
                 public List<Script> getOriginalData() throws UserFailureException
                 {
-                    return listScripts();
+                    return listScripts(criteria.tryGetEntityKind());
                 }
             });
     }
 
-    private List<Script> listScripts()
+    private List<Script> listScripts(EntityKind entityKindOrNull)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final List<Script> scripts = commonServer.listScripts(sessionToken);
+            final List<Script> scripts = commonServer.listScripts(sessionToken, entityKindOrNull);
             return scripts;
         } catch (final UserFailureException e)
         {

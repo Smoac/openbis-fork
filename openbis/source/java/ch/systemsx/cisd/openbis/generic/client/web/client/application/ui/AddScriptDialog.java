@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -28,8 +30,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 
 /**
  * {@link Window} containing script registration form.
@@ -46,13 +51,18 @@ public class AddScriptDialog extends AbstractRegistrationDialog
 
     private final MultilineVarcharField scriptField;
 
+    private SimpleComboBox<String> entityKindField;
+
     public AddScriptDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final IDelegatedAction postRegistrationCallback)
+            final IDelegatedAction postRegistrationCallback, EntityKind entityKindOrNull)
     {
         super(viewContext, viewContext.getMessage(Dict.ADD_SCRIPT_TITLE), postRegistrationCallback);
         this.viewContext = viewContext;
         this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
         addField(nameField);
+
+        this.entityKindField = createEntityKindOrAllField(entityKindOrNull);
+        addField(entityKindField);
 
         this.descriptionField = createDescriptionField(viewContext);
         addField(descriptionField);
@@ -60,6 +70,29 @@ public class AddScriptDialog extends AbstractRegistrationDialog
         this.scriptField = createScriptField(viewContext);
         new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
         addField(scriptField);
+    }
+
+    private SimpleComboBox<String> createEntityKindOrAllField(EntityKind entityKindOrNull)
+    {
+        SimpleComboBox<String> options = new SimpleComboBox<String>();
+        options.add(Constants.ALL_ENTITY_KINDS);
+        if (entityKindOrNull != null)
+        {
+            options.add(entityKindOrNull.name());
+        } else
+        {
+            for (EntityKind val : EntityKind.values())
+            {
+                options.add(val.name());
+            }
+        }
+        options.setFieldLabel(viewContext.getMessage(Dict.ENTITY_KIND));
+        options.setTriggerAction(TriggerAction.ALL);
+        options.setForceSelection(true);
+        options.setEditable(false);
+        options.setAllowBlank(false);
+        FieldUtil.markAsMandatory(options);
+        return options;
     }
 
     private static MultilineVarcharField createScriptField(
@@ -77,6 +110,13 @@ public class AddScriptDialog extends AbstractRegistrationDialog
         newScript.setDescription(descriptionField.getValue());
         newScript.setName(nameField.getValue());
         newScript.setScript(scriptField.getValue());
+        EntityKind kind = null;
+        String selectedEntityKind = entityKindField.getValue().getValue();
+        if (selectedEntityKind.equals(Constants.ALL_ENTITY_KINDS) == false)
+        {
+            kind = EntityKind.valueOf(selectedEntityKind);
+        }
+        newScript.setEntityKind(kind);
         viewContext.getService().registerScript(newScript, registrationCallback);
     }
 }

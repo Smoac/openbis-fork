@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -112,8 +113,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listGroups(DefaultResultSetConfig<String, TableModelRowWithObject<Space>> criteria,
             final AsyncCallback<TypedTableResultSet<Space>> asyncCallback);
 
-    /** @see ICommonClientService#listScripts(DefaultResultSetConfig) */
-    public void listScripts(DefaultResultSetConfig<String, Script> criteria,
+    /** @see ICommonClientService#listScripts(ListScriptsCriteria) */
+    public void listScripts(ListScriptsCriteria criteria,
             final AsyncCallback<ResultSet<Script>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportScripts(TableExportCriteria) */
@@ -121,7 +122,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#prepareExportGroups(TableExportCriteria) */
-    public void prepareExportGroups(TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
+    public void prepareExportGroups(
+            TableExportCriteria<TableModelRowWithObject<Space>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#registerGroup(String, String) */
@@ -276,7 +278,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#listVocabularyTerms(Vocabulary, DefaultResultSetConfig)
      */
-    public void listVocabularyTerms(Vocabulary vocabulary,
+    public void listVocabularyTerms(
+            Vocabulary vocabulary,
             DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<VocabularyTermWithStats>> callback);
 

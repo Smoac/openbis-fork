@@ -320,7 +320,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public final List<Script> listScripts(final String sessionToken)
+    public final List<Script> listScripts(final String sessionToken, EntityKind entityKindOrNull)
     {
         logAccess(sessionToken, "list_scripts");
         return null;

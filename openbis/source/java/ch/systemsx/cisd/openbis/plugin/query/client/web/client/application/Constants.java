@@ -26,5 +26,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 public class Constants
 {
     public static final String QUERY_ID_PREFIX = GenericConstants.ID_PREFIX + "query-module" ;
+    public static final String ALL_ENTITY_KINDS = "(All)";
 
 }

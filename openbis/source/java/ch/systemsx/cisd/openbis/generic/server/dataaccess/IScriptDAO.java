@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
+import org.springframework.dao.DataAccessException;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
@@ -35,5 +40,10 @@ public interface IScriptDAO extends IGenericDAO<ScriptPE>
      * Returns script with given name or null if no such script exists.
      */
     ScriptPE tryFindByName(String scriptName);
+
+    /**
+     * Returns entities.
+     */
+    public List<ScriptPE> listEntities(EntityKind entityKindOrNull) throws DataAccessException;
 
 }

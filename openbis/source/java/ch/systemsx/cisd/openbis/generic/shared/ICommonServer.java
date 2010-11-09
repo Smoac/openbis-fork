@@ -127,13 +127,14 @@ public interface ICommonServer extends IServer
     public void keepSessionAlive(String sessionToken);
 
     /**
-     * Returns all scripts.
+     * Returns scripts compatible with selected {@link EntityKind} and all the scripts if
+     * {@link EntityKind} is not specified.
      * 
      * @return a sorted list of {@link Script}s.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<Script> listScripts(String sessionToken);
+    public List<Script> listScripts(String sessionToken, EntityKind entityKindOrNull);
 
     /**
      * Returns all spaces which belong to the specified database instance. *

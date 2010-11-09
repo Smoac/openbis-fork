@@ -38,6 +38,18 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
 
     private String script;
 
+    private EntityKind entityKind;
+
+    public EntityKind getEntityKind()
+    {
+        return entityKind;
+    }
+
+    public void setEntityKind(EntityKind entityKind)
+    {
+        this.entityKind = entityKind;
+    }
+
     public Script()
     {
     }
