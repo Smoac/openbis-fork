@@ -267,7 +267,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     private SamplePE tryFindContainedSampleWithUniqueSubcode(Criteria criteria, String sampleCode)
     {
-        addContainedCodeCriterion(criteria, sampleCode);
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
+        criteria.add(Restrictions.isNotNull("container"));
         List<SamplePE> list = cast(criteria.list());
         return list.size() == 1 ? list.get(0) : null;
     }
@@ -302,6 +303,16 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         addSampleContainerCriterion(criteria, containerCodeOrNull);
     }
 
+    private void addSampleCodeCriterion(Criteria criteria, String sampleCode)
+    {
+        String[] sampleCodeTokens =
+                sampleCode.split(SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
+        String subCode = sampleCodeTokens.length > 1 ? sampleCodeTokens[1] : sampleCode;
+        String containerCodeOrNull = sampleCodeTokens.length > 1 ? sampleCodeTokens[0] : null;
+        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(subCode)));
+        addSampleContainerCriterion(criteria, containerCodeOrNull);
+    }
+
     private void addSampleContainerCriterion(Criteria criteria, String containerCodeOrNull)
     {
         if (containerCodeOrNull != null)
@@ -312,22 +323,6 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         {
             criteria.add(Restrictions.isNull("container"));
         }
-    }
-
-    private void addSampleCodeCriterion(Criteria criteria, String sampleCode)
-    {
-        String[] sampleCodeTokens =
-                sampleCode.split(SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
-        String subCode = sampleCodeTokens.length > 1 ? sampleCodeTokens[1] : sampleCode;
-        String containerCodeOrNull = sampleCodeTokens.length > 1 ? sampleCodeTokens[0] : null;
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(subCode)));
-        addContainedCodeCriterion(criteria, containerCodeOrNull);
-    }
-
-    private void addContainedCodeCriterion(Criteria criteria, String sampleCode)
-    {
-        criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(sampleCode)));
-        criteria.add(Restrictions.isNotNull("container"));
     }
 
     public final void createSamples(final List<SamplePE> samples) throws DataAccessException
