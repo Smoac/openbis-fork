@@ -20,14 +20,18 @@
 	<property name="classes.openbis" value="../openbis/targets/ant/classes" />
 	<property name="classes.common-server" value="../server-common/targets/ant/classes" />
   <property name="classes.common" value="../common/targets/ant/classes" />
-		
+	
   <target name="compile" depends="build-common.compile, clean" />
 
   <!--
         // Task for creating distributions
         -->
 	
-  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api" />
+  <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api">
+  	<zip destfile="${server.dist.file" update="true">
+  		<zipfileset file="${jars.to.be.signed.zip}"/>
+  	</zip>
+ 	</target>
   
   <target name="dss-plugin-jar" depends="compile">
 		<mkdir dir="${dist}/data" />
@@ -148,6 +152,98 @@
       <param name="gwt.module.name" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
     </antcall>
   </target>
+	
+	<target name="prepare-gwt" depends="openbis.prepare-gwt, jar"/>
+	
+	<target name="jar" depends="openbis.jar">
+	  <property name="dist.file.name"
+	            value="${ant.project.name}-${version.number}-r${revision.number}" />
+	  <property name="jars.to.be.signed" value="${dist.file.name}_jars_to_be_signed" />
+	  <property name="jars.to.be.signed.dir" value="${targets}/${jars.to.be.signed}" />
+	  <property name="jars.to.be.signed.zip" value="${dist}/${jars.to.be.signed}.zip" />
+		<property name="targets.www.openbis" value="${targets.www}/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS"/>
+			
+
+		<delete dir="${targets.www.openbis}" />
+		<mkdir dir="${targets.www.openbis}" />
+		<delete dir="${jars.to.be.signed.dir}" />
+		<mkdir dir="${jars.to.be.signed.dir}" />
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${dist}" />
+			<param name="jar" value="${jar.file.name}" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/cisd-base" />
+			<param name="jar" value="cisd-base.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring" />
+			<param name="jar" value="spring-web.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring" />
+			<param name="jar" value="spring-context.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring" />
+			<param name="jar" value="spring-beans.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring" />
+			<param name="jar" value="spring-core.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring" />
+			<param name="jar" value="spring-aop.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring/third-party" />
+			<param name="jar" value="aopalliance.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/spring/third-party" />
+			<param name="jar" value="stream-supporting-httpinvoker.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-httpclient" />
+			<param name="jar" value="commons-httpclient.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-codec" />
+			<param name="jar" value="commons-codec.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-io" />
+			<param name="jar" value="commons-io.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-lang" />
+			<param name="jar" value="commons-lang.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/commons-logging" />
+			<param name="jar" value="commons-logging.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/imagej" />
+			<param name="jar" value="ij.jar" />
+		</antcall>
+		<zip destfile="${jars.to.be.signed.zip}"
+		     basedir="${targets}"
+		     includes="${jars.to.be.signed}/**" />
+    <delete dir="${jars.to.be.signed.dir}" failonerror="true" />
+	</target>
+	
+	<target name="copy-and-sign-jar">
+		<copy file="${dir}/${jar}" todir="${targets.www.openbis}" />
+		<copy file="${dir}/${jar}" todir="${jars.to.be.signed.dir}" />
+		<signjar jar="${targets.www}/${jar}"
+		         keystore="etc/dev.keystore"
+		         alias="openbis"
+		         storepass="openbistest"
+		         keypass="openbistest" />
+	</target>
+
 
   <!--
         // Creates WAR file.
