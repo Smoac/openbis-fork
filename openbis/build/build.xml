@@ -309,10 +309,8 @@
     qualified name of the module.
   -->
   <target name="compile-gwt-module">
-    <delete dir="${webapp.dist}" >
-    	<fileset>
-    		<exclude name="*.jar"/>
-    	</fileset>
+    <delete>
+    	<fileset dir="${webapp.dist}" excludes="*.jar"/>
   	</delete>
     <java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../common/${sources}:../openbis/${sources}:${sources}" 
     	classname="com.google.gwt.dev.Compiler" fork="true">
