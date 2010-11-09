@@ -157,10 +157,24 @@ class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl
     private static class Visitor implements ReflectionStringTraverser.ReflectionFieldVisitor
     {
 
+        private final HashSet<String> unescapedProperties;
+
+        private Visitor()
+        {
+            unescapedProperties = new HashSet<String>();
+            // Don't escape these properties
+            unescapedProperties.add("permlink");
+        }
+
         public String tryVisit(String value, Object object, Field fieldOrNull)
         {
-            // Only change the value if the name of the field is in the list provided
             if (null == fieldOrNull)
+            {
+                return StringEscapeUtils.escapeHtml(value);
+            }
+
+            // Don't escape the ones that are specified as not to be escaped
+            if (unescapedProperties.contains(fieldOrNull.getName()))
             {
                 return null;
             }
