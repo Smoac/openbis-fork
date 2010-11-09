@@ -118,4 +118,6 @@ public final class GenericConstants
     public static final String EMAIL_REGEX =
             "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
 
+    public static final String ALL_ENTITY_KINDS = "(All)";
+
 }
