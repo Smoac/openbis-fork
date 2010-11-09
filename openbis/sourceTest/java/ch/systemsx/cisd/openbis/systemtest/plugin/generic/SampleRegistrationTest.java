@@ -22,6 +22,7 @@ import static org.testng.AssertJUnit.fail;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
@@ -65,7 +66,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         sampleType.setCode(CELL_PLATE);
         sample.setSampleType(sampleType);
         sample.setProperties(new IEntityProperty[]
-            { property("COMMENT", "test sample") });
+            { property("COMMENT", "test samplé") });
         // tested:
         // - ignore case
         // - support for both code and identifiers (with and without db instance)
@@ -79,11 +80,11 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         assertEquals(CELL_PLATE, s.getSampleType().getCode());
         List<IEntityProperty> properties = s.getProperties();
         assertEquals("COMMENT", properties.get(0).getPropertyType().getCode());
-        assertEquals("test sample", properties.get(0).getValue());
+        assertEquals(StringEscapeUtils.escapeHtml("test samplé"), properties.get(0).getValue());
         assertEquals(1, properties.size());
         assertEquals(3, s.getParents().size());
-        assertEquals("[CISD:/CISD/C1, CISD:/CISD/C2, CISD:/CISD/C3]", Arrays
-                .toString(IdentifierExtractor.extract(s.getParents()).toArray()));
+        assertEquals("[CISD:/CISD/C1, CISD:/CISD/C2, CISD:/CISD/C3]",
+                Arrays.toString(IdentifierExtractor.extract(s.getParents()).toArray()));
     }
 
     @Test

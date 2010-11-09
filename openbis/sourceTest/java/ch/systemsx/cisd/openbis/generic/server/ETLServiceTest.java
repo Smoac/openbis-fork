@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -214,8 +215,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         } catch (ConfigurationFailureException e)
         {
             assertEquals(
-                    "Data Store Server version is " + (VERSION + 1) + " instead of " + VERSION, e
-                            .getMessage());
+                    "Data Store Server version is " + (VERSION + 1) + " instead of " + VERSION,
+                    e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -386,7 +387,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
-        assertEquals(property.getValue(), properties[0].getValue());
+        assertEquals(StringEscapeUtils.escapeHtml(property.getValue()), properties[0].getValue());
         context.assertIsSatisfied();
     }
 
@@ -433,7 +434,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
-        assertEquals(property.getValue(), properties[0].getValue());
+        assertEquals(StringEscapeUtils.escapeHtml(property.getValue()), properties[0].getValue());
         context.assertIsSatisfied();
     }
 
@@ -454,7 +455,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     private SamplePropertyPE setAnyProperty(SamplePE top)
     {
         SamplePropertyPE property =
-                createSamplePropertyPE("type code", DataTypeCode.VARCHAR, "The Value");
+                createSamplePropertyPE("type code", DataTypeCode.VARCHAR, "The Valüe");
 
         top.setProperties(new LinkedHashSet<SamplePropertyPE>(Arrays.asList(property)));
         return property;
@@ -535,8 +536,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
-        assertEquals(id, createService().registerSample(SESSION_TOKEN, sample,
-                CommonTestUtils.USER_ID));
+        assertEquals(id,
+                createService().registerSample(SESSION_TOKEN, sample, CommonTestUtils.USER_ID));
 
         context.assertIsSatisfied();
     }
@@ -566,8 +567,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
-        assertEquals(id, createService().registerSample(SESSION_TOKEN, sample,
-                CommonTestUtils.USER_ID));
+        assertEquals(id,
+                createService().registerSample(SESSION_TOKEN, sample, CommonTestUtils.USER_ID));
 
         context.assertIsSatisfied();
     }

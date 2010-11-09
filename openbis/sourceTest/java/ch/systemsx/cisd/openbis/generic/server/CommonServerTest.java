@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.hamcrest.core.IsEqual;
 import org.jmock.Expectations;
@@ -364,6 +365,12 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(person.getEmail(), persons.get(0).getEmail());
         assertEquals(person.getDatabaseInstance(), persons.get(0).getDatabaseInstance());
         assertEquals(1, persons.size());
+
+        // Check that strings are being escaped
+        assertEquals(StringEscapeUtils.escapeHtml(personPE.getFirstName()), person.getFirstName());
+        assertEquals(StringEscapeUtils.escapeHtml(personPE.getLastName()), person.getLastName());
+        assertEquals(StringEscapeUtils.escapeHtml(personPE.getEmail()), person.getEmail());
+        assertEquals(StringEscapeUtils.escapeHtml(personPE.getUserId()), person.getUserId());
 
         context.assertIsSatisfied();
     }
@@ -872,7 +879,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testAddVocabularyTerms()
     {
-        final List<String> terms = Arrays.asList("a", "b");
+        final List<String> terms = Arrays.asList("aöé", "büç");
         final TechId vocabularyId = CommonTestUtils.TECH_ID;
         final Long previousTermOrdinal = 0L;
         prepareGetSession();
@@ -1444,6 +1451,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final ExperimentIdentifier experimentIdentifier =
                 CommonTestUtils.createExperimentIdentifier();
         final ExperimentPE experimentPE = CommonTestUtils.createExperiment(experimentIdentifier);
+        experimentPE.setPermId("<b>permId</b>");
         context.checking(new Expectations()
             {
                 {
@@ -1463,6 +1471,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(experimentPE.getCode(), experiment.getCode());
         assertEquals(experimentPE.getExperimentType().getCode(), experiment.getExperimentType()
                 .getCode());
+        assertEquals(StringEscapeUtils.escapeHtml(experimentPE.getPermId()), experiment.getPermId());
         context.assertIsSatisfied();
     }
 }

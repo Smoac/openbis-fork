@@ -85,8 +85,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public abstract class AbstractServerTestCase extends AssertJUnit
 {
-    protected static final Principal PRINCIPAL = new Principal(CommonTestUtils.USER_ID, "john",
-            "doe", "j@d");
+    protected static final Principal PRINCIPAL = new Principal(CommonTestUtils.USER_ID, "jöhn<>",
+            "doé", "j@d");
 
     protected static final String SESSION_TOKEN = "session-token";
 

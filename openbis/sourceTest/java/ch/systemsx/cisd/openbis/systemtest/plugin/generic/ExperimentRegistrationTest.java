@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
@@ -69,8 +70,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Value of mandatory property 'DESCRIPTION' not specified.", ex
-                    .getMessage());
+            assertEquals("Value of mandatory property 'DESCRIPTION' not specified.",
+                    ex.getMessage());
         }
     }
 
@@ -82,7 +83,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
-            { property("DESCRIPTION", "my experiment") });
+            { property("DESCRIPTION", "my éxpériment") });
         genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
                 newExperiment);
 
@@ -92,7 +93,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("SIRNA_HCS", experiment.getExperimentType().getCode());
         List<IEntityProperty> properties = experiment.getProperties();
         assertEquals("DESCRIPTION", properties.get(0).getPropertyType().getCode());
-        assertEquals("my experiment", properties.get(0).tryGetAsString());
+        assertEquals(StringEscapeUtils.escapeHtml("my éxpériment"), properties.get(0)
+                .tryGetAsString());
         assertEquals(1, properties.size());
     }
 
@@ -155,8 +157,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             {
                 public int compare(GridRowModel<Sample> o1, GridRowModel<Sample> o2)
                 {
-                    return o1.getOriginalObject().getCode().compareTo(
-                            o2.getOriginalObject().getCode());
+                    return o1.getOriginalObject().getCode()
+                            .compareTo(o2.getOriginalObject().getCode());
                 }
             });
         Sample sample = list.get(0).getOriginalObject();

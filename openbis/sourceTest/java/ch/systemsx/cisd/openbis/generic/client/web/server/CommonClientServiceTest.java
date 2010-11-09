@@ -152,7 +152,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         commonClientService.setCifexURL(CIFEX_URL);
         commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
     }
-    
+
     @Test
     public void testGetExperimentInfoByIdentifier()
     {
@@ -164,16 +164,20 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     one(commonServer).getExperimentInfo(SESSION_TOKEN,
                             new ExperimentIdentifier("p1", "exp1"));
                     Experiment experiment = new Experiment();
+                    // Check that escaping is performed
+                    experiment.setPermId("<b>permId</b>");
                     experiment.setProperties(Arrays.asList(createXmlProperty()));
                     will(returnValue(experiment));
                 }
             });
-        
+
         Experiment info = commonClientService.getExperimentInfo("p1/exp1");
-        
+
         IEntityProperty transformedXMLProperty = info.getProperties().get(0);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>", transformedXMLProperty.tryGetAsString());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
+                transformedXMLProperty.tryGetAsString());
         assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
+        assertEquals("<b>permId</b>", info.getPermId());
         context.assertIsSatisfied();
     }
 
@@ -192,15 +196,16 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(experiment));
                 }
             });
-        
+
         Experiment info = commonClientService.getExperimentInfo(id);
-        
+
         IEntityProperty transformedXMLProperty = info.getProperties().get(0);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>", transformedXMLProperty.tryGetAsString());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
+                transformedXMLProperty.tryGetAsString());
         assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
         context.assertIsSatisfied();
     }
-    
+
     private IEntityProperty createXmlProperty()
     {
         GenericValueEntityProperty property = new GenericValueEntityProperty();
@@ -214,7 +219,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         property.setValue("<root>hello</root>");
         return property;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public final void testListSamples()

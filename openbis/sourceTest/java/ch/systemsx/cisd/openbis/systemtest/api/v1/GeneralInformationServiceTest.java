@@ -191,6 +191,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.listExperiments(sessionToken, projects, "SIRNA_HCS");
         assertEquals(true, result.size() > 0);
         Experiment resultExperiment = result.get(0);
-        assertEquals("/CISD/DEFAULT/EXP-REUSE", resultExperiment.getIdentifier());
+        boolean identifierIsOk = "/CISD/DEFAULT/EXP-REUSE".equals(resultExperiment.getIdentifier());
+        identifierIsOk |= "/CISD/NEMO/EXP-TEST-2".equals(resultExperiment.getIdentifier());
+        assertEquals("Experiment should be: " + resultExperiment.getIdentifier(), true,
+                identifierIsOk);
     }
 }
