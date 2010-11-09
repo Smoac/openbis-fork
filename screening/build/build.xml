@@ -28,7 +28,7 @@
         -->
 	
   <target name="dist" depends="openbis.make-dist, make-full-dss-dist, dss-plugin-jar, datastore_server.make-plugin-dist, screening-api">
-  	<zip destfile="${server.dist.file}" update="true">
+  	<zip update="true" destfile="${server.dist.file}">
   		<zipfileset file="${jars.to.be.signed.zip}"/>
   	</zip>
  	</target>
@@ -166,6 +166,14 @@
 		<mkdir dir="${targets.www.openbis}" />
 		<delete dir="${jars.to.be.signed.dir}" />
 		<mkdir dir="${jars.to.be.signed.dir}" />
+		<zip update="true" destfile="${dist}/${jar.file.name}">
+	    <zipfileset src="${lib}/gwt2.0/gwt-user.jar">
+	      <include name="com/google/gwt/user/client/rpc/IsSerializable.class" />
+	      <include name="com/google/gwt/user/client/rpc/SerializableException.class" />
+	    </zipfileset>
+	  </zip>
+		
+
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${dist}" />
 			<param name="jar" value="${jar.file.name}" />

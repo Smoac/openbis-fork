@@ -67,13 +67,21 @@ public class ImageViewerLaunchServlet extends AbstractServlet
                         + "  </security>\n"
                         + "  <resources>\n"
                         + "    <j2se version='1.5+'/>\n"
+                        + "    <jar href='screening.jar'/>\n"
                         + "    <jar href='cisd-base.jar'/>\n"
-                        + "    <jar href='spring.jar'/>\n"
+                        + "    <jar href='spring-web.jar'/>\n"
+                        + "    <jar href='spring-context.jar'/>\n"
+                        + "    <jar href='spring-beans.jar'/>\n"
+                        + "    <jar href='spring-aop.jar'/>\n"
+                        + "    <jar href='spring-core.jar'/>\n"
+                        + "    <jar href='aopalliance.jar'/>\n"
+                        + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
                         + "    <jar href='commons-codec.jar'/>\n"
                         + "    <jar href='commons-httpclient.jar'/>\n"
                         + "    <jar href='commons-io.jar'/>\n"
                         + "    <jar href='commons-lang.jar'/>\n"
                         + "    <jar href='commons-logging.jar'/>\n"
+                        + "    <jar href='ij.jar'/>\n"
                         + "  </resources>\n"
                         + "  <application-desc main-class='${main-class}'>\n"
                         + "    <argument>${service-URL}</argument>\n"
@@ -102,9 +110,9 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             template.bind("title", "Image Viewer");
             template.bind("description", "Image Viewer for testing image transformations.");
             String basicURL = getBasicURL(request);
-            template.bind("base-URL", basicURL);
-            template.bind("main-class", "blabla");
-            template.bind("service-URL", basicURL + "/blabla");
+            template.bind("base-URL", createBaseURL(request));
+            template.bind("main-class", getMainClass());
+            template.bind("service-URL", basicURL);
             template.bind("session-id", getSessionToken(request));
             template.bind("experiment-id", getParam(request, ParameterNames.EXPERIMENT_ID));
             template.bind("channel", getParam(request, ParameterNames.CHANNEL));
@@ -120,6 +128,24 @@ public class ImageViewerLaunchServlet extends AbstractServlet
         {
             printError(response, ex.getMessage());
         }
+    }
+    
+    private String getMainClass()
+    {
+        return "ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ImageViewer";
+    }
+    
+    private String createBaseURL(HttpServletRequest request)
+    {
+        String url = getBasicURL(request);
+        if (url.indexOf("localhost:8888") > 0 || url.indexOf("127.0.0.1:888") > 0)
+        {
+            url = url + "/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/";
+        } else
+        {
+            url = url + "/";
+        }
+        return url;
     }
     
     private String getBasicURL(HttpServletRequest request)
