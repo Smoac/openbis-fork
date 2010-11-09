@@ -24,6 +24,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
@@ -34,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
-import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 
 /**
  * {@link Window} containing script registration form.
@@ -75,7 +75,7 @@ public class AddScriptDialog extends AbstractRegistrationDialog
     private SimpleComboBox<String> createEntityKindOrAllField(EntityKind entityKindOrNull)
     {
         SimpleComboBox<String> options = new SimpleComboBox<String>();
-        options.add(Constants.ALL_ENTITY_KINDS);
+        options.add(GenericConstants.ALL_ENTITY_KINDS);
         if (entityKindOrNull != null)
         {
             options.add(entityKindOrNull.name());
@@ -112,7 +112,7 @@ public class AddScriptDialog extends AbstractRegistrationDialog
         newScript.setScript(scriptField.getValue());
         EntityKind kind = null;
         String selectedEntityKind = entityKindField.getValue().getValue();
-        if (selectedEntityKind.equals(Constants.ALL_ENTITY_KINDS) == false)
+        if (selectedEntityKind.equals(GenericConstants.ALL_ENTITY_KINDS) == false)
         {
             kind = EntityKind.valueOf(selectedEntityKind);
         }
