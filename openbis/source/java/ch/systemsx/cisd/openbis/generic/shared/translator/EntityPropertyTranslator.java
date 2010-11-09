@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -60,7 +59,32 @@ public final class EntityPropertyTranslator
                         false));
                 break;
             default:
-                result.setValue(StringEscapeUtils.escapeHtml(propertyPE.tryGetUntypedValue()));
+                result.setValue(propertyPE.tryGetUntypedValue());
+                ReflectingStringEscaper.escapeShallow(result, "value");
+        }
+        return result;
+    }
+
+    public static IEntityProperty translateWithoutEscaping(EntityPropertyPE propertyPE,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
+    {
+        final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
+        final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
+        result.setPropertyType(PropertyTypeTranslator.translate(propertyPE
+                .getEntityTypePropertyType().getPropertyType(), cacheOrNull));
+        result.setOrdinal(propertyPE.getEntityTypePropertyType().getOrdinal());
+        switch (typeCode)
+        {
+            case CONTROLLEDVOCABULARY:
+                result.setVocabularyTerm(VocabularyTermTranslator
+                        .translateWithoutEscaping(propertyPE.getVocabularyTerm()));
+                break;
+            case MATERIAL:
+                result.setMaterial(MaterialTranslator.translateWithoutEscaping(
+                        propertyPE.getMaterialValue(), false));
+                break;
+            default:
+                result.setValue(propertyPE.tryGetUntypedValue());
         }
         return result;
     }
@@ -76,6 +100,22 @@ public final class EntityPropertyTranslator
         for (final EntityPropertyPE property : list)
         {
             result.add(translate(property, cacheOrNull));
+        }
+        return result;
+    }
+
+    public final static List<IEntityProperty> translateWithoutEscaping(
+            final Set<? extends EntityPropertyPE> list,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
+    {
+        if (list == null)
+        {
+            return null;
+        }
+        final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
+        for (final EntityPropertyPE property : list)
+        {
+            result.add(translateWithoutEscaping(property, cacheOrNull));
         }
         return result;
     }

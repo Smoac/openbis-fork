@@ -22,8 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
@@ -44,13 +43,32 @@ public class VocabularyTermTranslator
         }
         VocabularyTerm result = new VocabularyTerm();
         result.setId(HibernateUtils.getId(vt));
-        result.setCode(StringEscapeUtils.escapeHtml(vt.getCode()));
-        result.setLabel(StringEscapeUtils.escapeHtml(vt.getLabel()));
-        result.setDescription(StringEscapeUtils.escapeHtml(vt.getDescription()));
+        result.setCode(vt.getCode());
+        result.setLabel(vt.getLabel());
+        result.setDescription(vt.getDescription());
         result.setOrdinal(vt.getOrdinal());
-        result.setUrl(StringEscapeUtils.escapeHtml(vt.getUrl()));
+        result.setUrl(vt.getUrl());
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
+
+        return ReflectingStringEscaper.escapeShallow(result, "code", "label", "description", "url");
+    }
+
+    public static VocabularyTerm translateWithoutEscaping(VocabularyTermPE vt)
+    {
+        if (vt == null)
+        {
+            return null;
+        }
+        VocabularyTerm result = new VocabularyTerm();
+        result.setId(HibernateUtils.getId(vt));
+        result.setCode(vt.getCode());
+        result.setLabel(vt.getLabel());
+        result.setDescription(vt.getDescription());
+        result.setOrdinal(vt.getOrdinal());
+        result.setUrl(vt.getUrl());
+        result.setRegistrationDate(vt.getRegistrationDate());
+        result.setRegistrator(PersonTranslator.translateWithoutEscaping(vt.getRegistrator()));
         return result;
     }
 

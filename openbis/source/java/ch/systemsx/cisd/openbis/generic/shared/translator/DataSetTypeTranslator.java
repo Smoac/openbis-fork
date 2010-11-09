@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -48,18 +47,17 @@ public class DataSetTypeTranslator
             return null;
         }
         final DataSetType result = new DataSetType();
-        result.setCode(StringEscapeUtils.escapeHtml(entityTypeOrNull.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
+        result.setCode(entityTypeOrNull.getCode());
+        result.setDescription(entityTypeOrNull.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
         result.setDataSetTypePropertyTypes(EntityType
-                .sortedInternally(DataSetTypePropertyTypeTranslator.translate(entityTypeOrNull
-                        .getDataSetTypePropertyTypes(), result, cacheOrNull)));
-        result.setMainDataSetPath(StringEscapeUtils.escapeHtml(entityTypeOrNull
-                .getMainDataSetPath()));
-        result.setMainDataSetPattern(StringEscapeUtils.escapeHtml(entityTypeOrNull
-                .getMainDataSetPattern()));
-        return result;
+                .sortedInternally(DataSetTypePropertyTypeTranslator.translate(
+                        entityTypeOrNull.getDataSetTypePropertyTypes(), result, cacheOrNull)));
+        result.setMainDataSetPath(entityTypeOrNull.getMainDataSetPath());
+        result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description",
+                "mainDataSetPath", "mainDataSetPattern");
     }
 
     public static List<DataSetType> translate(List<DataSetTypePE> dataSetTypes,

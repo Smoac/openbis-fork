@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -43,6 +42,7 @@ import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
@@ -231,7 +231,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
         return map;
     }
-    
+
     public Map<Sample, List<ExternalData>> listAllDataSetsFor(List<Sample> samples)
     {
         TableMap<Long, Sample> samplesByID =
@@ -521,18 +521,20 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         ExternalData dataset = createBasicDataset(record);
         dataset.setId(record.id);
         dataset.setComplete(resolve(record.is_complete));
-        dataset.setDataProducerCode(escapeHtml(record.data_producer_code));
+        dataset.setDataProducerCode(record.data_producer_code);
         dataset.setDataStore(dataStores.get(record.dast_id));
         dataset.setDerived(record.is_derived);
         dataset.setStatus(DataSetArchivingStatus.valueOf(record.status));
 
         dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));
-        dataset.setLocation(escapeHtml(record.location));
+        dataset.setLocation(record.location);
         dataset.setLocatorType(locatorTypes.get(record.loty_id));
         dataset.setProductionDate(record.production_timestamp);
         dataset.setRegistrationDate(record.registration_timestamp);
         dataset.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
         dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
+
+        ReflectingStringEscaper.escapeShallow(dataset, "dataProducerCode", "location");
 
         if (record.samp_id != null)
         {
@@ -560,12 +562,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private ExternalData createBasicDataset(DatasetRecord record)
     {
         ExternalData dataset = new ExternalData();
-        dataset.setCode(escapeHtml(record.code));
+        dataset.setCode(record.code);
         dataset.setDataSetType(dataSetTypes.get(record.dsty_id));
         dataset.setId(record.id);
         dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.DATA_SET,
                 record.code));
 
+        ReflectingStringEscaper.escapeShallow(dataset, "code");
         return dataset;
     }
 
@@ -598,7 +601,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     private static void setCode(Code<?> codeHolder, CodeRecord codeRecord)
     {
-        codeHolder.setCode(escapeHtml(codeRecord.code));
+        codeHolder.setCode(codeRecord.code);
+        ReflectingStringEscaper.escapeShallow(codeHolder, "code");
     }
 
     private static DataStore createDataStore(DataStoreRecord codeRecord)

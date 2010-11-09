@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -117,8 +118,8 @@ public class ExternalDataTranslator
     {
         if (HibernateUtils.isInitialized(externalDataPE.getProperties()))
         {
-            externalData.setDataSetProperties(EntityPropertyTranslator.translate(externalDataPE
-                    .getProperties(), new HashMap<PropertyTypePE, PropertyType>()));
+            externalData.setDataSetProperties(EntityPropertyTranslator.translate(
+                    externalDataPE.getProperties(), new HashMap<PropertyTypePE, PropertyType>()));
         } else
         {
             externalData.setDataSetProperties(new ArrayList<IEntityProperty>());
@@ -176,12 +177,11 @@ public class ExternalDataTranslator
     private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
     {
         sample.setId(HibernateUtils.getId(samplePE));
-        sample.setPermId(StringEscapeUtils.escapeHtml(samplePE.getPermId()));
+        sample.setPermId(samplePE.getPermId());
         SampleTranslator.setCodes(sample, samplePE);
         sample.setInvalidation(translateInvalidation(samplePE.getInvalidation()));
         sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
-        sample.setIdentifier(StringEscapeUtils
-                .escapeHtml(samplePE.getSampleIdentifier().toString()));
+        sample.setIdentifier(samplePE.getSampleIdentifier().toString());
         sample.setRegistrationDate(samplePE.getRegistrationDate());
         sample.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
         sample.setSpace(GroupTranslator.translate(samplePE.getGroup()));
@@ -190,7 +190,7 @@ public class ExternalDataTranslator
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
                     new HashMap<PropertyTypePE, PropertyType>()));
         }
-        return sample;
+        return ReflectingStringEscaper.escapeShallow(sample, "permId", "identifier");
     }
 
     private static void setChildren(ExternalDataPE externalDataPE, ExternalData externalData)
@@ -216,6 +216,6 @@ public class ExternalDataTranslator
         externalData.setCode(StringEscapeUtils.escapeHtml(dataPE.getCode()));
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
-        return externalData;
+        return ReflectingStringEscaper.escapeShallow(externalData, "code");
     }
 }

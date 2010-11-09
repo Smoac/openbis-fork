@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -61,14 +60,35 @@ public final class ProjectTranslator
         final Project result = new Project();
         result.setId(HibernateUtils.getId(project));
         result.setModificationDate(project.getModificationDate());
-        result.setCode(StringEscapeUtils.escapeHtml(project.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(project.getDescription()));
+        result.setCode(project.getCode());
+        result.setDescription(project.getDescription());
         result.setSpace(GroupTranslator.translate(project.getGroup()));
         result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
         result.setRegistrator(PersonTranslator.translate(project.getRegistrator()));
         result.setRegistrationDate(project.getRegistrationDate());
-        result.setIdentifier(StringEscapeUtils.escapeHtml(IdentifierHelper.createProjectIdentifier(
-                project).toString()));
+        result.setIdentifier(IdentifierHelper.createProjectIdentifier(project).toString());
+        // we don't use attachments collection directly from project
+        List<Attachment> attachments = DtoConverters.createUnmodifiableEmptyList();
+        result.setAttachments(attachments);
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description", "identifier");
+    }
+
+    public final static Project translateWithoutEscaping(final ProjectPE project)
+    {
+        if (project == null)
+        {
+            return null;
+        }
+        final Project result = new Project();
+        result.setId(HibernateUtils.getId(project));
+        result.setModificationDate(project.getModificationDate());
+        result.setCode(project.getCode());
+        result.setDescription(project.getDescription());
+        result.setSpace(GroupTranslator.translate(project.getGroup()));
+        result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
+        result.setRegistrator(PersonTranslator.translate(project.getRegistrator()));
+        result.setRegistrationDate(project.getRegistrationDate());
+        result.setIdentifier(IdentifierHelper.createProjectIdentifier(project).toString());
         // we don't use attachments collection directly from project
         List<Attachment> attachments = DtoConverters.createUnmodifiableEmptyList();
         result.setAttachments(attachments);

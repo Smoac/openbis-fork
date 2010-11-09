@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 
@@ -41,9 +40,23 @@ public final class InvalidationTranslator
             return null;
         }
         final Invalidation newInvalidation = new Invalidation();
-        newInvalidation.setReason(StringEscapeUtils.escapeHtml(invalidation.getReason()));
+        newInvalidation.setReason(invalidation.getReason());
         newInvalidation.setRegistrationDate(invalidation.getRegistrationDate());
         newInvalidation.setRegistrator(PersonTranslator.translate(invalidation.getRegistrator()));
+        return ReflectingStringEscaper.escapeShallow(newInvalidation, "reason");
+    }
+
+    public final static Invalidation translateWithoutEscaping(final InvalidationPE invalidation)
+    {
+        if (invalidation == null)
+        {
+            return null;
+        }
+        final Invalidation newInvalidation = new Invalidation();
+        newInvalidation.setReason(invalidation.getReason());
+        newInvalidation.setRegistrationDate(invalidation.getRegistrationDate());
+        newInvalidation.setRegistrator(PersonTranslator.translateWithoutEscaping(invalidation
+                .getRegistrator()));
         return newInvalidation;
     }
 }

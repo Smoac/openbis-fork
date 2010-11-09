@@ -28,10 +28,9 @@ import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.TypeMapper;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
@@ -102,10 +101,10 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
         { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getParentRelations(long relationshipId,
             LongSet childrenSampleIds);
-    
+
     @Select(sql = "select id, saty_id, grou_id, dbin_id, expe_id from samples", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSampleSkeletons();
-    
+
     @Select(sql = "select * from sample_relationships", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getSampleRelationshipSkeletons();
 
@@ -293,9 +292,11 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
         public void unmarshall(ResultSet row, SampleType into) throws SQLException, EoDException
         {
             into.setId(row.getLong("id"));
-            into.setCode(StringEscapeUtils.escapeHtml(row.getString("code")));
+            into.setCode(row.getString("code"));
             into.setGeneratedFromHierarchyDepth(row.getInt("generated_from_depth"));
             into.setShowContainer(row.getInt("part_of_depth") > 0);
+
+            ReflectingStringEscaper.escapeShallow(into, "code");
         }
     }
 

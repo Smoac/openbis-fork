@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
@@ -52,6 +51,11 @@ public class PersonTranslator
         return translate(person, true);
     }
 
+    public final static Person translateWithoutEscaping(final PersonPE person)
+    {
+        return translateWithoutEscaping(person, true);
+    }
+
     private final static Person translate(final PersonPE person, final boolean recursively)
     {
         if (person == null)
@@ -59,10 +63,10 @@ public class PersonTranslator
             return null;
         }
         final Person result = new Person();
-        result.setFirstName(StringEscapeUtils.escapeHtml(person.getFirstName()));
-        result.setLastName(StringEscapeUtils.escapeHtml(person.getLastName()));
-        result.setEmail(StringEscapeUtils.escapeHtml(person.getEmail()));
-        result.setUserId(StringEscapeUtils.escapeHtml(person.getUserId()));
+        result.setFirstName(person.getFirstName());
+        result.setLastName(person.getLastName());
+        result.setEmail(person.getEmail());
+        result.setUserId(person.getUserId());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(person
                 .getDatabaseInstance()));
         result.setRegistrationDate(person.getRegistrationDate());
@@ -70,6 +74,31 @@ public class PersonTranslator
         {
             result.setRegistrator(PersonTranslator.translate(person.getRegistrator(), false));
         }
+
+        return ReflectingStringEscaper.escapeShallow(result, "firstName", "lastName", "email",
+                "userId");
+    }
+
+    private final static Person translateWithoutEscaping(final PersonPE person,
+            final boolean recursively)
+    {
+        if (person == null)
+        {
+            return null;
+        }
+        final Person result = new Person();
+        result.setFirstName(person.getFirstName());
+        result.setLastName(person.getLastName());
+        result.setEmail(person.getEmail());
+        result.setUserId(person.getUserId());
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(person
+                .getDatabaseInstance()));
+        result.setRegistrationDate(person.getRegistrationDate());
+        if (recursively)
+        {
+            result.setRegistrator(PersonTranslator.translate(person.getRegistrator(), false));
+        }
+
         return result;
     }
 }

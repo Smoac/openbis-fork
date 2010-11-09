@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -28,6 +27,7 @@ import java.util.List;
 import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
@@ -163,7 +163,7 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     {
         Material material = new Material();
         material.setId(record.id);
-        material.setCode(escapeHtml(record.code));
+        material.setCode(record.code);
 
         assert record.maty_id == materialType.getId();
         material.setMaterialType(materialType);
@@ -175,6 +175,8 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         material.setModificationDate(record.modification_timestamp);
 
         material.setProperties(new ArrayList<IEntityProperty>());
+
+        ReflectingStringEscaper.escapeShallow(material, "code");
 
         return material;
     }
@@ -233,7 +235,8 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
             if (material.getProperties().isEmpty())
             {
                 Material enrichedMaterial = enrichedMaterials.get(material.getId());
-                material.setProperties(new ArrayList<IEntityProperty>(enrichedMaterial.getProperties()));
+                material.setProperties(new ArrayList<IEntityProperty>(enrichedMaterial
+                        .getProperties()));
             }
         }
     }

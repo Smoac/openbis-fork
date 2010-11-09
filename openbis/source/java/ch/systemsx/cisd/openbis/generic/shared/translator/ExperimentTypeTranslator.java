@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -29,24 +28,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ExperimentTypeTranslator
 {
-    public static ExperimentType translate(final ExperimentTypePE experimentTypePE, Map<PropertyTypePE, PropertyType> cachedOrNull)
+    public static ExperimentType translate(final ExperimentTypePE experimentTypePE,
+            Map<PropertyTypePE, PropertyType> cachedOrNull)
     {
         final ExperimentType result = new ExperimentType();
-        result.setCode(StringEscapeUtils.escapeHtml(experimentTypePE.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(experimentTypePE.getDescription()));
+        result.setCode(experimentTypePE.getCode());
+        result.setDescription(experimentTypePE.getDescription());
         result.setExperimentTypePropertyTypes(EntityType
-                .sortedInternally(ExperimentTypePropertyTypeTranslator.translate(experimentTypePE
-                        .getExperimentTypePropertyTypes(), result, cachedOrNull)));
+                .sortedInternally(ExperimentTypePropertyTypeTranslator.translate(
+                        experimentTypePE.getExperimentTypePropertyTypes(), result, cachedOrNull)));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentTypePE
                 .getDatabaseInstance()));
-        return result;
-
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
     }
 
     public static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes,
@@ -66,5 +63,4 @@ public class ExperimentTypeTranslator
         result.setCode(experimentType.getCode());
         return result;
     }
-
 }

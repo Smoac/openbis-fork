@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 
@@ -41,8 +40,8 @@ public class DataTypeTranslator
     {
         final DataType result = new DataType();
         result.setCode(dataTypePE.getCode());
-        result.setDescription(StringEscapeUtils.escapeHtml(dataTypePE.getDescription()));
-        return result;
+        result.setDescription(dataTypePE.getDescription());
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
     }
 
     public static List<DataType> translate(List<DataTypePE> dataTypePEs)

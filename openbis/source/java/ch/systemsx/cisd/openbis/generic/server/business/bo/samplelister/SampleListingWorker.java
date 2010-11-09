@@ -27,13 +27,13 @@ import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
@@ -82,8 +82,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
             ISampleListingQuery.class })
 final class SampleListingWorker extends AbstractLister
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, SampleListingWorker.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            SampleListingWorker.class);
 
     //
     // Input
@@ -168,8 +168,8 @@ final class SampleListingWorker extends AbstractLister
         ISampleListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
-        return new SampleListingWorker(criteria, baseIndexURL, dao.getDatabaseInstanceId(), dao
-                .getDatabaseInstance(), query, propertiesEnricher, referencedEntityDAO);
+        return new SampleListingWorker(criteria, baseIndexURL, dao.getDatabaseInstanceId(),
+                dao.getDatabaseInstance(), query, propertiesEnricher, referencedEntityDAO);
     }
 
     //
@@ -234,8 +234,8 @@ final class SampleListingWorker extends AbstractLister
         if (operationLog.isDebugEnabled())
         {
             watch.stop();
-            operationLog.debug(String.format("Basic retrieval of %d samples took %s s", sampleList
-                    .size(), watch.toString()));
+            operationLog.debug(String.format("Basic retrieval of %d samples took %s s",
+                    sampleList.size(), watch.toString()));
             watch.reset();
             watch.start();
         }
@@ -275,8 +275,8 @@ final class SampleListingWorker extends AbstractLister
             if (operationLog.isDebugEnabled())
             {
                 watch.stop();
-                operationLog.debug(String.format("Enrichment with properties took %s s", watch
-                        .toString()));
+                operationLog.debug(String.format("Enrichment with properties took %s s",
+                        watch.toString()));
             }
         }
     }
@@ -303,8 +303,8 @@ final class SampleListingWorker extends AbstractLister
             if (singleSampleTypeMode == false)
             {
                 maxSampleParentResolutionDepth =
-                        Math.max(maxSampleParentResolutionDepth, type
-                                .getGeneratedFromHierarchyDepth());
+                        Math.max(maxSampleParentResolutionDepth,
+                                type.getGeneratedFromHierarchyDepth());
             }
         }
         sampleTypes.trim();
@@ -547,7 +547,7 @@ final class SampleListingWorker extends AbstractLister
     {
         final Sample sample = new Sample();
         sample.setId(row.id);
-        sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
+        sample.setPermId(row.perm_id);
         sample.setCode(IdentifierHelper.convertCode(row.code, null));
         sample.setSubCode(IdentifierHelper.convertSubCode(row.code));
         sample.setSampleType(sampleTypes.get(row.saty_id));
@@ -616,6 +616,8 @@ final class SampleListingWorker extends AbstractLister
             }
             addRelatedContainerSampleToRequested(row.samp_id_part_of);
         }
+
+        ReflectingStringEscaper.escapeShallow(sample, "permId");
         return sample;
     }
 

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -30,6 +29,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -105,23 +105,29 @@ public class SecondaryEntityDAO
             return null; // experiment is connected (through group) with different db instance
         }
         final Space space = new Space();
-        space.setCode(escapeHtml(record.g_code));
+        space.setCode(record.g_code);
         space.setInstance(databaseInstance);
 
         final Experiment experiment = new Experiment();
         experiment.setId(experimentId);
-        experiment.setCode(escapeHtml(record.e_code));
-        experiment.setPermId(escapeHtml(record.e_permid));
+        experiment.setCode(record.e_code);
+        experiment.setPermId(record.e_permid);
         experiment.setIdentifier(new ExperimentIdentifier(null, space.getCode(), record.p_code,
                 record.e_code).toString());
         final Project project = new Project();
         project.setId(record.p_id);
-        project.setCode(escapeHtml(record.p_code));
+        project.setCode(record.p_code);
         project.setSpace(space);
         experiment.setProject(project);
         final ExperimentType experimentType = new ExperimentType();
-        experimentType.setCode(escapeHtml(record.et_code));
+        experimentType.setCode(record.et_code);
         experiment.setExperimentType(experimentType);
+
+        ReflectingStringEscaper.escapeShallow(space, "code");
+        ReflectingStringEscaper.escapeShallow(experiment, "code", "permId");
+        ReflectingStringEscaper.escapeShallow(project, "code");
+        ReflectingStringEscaper.escapeShallow(experimentType, "code");
+
         return experiment;
     }
 
@@ -132,11 +138,12 @@ public class SecondaryEntityDAO
         {
             throw new EmptyResultDataAccessException(1);
         }
-        registrator.setUserId(escapeHtml(registrator.getUserId()));
-        registrator.setEmail(escapeHtml(registrator.getEmail()));
-        registrator.setFirstName(escapeHtml(registrator.getFirstName()));
-        registrator.setLastName(escapeHtml(registrator.getLastName()));
-        return registrator;
+        registrator.setUserId(registrator.getUserId());
+        registrator.setEmail(registrator.getEmail());
+        registrator.setFirstName(registrator.getFirstName());
+        registrator.setLastName(registrator.getLastName());
+        return ReflectingStringEscaper.escapeShallow(registrator, "userId", "email", "firstName",
+                "lastName");
     }
 
     public Long getSampleTypeIdForSampleTypeCode(String sampleTypeCode)
@@ -182,9 +189,9 @@ public class SecondaryEntityDAO
         sample.setInvalidation(createInvalidation(record.inva_id));
         sample.setSpace(tryCreateGroup(record.g_code, databaseInstance));
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.g_code, databaseInstance));
-        sample.setPermId(escapeHtml(record.perm_id));
-        sample.setIdentifier(escapeHtml(createIdentifier(sample).toString()));
-        return sample;
+        sample.setPermId(record.perm_id);
+        sample.setIdentifier(createIdentifier(sample).toString());
+        return ReflectingStringEscaper.escapeShallow(sample, "permId", "identifier");
     }
 
     private static SampleIdentifier createIdentifier(Sample sample)
@@ -212,9 +219,9 @@ public class SecondaryEntityDAO
         } else
         {
             Space space = new Space();
-            space.setCode(escapeHtml(codeOrNull));
+            space.setCode(codeOrNull);
             space.setInstance(databaseInstance);
-            return space;
+            return ReflectingStringEscaper.escapeShallow(space, "code");
         }
     }
 
@@ -232,8 +239,8 @@ public class SecondaryEntityDAO
     private static SampleType createSampleType(String code, DatabaseInstance databaseInstance)
     {
         SampleType sampleType = new SampleType();
-        sampleType.setCode(escapeHtml(code));
+        sampleType.setCode(code);
         sampleType.setDatabaseInstance(databaseInstance);
-        return sampleType;
+        return ReflectingStringEscaper.escapeShallow(sampleType, "code");
     }
 }

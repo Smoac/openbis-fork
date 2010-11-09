@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -64,7 +63,7 @@ public final class MaterialTranslator
             return null;
         }
         final Material result = new Material();
-        result.setCode(StringEscapeUtils.escapeHtml(materialPE.getCode()));
+        result.setCode(materialPE.getCode());
         result.setId(HibernateUtils.getId(materialPE));
         result.setModificationDate(materialPE.getModificationDate());
         result.setMaterialType(MaterialTypeTranslator.translate(materialPE.getMaterialType(),
@@ -72,6 +71,31 @@ public final class MaterialTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(materialPE
                 .getDatabaseInstance()));
         result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
+        result.setRegistrationDate(materialPE.getRegistrationDate());
+        if (withProperties)
+        {
+            setProperties(materialPE, result);
+        }
+
+        return ReflectingStringEscaper.escapeShallow(result, "code");
+    }
+
+    public final static Material translateWithoutEscaping(final MaterialPE materialPE,
+            final boolean withProperties)
+    {
+        if (materialPE == null)
+        {
+            return null;
+        }
+        final Material result = new Material();
+        result.setCode(materialPE.getCode());
+        result.setId(HibernateUtils.getId(materialPE));
+        result.setModificationDate(materialPE.getModificationDate());
+        result.setMaterialType(MaterialTypeTranslator.translateWithoutEscaping(
+                materialPE.getMaterialType(), new HashMap<PropertyTypePE, PropertyType>()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translateWithoutEscaping(materialPE
+                .getDatabaseInstance()));
+        result.setRegistrator(PersonTranslator.translateWithoutEscaping(materialPE.getRegistrator()));
         result.setRegistrationDate(materialPE.getRegistrationDate());
         if (withProperties)
         {

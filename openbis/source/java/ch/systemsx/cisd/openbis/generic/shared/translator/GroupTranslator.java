@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * A {@link Space} &lt;---&gt; {@link GroupPE} translator.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class GroupTranslator
 {
@@ -56,13 +55,12 @@ public final class GroupTranslator
         }
         final Space result = new Space();
         result.setId(HibernateUtils.getId(group));
-        result.setCode(StringEscapeUtils.escapeHtml(group.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(group.getDescription()));
+        result.setCode(group.getCode());
+        result.setDescription(group.getDescription());
         result.setInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
-        result.setIdentifier(StringEscapeUtils.escapeHtml(IdentifierHelper.createGroupIdentifier(
-                group).toString()));
-        return result;
+        result.setIdentifier(IdentifierHelper.createGroupIdentifier(group).toString());
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description", "identifier");
     }
 }

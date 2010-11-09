@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -66,27 +65,29 @@ public final class PropertyTypeTranslator
             cacheOrNull.put(propertyType, result);
         }
         result.setId(HibernateUtils.getId(propertyType));
-        result.setCode(StringEscapeUtils.escapeHtml(propertyType.getCode()));
-        result.setSimpleCode(StringEscapeUtils.escapeHtml(propertyType.getSimpleCode()));
+        result.setCode(propertyType.getCode());
+        result.setSimpleCode(propertyType.getSimpleCode());
         result.setInternalNamespace(propertyType.isInternalNamespace());
         result.setManagedInternally(propertyType.isManagedInternally());
-        result.setLabel(StringEscapeUtils.escapeHtml(propertyType.getLabel()));
+        result.setLabel(propertyType.getLabel());
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
         result.setMaterialType(MaterialTypeTranslator.translate(propertyType.getMaterialType(),
                 false, cacheOrNull));
-        result.setDescription(StringEscapeUtils.escapeHtml(propertyType.getDescription()));
-        result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(propertyType
-                .getSampleTypePropertyTypes(), result, cacheOrNull));
+        result.setDescription(propertyType.getDescription());
+        result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(
+                propertyType.getSampleTypePropertyTypes(), result, cacheOrNull));
         result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
                 propertyType.getMaterialTypePropertyTypes(), result, cacheOrNull));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 propertyType.getExperimentTypePropertyTypes(), result, cacheOrNull));
-        result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(propertyType
-                .getDataSetTypePropertyTypes(), result, cacheOrNull));
-        result.setSchema(StringEscapeUtils.escapeHtml(propertyType.getSchema()));
-        result.setTransformation(StringEscapeUtils.escapeHtml(propertyType.getTransformation()));
-        return result;
+        result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(
+                propertyType.getDataSetTypePropertyTypes(), result, cacheOrNull));
+        result.setSchema(propertyType.getSchema());
+        result.setTransformation(propertyType.getTransformation());
+
+        return ReflectingStringEscaper.escapeShallow(result, "code", "simpleCode", "label",
+                "description", "schema", "transformation");
     }
 
     public final static PropertyType translate(final PropertyTypePE propertyType,

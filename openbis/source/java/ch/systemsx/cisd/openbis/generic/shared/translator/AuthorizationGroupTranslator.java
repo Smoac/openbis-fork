@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -54,13 +53,12 @@ public final class AuthorizationGroupTranslator
         }
         final AuthorizationGroup result = new AuthorizationGroup();
         result.setId(HibernateUtils.getId(group));
-        result.setCode(StringEscapeUtils.escapeHtml(group.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(group.getDescription()));
-        result.setDatabaseInstance(DatabaseInstanceTranslator
-                .translate(group.getDatabaseInstance()));
+        result.setCode(group.getCode());
+        result.setDescription(group.getDescription());
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
-        return result;
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
     }
 
 }

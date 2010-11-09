@@ -21,6 +21,7 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -62,8 +63,10 @@ public final class GridCustomExpressionTranslator
                 return null;
             }
             final GridCustomColumn result = new GridCustomColumn();
-            result.setCode(escapeHtml(original.getCode()));
-            result.setName(escapeHtml(original.getLabel()));
+            result.setCode(original.getCode());
+            result.setName(original.getLabel());
+
+            ReflectingStringEscaper.escapeShallow(result, "code", "name");
 
             translateExpression(original, result);
             return result;

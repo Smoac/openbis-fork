@@ -21,8 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -52,6 +51,18 @@ public final class ExperimentTranslator
         // Can not be instantiated.
     }
 
+    private static void setProperties(final ExperimentPE experiment, final Experiment result)
+    {
+        if (experiment.isPropertiesInitialized())
+        {
+            result.setProperties(EntityPropertyTranslator.translateWithoutEscaping(
+                    experiment.getProperties(), new HashMap<PropertyTypePE, PropertyType>()));
+        } else
+        {
+            result.setProperties(new ArrayList<IEntityProperty>());
+        }
+    }
+
     public final static Experiment translate(final ExperimentPE experiment, String baseIndexURL,
             final LoadableFields... withFields)
     {
@@ -62,16 +73,18 @@ public final class ExperimentTranslator
         final Experiment result = new Experiment();
         result.setId(HibernateUtils.getId(experiment));
         result.setModificationDate(experiment.getModificationDate());
-        result.setCode(StringEscapeUtils.escapeHtml(experiment.getCode()));
-        result.setPermId(StringEscapeUtils.escapeHtml(experiment.getPermId()));
+        result.setCode(experiment.getCode());
+        result.setPermId(experiment.getPermId());
         result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.EXPERIMENT,
                 experiment.getPermId()));
-        result.setExperimentType(translate(experiment.getExperimentType(), new HashMap<PropertyTypePE, PropertyType>()));
-        result.setIdentifier(StringEscapeUtils.escapeHtml(experiment.getIdentifier()));
-        result.setProject(ProjectTranslator.translate(experiment.getProject()));
+        result.setExperimentType(translateWithoutEscaping(experiment.getExperimentType(),
+                new HashMap<PropertyTypePE, PropertyType>()));
+        result.setIdentifier(experiment.getIdentifier());
+        result.setProject(ProjectTranslator.translateWithoutEscaping(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
-        result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
-        result.setInvalidation(InvalidationTranslator.translate(experiment.getInvalidation()));
+        result.setRegistrator(PersonTranslator.translateWithoutEscaping(experiment.getRegistrator()));
+        result.setInvalidation(InvalidationTranslator.translateWithoutEscaping(experiment
+                .getInvalidation()));
         for (final LoadableFields field : withFields)
         {
             switch (field)
@@ -80,14 +93,17 @@ public final class ExperimentTranslator
                     setProperties(experiment, result);
                     break;
                 case ATTACHMENTS:
-                    result.setAttachments(AttachmentTranslator.translate(experiment
-                            .getAttachments(), baseIndexURL));
+                    result.setAttachments(AttachmentTranslator.translateWithoutEscaping(
+                            experiment.getAttachments(), baseIndexURL));
                     break;
                 default:
                     break;
             }
         }
-        return result;
+
+        return ReflectingStringEscaper.escapeDeep(result, "code", "permId", "identifier",
+                "description", "reason", "fileName", "title", "description", "code", "label",
+                "url", "value", "uuid");
     }
 
     public final static List<Experiment> translate(final List<ExperimentPE> experiments,
@@ -101,39 +117,43 @@ public final class ExperimentTranslator
         return result;
     }
 
-    private static void setProperties(final ExperimentPE experiment, final Experiment result)
+    public final static ExperimentType translateWithoutEscaping(
+            final ExperimentTypePE experimentType, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        if (experiment.isPropertiesInitialized())
-        {
-            result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>()));
-        } else
-        {
-            result.setProperties(new ArrayList<IEntityProperty>());
-        }
+        final ExperimentType result = new ExperimentType();
+        result.setCode(experimentType.getCode());
+        result.setDescription(experimentType.getDescription());
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
+                .getDatabaseInstance()));
+        result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
+                experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));
+
+        return result;
     }
 
     public final static ExperimentType translate(final ExperimentTypePE experimentType,
             Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final ExperimentType result = new ExperimentType();
-        result.setCode(StringEscapeUtils.escapeHtml(experimentType.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(experimentType.getDescription()));
+        result.setCode(experimentType.getCode());
+        result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));
-        return result;
+
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
     }
 
     public final static ExperimentTypePE translate(final ExperimentType experimentType)
     {
         final ExperimentTypePE result = new ExperimentTypePE();
-        result.setCode(StringEscapeUtils.escapeHtml(experimentType.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(experimentType.getDescription()));
+        result.setCode(experimentType.getCode());
+        result.setDescription(experimentType.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
-        return result;
+
+        return ReflectingStringEscaper.escapeShallow(result, "code", "description");
     }
 
     public final static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes)
