@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -32,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
  * Translator of {@link AbstractTypePE} instances.
- *
- * @author     Franz-Josef Elmer
+ * 
+ * @author Franz-Josef Elmer
  */
 public class TypeTranslator
 {
@@ -53,30 +52,29 @@ public class TypeTranslator
         }
         return result;
     }
-    
+
     public static LocatorType translate(LocatorTypePE locatorType)
     {
         LocatorType result = new LocatorType();
         fill(result, locatorType);
         return result;
     }
-    
+
     public static SampleType translate(SampleTypePE sampleType)
     {
         SampleType result = new SampleType();
         fill(result, sampleType);
         return result;
     }
-    
+
     private static <T extends AbstractType> T fill(T type, AbstractTypePE typePEOrNull)
     {
         if (typePEOrNull != null)
         {
-            type.setCode(StringEscapeUtils.escapeHtml(typePEOrNull.getCode()));
-            type.setDescription(StringEscapeUtils.escapeHtml(typePEOrNull.getDescription()));
+            type.setCode(typePEOrNull.getCode());
+            type.setDescription(typePEOrNull.getDescription());
         }
-        return type;
+        return ReflectingStringEscaper.escapeShallow(type);
     }
-
 
 }

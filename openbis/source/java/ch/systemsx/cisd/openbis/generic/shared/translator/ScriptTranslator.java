@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -55,14 +54,14 @@ public final class ScriptTranslator
         final Script result = new Script();
         result.setId(HibernateUtils.getId(script));
         result.setEntityKind(script.getEntityKind());
-        result.setName(StringEscapeUtils.escapeHtml(script.getName()));
-        result.setDescription(StringEscapeUtils.escapeHtml(script.getDescription()));
-        result.setScript(StringEscapeUtils.escapeHtml(script.getScript()));
+        result.setName(script.getName());
+        result.setDescription(script.getDescription());
+        result.setScript(script.getScript());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(script
                 .getDatabaseInstance()));
         result.setRegistrationDate(script.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(script.getRegistrator()));
-        return result;
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
 }

@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -43,15 +42,15 @@ public final class VocabularyTranslator
         }
         final Vocabulary result = new Vocabulary();
         result.setId(HibernateUtils.getId(vocabulary));
-        result.setCode(StringEscapeUtils.escapeHtml(vocabulary.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(vocabulary.getDescription()));
+        result.setCode(vocabulary.getCode());
+        result.setDescription(vocabulary.getDescription());
         result.setInternalNamespace(vocabulary.isInternalNamespace());
         result.setManagedInternally(vocabulary.isManagedInternally());
         result.setChosenFromList(vocabulary.isChosenFromList());
-        result.setURLTemplate(StringEscapeUtils.escapeHtml(vocabulary.getURLTemplate()));
+        result.setURLTemplate(vocabulary.getURLTemplate());
         result.setRegistrationDate(vocabulary.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vocabulary.getRegistrator()));
-        return result;
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     public static List<Vocabulary> translate(List<VocabularyPE> vocabularies)

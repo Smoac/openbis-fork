@@ -21,8 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -97,11 +96,11 @@ public class MaterialTypeTranslator
     {
         final MaterialType result = new MaterialType();
         result.setId(HibernateUtils.getId(entityTypeOrNull));
-        result.setCode(StringEscapeUtils.escapeHtml(entityTypeOrNull.getCode()));
-        result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
+        result.setCode(entityTypeOrNull.getCode());
+        result.setDescription(entityTypeOrNull.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
-        return result;
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     /** translates basic information, without properties */

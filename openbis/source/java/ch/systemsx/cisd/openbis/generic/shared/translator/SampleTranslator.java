@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -85,7 +84,7 @@ public final class SampleTranslator
     {
         final Sample result = new Sample();
         setCodes(result, samplePE);
-        result.setPermId(StringEscapeUtils.escapeHtml(samplePE.getPermId()));
+        result.setPermId(samplePE.getPermId());
         result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
                 samplePE.getPermId()));
         result.setSearchlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
@@ -94,7 +93,7 @@ public final class SampleTranslator
         // NOTE: we should always translate Id in this way
         // because getId() on HibernateProxy object always returns null
         result.setId(HibernateUtils.getId(samplePE));
-        result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getIdentifier()));
+        result.setIdentifier(samplePE.getIdentifier());
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         if (withDetails)
@@ -138,7 +137,7 @@ public final class SampleTranslator
             }
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
-        return result;
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     /** Sets both subcode and "full" code to {@link Sample} translating it from {@link SamplePE}. */

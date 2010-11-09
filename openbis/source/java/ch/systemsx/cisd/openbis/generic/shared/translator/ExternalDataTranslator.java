@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -79,18 +77,17 @@ public class ExternalDataTranslator
         ExperimentPE experiment = externalDataPE.getExperiment();
         ExternalData externalData = new ExternalData();
         externalData.setId(HibernateUtils.getId(externalDataPE));
-        externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
+        externalData.setCode(externalDataPE.getCode());
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setStatus(externalDataPE.getStatus());
-        externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
-                .getDataProducerCode()));
+        externalData.setDataProducerCode(externalDataPE.getDataProducerCode());
         externalData.setDataSetType(DataSetTypeTranslator.translate(
                 externalDataPE.getDataSetType(), new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(externalDataPE.isDerived());
         externalData
                 .setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
         externalData.setInvalidation(tryToGetInvalidation(sampleOrNull, experiment));
-        externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
+        externalData.setLocation(externalDataPE.getLocation());
         externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
         final Collection<ExternalData> parents = new HashSet<ExternalData>();
         externalData.setParents(parents);
@@ -111,7 +108,7 @@ public class ExternalDataTranslator
         setProperties(externalDataPE, externalData);
         externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
                 withExperimentFields));
-        return externalData;
+        return ReflectingStringEscaper.escapeShallow(externalData);
     }
 
     private static void setProperties(ExternalDataPE externalDataPE, ExternalData externalData)
@@ -168,10 +165,10 @@ public class ExternalDataTranslator
             return null;
         }
         Invalidation result = new Invalidation();
-        result.setReason(StringEscapeUtils.escapeHtml(invalidationPE.getReason()));
+        result.setReason(invalidationPE.getReason());
         result.setRegistrationDate(invalidationPE.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(invalidationPE.getRegistrator()));
-        return result;
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 
     private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
@@ -213,7 +210,7 @@ public class ExternalDataTranslator
     private static ExternalData fillExternalData(ExternalData externalData, DataPE dataPE)
     {
         externalData.setId(HibernateUtils.getId(dataPE));
-        externalData.setCode(StringEscapeUtils.escapeHtml(dataPE.getCode()));
+        externalData.setCode(dataPE.getCode());
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         return ReflectingStringEscaper.escapeShallow(externalData);

@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.shared.translator;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
@@ -70,13 +69,13 @@ public final class QueryTranslator
             return null;
         }
         final QueryExpression result = new QueryExpression();
-        result.setName(escapeHtml(original.getName()));
+        result.setName(original.getName());
         result.setQueryDatabase(new QueryDatabase(database.getKey(), database.getLabel()));
         result.setQueryType(original.getQueryType());
-        result.setEntityTypeCode(escapeHtml(original.getEntityTypeCodePattern()));
+        result.setEntityTypeCode(original.getEntityTypeCodePattern());
         result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
-        GridCustomExpressionTranslator.translateExpression(original, result);
-        return result;
+        GridCustomExpressionTranslator.translateExpressionWithoutEscaping(original, result);
+        return ReflectingStringEscaper.escapeShallow(result);
     }
 }

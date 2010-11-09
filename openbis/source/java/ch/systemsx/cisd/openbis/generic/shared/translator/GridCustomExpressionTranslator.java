@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,10 +64,8 @@ public final class GridCustomExpressionTranslator
             result.setCode(original.getCode());
             result.setName(original.getLabel());
 
-            ReflectingStringEscaper.escapeShallow(result);
-
-            translateExpression(original, result);
-            return result;
+            translateExpressionWithoutEscaping(original, result);
+            return ReflectingStringEscaper.escapeShallow(result);
         }
     }
 
@@ -97,27 +93,26 @@ public final class GridCustomExpressionTranslator
                 return null;
             }
             final GridCustomFilter result = new GridCustomFilter();
-            result.setName(escapeHtml(original.getName()));
+            result.setName(original.getName());
             result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
-            translateExpression(original, result);
-            return result;
+            translateExpressionWithoutEscaping(original, result);
+            return ReflectingStringEscaper.escapeShallow(result);
         }
 
     }
 
-    public static void translateExpression(final AbstractExpressionPE<?> expression,
+    public static void translateExpressionWithoutEscaping(final AbstractExpressionPE<?> expression,
             final AbstractExpression result)
     {
         result.setId(HibernateUtils.getId(expression));
         result.setModificationDate(expression.getModificationDate());
-        result.setExpression(escapeHtml(expression.getExpression()));
-        result.setDescription(escapeHtml(expression.getDescription()));
+        result.setExpression(expression.getExpression());
+        result.setDescription(expression.getDescription());
         result.setRegistrator(PersonTranslator.translate(expression.getRegistrator()));
         result.setRegistrationDate(expression.getRegistrationDate());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(expression
                 .getDatabaseInstance()));
         result.setPublic(expression.isPublic());
     }
-
 }
