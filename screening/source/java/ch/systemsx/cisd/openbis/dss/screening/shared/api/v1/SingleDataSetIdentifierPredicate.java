@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 
 import java.util.Collections;
-import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;

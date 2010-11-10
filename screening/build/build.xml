@@ -31,6 +31,7 @@
   	<zip update="true" destfile="${server.dist.file}">
   		<zipfileset file="${jars.to.be.signed.zip}"/>
   	</zip>
+  	<delete file="${jars.to.be.signed.zip}"/>
  	</target>
   
   <target name="dss-plugin-jar" depends="compile">
