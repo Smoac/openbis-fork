@@ -333,14 +333,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     }
 
     public InputStream loadImages(String sessionToken, IDatasetIdentifier dataSetIdentifier,
-            List<String> wellsOrNull, String channel, ImageSize thumbnailSizeOrNull)
+            List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
     {
         String datasetCode = dataSetIdentifier.getDatasetCode();
         File rootDir = getRootDirectoryForDataSet(datasetCode);
         IHCSImageDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(rootDir, datasetCode);
         List<PlateImageReference> imageReferences =
-                createPlateImageReferences(imageAccessor, dataSetIdentifier, wellsOrNull, channel);
+                createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
         Size size = null;
         if (thumbnailSizeOrNull != null)
         {
@@ -357,14 +357,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
 
     private List<PlateImageReference> createPlateImageReferences(
             IHCSImageDatasetLoader imageAccessor, IDatasetIdentifier dataSetIdentifier,
-            List<String> wellsOrNull, String channel)
+            List<WellPosition> wellPositions, String channel)
     {
         PlateImageParameters imageParameters = imageAccessor.getImageParameters();
         int rowsNum = imageParameters.getRowsNum();
         int colsNum = imageParameters.getColsNum();
         List<PlateImageReference> imageReferences = new ArrayList<PlateImageReference>();
         int numberOfTiles = imageParameters.getTileRowsNum() * imageParameters.getTileColsNum();
-        if (wellsOrNull == null || wellsOrNull.isEmpty())
+        if (wellPositions == null || wellPositions.isEmpty())
         {
             // all wells
             for (int i = 1; i <= rowsNum; i++)
@@ -377,69 +377,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             }
         } else
         {
-            for (String well : wellsOrNull)
+            for (WellPosition wellPosition : wellPositions)
             {
-                int indexOfDot = well.indexOf('.');
-                if (indexOfDot < 1)
-                {
-                    throw createException("Expecting a '.'", well);
-                }
-                int row = getAndCheckRowNumber(indexOfDot, well, rowsNum);
-                int col = getAndCheckColumnNumber(indexOfDot, well, colsNum);
-                addImageReferencesForAllTiles(imageReferences, row, col, channel,
-                        dataSetIdentifier, numberOfTiles);
+                addImageReferencesForAllTiles(imageReferences, wellPosition.getWellRow(),
+                        wellPosition.getWellColumn(), channel, dataSetIdentifier, numberOfTiles);
             }
         }
         return imageReferences;
     }
 
-    private int getAndCheckColumnNumber(int indexOfDot, String well, int colsNum)
-    {
-        int col;
-        try
-        {
-            col = Integer.parseInt(well.substring(indexOfDot + 1));
-        } catch (NumberFormatException ex)
-        {
-            throw createException("String after '.' isn't a number", well);
-        }
-        if (col < 1)
-        {
-            throw createException("Column number starts with 1", well);
-        }
-        if (col > colsNum)
-        {
-            throw createException("There are only " + colsNum + " columns", well);
-        }
-        return col;
-    }
-
-    private int getAndCheckRowNumber(int indexOfDot, String well, int rowsNum)
-    {
-        int row;
-        try
-        {
-            row = Integer.parseInt(well.substring(0, indexOfDot));
-        } catch (NumberFormatException ex)
-        {
-            throw createException("String before '.' isn't a number", well);
-        }
-        if (row < 1)
-        {
-            throw createException("Row number starts with 1", well);
-        }
-        if (row > rowsNum)
-        {
-            throw createException("There are only " + rowsNum + " rows", well);
-        }
-        return row;
-    }
-
-    private UserFailureException createException(String description, String well)
-    {
-        return new UserFailureException("Invalid well description: " + description + ": " + well);
-    }
-    
     private void addImageReferencesForAllTiles(List<PlateImageReference> imageReferences,
             int wellRow, int wellColumn, String channel, IDatasetIdentifier dataset,
             int numberOfTiles)

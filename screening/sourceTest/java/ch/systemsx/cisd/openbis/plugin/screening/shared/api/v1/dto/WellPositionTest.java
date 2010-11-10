@@ -32,4 +32,78 @@ public class WellPositionTest extends AssertJUnit
         assertEquals(pos1, pos2);
         assertEquals(pos1.hashCode(), pos2.hashCode());
     }
+    
+    @Test
+    public void testParseWellPositions()
+    {
+        assertEquals(0, WellPosition.parseWellPositions("").size());
+        assertEquals("[[1, 2]]", WellPosition.parseWellPositions("1.2").toString());
+        assertEquals("[[1, 2], [2, 3], [3, 4], [4, 5]]",
+                WellPosition.parseWellPositions("1.2 2.3  3.4\t4.5").toString());
+    }
+    
+    @Test
+    public void testParseWellPoistionWithMissingDot()
+    {
+        try
+        {
+            WellPosition.parseWellPosition("A03");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Invalid well description: Expecting a '.' in well description: A03", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testParseWellPoistionWithRowIsNotANumber()
+    {
+        try
+        {
+            WellPosition.parseWellPosition("a.1");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Invalid well description: String before '.' isn't a number: a.1", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testParseWellPoistionWithRowIsLessThanOne()
+    {
+        try
+        {
+            WellPosition.parseWellPosition("0.1");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Invalid well description: First row < 1: 0.1", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testParseWellPoistionWithColumnIsNotANumber()
+    {
+        try
+        {
+            WellPosition.parseWellPosition("1.a");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Invalid well description: String after '.' isn't a number: 1.a", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testParseWellPoistionWithColumnIsLessThanOne()
+    {
+        try
+        {
+            WellPosition.parseWellPosition("1.0");
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Invalid well description: First column < 1: 1.0", ex.getMessage());
+        }
+    }
 }

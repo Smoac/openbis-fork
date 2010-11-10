@@ -540,14 +540,15 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         }
     }
     
-    public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier, List<String> wellsOrNull,
-            String channel, ImageSize thumbnailSizeOrNull) throws IOException
+    public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
+            List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
+            throws IOException
     {
         DssServiceRpcScreeningHolder dssServiceHolder =
                 dssServiceCache.createDssService(dataSetIdentifier.getDatastoreServerUrl());
         InputStream stream =
                 dssServiceHolder.getService().loadImages(sessionToken, dataSetIdentifier,
-                        wellsOrNull, channel, thumbnailSizeOrNull);
+                        wellPositions, channel, thumbnailSizeOrNull);
         ConcatenatedFileOutputStreamWriter imagesWriter =
                 new ConcatenatedFileOutputStreamWriter(stream);
         List<byte[]> result = new ArrayList<byte[]>();
@@ -560,7 +561,6 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             {
                 result.add(outputStream.toByteArray());
             }
-            System.out.println("size "+ size);
         } while (size >= 0);
         return result;
     }

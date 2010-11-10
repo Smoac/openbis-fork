@@ -21,6 +21,7 @@ import java.io.Serializable;
 /**
  * Width and height of an image.
  *
+ * @since 1.4
  * @author Franz-Josef Elmer
  */
 public class ImageSize implements Serializable
@@ -29,6 +30,9 @@ public class ImageSize implements Serializable
     private final int width;
     private final int height;
 
+    /**
+     * Creates an instance for specified width and height.
+     */
     public ImageSize(int width, int height)
     {
         this.width = width;

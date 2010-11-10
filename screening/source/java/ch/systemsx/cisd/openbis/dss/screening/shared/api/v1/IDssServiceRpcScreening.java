@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageDataset
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * Public DSS API for screening. Since version 1.2 features are no longer identified by a name but
@@ -143,11 +144,28 @@ public interface IDssServiceRpcScreening extends IRpcService
     public InputStream loadImages(
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences);
-    
+
+    /**
+     * Provide images for a specified data set, a list of well positions (empty list means all
+     * wells), a channel, and an optional thumb nail size. Images of all tiles are delivered. If
+     * thumb nail size isn't specified the original image is delivered otherwise a thumb nail image
+     * with same aspect ratio as the original image but which fits into specified size will be
+     * delivered.
+     * <p>
+     * The result is encoded into one stream, which consist of multiple blocks in a format:
+     * (<block-size><block-of-bytes>)*, where block-size is the block size in bytes encoded as one
+     * long number. The number of blocks is equal to the number of specified references and the
+     * order of blocks corresponds to the order of image references. The images will be converted to
+     * PNG format before being shipped.
+     * 
+     * @since 1.4
+     */
+    @MinimalMinorVersion(4)
+    @DataSetAccessGuard
     public InputStream loadImages(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
-            List<String> wellsOrNull, String channel, ImageSize thumbnailSizeOrNull);
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull);
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and

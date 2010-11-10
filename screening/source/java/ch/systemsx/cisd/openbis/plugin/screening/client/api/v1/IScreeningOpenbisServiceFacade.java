@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
  * A client side facade of openBIS and Datastore Server API. Since version 1.2 of the API features
@@ -250,8 +251,18 @@ public interface IScreeningOpenbisServiceFacade
             IImageOutputStreamProvider outputStreamProvider, boolean convertToPNG)
             throws IOException;
     
+    /**
+     * Loads original images or thumbnails for a specified data set, a list of well positions (empty
+     * list means all wells), a channel, and an optional thumb nail size. Images of all tiles are
+     * delivered. If thumb nail size isn't specified the original image is delivered otherwise a
+     * thumb nail image with same aspect ratio as the original image but which fits into specified
+     * size will be delivered.
+     * 
+     * @return a list of byte arrays where each array contains a PNG encoded image.
+     */
     public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
-            List<String> wellsOrNull, String channel, ImageSize thumbnailSizeOrNull) throws IOException;
+            List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
+            throws IOException;
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
