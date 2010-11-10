@@ -86,7 +86,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
             if (etpt.isDynamic())
             {
-                final String dynamicValue = evaluateProperty(entityAdaptor, etpt, false);
+                final String dynamicValue = evaluateProperty(entityAdaptor, etpt, true);
                 property.setValue(dynamicValue);
             }
         }
