@@ -75,9 +75,15 @@ class DynamicPropertyAdaptor implements IEntityPropertyAdaptor
                 break;
             case EVALUATING:
                 // cycle found - return an error
+                StringBuilder path = new StringBuilder();
+                for (EntityTypePropertyTypePE etpt : evaluator.getEvaluationPath())
+                {
+                    path.append(etpt.getPropertyType().getCode() + " -> ");
+                }
+                path.append(propertyTypeCode());
                 String errorMsg =
-                        String.format("cycle of dependencies found for dynamic property '%s'",
-                                propertyTypeCode());
+                        String.format("cycle of dependencies found between dynamic properties: %s",
+                                path.toString());
                 value = DynamicPropertyEvaluator.errorPropertyValue(errorMsg);
                 state = State.EVALUATED;
                 break;

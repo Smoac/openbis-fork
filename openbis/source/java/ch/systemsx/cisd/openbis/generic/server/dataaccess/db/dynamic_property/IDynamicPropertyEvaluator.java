@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -41,5 +43,11 @@ public interface IDynamicPropertyEvaluator
      */
     public String evaluateProperty(IEntityAdaptor entityAdaptor,
             EntityTypePropertyTypePE dynamicPropertyETPT);
+
+    /**
+     * @return current path of evaluation of dynamic properties depending on other dynamic
+     *         properties - useful to generate meaningful error message for cyclic dependencies
+     */
+    public List<EntityTypePropertyTypePE> getEvaluationPath();
 
 }

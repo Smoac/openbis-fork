@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -53,6 +55,10 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     private final Map<ScriptPE, DynamicPropertyCalculator> calculatorsByScript =
             new HashMap<ScriptPE, DynamicPropertyCalculator>();
 
+    /** path of evaluation - used to generate meaningful error message for cyclic dependencies */
+    private final List<EntityTypePropertyTypePE> evaluationPath =
+            new ArrayList<EntityTypePropertyTypePE>();
+
     /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
     private DynamicPropertyCalculator getCalculator(ScriptPE scriptPE)
     {
@@ -80,17 +86,35 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
             if (etpt.isDynamic())
             {
-                final String dynamicValue = evaluateProperty(entityAdaptor, etpt);
+                final String dynamicValue = evaluateProperty(entityAdaptor, etpt, false);
                 property.setValue(dynamicValue);
             }
         }
     }
 
+    public List<EntityTypePropertyTypePE> getEvaluationPath()
+    {
+        return evaluationPath;
+    }
+
     public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt)
+    {
+        return evaluateProperty(entityAdaptor, etpt, false);
+    }
+
+    public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt,
+            boolean startPath)
     {
         assert etpt.isDynamic() == true : "expected dynamic property";
         try
         {
+            if (startPath)
+            {
+                evaluationPath.clear();
+            } else
+            {
+                evaluationPath.add(etpt);
+            }
             final DynamicPropertyCalculator calculator = getCalculator(etpt.getScript());
             calculator.setEntity(entityAdaptor);
             final String dynamicValue = calculator.evalAsString();
@@ -111,4 +135,5 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         operationLog.info(errorMsg);
         return BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg;
     }
+
 }

@@ -155,7 +155,7 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         assertEquals(p1.getValue(), dp3.getValue());
 
         // create sample with circular dependency
-        // dp1 <- dp1
+        // dp1 -> dp1
         properties = new LinkedHashSet<SamplePropertyPE>();
         dp1 = createDynamicSampleProperty("dp1", scriptDp1);
         properties.add(p1);
@@ -163,9 +163,9 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample);
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp1), dp1.getValue());
 
-        // dp1 <- dp2 <- dp1
+        // dp1 -> dp2 -> dp1
         properties = new LinkedHashSet<SamplePropertyPE>();
         dp1 = createDynamicSampleProperty("dp1", scriptDp2);
         dp2 = createDynamicSampleProperty("dp2", scriptDp1);
@@ -175,14 +175,14 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample);
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp2.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp1, dp2), dp2.getValue());
 
-        // dp1 <- dp2 <- dp3 <- dp1
+        // dp1 -> dp2 -> dp3 -> dp1
         properties = new LinkedHashSet<SamplePropertyPE>();
-        dp1 = createDynamicSampleProperty("dp1", scriptDp3);
-        dp2 = createDynamicSampleProperty("dp2", scriptDp1);
-        dp3 = createDynamicSampleProperty("dp3", scriptDp2);
+        dp1 = createDynamicSampleProperty("dp1", scriptDp2);
+        dp2 = createDynamicSampleProperty("dp2", scriptDp3);
+        dp3 = createDynamicSampleProperty("dp3", scriptDp1);
         properties.add(p1);
         properties.add(dp1);
         properties.add(dp2);
@@ -190,9 +190,9 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample);
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp2.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp2), dp3.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp2.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp3.getValue());
     }
 
     //
@@ -204,11 +204,18 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend Abs
         return String.format("%sERROR: %s", BasicConstant.ERROR_PROPERTY_PREFIX, message);
     }
 
-    private static String expectedCyclicDependencyErrorMessage(EntityPropertyPE property)
+    private static String expectedCyclicDependencyErrorMessage(EntityPropertyPE... properties)
     {
+        StringBuilder path = new StringBuilder();
+        for (EntityPropertyPE property : properties)
+        {
+            path.append(property.getEntityTypePropertyType().getPropertyType().getCode()
+                    .toUpperCase());
+            path.append(" -> ");
+        }
+        path.delete(path.length() - 4, path.length());
         return expectedErrorMessage(String.format(
-                "cycle of dependencies found for dynamic property '%s'", property
-                        .getEntityTypePropertyType().getPropertyType().getCode().toUpperCase()));
+                "cycle of dependencies found between dynamic properties: %s", path.toString()));
     }
 
     private static SamplePE createSample(String code, Set<SamplePropertyPE> properties)
