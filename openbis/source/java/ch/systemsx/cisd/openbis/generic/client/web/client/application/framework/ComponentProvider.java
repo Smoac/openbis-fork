@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ScriptGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetBatchUpdatePanel;
@@ -55,6 +54,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script.ScriptGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script.ScriptRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.LoggingConsole;
@@ -785,6 +786,45 @@ public final class ComponentProvider
                 public String getTabTitle()
                 {
                     return getMessage(Dict.PROJECT_REGISTRATION);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
+            };
+    }
+
+    public final AbstractTabItemFactory getScriptRegistration(final EntityKind entityKindOrNull)
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    Component component =
+                            ScriptRegistrationForm.create(viewContext, entityKindOrNull);
+                    return DefaultTabItem.createUnaware(getTabTitle(), component, true);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return ScriptRegistrationForm.createId();
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SCRIPT, HelpPageAction.REGISTER);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.SCRIPT_REGISTRATION);
                 }
 
                 @Override

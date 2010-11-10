@@ -1156,4 +1156,11 @@ public interface ICommonServer extends IServer
             DatastoreServiceDescription serviceDescription,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode);
 
+    /**
+     * For given {@link TechId} returns the corresponding {@link Script}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public Script getScriptInfo(String sessionToken, TechId scriptId);
+
 }

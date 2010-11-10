@@ -2584,4 +2584,18 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public Script getScriptInfo(TechId scriptId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final Script script = commonServer.getScriptInfo(sessionToken, scriptId);
+            return script;
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
 }

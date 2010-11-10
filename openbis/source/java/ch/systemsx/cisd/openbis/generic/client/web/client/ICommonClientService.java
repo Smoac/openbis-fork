@@ -925,4 +925,8 @@ public interface ICommonClientService extends IClientService
     public LinkModel retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
             String dataSetCode);
 
+    /**
+     * Returns script with given {@link TechId}.
+     */
+    public Script getScriptInfo(TechId scriptId) throws UserFailureException;
 }

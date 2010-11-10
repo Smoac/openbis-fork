@@ -334,6 +334,8 @@ public abstract class Dict
 
     public static final String SCRIPT = "script";
 
+    public static final String SCRIPT_REGISTRATION = "script_registration";
+
     public static final String PROPERTY_TYPE = "property_type";
 
     public static final String PROPERTY_TYPE_CODE = "property_type_code";

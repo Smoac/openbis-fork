@@ -817,5 +817,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void retrieveLinkFromDataSet(DatastoreServiceDescription serviceDescription,
             String dataSetCode, AsyncCallback<LinkModel> callback);
 
-    // --
+    /**
+     * @see ICommonClientService#getScriptInfo(TechId)
+     */
+    public void getScriptInfo(TechId scriptId, AsyncCallback<Script> scriptInfoCallback);
+
 }

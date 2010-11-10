@@ -1,3 +1,4 @@
+
 // Common dictionary
 var common = {
 
@@ -692,6 +693,7 @@ add_script_title: "Add a new script",
 title_choose_script: "Choose a Script",
 script_browser: "Scripts",
 ADMINISTRATION_MENU_SCRIPTS: "Scripts",
+script_registration: "Script Registration",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

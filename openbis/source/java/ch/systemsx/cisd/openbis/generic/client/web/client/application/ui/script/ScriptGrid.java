@@ -14,39 +14,38 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script;
 
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ScriptColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -76,8 +75,6 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
 
     public static final String EDIT_BUTTON_ID = BROWSER_ID + "-edit-button";
 
-    private final IDelegatedAction postRegistrationCallback;
-
     private final EntityKind entityKindOrNull;
 
     public static DisposableEntityChooser<Script> create(
@@ -93,7 +90,6 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.SCRIPTS_BROWSER_GRID);
         this.entityKindOrNull = entityKindOrNull;
-        postRegistrationCallback = createRefreshGridAction();
     }
 
     private void extendBottomToolbar()
@@ -107,10 +103,8 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                         @Override
                         public void componentSelected(ButtonEvent ce)
                         {
-                            AddScriptDialog dialog =
-                                    new AddScriptDialog(viewContext, createRefreshGridAction(),
-                                            entityKindOrNull);
-                            dialog.show();
+                            DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext)
+                                    .getScriptRegistration(entityKindOrNull));
                         }
                     });
         addScriptButton.setId(ADD_BUTTON_ID);
@@ -123,8 +117,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                                 public void invoke(BaseEntityModel<Script> selectedItem,
                                         boolean keyPressed)
                                 {
-                                    Script script = selectedItem.getBaseObject();
-                                    createEditDialog(script).show();
+                                    openEditor(selectedItem, keyPressed);
                                 }
                             });
         editButton.setId(EDIT_BUTTON_ID);
@@ -143,51 +136,9 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
                                 }
                             });
         addButton(deleteButton);
-        allowMultipleSelection(); // we allow deletion of multiple projects
+        allowMultipleSelection();
 
         addEntityOperationsSeparator();
-    }
-
-    private Window createEditDialog(final Script script)
-    {
-        final String name = script.getName();
-        final String description = script.getDescription();
-        final String title =
-                viewContext.getMessage(Dict.EDIT_TITLE, viewContext.getMessage(Dict.SCRIPT), name);
-
-        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
-            {
-                private final TextField<String> nameField;
-
-                private final DescriptionField descriptionField;
-
-                private final MultilineVarcharField scriptField;
-
-                {
-                    this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
-                    this.nameField.setValue(StringEscapeUtils.unescapeHtml(script.getName()));
-                    addField(nameField);
-
-                    descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
-                    addField(descriptionField);
-
-                    this.scriptField = new ScriptField(viewContext);
-                    // new MultilineVarcharField(viewContext.getMessage(Dict.SCRIPT), true, 20);
-                    this.scriptField.setValue(StringEscapeUtils.unescapeHtml(script.getScript()));
-                    addField(scriptField);
-                }
-
-                @Override
-                protected void register(AsyncCallback<Void> registrationCallback)
-                {
-                    script.setDescription(descriptionField.getValue());
-                    script.setScript(scriptField.getValue());
-                    script.setName(nameField.getValue());
-
-                    viewContext.getService().updateScript(script, registrationCallback);
-                }
-            };
     }
 
     @Override
@@ -242,6 +193,48 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
         return new DatabaseModificationKind[]
             { DatabaseModificationKind.createOrDelete(ObjectKind.SCRIPT),
                     DatabaseModificationKind.edit(ObjectKind.SCRIPT) };
+    }
+
+    private void openEditor(BaseEntityModel<Script> selectedItem, boolean keyPressed)
+    {
+        final Script script = selectedItem.getBaseObject();
+        final TechId scriptId = TechId.create(script);
+        AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    Component component = ScriptEditForm.create(viewContext, scriptId);
+                    return DefaultTabItem.createUnaware(getTabTitle(), component, true);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return ScriptEditForm.createId(scriptId);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return viewContext.getMessage(Dict.EDIT_TITLE,
+                            viewContext.getMessage(Dict.SCRIPT), "");
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SCRIPT, HelpPageAction.EDIT);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+            };
+        tabFactory.setInBackground(keyPressed);
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
     private static final class ScriptListDeletionConfirmationDialog extends

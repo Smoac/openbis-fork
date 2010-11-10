@@ -915,4 +915,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         }
     }
 
+    public Script getScriptInfo(String sessionToken, TechId scriptId)
+    {
+        logAccess(sessionToken, "getScriptInfo", "SCRIPT(%s)", scriptId);
+        return null;
+    }
 }

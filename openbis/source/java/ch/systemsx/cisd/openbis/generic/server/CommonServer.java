@@ -2037,4 +2037,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 serviceDescription.getDatastoreCode(), dataSetCode);
     }
 
+    public Script getScriptInfo(String sessionToken, TechId scriptId)
+    {
+        getSession(sessionToken);
+        ScriptPE script = getDAOFactory().getScriptDAO().getByTechId(scriptId);
+        return ScriptTranslator.translate(script);
+    }
+
 }
