@@ -26,7 +26,10 @@ import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServle
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference.LocationImageChannelStackReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 
 /**
@@ -65,10 +68,10 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
             assert stackLocations.getWellLocation().getY() <= getContainer().getNumberOfRows();
         }
 
-        Long chosenChannelId =
-                query.tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(getDataset().getId(),
+        ImgChannelDTO channel =
+                query.tryGetChannelByChannelCodeDatasetIdOrExperimentId(getDataset().getId(),
                         getContainer().getExperimentId(), chosenChannelCode);
-        if (chosenChannelId == null)
+        if (channel == null)
         {
             return null;
         }
@@ -76,15 +79,21 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         long datasetId = getDataset().getId();
         boolean thumbnailPrefered = thumbnailSizeOrNull != null;
         ImgImageDTO imageDTO =
-                tryGetImageDTO(channelStackReference, thumbnailPrefered, chosenChannelId, datasetId);
+                tryGetImageDTO(channelStackReference, thumbnailPrefered, channel.getId(), datasetId);
         if (imageDTO == null)
         {
             return null;
         }
         String path = imageDTO.getFilePath();
         IContent content = contentRepository.getContent(path);
-        return new AbsoluteImageReference(content, path, imageDTO.getPage(), imageDTO
-                .getColorComponent(), thumbnailSizeOrNull);
+        ColorComponent colorComponent = imageDTO.getColorComponent();
+        AbsoluteImageReference imgRef =
+                new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
+                        thumbnailSizeOrNull);
+        imgRef.setTransformerFactory(channel.getImageTransformerFactory());
+        ImgExperimentDTO experiment = query.tryGetExperimentById(getContainer().getExperimentId());
+        imgRef.setTransformerFactoryForMergedChannels(experiment.getImageTransformerFactory());
+        return imgRef;
     }
 
     private ImgImageDTO tryGetImageDTO(ImageChannelStackReference channelStackReference,

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
@@ -84,8 +85,10 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dao).tryGetExperimentIdByPermId(EXPERIMENT_PERM_ID);
-                    will(returnValue((long) 1));
+                    one(dao).tryGetExperimentByPermId(EXPERIMENT_PERM_ID);
+                    ImgExperimentDTO exp = new ImgExperimentDTO();
+                    exp.setId(1);
+                    will(returnValue(exp));
 
                     one(dao).tryGetContainerIdPermId(CONTAINER_PERM_ID);
                     will(returnValue((long) 1));

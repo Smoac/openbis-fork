@@ -191,8 +191,8 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         // test get id of first channel
         assertEquals(
                 channels.get(0).getId(),
-                dao.tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(datasetId, experimentId,
-                        "dsChannel").intValue());
+                dao.tryGetChannelByChannelCodeDatasetIdOrExperimentId(datasetId, experimentId,
+                        "dsChannel").getId());
 
         List<ImgChannelDTO> experimentChannels = dao.getChannelsByExperimentId(experimentId);
         assertEquals(1, experimentChannels.size());
@@ -217,7 +217,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         final String permId = EXP_PERM_ID;
         final long experimentId = dao.addExperiment(permId);
 
-        assertEquals(Long.valueOf(experimentId), dao.tryGetExperimentIdByPermId(permId));
+        assertEquals(experimentId, dao.tryGetExperimentByPermId(permId).getId());
 
         return experimentId;
     }

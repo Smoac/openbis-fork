@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 
 /**
  * Helper class for retrieving and/or creating entities associated with the screening container data
@@ -141,13 +142,13 @@ public class ScreeningContainerDatasetInfoHelper
             ScreeningContainerDatasetInfo info)
     {
         String experimentPermId = info.getExperimentPermId();
-        Long expId = dao.tryGetExperimentIdByPermId(experimentPermId);
-        if (expId != null)
+        ImgExperimentDTO experiment = dao.tryGetExperimentByPermId(experimentPermId);
+        if (experiment != null)
         {
-            return new CreatedOrFetchedEntity(true, expId);
+            return new CreatedOrFetchedEntity(true, experiment.getId());
         } else
         {
-            expId = dao.addExperiment(experimentPermId);
+            Long expId = dao.addExperiment(experimentPermId);
             return new CreatedOrFetchedEntity(false, expId);
         }
     }

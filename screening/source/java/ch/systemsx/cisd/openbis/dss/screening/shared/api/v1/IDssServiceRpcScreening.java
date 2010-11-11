@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.screening.shared.api.v1;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.AuthorizationGuard;
@@ -166,7 +167,21 @@ public interface IDssServiceRpcScreening extends IRpcService
             String sessionToken,
             @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull);
+    
+    @MinimalMinorVersion(4)
+    @DataSetAccessGuard
+    public void saveImageTransformerFactory(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<IDatasetIdentifier> dataSetIdentifiers,
+            String channel, IImageTransformerFactory transformerFactory);
 
+    @MinimalMinorVersion(4)
+    @DataSetAccessGuard
+    public IImageTransformerFactory getImageTransformerFactory(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<IDatasetIdentifier> dataSetIdentifiers,
+            String channel);
+    
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and
      * the available (natural) image size(s).

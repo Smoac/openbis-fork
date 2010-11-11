@@ -89,9 +89,12 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     // simple getters
 
-    @Select("select ID from EXPERIMENTS where PERM_ID = ?{1}")
-    public Long tryGetExperimentIdByPermId(String experimentPermId);
+    @Select("select * from EXPERIMENTS where PERM_ID = ?{1}")
+    public ImgExperimentDTO tryGetExperimentByPermId(String experimentPermId);
 
+    @Select("select * from EXPERIMENTS where ID = ?{1}")
+    public ImgExperimentDTO tryGetExperimentById(long experimentId);
+    
     @Select("select ID from CONTAINERS where PERM_ID = ?{1}")
     public Long tryGetContainerIdPermId(String containerPermId);
 
@@ -127,8 +130,13 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select(sql = "select * from FEATURE_VALUES where FD_ID = ?{1.id} order by T_in_SEC, Z_in_M", resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
 
-    @Select("select ID from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and CODE = upper(?{3})")
-    public Long tryGetChannelIdByChannelCodeDatasetIdOrExperimentId(long id, long experimentId,
+    @Select("select * from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and CODE = upper(?{3})")
+    public ImgChannelDTO tryGetChannelByChannelCodeDatasetIdOrExperimentId(long id, long experimentId,
             String chosenChannelCode);
-
+    
+    @Select("select * from channels where code = ?{2} and "
+            + "exp_id in (select id from experiments where perm_id = ?{1})")
+    public ImgChannelDTO tryGetChannelByChannelCodeAndExperimentPermId(String experimentPermId,
+            String chosenChannelCode);
+    
 }

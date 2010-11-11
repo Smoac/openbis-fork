@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
@@ -32,6 +33,10 @@ public class AbsoluteImageReference extends AbstractImageReference
     private final String uniqueId;
 
     private final Size thumbnailSizeOrNull;
+
+    private IImageTransformerFactory transformerFactory;
+    
+    private IImageTransformerFactory transformerFactoryForMergedChannels;
 
     /**
      * @param content the content before choosing the color component and the page
@@ -64,11 +69,36 @@ public class AbsoluteImageReference extends AbstractImageReference
         return thumbnailSizeOrNull;
     }
 
+    public final IImageTransformerFactory getTransformerFactory()
+    {
+        return transformerFactory;
+    }
+
+    public final IImageTransformerFactory getTransformerFactoryForMergedChannels()
+    {
+        return transformerFactoryForMergedChannels;
+    }
+
+    public final void setTransformerFactoryForMergedChannels(
+            IImageTransformerFactory transformerFactoryForMergedChannels)
+    {
+        this.transformerFactoryForMergedChannels = transformerFactoryForMergedChannels;
+    }
+
+    public final void setTransformerFactory(IImageTransformerFactory transformerFactory)
+    {
+        this.transformerFactory = transformerFactory;
+    }
+
     public AbsoluteImageReference createWithoutColorComponent()
     {
         ColorComponent colorComponent = null;
-        return new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
-                thumbnailSizeOrNull);
+        AbsoluteImageReference ref =
+                new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
+                        thumbnailSizeOrNull);
+        ref.setTransformerFactory(transformerFactory);
+        ref.setTransformerFactoryForMergedChannels(transformerFactoryForMergedChannels);
+        return ref;
 
     }
 }

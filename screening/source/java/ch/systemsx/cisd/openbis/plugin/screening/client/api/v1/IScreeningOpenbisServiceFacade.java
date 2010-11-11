@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 import java.io.IOException;
 import java.util.List;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -263,6 +264,22 @@ public interface IScreeningOpenbisServiceFacade
     public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
             throws IOException;
+    
+    /**
+     * Saves the specified transformer factory for the specified channel and the experiment to
+     * which the specified data sets belong.
+     */
+    public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers, String channel,
+            IImageTransformerFactory transformerFactory);
+
+    /**
+     * Returns the transformer factory for the specified channel and the experiment to which
+     * the specified data sets belong.
+     * 
+     * @return <code>null</code> if such a factory has been defined yet.
+     */
+    public IImageTransformerFactory getImageTransformerFactoryOrNull(
+            List<IDatasetIdentifier> dataSetIdentifiers, String channel);
 
     /**
      * For a given set of image data sets, provide all image channels that have been acquired and

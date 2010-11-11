@@ -412,8 +412,6 @@ public class WellContentDialog extends Dialog
                                                 viewContext.getModel().getSessionContext()
                                                         .getSessionID();
                                         urlParams.addParameter("session", sessionToken);
-                                        urlParams.addParameter(ParameterNames.EXPERIMENT_ID,
-                                                experimentCriteria.getExperimentId());
                                         if (selectionProvider != null)
                                         {
                                             urlParams.addParameter(ParameterNames.CHANNEL, selectionProvider

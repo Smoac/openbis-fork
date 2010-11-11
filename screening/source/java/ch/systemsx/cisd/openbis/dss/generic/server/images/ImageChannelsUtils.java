@@ -20,7 +20,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -30,13 +29,13 @@ import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -53,17 +52,25 @@ public class ImageChannelsUtils
     static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ImageChannelsUtils.class);
 
-    // MIME type of the images which are produced by thsi class
+    // MIME type of the images which are produced by this class
     public static final String IMAGES_CONTENT_TYPE = "image/png";
 
     /**
-     * @return an image for the specified tile in the specified size and for the requested channel
-     *         or with all channels merged.
+     * Returns content of image for the specified tile in the specified size and for the requested
+     * channel or with all channels merged.
      */
-    public static IContent getImage(File datasetRoot, String datasetCode, TileImageReference params)
+    public static IContent getImage(IHCSImageDatasetLoader imageAccessor, TileImageReference params)
     {
-        List<AbsoluteImageReference> images = getImageReferences(datasetRoot, datasetCode, params);
-        return calculateImage(images);
+        List<AbsoluteImageReference> images = getImageReferences(imageAccessor, params);
+        if (images.size() > 1)
+        {
+            return mergeAllChannels(images);
+        } else
+        {
+            AbsoluteImageReference imageReference = images.get(0);
+            return calculateSingleImageContent(imageReference,
+                    imageReference.getTransformerFactory(), true);
+        }
     }
 
     /**
@@ -76,19 +83,12 @@ public class ImageChannelsUtils
         AbsoluteImageReference imageReference =
                 getImageReference(imageAccessor, channelStackReference, chosenChannelCode,
                         thumbnailSizeOrNull);
-        return calculateSingleImageContent(imageReference, convertToPng);
+        return calculateSingleImageContent(imageReference, null, convertToPng);
     }
 
-    /**
-     * @return file with the image for the chosen channel or images for all channels if they should
-     *         be merged.
-     * @throw {@link EnvironmentFailureException} when image does not exist
-     */
-    private static List<AbsoluteImageReference> getImageReferences(File datasetRoot,
-            String datasetCode, TileImageReference params)
+    private static List<AbsoluteImageReference> getImageReferences(
+            IHCSImageDatasetLoader imageAccessor, TileImageReference params)
     {
-        IHCSImageDatasetLoader imageAccessor =
-                HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
         Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
@@ -111,24 +111,13 @@ public class ImageChannelsUtils
         return images;
     }
 
-    private static IContent calculateImage(List<AbsoluteImageReference> images)
-    {
-        if (images.size() > 1)
-        {
-            return mergeAllChannels(images);
-        } else
-        {
-            return calculateSingleImageContent(images.get(0), true);
-        }
-    }
-
     private static IContent calculateSingleImageContent(AbsoluteImageReference imageReference,
-            boolean convertToPng)
+            IImageTransformerFactory transformerFactoryOrNull, boolean convertToPng)
     {
         final IContent content;
         if (convertToPng || imageReference.tryGetColorComponent() != null)
         {
-            final BufferedImage image = calculateSingleImage(imageReference);
+            final BufferedImage image = transform(calculateSingleImage(imageReference), transformerFactoryOrNull);
 
             long start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
             content = createPngContent(image, imageReference.getContent().tryGetName());
@@ -138,7 +127,14 @@ public class ImageChannelsUtils
             }
         } else
         {
-            content = imageReference.getContent();
+            if (transformerFactoryOrNull != null)
+            {
+                BufferedImage img = transform(loadImage(imageReference), transformerFactoryOrNull);
+                content = createPngContent(img, imageReference.getContent().tryGetName());
+            } else
+            {
+                content = imageReference.getContent();
+            }
         }
 
         return content;
@@ -146,15 +142,9 @@ public class ImageChannelsUtils
 
     private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
     {
-        IContent content = imageReference.getContent();
-
-        InputStream inputStream = content.getInputStream();
-
-        // extracts the correct page if necessary
-        int page = (imageReference.tryGetPage() != null) ? imageReference.tryGetPage() : 0;
 
         long start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
-        BufferedImage image = ImageUtil.loadImage(inputStream, page);
+        BufferedImage image = loadImage(imageReference);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
@@ -186,6 +176,18 @@ public class ImageChannelsUtils
         return image;
     }
 
+    private static BufferedImage loadImage(AbsoluteImageReference imageReference)
+    {
+        IContent content = imageReference.getContent();
+        InputStream inputStream = content.getInputStream();
+
+        // extracts the correct page if necessary
+        int page = (imageReference.tryGetPage() != null) ? imageReference.tryGetPage() : 0;
+
+        BufferedImage image = ImageUtil.loadImage(inputStream, page);
+        return image;
+    }
+
     private static IContent mergeAllChannels(List<AbsoluteImageReference> imageReferences)
     {
         AbsoluteImageReference allChannelsImageReference =
@@ -193,13 +195,25 @@ public class ImageChannelsUtils
         if (allChannelsImageReference != null)
         {
             // all channels are on an image in one file, no pixel-level operations needed
-            return calculateSingleImageContent(allChannelsImageReference, true);
+            return calculateSingleImageContent(allChannelsImageReference,
+                    allChannelsImageReference.getTransformerFactoryForMergedChannels(), true);
         } else
         {
             List<BufferedImage> images = calculateSingleImages(imageReferences);
             BufferedImage mergedImage = mergeChannels(images);
-            return createPngContent(mergedImage, null);
+            IImageTransformerFactory transformerFactory =
+                    imageReferences.get(0).getTransformerFactoryForMergedChannels();
+            return createPngContent(transform(mergedImage, transformerFactory), null);
         }
+    }
+    
+    private static BufferedImage transform(BufferedImage input, IImageTransformerFactory factoryOrNull)
+    {
+        if (factoryOrNull == null)
+        {
+            return input;
+        }
+        return factoryOrNull.createTransformer().transform(input);
     }
 
     private static List<BufferedImage> calculateSingleImages(

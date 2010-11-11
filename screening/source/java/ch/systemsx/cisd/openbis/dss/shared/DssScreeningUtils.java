@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImag
 public class DssScreeningUtils
 {
     private static final IImagingReadonlyQueryDAO query = createQuery();
-
+    
     public static IImagingReadonlyQueryDAO getQuery()
     {
         return query;

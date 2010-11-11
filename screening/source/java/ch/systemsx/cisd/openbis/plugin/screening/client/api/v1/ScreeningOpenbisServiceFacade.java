@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
@@ -563,6 +564,26 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             }
         } while (size >= 0);
         return result;
+    }
+
+    public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers, String channel,
+            IImageTransformerFactory transformerFactory)
+    {
+        Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(dataSetIdentifiers);
+        Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
+        for (Entry<String, List<IDatasetIdentifier>> entry : entrySet)
+        {
+            String serverUrl = entry.getKey();
+            IDssServiceRpcScreening service = dssServiceCache.createDssService(serverUrl).getService();
+            service.saveImageTransformerFactory(sessionToken, entry.getValue(), channel, transformerFactory);
+        }
+    }
+
+    public IImageTransformerFactory getImageTransformerFactoryOrNull(
+            List<IDatasetIdentifier> dataSetIdentifiers, String channel)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     /**

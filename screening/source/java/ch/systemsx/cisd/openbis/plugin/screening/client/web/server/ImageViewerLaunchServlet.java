@@ -86,7 +86,6 @@ public class ImageViewerLaunchServlet extends AbstractServlet
                         + "  <application-desc main-class='${main-class}'>\n"
                         + "    <argument>${service-URL}</argument>\n"
                         + "    <argument>${session-id}</argument>\n"
-                        + "    <argument>${experiment-id}</argument>\n"
                         + "    <argument>${channel}</argument>\n"
                         + "${data-set-and-wells-arguments}\n"
                         + "  </application-desc>\n" + "</jnlp>\n");
@@ -114,7 +113,6 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             template.bind("main-class", getMainClass());
             template.bind("service-URL", basicURL);
             template.bind("session-id", getSessionToken(request));
-            template.bind("experiment-id", getParam(request, ParameterNames.EXPERIMENT_ID));
             template.bind("channel", getParam(request, ParameterNames.CHANNEL));
             StringBuilder builder = new StringBuilder();
             for (String dataSetAndWells : getParams(request, ParameterNames.DATA_SET_AND_WELLS))

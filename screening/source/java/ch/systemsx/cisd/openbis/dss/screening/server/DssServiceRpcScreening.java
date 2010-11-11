@@ -26,8 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.lemnik.eodsql.QueryTool;
+
 import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.api.server.RpcServiceNameServer;
@@ -69,8 +72,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoa
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.TransformerFactoryMapper;
 
 /**
  * Implementation of the screening API interface using RPC. The instance will be created in spring
@@ -86,20 +91,30 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
      * The minor version of this service.
      */
     public static final int MINOR_VERSION = 3;
+    
+    static
+    {
+        QueryTool.getTypeMap().put(IImageTransformerFactory.class, new TransformerFactoryMapper());
+    }
 
     // this dao will hold one connection to the database
     private IImagingReadonlyQueryDAO dao;
 
+    private final IImagingTransformerDAO transformerDAO;
+    
     public DssServiceRpcScreening(String storeRootDir)
     {
-        this(storeRootDir, null, ServiceProvider.getOpenBISService(), true);
+        this(storeRootDir, null, QueryTool.getQuery(ServiceProvider.getDataSourceProvider()
+                .getDataSource(ScreeningConstants.IMAGING_DATA_SOURCE),
+                IImagingTransformerDAO.class), ServiceProvider.getOpenBISService(), true);
     }
 
-    DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
+    DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao, IImagingTransformerDAO transformerDAO,
             IEncapsulatedOpenBISService service, boolean registerAtNameService)
     {
         super(service);
         this.dao = dao;
+        this.transformerDAO = transformerDAO;
         setStoreDirectory(new File(storeRootDir));
         if (registerAtNameService)
         {
@@ -353,6 +368,78 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             imageContents.add(content);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
+    }
+    
+    
+
+    public void saveImageTransformerFactory(String sessionToken, List<IDatasetIdentifier> dataSetIdentifiers,
+            String channel, IImageTransformerFactory transformerFactory)
+    {
+        List<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
+        for (String experimentPermID : experimentPermIDs)
+        {
+            if (ScreeningConstants.MERGED_CHANNELS.equals(channel))
+            {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("save image transformer factory " + transformerFactory
+                            + " for experiment " + experimentPermID);
+                }
+                transformerDAO
+                .saveTransformerFactoryForExperiment(experimentPermID, transformerFactory);
+            } else
+            {
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog
+                    .info("save image transformer factory " + transformerFactory
+                            + " for experiment " + experimentPermID + " and channel '"
+                            + channel + "'.");
+                }
+                transformerDAO.saveTransformerFactoryForChannel(experimentPermID, channel,
+                        transformerFactory);
+            }
+        }
+        transformerDAO.commit();
+    }
+    
+    public IImageTransformerFactory getImageTransformerFactory(String sessionToken,
+            List<IDatasetIdentifier> dataSetIdentifiers, String channel)
+    {
+        List<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
+        if (experimentPermIDs.isEmpty())
+        {
+            throw new UserFailureException("No data set identifers specified.");
+        }
+        if (experimentPermIDs.size() > 1)
+        {
+            throw new UserFailureException("All data sets have to belong to the same experiment: "
+                    + dataSetIdentifiers);
+        }
+        String experimentPermID = experimentPermIDs.get(0);
+        if (ScreeningConstants.MERGED_CHANNELS.equals(channel))
+        {
+            return getDAO().tryGetExperimentByPermId(experimentPermID).getImageTransformerFactory();
+        }
+        return getDAO().tryGetChannelByChannelCodeAndExperimentPermId(experimentPermID, channel)
+                .getImageTransformerFactory();
+    }
+
+    private List<String> getExperimentPermIDs(String sessionToken,
+            List<IDatasetIdentifier> dataSetIdentifiers)
+    {
+        List<String> experimentPermIDs = new ArrayList<String>();
+        for (IDatasetIdentifier dataSetIdentifier : dataSetIdentifiers)
+        {
+            ExternalData dataSet =
+                getOpenBISService().tryGetDataSet(sessionToken, dataSetIdentifier.getDatasetCode());
+            if (dataSet == null)
+            {
+                throw new UserFailureException("Unkown data set " + dataSetIdentifier);
+            }
+            experimentPermIDs.add(dataSet.getExperiment().getPermId());
+        }
+        return experimentPermIDs;
     }
 
     private List<PlateImageReference> createPlateImageReferences(

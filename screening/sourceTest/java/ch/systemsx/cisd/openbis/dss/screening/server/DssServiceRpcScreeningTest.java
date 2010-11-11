@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
@@ -70,16 +71,19 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private DssServiceRpcScreening screeningService;
 
+    private IImagingTransformerDAO transformerDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
+        transformerDAO = context.mock(IImagingTransformerDAO.class);
         featureVectorDatasetIdentifier1 = create("ds1");
         featureVectorDatasetIdentifier2 = create("ds2");
 
-        screeningService = new DssServiceRpcScreening("targets", dao, service, false);
+        screeningService = new DssServiceRpcScreening("targets", dao, transformerDAO, service, false);
     }
 
     private IFeatureVectorDatasetIdentifier create(final String dataSetCode)
