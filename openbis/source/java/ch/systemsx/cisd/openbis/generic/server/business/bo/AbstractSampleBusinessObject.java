@@ -214,7 +214,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         final Set<SamplePE> parentPEs = new HashSet<SamplePE>();
         for (SampleIdentifier si : parentIdentifiers)
         {
-            // TODO 2010-11-10, Piotr Buczek: use cache
             SamplePE parent = getSampleByIdentifier(si);
             parentPEs.add(parent);
         }

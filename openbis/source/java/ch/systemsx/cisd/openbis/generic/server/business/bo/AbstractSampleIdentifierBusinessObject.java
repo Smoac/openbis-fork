@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwnerFinder;
@@ -35,6 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessObject
 {
+    private final Map<SampleIdentifier, SamplePE> sampleByIdentifierCache =
+            new HashMap<SampleIdentifier, SamplePE>();
+
     private final SampleOwnerFinder sampleOwnerFinder;
 
     AbstractSampleIdentifierBusinessObject(final IDAOFactory daoFactory, final Session session)
@@ -70,27 +76,35 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     protected SamplePE tryToGetSampleByIdentifier(final SampleIdentifier sampleIdentifier)
     {
-        // TODO 2010-11-10, Piotr Buczek: use cache
         assert sampleIdentifier != null : "Sample identifier unspecified.";
-        final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(sampleIdentifier);
-        final String sampleCode = sampleIdentifier.getSampleCode();
-        final ISampleDAO sampleDAO = getSampleDAO();
-        final SamplePE sample;
-        if (sampleOwner.isDatabaseInstanceLevel())
+
+        final SamplePE cachedResult = sampleByIdentifierCache.get(sampleIdentifier);
+        if (cachedResult != null)
         {
-            sample =
-                    sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode,
-                            sampleOwner.tryGetDatabaseInstance());
+            return cachedResult;
         } else
         {
-            assert sampleOwner.isGroupLevel() : "Must be of space level.";
-            sample = sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup());
+            final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(sampleIdentifier);
+            final String sampleCode = sampleIdentifier.getSampleCode();
+            final ISampleDAO sampleDAO = getSampleDAO();
+            final SamplePE result;
+            if (sampleOwner.isDatabaseInstanceLevel())
+            {
+                result =
+                        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode,
+                                sampleOwner.tryGetDatabaseInstance());
+            } else
+            {
+                assert sampleOwner.isGroupLevel() : "Must be of space level.";
+                result = sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup());
+            }
+            if (result != null)
+            {
+                HibernateUtils.initialize(result.getExperiment());
+                sampleByIdentifierCache.put(sampleIdentifier, result);
+            }
+            return result;
         }
-        if (sample != null)
-        {
-            HibernateUtils.initialize(sample.getExperiment());
-        }
-        return sample;
     }
 
     /**
