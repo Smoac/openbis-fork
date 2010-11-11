@@ -403,7 +403,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         transformerDAO.commit();
     }
     
-    public IImageTransformerFactory getImageTransformerFactory(String sessionToken,
+    public IImageTransformerFactory getImageTransformerFactoryOrNull(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
         List<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);

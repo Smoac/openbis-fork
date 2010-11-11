@@ -168,6 +168,10 @@ public interface IDssServiceRpcScreening extends IRpcService
             @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull);
     
+    /**
+     * Saves the specified transformer factory for the specified channel and the experiment to
+     * which the specified data sets belong.
+     */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
     public void saveImageTransformerFactory(
@@ -175,9 +179,15 @@ public interface IDssServiceRpcScreening extends IRpcService
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<IDatasetIdentifier> dataSetIdentifiers,
             String channel, IImageTransformerFactory transformerFactory);
 
+    /**
+     * Returns the transformer factory for the specified channel and the experiment to which
+     * the specified data sets belong.
+     * 
+     * @return <code>null</code> if such a factory has been defined yet.
+     */
     @MinimalMinorVersion(4)
     @DataSetAccessGuard
-    public IImageTransformerFactory getImageTransformerFactory(
+    public IImageTransformerFactory getImageTransformerFactoryOrNull(
             String sessionToken,
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<IDatasetIdentifier> dataSetIdentifiers,
             String channel);
