@@ -55,7 +55,7 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         boolean updateExperiment = isColumnAvailable(UpdatedSample.EXPERIMENT);
         boolean updateParent = isColumnAvailable(UpdatedSample.PARENT);
         boolean updateParents = isColumnAvailable(UpdatedSample.PARENTS);
-        if (updateParent == updateParents == true)
+        if (updateParent == true && updateParents == true)
         {
             throw new ParserException("Both '" + UpdatedSample.PARENT + "' and '"
                     + UpdatedSample.PARENTS
