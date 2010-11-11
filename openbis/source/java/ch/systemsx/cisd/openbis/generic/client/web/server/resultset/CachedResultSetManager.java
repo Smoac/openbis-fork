@@ -35,6 +35,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
@@ -70,16 +71,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     @Private
     static final int MAX_DISTINCT_COLUMN_VALUES_SIZE = 50;
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            CachedResultSetManager.class);
 
     private static final GridCustomColumnInfo translate(GridCustomColumn columnDefinition)
     {
         return new GridCustomColumnInfo(columnDefinition.getCode(), columnDefinition.getName(),
                 columnDefinition.getDescription(), columnDefinition.getDataType());
     }
-    
-    private static <T> String getOriginalValue(IColumnDefinition<T> definition, final GridRowModel<T> row)
+
+    private static <T> String getOriginalValue(IColumnDefinition<T> definition,
+            final GridRowModel<T> row)
     {
         Comparable<?> value = definition.tryGetComparableValue(row);
         return value == null ? "" : value.toString();
@@ -88,16 +90,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     static interface IColumnCalculator
     {
         /**
-         * Calculates the values of the specified custom column definition by using specified data and
-         * specified column definitions. In case of an error the column value is an error message.
+         * Calculates the values of the specified custom column definition by using specified data
+         * and specified column definitions. In case of an error the column value is an error
+         * message.
          * 
          * @param errorMessagesAreLong if <code>true</code> a long error message will be created.
          */
         public <T> List<PrimitiveValue> evalCustomColumn(List<T> data,
                 GridCustomColumn customColumn, Set<IColumnDefinition<T>> availableColumns,
-                boolean errorMessagesAreLong);   
+                boolean errorMessagesAreLong);
     }
-    
+
     private static final class Column
     {
         private final GridCustomColumn columnDefinition;
@@ -139,13 +142,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         private final IColumnCalculator columnCalculator;
 
         private final List<TableModelColumnHeader> headers;
-        
-        private final List<IColumnDefinition<T>> headerColumnDefinitions = new ArrayList<IColumnDefinition<T>>();
-        
+
+        private final List<IColumnDefinition<T>> headerColumnDefinitions =
+                new ArrayList<IColumnDefinition<T>>();
+
         private Map<String, Column> calculatedColumns = new HashMap<String, Column>();
 
-        TableData(List<T> originalData, List<TableModelColumnHeader> headers, ICustomColumnsProvider customColumnsProvider,
-                IColumnCalculator columnCalculator)
+        TableData(List<T> originalData, List<TableModelColumnHeader> headers,
+                ICustomColumnsProvider customColumnsProvider, IColumnCalculator columnCalculator)
         {
             this.originalData = originalData;
             this.headers = headers;
@@ -422,7 +426,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     // all cache access should be doen in a monitor (synchronized clause)
     private final Map<K, TableData<?>> cache = new HashMap<K, TableData<?>>();
-    
+
     private final XMLPropertyTransformer xmlPropertyTransformer = new XMLPropertyTransformer();
 
     private final IColumnCalculator columnCalculator;
@@ -512,7 +516,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             ITableDataProvider dataProvider =
                     TableDataProviderFactory.createDataProvider(rows,
                             new ArrayList<IColumnDefinition<T>>(availableColumns));
-            List<Integer> indices = GridExpressionUtils.applyCustomFilter(dataProvider, customFilterInfo);
+            List<Integer> indices =
+                    GridExpressionUtils.applyCustomFilter(dataProvider, customFilterInfo);
             filteredRows = new ArrayList<GridRowModel<T>>();
             for (Integer index : indices)
             {
@@ -631,6 +636,19 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     public final <T> IResultSet<K, T> getResultSet(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
+        // Get the raw result set
+        IResultSet<K, T> cachedResultSet =
+                getRawResultSet(sessionToken, resultConfig, dataProvider);
+
+        return cachedResultSet;
+    }
+
+    /**
+     * Raw handling of retrieving the result set from the cache -- no HTML escaping is applied.
+     */
+    private final <T> IResultSet<K, T> getRawResultSet(final String sessionToken,
+            final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
+    {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
         ResultSetFetchConfig<K> cacheConfig = resultConfig.getCacheConfig();
@@ -665,11 +683,19 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         List<T> rows = dataProvider.getOriginalData();
         List<TableModelColumnHeader> headers = dataProvider.getHeaders();
         xmlPropertyTransformer.transformXMLProperties(rows);
-        TableData<T> tableData = new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+        TableData<T> tableData =
+                new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
+
+        // Escape the values
+        for (T row : rows)
+        {
+            ReflectingStringEscaper.escapeDeep(row);
+        }
+
         addToCache(dataKey, tableData);
         return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);
     }
-    
+
     private synchronized <T> void addToCache(K dataKey, TableData<T> tableData)
     {
         cache.put(dataKey, tableData);

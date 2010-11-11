@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
-import java.util.WeakHashMap;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -31,6 +29,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 
 /**
  * The advisor for automatically escaping HTML strings in the values returned by the
@@ -80,13 +80,31 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
                 return false;
             }
 
-            if (method.getName().equals("getApplicationInfo"))
+            if (method.getReturnType() == Void.TYPE)
             {
-                escapeLog.info("Asked to handle getApplicationInfo");
                 return false;
             }
 
-            if (method.getReturnType() == Void.TYPE)
+            // This is handled in the cache manager
+            if (method.getReturnType() == TypedTableResultSet.class)
+            {
+                return false;
+            }
+
+            // This is handled in the cache manager
+            if (method.getReturnType() == ResultSet.class)
+            {
+                return false;
+            }
+
+            // Don't need to escape this method
+            if ("getLastModificationState".equals(method.getName()))
+            {
+                return false;
+            }
+
+            // This is handled in the cache manager
+            if (method.getReturnType() == ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes.class)
             {
                 return false;
             }
@@ -103,9 +121,6 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
     public static class StringHtmlEscapingPointcutAdvisorMethodInterceptor implements
             MethodInterceptor
     {
-        private final WeakHashMap<Object, WeakReference<Object>> alreadyEscapedObjects =
-                new WeakHashMap<Object, WeakReference<Object>>();
-
         /**
          * Get the session token and any guarded parameters and invoke the guards on those
          * parameters.
@@ -114,32 +129,34 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
         {
             Object result = methodInvocation.proceed();
 
-            // check if the object has already been escaped
-            synchronized (this)
-            {
-                WeakReference<Object> alreadyEscaped = alreadyEscapedObjects.get(result);
-                if (alreadyEscaped != null)
-                {
-                    escapeObject(methodInvocation, result);
-                    alreadyEscapedObjects.put(result, new WeakReference<Object>(result));
-                }
-            }
+            result = escapeObject(methodInvocation, result);
 
             return result;
         }
 
-        private void escapeObject(MethodInvocation methodInvocation, Object result)
+        private Object escapeObject(MethodInvocation methodInvocation, Object unescapedResult)
         {
-            escapeLog.info(methodInvocation.getMethod().getName() + " converting   " + result);
-            if (result instanceof String)
+            Object result = unescapedResult;
+            escapeLog.info(methodInvocation.getMethod().getName() + " converting   "
+                    + unescapedResult);
+            if (unescapedResult instanceof String)
             {
-                StringEscapeUtils.escapeHtml((String) result);
+                if ("getExportTable".equals(methodInvocation.getMethod().getName()))
+                {
+                    result = StringEscapeUtils.unescapeHtml((String) unescapedResult);
+                } else
+                {
+                    // Do we need to escape strings in general?
+                    // StringEscapeUtils.escapeHtml((String) unescapedResult);
+                }
             } else
             {
                 // Escape the result objects
-                ReflectingStringEscaper.escapeDeep(result);
+                ReflectingStringEscaper.escapeDeep(unescapedResult);
             }
-            escapeLog.info(methodInvocation.getMethod().getName() + " converted to " + result);
+            escapeLog.info(methodInvocation.getMethod().getName() + " converted to "
+                    + unescapedResult);
+            return result;
         }
     }
 }
