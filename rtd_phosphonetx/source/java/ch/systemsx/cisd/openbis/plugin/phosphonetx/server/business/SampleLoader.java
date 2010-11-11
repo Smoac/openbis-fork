@@ -35,14 +35,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class SampleLoader implements ISampleLoader
 {
     private final Session session;
+
     private final IDAOFactory daoFactory;
+
     private final ICommonBusinessObjectFactory businessObjectFactory;
 
     public SampleLoader(Session session, IDAOFactory daoFactory,
@@ -51,9 +51,9 @@ public class SampleLoader implements ISampleLoader
         this.session = session;
         this.daoFactory = daoFactory;
         this.businessObjectFactory = businessObjectFactory;
-        
+
     }
-    
+
     public List<Sample> listSamplesWithParentsByTypeAndSpace(String sampleTypeCode, String spaceCode)
     {
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
@@ -109,13 +109,11 @@ public class SampleLoader implements ISampleLoader
                         }
                     });
         Set<Long> filteredSampleIDs = new HashSet<Long>();
-        Set<Long> parentIDs = new HashSet<Long>();
         for (SampleRelationShipSkeleton sampleRelationShipSkeleton : relationshipSkeletons)
         {
             filteredSampleIDs.add(sampleRelationShipSkeleton.getChildSampleID());
-            parentIDs.add(sampleRelationShipSkeleton.getParentSampleID());
         }
         return filteredSampleIDs;
     }
-    
+
 }
