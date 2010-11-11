@@ -265,7 +265,7 @@ public class WellContentDialog extends Dialog
         if (wellLocation == null)
         {
             // images stacks cannot be obtained
-            showStaticImageDialog(contentDialog, imageDataset, channelState, viewContext);
+            contentDialog.show();
         }
         contentDialog.setDataSetCode(imageDataset.getDatasetCode());
         viewContext.getService().listImageChannelStacks(imageDataset.getDatasetCode(),
@@ -277,8 +277,7 @@ public class WellContentDialog extends Dialog
                         {
                             if (channelStackImages.size() == 0)
                             {
-                                showStaticImageDialog(contentDialog, imageDataset, channelState,
-                                        viewContext);
+                                contentDialog.show();
                             } else
                             {
                                 final WellImages wellImages = new WellImages(imageDataset, wellLocation);
