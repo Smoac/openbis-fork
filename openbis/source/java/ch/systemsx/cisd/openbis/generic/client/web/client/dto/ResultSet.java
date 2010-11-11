@@ -82,4 +82,11 @@ public final class ResultSet<T> implements IsSerializable, IResultSetHolder<T>
     {
         return this;
     }
+
+    @Override
+    public String toString()
+    {
+        return list.toString();
+    }
+
 }

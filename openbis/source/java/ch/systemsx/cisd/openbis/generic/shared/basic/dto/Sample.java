@@ -298,4 +298,15 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         return permId;
     }
 
+    @Override
+    public String toString()
+    {
+        return "Sample [sampleType=" + sampleType + ", space=" + space + ", databaseInstance="
+                + databaseInstance + ", identifier=" + identifier + ", container=" + container
+                + ", parents=" + parents + ", properties=" + properties + ", invalidation="
+                + invalidation + ", experiment=" + experiment + ", id=" + id
+                + ", modificationDate=" + modificationDate + ", attachments=" + attachments
+                + ", permId=" + permId + ", permlink=" + permlink + ", searchlink=" + searchlink
+                + ", subCode=" + subCode + "]";
+    }
 }

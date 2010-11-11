@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -108,7 +107,7 @@ public class ExternalDataTranslator
         setProperties(externalDataPE, externalData);
         externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
                 withExperimentFields));
-        return ReflectingStringEscaper.escapeShallow(externalData);
+        return externalData;
     }
 
     private static void setProperties(ExternalDataPE externalDataPE, ExternalData externalData)
@@ -168,7 +167,7 @@ public class ExternalDataTranslator
         result.setReason(invalidationPE.getReason());
         result.setRegistrationDate(invalidationPE.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(invalidationPE.getRegistrator()));
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     private static Sample fillSample(Sample sample, SamplePE samplePE, boolean loadSampleProperties)
@@ -187,7 +186,7 @@ public class ExternalDataTranslator
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
                     new HashMap<PropertyTypePE, PropertyType>()));
         }
-        return ReflectingStringEscaper.escapeShallow(sample);
+        return sample;
     }
 
     private static void setChildren(ExternalDataPE externalDataPE, ExternalData externalData)
@@ -213,6 +212,6 @@ public class ExternalDataTranslator
         externalData.setCode(dataPE.getCode());
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
-        return ReflectingStringEscaper.escapeShallow(externalData);
+        return externalData;
     }
 }

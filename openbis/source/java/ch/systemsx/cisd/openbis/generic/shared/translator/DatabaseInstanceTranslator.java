@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -36,22 +35,6 @@ public final class DatabaseInstanceTranslator
     }
 
     public final static DatabaseInstance translate(final DatabaseInstancePE databaseInstance)
-    {
-        if (databaseInstance == null)
-        {
-            return null;
-        }
-        final DatabaseInstance result = new DatabaseInstance();
-        result.setId(HibernateUtils.getId(databaseInstance));
-        result.setCode(databaseInstance.getCode());
-        result.setUuid(databaseInstance.getUuid());
-        result.setIdentifier(IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstance)
-                .toString());
-        return ReflectingStringEscaper.escapeShallow(result);
-    }
-
-    public final static DatabaseInstance translateWithoutEscaping(
-            final DatabaseInstancePE databaseInstance)
     {
         if (databaseInstance == null)
         {

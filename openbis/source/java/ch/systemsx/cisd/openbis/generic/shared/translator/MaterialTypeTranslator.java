@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -49,12 +48,6 @@ public class MaterialTypeTranslator
         return translate(entityTypeOrNull, true, cacheOrNull);
     }
 
-    public static MaterialType translateWithoutEscaping(MaterialTypePE entityTypeOrNull,
-            Map<PropertyTypePE, PropertyType> cacheOrNull)
-    {
-        return translateWithoutEscaping(entityTypeOrNull, true, cacheOrNull);
-    }
-
     public static MaterialType translate(MaterialTypePE entityTypeOrNull, boolean withProperties,
             Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
@@ -63,24 +56,6 @@ public class MaterialTypeTranslator
             return null;
         }
         final MaterialType result = translateSimple(entityTypeOrNull);
-        if (withProperties == false)
-        {
-            unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
-        }
-        result.setMaterialTypePropertyTypes(EntityType
-                .sortedInternally(MaterialTypePropertyTypeTranslator.translate(
-                        entityTypeOrNull.getMaterialTypePropertyTypes(), result, cacheOrNull)));
-        return result;
-    }
-
-    public static MaterialType translateWithoutEscaping(MaterialTypePE entityTypeOrNull,
-            boolean withProperties, Map<PropertyTypePE, PropertyType> cacheOrNull)
-    {
-        if (entityTypeOrNull == null)
-        {
-            return null;
-        }
-        final MaterialType result = translateSimpleWithoutEscaping(entityTypeOrNull);
         if (withProperties == false)
         {
             unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
@@ -100,18 +75,6 @@ public class MaterialTypeTranslator
         result.setDescription(entityTypeOrNull.getDescription());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
-        return ReflectingStringEscaper.escapeShallow(result);
-    }
-
-    /** translates basic information, without properties */
-    public static MaterialType translateSimpleWithoutEscaping(EntityTypePE entityTypeOrNull)
-    {
-        final MaterialType result = new MaterialType();
-        result.setId(HibernateUtils.getId(entityTypeOrNull));
-        result.setCode(entityTypeOrNull.getCode());
-        result.setDescription(entityTypeOrNull.getDescription());
-        result.setDatabaseInstance(DatabaseInstanceTranslator
-                .translateWithoutEscaping(entityTypeOrNull.getDatabaseInstance()));
         return result;
     }
 

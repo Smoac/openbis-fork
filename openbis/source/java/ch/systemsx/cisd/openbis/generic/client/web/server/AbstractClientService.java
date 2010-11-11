@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IOnlineHelpResourceLocatorService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -83,7 +84,7 @@ public abstract class AbstractClientService implements IClientService,
     private IRequestContextProvider requestContextProvider;
 
     @Resource(name = "common-service")
-    protected CommonClientService commonClientService;
+    protected ICommonClientService commonClientService;
 
     private String cifexURL;
 
@@ -100,6 +101,10 @@ public abstract class AbstractClientService implements IClientService,
     private WebClientConfigurationProvider webClientConfigurationProvider;
 
     private int maxResults;
+
+    // This is to prevent infinite recursion when the commonClientService is actually a proxy to
+    // myself.
+    private int getApplicationInfoInvocationCount = 0;
 
     protected AbstractClientService()
     {
@@ -393,7 +398,8 @@ public abstract class AbstractClientService implements IClientService,
     public final ApplicationInfo getApplicationInfo()
     {
         final ApplicationInfo applicationInfo = new ApplicationInfo();
-        if (commonClientService == null || commonClientService == this)
+        if (commonClientService == null || commonClientService == this
+                || getApplicationInfoInvocationCount > 0)
         {
             applicationInfo.setCIFEXURL(cifexURL);
             applicationInfo.setCifexRecipient(cifexRecipient);
@@ -402,7 +408,9 @@ public abstract class AbstractClientService implements IClientService,
                     .getWebClientConfiguration());
         } else
         {
+            getApplicationInfoInvocationCount++;
             ApplicationInfo commonApplicationInfo = commonClientService.getApplicationInfo();
+            getApplicationInfoInvocationCount--;
             applicationInfo.setCIFEXURL(commonApplicationInfo.getCIFEXURL());
             applicationInfo.setMaxResults(commonApplicationInfo.getMaxResults());
             applicationInfo.setCifexRecipient(commonApplicationInfo.getCifexRecipient());

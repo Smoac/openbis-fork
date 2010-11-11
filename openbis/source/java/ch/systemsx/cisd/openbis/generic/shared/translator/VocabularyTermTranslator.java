@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
@@ -51,7 +50,7 @@ public class VocabularyTermTranslator
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
 
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public static VocabularyTerm translateWithoutEscaping(VocabularyTermPE vt)
@@ -68,7 +67,7 @@ public class VocabularyTermTranslator
         result.setOrdinal(vt.getOrdinal());
         result.setUrl(vt.getUrl());
         result.setRegistrationDate(vt.getRegistrationDate());
-        result.setRegistrator(PersonTranslator.translateWithoutEscaping(vt.getRegistrator()));
+        result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));
         return result;
     }
 

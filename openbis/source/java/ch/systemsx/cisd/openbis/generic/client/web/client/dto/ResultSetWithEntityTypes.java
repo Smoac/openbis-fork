@@ -62,4 +62,15 @@ public class ResultSetWithEntityTypes<T extends IEntityInformationHolder> implem
         return availableEntityTypes;
     }
 
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nAvailable entitiy types:\n\t");
+        sb.append(availableEntityTypes.toString());
+        sb.append("\nResult set:\n\t");
+        sb.append(resultSet.toString());
+        return sb.toString();
+    }
+
 }

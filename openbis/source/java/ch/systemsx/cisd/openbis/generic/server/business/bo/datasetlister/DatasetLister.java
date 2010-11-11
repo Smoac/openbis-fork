@@ -42,7 +42,6 @@ import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
@@ -534,8 +533,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataset.setRegistrator(getOrCreateRegistrator(record.pers_id_registerer));
         dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
 
-        ReflectingStringEscaper.escapeShallow(dataset);
-
         if (record.samp_id != null)
         {
             Sample sample = new Sample();
@@ -567,8 +564,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataset.setId(record.id);
         dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.DATA_SET,
                 record.code));
-
-        ReflectingStringEscaper.escapeShallow(dataset);
         return dataset;
     }
 
@@ -602,7 +597,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private static void setCode(Code<?> codeHolder, CodeRecord codeRecord)
     {
         codeHolder.setCode(codeRecord.code);
-        ReflectingStringEscaper.escapeShallow(codeHolder);
     }
 
     private static DataStore createDataStore(DataStoreRecord codeRecord)

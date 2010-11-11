@@ -33,7 +33,6 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
@@ -617,7 +616,6 @@ final class SampleListingWorker extends AbstractLister
             addRelatedContainerSampleToRequested(row.samp_id_part_of);
         }
 
-        ReflectingStringEscaper.escapeShallow(sample);
         return sample;
     }
 

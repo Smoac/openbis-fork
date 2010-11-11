@@ -93,6 +93,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("SIRNA_HCS", experiment.getExperimentType().getCode());
         List<IEntityProperty> properties = experiment.getProperties();
         assertEquals("DESCRIPTION", properties.get(0).getPropertyType().getCode());
+        // Make sure the string is escaped
         assertEquals(StringEscapeUtils.escapeHtml("my éxpériment"), properties.get(0)
                 .tryGetAsString());
         assertEquals(1, properties.size());

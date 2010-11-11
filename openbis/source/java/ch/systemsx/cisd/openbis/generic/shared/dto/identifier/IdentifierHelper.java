@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -119,7 +118,7 @@ public final class IdentifierHelper
      */
     public final static String extractSubCode(SamplePE samplePE)
     {
-        return StringEscapeUtils.escapeHtml(samplePE.getCode());
+        return samplePE.getCode();
     }
 
     /**
@@ -128,7 +127,7 @@ public final class IdentifierHelper
      */
     public final static String convertSubCode(String sampleCode)
     {
-        return StringEscapeUtils.escapeHtml(sampleCode);
+        return sampleCode;
     }
 
     /**
@@ -144,8 +143,7 @@ public final class IdentifierHelper
         if (samplePE.getContainer() != null
                 && HibernateUtils.isInitialized(samplePE.getContainer()))
         {
-            final String containerCode =
-                    StringEscapeUtils.escapeHtml(samplePE.getContainer().getCode());
+            final String containerCode = samplePE.getContainer().getCode();
             code = containerCode + ":" + subCode;
         } else
         {
@@ -168,7 +166,7 @@ public final class IdentifierHelper
         final String code;
         if (containerCodeOrNull != null)
         {
-            final String containerCode = StringEscapeUtils.escapeHtml(containerCodeOrNull);
+            final String containerCode = containerCodeOrNull;
             code = containerCode + ":" + subCode;
         } else
         {

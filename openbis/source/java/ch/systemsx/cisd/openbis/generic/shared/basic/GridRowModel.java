@@ -89,4 +89,11 @@ public class GridRowModel<T> implements IsSerializable
     private GridRowModel()
     {
     }
+
+    @Override
+    public String toString()
+    {
+        return "GridRowModel [originalObject=" + originalObject + ", calculatedColumnValues="
+                + calculatedColumnValues + "]";
+    }
 }

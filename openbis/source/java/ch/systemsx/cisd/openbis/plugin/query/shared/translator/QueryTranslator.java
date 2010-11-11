@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator;
@@ -75,7 +74,7 @@ public final class QueryTranslator
         result.setEntityTypeCode(original.getEntityTypeCodePattern());
         result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
-        GridCustomExpressionTranslator.translateExpressionWithoutEscaping(original, result);
-        return ReflectingStringEscaper.escapeShallow(result);
+        GridCustomExpressionTranslator.translateExpression(original, result);
+        return result;
     }
 }

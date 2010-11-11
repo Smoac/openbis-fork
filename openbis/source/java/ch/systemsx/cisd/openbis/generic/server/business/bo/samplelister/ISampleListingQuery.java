@@ -30,7 +30,6 @@ import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
@@ -295,8 +294,6 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             into.setCode(row.getString("code"));
             into.setGeneratedFromHierarchyDepth(row.getInt("generated_from_depth"));
             into.setShowContainer(row.getInt("part_of_depth") > 0);
-
-            ReflectingStringEscaper.escapeShallow(into);
         }
     }
 

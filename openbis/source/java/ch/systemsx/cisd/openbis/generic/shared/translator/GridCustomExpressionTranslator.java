@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -64,8 +63,8 @@ public final class GridCustomExpressionTranslator
             result.setCode(original.getCode());
             result.setName(original.getLabel());
 
-            translateExpressionWithoutEscaping(original, result);
-            return ReflectingStringEscaper.escapeShallow(result);
+            translateExpression(original, result);
+            return result;
         }
     }
 
@@ -96,13 +95,13 @@ public final class GridCustomExpressionTranslator
             result.setName(original.getName());
             result.setupParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
-            translateExpressionWithoutEscaping(original, result);
-            return ReflectingStringEscaper.escapeShallow(result);
+            translateExpression(original, result);
+            return result;
         }
 
     }
 
-    public static void translateExpressionWithoutEscaping(final AbstractExpressionPE<?> expression,
+    public static void translateExpression(final AbstractExpressionPE<?> expression,
             final AbstractExpression result)
     {
         result.setId(HibernateUtils.getId(expression));

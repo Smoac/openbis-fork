@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -137,7 +136,7 @@ public final class SampleTranslator
             }
         }
         result.setInvalidation(InvalidationTranslator.translate(samplePE.getInvalidation()));
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     /** Sets both subcode and "full" code to {@link Sample} translating it from {@link SamplePE}. */

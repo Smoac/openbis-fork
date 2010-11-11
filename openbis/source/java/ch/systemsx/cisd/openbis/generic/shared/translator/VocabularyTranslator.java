@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -50,7 +49,7 @@ public final class VocabularyTranslator
         result.setURLTemplate(vocabulary.getURLTemplate());
         result.setRegistrationDate(vocabulary.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vocabulary.getRegistrator()));
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public static List<Vocabulary> translate(List<VocabularyPE> vocabularies)

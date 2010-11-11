@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.hamcrest.core.IsEqual;
 import org.jmock.Expectations;
@@ -366,11 +365,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(person.getDatabaseInstance(), persons.get(0).getDatabaseInstance());
         assertEquals(1, persons.size());
 
-        // Check that strings are being escaped
-        assertEquals(StringEscapeUtils.escapeHtml(personPE.getFirstName()), person.getFirstName());
-        assertEquals(StringEscapeUtils.escapeHtml(personPE.getLastName()), person.getLastName());
-        assertEquals(StringEscapeUtils.escapeHtml(personPE.getEmail()), person.getEmail());
-        assertEquals(StringEscapeUtils.escapeHtml(personPE.getUserId()), person.getUserId());
+        // Check that strings are not being escaped
+        assertEquals(personPE.getFirstName(), person.getFirstName());
+        assertEquals(personPE.getLastName(), person.getLastName());
+        assertEquals(personPE.getEmail(), person.getEmail());
+        assertEquals(personPE.getUserId(), person.getUserId());
 
         context.assertIsSatisfied();
     }
@@ -1471,7 +1470,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(experimentPE.getCode(), experiment.getCode());
         assertEquals(experimentPE.getExperimentType().getCode(), experiment.getExperimentType()
                 .getCode());
-        assertEquals(StringEscapeUtils.escapeHtml(experimentPE.getPermId()), experiment.getPermId());
+        assertEquals(experimentPE.getPermId(), experiment.getPermId());
         context.assertIsSatisfied();
     }
 }

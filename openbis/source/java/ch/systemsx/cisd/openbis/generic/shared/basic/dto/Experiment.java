@@ -143,7 +143,11 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
     @Override
     public String toString()
     {
-        return getIdentifier();
+        return "Experiment [project=" + project + ", experimentType=" + experimentType
+                + ", identifier=" + identifier + ", properties=" + properties + ", invalidation="
+                + invalidation + ", attachments=" + attachments + ", id=" + id
+                + ", modificationDate=" + modificationDate + ", permId=" + permId + ", permlink="
+                + permlink + "]";
     }
 
     //

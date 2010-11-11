@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
@@ -34,7 +33,7 @@ public class DataStoreTranslator
         downloadUrl = translateDownloadUrl(downloadUrl);
         dataStore.setDownloadUrl(downloadUrl);
         dataStore.setCode(dataStorePE.getCode());
-        return ReflectingStringEscaper.escapeShallow(dataStore);
+        return dataStore;
     }
 
     public static String translateDownloadUrl(String downloadUrl)

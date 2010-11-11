@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
@@ -74,7 +73,7 @@ public class TypeTranslator
             type.setCode(typePEOrNull.getCode());
             type.setDescription(typePEOrNull.getDescription());
         }
-        return ReflectingStringEscaper.escapeShallow(type);
+        return type;
     }
 
 }

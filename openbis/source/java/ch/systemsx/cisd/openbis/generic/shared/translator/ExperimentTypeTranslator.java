@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -43,7 +42,7 @@ public class ExperimentTypeTranslator
                         experimentTypePE.getExperimentTypePropertyTypes(), result, cachedOrNull)));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentTypePE
                 .getDatabaseInstance()));
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes,

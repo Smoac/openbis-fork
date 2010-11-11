@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -77,14 +76,13 @@ public final class ExperimentTranslator
         result.setPermId(experiment.getPermId());
         result.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.EXPERIMENT,
                 experiment.getPermId()));
-        result.setExperimentType(translateWithoutEscaping(experiment.getExperimentType(),
+        result.setExperimentType(translate(experiment.getExperimentType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         result.setIdentifier(experiment.getIdentifier());
-        result.setProject(ProjectTranslator.translateWithoutEscaping(experiment.getProject()));
+        result.setProject(ProjectTranslator.translate(experiment.getProject()));
         result.setRegistrationDate(experiment.getRegistrationDate());
-        result.setRegistrator(PersonTranslator.translateWithoutEscaping(experiment.getRegistrator()));
-        result.setInvalidation(InvalidationTranslator.translateWithoutEscaping(experiment
-                .getInvalidation()));
+        result.setRegistrator(PersonTranslator.translate(experiment.getRegistrator()));
+        result.setInvalidation(InvalidationTranslator.translate(experiment.getInvalidation()));
         for (final LoadableFields field : withFields)
         {
             switch (field)
@@ -93,7 +91,7 @@ public final class ExperimentTranslator
                     setProperties(experiment, result);
                     break;
                 case ATTACHMENTS:
-                    result.setAttachments(AttachmentTranslator.translateWithoutEscaping(
+                    result.setAttachments(AttachmentTranslator.translate(
                             experiment.getAttachments(), baseIndexURL));
                     break;
                 default:
@@ -101,7 +99,7 @@ public final class ExperimentTranslator
             }
         }
 
-        return ReflectingStringEscaper.escapeDeep(result);
+        return result;
     }
 
     public final static List<Experiment> translate(final List<ExperimentPE> experiments,
@@ -112,20 +110,6 @@ public final class ExperimentTranslator
         {
             result.add(ExperimentTranslator.translate(experiment, baseIndexURL, withFields));
         }
-        return result;
-    }
-
-    public final static ExperimentType translateWithoutEscaping(
-            final ExperimentTypePE experimentType, Map<PropertyTypePE, PropertyType> cacheOrNull)
-    {
-        final ExperimentType result = new ExperimentType();
-        result.setCode(experimentType.getCode());
-        result.setDescription(experimentType.getDescription());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
-                .getDatabaseInstance()));
-        result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
-                experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));
-
         return result;
     }
 
@@ -140,7 +124,7 @@ public final class ExperimentTranslator
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 experimentType.getExperimentTypePropertyTypes(), result, cacheOrNull));
 
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public final static ExperimentTypePE translate(final ExperimentType experimentType)
@@ -151,7 +135,7 @@ public final class ExperimentTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
                 .getDatabaseInstance()));
 
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public final static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes)

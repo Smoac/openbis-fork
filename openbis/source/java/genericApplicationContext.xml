@@ -109,6 +109,11 @@
         <property name="maxResults" value="${hibernate.search.maxResults}" />
     </bean>
     
+    <!-- 
+        // HTML Escaping
+     -->
+    <bean id="html-escaping-advisor" class="ch.systemsx.cisd.openbis.generic.client.web.server.StringHtmlEscapingPointcutAdvisor" />
+    
     <bean id="rpc-name-server" class="ch.systemsx.cisd.common.api.server.RpcServiceNameServer" />
     
     <!-- 

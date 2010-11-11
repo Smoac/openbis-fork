@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -58,7 +57,7 @@ public class SampleTypeTranslator
                         sampleTypePE.getSampleTypePropertyTypes(), result, cacheOrNull)));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(sampleTypePE
                 .getDatabaseInstance()));
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
 
     }
 

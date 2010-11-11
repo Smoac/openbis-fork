@@ -27,7 +27,6 @@ import java.util.List;
 import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
@@ -175,8 +174,6 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         material.setModificationDate(record.modification_timestamp);
 
         material.setProperties(new ArrayList<IEntityProperty>());
-
-        ReflectingStringEscaper.escapeShallow(material);
 
         return material;
     }

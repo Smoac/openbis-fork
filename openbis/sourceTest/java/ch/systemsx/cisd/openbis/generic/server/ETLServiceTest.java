@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -387,7 +386,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
-        assertEquals(StringEscapeUtils.escapeHtml(property.getValue()), properties[0].getValue());
+        assertEquals(property.getValue(), properties[0].getValue());
         context.assertIsSatisfied();
     }
 
@@ -434,7 +433,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                         sampleIdentifier);
 
         assertEquals(1, properties.length);
-        assertEquals(StringEscapeUtils.escapeHtml(property.getValue()), properties[0].getValue());
+        assertEquals(property.getValue(), properties[0].getValue());
         context.assertIsSatisfied();
     }
 

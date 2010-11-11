@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -56,7 +55,7 @@ public class DataSetTypeTranslator
                         entityTypeOrNull.getDataSetTypePropertyTypes(), result, cacheOrNull)));
         result.setMainDataSetPath(entityTypeOrNull.getMainDataSetPath());
         result.setMainDataSetPattern(entityTypeOrNull.getMainDataSetPattern());
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public static List<DataSetType> translate(List<DataSetTypePE> dataSetTypes,

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -45,24 +44,6 @@ public final class AttachmentTranslator
     }
 
     private final static Attachment translate(final AttachmentPE attachment,
-            final String baseIndexURL)
-    {
-        if (attachment == null)
-        {
-            return null;
-        }
-        final Attachment result = new Attachment();
-        result.setPermlink(createPermlink(attachment, baseIndexURL));
-        result.setFileName(attachment.getFileName());
-        result.setTitle(attachment.getTitle());
-        result.setDescription(attachment.getDescription());
-        result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
-        result.setRegistrationDate(attachment.getRegistrationDate());
-        result.setVersion(attachment.getVersion());
-        return ReflectingStringEscaper.escapeShallow(result);
-    }
-
-    private final static Attachment translateWithoutEscaping(final AttachmentPE attachment,
             final String baseIndexURL)
     {
         if (attachment == null)
@@ -111,7 +92,7 @@ public final class AttachmentTranslator
         result.setRegistrationDate(attachment.getRegistrationDate());
         result.setVersion(attachment.getVersion());
         result.setContent(attachment.getAttachmentContent().getValue());
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public final static List<Attachment> translate(final Collection<AttachmentPE> attachments,
@@ -125,21 +106,6 @@ public final class AttachmentTranslator
         for (final AttachmentPE attachment : attachments)
         {
             result.add(translate(attachment, baseIndexURL));
-        }
-        return result;
-    }
-
-    public final static List<Attachment> translateWithoutEscaping(
-            final Collection<AttachmentPE> attachments, String baseIndexURL)
-    {
-        if (attachments == null)
-        {
-            return null;
-        }
-        final List<Attachment> result = new ArrayList<Attachment>();
-        for (final AttachmentPE attachment : attachments)
-        {
-            result.add(translateWithoutEscaping(attachment, baseIndexURL));
         }
         return result;
     }

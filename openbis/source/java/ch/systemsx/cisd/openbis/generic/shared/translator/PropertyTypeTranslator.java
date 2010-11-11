@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -86,7 +85,7 @@ public final class PropertyTypeTranslator
         result.setSchema(propertyType.getSchema());
         result.setTransformation(propertyType.getTransformation());
 
-        return ReflectingStringEscaper.escapeShallow(result);
+        return result;
     }
 
     public final static PropertyType translate(final PropertyTypePE propertyType,

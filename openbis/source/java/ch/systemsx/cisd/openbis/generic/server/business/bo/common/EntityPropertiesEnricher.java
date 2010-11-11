@@ -64,7 +64,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         {
             final IEntityPropertiesHolder entity = entities.get(val.entity_id);
             final IEntityProperty property = new GenericValueEntityProperty();
-            property.setValue(StringEscapeUtils.escapeHtml(val.value));
+            property.setValue(val.value);
             property.setPropertyType(propertyTypes.get(val.prty_id));
             entity.getProperties().add(property);
         }
@@ -159,7 +159,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         for (CodeRecord t : typeCodes)
         {
             final MaterialType type = new MaterialType();
-            type.setCode(StringEscapeUtils.escapeHtml(t.code));
+            type.setCode(t.code);
             materialTypeMap.put(t.id, type);
         }
         materialTypeMap.trim();
