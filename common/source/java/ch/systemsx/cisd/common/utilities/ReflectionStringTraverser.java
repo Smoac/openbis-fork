@@ -229,6 +229,10 @@ public class ReflectionStringTraverser
         for (int index = 0; index < length; ++index)
         {
             Object element = Array.get(array, index);
+            if (element == null)
+            {
+                continue;
+            }
             if (isString(element))
             {
                 visitStringArrayElement(array, index, element, componentType);
@@ -310,6 +314,10 @@ public class ReflectionStringTraverser
 
     private static boolean isStringCollection(Collection<?> collection)
     {
+        if (collection.isEmpty())
+        {
+            return false;
+        }
         Class<?> elementClass = figureElementClass(collection);
         return isStringClass(elementClass);
     }
