@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.images;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet.Size;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -45,14 +45,29 @@ public class TileImageReference
         return sessionId;
     }
 
+    public final void setSessionId(String sessionId)
+    {
+        this.sessionId = sessionId;
+    }
+    
     public String getDatasetCode()
     {
         return datasetCode;
     }
 
+    public final void setDatasetCode(String datasetCode)
+    {
+        this.datasetCode = datasetCode;
+    }
+    
     public Size tryGetThumbnailSize()
     {
         return thumbnailSizeOrNull;
+    }
+    
+    public final void setThumbnailSizeOrNull(Size thumbnailSizeOrNull)
+    {
+        this.thumbnailSizeOrNull = thumbnailSizeOrNull;
     }
 
     public boolean isMergeAllChannels()
@@ -60,13 +75,29 @@ public class TileImageReference
         return mergeAllChannels;
     }
 
+    public final void setMergeAllChannels(boolean mergeAllChannels)
+    {
+        this.mergeAllChannels = mergeAllChannels;
+    }
+    
     public String getChannel()
     {
         return channel;
     }
 
+    public final void setChannel(String channel)
+    {
+        this.channel = channel;
+    }
+    
     public ImageChannelStackReference getChannelStack()
     {
         return channelStackReference;
     }
+    
+    public final void setChannelStack(ImageChannelStackReference channelStackReference)
+    {
+        this.channelStackReference = channelStackReference;
+    }
+    
 }

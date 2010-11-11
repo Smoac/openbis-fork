@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -373,29 +374,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             operationLog.warn("Invalid numbers in displayMode '" + displayMode
                     + "'. Default thumbnail size is used.");
             return DEFAULT_THUMBNAIL_SIZE;
-        }
-    }
-
-    public static final class Size
-    {
-        private final int width;
-
-        private final int height;
-
-        public Size(int width, int height)
-        {
-            this.width = width;
-            this.height = height;
-        }
-
-        public int getWidth()
-        {
-            return width;
-        }
-
-        public int getHeight()
-        {
-            return height;
         }
     }
 
