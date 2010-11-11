@@ -94,7 +94,7 @@ class ReflectingStringEscaperImpl<T>
         this.bean = bean;
     }
 
-    protected T escape(ReflectionStringTraverser.ReflectionFieldVisitor visitor)
+    protected T traverse(ReflectionStringTraverser.ReflectionFieldVisitor visitor)
     {
         if (isDeep)
         {
@@ -142,7 +142,7 @@ class ReflectingStringEscaperRestricted<T> extends ReflectingStringEscaperImpl<T
 
     T escape()
     {
-        return escape(new Visitor());
+        return traverse(new Visitor());
     }
 }
 
@@ -191,6 +191,6 @@ class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl
 
     T escape()
     {
-        return escape(new Visitor());
+        return traverse(new Visitor());
     }
 }
