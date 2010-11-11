@@ -30,7 +30,7 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     public static final String SAMPLE_REGISTRATION_TEMPLATE_COMMENT =
-            "# The \"container\" and \"parents\" columns are optional, only one should be specified. "
+            "# The \"container\" and \"parents\" columns are optional, only one should be specified.\n"
                     + "# \"container\" should contain a sample identifier, e.g. /SPACE/SAMPLE_1, while \"parents\" should contain comma separated list of sample identifiers. \n"
                     + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
                     + "# If \"parents\" are provided, the registered sample will become a \"child\" of all specified samples.\n"
@@ -156,7 +156,10 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
                 : getParentsOrNull()[0];
     }
 
-    /** @deprecated convenience method for tests - use {@link #setParents(String)} instead */
+    /**
+     * @deprecated kept for backward compatibility and used as a convenience method for tests - use
+     *             {@link #setParents(String)} instead
+     */
     @Deprecated
     @BeanProperty(label = PARENT, optional = true)
     public final void setParentIdentifier(final String parent)
