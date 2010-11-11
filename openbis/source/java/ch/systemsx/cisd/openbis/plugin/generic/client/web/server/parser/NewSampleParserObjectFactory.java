@@ -93,6 +93,7 @@ class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public NewSample createObject(final String[] lineTokens) throws ParserException
     {
@@ -116,7 +117,10 @@ class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample
         setProperties(newSample, lineTokens);
         newSample
                 .setContainerIdentifier(StringUtils.trimToNull(newSample.getContainerIdentifier()));
-        newSample.setParentIdentifier(StringUtils.trimToNull(newSample.getParentIdentifier()));
+        if (newSample.getParentIdentifier() != null)
+        {
+            newSample.setParentIdentifier(StringUtils.trimToNull(newSample.getParentIdentifier()));
+        }
         newSample.setExperimentIdentifier(StringUtils.trimToNull(newSample
                 .getExperimentIdentifier()));
         return newSample;

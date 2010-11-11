@@ -32,8 +32,6 @@ public class SampleBatchUpdateDetails implements IsSerializable, Serializable
 
     private boolean experimentUpdateRequested;
 
-    private boolean parentUpdateRequested;
-
     private boolean parentsUpdateRequested;
 
     private boolean containerUpdateRequested;
@@ -44,11 +42,10 @@ public class SampleBatchUpdateDetails implements IsSerializable, Serializable
     {
     }
 
-    public SampleBatchUpdateDetails(boolean updateExperiment, boolean updateParent,
-            boolean updateParents, boolean updateContainer, Set<String> propertiesToUpdate)
+    public SampleBatchUpdateDetails(boolean updateExperiment, boolean updateParents,
+            boolean updateContainer, Set<String> propertiesToUpdate)
     {
         this.experimentUpdateRequested = updateExperiment;
-        this.parentUpdateRequested = updateParent;
         this.parentsUpdateRequested = updateParents;
         this.containerUpdateRequested = updateContainer;
         this.propertiesToUpdate = propertiesToUpdate;
@@ -57,11 +54,6 @@ public class SampleBatchUpdateDetails implements IsSerializable, Serializable
     public boolean isExperimentUpdateRequested()
     {
         return experimentUpdateRequested;
-    }
-
-    public boolean isParentUpdateRequested()
-    {
-        return parentUpdateRequested;
     }
 
     public boolean isParentsUpdateRequested()

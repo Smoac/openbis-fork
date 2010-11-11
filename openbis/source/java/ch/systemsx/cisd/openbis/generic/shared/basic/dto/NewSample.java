@@ -46,14 +46,9 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     private SampleType sampleType;
 
     /**
-     * The parent identifier.
+     * Set of parent sample codes or identifiers. It will be assumed that all the samples belong 
+     * to the same group as the child sample.
      */
-    // TODO 2010-08-09, Piotr Buczek: remove
-    private String parentIdentifier;
-
-    // Set of parent sample codes or identifiers. It will be assumed that
-    // all the samples belong to the same group as the child sample.
-    // If equals to null then parentIdentifier should be used.
     private String[] parentsOrNull;
 
     /**
@@ -94,16 +89,15 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
             final String containerIdentifier, final String[] parents)
     {
         NewSample result = new NewSample(identifier, sampleType, containerIdentifier);
-        result.setParents(parents);
+        result.setParentsOrNull(parents);
         return result;
     }
 
     public NewSample(final String identifier, SampleType sampleType, String containerIdentifier,
-            String parentIdentifier, String[] parentsOrNull, String experimentIdentifier,
-            IEntityProperty[] properties, List<NewAttachment> attachments)
+            String[] parentsOrNull, String experimentIdentifier, IEntityProperty[] properties,
+            List<NewAttachment> attachments)
     {
         this(identifier, sampleType, containerIdentifier);
-        this.parentIdentifier = parentIdentifier;
         this.parentsOrNull = parentsOrNull;
         this.experimentIdentifier = experimentIdentifier;
         this.properties = properties;
@@ -130,12 +124,12 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         this.sampleType = sampleType;
     }
 
-    public String[] getParents()
+    public String[] getParentsOrNull()
     {
         return parentsOrNull;
     }
 
-    public void setParents(String[] parents)
+    public void setParentsOrNull(String[] parents)
     {
         this.parentsOrNull = parents;
     }
@@ -146,22 +140,27 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
         if (parents != null)
         {
             String[] split = parents.split(",");
-            setParents(split);
+            setParentsOrNull(split);
         } else
         {
-            setParents((String[]) null);
+            setParentsOrNull(new String[0]);
         }
     }
 
+    /** @deprecated convenience method for tests - use {@link #getParentsOrNull()} instead */
+    @Deprecated
     public final String getParentIdentifier()
     {
-        return parentIdentifier;
+        return getParentsOrNull() == null || getParentsOrNull().length == 0 ? null
+                : getParentsOrNull()[0];
     }
 
+    /** @deprecated convenience method for tests - use {@link #setParents(String)} instead */
+    @Deprecated
     @BeanProperty(label = PARENT, optional = true)
     public final void setParentIdentifier(final String parent)
     {
-        this.parentIdentifier = parent;
+        setParents(parent);
     }
 
     public final String getContainerIdentifier()

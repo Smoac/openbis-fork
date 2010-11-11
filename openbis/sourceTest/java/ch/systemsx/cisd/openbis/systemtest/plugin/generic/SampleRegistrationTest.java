@@ -73,7 +73,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         // - dealing with the same parent stated more than once
         String[] parents = new String[]
             { "c1", "C2", "/CISD/C3", "CISD:/CISD/C3" };
-        sample.setParents(parents);
+        sample.setParentsOrNull(parents);
         genericClientService.registerSample("session", sample);
 
         Sample s = getSpaceSample(identifier);
@@ -98,7 +98,7 @@ public class SampleRegistrationTest extends GenericSystemTestCase
         final String identifier = CISD_SHORT + sampleCode;
         sample.setIdentifier(identifier);
         final String parent = "CISD:/CISD/C1";
-        sample.setParents(new String[]
+        sample.setParentsOrNull(new String[]
             { parent });
         final SampleType sampleType = new SampleType();
         sampleType.setCode(DILUTION_PLATE);

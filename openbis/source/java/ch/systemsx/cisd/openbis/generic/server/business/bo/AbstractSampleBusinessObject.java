@@ -135,17 +135,13 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setGroup(sampleOwner.tryGetGroup());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
-        String parentIdentifier = newSample.getParentIdentifier();
-        if (parentIdentifier != null)
-        {
-            setGeneratedFrom(sampleIdentifier, samplePE, parentIdentifier);
-        } else if (newSample.getParents() != null)
-        {
-            final String[] parents = newSample.getParents();
-            setParents(samplePE, parents);
-        }
         String containerIdentifier = newSample.getContainerIdentifier();
         setContainer(sampleIdentifier, samplePE, containerIdentifier);
+        if (newSample.getParentsOrNull() != null)
+        {
+            final String[] parents = newSample.getParentsOrNull();
+            setParents(samplePE, parents);
+        }
         samplePE.setPermId(getPermIdDAO().createPermId());
         return samplePE;
     }
@@ -200,18 +196,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         final SamplePE containerPE =
                 tryGetValidNotContainedSample(containerIdentifier, sampleIdentifier);
         samplePE.setContainer(containerPE);
-    }
-
-    protected void setGeneratedFrom(final SampleIdentifier sampleIdentifier,
-            final SamplePE samplePE, String parentIdentifier)
-    {
-        final Set<SamplePE> newParents = new HashSet<SamplePE>();
-        final SamplePE parentOrNull = tryGetValidParentSample(parentIdentifier, sampleIdentifier);
-        if (parentOrNull != null)
-        {
-            newParents.add(parentOrNull);
-        }
-        replaceParents(samplePE, newParents);
     }
 
     protected void setParents(final SamplePE childPE, final String[] parents)

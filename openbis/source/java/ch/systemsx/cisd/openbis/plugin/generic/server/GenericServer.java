@@ -479,10 +479,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 experimentIdentifierOrNull = null;
                 newSampleIdentifier = oldSampleIdentifier;
             }
-            final String parentIdentifierOrNull = updatedSample.getParentIdentifier();
-            final String[] parentsOrNull =
-                    (parentIdentifierOrNull == null) ? updatedSample.getParents() : new String[]
-                        { parentIdentifierOrNull };
+            final String[] parentsOrNull = updatedSample.getParentsOrNull();
             final String containerIdentifierOrNull = updatedSample.getContainerIdentifier();
             final SampleBatchUpdateDetails batchUpdateDetails =
                     createBatchUpdateDetails(updatedSample);
@@ -508,7 +505,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 propertyCodes.add(p.getPropertyType().getCode());
             }
             SampleBatchUpdateDetails result =
-                    new SampleBatchUpdateDetails(false, false, false, false, propertyCodes);
+                    new SampleBatchUpdateDetails(false, false, false, propertyCodes);
             return result;
         }
     }

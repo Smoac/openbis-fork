@@ -181,6 +181,7 @@ public final class NewSampleParserObjectFactoryTest
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Test(dataProvider = "getLineTokens")
     public final void testCreateObject(final String[] lineTokens, final int numberOfProperties)
     {

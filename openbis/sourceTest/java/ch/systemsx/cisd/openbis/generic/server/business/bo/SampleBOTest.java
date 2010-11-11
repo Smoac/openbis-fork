@@ -239,6 +239,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public final void testDefineSampleHappyCase()
     {
@@ -739,6 +740,7 @@ public final class SampleBOTest extends AbstractBOTest
         fail("The edition of stale sample should throw an exception");
     }
 
+    @SuppressWarnings("deprecation")
     public final void testFailToDefineSharedSampleWithParentInAGroup()
     {
         final SampleIdentifier sharedSampleIdentifier =
@@ -866,6 +868,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public final void testRegisterSampleWithUnknownParent()
     {

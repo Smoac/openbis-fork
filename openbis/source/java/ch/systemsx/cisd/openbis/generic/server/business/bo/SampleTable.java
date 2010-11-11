@@ -246,11 +246,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             updateExperiment(sample, updates.getExperimentIdentifierOrNull(), experimentCache);
             checkExperimentBusinessRules(getExternalDataDAO(), sample);
         }
-        if (details.isParentUpdateRequested())
-        {
-            setGeneratedFrom(updates.getSampleIdentifier(), sample,
-                    updates.getParentIdentifierOrNull());
-        }
         if (details.isParentsUpdateRequested())
         {
             final String[] parents = updates.getModifiedParentCodesOrNull();
@@ -266,8 +261,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
         // NOTE: Checking business rules with relationships is expensive.
         // Don't perform them unless relevant data were changed.
-        if (details.isExperimentUpdateRequested() || details.isParentUpdateRequested()
-                || details.isParentsUpdateRequested())
+        if (details.isExperimentUpdateRequested() || details.isParentsUpdateRequested())
         {
             checkParentBusinessRules(sample);
         }

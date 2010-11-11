@@ -40,9 +40,8 @@ public final class UpdatedSample extends NewSample
     public UpdatedSample(NewSample newSample, SampleBatchUpdateDetails batchUpdateDetails)
     {
         super(newSample.getIdentifier(), newSample.getSampleType(), newSample
-                .getContainerIdentifier(), newSample.getParentIdentifier(), newSample.getParents(),
-                newSample.getExperimentIdentifier(), newSample.getProperties(), newSample
-                        .getAttachments());
+                .getContainerIdentifier(), newSample.getParentsOrNull(), newSample
+                .getExperimentIdentifier(), newSample.getProperties(), newSample.getAttachments());
         this.batchUpdateDetails = batchUpdateDetails;
     }
 

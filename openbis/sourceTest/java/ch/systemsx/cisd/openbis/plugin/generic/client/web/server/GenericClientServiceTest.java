@@ -80,6 +80,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
     private GenericClientService genericClientService;
 
+    @SuppressWarnings("deprecation")
     private final static NewSample createNewSample(final String sampleIdentifier,
             final String sampleTypeCode, final IEntityProperty[] properties, final String parent,
             final String container)
@@ -125,7 +126,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         multipartFile = context.mock(MultipartFile.class);
         genericClientService = new GenericClientService(genericServer, requestContextProvider);
     }
-    
+
     @Test
     public void testGetSampleGenerationInfo()
     {
@@ -134,7 +135,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             {
                 {
                     prepareGetSessionToken(this);
-                    
+
                     one(genericServer).getSampleInfo(SESSION_TOKEN, sampleId);
                     SampleParentWithDerived parentWithDerived = new SampleParentWithDerived();
                     Sample sample = new Sample();
@@ -145,13 +146,14 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
 
         SampleParentWithDerived info = genericClientService.getSampleGenerationInfo(sampleId);
-        
+
         IEntityProperty transformedXMLProperty = info.getParent().getProperties().get(0);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>", transformedXMLProperty.tryGetAsString());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
+                transformedXMLProperty.tryGetAsString());
         assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetSampleInfo()
     {
@@ -184,51 +186,51 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     {
         final TechId id = new TechId(4711L);
         context.checking(new Expectations()
-        {
             {
-                prepareGetSessionToken(this);
-                
-                one(genericServer).getDataSetInfo(SESSION_TOKEN, id);
-                ExternalData dataSet = new ExternalData();
-                dataSet.setDataSetProperties(Arrays.asList(createXmlProperty()));
-                will(returnValue(dataSet));
-            }
-        });
-        
+                {
+                    prepareGetSessionToken(this);
+
+                    one(genericServer).getDataSetInfo(SESSION_TOKEN, id);
+                    ExternalData dataSet = new ExternalData();
+                    dataSet.setDataSetProperties(Arrays.asList(createXmlProperty()));
+                    will(returnValue(dataSet));
+                }
+            });
+
         ExternalData info = genericClientService.getDataSetInfo(id);
-        
+
         IEntityProperty transformedXMLProperty = info.getProperties().get(0);
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
                 transformedXMLProperty.tryGetAsString());
         assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetMaterialInfo()
     {
         final TechId id = new TechId(4711L);
         context.checking(new Expectations()
-        {
             {
-                prepareGetSessionToken(this);
-                
-                one(genericServer).getMaterialInfo(SESSION_TOKEN, id);
-                Material material = new Material();
-                material.setProperties(Arrays.asList(createXmlProperty()));
-                will(returnValue(material));
-            }
-        });
-        
+                {
+                    prepareGetSessionToken(this);
+
+                    one(genericServer).getMaterialInfo(SESSION_TOKEN, id);
+                    Material material = new Material();
+                    material.setProperties(Arrays.asList(createXmlProperty()));
+                    will(returnValue(material));
+                }
+            });
+
         Material info = genericClientService.getMaterialInfo(id);
-        
+
         IEntityProperty transformedXMLProperty = info.getProperties().get(0);
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><b>hello</b>",
                 transformedXMLProperty.tryGetAsString());
         assertEquals("<root>hello</root>", transformedXMLProperty.tryGetOriginalValue());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testRegisterSample()
     {
@@ -276,6 +278,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public final void testRegisterSamples() throws IOException
     {
@@ -326,7 +329,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(new CustomAction("check sample")
                         {
 
-                            @SuppressWarnings("unchecked")
+                            @SuppressWarnings(
+                                { "unchecked" })
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final List<NewSamplesWithTypes> samplesSecions =
@@ -358,8 +362,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
-        assertEquals("Registration of 1 sample(s) is complete.", batchRegistrationResult
-                .getMessage());
+        assertEquals("Registration of 1 sample(s) is complete.",
+                batchRegistrationResult.getMessage());
         context.assertIsSatisfied();
     }
 
@@ -406,7 +410,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(new CustomAction("check sample")
                         {
 
-                            @SuppressWarnings("unchecked")
+                            @SuppressWarnings(
+                                { "unchecked", "deprecation" })
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final List<NewSamplesWithTypes> samplesSecions =
@@ -419,7 +424,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 final NewSample sample1 = samples.getNewSamples().get(0);
                                 assertEquals("/G1/MP1", sample1.getIdentifier());
                                 assertEquals("/G1/MP2", sample1.getContainerIdentifier());
-                                assertEquals(null, sample1.getParentIdentifier());
+                                assertEquals(0, sample1.getParentsOrNull().length);
                                 assertEquals("EXP1", sample1.getExperimentIdentifier());
                                 assertEquals(1, sample1.getProperties().length);
                                 final IEntityProperty prop1 = sample1.getProperties()[0];
@@ -448,7 +453,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         assertEquals("Update of 2 sample(s) is complete.", batchRegistrationResult.getMessage());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUpdateMaterials() throws IOException
     {
@@ -465,7 +470,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         assertEquals(updateCount + " material(s) updated.", results.get(0).getMessage());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUpdateMaterialsIgnoringUnregisteredButNoUnregistered() throws IOException
     {
@@ -473,16 +478,17 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final boolean ignoreUnregisteredMaterials = true;
         final int updateCount = 1;
         prepareMaterialsUpdate(sessionKey, ignoreUnregisteredMaterials, updateCount);
-        
+
         List<BatchRegistrationResult> results =
-            genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
-                    ignoreUnregisteredMaterials);
-        
+                genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
+                        ignoreUnregisteredMaterials);
+
         assertEquals(1, results.size());
-        assertEquals(updateCount + " material(s) updated, non ignored.", results.get(0).getMessage());
+        assertEquals(updateCount + " material(s) updated, non ignored.", results.get(0)
+                .getMessage());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUpdateMaterialsIgnoringUnregistered() throws IOException
     {
@@ -490,11 +496,11 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final boolean ignoreUnregisteredMaterials = true;
         final int updateCount = 0;
         prepareMaterialsUpdate(sessionKey, ignoreUnregisteredMaterials, updateCount);
-        
+
         List<BatchRegistrationResult> results =
-            genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
-                    ignoreUnregisteredMaterials);
-        
+                genericClientService.updateMaterials(MATERIAL_TYPE, sessionKey,
+                        ignoreUnregisteredMaterials);
+
         assertEquals(1, results.size());
         assertEquals(updateCount + " material(s) updated, 1 ignored.", results.get(0).getMessage());
         context.assertIsSatisfied();
@@ -621,7 +627,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         property.setValue("<root>hello</root>");
         return property;
     }
-    
+
     /**
      * A {@link BaseMatcher} extension for checking the list of {@link NewSample NewSamples}.
      * 
@@ -661,10 +667,10 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         private final boolean equals(final NewSample newSample, final NewSample thatNewSample)
         {
             return ObjectUtils.equals(newSample, thatNewSample)
-                    && StringUtils.equals(newSample.getContainerIdentifier(), thatNewSample
-                            .getContainerIdentifier())
-                    && StringUtils.equals(newSample.getParentIdentifier(), thatNewSample
-                            .getParentIdentifier())
+                    && StringUtils.equals(newSample.getContainerIdentifier(),
+                            thatNewSample.getContainerIdentifier())
+                    && StringUtils.equals(Arrays.toString(newSample.getParentsOrNull()),
+                            Arrays.toString(thatNewSample.getParentsOrNull()))
                     && equals(newSample.getProperties(), thatNewSample.getProperties());
         }
 

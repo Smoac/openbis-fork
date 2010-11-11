@@ -55,9 +55,16 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         boolean updateExperiment = isColumnAvailable(UpdatedSample.EXPERIMENT);
         boolean updateParent = isColumnAvailable(UpdatedSample.PARENT);
         boolean updateParents = isColumnAvailable(UpdatedSample.PARENTS);
+        if (updateParent == updateParents == true)
+        {
+            throw new ParserException("Both '" + UpdatedSample.PARENT + "' and '"
+                    + UpdatedSample.PARENTS
+                    + "' columns were specified. One of them should be removed from the file.");
+        }
+        updateParents |= updateParent;
         boolean updateContainer = isColumnAvailable(UpdatedSample.CONTAINER);
-        return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateParents,
-                updateContainer, getUnmatchedProperties());
+        return new SampleBatchUpdateDetails(updateExperiment, updateParents, updateContainer,
+                getUnmatchedProperties());
     }
 
     //
@@ -86,12 +93,9 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         final boolean updateExperiment =
                 basicBatchUpdateDetails.isExperimentUpdateRequested()
                         && isNotEmpty(newSample.getExperimentIdentifier());
-        final boolean updateParent =
-                basicBatchUpdateDetails.isParentUpdateRequested()
-                        && isNotEmpty(newSample.getParentIdentifier());
         final boolean updateParents =
                 basicBatchUpdateDetails.isParentsUpdateRequested()
-                        && isNotEmpty(newSample.getParents());
+                        && isNotEmpty(newSample.getParentsOrNull());
         final boolean updateContainer =
                 basicBatchUpdateDetails.isContainerUpdateRequested()
                         && isNotEmpty(newSample.getContainerIdentifier());
@@ -102,8 +106,8 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
             propertiesToUpdate.add(property.getPropertyType().getCode());
         }
 
-        return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateParents,
-                updateContainer, propertiesToUpdate);
+        return new SampleBatchUpdateDetails(updateExperiment, updateParents, updateContainer,
+                propertiesToUpdate);
     }
 
     private boolean isNotEmpty(String[] parents)
@@ -118,13 +122,10 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         {
             newSample.setExperimentIdentifier(null);
         }
-        if (isDeletionMark(newSample.getParentIdentifier()))
+        if (newSample.getParentsOrNull() != null && newSample.getParentsOrNull().length > 0
+                && isDeletionMark(newSample.getParentsOrNull()[0]))
         {
-            newSample.setParentIdentifier(null);
-        }
-        if (newSample.getParents() != null && isDeletionMark(newSample.getParents()[0]))
-        {
-            newSample.setParents(new String[0]);
+            newSample.setParentsOrNull(new String[0]);
         }
         if (isDeletionMark(newSample.getContainerIdentifier()))
         {
