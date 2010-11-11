@@ -146,21 +146,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return HibernateUtils.isInitialized(getSampleChildRelationships());
     }
 
-    public void setChildRelationships(final Set<SampleRelationshipPE> childRelationships)
-    {
-        getSampleChildRelationships().clear();
-        for (final SampleRelationshipPE untypedRelationship : childRelationships)
-        {
-            SampleRelationshipPE sampleRelationship = untypedRelationship;
-            final SamplePE p = sampleRelationship.getParentSample();
-            if (p != null)
-            {
-                p.getSampleChildRelationships().remove(sampleRelationship);
-            }
-            addChildRelationship(sampleRelationship);
-        }
-    }
-
     public void addChildRelationship(final SampleRelationshipPE relationship)
     {
         relationship.setParentSample(this);
@@ -200,9 +185,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void setParentRelationships(final Set<SampleRelationshipPE> parentRelationships)
     {
         getSampleParentRelationships().clear();
-        for (final SampleRelationshipPE untypedRelationship : parentRelationships)
+        for (final SampleRelationshipPE sampleRelationship : parentRelationships)
         {
-            SampleRelationshipPE sampleRelationship = untypedRelationship;
             final SamplePE parent = sampleRelationship.getChildSample();
             if (parent != null)
             {
@@ -392,6 +376,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     public void setContainer(final SamplePE container)
     {
         this.container = container;
+        // identifier should be reevaluated after change of container
+        this.sampleIdentifier = null;
     }
 
     @Transient
