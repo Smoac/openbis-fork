@@ -86,9 +86,9 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        super.commit();
+        super.commit(incomingDataSetDirectory, storedDataDirectory);
         databaseUploader.commit();
     }
 

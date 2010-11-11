@@ -30,13 +30,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 {
-    private static final class StorageProcessorWithUploader extends AbstractStrorageProcessorWithUploader
+    private static final class StorageProcessorWithUploader extends
+            AbstractStrorageProcessorWithUploader
     {
         public StorageProcessorWithUploader(IStorageProcessor processor, IDataSetUploader uploader)
         {
@@ -47,57 +46,58 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
         protected void logDataSetFileError(File incomingDataSetDirectory, Throwable exception)
         {
         }
-        
+
     }
-    
+
     private final StorageProcessorWithUploader storageProcessorWithUploader;
 
     public StorageProcessor(Properties properties)
     {
         this(properties, new DataSetHandler(properties, ServiceProvider.getOpenBISService()));
     }
-    
+
     StorageProcessor(Properties properties, DataSetHandler handler)
     {
         super(properties, handler);
         storageProcessorWithUploader = new StorageProcessorWithUploader(new IStorageProcessor()
             {
-                
+
                 public void setStoreRootDirectory(File storeRootDirectory)
                 {
-                    
+
                 }
-                
+
                 public File getStoreRootDirectory()
                 {
                     return null;
                 }
-                
+
                 public File tryGetProprietaryData(File storedDataDirectory)
                 {
                     return null;
                 }
-                
-                public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
-                        IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
+
+                public File storeData(DataSetInformation dataSetInformation,
+                        ITypeExtractor typeExtractor, IMailClient mailClient,
+                        File incomingDataSetDirectory, File rootDir)
                 {
                     return null;
                 }
-                
-                public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
-                        Throwable exception)
+
+                public UnstoreDataAction rollback(File incomingDataSetDirectory,
+                        File storedDataDirectory, Throwable exception)
                 {
                     return null;
                 }
-                
+
                 public StorageFormat getStorageFormat()
                 {
                     return null;
                 }
-                
-                public void commit()
+
+                public void commit(File incomingDataSetDirectory, File storedDataDirectory)
                 {
-                    
+
                 }
             }, handler);
     }
@@ -107,13 +107,14 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
             final File storedDataDirectory, Throwable exception)
     {
         super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
-        return storageProcessorWithUploader.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
+        return storageProcessorWithUploader.rollback(incomingDataSetDirectory, storedDataDirectory,
+                exception);
     }
 
     @Override
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        super.commit();
-        storageProcessorWithUploader.commit();
+        super.commit(incomingDataSetDirectory, storedDataDirectory);
+        storageProcessorWithUploader.commit(incomingDataSetDirectory, storedDataDirectory);
     }
 }

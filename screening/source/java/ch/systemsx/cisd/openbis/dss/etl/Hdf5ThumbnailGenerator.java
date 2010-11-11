@@ -40,8 +40,6 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 {
     private final List<AcquiredPlateImage> plateImages;
 
-    private final String relativeImagesDirectory;
-
     private final File imagesInStoreFolder;
 
     private final int thumbnailMaxWidth;
@@ -52,12 +50,11 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 
     private final Logger operationLog;
 
-    Hdf5ThumbnailGenerator(List<AcquiredPlateImage> plateImages, String relativeImagesDirectory,
-            File imagesInStoreFolder, int thumbnailMaxWidth, int thumbnailMaxHeight,
-            String relativeThumbnailFilePath, Logger operationLog)
+    Hdf5ThumbnailGenerator(List<AcquiredPlateImage> plateImages, File imagesInStoreFolder,
+            int thumbnailMaxWidth, int thumbnailMaxHeight, String relativeThumbnailFilePath,
+            Logger operationLog)
     {
         this.plateImages = plateImages;
-        this.relativeImagesDirectory = relativeImagesDirectory;
         this.imagesInStoreFolder = imagesInStoreFolder;
         this.thumbnailMaxWidth = thumbnailMaxWidth;
         this.thumbnailMaxHeight = thumbnailMaxHeight;
@@ -72,7 +69,6 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
         {
             RelativeImageReference imageReference = plateImage.getImageReference();
             String imagePath = imageReference.getRelativeImagePath();
-            imageReference.setRelativeImageFolder(relativeImagesDirectory);
             File img = new File(imagesInStoreFolder, imagePath);
             BufferedImage image = ImageUtil.loadImage(img);
             BufferedImage thumbnail =
@@ -87,7 +83,8 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
                     imagePath = imagePath.substring(0, lastIndex);
                 }
                 imagePath += ".png";
-                String path = relativeThumbnailFilePath + ":" + imagePath;
+                String path =
+                        relativeThumbnailFilePath + ContentRepository.ARCHIVE_DELIMITER + imagePath;
                 plateImage.setThumbnailFilePathOrNull(new RelativeImageReference(path,
                         imageReference.tryGetPage(), imageReference.tryGetColorComponent()));
                 byte[] byteArray = output.toByteArray();

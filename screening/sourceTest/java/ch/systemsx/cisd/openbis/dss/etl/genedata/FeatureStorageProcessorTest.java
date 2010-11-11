@@ -58,10 +58,10 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
 
     private static final String EXPERIMENT_PERM_ID = "perm11";
 
-    private static final String EXAMPLE1 =
-            "barcode = Plate_042" + "\n\n<Layer=alpha>\n" + "\t1\t2\n" + "A\t4.5\t4.6\n"
-                    + "B\t3.5\t5.6\n" + "C\t3.3\t5.7\n" + "\n\n<Layer=beta>\n" + "\t1\t2\n"
-                    + "A\t14.5\t14.6\n" + "B\t13.5\t15.6\n" + "C\t13.3\t15.7\n";
+    private static final String EXAMPLE1 = "barcode = Plate_042" + "\n\n<Layer=alpha>\n"
+            + "\t1\t2\n" + "A\t4.5\t4.6\n" + "B\t3.5\t5.6\n" + "C\t3.3\t5.7\n"
+            + "\n\n<Layer=beta>\n" + "\t1\t2\n" + "A\t14.5\t14.6\n" + "B\t13.5\t15.6\n"
+            + "C\t13.3\t15.7\n";
 
     private Mockery context;
 
@@ -102,7 +102,8 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
                     one(dao).addDataset(with(any(ImgDatasetDTO.class)));
                     will(returnValue(datasetId));
 
-                    ImgFeatureDefDTO featureDTO = new ImgFeatureDefDTO("alpha", "ALPHA", "alpha", datasetId);
+                    ImgFeatureDefDTO featureDTO =
+                            new ImgFeatureDefDTO("alpha", "ALPHA", "alpha", datasetId);
                     one(dao).addFeatureDef(with(equal(featureDTO)));
                     will(returnValue((long) 1));
 
@@ -167,7 +168,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(true, original.isDirectory());
         assertEquals(2, original.listFiles().length);
 
-        storageProcessor.commit();
+        storageProcessor.commit(dataSetFile, rootDir);
 
         assertEquals(2, original.listFiles().length);
         File[] transformedFiles = original.listFiles(new FilenameFilter()

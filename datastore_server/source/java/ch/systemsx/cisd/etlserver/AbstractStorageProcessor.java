@@ -80,7 +80,7 @@ public abstract class AbstractStorageProcessor implements IStorageProcessor
         this.storeRootDir = storeRootDirectory;
     }
 
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
         // do nothing
     }

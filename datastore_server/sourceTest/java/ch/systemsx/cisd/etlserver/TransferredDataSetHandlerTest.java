@@ -526,7 +526,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
-                    one(storageProcessor).commit();
+                    one(storageProcessor).commit(data1, baseDir);
                 }
             });
         final LogMonitoringAppender appender =
@@ -568,7 +568,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
-                    one(storageProcessor).commit();
+                    one(storageProcessor).commit(data1, baseDir);
                 }
             });
         final LogMonitoringAppender appender =

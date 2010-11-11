@@ -50,8 +50,8 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
      */
     protected final static String DELEGATE_PROCESSOR_CLASS_PROPERTY = "processor";
 
-    final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractDelegatingStorageProcessor.class);
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractDelegatingStorageProcessor.class);
 
     private final IStorageProcessor delegate;
 
@@ -100,9 +100,9 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
                 incomingDataSetDirectory, rootDir);
     }
 
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        delegate.commit();
+        delegate.commit(incomingDataSetDirectory, storedDataDirectory);
     }
 
     public UnstoreDataAction rollback(final File incomingDataSetDirectory,

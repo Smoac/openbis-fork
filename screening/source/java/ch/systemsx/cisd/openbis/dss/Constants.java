@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.dss;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class Constants
 {
-    public static final String HDF5_CONTAINER_FILE_NAME = "thumbnails.h5";
+    public static final String HDF5_CONTAINER_THUMBNAILS_FILE_NAME = "thumbnails.h5";
+
+    /** name of the file containing original compressed data (if compression is used) */
+    public static final String HDF5_CONTAINER_ORIGINAL_FILE_NAME = "original.h5";
+
 }

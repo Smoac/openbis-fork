@@ -67,8 +67,11 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      * If all the storage processor operations are done on the file system, the implementation of
      * this method will be usually empty.
      * </p>
+     * 
+     * @param incomingDataSetDirectory original folder from which the data has been uploaded.
+     * @param storedDataDirectory directory which contains the data registered in the store.
      */
-    public void commit();
+    public void commit(final File incomingDataSetDirectory, final File storedDataDirectory);
 
     /**
      * Instructs the dataset handler what to do with the data in incoming directory if there was an

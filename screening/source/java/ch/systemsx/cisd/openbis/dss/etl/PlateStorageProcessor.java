@@ -54,6 +54,7 @@ import ch.systemsx.cisd.etlserver.AbstractStorageProcessor;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
+import ch.systemsx.cisd.etlserver.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
@@ -110,6 +111,9 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final static String COMPRESS_THUMBNAILS_PROPERTY = "compress-thumbnails";
 
+    private final static String ORIGINAL_DATA_STORAGE_FORMAT_PROPERTY =
+            "original-data-storage-format";
+
     private static final String THUMBNAIL_MAX_WIDTH_PROPERTY = "thumbnail-max-width";
 
     private static final int DEFAULT_THUMBNAIL_MAX_WIDTH = 200;
@@ -133,6 +137,18 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     // comma separated list of channel labels, order matters
     public static final String CHANNEL_LABELS = "channel-labels";
 
+    // how the original data should be stored
+    private static enum OriginalDataStorageFormat
+    {
+        UNCHANGED, HDF5, HDF5_COMPRESSED;
+
+        public boolean isHdf5()
+        {
+            return this == OriginalDataStorageFormat.HDF5
+                    || this == OriginalDataStorageFormat.HDF5_COMPRESSED;
+        }
+    }
+
     // -----------
 
     private final DataSource dataSource;
@@ -145,16 +161,22 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
 
     private final boolean generateThumbnails;
 
-    private final boolean areThumbnailsCmpressed;
+    private final boolean areThumbnailsCompressed;
+
+    private final OriginalDataStorageFormat originalDataStorageFormat;
 
     // one of the extractors is always null and one not null
     private final IHCSImageFileExtractor imageFileExtractor;
 
     private final ch.systemsx.cisd.etlserver.IHCSImageFileExtractor deprecatedImageFileExtractor;
 
+    private final List<ChannelDescription> channelDescriptions;
+
+    // --- internal state -------------
+
     private IImagingQueryDAO currentTransaction;
 
-    private final List<ChannelDescription> channelDescriptions;
+    // ---
 
     public PlateStorageProcessor(final Properties properties)
     {
@@ -170,8 +192,9 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
                         DEFAULT_THUMBNAIL_MAX_HEIGHT);
         generateThumbnails =
                 PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
-        areThumbnailsCmpressed =
+        areThumbnailsCompressed =
                 PropertyUtils.getBoolean(properties, COMPRESS_THUMBNAILS_PROPERTY, false);
+        originalDataStorageFormat = getOriginalDataStorageFormat(properties);
 
         String fileExtractorClass = PropertyUtils.getProperty(properties, FILE_EXTRACTOR_PROPERTY);
         if (fileExtractorClass != null)
@@ -189,6 +212,16 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.currentTransaction = null;
+    }
+
+    private static OriginalDataStorageFormat getOriginalDataStorageFormat(
+            final Properties properties)
+    {
+        String defaultValue = OriginalDataStorageFormat.UNCHANGED.name();
+        String textValue =
+                PropertyUtils.getProperty(properties, ORIGINAL_DATA_STORAGE_FORMAT_PROPERTY,
+                        defaultValue);
+        return OriginalDataStorageFormat.valueOf(textValue.toUpperCase());
     }
 
     private final static List<String> tryGetListOfLabels(Properties properties, String propertyKey)
@@ -273,11 +306,11 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     // ---------------------------------
 
     private ImageDatasetInfo createImageDatasetInfo(Experiment experiment,
-            DataSetInformation dataSetInformation, HCSImageFileExtractionResult extractionResult)
+            DataSetInformation dataSetInformation, List<AcquiredPlateImage> acquiredImages)
     {
         ScreeningContainerDatasetInfo info =
                 ScreeningContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);
-        boolean hasImageSeries = hasImageSeries(extractionResult.getImages());
+        boolean hasImageSeries = hasImageSeries(acquiredImages);
         return new ImageDatasetInfo(info, spotGeometry.getRows(), spotGeometry.getColumns(),
                 hasImageSeries);
     }
@@ -352,13 +385,6 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
         assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
 
-        File originalFolder = getOriginalFolder(rootDirectory);
-        originalFolder.mkdirs();
-        if (originalFolder.exists() == false)
-        {
-            throw new UserFailureException("Cannot create a directory: " + originalFolder);
-        }
-
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         if (experiment == null)
         {
@@ -370,36 +396,93 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, extractionResult);
         List<AcquiredPlateImage> plateImages = extractionResult.getImages();
 
-        File imagesInStoreFolder = moveFileToDirectory(incomingDataSetDirectory, originalFolder);
+        File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
 
-        createThumbnails(rootDirectory, imagesInStoreFolder, plateImages);
+        processImages(rootDirectory, plateImages, imagesInStoreFolder);
 
-        storeInDatabase(experiment, dataSetInformation, extractionResult);
+        storeInDatabase(experiment, dataSetInformation, plateImages, extractionResult.getChannels());
         return rootDirectory;
     }
 
-    private void createThumbnails(final File rootDirectory, final File imagesInStoreFolder,
-            final List<AcquiredPlateImage> plateImages)
+    private void processImages(final File rootDirectory, List<AcquiredPlateImage> plateImages,
+            File imagesInStoreFolder)
     {
-        final File thumbnailsFile = new File(rootDirectory, Constants.HDF5_CONTAINER_FILE_NAME);
-        final String relativeImagesDirectory =
-                getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder);
+        generateThumbnails(plateImages, rootDirectory, imagesInStoreFolder);
+        String relativeImagesDirectory =
+                packageImagesIfNecessary(rootDirectory, plateImages, imagesInStoreFolder);
+        updateImagesRelativePath(relativeImagesDirectory, plateImages);
+    }
+
+    // returns the prefix which should be added before each image path to create a path relative to
+    // the dataset folder
+    private String packageImagesIfNecessary(final File rootDirectory,
+            List<AcquiredPlateImage> plateImages, File imagesInStoreFolder)
+    {
+        if (originalDataStorageFormat.isHdf5())
+        {
+            File hdf5OriginalContainer = createHdf5OriginalContainer(rootDirectory);
+            boolean isDataCompressed =
+                    originalDataStorageFormat == OriginalDataStorageFormat.HDF5_COMPRESSED;
+            saveInHdf5(imagesInStoreFolder, hdf5OriginalContainer, isDataCompressed);
+            String hdf5ArchivePathPrefix =
+                    hdf5OriginalContainer.getName() + ContentRepository.ARCHIVE_DELIMITER;
+            return hdf5ArchivePathPrefix;
+        } else
+        {
+            return getRelativeImagesDirectory(rootDirectory, imagesInStoreFolder) + "/";
+        }
+    }
+
+    private static File createHdf5OriginalContainer(final File rootDirectory)
+    {
+        return new File(rootDirectory, Constants.HDF5_CONTAINER_ORIGINAL_FILE_NAME);
+    }
+
+    private void saveInHdf5(File sourceFolder, File hdf5DestinationFile, boolean compressFiles)
+    {
+        Hdf5Container container = new Hdf5Container(hdf5DestinationFile);
+        container.runWriterClient(compressFiles,
+                new HierarchicalStructureDuplicatorFileToHdf5.DuplicatorWriterClient(sourceFolder));
+    }
+
+    private File moveToStore(File incomingDataSetDirectory, File rootDirectory)
+    {
+        File originalFolder = getOriginalFolder(rootDirectory);
+        originalFolder.mkdirs();
+        if (originalFolder.exists() == false)
+        {
+            throw new UserFailureException("Cannot create a directory: " + originalFolder);
+        }
+        return moveFileToDirectory(incomingDataSetDirectory, originalFolder);
+
+    }
+
+    // modifies plateImages by setting the path to thumbnails
+    private void generateThumbnails(final List<AcquiredPlateImage> plateImages,
+            final File rootDirectory, final File imagesInStoreFolder)
+    {
+        final File thumbnailsFile =
+                new File(rootDirectory, Constants.HDF5_CONTAINER_THUMBNAILS_FILE_NAME);
         final String relativeThumbnailFilePath =
                 getRelativeImagesDirectory(rootDirectory, thumbnailsFile);
-        if (generateThumbnails == false)
-        {
-            for (AcquiredPlateImage plateImage : plateImages)
-            {
-                RelativeImageReference imageReference = plateImage.getImageReference();
-                imageReference.setRelativeImageFolder(relativeImagesDirectory);
-            }
-            return;
-        }
 
-        Hdf5Container container = new Hdf5Container(thumbnailsFile);
-        container.runWriterClient(areThumbnailsCmpressed, new Hdf5ThumbnailGenerator(plateImages,
-                relativeImagesDirectory, imagesInStoreFolder, thumbnailMaxWidth,
-                thumbnailMaxHeight, relativeThumbnailFilePath, operationLog));
+        if (generateThumbnails)
+        {
+            Hdf5Container container = new Hdf5Container(thumbnailsFile);
+            container.runWriterClient(areThumbnailsCompressed, new Hdf5ThumbnailGenerator(
+                    plateImages, imagesInStoreFolder, thumbnailMaxWidth, thumbnailMaxHeight,
+                    relativeThumbnailFilePath, operationLog));
+        }
+    }
+
+    private void updateImagesRelativePath(String folderPathPrefix,
+            final List<AcquiredPlateImage> plateImages)
+    {
+        for (AcquiredPlateImage plateImage : plateImages)
+        {
+            RelativeImageReference imageReference = plateImage.getImageReference();
+            imageReference.setRelativeImageFolder(folderPathPrefix);
+        }
     }
 
     private String getRelativeImagesDirectory(File rootDirectory, File imagesInStoreFolder)
@@ -481,9 +564,32 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     }
 
     @Override
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
+        if (originalDataStorageFormat.isHdf5())
+        {
+            commitHdf5StorageFormatChanges(storedDataDirectory);
+        }
         commitDatabaseChanges();
+    }
+
+    private static void commitHdf5StorageFormatChanges(File storedDataDirectory)
+    {
+        File originalFolder = getOriginalFolder(storedDataDirectory);
+        File hdf5OriginalContainer = createHdf5OriginalContainer(storedDataDirectory);
+        if (hdf5OriginalContainer.exists())
+        {
+            final IFileOperations fileOps = FileOperations.getMonitoredInstanceForCurrentThread();
+            if (fileOps.removeRecursivelyQueueing(originalFolder) == false)
+            {
+                operationLog.error("Cannot delete '" + originalFolder.getAbsolutePath() + "'.");
+            }
+        } else
+        {
+            notificationLog.error(String.format("HDF5 container with original data '%s' does not "
+                    + "exist, keeping the original directory '%s'.", hdf5OriginalContainer,
+                    originalFolder));
+        }
     }
 
     private void commitDatabaseChanges()
@@ -556,10 +662,11 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
     }
 
     private void storeInDatabase(Experiment experiment, DataSetInformation dataSetInformation,
-            HCSImageFileExtractionResult extractionResult)
+            List<AcquiredPlateImage> acquiredImages,
+            List<HCSImageFileExtractionResult.Channel> channels)
     {
         ImageDatasetInfo info =
-                createImageDatasetInfo(experiment, dataSetInformation, extractionResult);
+                createImageDatasetInfo(experiment, dataSetInformation, acquiredImages);
 
         if (currentTransaction != null)
         {
@@ -567,8 +674,7 @@ public final class PlateStorageProcessor extends AbstractStorageProcessor
         }
         currentTransaction = createQuery();
 
-        HCSDatasetUploader.upload(currentTransaction, info, extractionResult.getImages(),
-                extractionResult.getChannels());
+        HCSDatasetUploader.upload(currentTransaction, info, acquiredImages, channels);
     }
 
     private void rollbackDatabaseChanges()

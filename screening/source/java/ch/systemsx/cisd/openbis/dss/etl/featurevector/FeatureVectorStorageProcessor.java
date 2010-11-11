@@ -150,9 +150,9 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     }
 
     @Override
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        super.commit();
+        super.commit(incomingDataSetDirectory, storedDataDirectory);
 
         if (null == dataAccessObject)
         {

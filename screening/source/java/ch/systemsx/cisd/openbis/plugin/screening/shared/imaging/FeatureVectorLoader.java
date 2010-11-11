@@ -76,6 +76,7 @@ public class FeatureVectorLoader
 
     private final IImagingReadonlyQueryDAO dao;
 
+    // if null plate identifiers in FeatureTableRow are not set
     private final IMetadataProvider metadataProviderOrNull;
 
     private final List<DatasetFeaturesBundle> bundles;
@@ -90,6 +91,7 @@ public class FeatureVectorLoader
      * fetches specified features of specified wells
      * 
      * @param featureCodes empty list means no filtering.
+     * @param metadataProviderOrNull if null plate identifiers in FeatureTableRow are not set
      * @throws UserFailureException if one of the specified datasets contains no feature vectors or
      *             does not exist.
      */
@@ -106,9 +108,23 @@ public class FeatureVectorLoader
     }
 
     /**
+     * fetches all features of all wells in the specified dataset
+     * 
+     * @throws UserFailureException if the specified dataset contains no feature vectors or does not
+     *             exist.
+     */
+    public static WellFeatureCollection<FeatureTableRow> fetchDatasetFeatures(String datasetCode,
+            IImagingReadonlyQueryDAO dao)
+    {
+        List<String> allFeatures = new ArrayList<String>();
+        return fetchDatasetFeatures(Arrays.asList(datasetCode), allFeatures, dao, null);
+    }
+
+    /**
      * fetches specified features of all wells
      * 
      * @param featureCodes empty list means no filtering.
+     * @param metadataProviderOrNull if null plate identifiers in FeatureTableRow are not set
      * @throws UserFailureException if one of the specified datasets contains no feature vectors or
      *             does not exist.
      */

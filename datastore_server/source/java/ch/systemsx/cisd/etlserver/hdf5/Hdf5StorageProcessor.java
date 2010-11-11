@@ -81,9 +81,9 @@ public class Hdf5StorageProcessor extends AbstractStorageProcessor
     }
 
     @Override
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        super.commit();
+        super.commit(incomingDataSetDirectory, storedDataDirectory);
 
         // fileBeingProcessed cannot be null at this point
         FileUtilities.deleteRecursively(fileBeingProcessed);

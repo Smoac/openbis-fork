@@ -39,8 +39,8 @@ public class RelativeImageReference extends AbstractImageReference
         return imageRelativePath;
     }
 
-    public final void setRelativeImageFolder(String folderPath)
+    public final void setRelativeImageFolder(String folderPathPrefix)
     {
-        this.imageRelativePath = folderPath + "/" + imageRelativePath;
+        this.imageRelativePath = folderPathPrefix + imageRelativePath;
     }
 }

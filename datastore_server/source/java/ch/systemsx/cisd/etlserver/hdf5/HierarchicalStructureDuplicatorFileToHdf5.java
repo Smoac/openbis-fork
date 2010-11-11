@@ -39,7 +39,7 @@ public class HierarchicalStructureDuplicatorFileToHdf5
 
     /**
      * Utility class that adapts to the IHdf5WriterClient interface
-     *
+     * 
      * @author Chandrasekhar Ramakrishnan
      */
     public static class DuplicatorWriterClient implements Hdf5Container.IHdf5WriterClient
@@ -53,17 +53,9 @@ public class HierarchicalStructureDuplicatorFileToHdf5
 
         public void runWithSimpleWriter(IHDF5SimpleWriter writer)
         {
-            HierarchicalStructureDuplicatorFileToHdf5 duplicator =
-                    new HierarchicalStructureDuplicatorFileToHdf5(file, writer);
-            duplicator.makeDuplicate();
+            HierarchicalStructureDuplicatorFileToHdf5.makeDuplicate(file, writer);
         }
 
-    }
-
-    public HierarchicalStructureDuplicatorFileToHdf5(File file, IHDF5SimpleWriter writer)
-    {
-        this.file = file;
-        this.writer = writer;
     }
 
     /**
@@ -75,7 +67,18 @@ public class HierarchicalStructureDuplicatorFileToHdf5
      * @throws CheckedExceptionTunnel Thrown if an underlying error occurs
      * @throws IOExceptionUnchecked Thrown if an underlying error occurs
      */
-    public void makeDuplicate()
+    public static void makeDuplicate(File file, IHDF5SimpleWriter writer)
+    {
+        new HierarchicalStructureDuplicatorFileToHdf5(file, writer).makeDuplicate();
+    }
+
+    private HierarchicalStructureDuplicatorFileToHdf5(File file, IHDF5SimpleWriter writer)
+    {
+        this.file = file;
+        this.writer = writer;
+    }
+
+    private void makeDuplicate()
     {
         if (false == file.exists())
         {

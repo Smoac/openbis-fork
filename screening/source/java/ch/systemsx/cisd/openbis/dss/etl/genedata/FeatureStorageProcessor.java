@@ -231,8 +231,8 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
                     "Cannot find a sample to which a plate should be (directly or indirectly) connected: "
                             + dataSetInformation);
         }
-        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(dataSetInformation,
-                sampleOrNull);
+        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(
+                dataSetInformation, sampleOrNull);
     }
 
     private Sample tryFindSampleForDataSet(DataSetInformation dataSetInformation)
@@ -314,9 +314,9 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        super.commit();
+        super.commit(incomingDataSetDirectory, storedDataDirectory);
 
         if (null == dataAccessObject)
         {

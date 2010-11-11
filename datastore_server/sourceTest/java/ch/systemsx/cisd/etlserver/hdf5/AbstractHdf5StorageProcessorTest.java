@@ -76,7 +76,7 @@ abstract class AbstractHdf5StorageProcessorTest extends AbstractFileSystemTestCa
                 }
             });
 
-        storageProcessor.commit();
+        storageProcessor.commit(incomingDataSetDirectory, rootDir);
 
         assertFalse(incomingDataSetDirectory.exists());
     }

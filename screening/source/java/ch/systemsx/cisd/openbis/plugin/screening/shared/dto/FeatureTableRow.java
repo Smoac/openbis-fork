@@ -47,6 +47,7 @@ public class FeatureTableRow extends FeatureVectorValues
         this.reference = reference;
     }
 
+    // can be null if it is not set!
     public final SampleIdentifier getPlateIdentifier()
     {
         return plateIdentifier;

@@ -23,41 +23,44 @@ import java.util.Map;
 import ch.systemsx.cisd.common.io.IContent;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ContentRepository implements IContentRepository
 {
-    private static final String ARCHIV_DELIMITER = ":";
+    // separates the archive name from the path to the file inside the archive
+    public static final String ARCHIVE_DELIMITER = ":";
+
     private final File rootDirectory;
+
     private final IContentRepository defaultRepository;
+
     private final Map<String, IContentRepositoryFactory> factories;
 
     private final Map<String, IContentRepository> repositories =
             new HashMap<String, IContentRepository>();
 
-    public ContentRepository(File rootDirectory, Map<String, IContentRepositoryFactory> repositoryFactories)
+    public ContentRepository(File rootDirectory,
+            Map<String, IContentRepositoryFactory> repositoryFactories)
     {
         this.rootDirectory = rootDirectory;
         factories = repositoryFactories;
         defaultRepository = new FilesystemBasedContentRepository(rootDirectory);
     }
-    
+
     public void open()
     {
         defaultRepository.open();
     }
-    
+
     public IContent getContent(String path)
     {
-        int indexOfArchiveDelimiter = path.indexOf(ARCHIV_DELIMITER);
+        int indexOfArchiveDelimiter = path.indexOf(ARCHIVE_DELIMITER);
         if (indexOfArchiveDelimiter < 0)
         {
             return defaultRepository.getContent(path);
         }
         String archivePath = path.substring(0, indexOfArchiveDelimiter);
-        String pathInArchive = path.substring(indexOfArchiveDelimiter + ARCHIV_DELIMITER.length());
+        String pathInArchive = path.substring(indexOfArchiveDelimiter + ARCHIVE_DELIMITER.length());
         IContentRepository repository = repositories.get(archivePath);
         if (repository == null)
         {
@@ -89,5 +92,5 @@ public class ContentRepository implements IContentRepository
             repository.close();
         }
     }
-    
+
 }

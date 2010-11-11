@@ -86,9 +86,9 @@ public abstract class AbstractStrorageProcessorWithUploader extends
     }
 
     @Override
-    public void commit()
+    public void commit(File incomingDataSetDirectory, File storedDataDirectory)
     {
-        super.commit();
+        super.commit(incomingDataSetDirectory, storedDataDirectory);
         uploader.commit();
     }
 

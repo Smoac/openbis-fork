@@ -56,17 +56,17 @@ public abstract class DataSetRegistrationAlgorithm
 {
     @Private
     public static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
-    
+
     @Private
     static final String DATA_SET_REGISTRATION_FAILURE_TEMPLATE =
-        "Registration of data set '%s' failed.";
-    
+            "Registration of data set '%s' failed.";
+
     @Private
     static final String DATA_SET_STORAGE_FAILURE_TEMPLATE = "Storing data set '%s' failed.";
-    
+
     @Private
     static final String SUCCESSFULLY_REGISTERED = "Successfully registered data set: [";
-    
+
     protected final IDelegatedActionWithResult<Boolean> cleanAftrewardsAction;
 
     protected final File incomingDataSetFile;
@@ -226,8 +226,8 @@ public abstract class DataSetRegistrationAlgorithm
             assert dataFile != null : "The folder that contains the stored data should not be null.";
             final String relativePath = FileUtilities.getRelativeFile(storeRoot, dataFile);
             assert relativePath != null : String.format(
-                    TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT, dataFile
-                            .getAbsolutePath(), storeRoot.getAbsolutePath());
+                    TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT,
+                    dataFile.getAbsolutePath(), storeRoot.getAbsolutePath());
             final StorageFormat availableFormat = getStorageProcessor().getStorageFormat();
             final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
             // Ensure that we either register the data set and initiate the processing copy or
@@ -243,7 +243,8 @@ public abstract class DataSetRegistrationAlgorithm
             {
                 getRegistrationLock().unlock();
             }
-            getStorageProcessor().commit();
+            getStorageProcessor().commit(incomingDataSetFile,
+                    baseDirectoryHolder.getBaseDirectory());
         } finally
         {
             getFileOperations().delete(markerFile);
@@ -351,17 +352,17 @@ public abstract class DataSetRegistrationAlgorithm
         }
         appendNameAndObject(buffer, "Data Set Code", dataSetInformation.getDataSetCode());
         appendNameAndObject(buffer, "Data Set Type", dataSetType.getCode());
-        appendNameAndObject(buffer, "Experiment Identifier", dataSetInformation
-                .getExperimentIdentifier());
+        appendNameAndObject(buffer, "Experiment Identifier",
+                dataSetInformation.getExperimentIdentifier());
         appendNameAndObject(buffer, "Sample Identifier", dataSetInformation.getSampleIdentifier());
         appendNameAndObject(buffer, "Producer Code", dataSetInformation.getProducerCode());
-        appendNameAndObject(buffer, "Production Date", formatDate(dataSetInformation
-                .getProductionDate()));
+        appendNameAndObject(buffer, "Production Date",
+                formatDate(dataSetInformation.getProductionDate()));
         final List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
         if (parentDataSetCodes.isEmpty() == false)
         {
-            appendNameAndObject(buffer, "Parent Data Sets", StringUtils.join(parentDataSetCodes,
-                    ' '));
+            appendNameAndObject(buffer, "Parent Data Sets",
+                    StringUtils.join(parentDataSetCodes, ' '));
         }
         appendNameAndObject(buffer, "Is complete", dataSetInformation.getIsCompleteFlag());
         buffer.setLength(buffer.length() - 1);
@@ -475,8 +476,8 @@ public abstract class DataSetRegistrationAlgorithm
         } catch (final IOException e)
         {
             TransferredDataSetHandler.operationLog.warn(String.format(
-                    "Could not write out the exception '%s' in file '%s'.", fileName, file
-                            .getAbsolutePath()), e);
+                    "Could not write out the exception '%s' in file '%s'.", fileName,
+                    file.getAbsolutePath()), e);
         } finally
         {
             IOUtils.closeQuietly(writer);
