@@ -53,9 +53,9 @@ class AbundanceHandler extends AbstractHandler
     private final IEncapsulatedOpenBISService openbisService;
 
     private final ExperimentIdentifier experimentIdentifier;
-    
+
     private final SpaceIdentifier msData;
-    
+
     private final Experiment experiment;
 
     private final Map<String, SampleOrError> samplesOrErrors = new HashMap<String, SampleOrError>();
@@ -69,7 +69,9 @@ class AbundanceHandler extends AbstractHandler
         this.openbisService = openbisService;
         this.experimentIdentifier = experimentIdentifier;
         this.experiment = experiment;
-        msData = new SpaceIdentifier(experimentIdentifier.getDatabaseInstanceCode(), Constants.MS_DATA_SPACE);
+        msData =
+                new SpaceIdentifier(experimentIdentifier.getDatabaseInstanceCode(),
+                        Constants.MS_DATA_SPACE);
         sampleType = new SampleType();
         sampleType.setCode(Constants.SEARCH_SAMPLE_TYPE);
     }
@@ -88,14 +90,14 @@ class AbundanceHandler extends AbstractHandler
         }
     }
 
+    @SuppressWarnings("deprecation")
     private Sample getOrCreateSample(String parameterName, String proteinName)
     {
         SampleOrError sampleOrError = samplesOrErrors.get(parameterName);
         if (sampleOrError == null)
         {
             // first we look for a sample in space MS_DATA
-            SampleIdentifier sampleIdentifier =
-                    new SampleIdentifier(msData, parameterName);
+            SampleIdentifier sampleIdentifier = new SampleIdentifier(msData, parameterName);
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
                     openbisService.tryGetSampleWithExperiment(sampleIdentifier);
             sampleOrError = new SampleOrError();

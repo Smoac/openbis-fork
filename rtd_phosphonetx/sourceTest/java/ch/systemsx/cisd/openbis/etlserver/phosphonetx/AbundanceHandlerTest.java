@@ -43,29 +43,44 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class AbundanceHandlerTest extends AssertJUnit
 {
     private static final String SPACE_CODE = "G1";
-    private static final SpaceIdentifier SPACE_IDENTIFIER = new SpaceIdentifier((String) null, SPACE_CODE);
+
+    private static final SpaceIdentifier SPACE_IDENTIFIER = new SpaceIdentifier((String) null,
+            SPACE_CODE);
+
     private static final String EXPERIMENT_CODE = "E1";
-    private static final GroupIdentifier GROUP_IDENTIFIER = new GroupIdentifier((String) null, Constants.MS_DATA_SPACE);
+
+    private static final GroupIdentifier GROUP_IDENTIFIER = new GroupIdentifier((String) null,
+            Constants.MS_DATA_SPACE);
+
     private static final String PARAMETER_VALUE = "1234.5";
+
     private static final double ABUNDANCE = 1234.5;
+
     private static final String PARAMETER_NAME = "abc12";
-    private static final SampleIdentifier SAMPLE_IDENTIFER =
-            new SampleIdentifier(GROUP_IDENTIFIER, PARAMETER_NAME);
-    private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER =
-            new ExperimentIdentifier(new ProjectIdentifier(SPACE_CODE, "P1"), EXPERIMENT_CODE);
+
+    private static final SampleIdentifier SAMPLE_IDENTIFER = new SampleIdentifier(GROUP_IDENTIFIER,
+            PARAMETER_NAME);
+
+    private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER = new ExperimentIdentifier(
+            new ProjectIdentifier(SPACE_CODE, "P1"), EXPERIMENT_CODE);
+
     private static final String SAMPLE_PERM_ID = "s12-34";
+
     private static final String EXPERIMENT_PERM_ID = "e12345-42";
+
     private static final long EXPERIMENT_ID = 42;
+
     private static final long SAMPLE_ID = 43;
+
     private static final long PROTEIN_ID = 4711;
+
     private static final String PROTEIN_NAME = "my protein";
+
     private static final ListSamplesByPropertyCriteria CRITERIA =
             new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME, PARAMETER_NAME,
                     SPACE_CODE, null);
@@ -135,32 +150,34 @@ public class AbundanceHandlerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddTwoAbundanceValuesForASampleIdentifiedByPropertyButNoSampleFound()
     {
-        prepareCreateSampleIdentifiedByProperty(Arrays.<Sample>asList());
+        prepareCreateSampleIdentifiedByProperty(Arrays.<Sample> asList());
 
         try
         {
-            handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID, PROTEIN_NAME);
+            handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID,
+                    PROTEIN_NAME);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
             assertEquals("Protein '" + PROTEIN_NAME
-                    + "' has an abundance value for an unidentified sample: " + PARAMETER_NAME, e
-                    .getMessage());
+                    + "' has an abundance value for an unidentified sample: " + PARAMETER_NAME,
+                    e.getMessage());
         }
-        
+
         try
         {
-            handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID, PROTEIN_NAME);
+            handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID,
+                    PROTEIN_NAME);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
             assertEquals("Protein '" + PROTEIN_NAME
-                    + "' has an abundance value for an unidentified sample: " + PARAMETER_NAME, e
-                    .getMessage());
+                    + "' has an abundance value for an unidentified sample: " + PARAMETER_NAME,
+                    e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -187,14 +204,14 @@ public class AbundanceHandlerTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddAbundanceValuesForASampleIdentifiedByProperty()
     {
         final Sample sample = new Sample();
         sample.setPermId(SAMPLE_PERM_ID);
         sample.setIdentifier("blabla");
-        prepareCreateSampleIdentifiedByProperty(Arrays.<Sample>asList(sample));
+        prepareCreateSampleIdentifiedByProperty(Arrays.<Sample> asList(sample));
         prepareCreateSample();
         context.checking(new Expectations()
             {
@@ -203,6 +220,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
 
+                            @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {
                                 if (item instanceof NewSample)
@@ -210,10 +228,10 @@ public class AbundanceHandlerTest extends AssertJUnit
                                     NewSample newSample = (NewSample) item;
                                     assertEquals(SPACE_IDENTIFIER + "/" + PARAMETER_NAME + "_"
                                             + EXPERIMENT_CODE, newSample.getIdentifier());
-                                    assertEquals(EXPERIMENT_IDENTIFIER.toString(), newSample
-                                            .getExperimentIdentifier());
-                                    assertEquals(sample.getIdentifier(), newSample
-                                            .getParentIdentifier());
+                                    assertEquals(EXPERIMENT_IDENTIFIER.toString(),
+                                            newSample.getExperimentIdentifier());
+                                    assertEquals(sample.getIdentifier(),
+                                            newSample.getParentIdentifier());
                                     return true;
                                 }
                                 return false;
@@ -252,7 +270,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                 {
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
-
+                            @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {
                                 if (item instanceof NewSample)
@@ -260,8 +278,8 @@ public class AbundanceHandlerTest extends AssertJUnit
                                     NewSample newSample = (NewSample) item;
                                     assertEquals(SPACE_IDENTIFIER + "/" + PARAMETER_NAME + "_"
                                             + EXPERIMENT_CODE, newSample.getIdentifier());
-                                    assertEquals(EXPERIMENT_IDENTIFIER.toString(), newSample
-                                            .getExperimentIdentifier());
+                                    assertEquals(EXPERIMENT_IDENTIFIER.toString(),
+                                            newSample.getExperimentIdentifier());
                                     assertEquals(PARAMETER_NAME, newSample.getParentIdentifier());
                                     return true;
                                 }
@@ -290,7 +308,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                 }
             });
     }
-    
+
     private void prepareCreateSampleIdentifiedByProperty(final List<Sample> samples)
     {
         prepareGetSample(null);
@@ -315,7 +333,7 @@ public class AbundanceHandlerTest extends AssertJUnit
                 }
             });
     }
-    
+
     private void prepareGetSample(final Sample sample)
     {
         context.checking(new Expectations()
