@@ -70,6 +70,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     protected SamplePE tryToGetSampleByIdentifier(final SampleIdentifier sampleIdentifier)
     {
+        // TODO 2010-11-10, Piotr Buczek: use cache
         assert sampleIdentifier != null : "Sample identifier unspecified.";
         final SampleOwner sampleOwner = sampleOwnerFinder.figureSampleOwner(sampleIdentifier);
         final String sampleCode = sampleIdentifier.getSampleCode();
@@ -78,8 +79,8 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
         if (sampleOwner.isDatabaseInstanceLevel())
         {
             sample =
-                    sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, sampleOwner
-                            .tryGetDatabaseInstance());
+                    sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode,
+                            sampleOwner.tryGetDatabaseInstance());
         } else
         {
             assert sampleOwner.isGroupLevel() : "Must be of space level.";

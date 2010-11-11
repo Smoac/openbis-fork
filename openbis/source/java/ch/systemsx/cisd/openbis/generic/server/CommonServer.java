@@ -1576,7 +1576,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     columns.add(NewSample.IDENTIFIER_COLUMN);
                 }
                 columns.add(NewSample.CONTAINER);
-                columns.add(NewSample.PARENT);
+                columns.add(NewSample.PARENTS);
                 if (withExperiments)
                     columns.add(NewSample.EXPERIMENT);
                 addProperties(columns, ((SampleTypePE) entityType).getSampleTypePropertyTypes());

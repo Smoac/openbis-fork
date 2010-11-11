@@ -54,9 +54,10 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
     {
         boolean updateExperiment = isColumnAvailable(UpdatedSample.EXPERIMENT);
         boolean updateParent = isColumnAvailable(UpdatedSample.PARENT);
+        boolean updateParents = isColumnAvailable(UpdatedSample.PARENTS);
         boolean updateContainer = isColumnAvailable(UpdatedSample.CONTAINER);
-        return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateContainer,
-                getUnmatchedProperties());
+        return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateParents,
+                updateContainer, getUnmatchedProperties());
     }
 
     //
@@ -88,6 +89,9 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         final boolean updateParent =
                 basicBatchUpdateDetails.isParentUpdateRequested()
                         && isNotEmpty(newSample.getParentIdentifier());
+        final boolean updateParents =
+                basicBatchUpdateDetails.isParentsUpdateRequested()
+                        && isNotEmpty(newSample.getParents());
         final boolean updateContainer =
                 basicBatchUpdateDetails.isContainerUpdateRequested()
                         && isNotEmpty(newSample.getContainerIdentifier());
@@ -98,8 +102,13 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
             propertiesToUpdate.add(property.getPropertyType().getCode());
         }
 
-        return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateContainer,
-                propertiesToUpdate);
+        return new SampleBatchUpdateDetails(updateExperiment, updateParent, updateParents,
+                updateContainer, propertiesToUpdate);
+    }
+
+    private boolean isNotEmpty(String[] parents)
+    {
+        return parents != null && parents.length > 0 && isNotEmpty(parents[0]);
     }
 
     /** Cleans properties and connections of the specified sample that are marked for deletion. */
@@ -112,6 +121,10 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
         if (isDeletionMark(newSample.getParentIdentifier()))
         {
             newSample.setParentIdentifier(null);
+        }
+        if (newSample.getParents() != null && isDeletionMark(newSample.getParents()[0]))
+        {
+            newSample.setParents(new String[0]);
         }
         if (isDeletionMark(newSample.getContainerIdentifier()))
         {

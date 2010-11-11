@@ -206,7 +206,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             final SamplePE samplePE, String parentIdentifier)
     {
         final Set<SamplePE> newParents = new HashSet<SamplePE>();
-        final SamplePE parentOrNull = tryGetValidSample(parentIdentifier, sampleIdentifier);
+        final SamplePE parentOrNull = tryGetValidParentSample(parentIdentifier, sampleIdentifier);
         if (parentOrNull != null)
         {
             newParents.add(parentOrNull);
@@ -230,6 +230,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         final Set<SamplePE> parentPEs = new HashSet<SamplePE>();
         for (SampleIdentifier si : parentIdentifiers)
         {
+            // TODO 2010-11-10, Piotr Buczek: use cache
             SamplePE parent = getSampleByIdentifier(si);
             parentPEs.add(parent);
         }
@@ -238,6 +239,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void replaceParents(SamplePE child, Set<SamplePE> newParents)
     {
+        for (SamplePE parent : newParents)
+        {
+            checkParentInvalidation(parent, child.getSampleIdentifier());
+        }
         List<SampleRelationshipPE> oldParents = new ArrayList<SampleRelationshipPE>();
         for (SampleRelationshipPE r : child.getParentRelationships())
         {
@@ -280,8 +285,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         return result;
     }
 
-    private SamplePE tryGetValidSample(final String parentIdentifierOrNull,
-            final SampleIdentifier sampleIdentifier)
+    private SamplePE tryGetValidParentSample(final String parentIdentifierOrNull,
+            final SampleIdentifier childIdentifier)
     {
         if (parentIdentifierOrNull == null)
         {
@@ -289,19 +294,24 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         }
         final SamplePE parentPE =
                 getSampleByIdentifier(SampleIdentifierFactory.parse(parentIdentifierOrNull));
+        checkParentInvalidation(parentPE, childIdentifier);
+        return parentPE;
+    }
+
+    private void checkParentInvalidation(final SamplePE parentPE, final SampleIdentifier child)
+    {
         if (parentPE.getInvalidation() != null)
         {
             throw UserFailureException.fromTemplate(
-                    "Cannot register sample '%s': parent '%s' has been invalidated.",
-                    sampleIdentifier, parentIdentifierOrNull);
+                    "Sample '%s' has been invalidated and can't become a parent of sample '%s'.",
+                    parentPE.getIdentifier(), child);
         }
-        return parentPE;
     }
 
     private SamplePE tryGetValidNotContainedSample(final String parentIdentifierOrNull,
             final SampleIdentifier sampleIdentifier)
     {
-        SamplePE sample = tryGetValidSample(parentIdentifierOrNull, sampleIdentifier);
+        SamplePE sample = tryGetValidParentSample(parentIdentifierOrNull, sampleIdentifier);
         if (sample != null && sample.getContainer() != null)
         {
             throw UserFailureException.fromTemplate(

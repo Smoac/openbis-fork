@@ -251,6 +251,14 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             setGeneratedFrom(updates.getSampleIdentifier(), sample,
                     updates.getParentIdentifierOrNull());
         }
+        if (details.isParentsUpdateRequested())
+        {
+            final String[] parents = updates.getModifiedParentCodesOrNull();
+            if (parents != null)
+            {
+                setParents(sample, parents);
+            }
+        }
         if (details.isContainerUpdateRequested())
         {
             setContainer(updates.getSampleIdentifier(), sample,
@@ -258,7 +266,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         }
         // NOTE: Checking business rules with relationships is expensive.
         // Don't perform them unless relevant data were changed.
-        if (details.isExperimentUpdateRequested() || details.isParentUpdateRequested())
+        if (details.isExperimentUpdateRequested() || details.isParentUpdateRequested()
+                || details.isParentsUpdateRequested())
         {
             checkParentBusinessRules(sample);
         }

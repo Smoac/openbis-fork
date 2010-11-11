@@ -39,6 +39,8 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
 
     public static final String PARENT = "parent";
 
+    public static final String PARENTS = "parents";
+
     public static final String EXPERIMENT = "experiment";
 
     private SampleType sampleType;
@@ -97,11 +99,12 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     }
 
     public NewSample(final String identifier, SampleType sampleType, String containerIdentifier,
-            String parentIdentifier, String experimentIdentifier, IEntityProperty[] properties,
-            List<NewAttachment> attachments)
+            String parentIdentifier, String[] parentsOrNull, String experimentIdentifier,
+            IEntityProperty[] properties, List<NewAttachment> attachments)
     {
         this(identifier, sampleType, containerIdentifier);
         this.parentIdentifier = parentIdentifier;
+        this.parentsOrNull = parentsOrNull;
         this.experimentIdentifier = experimentIdentifier;
         this.properties = properties;
         this.attachments = attachments;
@@ -135,6 +138,19 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     public void setParents(String[] parents)
     {
         this.parentsOrNull = parents;
+    }
+
+    @BeanProperty(label = PARENTS, optional = true)
+    public void setParents(String parents)
+    {
+        if (parents != null)
+        {
+            String[] split = parents.split(",");
+            setParents(split);
+        } else
+        {
+            setParents((String[]) null);
+        }
     }
 
     public final String getParentIdentifier()
