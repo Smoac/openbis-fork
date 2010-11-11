@@ -68,6 +68,11 @@ public class FileOperationsUtil
                 {
                     return null;
                 }
+
+                public String[] getExtraRsyncParameters()
+                {
+                    return null;
+                }
             };
     }
 }

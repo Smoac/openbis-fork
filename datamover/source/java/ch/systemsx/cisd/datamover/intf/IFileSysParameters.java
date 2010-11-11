@@ -45,6 +45,11 @@ public interface IFileSysParameters
     boolean isRsyncOverwrite();
 
     /**
+     * @return Additional parameters to be added to the end of the <code>rsync</code> command line.
+     */
+    public String[] getExtraRsyncParameters();
+
+    /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
      */
     String getSshExecutable();

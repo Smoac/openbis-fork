@@ -97,8 +97,8 @@ public final class PropertyNames
     static final String OUTGOING_HOST_RSYNC_EXECUTABLE = "outgoing-host-rsync-executable";
 
     static final String RSYNC_OVERWRITE = "rsync-overwrite";
-
-    static final String USE_RSYNC_FOR_EXTRA_COPIES = "use-rsync-for-extra-copies";
+    
+    static final String EXTRA_RSYNC_PARAMS = "extra-rsync-params";
 
     static final String SSH_EXECUTABLE = "ssh-executable";
 

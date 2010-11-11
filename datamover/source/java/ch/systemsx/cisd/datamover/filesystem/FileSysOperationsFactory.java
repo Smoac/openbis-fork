@@ -89,7 +89,7 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
         final File rsyncExecutable = findRsyncExecutable();
         final File sshExecutable = tryFindSshExecutable();
         return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation,
-                parameters.isRsyncOverwrite());
+                parameters.isRsyncOverwrite(), parameters.getExtraRsyncParameters());
     }
 
     public final File tryFindSshExecutable()

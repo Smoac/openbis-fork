@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.log4j.Logger;
@@ -65,11 +66,11 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private final static String HIGHWATER_MARK_TEXT =
             "(optional high water mark in KB specified after a '>')";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, Parameters.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            Parameters.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, Parameters.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            Parameters.class);
 
     @Option(longName = PropertyNames.DATA_COMPLETED_SCRIPT, metaVar = "EXEC", usage = "Optional script "
             + "which checks whether incoming data is complete or not.", handler = FileOptionHandler.class)
@@ -112,6 +113,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     @Option(longName = PropertyNames.RSYNC_OVERWRITE, usage = "If true, files that already exist on the remote side are always "
             + "overwritten rather than appended (default: false).")
     private boolean rsyncOverwrite = DEFAULT_RSYNC_OVERWRITE;
+
+    /**
+     * Extra parameters that are added to the end of the rsync command line, like e.g.
+     * --no-owner.
+     */
+    @Option(longName = PropertyNames.EXTRA_RSYNC_PARAMS, usage = "Additional parameters added to the end of the rsync "
+            + "command line.")
+    private String extraRsyncParameters = null;
 
     /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
@@ -466,6 +475,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         rsyncOverwrite =
                 PropertyUtils.getBoolean(serviceProperties, PropertyNames.RSYNC_OVERWRITE,
                         rsyncOverwrite);
+        extraRsyncParameters =
+                PropertyUtils.getProperty(serviceProperties, PropertyNames.EXTRA_RSYNC_PARAMS);
         sshExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.SSH_EXECUTABLE,
                         sshExecutable);
@@ -628,6 +639,25 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final boolean isRsyncOverwrite()
     {
         return rsyncOverwrite;
+    }
+
+    /**
+     * @return Extra parameters to be added to the end of the <code>rsync</code> command line.
+     */
+    public String[] getExtraRsyncParameters()
+    {
+        if (extraRsyncParameters == null)
+        {
+            return new String[0];
+        } else
+        {
+            final String[] params = StringUtils.split(extraRsyncParameters, ',');
+            for (int i = 0; i < params.length; ++i)
+            {
+                params[i] = params[i].trim();
+            }
+            return params;
+        }
     }
 
     /**
@@ -860,8 +890,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             }
             if (null != extraCopyDirectory)
             {
-                operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory
-                        .getAbsolutePath()));
+                operationLog.info(String.format("Extra copy directory: '%s'.",
+                        extraCopyDirectory.getAbsolutePath()));
             }
             if (null != transformatorClassNameOrNull)
             {
@@ -871,10 +901,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                     DurationFormatUtils.formatDuration(getCheckIntervalMillis(), "s")));
             operationLog.info(String.format("Check intervall (internal): %s s.",
                     DurationFormatUtils.formatDuration(getCheckIntervalInternalMillis(), "s")));
-            operationLog.info(String.format("Quiet period: %s s.", DurationFormatUtils
-                    .formatDuration(getQuietPeriodMillis(), "s")));
-            operationLog.info(String.format("Inactivity (stall) period: %s s.", DurationFormatUtils
-                    .formatDuration(getInactivityPeriodMillis(), "s")));
+            operationLog.info(String.format("Quiet period: %s s.",
+                    DurationFormatUtils.formatDuration(getQuietPeriodMillis(), "s")));
+            operationLog.info(String.format("Inactivity (stall) period: %s s.",
+                    DurationFormatUtils.formatDuration(getInactivityPeriodMillis(), "s")));
             operationLog.info(String.format("Intervall to wait after failure: %s s.",
                     DurationFormatUtils.formatDuration(getIntervalToWaitAfterFailure(), "s")));
             operationLog.info(String.format("Maximum number of retries: %d.",
