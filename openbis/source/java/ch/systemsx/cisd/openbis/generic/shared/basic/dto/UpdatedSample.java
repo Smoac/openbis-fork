@@ -29,10 +29,11 @@ public final class UpdatedSample extends NewSample
             "# All columns except \"identifier\" can be removed from the file.\n"
                     + "# If a column is removed from the file or a cell in a column is left empty the corresponding values of updated samples will be preserved.\n"
                     + "# To delete a value/connection from openBIS one needs to put \"--DELETE--\" into the corresponding cell\n"
-                    + "# (in particular, a sample can become detached from an experiment, container or parent sample this way).\n"
+                    + "# (in particular, a sample can become detached from an experiment, container or all parents this way).\n"
                     + "# Basically the \"identifier\" column should contain sample identifiers, e.g. /SPACE/SAMPLE_1,\n"
                     + "# but for samples from default space (if it was provided in the form) it is enough to put sample codes (e.g. SAMPLE_1) into the column.\n"
-                    + "# The \"container\" and \"parent\" columns (if not removed) should contain sample identifiers, e.g. /SPACE/SAMPLE_1\n"
+                    + "# The \"container\" column (if not removed) should contain sample identifiers, e.g. /SPACE/SAMPLE_1\n"
+                    + "# The \"parent\" column (if not removed) should contain comma separated list of sample identifiers, e.g. /SPACE/SAMPLE_1,/SPACE/SAMPLE_2\n"
                     + "# The \"experiment\" column (if not removed) should contain experiment identifier, e.g. /SPACE/PROJECT/EXP_1\n";
 
     private SampleBatchUpdateDetails batchUpdateDetails;
