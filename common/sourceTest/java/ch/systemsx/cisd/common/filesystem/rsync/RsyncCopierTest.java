@@ -53,13 +53,13 @@ import ch.systemsx.cisd.common.test.StoringUncaughtExceptionHandler;
 @Friend(toClasses = RsyncCopier.class)
 public final class RsyncCopierTest
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, RsyncCopierTest.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RsyncCopierTest.class);
 
     private static final long SLEEP_MILLIS = 1000L;
 
-    private static final File unitTestRootDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory = new File("targets" + File.separator
+            + "unit-test-wd");
 
     private static final File workingDirectory = new File(unitTestRootDirectory, "RsyncCopierTest");
 
@@ -128,8 +128,8 @@ public final class RsyncCopierTest
         final File rsyncBinary = new File(workingDirectory, "rsync");
         rsyncBinary.delete();
         final List<String> lines = new ArrayList<String>();
-        lines.addAll(Arrays.asList("#! /bin/sh", "if [ \"$1\" = \"--version\" ]; then ", String
-                .format("  echo \"rsync  version %s\"", rsyncVersion), "exit 0", "fi"));
+        lines.addAll(Arrays.asList("#! /bin/sh", "if [ \"$1\" = \"--version\" ]; then ",
+                String.format("  echo \"rsync  version %s\"", rsyncVersion), "exit 0", "fi"));
         lines.addAll(Arrays.asList(additionalLines));
         CollectionIO.writeIterable(rsyncBinary, lines);
         Runtime.getRuntime().exec(String.format("/bin/chmod +x %s", rsyncBinary.getPath()))
@@ -154,6 +154,40 @@ public final class RsyncCopierTest
         assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
         assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
         assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyLocalNoOwnerNoGroup() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final RsyncCopier copier =
+                new RsyncCopier(rsyncBinary, rsyncBinary, false, false, "--no-owner", "--no-group");
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, destinationDirectory,
+                        null, null, null, false);
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals("--no-owner", cmdLine.get(cmdLine.size() - 4));
+        assertEquals("--no-group", cmdLine.get(cmdLine.size() - 3));
+        assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(cmdLine.size() - 2));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(cmdLine.size() - 1));
+    }
+
+    @Test
+    public void testCommandLineForMutableCopyCustomParameters() throws IOException,
+            InterruptedException
+    {
+        final File rsyncBinary = createRsync(0);
+        final RsyncCopier copier =
+                new RsyncCopier(rsyncBinary, rsyncBinary, "--archive", "--no-perms");
+        final List<String> cmdLine =
+                copier.createCommandLineForMutableCopy(sourceDirectory, null, destinationDirectory,
+                        null, null, null, false);
+        assertEquals(rsyncBinary.getAbsolutePath(), cmdLine.get(0));
+        assertEquals("--archive", cmdLine.get(1));
+        assertEquals("--no-perms", cmdLine.get(2));
+        assertEquals(sourceDirectory.getAbsolutePath(), cmdLine.get(3));
+        assertEquals(destinationDirectory.getAbsolutePath() + "/", cmdLine.get(4));
     }
 
     @Test
@@ -332,14 +366,14 @@ public final class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
-                        .getAbsolutePath()));
+                createRsync("2.6.7",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         final Status status = copier.copy(sourceDirectory, destinationDirectory);
         assertEquals(Status.OK, status);
         final String expectedRsyncCmdLine =
-                String.format("--archive --delete --inplace --append %s %s/\n", sourceDirectory
-                        .getAbsolutePath(), destinationDirectory.getAbsolutePath());
+                String.format("--archive --delete --inplace --append %s %s/\n",
+                        sourceDirectory.getAbsolutePath(), destinationDirectory.getAbsolutePath());
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
     }
@@ -350,14 +384,14 @@ public final class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
-                        .getAbsolutePath()));
+                createRsync("2.6.7",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         final Status status = copier.copyContent(sourceDirectory, destinationDirectory);
         assertEquals(Status.OK, status);
         final String expectedRsyncCmdLine =
-                String.format("--archive --delete --inplace --append %s/ %s/\n", sourceDirectory
-                        .getAbsolutePath(), destinationDirectory.getAbsolutePath());
+                String.format("--archive --delete --inplace --append %s/ %s/\n",
+                        sourceDirectory.getAbsolutePath(), destinationDirectory.getAbsolutePath());
         final String observedRsyncCmdLine = FileUtilities.loadToString(parametersLogFile);
         assertEquals(expectedRsyncCmdLine, observedRsyncCmdLine);
     }
@@ -368,8 +402,8 @@ public final class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
-                        .getAbsolutePath()));
+                createRsync("2.6.7",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, null));
         final String absWd = workingDirectory.getAbsolutePath();
@@ -385,8 +419,8 @@ public final class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
-                        .getAbsolutePath()));
+                createRsync("2.6.7",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         final String name = "xxx";
         assertTrue(copier.copyDirectoryImmutably(sourceDirectory, destinationDirectory, name));
@@ -443,8 +477,8 @@ public final class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
-                        .getAbsolutePath()));
+                createRsync("2.6.7",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         copier.copy(sourceFile, destinationDirectory);
         final String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
@@ -458,8 +492,8 @@ public final class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.6", String.format("echo \"$@\" > %s", parametersLogFile
-                        .getAbsolutePath()));
+                createRsync("2.6.6",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, false);
         copier.copy(sourceFile, destinationDirectory);
         final String rsyncParameters = FileUtilities.loadToString(parametersLogFile);
@@ -473,8 +507,8 @@ public final class RsyncCopierTest
     {
         final File parametersLogFile = new File(workingDirectory, "parameters.log");
         final File loggingRsyncBinary =
-                createRsync("2.6.7", String.format("echo \"$@\" > %s", parametersLogFile
-                        .getAbsolutePath()));
+                createRsync("2.6.7",
+                        String.format("echo \"$@\" > %s", parametersLogFile.getAbsolutePath()));
         final RsyncCopier copier = new RsyncCopier(loggingRsyncBinary, null, false, true);
         copier.copy(sourceFile, destinationDirectory);
         final String rsyncParameters = FileUtilities.loadToString(parametersLogFile);

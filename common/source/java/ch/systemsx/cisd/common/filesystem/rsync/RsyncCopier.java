@@ -51,11 +51,11 @@ import ch.systemsx.cisd.common.utilities.ITerminable;
  */
 public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 {
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, RsyncCopier.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            RsyncCopier.class);
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, RsyncCopier.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            RsyncCopier.class);
 
     /**
      * The {@link Status} returned if the process was terminated by {@link Process#destroy()}.
@@ -63,11 +63,11 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     @Private
     static final Status TERMINATED_STATUS = Status.createRetriableError("Process was terminated.");
 
-    private static final Status INTERRUPTED_STATUS =
-            Status.createRetriableError("Process was interrupted.");
+    private static final Status INTERRUPTED_STATUS = Status
+            .createRetriableError("Process was interrupted.");
 
-    private static final Status TIMEOUT_STATUS =
-            Status.createRetriableError("Process has stopped because of timeout.");
+    private static final Status TIMEOUT_STATUS = Status
+            .createRetriableError("Process has stopped because of timeout.");
 
     private final String rsyncExecutable;
 
@@ -103,7 +103,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private final String sshExecutable;
 
-    private final List<String> additionalCmdLineFlags;
+    private final List<String> additionalCmdLineFlagsOrNull;
+    
+    /** If set, overrides all command line parameters for mutable copying. */
+    private final List<String> cmdLineFlagsOrNull;
 
     private final boolean overwrite;
 
@@ -125,6 +128,30 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     public RsyncCopier(final File rsyncExecutable)
     {
         this(rsyncExecutable, null, false, false);
+    }
+
+    /**
+     * Constructs an <code>RsyncCopier</code> with fully custom command line flags.
+     * 
+     * @param rsyncExecutable The <code>rsync</code> binary to call for copying.
+     * @param sshExecutableOrNull The <code>ssh</code> binary to use for creating tunnels, or
+     *            <code>null</code>, if no <code>ssh</code> is available on this machine.
+     * @param cmdLineFlags The command line flags to use for the rsync command.
+     */
+    public RsyncCopier(final File rsyncExecutable, final File sshExecutableOrNull,
+            String... cmdLineFlags)
+    {
+        assert rsyncExecutable != null && rsyncExecutable.exists();
+        assert sshExecutableOrNull == null || rsyncExecutable.exists();
+
+        this.rsyncExecutable = rsyncExecutable.getAbsolutePath();
+        this.rsyncVersion = RsyncVersionChecker.getVersion(rsyncExecutable.getAbsolutePath());
+        this.sshExecutable = (sshExecutableOrNull != null) ? sshExecutableOrNull.getPath() : null;
+        this.rsyncTerminator = new AtomicReference<ITerminable>(null);
+        this.overwrite = false;
+        this.destinationDirectoryRequiresDeletionBeforeCreation = false;
+        this.additionalCmdLineFlagsOrNull = null;
+        this.cmdLineFlagsOrNull = Arrays.asList(cmdLineFlags);
     }
 
     /**
@@ -153,11 +180,12 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         this.rsyncTerminator = new AtomicReference<ITerminable>(null);
         if (cmdLineFlags.length > 0)
         {
-            this.additionalCmdLineFlags = Arrays.asList(cmdLineFlags);
+            this.additionalCmdLineFlagsOrNull = Arrays.asList(cmdLineFlags);
         } else
         {
-            this.additionalCmdLineFlags = null;
+            this.additionalCmdLineFlagsOrNull = null;
         }
+        this.cmdLineFlagsOrNull = null;
     }
 
     private boolean rsyncSupportsAppend(RsyncVersion versionOrNull)
@@ -237,8 +265,10 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         assert destinationDirectory.isDirectory() : destinationDirectory.getAbsolutePath();
 
         final List<String> commandLine =
-                createCommandLineForImmutableCopy(sourceDirectory, createTargetDirectory(
-                        sourceDirectory, destinationDirectory, targetNameOrNull));
+                createCommandLineForImmutableCopy(
+                        sourceDirectory,
+                        createTargetDirectory(sourceDirectory, destinationDirectory,
+                                targetNameOrNull));
         final ProcessResult processResult =
                 runCommand(commandLine, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY);
         return processResult.isOK();
@@ -329,8 +359,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         if (rsyncVersion.isRsyncPreReleaseVersion())
         {
-            machineLog.warn(String
-                    .format(
+            machineLog
+                    .warn(String.format(
                             "The rsync executable '%s' is a pre-release version. It is not recommended "
                                     + "to use such a version in a production environment.",
                             rsyncExecutable));
@@ -425,12 +455,13 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             if (result.getOutput().size() == 0)
             {
-                machineLog.warn(String.format("No output on command '%s'.", StringUtils.join(
-                        commandLineList, ' ')));
+                machineLog.warn(String.format("No output on command '%s'.",
+                        StringUtils.join(commandLineList, ' ')));
             } else
             {
-                machineLog.warn(String.format("Unexpected output on command '%s':\n%s", StringUtils
-                        .join(commandLineList, ' '), StringUtils.join(result.getOutput(), '\n')));
+                machineLog.warn(String.format("Unexpected output on command '%s':\n%s",
+                        StringUtils.join(commandLineList, ' '),
+                        StringUtils.join(result.getOutput(), '\n')));
             }
         }
         if (result.isOK() && result.getOutput().size() == 1)
@@ -485,19 +516,25 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 || (destinationHostOrNull == null);
         assert (sourceHostOrNull != null && sshExecutable != null) || (sourceHostOrNull == null);
 
-        final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
         final List<String> commandLineList = new ArrayList<String>();
         final RsyncRecord remoteRsyncOrNull =
                 tryGetRemoteRsync(sourceHostOrNull, destinationHostOrNull);
-
         commandLineList.add(rsyncExecutable);
-        commandLineList.addAll(standardParameters);
-        if (isOverwriteMode(remoteRsyncOrNull))
+        if (cmdLineFlagsOrNull != null)
         {
-            commandLineList.add("--whole-file");
+            commandLineList.addAll(cmdLineFlagsOrNull);
         } else
         {
-            commandLineList.add("--append");
+            final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
+    
+            commandLineList.addAll(standardParameters);
+            if (isOverwriteMode(remoteRsyncOrNull))
+            {
+                commandLineList.add("--whole-file");
+            } else
+            {
+                commandLineList.add("--append");
+            }
         }
         if (sshExecutable != null && (destinationHostOrNull != null || sourceHostOrNull != null)
                 && rsyncModuleNameOrNull == null)
@@ -516,9 +553,9 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             commandLineList.add("--password-file");
             commandLineList.add(rsyncPasswordFileOrNull);
         }
-        if (additionalCmdLineFlags != null)
+        if (additionalCmdLineFlagsOrNull != null)
         {
-            commandLineList.addAll(additionalCmdLineFlags);
+            commandLineList.addAll(additionalCmdLineFlagsOrNull);
         }
         commandLineList.add(buildPath(sourceHostOrNull, sourcePath, rsyncModuleNameOrNull,
                 copyDirectoryContent));
