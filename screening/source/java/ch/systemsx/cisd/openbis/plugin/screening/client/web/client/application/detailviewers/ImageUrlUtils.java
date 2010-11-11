@@ -44,7 +44,7 @@ public class ImageUrlUtils
         String imageURL =
                 createDatastoreImageUrl(sessionId, images, channel, row, col, imageWidth,
                         imageHeight, createImageLinks);
-        addUrlWidget(container, imageURL, imageHeight);
+        addUrlWidget(container, imageURL, imageWidth, imageHeight);
     }
 
     /**
@@ -58,7 +58,7 @@ public class ImageUrlUtils
         String imageURL =
                 createDatastoreImageUrl(sessionId, images, channel, channelStackRef, imageWidth,
                         imageHeight);
-        addUrlWidget(container, imageURL, imageHeight);
+        addUrlWidget(container, imageURL, imageWidth, imageHeight);
     }
 
     /** generates URL of an image on Data Store server */
@@ -79,10 +79,10 @@ public class ImageUrlUtils
     }
 
     /** creates a widget which displays the specified URL and adds it to the container */
-    private static void addUrlWidget(LayoutContainer container, String url, int height)
+    private static void addUrlWidget(LayoutContainer container, String url, int width, int height)
     {
         Component tileContent = new Html(url);
-        tileContent.setHeight("" + height);
+        tileContent.setSize("" + width, "" + height);
         PlateStyleSetter.setPointerCursor(tileContent);
         container.add(tileContent);
     }
