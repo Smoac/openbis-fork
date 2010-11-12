@@ -151,10 +151,11 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             return enrichDatasets(query.getDatasetsForSample(sampleId.getId()));
         } else
         {
-            // first get directly connected datasets, then go layer by layer into children datasets
+            // get all descendands of the sample
+            LongSet sampleIds = referencedEntityDAO.getSampleDescendantIdsAndSelf(sampleId.getId());
+            // get directly connected datasets, then go layer by layer into children datasets
             LongSet results = new LongOpenHashSet();
-            LongSet currentLayer =
-                    new LongOpenHashSet(query.getDatasetIdsForSample(sampleId.getId()));
+            LongSet currentLayer = new LongOpenHashSet(query.getDatasetIdsForSamples(sampleIds));
             LongSet nextLayer;
             while (currentLayer.isEmpty() == false)
             {

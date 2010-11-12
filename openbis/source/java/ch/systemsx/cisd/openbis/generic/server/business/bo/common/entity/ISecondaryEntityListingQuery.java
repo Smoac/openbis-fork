@@ -71,6 +71,14 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleReferenceRecord> getSamples(LongSet sampleIds);
 
+    /**
+     * Returns all children sample ids of the specified samples.
+     */
+    @Select(sql = "SELECT sample_id_child FROM sample_relationships "
+            + "    WHERE sample_id_parent = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getChildrenIds(LongSet parentSampleIds);
+
     //
     // Persons
     //

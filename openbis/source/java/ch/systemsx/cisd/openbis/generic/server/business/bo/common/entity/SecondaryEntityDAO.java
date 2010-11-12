@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.Connection;
@@ -170,6 +171,23 @@ public class SecondaryEntityDAO
             result.put(record.id, createSample(record, databaseInstance));
         }
         return result;
+    }
+
+    public LongSet getSampleDescendantIdsAndSelf(Long sampleId)
+    {
+        LongSet results = new LongOpenHashSet();
+        LongSet currentLayer = new LongOpenHashSet();
+        currentLayer.add(sampleId);
+        // go layer by layer into children samples
+        LongSet nextLayer;
+        while (currentLayer.isEmpty() == false)
+        {
+            results.addAll(currentLayer);
+            nextLayer = new LongOpenHashSet(query.getChildrenIds(currentLayer));
+            nextLayer.removeAll(results); // don't go twice through the same sample
+            currentLayer = nextLayer;
+        }
+        return results;
     }
 
     private static Sample createSample(SampleReferenceRecord record,

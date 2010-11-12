@@ -105,6 +105,13 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "select id from data where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetIdsForSample(long sampleId);
 
+    /**
+     * Returns ids of datasets directly connected to samples with given ids.
+     */
+    @Select(sql = "select id from data where data.samp_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getDatasetIdsForSamples(LongSet sampleIds);
+
     @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids);
@@ -112,7 +119,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "select * from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listChildrenDataSetIds(LongSet ids);
-    
+
     /**
      * Returns all datasets that are children of any specified dataset id.
      */
