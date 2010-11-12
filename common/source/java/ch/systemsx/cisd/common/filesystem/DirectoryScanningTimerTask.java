@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -58,11 +59,11 @@ import ch.systemsx.cisd.common.utilities.ITimerTaskStatusProvider;
 public final class DirectoryScanningTimerTask extends TimerTask implements ITimerTaskStatusProvider
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DirectoryScanningTimerTask.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DirectoryScanningTimerTask.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, DirectoryScanningTimerTask.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            DirectoryScanningTimerTask.class);
 
     private final IStoreHandler storeHandler;
 
@@ -186,7 +187,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
             notificationLog.error("Timeout while scanning directory: " + ex.getMessage(), ex);
         } else
         {
-            notificationLog.error("An exception has occurred. (thread still running)", ex);
+            notificationLog.error("An exception has occurred. (thread still running)",
+                    CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
     }
 
@@ -288,8 +290,8 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
                     {
                         if (instruction.tryGetMessage() == null)
                         {
-                            operationLog.trace(String.format("Handle instruction: %s.", instruction
-                                    .getFlag()));
+                            operationLog.trace(String.format("Handle instruction: %s.",
+                                    instruction.getFlag()));
                         } else
                         {
                             operationLog.trace(String.format("Handle instruction: %s [%s].",
@@ -402,8 +404,9 @@ public final class DirectoryScanningTimerTask extends TimerTask implements ITime
     {
         if (hasErrors())
         {
-            return String.format("  [%s]\n  %s", StringUtils.defaultIfEmpty(threadNameOrNull,
-                    "UNKNOWN"), StringUtils.join(errorLog.values(), "\n  "));
+            return String.format("  [%s]\n  %s",
+                    StringUtils.defaultIfEmpty(threadNameOrNull, "UNKNOWN"),
+                    StringUtils.join(errorLog.values(), "\n  "));
         } else
         {
             return null;
