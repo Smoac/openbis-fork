@@ -55,6 +55,10 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 public final class DataMover
 {
 
+    static final String STARTED_TRANSFER = "STARTED_TRANSFER";
+    
+    static final String FINISHED_TRANSFER = "FINISHED_TRANSFER";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataMover.class);
 
@@ -264,7 +268,7 @@ public final class DataMover
                 FileStoreFactory.createLocal(sourceDirectory, "ready-to-move", factory, false);
         final IStoreHandler remoteStoreMover =
                 wrapHandleWithLogging(createOutgoingPathMover(readyToMoveStore, outgoingStore),
-                        null, "FINISHED_TRANSFER");
+                        null, FINISHED_TRANSFER, null);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
                         sourceDirectory, remoteStoreMover), outgoingStore.getHighwaterMarkWatcher());
@@ -337,9 +341,12 @@ public final class DataMover
      *            item name will be logged before item handling
      * @param prefixAfterOrNull if not <code>null</code> a message with this prefix and handled item
      *            name will be logged after item handling
+     * @param prefixAfterFailureOnlyOrNull if not <code>null</code> a message with this prefix and handled item
+     *            name will be logged after item handling, if the handling failed
      */
     public final static IStoreHandler wrapHandleWithLogging(final IStoreHandler originalHandler,
-            final String prefixBeforeOrNull, final String prefixAfterOrNull)
+            final String prefixBeforeOrNull, final String prefixAfterOrNull,
+            final String prefixAfterFailureOnlyOrNull)
     {
         return new IStoreHandler()
             {
@@ -354,6 +361,10 @@ public final class DataMover
                     {
                         operationLog.info(prefixAfterOrNull + " " + item + ": "
                                 + (ok ? "OK" : "FAILED"));
+                    }
+                    if (ok == false && prefixAfterFailureOnlyOrNull != null)
+                    {
+                        operationLog.info(prefixAfterFailureOnlyOrNull + " " + item + ": FAILED");
                     }
                     return ok;
                 }

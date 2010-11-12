@@ -75,6 +75,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
 
     private final LocalBufferDirs bufferDirs;
 
+    private final IFileStore copyInProgressStore;
+
     private final IFileStore incomingStore;
 
     private final String prefixForIncoming;
@@ -120,6 +122,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.successorMarkerFileName = successorMarkerFileName;
         this.prefixForIncoming = parameters.getPrefixForIncoming();
         this.incomingStore = parameters.getIncomingStore(factory);
+        final File sourceDirectory = bufferDirs.getCopyInProgressDir();
+        this.copyInProgressStore =
+                FileStoreFactory.createLocal(sourceDirectory, "copy-in-progress", factory, false);
         this.pathMover = factory.getMover();
         this.bufferDirs = bufferDirs;
         this.storeItemFilter = createFilter(timeProvider);
@@ -148,11 +153,10 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 timeProvider, DatamoverConstants.IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION);
     }
 
-    private IStoreHandler createRemotePathMover(final IFileStore sourceDirectory,
-            final IFileStore destinationDirectory)
+    private IStoreHandler createRemotePathMover(final IFileStore sourceStore,
+            final IFileStore destinationStore)
     {
-        return RemoteMonitoredMoverFactory
-                .create(sourceDirectory, destinationDirectory, parameters);
+        return RemoteMonitoredMoverFactory.create(sourceStore, destinationStore, parameters);
     }
 
     public TimerTask createRecoverableTimerTask()
@@ -167,7 +171,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
         final IStoreHandler pathHandler =
                 DataMover.wrapHandleWithLogging(createIncomingMovingPathHandler(),
-                        "STARTED_TRANSFER", null);
+                        DataMover.STARTED_TRANSFER, null, DataMover.FINISHED_TRANSFER);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
                         copyInProgressDir, pathHandler), highwaterMarkWatcher, copyInProgressDir);
@@ -226,23 +230,30 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
     private boolean moveFromLocalIncoming(final IExtendedFileStore sourceStore,
             final StoreItem sourceItem)
     {
-        final File finalFile = sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(),
-                parameters.getPrefixForIncoming());
+        final File finalFile =
+                sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(),
+                        parameters.getPrefixForIncoming());
         return (finalFile != null);
     }
 
     private boolean moveFromRemoteIncoming(final StoreItem sourceItem)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
-        moveFromRemoteToLocal(sourceItem);
+        final boolean succeeded = moveFromRemoteToLocal(sourceItem);
         final File copiedFile = new File(bufferDirs.getCopyInProgressDir(), sourceItem.getName());
-        if (copiedFile.exists() == false)
+
+        final File markerFile = MarkerFile.createCopyFinishedMarker(copiedFile);
+        if (succeeded == false || copiedFile.exists() == false)
         {
+            // undo copying and remove marker as are unable to delete it from the source
+            if (copiedFile.exists())
+            {
+                copyInProgressStore.delete(sourceItem);
+            }
+            markerFile.delete();
             return false;
         }
-
         // 2. Move to final directory, delete marker
-        final File markerFile = MarkerFile.createCopyFinishedMarker(copiedFile);
         final File finalFile =
                 tryMoveFromInProgressToFinished(copiedFile, markerFile,
                         bufferDirs.getCopyCompleteDir());
@@ -259,7 +270,7 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             {
                 if (markerFileOrNull.exists() == false)
                 {
-                    operationLog.error("Could not find expected copy-finished-mrker file "
+                    operationLog.error("Could not find expected copy-finished-marker file "
                             + markerFileOrNull.getAbsolutePath());
                 } else
                 {
@@ -273,9 +284,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         }
     }
 
-    private void moveFromRemoteToLocal(final StoreItem sourceItem)
+    private boolean moveFromRemoteToLocal(final StoreItem sourceItem)
     {
-        remotePathMover.handle(sourceItem);
+        return remotePathMover.handle(sourceItem);
     }
 
     private File tryMoveLocal(final File sourceFile, final File destinationDir,

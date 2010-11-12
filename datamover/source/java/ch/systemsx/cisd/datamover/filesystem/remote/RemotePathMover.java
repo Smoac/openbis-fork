@@ -88,9 +88,9 @@ public final class RemotePathMover implements IStoreHandler
     private static final ConditionalNotificationLogger conditionalLogger =
             new ConditionalNotificationLogger(machineLog, notificationLog, 3);
 
-    private final IFileStore sourceDirectory;
+    private final IFileStore sourceStore;
 
-    private final IFileStore destinationDirectory;
+    private final IFileStore destinationStore;
 
     private final IStoreCopier copier;
 
@@ -122,8 +122,8 @@ public final class RemotePathMover implements IStoreHandler
         assert sourceDirectory.tryAsExtended() != null
                 || destinationDirectory.tryAsExtended() != null;
 
-        this.sourceDirectory = sourceDirectory;
-        this.destinationDirectory = destinationDirectory;
+        this.sourceStore = sourceDirectory;
+        this.destinationStore = destinationDirectory;
         this.copier = copier;
         this.intervallToWaitAfterFailure = timingParameters.getIntervalToWaitAfterFailure();
         this.maximalNumberOfRetries = timingParameters.getMaximalNumberOfRetries();
@@ -143,7 +143,7 @@ public final class RemotePathMover implements IStoreHandler
     {
         final InactivityMonitor monitor =
                 new InactivityMonitor(
-                        new RemoteStoreCopyActivitySensor(destinationDirectory, item),
+                        new RemoteStoreCopyActivitySensor(destinationStore, item),
                         new IInactivityObserver()
                             {
                                 public void update(long inactiveSinceMillis,
@@ -160,10 +160,11 @@ public final class RemotePathMover implements IStoreHandler
         return copyStatus;
     }
 
-    private final void removeAndMark(final StoreItem item)
+    private final boolean removeAndMark(final StoreItem item)
     {
-        remove(item);
+        final boolean removed = remove(item);
         markAsFinished(item);
+        return removed;
     }
 
     private final boolean checkTargetAvailableAgain()
@@ -173,7 +174,7 @@ public final class RemotePathMover implements IStoreHandler
         {
             conditionalLogger.reset(String.format(
                     "Following store '%s' is again fully accessible to the program.",
-                    destinationDirectory));
+                    destinationStore));
             return true;
         } else
         {
@@ -184,7 +185,7 @@ public final class RemotePathMover implements IStoreHandler
     private BooleanStatus checkTargetAvailable()
     {
         final BooleanStatus status =
-                destinationDirectory
+                destinationStore
                         .checkDirectoryFullyAccessible(Constants.MILLIS_TO_WAIT_BEFORE_TIMEOUT);
         if (status.isSuccess() == false)
         {
@@ -193,20 +194,22 @@ public final class RemotePathMover implements IStoreHandler
         return status;
     }
 
-    private final void remove(final StoreItem sourceItem)
+    private final boolean remove(final StoreItem sourceItem)
     {
         final StoreItem removalInProgressMarkerFile = tryMarkAsDeletionInProgress(sourceItem);
-        final Status removalStatus = sourceDirectory.delete(sourceItem);
+        final Status removalStatus = sourceStore.delete(sourceItem);
         removeDeletionMarkerFile(removalInProgressMarkerFile);
 
         if (Status.OK.equals(removalStatus) == false)
         {
             notificationLog.error(String.format(REMOVING_LOCAL_PATH_FAILED_TEMPLATE,
                     getSrcPath(sourceItem), removalStatus));
+            return false;
         } else if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format(REMOVED_PATH_TEMPLATE, getSrcPath(sourceItem)));
         }
+        return true;
     }
 
     private final boolean isDeletionInProgress(final StoreItem item)
@@ -241,17 +244,17 @@ public final class RemotePathMover implements IStoreHandler
             if (status.equals(Status.OK) == false)
             {
                 machineLog.error(String.format("Cannot remove marker file '%s'", getPath(
-                        destinationDirectory, markerOrNull)));
+                        destinationStore, markerOrNull)));
             }
         }
     }
 
     private final IExtendedFileStore getDeletionMarkerStore()
     {
-        IExtendedFileStore fileStore = destinationDirectory.tryAsExtended();
+        IExtendedFileStore fileStore = destinationStore.tryAsExtended();
         if (fileStore == null)
         {
-            fileStore = sourceDirectory.tryAsExtended();
+            fileStore = sourceStore.tryAsExtended();
         }
         assert fileStore != null;
         return fileStore;
@@ -261,7 +264,7 @@ public final class RemotePathMover implements IStoreHandler
     private final boolean markAsFinished(final StoreItem item)
     {
         final StoreItem markerItem = MarkerFile.createCopyFinishedMarker(item);
-        IExtendedFileStore extendedFileStore = destinationDirectory.tryAsExtended();
+        IExtendedFileStore extendedFileStore = destinationStore.tryAsExtended();
         if (extendedFileStore != null)
         {
             // We create the marker directly inside the destination directory
@@ -270,7 +273,7 @@ public final class RemotePathMover implements IStoreHandler
         {
             // When destination is remote, we put the item directory in the source directory and
             // copy it to destination.
-            extendedFileStore = sourceDirectory.tryAsExtended();
+            extendedFileStore = sourceStore.tryAsExtended();
             assert extendedFileStore != null;
             return markOnSourceLocalAndCopyToRemoteDestination(extendedFileStore, markerItem);
         }
@@ -314,7 +317,7 @@ public final class RemotePathMover implements IStoreHandler
 
     private String getSrcPath(final StoreItem item)
     {
-        return getPath(sourceDirectory, item);
+        return getPath(sourceStore, item);
     }
 
     private final static String getPath(final IFileStore directory, final StoreItem item)
@@ -337,8 +340,7 @@ public final class RemotePathMover implements IStoreHandler
                 operationLog.info(String.format("Detected recovery situation: '%s' has been "
                         + "interrupted in deletion phase, finishing up.", getSrcPath(item)));
             }
-            removeAndMark(item);
-            return true;
+            return removeAndMark(item);
         }
         int tryCount = 0;
         do
@@ -353,11 +355,11 @@ public final class RemotePathMover implements IStoreHandler
                 if (tryCount > 0) // This is a retry
                 {
                     operationLog.info(String.format(START_COPYING_PATH_RETRY_TEMPLATE,
-                            getSrcPath(item), destinationDirectory, tryCount));
+                            getSrcPath(item), destinationStore, tryCount));
                 } else
                 {
                     operationLog.info(String.format(START_COPYING_PATH_TEMPLATE, getSrcPath(item),
-                            destinationDirectory));
+                            destinationStore));
                 }
             }
             if (checkTargetAvailableAgain() == false)
@@ -372,14 +374,13 @@ public final class RemotePathMover implements IStoreHandler
                 {
                     final long endTime = System.currentTimeMillis();
                     operationLog.info(String.format(FINISH_COPYING_PATH_TEMPLATE, getSrcPath(item),
-                            destinationDirectory, (endTime - startTime) / 1000.0));
+                            destinationStore, (endTime - startTime) / 1000.0));
                 }
-                removeAndMark(item);
-                return true;
+                return removeAndMark(item);
             } else
             {
                 operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, getSrcPath(item),
-                        destinationDirectory, copyStatus));
+                        destinationStore, copyStatus));
                 if (StatusFlag.ERROR.equals(copyStatus.getFlag()))
                 {
                     break;
@@ -403,11 +404,11 @@ public final class RemotePathMover implements IStoreHandler
         if (stopped)
         {
             operationLog.warn(String.format(MOVING_PATH_TO_REMOTE_STOPPED_TEMPLATE,
-                    getSrcPath(item), destinationDirectory));
+                    getSrcPath(item), destinationStore));
         } else
         {
             notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE,
-                    getSrcPath(item), destinationDirectory));
+                    getSrcPath(item), destinationStore));
         }
         return false;
     }
