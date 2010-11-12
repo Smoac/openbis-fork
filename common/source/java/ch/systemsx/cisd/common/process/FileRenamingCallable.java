@@ -84,10 +84,10 @@ public final class FileRenamingCallable implements Callable<Boolean>
                     Unix.setAccessMode(destinationFile.getPath(), permissions);
                 } catch (IOExceptionUnchecked ex)
                 {
-                    // return value does the job
-                    operationLog.warn(String.format("Exception on setting access while moving "
-                            + "path '%s' to directory '%s' (attempt %d).", sourceFile,
+                    operationLog.warn(String.format(
+                            "Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
                             destinationFile, ++failures), ex.getCause());
+                    return null; // Return null to make CallableExecutor try to repeat operation
                 }
             }
             if (renamed == false)
@@ -95,8 +95,9 @@ public final class FileRenamingCallable implements Callable<Boolean>
                 operationLog.warn(String.format(
                         "Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
                         destinationFile, ++failures));
+                return null; // Return null to make CallableExecutor try to repeat operation
             }
         }
-        return renamed;
+        return true;
     }
 }
