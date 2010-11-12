@@ -135,9 +135,19 @@
     <checksum todir="${dist}" pattern="{0}  etc/{1}">
       <fileset dir="dist/etc">
         <include name="service.properties" />
+      	<include name="tabular-data-graph.properties" />
         <include name="log.xml" />
+        <include name="openBIS.keystore" />
       </fileset>
     </checksum>
+	  <checksum todir="${dist}" pattern="{0}  bin/{1}">
+		  <fileset dir="../datastore_server/dist/etc">
+		  	<include name="datastore_server.conf" />
+		  </fileset>
+		  <fileset dir="../datastore_server/dist">
+		  	<include name="datastore_server.sh" />
+		  </fileset>
+	  </checksum>
   </target>
 	
   <!--
