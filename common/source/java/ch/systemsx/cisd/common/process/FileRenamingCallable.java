@@ -85,10 +85,9 @@ public final class FileRenamingCallable implements Callable<Boolean>
                 } catch (IOExceptionUnchecked ex)
                 {
                     // return value does the job
-                    operationLog
-                            .warn(String
-                                    .format("Exception on setting access during moving path '%s' to directory '%s' (attempt %d).",
-                                            sourceFile, destinationFile, ++failures), ex.getCause());
+                    operationLog.warn(String.format("Exception on setting access while moving "
+                            + "path '%s' to directory '%s' (attempt %d).", sourceFile,
+                            destinationFile, ++failures), ex.getCause());
                 }
             }
             if (renamed == false)
