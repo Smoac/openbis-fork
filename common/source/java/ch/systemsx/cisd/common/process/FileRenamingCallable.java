@@ -21,6 +21,8 @@ import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
@@ -31,8 +33,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 public final class FileRenamingCallable implements Callable<Boolean>
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FileRenamingCallable.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FileRenamingCallable.class);
 
     private final File sourceFile;
 
@@ -67,14 +69,35 @@ public final class FileRenamingCallable implements Callable<Boolean>
                     destinationFile));
             return false;
         }
-        final boolean renamed = sourceFile.renameTo(destinationFile);
+        boolean renamed = sourceFile.renameTo(destinationFile);
         if (renamed == false)
         {
-            operationLog.warn(String.format(
-                    "Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
-                    destinationFile, ++failures));
-            return null;
+            if (Unix.isOperational())
+            {
+                try
+                {
+                    // Try to set the permissions to "all can write"
+                    final short permissions =
+                            Unix.getFileInfo(sourceFile.getPath()).getPermissions();
+                    Unix.setAccessMode(sourceFile.getPath(), (short) 0777);
+                    renamed = sourceFile.renameTo(destinationFile);
+                    Unix.setAccessMode(destinationFile.getPath(), permissions);
+                } catch (IOExceptionUnchecked ex)
+                {
+                    // return value does the job
+                    operationLog
+                            .warn(String
+                                    .format("Exception on setting access during moving path '%s' to directory '%s' (attempt %d).",
+                                            sourceFile, destinationFile, ++failures), ex.getCause());
+                }
+            }
+            if (renamed == false)
+            {
+                operationLog.warn(String.format(
+                        "Moving path '%s' to directory '%s' failed (attempt %d).", sourceFile,
+                        destinationFile, ++failures));
+            }
         }
-        return true;
+        return renamed;
     }
 }
