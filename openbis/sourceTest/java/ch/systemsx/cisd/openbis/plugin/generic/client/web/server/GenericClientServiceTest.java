@@ -80,18 +80,14 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
     private GenericClientService genericClientService;
 
-    @SuppressWarnings("deprecation")
     private final static NewSample createNewSample(final String sampleIdentifier,
-            final String sampleTypeCode, final IEntityProperty[] properties, final String parent,
-            final String container)
+            final String sampleTypeCode, final IEntityProperty[] properties)
     {
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(sampleIdentifier);
         final SampleType sampleType = createSampleType(sampleTypeCode);
         newSample.setSampleType(sampleType);
         newSample.setProperties(properties);
-        newSample.setParentIdentifier(parent);
-        newSample.setContainerIdentifier(container);
         return newSample;
     }
 
@@ -236,8 +232,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     {
         final String sessionKey = "some-session-key";
         final NewSample newSample =
-                createNewSample("/group1/sample1", "MASTER_PLATE", IEntityProperty.EMPTY_ARRAY,
-                        null, null);
+                createNewSample("/group1/sample1", "MASTER_PLATE", IEntityProperty.EMPTY_ARRAY);
         context.checking(new Expectations()
             {
                 {
@@ -368,6 +363,89 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     }
 
     @Test
+    public final void testRegisterSamplesWithParents() throws IOException
+    {
+        final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
+        final String sessionKey = "uploaded-files";
+        final NewSample newSample = new NewSample();
+        newSample.setIdentifier("MP");
+        newSample.setParentsOrNull(new String[]
+            { "MP_1", "MP_2" });
+        newSample.setProperties(new IEntityProperty[0]);
+        final SampleType sampleType = createSampleType("MASTER_PLATE");
+        final String fileName = "originalFileName.txt";
+
+        final List<NewSamplesWithTypes> samplesWithType = new ArrayList<NewSamplesWithTypes>();
+        List<NewSample> newSamples = new ArrayList<NewSample>();
+        newSamples.add(newSample);
+        samplesWithType.add(new NewSamplesWithTypes(sampleType, newSamples));
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetHttpSession(this);
+                    prepareGetSessionToken(this);
+
+                    allowing(httpSession).getAttribute(sessionKey);
+                    will(returnValue(uploadedFilesBean));
+
+                    allowing(httpSession).removeAttribute(sessionKey);
+
+                    exactly(1).of(multipartFile).getOriginalFilename();
+                    will(returnValue(fileName));
+
+                    one(multipartFile).transferTo(with(any(File.class)));
+                    will(new CustomAction("copy content")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File target = (File) invocation.getParameter(0);
+                                FileUtilities.writeToFile(target,
+                                        "identifier\tparents\nMP\tMP_1,MP_2");
+                                return null;
+                            }
+                        });
+
+                    one(genericServer).registerSamples(with(equal(SESSION_TOKEN)),
+                            with(newSampleWithTypesList()));
+                    will(new CustomAction("check sample")
+                        {
+
+                            @SuppressWarnings(
+                                { "unchecked" })
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final List<NewSamplesWithTypes> samplesSecions =
+                                        (List<NewSamplesWithTypes>) invocation.getParameter(1);
+                                assertEquals(1, samplesSecions.size());
+                                final NewSamplesWithTypes samples = samplesSecions.get(0);
+                                // Do not compare sampleType, as the registration code doesn't set
+                                // the database instance.
+                                assertEquals(sampleType.getCode(), samples.getSampleType()
+                                        .getCode());
+                                assertEquals(1, samples.getNewSamples().size());
+                                final NewSample sample = samples.getNewSamples().get(0);
+                                assertEquals("MP", sample.getIdentifier());
+                                assertEquals(2, sample.getParentsOrNull().length);
+                                assertEquals("MP_1", sample.getParentsOrNull()[0]);
+                                assertEquals("MP_2", sample.getParentsOrNull()[1]);
+                                assertEquals(0, sample.getProperties().length);
+                                return null;
+                            }
+                        });
+                }
+            });
+        uploadedFilesBean.addMultipartFile(multipartFile);
+        final List<BatchRegistrationResult> result =
+                genericClientService.registerSamples(sampleType, sessionKey, null);
+        assertEquals(1, result.size());
+        final BatchRegistrationResult batchRegistrationResult = result.get(0);
+        assertEquals(fileName, batchRegistrationResult.getFileName());
+        assertEquals("Registration of 1 sample(s) is complete.",
+                batchRegistrationResult.getMessage());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public final void testUpdateSamples() throws IOException
     {
         final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
@@ -424,7 +502,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 final NewSample sample1 = samples.getNewSamples().get(0);
                                 assertEquals("/G1/MP1", sample1.getIdentifier());
                                 assertEquals("/G1/MP2", sample1.getContainerIdentifier());
-                                assertEquals(0, sample1.getParentsOrNull().length);
+                                assertEquals(null, sample1.getParentIdentifier());
                                 assertEquals("EXP1", sample1.getExperimentIdentifier());
                                 assertEquals(1, sample1.getProperties().length);
                                 final IEntityProperty prop1 = sample1.getProperties()[0];
@@ -438,6 +516,83 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                                 assertEquals(1, sample2.getProperties().length);
                                 final IEntityProperty prop2 = sample2.getProperties()[0];
                                 assertEquals("1", prop2.getValue());
+
+                                return null;
+                            }
+                        });
+                }
+            });
+        uploadedFilesBean.addMultipartFile(multipartFile);
+        final List<BatchRegistrationResult> result =
+                genericClientService.updateSamples(sampleType, sessionKey, defaultGroupIdentifier);
+        assertEquals(1, result.size());
+        final BatchRegistrationResult batchRegistrationResult = result.get(0);
+        assertEquals(fileName, batchRegistrationResult.getFileName());
+        assertEquals("Update of 2 sample(s) is complete.", batchRegistrationResult.getMessage());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testUpdateSamplesWithParents() throws IOException
+    {
+        final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
+        final String sessionKey = "uploaded-files";
+
+        final SampleType sampleType = createSampleType("MASTER_PLATE");
+        final String defaultGroupIdentifier = "/G1";
+        final String fileName = "fileName.txt";
+
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetHttpSession(this);
+                    prepareGetSessionToken(this);
+
+                    allowing(httpSession).getAttribute(sessionKey);
+                    will(returnValue(uploadedFilesBean));
+
+                    allowing(httpSession).removeAttribute(sessionKey);
+
+                    exactly(1).of(multipartFile).getOriginalFilename();
+                    will(returnValue(fileName));
+
+                    one(multipartFile).transferTo(with(any(File.class)));
+                    will(new CustomAction("copy content")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File target = (File) invocation.getParameter(0);
+                                FileUtilities.writeToFile(target, "identifier\tparents\n"
+                                        + "MP_1\t/G1/MP_11, /G1/MP_12\n" + "/G2/MP_2\t/G2/MP_21");
+                                return null;
+                            }
+                        });
+
+                    one(genericServer).updateSamples(with(equal(SESSION_TOKEN)),
+                            with(newSampleWithTypesList()));
+                    will(new CustomAction("check sample")
+                        {
+
+                            @SuppressWarnings("unchecked")
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final List<NewSamplesWithTypes> samplesSecions =
+                                        (List<NewSamplesWithTypes>) invocation.getParameter(1);
+                                assertEquals(1, samplesSecions.size());
+                                final NewSamplesWithTypes samples = samplesSecions.get(0);
+                                // Do not compare sampleType, as the update code doesn't check it
+                                assertEquals(2, samples.getNewSamples().size());
+
+                                final NewSample sample1 = samples.getNewSamples().get(0);
+                                assertEquals("/G1/MP_1", sample1.getIdentifier());
+                                assertEquals(2, sample1.getParentsOrNull().length);
+                                assertEquals("/G1/MP_11", sample1.getParentsOrNull()[0]);
+                                assertEquals("/G1/MP_12", sample1.getParentsOrNull()[1]);
+
+                                final NewSample sample2 = samples.getNewSamples().get(1);
+                                assertEquals("/G2/MP_2", sample2.getIdentifier());
+                                assertEquals(1, sample2.getParentsOrNull().length);
+                                assertEquals("/G2/MP_21", sample2.getParentsOrNull()[0]);
 
                                 return null;
                             }

@@ -434,7 +434,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                     assertEquals(GRID_SAMPLE_IDENTIFIER, newSample.getIdentifier());
                                     assertEquals(EXPERIMENT_IDENTIFIER.toString(),
                                             newSample.getExperimentIdentifier());
-                                    assertEquals(null, newSample.getParentIdentifier());
+                                    assertEquals(null, newSample.getParentsOrNull());
                                     return true;
                                 }
                                 return false;
@@ -455,6 +455,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     // Create the Replica
                     one(openbisService).registerSample(with(new MatcherNoDesc<NewSample>()
                         {
+                            @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {
                                 if (item instanceof NewSample)

@@ -152,8 +152,17 @@ public class NewSample extends Identifier<NewSample> implements Comparable<NewSa
     @Deprecated
     public final String getParentIdentifier()
     {
-        return getParentsOrNull() == null || getParentsOrNull().length == 0 ? null
-                : getParentsOrNull()[0];
+        if (getParentsOrNull() == null || getParentsOrNull().length == 0)
+        {
+            return null;
+        } else if (getParentsOrNull().length > 1)
+        {
+            throw new IllegalStateException("Sample " + getIdentifier()
+                    + " has more than one parent");
+        } else
+        {
+            return getParentsOrNull()[0];
+        }
     }
 
     /**
