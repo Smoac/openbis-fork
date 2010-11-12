@@ -426,6 +426,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                     // Create the Grid Prep
                     one(openbisService).registerSample(with(new BaseMatcher<NewSample>()
                         {
+                            @SuppressWarnings("deprecation")
                             public boolean matches(Object item)
                             {
                                 if (item instanceof NewSample)
@@ -434,7 +435,7 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                                     assertEquals(GRID_SAMPLE_IDENTIFIER, newSample.getIdentifier());
                                     assertEquals(EXPERIMENT_IDENTIFIER.toString(),
                                             newSample.getExperimentIdentifier());
-                                    assertEquals(null, newSample.getParentsOrNull());
+                                    assertEquals(null, newSample.getParentIdentifier());
                                     return true;
                                 }
                                 return false;
