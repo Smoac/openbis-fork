@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Seconda
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -55,7 +57,9 @@ public class DatasetListerTest extends AbstractDAOTest
 {
     private IDatasetLister lister;
 
-    private long sampleId;
+    private SamplePE exampleSample;
+
+    private long exampleSampleId;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
@@ -65,28 +69,54 @@ public class DatasetListerTest extends AbstractDAOTest
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
         lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "url");
-        SamplePE sample =
-                DatasetListingQueryTest.getSample("CISD", "CP-TEST-1", datasetListerDAO
-                        .getDatabaseInstanceId(), daoFactory);
-        sampleId = sample.getId();
+        exampleSample =
+                DatasetListingQueryTest.getSample("CISD", "CP-TEST-1",
+                        datasetListerDAO.getDatabaseInstanceId(), daoFactory);
+        exampleSampleId = exampleSample.getId();
     }
 
     @Test
-    public void testListBySampleTechId()
+    public void testListBySampleTechIdDirect()
     {
-        List<ExternalData> datasets = lister.listBySampleTechId(new TechId(sampleId), true);
-        assertEqualsOrGreater(1, datasets.size());
+        List<ExternalData> datasets = lister.listBySampleTechId(new TechId(exampleSampleId), true);
+        assertEquals(1, datasets.size());
         ExternalData externalData = datasets.get(0);
-        assertEquals(sampleId, externalData.getSample().getId().longValue());
+        assertEquals(exampleSampleId, externalData.getSample().getId().longValue());
         assertFalse(externalData.getProperties().isEmpty());
-        AssertJUnit.assertNotNull(externalData.getExperiment());
+        assertNotNull(externalData.getExperiment());
+    }
+
+    @Test
+    public void testListBySampleTechIdIndirect()
+    {
+        List<ExternalData> indirectlyConnectedChildDatasets =
+                lister.listBySampleTechId(new TechId(exampleSampleId), false);
+        assertEquals(5, indirectlyConnectedChildDatasets.size());
+        System.err.println(Code.extractCodes(indirectlyConnectedChildDatasets).toString());
+
+        assertNotNull(exampleSample.getGeneratedFrom());
+        List<ExternalData> directlyConnectedParentDatasets =
+                lister.listBySampleTechId(new TechId(exampleSample.getGeneratedFrom()), true);
+        assertEquals(1, directlyConnectedParentDatasets.size());
+
+        List<ExternalData> indirectlyConnectedParentDatasets =
+                lister.listBySampleTechId(new TechId(exampleSample.getGeneratedFrom()), false);
+        assertEquals(6, indirectlyConnectedParentDatasets.size());
+
+        List<String> indirectlyConnectedParentDatasetCodes =
+                Code.extractCodes(indirectlyConnectedParentDatasets);
+        for (ExternalData childDataset : indirectlyConnectedChildDatasets)
+        {
+            assertTrue(childDataset.getCode() + " not found among "
+                    + indirectlyConnectedParentDatasetCodes.toString(),
+                    indirectlyConnectedParentDatasetCodes.contains(childDataset.getCode()));
+        }
     }
 
     @Test
     public void testListParents()
     {
         Map<Long, Set<Long>> map = lister.listParentIds(Arrays.<Long> asList(2L, 4L, 9L));
-        System.out.println(map);
 
         assertEquals(null, map.get(2L));
         assertEquals("[2]", map.get(4L).toString());
@@ -102,9 +132,9 @@ public class DatasetListerTest extends AbstractDAOTest
                 new HashSet<String>(Arrays.asList("200811050946559-983", "200902091219327-1025"));
         List<SamplePE> samplePEs = daoFactory.getSampleDAO().listByPermID(samplePermIDs);
         List<Sample> samples = SampleTranslator.translate(samplePEs, "");
-        
+
         Map<Sample, List<ExternalData>> dataSets = lister.listAllDataSetsFor(samples);
-        
+
         StringBuilder builder = new StringBuilder();
         for (Sample sample : samples)
         {
@@ -148,8 +178,8 @@ public class DatasetListerTest extends AbstractDAOTest
             ExternalData previousDataSet = dataSetsByCode.put(dataSet.getCode(), dataSet);
             if (previousDataSet != null)
             {
-                assertSame("Same data set object expected for " + dataSet.getCode(), previousDataSet,
-                        dataSet);
+                assertSame("Same data set object expected for " + dataSet.getCode(),
+                        previousDataSet, dataSet);
             }
             List<ExternalData> children = dataSet.getChildren();
             assertSameDataSetsForSameCode(dataSetsByCode, children);
