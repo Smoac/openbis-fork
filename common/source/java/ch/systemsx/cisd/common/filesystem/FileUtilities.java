@@ -650,6 +650,7 @@ public final class FileUtilities
             {
                 return deleteSymbolicLink(path, loggerOrNull);
             }
+            ensureWritable(path);
             for (final File file : path.listFiles())
             {
                 if (Thread.interrupted())
@@ -706,6 +707,16 @@ public final class FileUtilities
         return delete(path);
     }
 
+    private static boolean ensureWritable(File path)
+    {
+        if (path.canWrite() == false && Unix.isOperational())
+        {
+            Unix.setAccessMode(path.getPath(), (short) 0777);
+        }
+        return path.canWrite();
+    }
+    
+    
     /**
      * Deletes the <var>file</var>, setting it to read-write mode if necessary.
      */
