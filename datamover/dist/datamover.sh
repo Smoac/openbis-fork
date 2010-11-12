@@ -68,6 +68,7 @@ rotateLogFiles()
 # definitions
 #
 
+LIB_FOLDER=lib
 PIDFILE=datamover.pid
 CONFFILE=etc/datamover.conf
 LOGFILE=log/datamover_log.txt
@@ -170,7 +171,10 @@ case "$command" in
     echo -n "Starting Datamover "
     rotateLogFiles $LOGFILE $MAXLOGS
     shift 1
-    ${JAVA_BIN} ${JAVA_OPTS} -jar lib/datamover.jar "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
+    # Build classpath from $LIB_FOLDER content.
+    CP=`echo $LIB_FOLDER/*.jar | sed 's/ /:/g'`
+    CMD="${JAVA_BIN} ${JAVA_OPTS} -classpath $CP ch.systemsx.cisd.datamover.Main"
+    ${CMD} "$@" > $STARTUPLOG 2>&1 & echo $! > $PIDFILE
     if [ $? -eq 0 ]; then
       # wait for initial self-test to finish
       n=0
