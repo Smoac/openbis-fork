@@ -137,7 +137,8 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
         private Object escapeObject(MethodInvocation methodInvocation, Object unescapedResult)
         {
             Object result = unescapedResult;
-            escapeLog.info(methodInvocation.getMethod().getName() + " converting   "
+            // Need to log unescaped result here, since it might be modified below
+            escapeLog.debug(methodInvocation.getMethod().getName() + " converting   "
                     + unescapedResult);
             if (unescapedResult instanceof String)
             {
@@ -154,8 +155,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
                 // Escape the result objects
                 ReflectingStringEscaper.escapeDeep(unescapedResult);
             }
-            escapeLog.info(methodInvocation.getMethod().getName() + " converted to "
-                    + unescapedResult);
+            escapeLog.debug(methodInvocation.getMethod().getName() + " converted to " + result);
             return result;
         }
     }
