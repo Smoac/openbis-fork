@@ -31,8 +31,9 @@ import ch.systemsx.cisd.common.utilities.IStopSignaler;
 public interface IStoreHandler extends IStopSignaler
 {
     /**
-     * Handles given <var>item</var>. Successful handling is indicated by <var>item</var> being gone
-     * when the method returns.
+     * Handles given <var>item</var>.
+     * 
+     * @return <code>true</code> if the handling of the item was successful.
      */
-    void handle(StoreItem item);
+    boolean handle(StoreItem item);
 }

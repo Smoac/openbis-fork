@@ -64,8 +64,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
      */
     private final static int NUMBER_OF_ERRORS_IN_LISTING_IGNORED = 2;
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, IncomingProcessor.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            IncomingProcessor.class);
 
     private static final ISimpleLogger simpleOperationLog = new Log4jSimpleLogger(operationLog);
 
@@ -124,8 +124,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         this.bufferDirs = bufferDirs;
         this.storeItemFilter = createFilter(timeProvider);
         this.remotePathMover =
-                createRemotePathMover(incomingStore, FileStoreFactory.createLocal(bufferDirs
-                        .getCopyInProgressDir(), "local", factory, false));
+                createRemotePathMover(incomingStore, FileStoreFactory.createLocal(
+                        bufferDirs.getCopyInProgressDir(), "local", factory, false));
 
     }
 
@@ -203,15 +203,15 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
                 // IStoreHandler
                 //
 
-                public final void handle(final StoreItem sourceItem)
+                public final boolean handle(final StoreItem sourceItem)
                 {
                     final IExtendedFileStore extendedFileStore = incomingStore.tryAsExtended();
                     if (extendedFileStore == null)
                     {
-                        moveFromRemoteIncoming(sourceItem);
+                        return moveFromRemoteIncoming(sourceItem);
                     } else
                     {
-                        moveFromLocalIncoming(extendedFileStore, sourceItem);
+                        return moveFromLocalIncoming(extendedFileStore, sourceItem);
                     }
                 }
 
@@ -223,26 +223,30 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             };
     }
 
-    private void moveFromLocalIncoming(final IExtendedFileStore sourceStore,
+    private boolean moveFromLocalIncoming(final IExtendedFileStore sourceStore,
             final StoreItem sourceItem)
     {
-        sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(), parameters
-                .getPrefixForIncoming());
+        final File finalFile = sourceStore.tryMoveLocal(sourceItem, bufferDirs.getCopyCompleteDir(),
+                parameters.getPrefixForIncoming());
+        return (finalFile != null);
     }
 
-    private void moveFromRemoteIncoming(final StoreItem sourceItem)
+    private boolean moveFromRemoteIncoming(final StoreItem sourceItem)
     {
         // 1. move from incoming: copy, delete, create copy-finished-marker
         moveFromRemoteToLocal(sourceItem);
         final File copiedFile = new File(bufferDirs.getCopyInProgressDir(), sourceItem.getName());
         if (copiedFile.exists() == false)
         {
-            return;
+            return false;
         }
 
         // 2. Move to final directory, delete marker
         final File markerFile = MarkerFile.createCopyFinishedMarker(copiedFile);
-        tryMoveFromInProgressToFinished(copiedFile, markerFile, bufferDirs.getCopyCompleteDir());
+        final File finalFile =
+                tryMoveFromInProgressToFinished(copiedFile, markerFile,
+                        bufferDirs.getCopyCompleteDir());
+        return (finalFile != null);
     }
 
     private File tryMoveFromInProgressToFinished(final File copiedFile,
@@ -359,8 +363,8 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
             {
                 operationLog.debug("Recovery starts.");
             }
-            recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(), bufferDirs
-                    .getCopyCompleteDir());
+            recoverIncomingInProgress(bufferDirs.getCopyInProgressDir(),
+                    bufferDirs.getCopyCompleteDir());
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Recovery is finished.");

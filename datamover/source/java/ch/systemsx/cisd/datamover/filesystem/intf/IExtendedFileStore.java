@@ -30,6 +30,10 @@ public interface IExtendedFileStore extends IFileStore
 
     public boolean createNewFile(StoreItem item);
 
+    /**
+     * @return the target file of the move, or <code>null</code> if the operation fails.
+     */
+
     public File tryMoveLocal(StoreItem sourceItem, File destinationDir, String newFilePrefix);
 
 }

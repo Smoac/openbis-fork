@@ -55,11 +55,11 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 public final class DataMover
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataMover.class);
 
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, DataMover.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            DataMover.class);
 
     private final static String LOCAL_COPY_IN_PROGRESS_DIR = "copy-in-progress";
 
@@ -78,49 +78,49 @@ public final class DataMover
     @Private
     static final String PROCESS_MARKER_PREFIX = Constants.MARKER_PREFIX + "thread_";
 
-    private static final String PROCESSING_MARKER_TEMPLATE =
-            PROCESS_MARKER_PREFIX + "%s_processing";
+    private static final String PROCESSING_MARKER_TEMPLATE = PROCESS_MARKER_PREFIX
+            + "%s_processing";
 
     private static final String ERROR_MARKER_TEMPLATE = PROCESS_MARKER_PREFIX + "%s_error";
 
     @Private
-    static final String INCOMING_PROCESS_MARKER_FILENAME =
-            String.format(PROCESSING_MARKER_TEMPLATE, "incoming");
+    static final String INCOMING_PROCESS_MARKER_FILENAME = String.format(
+            PROCESSING_MARKER_TEMPLATE, "incoming");
 
     @Private
-    static final String OUTGOING_PROCESS_MARKER_FILENAME =
-            String.format(PROCESSING_MARKER_TEMPLATE, "outgoing");
+    static final String OUTGOING_PROCESS_MARKER_FILENAME = String.format(
+            PROCESSING_MARKER_TEMPLATE, "outgoing");
 
     @Private
-    static final String LOCAL_PROCESS_MARKER_FILENAME =
-            String.format(PROCESSING_MARKER_TEMPLATE, "local");
+    static final String LOCAL_PROCESS_MARKER_FILENAME = String.format(PROCESSING_MARKER_TEMPLATE,
+            "local");
 
     @Private
-    static final String INCOMING_ERROR_MARKER_FILENAME =
-            String.format(ERROR_MARKER_TEMPLATE, "incoming");
+    static final String INCOMING_ERROR_MARKER_FILENAME = String.format(ERROR_MARKER_TEMPLATE,
+            "incoming");
 
     @Private
-    static final String OUTGOING_ERROR_MARKER_FILENAME =
-            String.format(ERROR_MARKER_TEMPLATE, "outgoing");
+    static final String OUTGOING_ERROR_MARKER_FILENAME = String.format(ERROR_MARKER_TEMPLATE,
+            "outgoing");
 
     @Private
     static final String LOCAL_ERROR_MARKER_FILENAME = String.format(ERROR_MARKER_TEMPLATE, "local");
 
     @Private
-    static final String RECOVERY_PROCESS_MARKER_FILENAME =
-            String.format(PROCESSING_MARKER_TEMPLATE, "recovery");
+    static final String RECOVERY_PROCESS_MARKER_FILENAME = String.format(
+            PROCESSING_MARKER_TEMPLATE, "recovery");
 
     /**
      * This marker file indicates that we are in a <i>shutdown</i> mode, started by the program.
      */
-    static final String SHUTDOWN_PROCESS_MARKER_FILENAME =
-            String.format(PROCESSING_MARKER_TEMPLATE, "shutdown");
+    static final String SHUTDOWN_PROCESS_MARKER_FILENAME = String.format(
+            PROCESSING_MARKER_TEMPLATE, "shutdown");
 
     private static final String[] PROCESS_MARKER_FILENAMES =
-                { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
-                        LOCAL_PROCESS_MARKER_FILENAME, INCOMING_ERROR_MARKER_FILENAME,
-                        OUTGOING_ERROR_MARKER_FILENAME, LOCAL_ERROR_MARKER_FILENAME,
-                        RECOVERY_PROCESS_MARKER_FILENAME, SHUTDOWN_PROCESS_MARKER_FILENAME };
+        { INCOMING_PROCESS_MARKER_FILENAME, OUTGOING_PROCESS_MARKER_FILENAME,
+                LOCAL_PROCESS_MARKER_FILENAME, INCOMING_ERROR_MARKER_FILENAME,
+                OUTGOING_ERROR_MARKER_FILENAME, LOCAL_ERROR_MARKER_FILENAME,
+                RECOVERY_PROCESS_MARKER_FILENAME, SHUTDOWN_PROCESS_MARKER_FILENAME };
 
     private final Parameters parameters;
 
@@ -240,8 +240,8 @@ public final class DataMover
     private final DataMoverProcess createLocalProcess()
     {
         final LocalProcessor localProcessor =
-                new LocalProcessor(parameters, bufferDirs, factory.getImmutableCopier(), factory
-                        .getMover());
+                new LocalProcessor(parameters, bufferDirs, factory.getImmutableCopier(),
+                        factory.getMover());
         final File sourceDirectory = bufferDirs.getCopyCompleteDir();
         final DirectoryScanningTimerTask localProcessingTask =
                 new DirectoryScanningTimerTask(sourceDirectory, FileUtilities.ACCEPT_ALL_FILTER,
@@ -296,10 +296,14 @@ public final class DataMover
             return new IStoreHandler()
                 {
 
-                    public void handle(StoreItem item)
+                    public boolean handle(StoreItem item)
                     {
-                        moveHandler.handle(item);
-                        callScript(transferFinishedExecutable, item);
+                        final boolean ok = moveHandler.handle(item);
+                        if (ok)
+                        {
+                            callScript(transferFinishedExecutable, item);
+                        }
+                        return ok;
                     }
 
                     public boolean isStopped()
@@ -339,17 +343,19 @@ public final class DataMover
     {
         return new IStoreHandler()
             {
-                public void handle(StoreItem item)
+                public boolean handle(StoreItem item)
                 {
                     if (prefixBeforeOrNull != null)
                     {
                         operationLog.info(prefixBeforeOrNull + " " + item);
                     }
-                    originalHandler.handle(item);
+                    final boolean ok = originalHandler.handle(item);
                     if (prefixAfterOrNull != null)
                     {
-                        operationLog.info(prefixAfterOrNull + " " + item);
+                        operationLog.info(prefixAfterOrNull + " " + item + ": "
+                                + (ok ? "OK" : "FAILED"));
                     }
+                    return ok;
                 }
 
                 public boolean isStopped()

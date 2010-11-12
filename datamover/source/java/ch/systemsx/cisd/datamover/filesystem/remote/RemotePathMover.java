@@ -326,7 +326,7 @@ public final class RemotePathMover implements IStoreHandler
     // IStoreHandler
     //
 
-    public final void handle(final StoreItem item)
+    public final boolean handle(final StoreItem item)
     {
         if (isDeletionInProgress(item))
         {
@@ -338,7 +338,7 @@ public final class RemotePathMover implements IStoreHandler
                         + "interrupted in deletion phase, finishing up.", getSrcPath(item)));
             }
             removeAndMark(item);
-            return;
+            return true;
         }
         int tryCount = 0;
         do
@@ -362,7 +362,7 @@ public final class RemotePathMover implements IStoreHandler
             }
             if (checkTargetAvailableAgain() == false)
             {
-                return;
+                return true;
             }
             final long startTime = System.currentTimeMillis();
             final Status copyStatus = copyAndMonitor(item);
@@ -375,7 +375,7 @@ public final class RemotePathMover implements IStoreHandler
                             destinationDirectory, (endTime - startTime) / 1000.0));
                 }
                 removeAndMark(item);
-                return;
+                return true;
             } else
             {
                 operationLog.warn(String.format(COPYING_PATH_TO_REMOTE_FAILED, getSrcPath(item),
@@ -409,6 +409,7 @@ public final class RemotePathMover implements IStoreHandler
             notificationLog.error(String.format(MOVING_PATH_TO_REMOTE_FAILED_TEMPLATE,
                     getSrcPath(item), destinationDirectory));
         }
+        return false;
     }
 
     public boolean isStopped()
