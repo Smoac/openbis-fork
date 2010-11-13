@@ -92,6 +92,8 @@ public final class PropertyNames
 
     static final String RSYNC_EXECUTABLE = "rsync-executable";
 
+    static final String LN_EXECUTABLE = "ln-executable";
+
     static final String INCOMING_HOST_RSYNC_EXECUTABLE = "incoming-host-rsync-executable";
 
     static final String OUTGOING_HOST_RSYNC_EXECUTABLE = "outgoing-host-rsync-executable";

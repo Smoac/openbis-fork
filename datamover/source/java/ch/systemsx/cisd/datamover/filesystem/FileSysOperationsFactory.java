@@ -36,9 +36,11 @@ import ch.systemsx.cisd.datamover.intf.IFileSysParameters;
  */
 public class FileSysOperationsFactory implements IFileSysOperationsFactory
 {
-    private static final String SSH_BINARY_NAME = "ssh";
+    private static final String SSH_EXECUTABLE_NAME = "ssh";
 
-    private static final String RSYNC_BINARY_NAME = "rsync";
+    private static final String RSYNC_EXECUTABLE_NAME = "rsync";
+
+    private static final String LN_EXECUTABLE_NAME = "ln";
 
     private final IFileSysParameters parameters;
 
@@ -81,31 +83,43 @@ public class FileSysOperationsFactory implements IFileSysOperationsFactory
     public final IImmutableCopier getImmutableCopier()
     {
         final File rsyncExecutable = findRsyncExecutable();
-        return FastRecursiveHardLinkMaker.create(rsyncExecutable);
+        final File lnExecutable = findLnExecutable();
+        return FastRecursiveHardLinkMaker.create(rsyncExecutable, lnExecutable);
     }
 
     public final IPathCopier getCopier(final boolean requiresDeletionBeforeCreation)
     {
         final File rsyncExecutable = findRsyncExecutable();
-        final File sshExecutable = tryFindSshExecutable();
-        return new RsyncCopier(rsyncExecutable, sshExecutable, requiresDeletionBeforeCreation,
+        final File sshExecutableOrNull = tryFindSshExecutable();
+        return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, requiresDeletionBeforeCreation,
                 parameters.isRsyncOverwrite(), parameters.getExtraRsyncParameters());
     }
 
     public final File tryFindSshExecutable()
     {
-        return findExecutable(parameters.getSshExecutable(), SSH_BINARY_NAME);
+        return findExecutable(parameters.getSshExecutable(), SSH_EXECUTABLE_NAME);
     }
 
     private final File findRsyncExecutable()
     {
         final File rsyncExecutableOrNull =
-                findExecutable(parameters.getRsyncExecutable(), RSYNC_BINARY_NAME);
+                findExecutable(parameters.getRsyncExecutable(), RSYNC_EXECUTABLE_NAME);
         if (rsyncExecutableOrNull == null)
         {
             throw new ConfigurationFailureException("Unable to find an rsync executable.");
         }
         return rsyncExecutableOrNull;
+    }
+
+    private final File findLnExecutable()
+    {
+        final File lnExecutableOrNull =
+                findExecutable(parameters.getLnExecutable(), LN_EXECUTABLE_NAME);
+        if (lnExecutableOrNull == null)
+        {
+            throw new ConfigurationFailureException("Unable to find an ln executable.");
+        }
+        return lnExecutableOrNull;
     }
 
     public final IPathMover getMover()

@@ -39,6 +39,11 @@ public class FileOperationsUtil
                     return null;
                 }
 
+                public String getLnExecutable()
+                {
+                    return null;
+                }
+
                 public String getSshExecutable()
                 {
                     return null;

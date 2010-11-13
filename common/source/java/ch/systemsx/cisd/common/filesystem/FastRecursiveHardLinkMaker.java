@@ -36,10 +36,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 public class FastRecursiveHardLinkMaker implements IImmutableCopier
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FastRecursiveHardLinkMaker.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            FastRecursiveHardLinkMaker.class);
 
     private static final String RSYNC_EXEC = "rsync";
+
+    private static final String LN_EXEC = "ln";
 
     private final static int DEFAULT_MAX_ERRORS_TO_IGNORE = 3;
 
@@ -61,27 +63,33 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
         {
             return null;
         }
-        return create(rsyncExecOrNull, timingParameters);
+        final File lnExecOrNull = OSUtilities.findExecutable(LN_EXEC);
+        if (lnExecOrNull == null)
+        {
+            return null;
+        }
+        return create(rsyncExecOrNull, lnExecOrNull, timingParameters, false);
+    }
+
+    public final static IImmutableCopier create(final File rsyncExecutable, final File lnExecutable)
+    {
+        return create(rsyncExecutable, lnExecutable, TimingParameters.getDefaultParameters(), false);
     }
 
     public final static IImmutableCopier create(final File rsyncExecutable,
-            final TimingParameters parameters)
+            final File lnExecutable, final TimingParameters parameters)
     {
-        return create(rsyncExecutable, parameters, false);
-    }
-
-    public final static IImmutableCopier create(final File rsyncExecutable)
-    {
-        return create(rsyncExecutable, TimingParameters.getDefaultParameters(), false);
+        return new FastRecursiveHardLinkMaker(rsyncExecutable, lnExecutable, parameters, false);
     }
 
     public final static IImmutableCopier create(final File rsyncExecutable,
-            final TimingParameters parameters, final boolean neverUseNative)
+            final File lnExecutable, final TimingParameters parameters, final boolean neverUseNative)
     {
-        return new FastRecursiveHardLinkMaker(rsyncExecutable, parameters, neverUseNative);
+        return new FastRecursiveHardLinkMaker(rsyncExecutable, lnExecutable, parameters,
+                neverUseNative);
     }
 
-    private FastRecursiveHardLinkMaker(final File rsyncExcutable,
+    private FastRecursiveHardLinkMaker(final File rsyncExcutable, final File lnExecutable,
             final TimingParameters timingParameters, final boolean neverUseNative)
             throws ConfigurationFailureException
     {
@@ -93,7 +101,8 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
         if (fastFileCopierOrNull == null)
         {
             this.fallbackCopierOrNull =
-                    RecursiveHardLinkMaker.tryCreate(HardLinkMaker.tryCreate(timingParameters));
+                    RecursiveHardLinkMaker.tryCreate(HardLinkMaker.create(lnExecutable,
+                            timingParameters));
         } else
         {
             this.fallbackCopierOrNull = RecursiveHardLinkMaker.tryCreate(fastFileCopierOrNull);
@@ -101,7 +110,7 @@ public class FastRecursiveHardLinkMaker implements IImmutableCopier
         if ((fastFileCopierOrNull == null && fallbackCopierOrNull == null)
                 || (fastDirectoryCopierOrNull == null && fallbackCopierOrNull == null))
         {
-            throw new ConfigurationFailureException("Not operational");
+            throw new ConfigurationFailureException("FastRecursiveHardLinkMaker not operational");
         }
         if (operationLog.isInfoEnabled())
         {

@@ -123,6 +123,13 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private String extraRsyncParameters = null;
 
     /**
+     * The name of the <code>ln</code> executable to use for hard link creation.
+     */
+    @Option(longName = PropertyNames.LN_EXECUTABLE, metaVar = "EXEC", usage = "The ln executable to use for "
+            + "hard link creations.")
+    private String lnExecutable = null;
+
+    /**
      * The name of the <code>ssh</code> executable to use for creating tunnels.
      */
     @Option(longName = PropertyNames.SSH_EXECUTABLE, metaVar = "EXEC", usage = "The ssh executable to use for creating tunnels.")
@@ -477,6 +484,9 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                         rsyncOverwrite);
         extraRsyncParameters =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.EXTRA_RSYNC_PARAMS);
+        lnExecutable =
+            PropertyUtils.getProperty(serviceProperties, PropertyNames.LN_EXECUTABLE,
+                    lnExecutable);
         sshExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.SSH_EXECUTABLE,
                         sshExecutable);
@@ -658,6 +668,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             }
             return params;
         }
+    }
+
+    /**
+     * @return The name of the <code>ln</code> executable to use for hard link creation.
+     */
+    public final String getLnExecutable()
+    {
+        return lnExecutable;
     }
 
     /**

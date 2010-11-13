@@ -27,6 +27,11 @@ public interface IFileSysParameters
     String getRsyncExecutable();
 
     /**
+     * The name of the <code>ln</code> executable to use for hard link operations.
+     */
+    String getLnExecutable();
+
+    /**
      * @return The name of the <code>rsync</code> executable on the incoming host to use for copy
      *         operations.
      */
