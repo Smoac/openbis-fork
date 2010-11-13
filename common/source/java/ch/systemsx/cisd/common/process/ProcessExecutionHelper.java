@@ -56,25 +56,60 @@ public final class ProcessExecutionHelper
         /** Never read the output. */
         NEVER,
 
-        /** Read the output if the process failed in some way. */
+        /** Equal to {@link #ALWAYS}. */
+        @Deprecated
         ON_ERROR,
 
         /** Always read the output. */
         ALWAYS;
     }
 
+    private final class ProcessRecord
+    {
+        private final Process process;
+
+        private final BufferedReader processOutputReader;
+
+        private final List<String> processOutput;
+
+        ProcessRecord(final Process process)
+        {
+            this.process = process;
+            this.processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            this.processOutput = Collections.synchronizedList(new ArrayList<String>());
+        }
+
+        Process getProcess()
+        {
+            return process;
+        }
+
+        List<String> getProcessOutput()
+        {
+            return processOutput;
+        }
+
+        BufferedReader getProcessOutputReader()
+        {
+            return processOutputReader;
+        }
+    }
+
     /**
      * The default strategy for when to read the process output.
      */
     public static final OutputReadingStrategy DEFAULT_OUTPUT_READING_STRATEGY =
-            OutputReadingStrategy.ON_ERROR;
+            OutputReadingStrategy.ALWAYS;
 
     /** Corresponds to a short timeout of 1/10 s. */
     private static final long SHORT_TIMEOUT = 100;
 
+    /** Corresponds to a short timeout of 1/100 s. */
+    private static final long PAUSE_MILLIS = 10;
+
     /** The executor service handling the threads that OS processes are spawned in. */
-    private static final ExecutorService executor =
-            new NamingThreadPoolExecutor("osproc").corePoolSize(10).daemonize();
+    private static final ExecutorService executor = new NamingThreadPoolExecutor("osproc")
+            .corePoolSize(10).daemonize();
 
     /** The counter to draw the <var>processNumber</var> from. */
     private static final AtomicInteger processCounter = new AtomicInteger();
@@ -97,7 +132,7 @@ public final class ProcessExecutionHelper
     private final String callingThreadName;
 
     // Use this reference to make sure the process is as dead as you can get it to be.
-    private final AtomicReference<Process> processWrapper;
+    private final AtomicReference<ProcessRecord> processWrapper;
 
     /**
      * Runs an Operating System process, specified by <var>cmd</var>.
@@ -269,42 +304,52 @@ public final class ProcessExecutionHelper
     }
 
     /**
-     * Returns the <code>stdout</code> (and <code>stderr</code> of the <var>process</var>.
+     * Returns the <code>stdout</code> and <code>stderr</code> of the <var>process</var> in
+     * <var>processRecord.getProcessOutput()</var>.
      */
-    private final static List<String> readProcessOutputLines(final Process process,
-            final Logger machineLog, final boolean wait)
+    private final static void readProcessOutputLines(final ProcessRecord processRecord,
+            final Logger machineLog, final boolean discard)
     {
-        assert process != null;
+        assert processRecord != null;
         assert machineLog != null;
 
-        final List<String> processOutput = new ArrayList<String>();
-        final BufferedReader reader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()));
+        final BufferedReader reader = processRecord.getProcessOutputReader();
+        final List<String> processOutput = processRecord.getProcessOutput();
         try
         {
-            while ((wait || reader.ready()))
+            while (reader.ready())
             {
                 final String line = reader.readLine();
                 if (line == null)
                 {
                     break;
                 }
-                processOutput.add(line);
+                if (discard == false)
+                {
+                    processOutput.add(line);
+                }
             }
         } catch (final IOException e)
         {
-            machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.", e
-                    .getMessage()));
-        } finally
-        {
-            IOUtils.closeQuietly(reader);
+            machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.",
+                    e.getMessage()));
         }
-        return processOutput;
     }
 
     //
     // Implementation
     //
+
+    private final int getExitValue(final Process process)
+    {
+        try
+        {
+            return process.exitValue();
+        } catch (final IllegalThreadStateException ex)
+        {
+            return ProcessResult.NO_EXIT_VALUE;
+        }
+    }
 
     /**
      * The class that performs the actual calling and interaction with the Operating System process.
@@ -335,18 +380,28 @@ public final class ProcessExecutionHelper
                 final Process process = launch();
                 try
                 {
-                    processWrapper.set(process);
-                    final int exitValue = process.waitFor();
-                    processWrapper.set(null);
-                    List<String> processOutput = null;
-                    if (OutputReadingStrategy.ALWAYS.equals(outputReadingStrategy)
-                            || (OutputReadingStrategy.ON_ERROR.equals(outputReadingStrategy) && ProcessResult
-                                    .isProcessOK(exitValue) == false))
+                    ProcessRecord processRecord = new ProcessRecord(process);
+                    processWrapper.set(processRecord);
+                    final boolean discardOutput =
+                            (outputReadingStrategy == OutputReadingStrategy.NEVER);
+                    int exitValue = ProcessResult.NO_EXIT_VALUE;
+                    while (exitValue == ProcessResult.NO_EXIT_VALUE)
                     {
-                        processOutput = readProcessOutputLines(process, machineLog, true);
+                        readProcessOutputLines(processRecord, machineLog, discardOutput);
+                        exitValue = getExitValue(process);
+                        if (exitValue == ProcessResult.NO_EXIT_VALUE)
+                        {
+                            ConcurrencyUtilities.sleep(PAUSE_MILLIS);
+                        }
                     }
+                    processRecord = processWrapper.getAndSet(null);
+                    if (processRecord == null)
+                    {
+                        return null;
+                    }
+                    readProcessOutputLines(processRecord, machineLog, discardOutput);
                     return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
-                            "", exitValue, processOutput, operationLog, machineLog);
+                            "", exitValue, processRecord.getProcessOutput(), operationLog, machineLog);
                 } finally
                 {
                     IOUtils.closeQuietly(process.getErrorStream());
@@ -355,10 +410,10 @@ public final class ProcessExecutionHelper
                 }
             } catch (final Exception ex)
             {
-                machineLog.error(String
-                        .format("Exception when launching: [%s, %s]",
-                                ex.getClass().getSimpleName(), StringUtils.defaultIfEmpty(ex
-                                        .getMessage(), "NO MESSAGE")));
+                machineLog
+                        .error(String.format("Exception when launching: [%s, %s]", ex.getClass()
+                                .getSimpleName(), StringUtils.defaultIfEmpty(ex.getMessage(),
+                                "NO MESSAGE")));
                 throw ex;
             }
         }
@@ -384,39 +439,27 @@ public final class ProcessExecutionHelper
             this.status = status;
         }
 
-        private final int getExitValue(final Process process)
-        {
-            try
-            {
-                return process.exitValue();
-            } catch (final IllegalThreadStateException ex)
-            {
-                return ProcessResult.NO_EXIT_VALUE;
-            }
-        }
-
         //
         // NamedCallable
         //
 
         public final ProcessResult call()
         {
-            final Process process = processWrapper.getAndSet(null);
-            if (process != null)
+            final ProcessRecord processRecord = processWrapper.getAndSet(null);
+            if (processRecord != null)
             {
-                List<String> processOutput = null;
-                if (OutputReadingStrategy.NEVER.equals(outputReadingStrategy) == false)
-                {
-                    processOutput = readProcessOutputLines(process, machineLog, false);
-                }
+                final Process process = processRecord.getProcess();
+                final boolean discardOutput =
+                        (outputReadingStrategy == OutputReadingStrategy.NEVER);
+                readProcessOutputLines(processRecord, machineLog, discardOutput);
                 process.destroy(); // Note: this also closes the I/O streams.
                 if (machineLog.isInfoEnabled())
                 {
                     machineLog.info(String.format("Killed '%s'.", getCommand(commandLine)));
                 }
-                final int exitValue = getExitValue(process);
+                final int exitValue = getExitValue(processRecord.getProcess());
                 return new ProcessResult(commandLine, processNumber, status, "", exitValue,
-                        processOutput, operationLog, machineLog);
+                        processRecord.getProcessOutput(), operationLog, machineLog);
             } else
             {
                 return null; // Value signals that the ProcessRunner got us.
@@ -449,7 +492,7 @@ public final class ProcessExecutionHelper
         }
         this.outputReadingStrategy = outputReadingStrategy;
         this.commandLine = Collections.unmodifiableList(commandLine);
-        this.processWrapper = new AtomicReference<Process>();
+        this.processWrapper = new AtomicReference<ProcessRecord>();
     }
 
     private final IProcessHandler runUnblocking()

@@ -169,7 +169,8 @@ public class ProcessExecutionHelperTest
                 ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
                         operationLog, machineLog, WATCHDOG_WAIT_MILLIS);
         assertTrue(result.isOK());
-        assertEquals(0, result.getOutput().size());
+        assertEquals(1, result.getOutput().size());
+        assertEquals(sleepyMessage, result.getOutput().get(0));
     }
 
     @Test(groups =
@@ -223,7 +224,7 @@ public class ProcessExecutionHelperTest
             final IProcessHandler processHandler =
                     ProcessExecutionHelper.runUnblocking(
                             Arrays.asList(dummyExec.getAbsolutePath()),
-                            OutputReadingStrategy.ON_ERROR, operationLog, machineLog);
+                            OutputReadingStrategy.ALWAYS, operationLog, machineLog);
             processHandler.getResult();
         } finally
         {
