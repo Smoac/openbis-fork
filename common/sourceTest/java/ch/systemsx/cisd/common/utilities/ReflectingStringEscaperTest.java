@@ -80,6 +80,30 @@ public class ReflectingStringEscaperTest extends AssertJUnit
         assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.wrappedBean.bar);
         assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.wrappedBean.baz);
     }
+    
+    @Test
+    public void testCircular()
+    {
+        TestBean bean = new TestBean();
+        bean.foo = "<a>foo</a>";
+        bean.bar = "<b>bar</b>";
+        bean.baz = "<i>baz</i>";
+        bean.wrappedBean = new TestBean();
+        bean.wrappedBean.foo = "<a>foo</a>";
+        bean.wrappedBean.bar = "<b>bar</b>";
+        bean.wrappedBean.baz = "<i>baz</i>";
+        bean.wrappedBean.wrappedBean = bean;
+
+        TestBean escaped = ReflectingStringEscaper.escapeDeep(bean);
+        assertEquals(bean, escaped);
+        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.foo);
+        assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.bar);
+        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.baz);
+
+        assertEquals("&lt;a&gt;foo&lt;/a&gt;", bean.wrappedBean.foo);
+        assertEquals("&lt;b&gt;bar&lt;/b&gt;", bean.wrappedBean.bar);
+        assertEquals("&lt;i&gt;baz&lt;/i&gt;", bean.wrappedBean.baz);
+    }
 
     @Test
     public void testShallowEscaperRestricted()

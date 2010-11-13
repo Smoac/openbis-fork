@@ -63,6 +63,14 @@ public class ReflectionStringTraverser
     // types
     private void traverseMutable(Object object, Class<?> clazz)
     {
+        if (seenObjects.contains(object))
+        {
+            // We've already escaped this
+            return;
+        } else
+        {
+            seenObjects.add(object);
+        }
         if (isMutable(object) == false)
         {
             throw createCannotTraverseImmutableObjectException(object);
@@ -80,6 +88,8 @@ public class ReflectionStringTraverser
     private final ReflectionFieldVisitor visitor;
 
     private final boolean isDeep;
+
+    private final HashSet<Object> seenObjects = new HashSet<Object>();
 
     private ReflectionStringTraverser(ReflectionFieldVisitor fieldVisitor)
     {
@@ -154,7 +164,14 @@ public class ReflectionStringTraverser
         {
             if (isDeep)
             {
-                traverseFields(fieldValue, clazz);
+                if (seenObjects.contains(fieldValue))
+                {
+                    // Don't revisit objects we've already seen.
+                    return;
+                } else
+                {
+                    traverseFields(fieldValue, clazz);
+                }
             }
         }
     }
