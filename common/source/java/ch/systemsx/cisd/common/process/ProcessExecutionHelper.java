@@ -64,18 +64,18 @@ public final class ProcessExecutionHelper
         ALWAYS;
     }
 
+    /**
+     * Record to store process and its output.
+     */
     private final class ProcessRecord
     {
         private final Process process;
-
-        private final BufferedReader processOutputReader;
 
         private final List<String> processOutput;
 
         ProcessRecord(final Process process)
         {
             this.process = process;
-            this.processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             this.processOutput = Collections.synchronizedList(new ArrayList<String>());
         }
 
@@ -87,11 +87,6 @@ public final class ProcessExecutionHelper
         List<String> getProcessOutput()
         {
             return processOutput;
-        }
-
-        BufferedReader getProcessOutputReader()
-        {
-            return processOutputReader;
         }
     }
 
@@ -303,39 +298,6 @@ public final class ProcessExecutionHelper
         return StringUtils.join(commandLine, ' ');
     }
 
-    /**
-     * Returns the <code>stdout</code> and <code>stderr</code> of the <var>process</var> in
-     * <var>processRecord.getProcessOutput()</var>.
-     */
-    private final static void readProcessOutputLines(final ProcessRecord processRecord,
-            final Logger machineLog, final boolean discard)
-    {
-        assert processRecord != null;
-        assert machineLog != null;
-
-        final BufferedReader reader = processRecord.getProcessOutputReader();
-        final List<String> processOutput = processRecord.getProcessOutput();
-        try
-        {
-            while (reader.ready())
-            {
-                final String line = reader.readLine();
-                if (line == null)
-                {
-                    break;
-                }
-                if (discard == false)
-                {
-                    processOutput.add(line);
-                }
-            }
-        } catch (final IOException e)
-        {
-            machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.",
-                    e.getMessage()));
-        }
-    }
-
     //
     // Implementation
     //
@@ -369,6 +331,38 @@ public final class ProcessExecutionHelper
             return processBuilder.start();
         }
 
+        /**
+         * Returns the <code>stdout</code> and <code>stderr</code> of the <var>process</var> in
+         * <var>processRecord.getProcessOutput()</var>.
+         */
+        private final void readProcessOutputLines(final List<String> processOutput,
+                final BufferedReader reader, final boolean discard)
+        {
+            assert processOutput != null;
+            assert reader != null;
+            assert machineLog != null;
+
+            try
+            {
+                while (reader.ready())
+                {
+                    final String line = reader.readLine();
+                    if (line == null)
+                    {
+                        break;
+                    }
+                    if (discard == false)
+                    {
+                        processOutput.add(line);
+                    }
+                }
+            } catch (final IOException e)
+            {
+                machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.",
+                        e.getMessage()));
+            }
+        }
+
         //
         // NamedCallable
         //
@@ -382,26 +376,26 @@ public final class ProcessExecutionHelper
                 {
                     ProcessRecord processRecord = new ProcessRecord(process);
                     processWrapper.set(processRecord);
+                    final List<String> processOutput = processRecord.getProcessOutput();
+                    final BufferedReader reader =
+                            new BufferedReader(new InputStreamReader(process.getInputStream()));
                     final boolean discardOutput =
                             (outputReadingStrategy == OutputReadingStrategy.NEVER);
                     int exitValue = ProcessResult.NO_EXIT_VALUE;
                     while (exitValue == ProcessResult.NO_EXIT_VALUE)
                     {
-                        readProcessOutputLines(processRecord, machineLog, discardOutput);
+                        readProcessOutputLines(processOutput, reader, discardOutput);
                         exitValue = getExitValue(process);
                         if (exitValue == ProcessResult.NO_EXIT_VALUE)
                         {
                             ConcurrencyUtilities.sleep(PAUSE_MILLIS);
                         }
                     }
-                    processRecord = processWrapper.getAndSet(null);
-                    if (processRecord == null)
-                    {
-                        return null;
-                    }
-                    readProcessOutputLines(processRecord, machineLog, discardOutput);
+                    processWrapper.set(null);
+                    readProcessOutputLines(processOutput, reader, discardOutput);
                     return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
-                            "", exitValue, processRecord.getProcessOutput(), operationLog, machineLog);
+                            "", exitValue, processRecord.getProcessOutput(), operationLog,
+                            machineLog);
                 } finally
                 {
                     IOUtils.closeQuietly(process.getErrorStream());
@@ -449,9 +443,6 @@ public final class ProcessExecutionHelper
             if (processRecord != null)
             {
                 final Process process = processRecord.getProcess();
-                final boolean discardOutput =
-                        (outputReadingStrategy == OutputReadingStrategy.NEVER);
-                readProcessOutputLines(processRecord, machineLog, discardOutput);
                 process.destroy(); // Note: this also closes the I/O streams.
                 if (machineLog.isInfoEnabled())
                 {
