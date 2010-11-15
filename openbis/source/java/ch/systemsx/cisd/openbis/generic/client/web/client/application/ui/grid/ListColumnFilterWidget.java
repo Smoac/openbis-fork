@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ex
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
@@ -145,14 +146,12 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         for (String value : distinctValues)
         {
             ModelData model = new BaseModelData();
-            // TODO 2010-10-20, Piotr Buczek: [LMS-1815] the value should be unescaped
-            // we could use SafeHtml when we switch to new GWT version
-            // http://code.google.com/webtoolkit/doc/trunk/DevGuideSecuritySafeHtml.html
             String displayValue = value;
             if (displayValue == null || displayValue.length() == 0)
             {
                 displayValue = EMPTY_VALUE;
             }
+            displayValue = StringEscapeUtils.unescapeHtml(displayValue);
             model.set(MODEL_DISPLAY_KEY, displayValue);
             model.set(MODEL_VALUE_KEY, value);
             model.set(ModelDataPropertyNames.TOOLTIP, value);
