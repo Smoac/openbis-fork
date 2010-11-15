@@ -457,6 +457,7 @@
       <param name="module-test.path" value="openbis-test-screening" />
       <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
     </antcall>
+  	<antcall target="jar"/>
     <antcall target="screening-test-run" />
   </target>
 
