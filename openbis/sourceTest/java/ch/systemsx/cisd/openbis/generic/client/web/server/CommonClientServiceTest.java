@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -421,12 +422,16 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final TechId experimentId = CommonTestUtils.TECH_ID;
         final ExternalDataPE externalDataPE = new ExternalDataPE();
         final DataStorePE dataStorePE = new DataStorePE();
+        dataStorePE.setCode("DS");
         dataStorePE.setDownloadUrl(DATA_STORE_BASE_URL);
         externalDataPE.setDataStore(dataStorePE);
         FileFormatTypePE fileFormatTypePE = new FileFormatTypePE();
         fileFormatTypePE.setCode("PNG");
         fileFormatTypePE.setDescription("Portable Network Graphics");
         externalDataPE.setFileFormatType(fileFormatTypePE);
+        LocatorTypePE locatorTypePE = new LocatorTypePE();
+        locatorTypePE.setCode("LOCATOR");
+        externalDataPE.setLocatorType(locatorTypePE);
         final ExternalData externalData =
                 ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL, false);
         context.checking(new Expectations()
@@ -457,6 +462,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         List<ExternalData> list = resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
+        // assertEquals(code, data.getCode());
         assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data
                 .getDataStore().getDownloadUrl());
         assertEquals("PNG", data.getFileFormatType().getCode());
