@@ -20,8 +20,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -84,13 +82,13 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             if (vocabularyTerm == null)
             {
                 vocabularyTerm = new VocabularyTerm();
-                vocabularyTerm.setCode(StringEscapeUtils.escapeHtml(val.code));
-                vocabularyTerm.setLabel(StringEscapeUtils.escapeHtml(val.label));
+                vocabularyTerm.setCode(val.code);
+                vocabularyTerm.setLabel(val.label);
                 final String template = vocabularyURLMap.get(val.covo_id);
                 if (template != null)
                 {
-                    vocabularyTerm.setUrl(StringEscapeUtils.escapeHtml(template.replaceAll(
-                            BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, val.code)));
+                    vocabularyTerm.setUrl(template.replaceAll(
+                            BasicConstant.VOCABULARY_URL_TEMPLATE_TERM_PATTERN, val.code));
                 }
                 terms.put(val.id, vocabularyTerm);
             }
@@ -114,7 +112,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
             if (material == null)
             {
                 material = new Material();
-                material.setCode(StringEscapeUtils.escapeHtml(val.code));
+                material.setCode(val.code);
                 material.setMaterialType(materialTypes.get(val.maty_id));
                 material.setId(val.id);
                 materials.put(val.id, material);

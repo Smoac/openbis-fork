@@ -22,8 +22,6 @@ import java.util.List;
 
 import net.lemnik.eodsql.DataSet;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -93,9 +91,9 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
             final SamplePE samplePE)
     {
         result.setId(HibernateUtils.getId(samplePE));
-        result.setPermId(StringEscapeUtils.escapeHtml(samplePE.getPermId()));
-        result.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
-        result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getIdentifier()));
+        result.setPermId(samplePE.getPermId());
+        result.setCode(samplePE.getCode());
+        result.setIdentifier(samplePE.getIdentifier());
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
