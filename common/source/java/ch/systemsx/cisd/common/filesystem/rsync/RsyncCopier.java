@@ -611,7 +611,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             }
             // We must not use the absolute path here because that is the business of the
             // destination host.
-            return host + sep + toUnix(path);
+            return host + sep + path;
         }
     }
 
