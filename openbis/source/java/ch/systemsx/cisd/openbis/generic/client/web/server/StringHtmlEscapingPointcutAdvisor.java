@@ -22,19 +22,22 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.springframework.aop.ClassFilter;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 
 /**
- * The advisor for automatically escaping HTML strings in the values returned by the
- * CommonClientService.
+ * The advisor for automatically escaping HTML strings in the values returned by implementations of
+ * {@link IClientService}.
  * <p>
  * Though it is not necessary to subclass DefaultPointcutAdvisor for the implementation, we subclass
  * here to make the configuration in spring a bit simpler.
@@ -68,18 +71,24 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
 
     private static class CommonClientServiceMatchingPointcut extends StaticMethodMatcherPointcut
     {
+
+        @Override
+        public ClassFilter getClassFilter()
+        {
+            return new ClassFilter()
+                {
+
+                    @SuppressWarnings("rawtypes")
+                    public boolean matches(Class clazz)
+                    {
+                        return IClientService.class.isAssignableFrom(clazz);
+                    }
+                };
+        }
+
         @SuppressWarnings("rawtypes")
         public boolean matches(Method method, Class targetClass)
         {
-            if (targetClass != CommonClientService.class)
-            {
-                return false;
-            }
-            if (method.getDeclaringClass() != ICommonClientService.class)
-            {
-                return false;
-            }
-
             if (method.getReturnType() == Void.TYPE)
             {
                 return false;
@@ -88,11 +97,23 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
             // This is handled in the cache manager
             if (method.getReturnType() == TypedTableResultSet.class)
             {
-                return false;
+                return false; // FIXME?
             }
 
             // This is handled in the cache manager
             if (method.getReturnType() == ResultSet.class)
+            {
+                return false;
+            }
+
+            // don't escape these beans that contain application information
+            // TODO 2010-11-15, Piotr Buczek: add an annotation on methods that shouldn't be escaped
+            if (method.getReturnType() == ApplicationInfo.class)
+            {
+                return false;
+            }
+
+            if (method.getReturnType() == SessionContext.class)
             {
                 return false;
             }
@@ -129,8 +150,10 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
         {
             Object result = methodInvocation.proceed();
 
-            result = escapeObject(methodInvocation, result);
-
+            if (result != null)
+            {
+                result = escapeObject(methodInvocation, result);
+            }
             return result;
         }
 
@@ -138,7 +161,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
         {
             Object result = unescapedResult;
             // Need to log unescaped result here, since it might be modified below
-            escapeLog.debug(methodInvocation.getMethod().getName() + " converting   "
+            escapeLog.info(methodInvocation.getMethod().getName() + " converting   "
                     + unescapedResult);
             if (unescapedResult instanceof String)
             {
@@ -155,7 +178,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
                 // Escape the result objects
                 ReflectingStringEscaper.escapeDeep(unescapedResult);
             }
-            escapeLog.debug(methodInvocation.getMethod().getName() + " converted to " + result);
+            escapeLog.info(methodInvocation.getMethod().getName() + " converted to " + result);
             return result;
         }
     }
