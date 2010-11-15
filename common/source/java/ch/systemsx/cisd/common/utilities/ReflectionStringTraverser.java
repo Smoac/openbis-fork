@@ -25,6 +25,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+
 /**
  * Allows to change all non-final and non-static strings referenced within the specified object. If
  * isDeep is true, traverses the object recursively; otherwise, performs a shallow traversal.
@@ -34,6 +39,9 @@ import java.util.Set;
  */
 public class ReflectionStringTraverser
 {
+    private static final Logger log = LogFactory.getLogger(LogCategory.OPERATION,
+            ReflectionStringTraverser.class);
+
     public static interface ReflectionFieldVisitor
     {
         /**
@@ -114,7 +122,7 @@ public class ReflectionStringTraverser
             return;
         }
 
-        Field[] fields = clazz.getDeclaredFields();
+        Field[] fields = getAllFields(clazz);
         for (Field field : fields)
         {
             int modifiers = field.getModifiers();
@@ -122,16 +130,46 @@ public class ReflectionStringTraverser
             {
                 try
                 {
+                    if (log.isDebugEnabled())
+                    {
+                        log.debug("Traverse field <" + field.getName() + "> of "
+                                + object.getClass() + ":\n\t" + object);
+                    }
                     traverseField(object, field);
                 } catch (Exception ex)
                 {
-                    System.err.println("Failed accessing field <" + field.getName() + "> of "
-                            + object.getClass() + ":\n\t" + field);
+                    log.error("Failed accessing field <" + field.getName() + "> of "
+                            + object.getClass() + ":\n\t" + object);
                     ex.printStackTrace();
                     throw new IllegalStateException("Should not happen: " + ex.getMessage());
                 }
             }
         }
+    }
+
+    /**
+     * Return a list of all fields (whatever access status, and on whatever superclass they were
+     * defined) that can be found on this class.
+     * <p>
+     * This works like a union of {@link Class#getDeclaredFields()} which ignores super-classes,
+     * and {@link Class#getFields()} which ignores non-public fields
+     * 
+     * @param clazz The class to introspect
+     * @return The complete list of fields
+     */
+    private Field[] getAllFields(Class<?> clazz)
+    {
+        final Set<Field> result = new HashSet<Field>();
+        Class<?> currentClass = clazz;
+        while (currentClass != null)
+        {
+            for (Field field : currentClass.getDeclaredFields())
+            {
+                result.add(field);
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+        return result.toArray(new Field[result.size()]);
     }
 
     private void traverseField(Object object, Field field) throws IllegalAccessException
