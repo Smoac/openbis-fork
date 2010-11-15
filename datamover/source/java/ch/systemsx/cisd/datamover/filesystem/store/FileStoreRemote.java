@@ -51,8 +51,8 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
  */
 public class FileStoreRemote extends AbstractFileStore
 {
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, FileStoreRemote.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            FileStoreRemote.class);
 
     private static final String NO_SUCH_FILE_OR_DIRECTORY_MSG = "No such file or directory";
 
@@ -144,8 +144,8 @@ public class FileStoreRemote extends AbstractFileStore
         assert hostAwareFileWithHighwaterMark.tryGetHost() != null : "Unspecified host";
         this.skipAccessibilityTest = skipAccessibilityTest;
         this.sshCommandExecutor =
-                new SshCommandExecutor(sshCommandBuilder, hostAwareFileWithHighwaterMark
-                        .tryGetHost());
+                new SshCommandExecutor(sshCommandBuilder,
+                        hostAwareFileWithHighwaterMark.tryGetHost());
         this.highwaterMarkWatcher =
                 createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark, sshCommandBuilder);
         setAndLogLastchangedExecutable(remoteLastchangedExecutableOrNull);
@@ -332,15 +332,18 @@ public class FileStoreRemote extends AbstractFileStore
         if (status.isSuccess())
         {
             if (this.remoteLastchangedExecutableOrNull != null
-                    || checkAvailableAndSetLastchangedUtil())
+                    || ((skipAccessibilityTest == false) && checkAvailableAndSetLastchangedUtil()))
             {
                 return BooleanStatus.createTrue();
-            } else if (this.remoteFindExecutableOrNull != null || checkAvailableAndSetFindUtil())
+            } else if (this.remoteFindExecutableOrNull != null
+                    || ((skipAccessibilityTest == false) && checkAvailableAndSetFindUtil()))
             {
                 return BooleanStatus.createTrue();
             } else
             {
-                return BooleanStatus.createError(createNoFindUtilMessage());
+                return BooleanStatus
+                        .createError(skipAccessibilityTest ? createSkipAccessibilityNoFindUtilMessage()
+                                : createNoFindUtilMessage());
             }
         } else
         {
@@ -355,7 +358,16 @@ public class FileStoreRemote extends AbstractFileStore
 
     private String createNoFindUtilMessage()
     {
-        return "No GNU find utility is present on the remote machine '" + getHost() + "'";
+        return "Neither the lastchanged utility nor the GNU find utility can be found on the remote machine '"
+                + getHost() + "'";
+    }
+
+    private String createSkipAccessibilityNoFindUtilMessage()
+    {
+        return "The inital accessibility test is configured to be skipped on the remote machine '"
+                + getHost()
+                + "', but neither the path to the lastchanged utility nor to the GNU find utility "
+                + "is provided in the configuration.";
     }
 
     // tries to execute different find versions with appropriate options on the remote host. If
@@ -380,8 +392,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS,
-                        false);
+                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -391,8 +402,8 @@ public class FileStoreRemote extends AbstractFileStore
             final String findExecutable = result.getOutput().get(0);
             final String verCmd = getVersionCommand(findExec);
             final ProcessResult verResult =
-                    sshCommandExecutor.tryExecuteCommandRemotely(verCmd,
-                            QUICK_SSH_TIMEOUT_MILLIS, false);
+                    sshCommandExecutor.tryExecuteCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILLIS,
+                            false);
             if (machineLog.isDebugEnabled())
             {
                 verResult.log();
@@ -439,8 +450,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(exec);
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS,
-                        false);
+                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -480,8 +490,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String simpleCmd = mkListByOldestModifiedCommand(toUnixPathString(null));
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(simpleCmd,
-                        LONG_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.tryExecuteCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILLIS);
         if (result.isOK())
         {
             return asStoreItems(result.getOutput());
@@ -514,9 +523,9 @@ public class FileStoreRemote extends AbstractFileStore
     {
         if (result.isOK() == false)
         {
-            return String.format("Command '%s' failed with error exitval=%d, output=[%s]", result
-                    .getCommandLine(), result.getExitValue(), StringUtils.join(result.getOutput(),
-                    '\n'));
+            return String.format("Command '%s' failed with error exitval=%d, output=[%s]",
+                    result.getCommandLine(), result.getExitValue(),
+                    StringUtils.join(result.getOutput(), '\n'));
         } else
         {
             return null;
@@ -527,13 +536,13 @@ public class FileStoreRemote extends AbstractFileStore
     {
         if (result.isOK() == false)
         {
-            return String.format("Command '%s' failed with error exitval=%d, output=[%s]", result
-                    .getCommandLine(), result.getExitValue(), StringUtils.join(result.getOutput(),
-                    '\n'));
+            return String.format("Command '%s' failed with error exitval=%d, output=[%s]",
+                    result.getCommandLine(), result.getExitValue(),
+                    StringUtils.join(result.getOutput(), '\n'));
         } else if (hasAnyOutput(result) == false)
         {
-            return String.format("Command '%s' ended succesfully, but without any output.", result
-                    .getCommandLine());
+            return String.format("Command '%s' ended succesfully, but without any output.",
+                    result.getCommandLine());
         } else
         {
             return null;
@@ -547,9 +556,9 @@ public class FileStoreRemote extends AbstractFileStore
     {
         if (result.isOK() == false)
         {
-            return String.format("Command '%s' failed with error exitval=%d, output=[%s]", result
-                    .getCommandLine(), result.getExitValue(), StringUtils.join(result.getOutput(),
-                    '\n'));
+            return String.format("Command '%s' failed with error exitval=%d, output=[%s]",
+                    result.getCommandLine(), result.getExitValue(),
+                    StringUtils.join(result.getOutput(), '\n'));
         } else if (result.getOutput().size() != 1
                 || tryParseLastChangedMillis(result.getOutput().get(0)) == null)
         {
@@ -559,8 +568,8 @@ public class FileStoreRemote extends AbstractFileStore
                 return NO_SUCH_FILE_OR_DIRECTORY_MSG;
             } else
             {
-                return String.format("Command '%s' failed with output=[%s]", result
-                        .getCommandLine(), StringUtils.join(result.getOutput(), '\n'));
+                return String.format("Command '%s' failed with output=[%s]",
+                        result.getCommandLine(), StringUtils.join(result.getOutput(), '\n'));
             }
         } else
         {
