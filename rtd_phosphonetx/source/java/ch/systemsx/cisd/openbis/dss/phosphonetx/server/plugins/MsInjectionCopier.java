@@ -169,7 +169,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         public void deleteFolder(File folder)
         {
             ProcessResult result =
-                executor.tryExecuteCommandRemotely("rm -rf " + folder.getPath(),
+                executor.executeCommandRemotely("rm -rf " + folder.getPath(),
                         DataSetCopier.SSH_TIMEOUT_MILLIS);
             if (result.isOK() == false)
             {
@@ -201,7 +201,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         public void renameTo(File newFile, File oldFile)
         {
             ProcessResult result =
-                    executor.tryExecuteCommandRemotely("mv " + oldFile.getPath() + " "
+                    executor.executeCommandRemotely("mv " + oldFile.getPath() + " "
                             + newFile.getPath(), DataSetCopier.SSH_TIMEOUT_MILLIS);
             if (result.isOK() == false)
             {

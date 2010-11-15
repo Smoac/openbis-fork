@@ -196,14 +196,14 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
                     one(sshExecutor).exists(copiedDataSet, SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
 
-                    one(sshExecutor).tryExecuteCommandRemotely("rm -rf " + copiedDataSet,
+                    one(sshExecutor).executeCommandRemotely("rm -rf " + copiedDataSet,
                             SSH_TIMEOUT_MILLIS);
                     will(returnValue(OK_RESULT));
 
                     one(copier).copyToRemote(dataSet, destination, "localhost", null, null);
                     will(returnValue(Status.OK));
 
-                    one(sshExecutor).tryExecuteCommandRemotely(
+                    one(sshExecutor).executeCommandRemotely(
                             "mv " + new File(destination, dataSet.getName()) + " " + copiedDataSet,
                             SSH_TIMEOUT_MILLIS);
                     will(returnValue(OK_RESULT));
