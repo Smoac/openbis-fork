@@ -30,15 +30,36 @@ public class ExampleImageTransformerFactory implements IImageTransformerFactory
 {
     private static final long serialVersionUID = 1L;
     
-    private final int indexOfRed;
-    private final int indexOfGreen;
-    private final int indexOfBlue;
+    private static final class Color
+    {
+        private int red;
+        private int green;
+        private int blue;
+
+        Color(int rgb)
+        {
+            red = (rgb >> 16) & 0xff;
+            green = (rgb >> 8) & 0xff;
+            blue = rgb & 0xff;
+        }
+        
+        int getColor(char colorSymbol)
+        {
+            switch (colorSymbol)
+            {
+                case 'r': return red;
+                case 'g': return green;
+                case 'b': return blue;
+                default: return 0;
+            }
+        }
+    }
+    
+    private final String colorPattern;
     
     public ExampleImageTransformerFactory(String colorPattern)
     {
-        indexOfRed = colorPattern.indexOf('r');
-        indexOfGreen = colorPattern.indexOf('g');
-        indexOfBlue = colorPattern.indexOf('b');
+        this.colorPattern = colorPattern;
     }
     
     public IImageTransformer createTransformer()
@@ -55,11 +76,13 @@ public class ExampleImageTransformerFactory implements IImageTransformerFactory
                         for (int y = 0; y < height; y++)
                         {
                             int rgb = input.getRGB(x, y);
-                            int blue = (rgb >> 16) & 0xff;
-                            int green = (rgb >> 8) & 0xff;
-                            int red = rgb & 0xff;
-                            output.setRGB(x, y, shift(red, indexOfRed) + shift(green, indexOfGreen)
-                                    + shift(blue, indexOfBlue));
+                            Color color = new Color(rgb);
+                            output.setRGB(
+                                    x,
+                                    y,
+                                    (color.getColor(colorPattern.charAt(0)) << 16)
+                                            + (color.getColor(colorPattern.charAt(1)) << 8)
+                                            + color.getColor(colorPattern.charAt(2)));
                         }
                     }
                     return output;
@@ -67,15 +90,10 @@ public class ExampleImageTransformerFactory implements IImageTransformerFactory
             };
     }
     
-    private int shift(int color, int position)
-    {
-        return color << (8 * (2 - position));
-    }
-
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + "[" + indexOfRed + "." + indexOfGreen + "." + indexOfBlue + "]";
+        return getClass().getSimpleName() + "[" + colorPattern + "]";
     }
 
 }

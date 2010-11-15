@@ -27,8 +27,7 @@ public final class ScreeningViewContext extends
         super(commonViewContext);
     }
 
-    @Override
-    protected String getTechnology()
+    public String getTechnology()
     {
         return TECHNOLOGY_NAME;
     }

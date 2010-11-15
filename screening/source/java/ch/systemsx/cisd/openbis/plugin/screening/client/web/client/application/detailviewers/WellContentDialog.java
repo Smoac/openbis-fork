@@ -392,42 +392,48 @@ public class WellContentDialog extends Dialog
                     center();
                 }
             });
-        if (wellLocationOrNull != null)
+        if (wellLocationOrNull != null && viewContext.isSimpleMode() == false
+                && "true".equals(viewContext.getPropertyOrNull("image-viewer-enabled")))
         {
-            ButtonBar buttonBar = getButtonBar();
-            buttonBar.setAlignment(HorizontalAlignment.LEFT);
-            Button launchButton =
-                    new Button(viewContext.getMessage(Dict.IMAGE_VIEWER_BUTTON),
-                            new SelectionListener<ButtonEvent>()
-                                {
-
-                                    @Override
-                                    public void componentSelected(ButtonEvent ce)
-                                    {
-                                        final URLMethodWithParameters urlParams =
-                                                new URLMethodWithParameters(
-                                                        Constants.IMAGE_VIEWER_LAUNCH_SERVLET_NAME);
-                                        String sessionToken =
-                                                viewContext.getModel().getSessionContext()
-                                                        .getSessionID();
-                                        urlParams.addParameter("session", sessionToken);
-                                        if (selectionProvider != null)
-                                        {
-                                            urlParams.addParameter(ParameterNames.CHANNEL, selectionProvider
-                                                    .getSelection().get(0).getValue());
-                                        }
-                                        urlParams.addParameter(ParameterNames.DATA_SET_AND_WELLS,
-                                                datasetCode + ":" + wellLocationOrNull.getRow()
-                                                        + "." + wellLocationOrNull.getColumn());
-
-                                        Window.open(urlParams.toString(), "_blank",
-                                                "resizable=yes,scrollbars=yes,dependent=yes");
-
-                                    }
-                                });
-            buttonBar.insert(new FillToolItem(), 0);
-            buttonBar.insert(launchButton, 0);
+            addImageViewerLaunchButton();
         }
+    }
+    
+    private void addImageViewerLaunchButton()
+    {
+        ButtonBar buttonBar = getButtonBar();
+        buttonBar.setAlignment(HorizontalAlignment.LEFT);
+        Button launchButton =
+                new Button(viewContext.getMessage(Dict.IMAGE_VIEWER_BUTTON),
+                        new SelectionListener<ButtonEvent>()
+                            {
+
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    final URLMethodWithParameters urlParams =
+                                            new URLMethodWithParameters(
+                                                    Constants.IMAGE_VIEWER_LAUNCH_SERVLET_NAME);
+                                    String sessionToken =
+                                            viewContext.getModel().getSessionContext()
+                                                    .getSessionID();
+                                    urlParams.addParameter("session", sessionToken);
+                                    if (selectionProvider != null)
+                                    {
+                                        urlParams.addParameter(ParameterNames.CHANNEL,
+                                                selectionProvider.getSelection().get(0).getValue());
+                                    }
+                                    urlParams.addParameter(ParameterNames.DATA_SET_AND_WELLS,
+                                            datasetCode + ":" + wellLocationOrNull.getRow() + "."
+                                                    + wellLocationOrNull.getColumn());
+
+                                    Window.open(urlParams.toString(), "_blank",
+                                            "resizable=yes,scrollbars=yes,dependent=yes");
+
+                                }
+                            });
+        buttonBar.insert(new FillToolItem(), 0);
+        buttonBar.insert(launchButton, 0);
     }
     
     private void setChannelChooser(final SelectionProvider<SimpleComboValue<String>> selectionProvider)
