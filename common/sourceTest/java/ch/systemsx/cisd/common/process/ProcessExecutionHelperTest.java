@@ -52,17 +52,17 @@ public class ProcessExecutionHelperTest
 
     private static final long WATCHDOG_WAIT_MILLIS = 1000L;
 
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, ProcessExecutionHelperTest.class);
+    private static final Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            ProcessExecutionHelperTest.class);
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ProcessExecutionHelperTest.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ProcessExecutionHelperTest.class);
 
-    private static final File unitTestRootDirectory =
-            new File("targets" + File.separator + "unit-test-wd");
+    private static final File unitTestRootDirectory = new File("targets" + File.separator
+            + "unit-test-wd");
 
-    private static final File workingDirectory =
-            new File(unitTestRootDirectory, "ProcessExecutionHelperTest");
+    private static final File workingDirectory = new File(unitTestRootDirectory,
+            "ProcessExecutionHelperTest");
 
     private File createExecutable(String name, String... lines) throws IOException,
             InterruptedException
@@ -90,6 +90,12 @@ public class ProcessExecutionHelperTest
     {
         return createExecutable(name, "#! /bin/sh", "echo " + sleepyMessage, "sleep "
                 + (millisToSleep / 1000.0f), "exit 0");
+    }
+
+    private File createExecutableEndlessLoop(String name) throws IOException, InterruptedException
+    {
+        return createExecutable(name, "#! /bin/sh",
+                "n=1; while [ 1 ]; do echo $n; n=$(($n+1)); done");
     }
 
     @BeforeClass
@@ -280,6 +286,21 @@ public class ProcessExecutionHelperTest
 
     @Test(groups =
         { "requires_unix", "slow" })
+    public void testHangingExecLotsOfOutputOnStdOut() throws Exception
+    {
+        final File dummyExec = createExecutableEndlessLoop("iHang.sh");
+        final ProcessResult result =
+                ProcessExecutionHelper.run(Arrays.asList(dummyExec.getAbsolutePath()),
+                        operationLog, machineLog, WATCHDOG_WAIT_MILLIS);
+        assertTrue(result.isTimedOut());
+        assertFalse(result.isOK());
+        assertTrue(Integer.toString(result.getOutput().size()), result.getOutput().size() > 100);
+        assertEquals(Integer.toString(result.getOutput().size()),
+                result.getOutput().get(result.getOutput().size() - 1));
+    }
+
+    @Test(groups =
+        { "requires_unix", "slow" })
     public void testTryExecutionReadProcessOutput() throws Exception
     {
         final String stdout1 = "This goes to stdout, 1";
@@ -312,8 +333,8 @@ public class ProcessExecutionHelperTest
                         operationLog, machineLog);
         result.log();
         assertFalse(result.isRun());
-        assertTrue(result.getStartupFailureMessage(), result.getStartupFailureMessage().indexOf(
-                "some_non_existent_executable") >= 0);
+        assertTrue(result.getStartupFailureMessage(),
+                result.getStartupFailureMessage().indexOf("some_non_existent_executable") >= 0);
     }
 
     @Test(groups =
