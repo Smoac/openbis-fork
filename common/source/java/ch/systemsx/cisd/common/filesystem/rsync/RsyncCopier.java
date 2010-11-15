@@ -382,7 +382,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             commandLineList.add("--password-file");
             commandLineList.add(rsyncPasswordFileOrNull);
         }
-        commandLineList.add(buildPath(host, new File("/"), rsyncModule, false));
+        commandLineList.add(buildUnixPathForServer(host, new File("/"), rsyncModule, false));
         final ProcessResult processResult =
                 runCommand(commandLineList, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY);
         processResult.log();
@@ -558,9 +558,9 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         {
             commandLineList.addAll(additionalCmdLineFlagsOrNull);
         }
-        commandLineList.add(buildPath(sourceHostOrNull, sourcePath, rsyncModuleNameOrNull,
-                copyDirectoryContent));
-        commandLineList.add(buildPath(destinationHostOrNull, destinationDirectory,
+        commandLineList.add(buildUnixPathForServer(sourceHostOrNull, sourcePath,
+                rsyncModuleNameOrNull, copyDirectoryContent));
+        commandLineList.add(buildUnixPathForServer(destinationHostOrNull, destinationDirectory,
                 rsyncModuleNameOrNull, true));
 
         return commandLineList;
@@ -585,7 +585,11 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return toUnix(sshExecutable) + " -oBatchMode=yes";
     }
 
-    private static String buildPath(final String host, final File resource,
+    /**
+     * Builds the path for SSH/RSYNC server. <i>As the server is generally expected to be a Unix
+     * machine, we build a Unix path regardless of the client platform.</i>
+     */
+    private static String buildUnixPathForServer(final String host, final File resource,
             final String rsyncModule, final boolean appendSlash)
     {
         if (null == host)
@@ -607,7 +611,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             }
             if (appendSlash)
             {
-                path += File.separator;
+                path += '/';
             }
             // We must not use the absolute path here because that is the business of the
             // destination host.
