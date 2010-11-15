@@ -54,7 +54,7 @@ public class HeatmapUtil
     class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
     {
 
-        public NumberHeatmapRenderer(List<Float> values)
+        public NumberHeatmapRenderer(float min, float max)
         {
 
         }
