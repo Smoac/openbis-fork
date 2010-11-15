@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +32,17 @@ public class HeatmapUtil
 
     static class Color
     {
-        String hexColor;
+        private final String hexColor;
+
+        public Color(String hexColor)
+        {
+            this.hexColor = hexColor;
+        }
+
+        public String getHexColor()
+        {
+            return hexColor;
+        }
     }
 
     static class HeatmapScaleRange
@@ -39,9 +51,6 @@ public class HeatmapUtil
 
         Color color;
     }
-
-    // 0x67001F; 0xB2182B; 0xD6604D; 0xF4A582; 0xFDDBC7; 0xF7F7F7; 0xD1E5F0; 0x92C5DE; 0x4393C3;
-    // 0x2166AC; 0x053061;
 
     // ---
 
@@ -74,12 +83,36 @@ public class HeatmapUtil
 
     }
 
+    @SuppressWarnings("unused")
     static class StringHeatmapRenderer implements IHeatmapRenderer<String>
     {
+        private static final List<String> DEFAULT_COLORS = Arrays.asList("#67001F", "#B2182B",
+                "#D6604D", "#F4A582", "#FDDBC7", "#F7F7F7", "#D1E5F0", "#92C5DE", "#4393C3",
+                "#2166AC", "#053061");
+
+        private final Set<String> values;
+
+        private final List<Color> scaleColors;
 
         public StringHeatmapRenderer(Set<String> values)
         {
+            this(values, asColors(DEFAULT_COLORS));
+        }
 
+        private static List<Color> asColors(List<String> defaultColors)
+        {
+            List<Color> colors = new ArrayList<Color>();
+            for (String color : DEFAULT_COLORS)
+            {
+                colors.add(new Color(color));
+            }
+            return colors;
+        }
+
+        public StringHeatmapRenderer(Set<String> values, List<Color> scaleColors)
+        {
+            this.values = values;
+            this.scaleColors = scaleColors;
         }
 
         public Color getColor(String value)
