@@ -202,7 +202,7 @@ public class FileStoreRemote extends AbstractFileStore
         final String pathString = toUnixPathString(item);
         final String cmd = mkDeleteFileCommand(pathString);
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNull(result);
         if (errMsg == null)
         {
@@ -246,7 +246,7 @@ public class FileStoreRemote extends AbstractFileStore
                 mkLastchangedCommand(itemPath, stopWhenFindYoungerMillis, isRelative,
                         remoteLastchangedExecutableOrNull);
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNullForLastchanged(result);
         if (errMsg == null)
         {
@@ -266,7 +266,7 @@ public class FileStoreRemote extends AbstractFileStore
         final String findExec = getRemoteFindExecutableOrDie();
         final String cmd = mkFindYoungestModificationTimestampSecCommand(itemPath, findExec);
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNullForFind(result);
         if (errMsg == null)
         {
@@ -392,7 +392,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+                sshCommandExecutor.executeCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -402,7 +402,7 @@ public class FileStoreRemote extends AbstractFileStore
             final String findExecutable = result.getOutput().get(0);
             final String verCmd = getVersionCommand(findExec);
             final ProcessResult verResult =
-                    sshCommandExecutor.tryExecuteCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILLIS,
+                    sshCommandExecutor.executeCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILLIS,
                             false);
             if (machineLog.isDebugEnabled())
             {
@@ -450,7 +450,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(exec);
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+                sshCommandExecutor.executeCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -490,7 +490,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String simpleCmd = mkListByOldestModifiedCommand(toUnixPathString(null));
         final ProcessResult result =
-                sshCommandExecutor.tryExecuteCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILLIS);
+                sshCommandExecutor.executeCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILLIS);
         if (result.isOK())
         {
             return asStoreItems(result.getOutput());

@@ -94,7 +94,7 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
     public final BooleanStatus exists(final String pathString, final long timeOutMillis)
     {
         final String cmd = mkCheckFileExistsCommand(pathString);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, timeOutMillis);
+        final ProcessResult result = executeCommandRemotely(cmd, timeOutMillis);
         if (result.isOK())
         {
             return BooleanStatus.createFromBoolean(isSuccessfulCheck(result));
@@ -108,7 +108,7 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
     public BooleanStatus checkDirectoryAccessible(final String pathString, final long timeOutMillis)
     {
         final String cmd = mkCheckDirectoryFullyAccessibleCommand(pathString);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, timeOutMillis);
+        final ProcessResult result = executeCommandRemotely(cmd, timeOutMillis);
         String dirDesc = "'" + getHost() + ":" + pathString + "'";
         if (result.isOK())
         {
@@ -135,12 +135,12 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
         }
     }
 
-    public ProcessResult tryExecuteCommandRemotely(final String localCmd, final long timeOutMillis)
+    public ProcessResult executeCommandRemotely(final String localCmd, final long timeOutMillis)
     {
-        return tryExecuteCommandRemotely(localCmd, timeOutMillis, true);
+        return executeCommandRemotely(localCmd, timeOutMillis, true);
     }
 
-    public ProcessResult tryExecuteCommandRemotely(final String localCmd, final long timeOutMillis,
+    public ProcessResult executeCommandRemotely(final String localCmd, final long timeOutMillis,
             final boolean logResult)
     {
         final List<String> cmdLine = sshCommandBuilder.createSshCommand(localCmd, getHost());

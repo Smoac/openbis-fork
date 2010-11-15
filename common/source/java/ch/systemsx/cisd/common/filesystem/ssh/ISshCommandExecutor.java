@@ -25,15 +25,15 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 public interface ISshCommandExecutor
 {
 
-    public abstract BooleanStatus exists(final String pathString, final long timeOutMillis);
+    public BooleanStatus exists(final String pathString, final long timeOutMillis);
 
-    public abstract BooleanStatus checkDirectoryAccessible(final String pathString,
+    public BooleanStatus checkDirectoryAccessible(final String pathString,
             final long timeOutMillis);
 
-    public abstract ProcessResult tryExecuteCommandRemotely(final String localCmd,
+    public ProcessResult executeCommandRemotely(final String localCmd,
             final long timeOutMillis);
 
-    public abstract ProcessResult tryExecuteCommandRemotely(final String localCmd,
+    public ProcessResult executeCommandRemotely(final String localCmd,
             final long timeOutMillis, final boolean logResult);
 
 }
