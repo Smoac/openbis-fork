@@ -163,7 +163,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         
         public BooleanStatus exists(File file)
         {
-            return executor.exists(file, DataSetCopier.SSH_TIMEOUT_MILLIS);
+            return executor.exists(file.getPath(), DataSetCopier.SSH_TIMEOUT_MILLIS);
         }
 
         public void deleteFolder(File folder)

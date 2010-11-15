@@ -160,8 +160,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Given key '" + DESTINATION_KEY + "' not found in properties '[]'", ex
-                    .getMessage());
+            assertEquals("Given key '" + DESTINATION_KEY + "' not found in properties '[]'",
+                    ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -177,8 +177,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Path to executable 'rsync' is not a file: "
-                    + rsyncExecutableDummy.getAbsolutePath(), ex.getMessage());
+            assertEquals(
+                    "Path to executable 'rsync' is not a file: "
+                            + rsyncExecutableDummy.getAbsolutePath(), ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -194,8 +195,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Path to executable 'ssh' is not a file: "
-                    + sshExecutableDummy.getAbsolutePath(), ex.getMessage());
+            assertEquals(
+                    "Path to executable 'ssh' is not a file: "
+                            + sshExecutableDummy.getAbsolutePath(), ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -316,7 +318,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                    one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", null, null);
@@ -341,23 +343,23 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                    one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", null, null);
                     will(returnValue(Status.createError("error message")));
 
-                    one(sshCommandExecutor).exists(new File("tmp/test/images"),
+                    one(sshCommandExecutor).exists("tmp/test/images",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds2Data, new File("tmp/test"), "host", null, null);
                     will(returnValue(Status.OK));
 
-                    one(sshCommandExecutor).exists(new File("tmp/test/existing"),
+                    one(sshCommandExecutor).exists("tmp/test/existing",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
 
-                    one(sshCommandExecutor).exists(new File("tmp/test/existing"),
+                    one(sshCommandExecutor).exists("tmp/test/existing",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
                 }
@@ -388,7 +390,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                    one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", "abc",
@@ -415,14 +417,14 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                    one(sshCommandExecutor).exists("tmp/test/data.txt",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", "abc",
                             "abc-password");
                     will(returnValue(Status.createError("error message")));
 
-                    one(sshCommandExecutor).exists(new File("tmp/test/images"),
+                    one(sshCommandExecutor).exists("tmp/test/images",
                             DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds2Data, new File("tmp/test"), "host", "abc",

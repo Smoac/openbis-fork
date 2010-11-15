@@ -42,8 +42,8 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
 {
     private static final long serialVersionUID = 1L;
 
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, Copier.class);
+    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            Copier.class);
 
     private final File rsyncExecutable;
 
@@ -57,7 +57,6 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
 
     private final ISshCommandExecutorFactory sshCommandExecutorFactory;
 
-
     public Copier(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
@@ -68,25 +67,28 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         sshExecutable = getExecutable(properties, DataSetCopier.SSH_EXEC);
         hostFile = PropertyUtils.getMandatoryProperty(properties, DataSetCopier.DESTINATION_KEY);
     }
-    
-    protected String transformHostFile(String originalHostFile, Map<String, String> parameterBindings)
+
+    protected String transformHostFile(String originalHostFile,
+            Map<String, String> parameterBindings)
     {
         return originalHostFile;
     }
 
-    public Status handle(File originalData, DataSetInformation dataSetInformation, Map<String, String> parameterBindings)
+    public Status handle(File originalData, DataSetInformation dataSetInformation,
+            Map<String, String> parameterBindings)
     {
         HostAwareFile hostAwareFile =
-                HostAwareFileWithHighwaterMark.create(transformHostFile(hostFile, parameterBindings), -1);
+                HostAwareFileWithHighwaterMark.create(
+                        transformHostFile(hostFile, parameterBindings), -1);
         String host = hostAwareFile.tryGetHost();
-        ISshCommandExecutor sshCommandExecutor = sshCommandExecutorFactory.create(sshExecutable, host);
+        ISshCommandExecutor sshCommandExecutor =
+                sshCommandExecutorFactory.create(sshExecutable, host);
         String rsyncModule = hostAwareFile.tryGetRsyncModule();
         IPathCopier copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
         copier.check();
         if (host != null)
         {
-            FileUtilities.checkPathCopier(copier, host, null, rsyncModule,
-                    rsyncPasswordFile);
+            FileUtilities.checkPathCopier(copier, host, null, rsyncModule, rsyncPasswordFile);
         }
         File destination = hostAwareFile.getFile();
         File destinationFile = new File(destination, originalData.getName());
@@ -106,27 +108,27 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
             return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
         }
         Status status =
-                copier.copyToRemote(originalData, destination, host, rsyncModule,
-                        rsyncPasswordFile);
+                copier.copyToRemote(originalData, destination, host, rsyncModule, rsyncPasswordFile);
         if (status.isError())
         {
             operationLog.error("Could not copy data set " + dataSetInformation.getDataSetCode()
                     + " to destination folder '" + destination + "'"
                     + (host != null ? " on host '" + host + "'" : "")
-                    + (rsyncModule != null ? " for rsync module '" + rsyncModule + "'" : "")
-                    + ": " + status.tryGetErrorMessage());
+                    + (rsyncModule != null ? " for rsync module '" + rsyncModule + "'" : "") + ": "
+                    + status.tryGetErrorMessage());
             return Status.createError(DataSetCopier.COPYING_FAILED_MSG);
         }
         return status;
     }
 
-    private BooleanStatus checkDestinationFileExistence(File destinationFile,
-            String hostOrNull, ISshCommandExecutor sshCommandExecutor)
+    private BooleanStatus checkDestinationFileExistence(File destinationFile, String hostOrNull,
+            ISshCommandExecutor sshCommandExecutor)
     {
         if (hostOrNull != null)
         {
             // check remotely using ssh
-            return sshCommandExecutor.exists(destinationFile, DataSetCopier.SSH_TIMEOUT_MILLIS);
+            return sshCommandExecutor.exists(destinationFile.getPath(),
+                    DataSetCopier.SSH_TIMEOUT_MILLIS);
         } else
         {
             // check locally

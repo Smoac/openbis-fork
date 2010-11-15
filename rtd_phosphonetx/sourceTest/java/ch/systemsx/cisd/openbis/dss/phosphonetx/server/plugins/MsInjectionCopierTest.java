@@ -192,7 +192,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
                     one(sshExecutorFactory).create(sshExec, "localhost");
                     will(returnValue(sshExecutor));
                     
-                    File copiedDataSet = new File(destination, FOLDER_NAME);
+                    final String copiedDataSet = new File(destination, FOLDER_NAME).getPath();
                     one(sshExecutor).exists(copiedDataSet, SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
 
