@@ -79,7 +79,7 @@ public final class MethodUtilsTest extends AssertJUnit
     {
         final Method method = Object.class.getMethods()[0];
         final String methodDescription = MethodUtils.describeMethod(method);
-        assertEquals("Object.hashCode", methodDescription);
+        assertEquals("Object." + Object.class.getMethods()[0].getName(), methodDescription);
     }
 
     //
