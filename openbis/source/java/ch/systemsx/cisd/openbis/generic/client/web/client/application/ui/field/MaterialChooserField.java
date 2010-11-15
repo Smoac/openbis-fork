@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.widget.form.Field;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -37,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
  */
 public class MaterialChooserField extends ChosenEntitySetter<Material>
 {
-    public static Field<?> create(final String labelField, final boolean mandatory,
+    public static MaterialChooserField create(final String labelField, final boolean mandatory,
             final MaterialType materialTypeOrNull, String initialValueOrNull,
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -70,8 +69,8 @@ public class MaterialChooserField extends ChosenEntitySetter<Material>
     // ------------------
 
     // the pattern used to validate material identifier expression
-    private final static String CODE_AND_TYPE_PATTERN =
-            CodeField.CODE_CHARS + " " + "\\(" + CodeField.CODE_CHARS + "\\)";
+    private final static String CODE_AND_TYPE_PATTERN = CodeField.CODE_CHARS + " " + "\\("
+            + CodeField.CODE_CHARS + "\\)";
 
     @Override
     public String renderEntity(Material materialOrNull)

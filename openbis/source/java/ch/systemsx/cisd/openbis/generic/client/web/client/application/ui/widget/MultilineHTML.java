@@ -44,6 +44,12 @@ public final class MultilineHTML extends HTML
         super(preserveWhitespace(html));
     }
 
+    @Override
+    public void setHTML(String html)
+    {
+        super.setHTML(preserveWhitespace(html));
+    }
+
     private static final String BR = DOM.toString(DOM.createElement("br"));
 
     private static String preserveWhitespace(String html)

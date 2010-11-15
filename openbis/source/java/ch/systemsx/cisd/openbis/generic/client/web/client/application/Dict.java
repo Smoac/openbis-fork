@@ -1010,5 +1010,21 @@ public abstract class Dict
 
     public static final String MATERIAL_PROPERTIES_HEADING = "material_properties_heading";
 
+    public static final String BUTTON_EVALUATE = "button_evaluate";
+
+    public static final String EVALUATION_RESULT = "evaluation_result";
+
+    public static final String SCRIPT_TESTER = "script_tester";
+
+    public static final String ENTITY_DETAILS = "entity_details";
+
+    public static final String SHOW_DETAILS = "show_details";
+
+    public static final String EVALUATION_IN_PROGRESS = "evaluation_in_progress";
+
+    public static final String WARNING_NO_SCRIPT_TITLE = "warning_no_script_title";
+
+    public static final String WARNING_NO_SCRIPT_MESSAGE = "warning_no_script_message";
+
     // ----- end generic ------------------
 }

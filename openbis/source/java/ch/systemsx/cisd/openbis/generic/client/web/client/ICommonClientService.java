@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -929,4 +930,9 @@ public interface ICommonClientService extends IClientService
      * Returns script with given {@link TechId}.
      */
     public Script getScriptInfo(TechId scriptId) throws UserFailureException;
+
+    /**
+     * Returns script evaluation result.
+     */
+    public String evaluate(DynamicPropertyEvaluationInfo info) throws UserFailureException;
 }

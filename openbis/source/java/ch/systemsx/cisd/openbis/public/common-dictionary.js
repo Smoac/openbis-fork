@@ -92,6 +92,7 @@ var common = {
   button_upload_data_via_cifex: "Upload Data",
   button_process: "Process",
   button_top: "Files",
+  button_evaluate: "Evaluate",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
@@ -694,6 +695,13 @@ title_choose_script: "Choose a Script",
 script_browser: "Scripts",
 ADMINISTRATION_MENU_SCRIPTS: "Scripts",
 script_registration: "Script Registration",
+evaluation_result: "Evaluation Result",
+script_tester: "Script Tester",
+entity_details: "Details",
+show_details: "Show",
+evaluation_in_progress: "Evaluation in progress...",
+warning_no_script_title: "Empty script",
+warning_no_script_message: "No script provided",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

@@ -70,6 +70,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.DynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
@@ -89,6 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -152,6 +156,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -168,7 +173,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
@@ -2044,4 +2051,50 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return ScriptTranslator.translate(script);
     }
 
+    public String evaluate(String sessionToken, DynamicPropertyEvaluationInfo info)
+    {
+        Session session = getSession(sessionToken);
+        DynamicPropertyCalculator calculator = DynamicPropertyCalculator.create(info.getScript());
+        calculator.setEntity(EntityAdaptorFactory.create(getEntity(info, session),
+                new DynamicPropertyEvaluator()));
+        return calculator.evalAsString();
+    }
+
+    public IEntityInformationWithPropertiesHolder getEntity(DynamicPropertyEvaluationInfo info,
+            Session session)
+    {
+        IEntityInformationWithPropertiesHolder entity = null;
+        switch (info.getEntityKind())
+        {
+            case DATA_SET:
+                IExternalDataBO bo = businessObjectFactory.createExternalDataBO(session);
+                bo.loadByCode(info.getEntityIdentifier());
+                entity = bo.getExternalData();
+                break;
+            case EXPERIMENT:
+                IExperimentBO expBO = businessObjectFactory.createExperimentBO(session);
+                ExperimentIdentifier expIdentifier =
+                        new ExperimentIdentifierFactory(info.getEntityIdentifier())
+                                .createIdentifier();
+                entity = expBO.tryFindByExperimentIdentifier(expIdentifier);
+                break;
+            case SAMPLE:
+                ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+                sampleBO.tryToLoadBySampleIdentifier(SampleIdentifierFactory.parse(info
+                        .getEntityIdentifier()));
+                entity = sampleBO.getSample();
+                break;
+            case MATERIAL:
+                entity =
+                        getDAOFactory().getMaterialDAO().tryFindMaterial(
+                                MaterialIdentifier.tryParseIdentifier(info.getEntityIdentifier()));
+                break;
+        }
+        if (entity == null)
+        {
+            throw new UserFailureException(String.format("%s '%s' not found", info.getEntityKind()
+                    .getDescription(), info.getEntityIdentifier()));
+        }
+        return entity;
+    }
 }

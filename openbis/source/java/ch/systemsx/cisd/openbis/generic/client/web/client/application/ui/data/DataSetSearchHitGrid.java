@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowResultSetCutInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
@@ -66,7 +67,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         return grid.asDisposableWithToolbar(toolbar);
     }
 
-    public static IDisposableComponent createWithInitialSearchCriteria(
+    public static DisposableEntityChooser<ExternalData> createWithInitialSearchCriteria(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             DetailedSearchCriteria searchCriteria)
     {

@@ -27,12 +27,13 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.InfoBoxCal
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ClickableFormPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 
 /**
@@ -55,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
  */
 public abstract class AbstractRegistrationForm extends ContentPanel
 {
-    private static final int PANEL_MARGIN = 100;
+    public static final int PANEL_MARGIN = 100;
 
     private static final String SESSION_KEY_PREFIX = "sessionKey_";
 
@@ -89,6 +91,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     private Html loadingInfo;
 
+    protected LayoutContainer rightPanel;
+
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
         this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
@@ -107,7 +111,17 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         setId(id);
         add(infoBox = createInfoBox());
         add(loadingInfo = createLoadingInfo());
-        add(formPanel = createFormPanel(messageProvider));
+        add(WidgetUtils.inRow(formPanel = createFormPanel(messageProvider), rightPanel =
+                createAdditionalPanel()));
+    }
+
+    private LayoutContainer createAdditionalPanel()
+    {
+        LayoutContainer c = new LayoutContainer();
+        c.setLayout(new FlowLayout(5));
+        c.setBorders(false);
+        c.setScrollMode(Scroll.AUTO);
+        return c;
     }
 
     private Html createLoadingInfo()
@@ -326,8 +340,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     public static String getEditTitle(final IMessageProvider messageProvider,
             final String entityKindDictKey, final IIdAndCodeHolder identifiable)
     {
-        return messageProvider.getMessage(Dict.EDIT_TITLE, messageProvider
-                .getMessage(entityKindDictKey), identifiable.getCode());
+        return messageProvider.getMessage(Dict.EDIT_TITLE,
+                messageProvider.getMessage(entityKindDictKey), identifiable.getCode());
     }
 
 }

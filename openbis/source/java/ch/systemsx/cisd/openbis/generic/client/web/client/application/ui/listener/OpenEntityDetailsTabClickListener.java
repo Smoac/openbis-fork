@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
  * 
  * @author Piotr Buczek
  */
-public final class OpenEntityDetailsTabClickListener implements ClickHandler
+public class OpenEntityDetailsTabClickListener implements ClickHandler
 {
     private final IEntityInformationHolderWithPermId entity;
 
@@ -42,9 +42,14 @@ public final class OpenEntityDetailsTabClickListener implements ClickHandler
         this.viewContext = viewContext;
     }
 
+    protected IEntityInformationHolderWithPermId getEntity()
+    {
+        return entity;
+    }
+
     public void onClick(ClickEvent event)
     {
-        new OpenEntityDetailsTabAction(entity, viewContext, WidgetUtils.ifSpecialKeyPressed(event
-                .getNativeEvent())).execute();
+        new OpenEntityDetailsTabAction(getEntity(), viewContext,
+                WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent())).execute();
     }
 }

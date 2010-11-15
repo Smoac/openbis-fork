@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -44,19 +43,20 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
     @Override
     protected void saveScript()
     {
+        Script newScript = getScript();
+        viewContext.getService().registerScript(newScript,
+                new ScriptRegistrationCallback(viewContext, newScript));
+    }
+
+    @Override
+    public Script getScript()
+    {
         Script newScript = new Script();
         newScript.setDescription(descriptionField.getValue());
         newScript.setName(nameField.getValue());
         newScript.setScript(scriptField.getValue());
-        EntityKind kind = null;
-        String selectedEntityKind = entityKindField.getValue().getValue();
-        if (selectedEntityKind.equals(GenericConstants.ALL_ENTITY_KINDS) == false)
-        {
-            kind = EntityKind.valueOf(selectedEntityKind);
-        }
-        newScript.setEntityKind(kind);
-        viewContext.getService().registerScript(newScript,
-                new ScriptRegistrationCallback(viewContext, newScript));
+        newScript.setEntityKind(entityKindField.tryGetEntityKind());
+        return newScript;
     }
 
     private final class ScriptRegistrationCallback extends

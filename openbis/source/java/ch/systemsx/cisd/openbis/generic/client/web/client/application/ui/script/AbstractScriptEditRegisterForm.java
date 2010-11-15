@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 
@@ -33,9 +35,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 /**
  * {@link AbstractRegistrationForm} for registering and editing scripts.
@@ -53,11 +55,15 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 
     protected final MultilineVarcharField scriptField;
 
-    protected SimpleComboBox<String> entityKindField;
+    protected EntityKindSelectionWidget entityKindField;
+
+    private ScriptExecutionFramework scriptExecution;
 
     abstract protected void saveScript();
 
     abstract protected void setValues();
+
+    abstract protected Script getScript();
 
     protected AbstractScriptEditRegisterForm(
             final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKindOrNull)
@@ -72,34 +78,31 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         super(viewContext, createId(scriptIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
-        this.entityKindField = createEntityKindOrAllField(entityKindOrNull, scriptIdOrNull == null);
+        this.entityKindField =
+                new EntityKindSelectionWidget(viewContext, entityKindOrNull,
+                        scriptIdOrNull == null, true);
         this.descriptionField = AbstractRegistrationDialog.createDescriptionField(viewContext);
         this.scriptField = createScriptField(viewContext);
+        this.scriptExecution = new ScriptExecutionFramework(viewContext, asValidable(formPanel));
+        scriptField.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    scriptExecution.update(scriptField.getValue());
+                }
+            });
     }
 
-    private SimpleComboBox<String> createEntityKindOrAllField(EntityKind entityKindOrNull,
-            boolean enabled)
+    private IValidable asValidable(final FormPanel panel)
     {
-        SimpleComboBox<String> options = new SimpleComboBox<String>();
-        options.add(GenericConstants.ALL_ENTITY_KINDS);
-        if (entityKindOrNull != null)
-        {
-            options.add(entityKindOrNull.name());
-        } else
-        {
-            for (EntityKind val : EntityKind.values())
+        return new IValidable()
             {
-                options.add(val.name());
-            }
-        }
-        options.setFieldLabel(viewContext.getMessage(Dict.ENTITY_KIND));
-        options.setTriggerAction(TriggerAction.ALL);
-        options.setForceSelection(true);
-        options.setEditable(false);
-        options.setAllowBlank(false);
-        FieldUtil.markAsMandatory(options);
-        options.setEnabled(enabled);
-        return options;
+
+                public boolean isValid()
+                {
+                    return panel.isValid();
+                }
+            };
     }
 
     private static MultilineVarcharField createScriptField(
@@ -107,6 +110,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
     {
         final MultilineVarcharField field = new ScriptField(viewContext);
         field.treatTabKeyAsInput();
+        field.setFireChangeEventOnSetValue(true);
         return field;
     }
 
@@ -129,6 +133,7 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         formPanel.add(entityKindField);
         formPanel.add(descriptionField);
         formPanel.add(scriptField);
+        rightPanel.add(scriptExecution.getWidget());
         redefineSaveListeners();
     }
 

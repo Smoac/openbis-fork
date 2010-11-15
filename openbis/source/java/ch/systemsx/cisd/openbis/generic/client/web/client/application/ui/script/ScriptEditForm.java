@@ -47,18 +47,25 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
     @Override
     protected void saveScript()
     {
+        Script script = getScript();
+        viewContext.getService().updateScript(script, new ScriptEditCallback(viewContext));
+    }
+
+    @Override
+    public Script getScript()
+    {
         Script script = new Script();
         script.setId(scriptId.getId());
         script.setDescription(descriptionField.getValue());
         script.setScript(scriptField.getValue());
         script.setName(nameField.getValue());
-        viewContext.getService().updateScript(script, new ScriptEditCallback(viewContext));
+        return script;
     }
 
     @Override
     protected void setValues()
     {
-        descriptionField.setValue(originalScript.getDescription());// FIXME: unescape?
+        descriptionField.setValue(originalScript.getDescription());
         scriptField.setValue(originalScript.getScript());
         nameField.setValue(originalScript.getName());
         String entityKind =
@@ -97,7 +104,6 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
         @Override
         protected void process(final Void result)
         {
-            // originalScript.setModificationDate(result);
             updateOriginalValues();
             super.process(result);
         }

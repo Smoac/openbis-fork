@@ -16,13 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Utility methods for widgets.
@@ -96,6 +103,24 @@ public class WidgetUtils
             e.preventDefault();
         }
         return result;
+    }
+
+    public static LayoutContainer inRow(Widget... containers)
+    {
+        return asTable(containers.length, containers);
+    }
+
+    public static LayoutContainer asTable(int columns, Widget... containers)
+    {
+        LayoutContainer container = new LayoutContainer();
+        container.setLayout(new TableLayout(columns));
+        container.setBorders(false);
+        container.setScrollMode(Scroll.AUTO);
+        for (Widget w : containers)
+        {
+            container.add(w, new TableData(HorizontalAlignment.LEFT, VerticalAlignment.TOP));
+        }
+        return container;
     }
 
 }

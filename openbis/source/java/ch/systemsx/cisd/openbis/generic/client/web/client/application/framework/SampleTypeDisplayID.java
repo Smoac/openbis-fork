@@ -35,6 +35,8 @@ public enum SampleTypeDisplayID
 
     DATA_SET_EDIT_SAMPLE_CHOOSER("data_set_edit_sample_chooser", false),
 
+    SCRIPT_EDITOR_SAMPLE_CHOOSER("script_editor_sample_chooser", false),
+
     EXPERIMENT_REGISTRATION("experiment_registration", false),
 
     PROPERTY_ASSIGNMENT("property_assignment", false),
