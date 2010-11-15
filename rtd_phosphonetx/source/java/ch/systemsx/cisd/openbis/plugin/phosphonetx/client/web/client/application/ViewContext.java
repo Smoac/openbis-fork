@@ -38,8 +38,7 @@ public class ViewContext extends AbstractPluginViewContext<IPhosphoNetXClientSer
         super(commonViewContext);
     }
 
-    @Override
-    protected String getTechnology()
+    public String getTechnology()
     {
         return TECHNOLOGY_NAME;
     }
