@@ -467,11 +467,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                         {
                             exactly(numberOfExpectedCreations).of(copier)
                                     .checkRsyncConnectionViaRsyncServer(hostOrNull,
-                                            rsyncModuleOrNull, rsyncModuleOrNull + "-password");
+                                            rsyncModuleOrNull, rsyncModuleOrNull + "-password",
+                                            DataSetCopier.SSH_TIMEOUT_MILLIS);
                         } else
                         {
                             exactly(numberOfExpectedCreations).of(copier)
-                                    .checkRsyncConnectionViaSsh(hostOrNull, null);
+                                    .checkRsyncConnectionViaSsh(hostOrNull, null,
+                                            DataSetCopier.SSH_TIMEOUT_MILLIS);
                         }
                         will(returnValue(checkingResult));
                     }

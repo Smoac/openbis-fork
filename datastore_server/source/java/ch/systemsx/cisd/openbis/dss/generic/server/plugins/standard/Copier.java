@@ -88,7 +88,8 @@ public class Copier implements Serializable, IPostRegistrationDatasetHandler
         copier.check();
         if (host != null)
         {
-            FileUtilities.checkPathCopier(copier, host, null, rsyncModule, rsyncPasswordFile);
+            FileUtilities.checkPathCopier(copier, host, null, rsyncModule, rsyncPasswordFile,
+                    DataSetCopier.SSH_TIMEOUT_MILLIS);
         }
         File destination = hostAwareFile.getFile();
         File destinationFile = new File(destination, originalData.getName());

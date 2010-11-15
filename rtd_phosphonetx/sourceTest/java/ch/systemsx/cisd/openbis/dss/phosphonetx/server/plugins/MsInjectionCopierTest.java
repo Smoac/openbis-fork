@@ -44,32 +44,44 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=MsInjectionCopier.class)
+@Friend(toClasses = MsInjectionCopier.class)
 public class MsInjectionCopierTest extends AbstractFileSystemTestCase
 {
-    private static final ProcessResult OK_RESULT =
-            new ProcessResult(Arrays.asList(""), 0, null, null, 0, null, null, null);
+    private static final ProcessResult OK_RESULT = new ProcessResult(Arrays.asList(""), 0, null,
+            null, 0, null, null, null);
+
     private static final String SAMPLE_CODE = "my-sample";
+
     private static final DataSetType DATA_SET_TYPE = new DataSetType("MY");
+
     private static final String DATA_SET_CODE = "my-dataset-123";
+
     private static final String FOLDER_NAME = DATA_SET_CODE;
+
     private static final String DATA = "hello test";
-    
+
     private Mockery context;
+
     private File dataSet;
+
     private IPathCopierFactory copierFactory;
+
     private IPathCopier copier;
+
     private ISshCommandExecutorFactory sshExecutorFactory;
+
     private ISshCommandExecutor sshExecutor;
+
     private File destination;
+
     private File dataFile;
+
     private File rsyncExec;
+
     private File sshExec;
-    
+
     @BeforeMethod
     public void beforeMethod() throws Exception
     {
@@ -89,7 +101,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         sshExec = new File(workingDirectory, "my-rssh");
         sshExec.createNewFile();
     }
-    
+
     @AfterMethod
     public void afterMethod()
     {
@@ -97,7 +109,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLocalWithKnownSample()
     {
@@ -106,45 +118,45 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         MsInjectionCopier msInjectionCopier =
                 new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
         prepareForCheckingLastModifiedDate();
-        
+
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(DATA_SET_CODE, SAMPLE_CODE);
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
-        
+
         assertEquals(Status.OK, status);
         File copiedDataSet = new File(destination, FOLDER_NAME);
         assertEquals(true, copiedDataSet.isDirectory());
         assertEquals(dataSet.lastModified(), copiedDataSet.lastModified());
-        assertEquals(DATA, FileUtilities.loadToString(new File(copiedDataSet, dataFile.getName())).trim());
-        
+        assertEquals(DATA, FileUtilities.loadToString(new File(copiedDataSet, dataFile.getName()))
+                .trim());
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLocalWithUnknownSample()
     {
         Properties properties = new Properties();
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
         MsInjectionCopier msInjectionCopier =
-            new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
-        
+                new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
+
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
-        
+
         assertEquals(Status.OK, status);
-        File copiedDataSet =
-                new File(destination, DATA_SET_CODE);
+        File copiedDataSet = new File(destination, DATA_SET_CODE);
         assertEquals(true, copiedDataSet.isDirectory());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLocalWithAlreadyExistingDestination()
     {
@@ -156,22 +168,23 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         copiedDataSet.mkdirs();
         File dummy = new File(copiedDataSet, "dummy");
         FileUtilities.writeToFile(dummy, "hello");
-        
+
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(DATA_SET_CODE, SAMPLE_CODE);
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
-        
+
         assertEquals(Status.OK, status);
         assertEquals(true, copiedDataSet.isDirectory());
-        assertEquals(DATA, FileUtilities.loadToString(new File(copiedDataSet, dataFile.getName())).trim());
+        assertEquals(DATA, FileUtilities.loadToString(new File(copiedDataSet, dataFile.getName()))
+                .trim());
         assertEquals(false, dummy.exists());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testRemote()
     {
@@ -184,14 +197,15 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
                 {
                     one(copierFactory).create(rsyncExec, sshExec);
                     will(returnValue(copier));
-                    
+
                     one(copier).check();
-                    one(copier).checkRsyncConnectionViaSsh("localhost", null);
+                    one(copier).checkRsyncConnectionViaSsh("localhost", null,
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
                     will(returnValue(true));
-                    
+
                     one(sshExecutorFactory).create(sshExec, "localhost");
                     will(returnValue(sshExecutor));
-                    
+
                     final String copiedDataSet = new File(destination, FOLDER_NAME).getPath();
                     one(sshExecutor).exists(copiedDataSet, SSH_TIMEOUT_MILLIS);
                     will(returnValue(BooleanStatus.createTrue()));
@@ -218,11 +232,11 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(DATA_SET_CODE, SAMPLE_CODE);
         Status status = msInjectionCopier.handle(dataSet, dataSetInformation, parameterBindings);
-        
+
         assertEquals(Status.OK, status);
         context.assertIsSatisfied();
     }
-    
+
     private void prepareForCheckingLastModifiedDate()
     {
         // Sleep long enough to test last modified date of target will be same as of source.
@@ -235,4 +249,3 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         }
     }
 }
-
