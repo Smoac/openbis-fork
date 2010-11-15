@@ -24,18 +24,23 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <time.h>
+#include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/dir.h>
 
 #define MAXNAMELEN 256
 #define BASE 10
-#define TIME_T_FORMAT (sizeof(time_t) == 4 ? "%d\n" : "%lld\n")
 
 
 void print_time_and_exit(time_t time)
 {
-   printf(TIME_T_FORMAT, (int) time);
+   if (sizeof(time_t) == 4) /* 32 bit */
+   {
+      printf("%d\n", (int) time);
+   } else                   /* 64 bit */
+   {
+      printf("%lld\n", (long long int) time);
+   }
    exit(0);
 }
 
