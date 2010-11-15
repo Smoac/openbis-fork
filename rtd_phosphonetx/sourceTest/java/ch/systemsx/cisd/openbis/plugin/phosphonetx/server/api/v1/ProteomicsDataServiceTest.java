@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.api.v1;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -261,14 +261,14 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testCopyRawDataForUnknownUser()
+    public void testProcessDataSetsForUnknownUser()
     {
         prepareGetSession();
         prepareLoginLogout(null);
 
         try
         {
-            service.processingRawData(SESSION_TOKEN, "abc", null, new long[0], null);
+            service.processDataSets(SESSION_TOKEN, "abc", null, Arrays.asList("ds1"));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -279,19 +279,18 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testCopyRawData()
+    public void testProcessDataSets()
     {
         prepareGetSession();
         prepareLoginLogout(session2);
-        final long[] ids = new long[] {42};
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).processRawData(session2.getSessionToken(), "dsp1", ids, "my-type");
+                    one(internalService).processDataSets(session2.getSessionToken(), "dsp1", Arrays.asList("ds1"));
                 }
             });
 
-        service.processingRawData(SESSION_TOKEN, "abc", "dsp1", ids, "my-type");
+        service.processDataSets(SESSION_TOKEN, "abc", "dsp1", Arrays.asList("ds1"));
 
         context.assertIsSatisfied();
     }

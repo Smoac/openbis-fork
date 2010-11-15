@@ -212,6 +212,20 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         }
     }
 
+    public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
+            List<String> dataSetCodes)
+    {
+        checkSession(sessionToken);
+        SessionContextDTO session = login(userID);
+        try
+        {
+            service.processDataSets(session.getSessionToken(), dataSetProcessingKey, dataSetCodes);
+        } finally
+        {
+            service.logout(session.getSessionToken());
+        }
+    }
+
     public List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> listSearchExperiments(
             String sessionToken, String userID)
     {

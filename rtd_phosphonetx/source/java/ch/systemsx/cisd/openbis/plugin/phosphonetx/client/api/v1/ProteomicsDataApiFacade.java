@@ -71,6 +71,12 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
                 dataSetType);
     }
 
+    public void processDataSets(String userID, String dataSetProcessingKey,
+            List<String> dataSetCodes)
+    {
+        service.processDataSets(sessionToken, userID, dataSetProcessingKey, dataSetCodes);
+    }
+
     public List<Project> listProjects(String userID)
     {
         Map<String, Set<Role>> namedRoleSets = generalInfoService.listNamedRoleSets(sessionToken);

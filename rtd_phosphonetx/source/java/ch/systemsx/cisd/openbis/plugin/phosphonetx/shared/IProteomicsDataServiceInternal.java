@@ -21,8 +21,10 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExperimentValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -45,10 +47,18 @@ public interface IProteomicsDataServiceInternal extends IServer
     @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
     public List<MsInjectionSample> listRawDataSamples(String sessionToken);
     
+    @Deprecated
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void processRawData(String sessionToken, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
+    
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void processDataSets(
+            String sessionToken,
+            String dataSetProcessingKey,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> dataSetCodes);
     
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)

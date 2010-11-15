@@ -122,23 +122,23 @@ public class ProteomicsDataApiFacadeTest extends AssertJUnit
         assertSame(result, facade.listRawDataSamples("user1"));
         context.assertIsSatisfied();
     }
-    
+
     @Test
-    public void testProcessingRawData()
+    public void testProcessDataSets()
     {
         context.checking(new Expectations()
             {
                 {
-                    one(proteomicsDataService).processingRawData(SESSION_TOKEN, "user1", "key",
-                            new long[42], "type");
+                    one(proteomicsDataService).processDataSets(SESSION_TOKEN, "user1", "key",
+                            Arrays.asList("ds1", "ds2"));
                 }
             });
 
-        facade.processingRawData("user1", "key", new long[42], "type");
-        
+        facade.processDataSets("user1", "key", Arrays.asList("ds1", "ds2"));
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListProjectsButNoUserRoles()
     {

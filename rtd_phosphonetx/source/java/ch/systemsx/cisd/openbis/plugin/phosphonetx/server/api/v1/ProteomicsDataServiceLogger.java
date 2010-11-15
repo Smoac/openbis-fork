@@ -65,6 +65,14 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
                 userID, dataSetProcessingKey, numberOfDataSets, dataSetType);
     }
 
+    public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
+            List<String> dataSetCodes)
+    {
+        logAccess(sessionToken, "process_data_sets",
+                "USER_ID(%s) DSS_PROCESSING_PLUGIN(%s) DATA_SETS(%s)", userID,
+                dataSetProcessingKey, dataSetCodes);
+    }
+
     public List<Experiment> listSearchExperiments(String sessionToken, String userID)
     {
         logAccess(sessionToken, "list_search_experiments");

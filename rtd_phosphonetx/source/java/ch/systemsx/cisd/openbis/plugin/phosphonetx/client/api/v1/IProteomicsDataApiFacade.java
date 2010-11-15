@@ -28,10 +28,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjection
  * 
  * @author Franz-Josef Elmer
  */
-
-// This interfaces replaces the IRawDataApiFacade.
-@SuppressWarnings("deprecation")
-public interface IProteomicsDataApiFacade extends IRawDataApiFacade
+public interface IProteomicsDataApiFacade
 {
     /**
      * Return the session token for the logged-in user.
@@ -53,8 +50,11 @@ public interface IProteomicsDataApiFacade extends IRawDataApiFacade
      * Processes the data sets of specified samples by the DSS processing plug-in of specified key
      * for the specified user. Only the most recent data sets of specified type are processed.
      */
+    @Deprecated
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
+    
+    public void processDataSets(String userID, String dataSetProcessingKey, List<String> dataSetCodes);
 
     /**
      * Returns all projects where the specified user has USER access rights.
@@ -74,6 +74,7 @@ public interface IProteomicsDataApiFacade extends IRawDataApiFacade
      */
     public void processSearchData(String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs);
+    
 
     /**
      * Logs current user out.

@@ -279,9 +279,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
 
     /**
      * Copies specified data file/folder to destination specified in constructor. The name of the
-     * file/folder at the destination is defined as
-     * <code>&lt;sample code&gt;_&lt;data set type code&gt;</code> where sample code is provided by
-     * the parameter bindings (key: data set code).
+     * file/folder at the destination is defined by the data set code.
      */
     public Status handle(File originalData, DataSetInformation dataSetInformation,
             Map<String, String> parameterBindings)
@@ -292,7 +290,7 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         }
         try
         {
-            String target = createTargetFolderName(dataSetInformation, parameterBindings);
+            String target = dataSetInformation.getDataSetCode();
             File targetFolder = new File(destination, target);
             deleteTargetFolder(targetFolder);
             executor.copyDataSet(originalData, destination);
@@ -305,16 +303,6 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         }
     }
 
-    private String createTargetFolderName(DataSetInformation dataSetInformation,
-            Map<String, String> parameterBindings)
-    {
-        String dataSetTypeCode = dataSetInformation.getDataSetType().getCode();
-        String dataSetCode = dataSetInformation.getDataSetCode();
-        String sampleCode = parameterBindings.get(dataSetCode);
-        return (sampleCode == null ? SAMPLE_UNKNOWN : sampleCode) + "_" + dataSetCode + "_"
-                + dataSetTypeCode;
-    }
-    
     private void deleteTargetFolder(File targetFolder)
     {
         BooleanStatus targetExists = executor.exists(targetFolder);

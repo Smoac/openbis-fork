@@ -55,6 +55,14 @@ class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implement
                 numberOfDataSets, dataSetType);
     }
 
+    public void processDataSets(String sessionToken, String dataSetProcessingKey,
+            List<String> dataSetCodes)
+    {
+        logAccess(sessionToken, "process_data_sets",
+                "DSS_PROCESSING_PLUGIN(%s) NUMBER_OF_DATA_SETS(%s)", dataSetProcessingKey,
+                dataSetCodes.size());
+    }
+
     public List<Experiment> listSearchExperiments(String sessionToken)
     {
         logAccess(sessionToken, "list_search_experiments");

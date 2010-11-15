@@ -56,7 +56,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
     private static final String SAMPLE_CODE = "my-sample";
     private static final DataSetType DATA_SET_TYPE = new DataSetType("MY");
     private static final String DATA_SET_CODE = "my-dataset-123";
-    private static final String FOLDER_NAME = SAMPLE_CODE + "_" + DATA_SET_CODE + "_" + DATA_SET_TYPE.getCode();
+    private static final String FOLDER_NAME = DATA_SET_CODE;
     private static final String DATA = "hello test";
     
     private Mockery context;
@@ -139,8 +139,7 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
         
         assertEquals(Status.OK, status);
         File copiedDataSet =
-                new File(destination, MsInjectionCopier.SAMPLE_UNKNOWN + "_" + DATA_SET_CODE + "_"
-                        + DATA_SET_TYPE.getCode());
+                new File(destination, DATA_SET_CODE);
         assertEquals(true, copiedDataSet.isDirectory());
         
         context.assertIsSatisfied();

@@ -126,17 +126,13 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testCopyRawData()
+    public void testProcessDataSets()
     {
         prepareGetSession();
-        prepareListRawDataSamples(1L, 2L, 3L, 42L);
-        final long[] ids = new long[]
-            { 2 };
         HashMap<String, String> parameterBindings = new HashMap<String, String>();
-        parameterBindings.put("ds-21-child", "s-2");
-        prepareProcessDataSets(SESSION, parameterBindings, "ds-21-child");
+        prepareProcessDataSets(SESSION, parameterBindings, "ds1", "ds2");
 
-        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids, "dt-0");
+        service.processDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, Arrays.asList("ds1", "ds2"));
 
         context.assertIsSatisfied();
     }

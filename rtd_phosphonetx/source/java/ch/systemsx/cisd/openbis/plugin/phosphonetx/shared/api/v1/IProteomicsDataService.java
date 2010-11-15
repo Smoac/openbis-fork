@@ -80,10 +80,21 @@ public interface IProteomicsDataService extends IRpcService
      * for the specified user. Implementations should check that the specified user is allowed to
      * read specified samples.
      */
+    @Deprecated
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
+    
+    /**
+     * Processes the specified data sets by the DSS processing plug-in of specified key for the
+     * specified user. Implementations should check that the specified user is allowed to read
+     * specified data sets.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public void processDataSets(String sessionToken, String userID, String dataSetProcessingKey,
+            List<String> dataSetCodes);
 
     /**
      * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to

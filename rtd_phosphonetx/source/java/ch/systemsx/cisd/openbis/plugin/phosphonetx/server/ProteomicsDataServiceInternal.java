@@ -146,6 +146,13 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         processDataSets(session, dataSetProcessingKey, dataSetCodes, parameterBindings);
     }
 
+    public void processDataSets(String sessionToken, String dataSetProcessingKey,
+            List<String> dataSetCodes)
+    {
+        Session session = getSession(sessionToken);
+        processDataSets(session, dataSetProcessingKey, dataSetCodes, new HashMap<String, String>());
+    }
+
     public List<Experiment> listSearchExperiments(String sessionToken)
     {
         checkSession(sessionToken);
