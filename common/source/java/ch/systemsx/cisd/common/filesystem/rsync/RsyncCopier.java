@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
@@ -270,7 +271,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                         createTargetDirectory(sourceDirectory, destinationDirectory,
                                 targetNameOrNull));
         final ProcessResult processResult =
-                runCommand(commandLine, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY);
+                runCommand(commandLine, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY,
+                        ConcurrencyUtilities.NO_TIMEOUT);
         return processResult.isOK();
     }
 
@@ -373,7 +375,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     public boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
-            String rsyncPasswordFileOrNull)
+            String rsyncPasswordFileOrNull, long millisToWaitForCompletion)
     {
         final List<String> commandLineList = new ArrayList<String>();
         commandLineList.add(rsyncExecutable);
@@ -384,7 +386,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         commandLineList.add(buildUnixPathForServer(host, new File("/"), rsyncModule, false));
         final ProcessResult processResult =
-                runCommand(commandLineList, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY);
+                runCommand(commandLineList, ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY,
+                        millisToWaitForCompletion);
         processResult.log();
         return processResult.isOK();
     }
@@ -399,7 +402,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return wrappedCmd;
     }
 
-    public boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull)
+    public boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull,
+            long millisToWaitForCompletion)
     {
         if (remoteHostRsyncMap.containsKey(host))
         {
@@ -408,7 +412,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final String rsyncExec;
         if (rsyncExecutableOnHostOrNull == null)
         {
-            rsyncExec = tryFindRemoteRsyncExecutable(host);
+            rsyncExec = tryFindRemoteRsyncExecutable(host, millisToWaitForCompletion);
         } else
         {
             rsyncExec = rsyncExecutableOnHostOrNull;
@@ -419,7 +423,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         }
         final List<String> commandLineList =
                 createSshCommand(host, sshExecutable, rsyncExec + " --version");
-        final ProcessResult verResult = runCommand(commandLineList, OutputReadingStrategy.ALWAYS);
+        final ProcessResult verResult =
+                runCommand(commandLineList, OutputReadingStrategy.ALWAYS, millisToWaitForCompletion);
         verResult.log();
         if (verResult.isOK() == false || verResult.getOutput().size() == 0)
         {
@@ -446,10 +451,11 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         return ok;
     }
 
-    private String tryFindRemoteRsyncExecutable(String host)
+    private String tryFindRemoteRsyncExecutable(String host, long millisToWaitForCompletion)
     {
         List<String> commandLineList = createSshCommand(host, sshExecutable, "type -p rsync");
-        final ProcessResult result = runCommand(commandLineList, OutputReadingStrategy.ALWAYS);
+        final ProcessResult result =
+                runCommand(commandLineList, OutputReadingStrategy.ALWAYS, millisToWaitForCompletion);
         result.log();
         if (result.isOK() && result.getOutput().size() != 1)
         {
@@ -489,7 +495,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                         destinationHostOrNull, rsyncModuleNameOrNull, rsyncPasswordFileOrNull,
                         copyDirectoryContent);
         return createStatus(runCommand(commandLine,
-                ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY));
+                ProcessExecutionHelper.DEFAULT_OUTPUT_READING_STRATEGY,
+                ConcurrencyUtilities.NO_TIMEOUT));
     }
 
     private final String logNonExistent(final File path)
@@ -663,7 +670,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     }
 
     private ProcessResult runCommand(final List<String> commandLine,
-            OutputReadingStrategy outputReadingStrategy)
+            OutputReadingStrategy outputReadingStrategy, long millisToWaitForCompletion)
     {
         IProcessHandler processHandler;
         if (operationLog.isTraceEnabled())
@@ -687,7 +694,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             operationLog.trace(String.format("Waiting for process of command '%s' to finish.",
                     commandLine));
         }
-        final ProcessResult processResult = processHandler.getResult();
+        final ProcessResult processResult = processHandler.getResult(millisToWaitForCompletion);
         processResult.log();
         return processResult;
     }

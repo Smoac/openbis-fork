@@ -256,7 +256,7 @@ public final class ProcessExecutionHelper
                 operationLog, machineLog).run(stopOnInterrupt);
     }
 
-    /** handler to a running process. Allows to wait for the result and stop the process. */
+    /** Handler to a running process. Allows to wait for the result and stop the process. */
     public interface IProcessHandler extends ITerminable
     {
         /**
@@ -265,6 +265,14 @@ public final class ProcessExecutionHelper
          * @throws InterruptedExceptionUnchecked If the thread got interrupted.
          */
         ProcessResult getResult() throws InterruptedExceptionUnchecked;
+
+        /**
+         * Blocks until the result of the process is available and returns it, or returns a time out
+         * if the result is not available after <var>millisToWaitForCompletion</var> milli-seconds.
+         * 
+         * @throws InterruptedExceptionUnchecked If the thread got interrupted.
+         */
+        ProcessResult getResult(final long millisToWaitForCompletion);
     }
 
     /**
@@ -539,7 +547,15 @@ public final class ProcessExecutionHelper
 
                 public ProcessResult getResult()
                 {
-                    return getProcessResult(stopOnInterruption, runnerFuture);
+                    return getProcessResult(stopOnInterruption, runnerFuture,
+                            millisToWaitForCompletion);
+                }
+
+                public ProcessResult getResult(
+                        @SuppressWarnings("hiding") final long millisToWaitForCompletion)
+                {
+                    return getProcessResult(stopOnInterruption, runnerFuture,
+                            millisToWaitForCompletion);
                 }
             };
     }
@@ -547,16 +563,17 @@ public final class ProcessExecutionHelper
     private final ProcessResult run(final boolean stopOnInterrupt)
     {
         final Future<ProcessResult> runnerFuture = launchProcessExecutor();
-        return getProcessResult(stopOnInterrupt, runnerFuture);
+        return getProcessResult(stopOnInterrupt, runnerFuture, millisToWaitForCompletion);
     }
 
     private ProcessResult getProcessResult(final boolean stopOnInterrupt,
-            final Future<ProcessResult> runnerFuture)
+            final Future<ProcessResult> runnerFuture, final long millisToWaitForCompletionOverride)
     {
         // when runUnblocking is used it is possible that we are hanging here while other thread
         // runs the killer. We will get COMPLETE status and null as the ProcessResult. We have to
         // change that status.
-        ExecutionResult<ProcessResult> executionResult = getExecutionResult(runnerFuture);
+        ExecutionResult<ProcessResult> executionResult =
+                getExecutionResult(runnerFuture, millisToWaitForCompletionOverride);
         if (executionResult.getStatus() != ExecutionStatus.COMPLETE)
         {
             executionResult = killProcess(executionResult.getStatus(), stopOnInterrupt);
@@ -598,8 +615,8 @@ public final class ProcessExecutionHelper
         return ConcurrencyUtilities.getResult(killerFuture, SHORT_TIMEOUT);
     }
 
-    private ExecutionResult<ProcessResult> getExecutionResult(
-            final Future<ProcessResult> runnerFuture)
+    private static ExecutionResult<ProcessResult> getExecutionResult(
+            final Future<ProcessResult> runnerFuture, long millisToWaitForCompletion)
     {
         return ConcurrencyUtilities.getResult(runnerFuture, millisToWaitForCompletion, false, null);
     }

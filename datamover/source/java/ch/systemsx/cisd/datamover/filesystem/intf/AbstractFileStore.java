@@ -139,14 +139,16 @@ public abstract class AbstractFileStore implements IFileStore
                         String executable = factory.tryGetIncomingRsyncExecutable();
                         FileUtilities.checkPathCopier(copier, srcHostOrNull, executable,
                                 tryGetRsyncModuleName(),
-                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING);
+                                DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING,
+                                DatamoverConstants.TIMEOUT_REMOTE_CONNECTION_MILLIS);
                     }
                     if (destHostOrNull != null)
                     {
                         String executable = factory.tryGetOutgoingRsyncExecutable();
                         FileUtilities.checkPathCopier(copier, destHostOrNull, executable,
                                 destinationStore.tryGetRsyncModuleName(),
-                                DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING);
+                                DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING,
+                                DatamoverConstants.TIMEOUT_REMOTE_CONNECTION_MILLIS);
                     }
                 }
 

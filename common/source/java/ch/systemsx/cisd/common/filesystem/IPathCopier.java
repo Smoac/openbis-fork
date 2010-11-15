@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
@@ -146,9 +147,13 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param host The host to check the connection to.
      * @param rsyncExecutableOnHostOrNull The rsync executable to use on the host, or
      *            <code>null</code>, if the first one in the path should be chosen.
+     * @param millisToWaitForCompletion Time (in milli-seconds) to wait for the result. Specify
+     *            {@link ConcurrencyUtilities#NO_TIMEOUT} if you want the connection to wait
+     *            indefinitely.
      * @return <code>true</code> if the connection was successful and <code>false</code> otherwise.
      */
-    boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull);
+    boolean checkRsyncConnectionViaSsh(String host, String rsyncExecutableOnHostOrNull,
+            long millisToWaitForCompletion);
 
     /**
      * Try to connect to the <var>host</var> via rsync server and return whether the connection is
@@ -158,8 +163,11 @@ public interface IPathCopier extends ITerminable, ISelfTestable
      * @param rsyncModule The rsync module to use.
      * @param rsyncPassworFileOrNull The password file for the rsync connection or <code>null</code>
      *            if none should be used.
+     * @param millisToWaitForCompletion Time (in milli-seconds) to wait for the result. Specify
+     *            {@link ConcurrencyUtilities#NO_TIMEOUT} if you want the connection to wait
+     *            indefinitely.
      * @return <code>true</code> if the connection was successful and <code>false</code> otherwise.
      */
     boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
-            String rsyncPassworFileOrNull);
+            String rsyncPassworFileOrNull, long millisToWaitForCompletion);
 }

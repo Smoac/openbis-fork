@@ -153,13 +153,13 @@ public class SelfTestTest
                 }
 
                 public boolean checkRsyncConnectionViaRsyncServer(String host, String rsyncModule,
-                        String rsyncPassworFileOrNull)
+                        String rsyncPassworFileOrNull, long millisToWaitForCompletion)
                 {
                     throw new AssertionError();
                 }
 
                 public boolean checkRsyncConnectionViaSsh(String host,
-                        String rsyncExecutableOnHostOrNull)
+                        String rsyncExecutableOnHostOrNull, long millisToWaitForCompletion)
                 {
                     throw new AssertionError();
                 }

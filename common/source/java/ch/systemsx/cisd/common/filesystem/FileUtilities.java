@@ -469,8 +469,8 @@ public final class FileUtilities
         final String msg = checkPathAccessible(directory, kindOfDirectory, "directory", false);
         if (msg == null && directory.isDirectory() == false)
         {
-            return String.format("Path '%s' is supposed to be a %s directory but isn't.", directory
-                    .getPath(), kindOfDirectory);
+            return String.format("Path '%s' is supposed to be a %s directory but isn't.",
+                    directory.getPath(), kindOfDirectory);
         }
         return msg;
     }
@@ -491,8 +491,8 @@ public final class FileUtilities
         final String msg = checkPathAccessible(directory, kindOfDirectory, "directory", true);
         if (msg == null && directory.isDirectory() == false)
         {
-            return String.format("Path '%s' is supposed to be a %s directory but isn't.", directory
-                    .getPath(), kindOfDirectory);
+            return String.format("Path '%s' is supposed to be a %s directory but isn't.",
+                    directory.getPath(), kindOfDirectory);
         }
         return msg;
     }
@@ -550,18 +550,18 @@ public final class FileUtilities
         {
             if (path.exists() == false)
             {
-                return String.format("%s %s '%s' does not exist.", StringUtilities
-                        .capitalize(kindOfPath), directoryOrFile, path.getPath());
+                return String.format("%s %s '%s' does not exist.",
+                        StringUtilities.capitalize(kindOfPath), directoryOrFile, path.getPath());
             } else
             {
-                return String.format("%s %s '%s' is not readable.", StringUtilities
-                        .capitalize(kindOfPath), directoryOrFile, path.getPath());
+                return String.format("%s %s '%s' is not readable.",
+                        StringUtilities.capitalize(kindOfPath), directoryOrFile, path.getPath());
             }
         }
         if (readAndWrite && path.canWrite() == false)
         {
-            return String.format("%s directory '%s' is not writable.", StringUtilities
-                    .capitalize(kindOfPath), path.getPath());
+            return String.format("%s directory '%s' is not writable.",
+                    StringUtilities.capitalize(kindOfPath), path.getPath());
         }
         return null;
     }
@@ -668,8 +668,8 @@ public final class FileUtilities
                 {
                     if (loggerOrNull != null)
                     {
-                        loggerOrNull.log(LogLevel.INFO, String.format("Deleting file '%s'", file
-                                .getPath()));
+                        loggerOrNull.log(LogLevel.INFO,
+                                String.format("Deleting file '%s'", file.getPath()));
                     }
                     delete(file);
                 }
@@ -677,8 +677,8 @@ public final class FileUtilities
         }
         if (loggerOrNull != null)
         {
-            loggerOrNull.log(LogLevel.INFO, String
-                    .format("Deleting directory '%s'", path.getPath()));
+            loggerOrNull.log(LogLevel.INFO,
+                    String.format("Deleting directory '%s'", path.getPath()));
         }
         return delete(path);
     }
@@ -701,8 +701,8 @@ public final class FileUtilities
     {
         if (loggerOrNull != null)
         {
-            loggerOrNull.log(LogLevel.INFO, String.format(
-                    "Deleting symbolic link to a directory '%s'", path.getPath()));
+            loggerOrNull.log(LogLevel.INFO,
+                    String.format("Deleting symbolic link to a directory '%s'", path.getPath()));
         }
         return delete(path);
     }
@@ -715,8 +715,7 @@ public final class FileUtilities
         }
         return path.canWrite();
     }
-    
-    
+
     /**
      * Deletes the <var>file</var>, setting it to read-write mode if necessary.
      */
@@ -1562,13 +1561,13 @@ public final class FileUtilities
      */
     public static void checkPathCopier(IPathCopier copier, String host,
             String rsyncExecutableOnHostOrNull, String rsyncModuleOrNull,
-            String rsyncPasswordFileOrNull)
+            String rsyncPasswordFileOrNull, long millisToWaitForCompletion)
     {
         if (rsyncModuleOrNull != null)
         {
             final boolean connectionOK =
                     copier.checkRsyncConnectionViaRsyncServer(host, rsyncModuleOrNull,
-                            rsyncPasswordFileOrNull);
+                            rsyncPasswordFileOrNull, millisToWaitForCompletion);
             if (connectionOK == false)
             {
                 throw ConfigurationFailureException.fromTemplate(
@@ -1577,7 +1576,8 @@ public final class FileUtilities
         } else
         {
             final boolean connectionOK =
-                    copier.checkRsyncConnectionViaSsh(host, rsyncExecutableOnHostOrNull);
+                    copier.checkRsyncConnectionViaSsh(host, rsyncExecutableOnHostOrNull,
+                            millisToWaitForCompletion);
             if (connectionOK == false)
             {
                 throw ConfigurationFailureException.fromTemplate(

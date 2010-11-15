@@ -30,5 +30,8 @@ public class DatamoverConstants
     public static final String RSYNC_PASSWORD_FILE_OUTGOING = "etc/rsync_outgoing.passwd";
 
     public static final int IGNORED_ERROR_COUNT_BEFORE_NOTIFICATION = 3;
-
+    
+    /** A remote connection must not take longer than 20s to be established. */
+    public static final long TIMEOUT_REMOTE_CONNECTION_MILLIS = 20 * 1000L;
+    
 }
