@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.user.client.ui.Widget;
 
@@ -76,7 +77,7 @@ public class HeatmapUtil
     class StringHeatmapRenderer implements IHeatmapRenderer<String>
     {
 
-        public StringHeatmapRenderer(List<String> values)
+        public StringHeatmapRenderer(Set<String> values)
         {
 
         }
