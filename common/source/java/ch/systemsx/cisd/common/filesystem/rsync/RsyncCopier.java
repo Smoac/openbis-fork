@@ -614,8 +614,8 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
                 path += '/';
             }
             // We must not use the absolute path here because that is the business of the
-            // destination host.
-            return host + sep + path;
+            // target host.
+            return host + sep + path.replace('\\', '/');
         }
     }
 
