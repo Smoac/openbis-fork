@@ -35,6 +35,11 @@ public interface IFileStore extends ISelfTestable, ILastModificationChecker
     public static final IFileStore[] EMPTY_ARRAY = new IFileStore[0];
 
     /**
+     * Returns <code>true</code> if the file store is accessible only remote from this server.
+     */
+    public boolean isRemote();
+    
+    /**
      * Returns the location of the specified store item.
      */
     public StoreItemLocation getStoreItemLocation(StoreItem item);

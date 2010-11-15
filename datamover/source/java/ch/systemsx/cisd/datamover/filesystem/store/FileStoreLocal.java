@@ -207,20 +207,24 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
 
     /**
      * @return <code>true</code> if the <var>simpleCopier</var> on the file system where the
-     *         <var>destinationDirectory</var> resides requires deleting an existing file before it
+     *         <var>destinationStore</var> resides requires deleting an existing file before it
      *         can be overwritten.
      */
-    protected final boolean requiresDeletionBeforeCreation(final IFileStore destinationDirectory,
+    protected final boolean requiresDeletionBeforeCreation(final IFileStore destinationStore,
             final IStoreCopier copier)
     {
+        if (skipAccessibilityTest && destinationStore.isRemote())
+        {
+            return true; // This is the safe default.
+        }
         try
         {
             copier.check();
         } catch (ConfigurationFailureException ex)
         {
-            machineLog.warn("Cannot determine whether copying to '" + destinationDirectory
+            machineLog.warn("Cannot determine whether copying to '" + destinationStore
                     + "' requires deletion before copying, assuming 'true'", ex);
-            return true;
+            return true; // This is the safe default.
         }
         final StoreItem item = MarkerFile.createRequiresDeletionBeforeCreationMarker();
         createNewFile(item);
@@ -228,11 +232,11 @@ public class FileStoreLocal extends AbstractFileStore implements IExtendedFileSt
         boolean requiresDeletion;
         // A CIFS mount from a Cellera NAS server is an example that gives 'true' here.
         requiresDeletion = Status.OK.equals(copier.copy(item)) == false;
-        logCopierOverwriteState(destinationDirectory, requiresDeletion);
+        logCopierOverwriteState(destinationStore, requiresDeletion);
 
         // We don't check for success because there is nothing we can do if we fail.
         delete(item);
-        destinationDirectory.delete(item);
+        destinationStore.delete(item);
 
         return requiresDeletion;
     }
