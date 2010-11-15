@@ -104,7 +104,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
     private final String sshExecutable;
 
     private final List<String> additionalCmdLineFlagsOrNull;
-    
+
     /** If set, overrides all command line parameters for mutable copying. */
     private final List<String> cmdLineFlagsOrNull;
 
@@ -315,9 +315,9 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
         final List<String> commandLineList = new ArrayList<String>();
         commandLineList.add(rsyncExecutable);
         commandLineList.add("--archive");
-        commandLineList.add("--link-dest=" + absoluteSource);
-        commandLineList.add(absoluteSource + "/");
-        commandLineList.add(destinationPath.getAbsolutePath());
+        commandLineList.add("--link-dest=" + toUnix(absoluteSource));
+        commandLineList.add(toUnix(absoluteSource) + "/");
+        commandLineList.add(toUnix(destinationPath.getAbsolutePath()));
 
         return commandLineList;
     }
@@ -525,8 +525,9 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
             commandLineList.addAll(cmdLineFlagsOrNull);
         } else
         {
-            final List<String> standardParameters = Arrays.asList("--archive", "--delete", "--inplace");
-    
+            final List<String> standardParameters =
+                    Arrays.asList("--archive", "--delete", "--inplace");
+
             commandLineList.addAll(standardParameters);
             if (isOverwriteMode(remoteRsyncOrNull))
             {
@@ -581,13 +582,7 @@ public final class RsyncCopier implements IPathCopier, IDirectoryImmutableCopier
 
     private final static String getSshExecutableArgument(final String sshExecutable)
     {
-        if (OSUtilities.isWindows())
-        {
-            return toUnix(sshExecutable) + " -oBatchMode=yes";
-        } else
-        {
-            return sshExecutable + " -oBatchMode=yes";
-        }
+        return toUnix(sshExecutable) + " -oBatchMode=yes";
     }
 
     private static String buildPath(final String host, final File resource,
