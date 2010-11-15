@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto;
 
 /**
+ * One element on the heatmap scale.
+ * 
  * @author Tomasz Pylak
  */
 public class HeatmapScaleRange
