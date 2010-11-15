@@ -28,12 +28,12 @@ public class HeatmapUtil
 {
     // --- DTOs
 
-    class Color
+    static class Color
     {
         String hexColor;
     }
 
-    class HeatmapScaleRange
+    static class HeatmapScaleRange
     {
         String label;
 
@@ -45,14 +45,14 @@ public class HeatmapUtil
 
     // ---
 
-    interface IHeatmapRenderer<T>
+    static interface IHeatmapRenderer<T>
     {
         Color getColor(T value);
 
         List<HeatmapScaleRange> calculateScale();
     }
 
-    class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
+    static class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
     {
 
         public NumberHeatmapRenderer(float min, float max)
@@ -74,7 +74,7 @@ public class HeatmapUtil
 
     }
 
-    class StringHeatmapRenderer implements IHeatmapRenderer<String>
+    static class StringHeatmapRenderer implements IHeatmapRenderer<String>
     {
 
         public StringHeatmapRenderer(Set<String> values)
@@ -95,7 +95,7 @@ public class HeatmapUtil
         }
     }
 
-    class ScaleDrawer
+    static class ScaleDrawer
     {
         Widget draw(List<HeatmapScaleRange> ranges, int height)
         {
