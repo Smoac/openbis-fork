@@ -57,7 +57,7 @@ public final class FileStoreRemoteMounted extends AbstractFileStore
             final String description, final IFileSysOperationsFactory factory,
             final boolean skipAccessibilityTest, final long lastChangedTimeoutMillis)
     {
-        super(file, description, factory);
+        super(file, description, factory, skipAccessibilityTest);
         this.localImpl = new FileStoreLocal(file, description, factory, skipAccessibilityTest);
         this.localImplMonitored =
                 MonitoringProxy.create(IFileStore.class, localImpl).timing(

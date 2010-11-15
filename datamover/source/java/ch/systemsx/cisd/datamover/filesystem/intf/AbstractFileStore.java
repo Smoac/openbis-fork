@@ -47,15 +47,18 @@ public abstract class AbstractFileStore implements IFileStore
 
     protected final IFileSysOperationsFactory factory;
 
+    protected final boolean skipAccessibilityTest;
+
     protected AbstractFileStore(
             final HostAwareFileWithHighwaterMark hostAwareFileWithHighwaterMark, final String kind,
-            final IFileSysOperationsFactory factory)
+            final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest)
     {
         assert hostAwareFileWithHighwaterMark != null;
         assert kind != null;
         this.hostAwareFileWithHighwaterMark = hostAwareFileWithHighwaterMark;
         this.kind = kind;
         this.factory = factory;
+        this.skipAccessibilityTest = skipAccessibilityTest;
     }
 
     private final String getCanonicalPath(final File file)
@@ -134,18 +137,22 @@ public abstract class AbstractFileStore implements IFileStore
 
                 public void check() throws ConfigurationFailureException
                 {
+                    if (skipAccessibilityTest)
+                    {
+                        return;
+                    }
                     if (srcHostOrNull != null)
                     {
-                        String executable = factory.tryGetIncomingRsyncExecutable();
-                        FileUtilities.checkPathCopier(copier, srcHostOrNull, executable,
+                        final String executableOrNull = factory.tryGetIncomingRsyncExecutable();
+                        FileUtilities.checkPathCopier(copier, srcHostOrNull, executableOrNull,
                                 tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_INCOMING,
                                 DatamoverConstants.TIMEOUT_REMOTE_CONNECTION_MILLIS);
                     }
                     if (destHostOrNull != null)
                     {
-                        String executable = factory.tryGetOutgoingRsyncExecutable();
-                        FileUtilities.checkPathCopier(copier, destHostOrNull, executable,
+                        final String executableOrNull = factory.tryGetOutgoingRsyncExecutable();
+                        FileUtilities.checkPathCopier(copier, destHostOrNull, executableOrNull,
                                 destinationStore.tryGetRsyncModuleName(),
                                 DatamoverConstants.RSYNC_PASSWORD_FILE_OUTGOING,
                                 DatamoverConstants.TIMEOUT_REMOTE_CONNECTION_MILLIS);

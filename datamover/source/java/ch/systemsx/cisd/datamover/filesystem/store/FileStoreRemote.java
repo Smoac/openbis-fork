@@ -112,8 +112,6 @@ public class FileStoreRemote extends AbstractFileStore
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
-    private final boolean skipAccessibilityTest;
-
     private String remoteLastchangedExecutableOrNull;
 
     private String remoteFindExecutableOrNull;
@@ -140,9 +138,8 @@ public class FileStoreRemote extends AbstractFileStore
             final IFileSysOperationsFactory factory, final boolean skipAccessibilityTest,
             final String remoteFindExecutableOrNull, final String remoteLastchangedExecutableOrNull)
     {
-        super(hostAwareFileWithHighwaterMark, kind, factory);
+        super(hostAwareFileWithHighwaterMark, kind, factory, skipAccessibilityTest);
         assert hostAwareFileWithHighwaterMark.tryGetHost() != null : "Unspecified host";
-        this.skipAccessibilityTest = skipAccessibilityTest;
         this.sshCommandExecutor =
                 new SshCommandExecutor(sshCommandBuilder,
                         hostAwareFileWithHighwaterMark.tryGetHost());
