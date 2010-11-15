@@ -150,7 +150,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     }
     
     @Test
-    public void testGetGifImageAsPngThumbnail()
+    public void testGetJpgImageAsPngThumbnail()
     {
         final TileImageReference imageRef = new TileImageReference();
         imageRef.setChannel(CHANNEL);
@@ -162,14 +162,14 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 {
                     one(loader)
                             .tryGetImage(imageRef.getChannel(), imageRef.getChannelStack(), null);
-                    will(returnValue(new AbsoluteImageReference(image("img1.gif"), "id42", null,
+                    will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "id42", null,
                             null, new Size(4, 2))));
                 }
             });
 
         IContent image = ImageChannelsUtils.getImage(loader, imageRef);
         assertPNG(image);
-        assertEquals("c3dce6 c2dce5\nc3dce6 c3dce6\n", getImageContentDescription(image));
+        assertEquals("cde cde\ncde cde\n", getImageContentDescription(image));
         
         context.assertIsSatisfied();
     }
@@ -200,8 +200,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         
         IContent image = ImageChannelsUtils.getImage(loader, imageRef);
         assertPNG(image);
-        assertEquals("e50000 f00000 f00000 e40000\n" + "f20000 cf0000 cf0000 f00000\n"
-                + "f00000 cf0000 cf0000 f00000\n" + "e50000 f00000 f00000 e50000\n",
+        assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n"
+                + "f00 c00 c00 f00\n" + "e00 f00 f00 e00\n",
                 getImageContentDescription(image));
         
         context.assertIsSatisfied();
@@ -246,7 +246,10 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 {
                     builder.append(' ');
                 }
-                builder.append(Integer.toHexString(pixel).substring(2));
+                String hexcode = Integer.toHexString(pixel).substring(2);
+                builder.append(hexcode.charAt(0));
+                builder.append(hexcode.charAt(2));
+                builder.append(hexcode.charAt(4));
             }
             builder.append('\n');
         }
