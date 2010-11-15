@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleRange;
@@ -32,6 +31,8 @@ public class StringHeatmapRenderer implements IHeatmapRenderer<String>
     private static final List<String> SINGLE_DEFAULT_COLORS = Arrays.asList("#F7F7F7");
 
     private static final String CATEGORY_OTHERS_LABEL = "Others";
+
+    private final List<HeatmapScaleRange> scale;
 
     private final Map<String, Color> colorsMap;
 
@@ -69,7 +70,10 @@ public class StringHeatmapRenderer implements IHeatmapRenderer<String>
      */
     public StringHeatmapRenderer(List<String> uniqueValues, List<Color> scaleColors)
     {
-        this.colorsMap = calculateColorMap(uniqueValues, scaleColors);
+        this.scale = calculateScale(uniqueValues, scaleColors);
+        this.colorsMap = calculateColorMap(scale);
+        scale.add(new HeatmapScaleRange(CATEGORY_OTHERS_LABEL, CATEGORY_OTHERS_COLOR));
+
         this.moreLabelsThanColors = (uniqueValues.size() > scaleColors.size());
     }
 
@@ -83,17 +87,27 @@ public class StringHeatmapRenderer implements IHeatmapRenderer<String>
         return colors;
     }
 
-    private static Map<String, Color> calculateColorMap(List<String> uniqueValues,
-            List<Color> scaleColors)
+    private static Map<String, Color> calculateColorMap(List<HeatmapScaleRange> scale)
     {
         Map<String, Color> colorsMap = new HashMap<String, Color>();
+        for (HeatmapScaleRange range : scale)
+        {
+            colorsMap.put(range.getLabel(), range.getColor());
+        }
+        return colorsMap;
+    }
+
+    private static List<HeatmapScaleRange> calculateScale(List<String> uniqueValues,
+            List<Color> scaleColors)
+    {
+        List<HeatmapScaleRange> scale = new ArrayList<HeatmapScaleRange>();
         Iterator<Color> colorsIter = scaleColors.iterator();
         Iterator<String> valuesIter = uniqueValues.iterator();
         while (colorsIter.hasNext() && valuesIter.hasNext())
         {
-            colorsMap.put(valuesIter.next(), colorsIter.next());
+            scale.add(new HeatmapScaleRange(valuesIter.next(), colorsIter.next()));
         }
-        return colorsMap;
+        return scale;
     }
 
     public Color getColor(String value)
@@ -112,12 +126,6 @@ public class StringHeatmapRenderer implements IHeatmapRenderer<String>
 
     public List<HeatmapScaleRange> calculateScale()
     {
-        List<HeatmapScaleRange> scale = new ArrayList<HeatmapScaleRange>();
-        for (Entry<String, Color> entry : colorsMap.entrySet())
-        {
-            scale.add(new HeatmapScaleRange(entry.getKey(), entry.getValue()));
-        }
-        scale.add(new HeatmapScaleRange(CATEGORY_OTHERS_LABEL, CATEGORY_OTHERS_COLOR));
         return scale;
     }
 }
