@@ -150,7 +150,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     }
     
     @Test
-    public void testGetJpegImageAsPngThumbnail()
+    public void testGetGifImageAsPngThumbnail()
     {
         final TileImageReference imageRef = new TileImageReference();
         imageRef.setChannel(CHANNEL);
@@ -162,14 +162,14 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 {
                     one(loader)
                             .tryGetImage(imageRef.getChannel(), imageRef.getChannelStack(), null);
-                    will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "id42", null,
+                    will(returnValue(new AbsoluteImageReference(image("img1.gif"), "id42", null,
                             null, new Size(4, 2))));
                 }
             });
 
         IContent image = ImageChannelsUtils.getImage(loader, imageRef);
         assertPNG(image);
-        assertEquals("c4dce6 c5dce4\nc3dbe5 c4dbe3\n", getImageContentDescription(image));
+        assertEquals("c3dce6 c2dce5\nc3dce6 c3dce6\n", getImageContentDescription(image));
         
         context.assertIsSatisfied();
     }
