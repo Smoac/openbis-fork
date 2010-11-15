@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.common.filesystem.ssh;
 
-import java.io.File;
-
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.process.ProcessResult;
 
@@ -27,7 +25,7 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 public interface ISshCommandExecutor
 {
 
-    public abstract BooleanStatus exists(File file, final long timeOutMillis);
+    public abstract BooleanStatus exists(final String pathString, final long timeOutMillis);
 
     public abstract BooleanStatus checkDirectoryAccessible(final String pathString,
             final long timeOutMillis);

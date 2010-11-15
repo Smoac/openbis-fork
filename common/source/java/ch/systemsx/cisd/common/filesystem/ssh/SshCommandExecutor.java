@@ -91,9 +91,9 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
         return result.getOutput().size() == 0;
     }
 
-    public final BooleanStatus exists(File file, final long timeOutMillis)
+    public final BooleanStatus exists(final String pathString, final long timeOutMillis)
     {
-        final String cmd = mkCheckFileExistsCommand(file.getPath());
+        final String cmd = mkCheckFileExistsCommand(pathString);
         final ProcessResult result = tryExecuteCommandRemotely(cmd, timeOutMillis);
         if (result.isOK())
         {

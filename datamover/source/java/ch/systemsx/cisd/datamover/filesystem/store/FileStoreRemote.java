@@ -199,7 +199,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     public final Status delete(final StoreItem item)
     {
-        final String pathString = StoreItem.asFile(getPath(), item).getPath();
+        final String pathString = toUnixPathString(item);
         final String cmd = mkDeleteFileCommand(pathString);
         final ProcessResult result =
                 sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
@@ -215,8 +215,8 @@ public class FileStoreRemote extends AbstractFileStore
 
     public final BooleanStatus exists(final StoreItem item)
     {
-        final File itemFile = StoreItem.asFile(getPath(), item);
-        return sshCommandExecutor.exists(itemFile, QUICK_SSH_TIMEOUT_MILLIS);
+        final String pathString = toUnixPathString(item);
+        return sshCommandExecutor.exists(pathString, QUICK_SSH_TIMEOUT_MILLIS);
     }
 
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
@@ -240,7 +240,7 @@ public class FileStoreRemote extends AbstractFileStore
     private final StatusWithResult<Long> lastChangedExec(final StoreItem item,
             final long stopWhenFindYoungerMillis, boolean isRelative)
     {
-        final String itemPath = StoreItem.asFile(getPath(), item).getPath();
+        final String itemPath = toUnixPathString(item);
 
         final String cmd =
                 mkLastchangedCommand(itemPath, stopWhenFindYoungerMillis, isRelative,
@@ -261,7 +261,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     private final StatusWithResult<Long> lastChangedEmulatedGNUFindExec(final StoreItem item)
     {
-        final String itemPath = StoreItem.asFile(getPath(), item).getPath();
+        final String itemPath = toUnixPathString(item);
 
         final String findExec = getRemoteFindExecutableOrDie();
         final String cmd = mkFindYoungestModificationTimestampSecCommand(itemPath, findExec);
@@ -276,6 +276,17 @@ public class FileStoreRemote extends AbstractFileStore
         } else
         {
             return createLastChangeError(item, errMsg);
+        }
+    }
+
+    private String toUnixPathString(final StoreItem itemOrNull)
+    {
+        if (itemOrNull == null)
+        {
+            return getPath().getPath().replace('\\', '/');
+        } else
+        {
+            return StoreItem.asFile(getPath(), itemOrNull).getPath().replace('\\', '/');
         }
     }
 
@@ -317,7 +328,7 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final BooleanStatus status =
                 skipAccessibilityTest ? BooleanStatus.createTrue() : sshCommandExecutor
-                        .checkDirectoryAccessible(getPathString(), timeOutMillis);
+                        .checkDirectoryAccessible(toUnixPathString(null), timeOutMillis);
         if (status.isSuccess())
         {
             if (this.remoteLastchangedExecutableOrNull != null
@@ -345,11 +356,6 @@ public class FileStoreRemote extends AbstractFileStore
     private String createNoFindUtilMessage()
     {
         return "No GNU find utility is present on the remote machine '" + getHost() + "'";
-    }
-
-    private String getPathString()
-    {
-        return getPath().getPath();
     }
 
     // tries to execute different find versions with appropriate options on the remote host. If
@@ -472,7 +478,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
-        final String simpleCmd = mkListByOldestModifiedCommand(getPathString());
+        final String simpleCmd = mkListByOldestModifiedCommand(toUnixPathString(null));
         final ProcessResult result =
                 sshCommandExecutor.tryExecuteCommandRemotely(simpleCmd,
                         LONG_SSH_TIMEOUT_MILLIS);
@@ -580,7 +586,7 @@ public class FileStoreRemote extends AbstractFileStore
     @Override
     public final String toString()
     {
-        final String pathStr = getPathString();
+        final String pathStr = toUnixPathString(null);
         if (tryGetRsyncModuleName() != null)
         {
             return "[remote fs] " + getHost() + ":" + tryGetRsyncModuleName() + ":" + pathStr;
