@@ -15,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleRange;
 
@@ -29,9 +30,23 @@ public class ScaleDrawer
         {
             ranges.add(new HeatmapScaleRange(s, new Color(s)));
         }
+
         Dialog dialog = new Dialog();
-        dialog.add(draw(ranges));
-        dialog.add(draw("First", ranges));
+        List<String> list1 = new ArrayList<String>();
+        for (int i = 0; i < 5; i++)
+        {
+            list1.add("Value A" + i);
+        }
+        List<String> list2 = new ArrayList<String>();
+        for (int i = 0; i < 20; i++)
+        {
+            list2.add("Value B" + i);
+        }
+        Widget w1 = draw(ranges);
+        Widget w2 = draw("First", ranges);
+        Widget w3 = draw(new StringHeatmapRenderer(list1).calculateScale());
+        Widget w4 = draw(new StringHeatmapRenderer(list2).calculateScale());
+        dialog.add(WidgetUtils.inRow(w1, w2, w3, w4));
         dialog.show();
     }
 
@@ -44,7 +59,7 @@ public class ScaleDrawer
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(2));
-        container.setBorders(true);
+        container.setBorders(false);
         container.setScrollMode(Scroll.NONE);
         boolean isFirstLabel = firstLabelOrNull != null;
         if (isFirstLabel)
