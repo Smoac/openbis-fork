@@ -33,12 +33,16 @@ public interface IViewContext<T extends IClientServiceAsync> extends IMessagePro
         IProfilingTable
 {
     public void addMessageSource(String messageSource);
+    
+    public String getTechnology();
 
     public IViewContext<ICommonClientServiceAsync> getCommonViewContext();
 
     public T getService();
 
     public GenericViewModel getModel();
+    
+    public String getPropertyOrNull(String key);
 
     public void initDisplaySettingsManager();
 

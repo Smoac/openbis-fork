@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.Vi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.IProfilingTable;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * An <i>abstract</i> {@link IViewContext} implementation which should be extended by each plugin
@@ -38,6 +40,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.log.I
 public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> implements
         IViewContext<T>
 {
+    static String getPropertyOrNull(IViewContext<?> viewContext, String key)
+    {
+        ApplicationInfo applicationInfo = viewContext.getModel().getApplicationInfo();
+        if (applicationInfo == null)
+        {
+            return null;
+        }
+        WebClientConfiguration webClientConfiguration = applicationInfo.getWebClientConfiguration();
+        if (webClientConfiguration == null)
+        {
+            return null;
+        }
+        return webClientConfiguration.getPropertyOrNull(viewContext.getTechnology(), key);
+    }
+
     private final IViewContext<ICommonClientServiceAsync> commonViewContext;
 
     private final T service;
@@ -53,11 +70,6 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     }
 
     /**
-     * Returns the name of the technology.
-     */
-    protected abstract String getTechnology();
-
-    /**
      * Creates the service. Implementations will usually invoke {@link GWT#create(Class)} with the
      * corresponding synchronous service interface.
      */
@@ -70,6 +82,11 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     public final T getService()
     {
         return service;
+    }
+
+    public String getPropertyOrNull(String key)
+    {
+        return getPropertyOrNull(this, key);
     }
 
     public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()

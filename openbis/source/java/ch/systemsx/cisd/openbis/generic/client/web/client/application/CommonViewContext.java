@@ -125,6 +125,16 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         return service;
     }
 
+    public String getTechnology()
+    {
+        return TECHNOLOGY_NAME;
+    }
+
+    public String getPropertyOrNull(String key)
+    {
+        return AbstractPluginViewContext.getPropertyOrNull(this, key);
+    }
+    
     public final GenericViewModel getModel()
     {
         return viewModel;

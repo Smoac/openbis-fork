@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
@@ -52,6 +54,8 @@ public class WebClientConfigurationProvider
     private static final String HIDE_FILE_VIEW = "hide-file-view";
 
     private static final String DEFAULT_VIEW_MODE = "default-view-mode";
+    
+    static final String TECHNOLOGIES = "technologies";
 
     private WebClientConfiguration webClientConfiguration = new WebClientConfiguration();
 
@@ -62,9 +66,31 @@ public class WebClientConfigurationProvider
             return;
         }
         Properties properties = PropertyUtils.loadProperties(configurationFile);
-        webClientConfiguration = new WebClientConfiguration();
+        init(properties);
+    }
+    
+    WebClientConfigurationProvider(Properties properties)
+    {
+        init(properties);
+    }
+
+    private void init(Properties properties)
+    {
         webClientConfiguration.setDefaultViewMode(extractDefaultViewMode(properties));
         webClientConfiguration.setViews(extractHiddenSections(properties));
+        SectionProperties[] props =
+                PropertyParametersUtil.extractSectionProperties(properties, TECHNOLOGIES, false);
+        for (SectionProperties sectionProperties : props)
+        {
+            Properties technologyProperties = sectionProperties.getProperties();
+            Set<Entry<Object, Object>> entrySet = technologyProperties.entrySet();
+            Map<String, String> map = new HashMap<String, String>();
+            for (Entry<Object, Object> entry : entrySet)
+            {
+                map.put(entry.getKey().toString(), entry.getValue().toString());
+            }
+            webClientConfiguration.addPropertiesForTechnology(sectionProperties.getKey(), map);
+        }
     }
 
     private Map<String, DetailViewConfiguration> extractHiddenSections(Properties properties)

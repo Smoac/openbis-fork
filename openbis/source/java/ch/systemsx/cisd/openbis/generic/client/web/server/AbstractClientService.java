@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
@@ -86,6 +88,9 @@ public abstract class AbstractClientService implements IClientService,
     @Resource(name = "common-service")
     protected ICommonClientService commonClientService;
 
+    @Resource(name = ExposablePropertyPlaceholderConfigurer.PROPERTY_CONFIGURER_BEAN_NAME)
+    private ExposablePropertyPlaceholderConfigurer configurer;
+
     private String cifexURL;
 
     private String cifexRecipient;
@@ -113,6 +118,11 @@ public abstract class AbstractClientService implements IClientService,
     protected AbstractClientService(final IRequestContextProvider requestContextProvider)
     {
         this.requestContextProvider = requestContextProvider;
+    }
+
+    protected Properties getServiceProperties()
+    {
+        return configurer == null ? new Properties() : configurer.getResolvedProps();
     }
 
     protected void transformXML(IEntityPropertiesHolder propertiesHolder)

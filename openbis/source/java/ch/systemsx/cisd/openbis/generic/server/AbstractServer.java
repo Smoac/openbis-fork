@@ -83,7 +83,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Resource(name = ComponentNames.REMOTE_HOST_VALIDATOR)
     private IRemoteHostValidator remoteHostValidator;
-
+    
     protected AbstractServer()
     {
         operationLog.info(String.format("Creating new '%s' implementation: '%s'.", IServer.class
@@ -108,7 +108,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
         this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
     }
-
+    
     public final void setSampleTypeSlaveServerPlugin(
             ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
     {

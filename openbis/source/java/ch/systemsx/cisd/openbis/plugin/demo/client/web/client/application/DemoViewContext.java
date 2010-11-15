@@ -22,8 +22,7 @@ public final class DemoViewContext extends AbstractPluginViewContext<IDemoClient
         super(commonViewContext);
     }
 
-    @Override
-    protected String getTechnology()
+    public String getTechnology()
     {
         return TECHNOLOGY_NAME;
     }

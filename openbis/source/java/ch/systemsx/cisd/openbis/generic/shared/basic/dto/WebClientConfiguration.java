@@ -35,8 +35,21 @@ public class WebClientConfiguration implements IsSerializable, Serializable
 
     private Map<String, DetailViewConfiguration> views =
             new HashMap<String, DetailViewConfiguration>();
+    
+    private Map<String, Map<String, String>> technologyProperties = new HashMap<String, Map<String, String>>();
 
     private ViewMode defaultViewMode;
+    
+    public String getPropertyOrNull(String technology, String key)
+    {
+        Map<String, String> properties = technologyProperties.get(technology);
+        return properties == null ? null : properties.get(key);
+    }
+    
+    public void addPropertiesForTechnology(String technology, Map<String, String> properties)
+    {
+        technologyProperties.put(technology, properties);
+    }
 
     public Map<String, DetailViewConfiguration> getViews()
     {

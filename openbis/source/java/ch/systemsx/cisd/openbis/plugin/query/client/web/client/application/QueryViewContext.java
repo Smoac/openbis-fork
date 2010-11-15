@@ -38,8 +38,7 @@ public class QueryViewContext extends AbstractPluginViewContext<IQueryClientServ
         super(commonViewContext);
     }
 
-    @Override
-    protected String getTechnology()
+    public String getTechnology()
     {
         return TECHNOLOGY_NAME;
     }
