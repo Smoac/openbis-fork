@@ -130,8 +130,15 @@ public class SshCommandExecutor implements ISshCommandExecutor, Serializable
             }
         } else
         {
-            return BooleanStatus.createError("Error when checking if directory " + dirDesc
-                    + " is accessible: " + result.getOutput());
+            if (result.isTimedOut())
+            {
+                return BooleanStatus.createError("Error when checking if directory " + dirDesc
+                        + " is accessible: TIMEOUT");
+            } else
+            {
+                return BooleanStatus.createError("Error when checking if directory " + dirDesc
+                        + " is accessible: " + result.getOutput());
+            }
         }
     }
 
