@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamedCallable;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
@@ -56,8 +57,10 @@ public final class ProcessExecutionHelper
         /** Never read the output. */
         NEVER,
 
-        /** Equal to {@link #ALWAYS}. */
-        @Deprecated
+        /**
+         * Hint that the output of the process is only requested if the process failed in some way. <br/>
+         * <i>Note that the implementation may read the output anyway.</i>
+         */
         ON_ERROR,
 
         /** Always read the output. */
@@ -314,6 +317,48 @@ public final class ProcessExecutionHelper
     }
 
     /**
+     * Returns the <code>stdout</code> and <code>stderr</code> of the <var>process</var> in
+     * <var>processRecord.getProcessOutput()</var>.
+     */
+    private final void readProcessOutputLines(final List<String> processOutput,
+            final BufferedReader reader, final boolean discard)
+    {
+        assert processOutput != null;
+        assert reader != null;
+        assert machineLog != null;
+
+        try
+        {
+            while (reader.ready())
+            {
+                final String line = reader.readLine();
+                if (line == null)
+                {
+                    break;
+                }
+                if (discard == false)
+                {
+                    processOutput.add(line);
+                }
+            }
+        } catch (final IOException e)
+        {
+            machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.",
+                    e.getMessage()));
+        }
+    }
+
+    /**
+     * On Windows it is necessary to read the output stream during the process is running in order
+     * not to get dead-locked. This is less efficient (due to the limited interface of
+     * {@link Process}), so we don't do it if we don't have to.
+     */
+    private boolean hasLimitedOutputBuffer()
+    {
+        return OSUtilities.isWindows();
+    }
+
+    /**
      * The class that performs the actual calling and interaction with the Operating System process.
      * Since we observed hangs of several process-related methods we call all of this in a separate
      * thread.
@@ -329,38 +374,6 @@ public final class ProcessExecutionHelper
                 operationLog.debug("Running command: " + getCommand(commandLine));
             }
             return processBuilder.start();
-        }
-
-        /**
-         * Returns the <code>stdout</code> and <code>stderr</code> of the <var>process</var> in
-         * <var>processRecord.getProcessOutput()</var>.
-         */
-        private final void readProcessOutputLines(final List<String> processOutput,
-                final BufferedReader reader, final boolean discard)
-        {
-            assert processOutput != null;
-            assert reader != null;
-            assert machineLog != null;
-
-            try
-            {
-                while (reader.ready())
-                {
-                    final String line = reader.readLine();
-                    if (line == null)
-                    {
-                        break;
-                    }
-                    if (discard == false)
-                    {
-                        processOutput.add(line);
-                    }
-                }
-            } catch (final IOException e)
-            {
-                machineLog.warn(String.format("IOException when reading stdout/stderr, msg='%s'.",
-                        e.getMessage()));
-            }
         }
 
         //
@@ -379,20 +392,36 @@ public final class ProcessExecutionHelper
                     final List<String> processOutput = processRecord.getProcessOutput();
                     final BufferedReader reader =
                             new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    final boolean discardOutput =
-                            (outputReadingStrategy == OutputReadingStrategy.NEVER);
+
                     int exitValue = ProcessResult.NO_EXIT_VALUE;
-                    while (exitValue == ProcessResult.NO_EXIT_VALUE)
+                    if (hasLimitedOutputBuffer())
                     {
-                        readProcessOutputLines(processOutput, reader, discardOutput);
-                        exitValue = getExitValue(process);
-                        if (exitValue == ProcessResult.NO_EXIT_VALUE)
+                        final boolean discardOutput =
+                                (outputReadingStrategy == OutputReadingStrategy.NEVER);
+                        while (exitValue == ProcessResult.NO_EXIT_VALUE)
                         {
-                            ConcurrencyUtilities.sleep(PAUSE_MILLIS);
+                            readProcessOutputLines(processOutput, reader, discardOutput);
+                            exitValue = getExitValue(process);
+                            if (exitValue == ProcessResult.NO_EXIT_VALUE)
+                            {
+                                ConcurrencyUtilities.sleep(PAUSE_MILLIS);
+                            }
+                        }
+                        processWrapper.set(null);
+                        readProcessOutputLines(processOutput, reader, discardOutput);
+                    } else
+                    {
+                        exitValue = process.waitFor();
+                        final boolean stillInCharge = (processWrapper.getAndSet(null) != null);
+
+                        if (stillInCharge
+                                && (OutputReadingStrategy.ALWAYS.equals(outputReadingStrategy) || (OutputReadingStrategy.ON_ERROR
+                                        .equals(outputReadingStrategy) && ProcessResult
+                                        .isProcessOK(exitValue) == false)))
+                        {
+                            readProcessOutputLines(processOutput, reader, false);
                         }
                     }
-                    processWrapper.set(null);
-                    readProcessOutputLines(processOutput, reader, discardOutput);
                     return new ProcessResult(commandLine, processNumber, ExecutionStatus.COMPLETE,
                             "", exitValue, processRecord.getProcessOutput(), operationLog,
                             machineLog);
@@ -443,6 +472,14 @@ public final class ProcessExecutionHelper
             if (processRecord != null)
             {
                 final Process process = processRecord.getProcess();
+                if (hasLimitedOutputBuffer() == false
+                        && OutputReadingStrategy.NEVER.equals(outputReadingStrategy) == false)
+                {
+                    final List<String> processOutput = processRecord.getProcessOutput();
+                    final BufferedReader reader =
+                            new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    readProcessOutputLines(processOutput, reader, false);
+                }
                 process.destroy(); // Note: this also closes the I/O streams.
                 if (machineLog.isInfoEnabled())
                 {
