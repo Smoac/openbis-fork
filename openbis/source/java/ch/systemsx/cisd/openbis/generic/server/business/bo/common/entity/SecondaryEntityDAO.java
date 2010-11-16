@@ -137,6 +137,7 @@ public class SecondaryEntityDAO
         registrator.setEmail(registrator.getEmail());
         registrator.setFirstName(registrator.getFirstName());
         registrator.setLastName(registrator.getLastName());
+        registrator.setDatabaseInstance(databaseInstance);
         return registrator;
     }
 
