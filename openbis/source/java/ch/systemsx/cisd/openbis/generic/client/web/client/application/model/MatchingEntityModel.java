@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * A {@link ModelData} implementation for {@link MatchingEntity}.
@@ -39,9 +40,12 @@ public final class MatchingEntityModel extends BaseEntityModel<MatchingEntity>
         super(entity, getStaticColumnsDefinition());
 
         // override registrator column adding a link
-        String person =
-                PersonRenderer.createPersonAnchor(entity.getOriginalObject().getRegistrator());
-        set(MatchingEntityColumnKind.REGISTRATOR.id(), person);
+        Person registratorOrNull = entity.getOriginalObject().getRegistrator();
+        if (registratorOrNull != null)
+        {
+            String person = PersonRenderer.createPersonAnchor(registratorOrNull);
+            set(MatchingEntityColumnKind.REGISTRATOR.id(), person);
+        }
     }
 
     public static IColumnDefinitionKind<MatchingEntity>[] getStaticColumnsDefinition()
