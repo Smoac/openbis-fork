@@ -687,15 +687,12 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         debug("retrieving the data with a new key " + dataKey);
         List<T> rows = dataProvider.getOriginalData();
         List<TableModelColumnHeader> headers = dataProvider.getHeaders();
-        xmlPropertyTransformer.transformXMLProperties(rows);
         TableData<T> tableData =
                 new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
 
-        // Escape the values
-        for (T row : rows)
-        {
-            ReflectingStringEscaper.escapeDeep(row);
-        }
+        ReflectingStringEscaper.escapeDeep(rows);
+        // transformation is performed after escaping not to escape transformed values
+        xmlPropertyTransformer.transformXMLProperties(rows);
 
         addToCache(dataKey, tableData);
         return calculateSortAndFilterResult(sessionToken, tableData, resultConfig, dataKey);

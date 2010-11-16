@@ -67,8 +67,8 @@ public class ReflectionStringTraverser
         new ReflectionStringTraverser(fieldVisitor, false).traverseMutable(object, clazz);
     }
 
-    // mutable classes are arrays and classes which are not primitives or collections of primitive
-    // types
+    // mutable classes are arrays and classes which are not primitives
+    // or collections of mutable types
     private void traverseMutable(Object object, Class<?> clazz)
     {
         if (seenObjects.contains(object))
@@ -87,6 +87,19 @@ public class ReflectionStringTraverser
         if (clazz.isArray())
         {
             traverseArray(clazz);
+        } else if (isCollection(object))
+        {
+            for (Object element : (Collection<?>) object)
+            {
+                if (isMutable(element))
+                {
+                    traverseMutable(element, element.getClass());
+                } else
+                {
+                    // NOTE: we do not handle e.g. list of list of Strings
+                    throw createCannotTraverseImmutableObjectException(object);
+                }
+            }
         } else
         {
             traverseFields(object, clazz);
@@ -151,8 +164,8 @@ public class ReflectionStringTraverser
      * Return a list of all fields (whatever access status, and on whatever superclass they were
      * defined) that can be found on this class.
      * <p>
-     * This works like a union of {@link Class#getDeclaredFields()} which ignores super-classes,
-     * and {@link Class#getFields()} which ignores non-public fields
+     * This works like a union of {@link Class#getDeclaredFields()} which ignores super-classes, and
+     * {@link Class#getFields()} which ignores non-public fields
      * 
      * @param clazz The class to introspect
      * @return The complete list of fields
