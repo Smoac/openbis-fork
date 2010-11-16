@@ -21,6 +21,10 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * Performs HTML escaping the string fields of an object. If desired, users can restrict the fields
@@ -31,6 +35,8 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public class ReflectingStringEscaper
 {
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ReflectingStringEscaper.class);
 
     /**
      * Escape all the string fields on the bean.
@@ -47,9 +53,17 @@ public class ReflectingStringEscaper
      */
     public static <T> T escapeDeep(T bean)
     {
-        ReflectingStringEscaperUnrestricted<T> escaper =
-                new ReflectingStringEscaperUnrestricted<T>(true, bean);
-        return escaper.escape();
+        long time = System.currentTimeMillis();
+        try
+        {
+            ReflectingStringEscaperUnrestricted<T> escaper =
+                    new ReflectingStringEscaperUnrestricted<T>(true, bean);
+            return escaper.escape();
+        } finally
+        {
+            operationLog.info((System.currentTimeMillis() - time) + "ms for escaping "
+                    + (bean == null ? "" : bean.getClass()));
+        }
     }
 
     /**
@@ -84,10 +98,6 @@ class ReflectingStringEscaperImpl<T>
 
     protected final T bean;
 
-    /**
-     *
-     *
-     */
     protected ReflectingStringEscaperImpl(boolean isDeep, T bean)
     {
         this.isDeep = isDeep;
@@ -128,7 +138,9 @@ class ReflectingStringEscaperRestricted<T> extends ReflectingStringEscaperImpl<T
                 return null;
             }
             if (escapedProperties.contains(fieldOrNull.getName()))
+            {
                 return StringEscapeUtils.escapeHtml(value);
+            }
             return null;
         }
     }
@@ -154,10 +166,76 @@ class ReflectingStringEscaperRestricted<T> extends ReflectingStringEscaperImpl<T
 class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl<T>
 {
 
+    private static class Pair
+    {
+        Object first;
+
+        Object second;
+
+        public Pair(Object first, Object second)
+        {
+            super();
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((first == null) ? 0 : first.hashCode());
+            result = prime * result + ((second == null) ? 0 : second.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (!(obj instanceof Pair))
+            {
+                return false;
+            }
+            Pair other = (Pair) obj;
+            if (first == null)
+            {
+                if (other.first != null)
+                {
+                    return false;
+                }
+            } else if (!first.equals(other.first))
+            {
+                return false;
+            }
+            if (second == null)
+            {
+                if (other.second != null)
+                {
+                    return false;
+                }
+            } else if (!second.equals(other.second))
+            {
+                return false;
+            }
+            return true;
+        }
+
+    }
+
     private static class Visitor implements ReflectionStringTraverser.ReflectionFieldVisitor
     {
 
         private final HashSet<String> unescapedProperties;
+
+        private final HashSet<Pair> seenObjectFields = new HashSet<Pair>();
 
         private Visitor()
         {
@@ -168,8 +246,17 @@ class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl
 
         public String tryVisit(String value, Object object, Field fieldOrNull)
         {
+            Pair pair = new Pair(object, fieldOrNull);
+            if (seenObjectFields.contains(pair))
+            {
+                return null;
+            } else
+            {
+                seenObjectFields.add(pair);
+            }
             if (null == fieldOrNull)
             {
+                // TODO 2010-11-16, Piotr Buczek: how is this possible?
                 return StringEscapeUtils.escapeHtml(value);
             }
 
@@ -180,7 +267,6 @@ class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl
             }
 
             return StringEscapeUtils.escapeHtml(value);
-
         }
     }
 
