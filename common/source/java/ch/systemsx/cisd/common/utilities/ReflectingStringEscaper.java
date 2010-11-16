@@ -65,8 +65,12 @@ public class ReflectingStringEscaper
             return null;
         } finally
         {
-            operationLog.info((System.currentTimeMillis() - time) + "ms for escaping "
-                    + (bean == null ? "" : bean.getClass().getSimpleName()));
+            long timeSpent = System.currentTimeMillis() - time;
+            if (timeSpent > 100)
+            {
+                operationLog.info((timeSpent) + "ms for escaping "
+                        + (bean == null ? "" : bean.getClass().getSimpleName()));
+            }
         }
     }
 
