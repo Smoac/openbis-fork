@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  * 
  * @author Tomasz Pylak
  */
-public class ReflectionStringTraverser
+class ReflectionStringTraverser
 {
     private static final Logger log = LogFactory.getLogger(LogCategory.OPERATION,
             ReflectionStringTraverser.class);
@@ -57,7 +57,7 @@ public class ReflectionStringTraverser
     public static void traverseDeep(Object object, ReflectionFieldVisitor fieldVisitor)
     {
         Class<?> clazz = object.getClass();
-        new ReflectionStringTraverser(fieldVisitor).traverseMutable(object, clazz);
+        new ReflectionStringTraverser(fieldVisitor, true).traverseMutable(object, clazz);
     }
 
     /** cannot be called for primitive types or collections */
@@ -81,25 +81,14 @@ public class ReflectionStringTraverser
         }
         if (isMutable(object) == false)
         {
-            throw createCannotTraverseImmutableObjectException(object);
-        }
-
-        if (clazz.isArray())
+            log.error("Cannot traverse primitive collections or primitives " + object);
+            return;
+        } else if (clazz.isArray())
         {
             traverseArray(clazz);
         } else if (isCollection(object))
         {
-            for (Object element : (Collection<?>) object)
-            {
-                if (isMutable(element))
-                {
-                    traverseMutable(element, element.getClass());
-                } else
-                {
-                    // NOTE: we do not handle e.g. list of list of Strings
-                    throw createCannotTraverseImmutableObjectException(object);
-                }
-            }
+            traverseMutableCollection((Collection<?>) object);
         } else
         {
             traverseFields(object, clazz);
@@ -111,11 +100,6 @@ public class ReflectionStringTraverser
     private final boolean isDeep;
 
     private final HashSet<Object> seenObjects = new HashSet<Object>();
-
-    private ReflectionStringTraverser(ReflectionFieldVisitor fieldVisitor)
-    {
-        this(fieldVisitor, true);
-    }
 
     private ReflectionStringTraverser(ReflectionFieldVisitor fieldVisitor, boolean isDeep)
     {
@@ -143,17 +127,13 @@ public class ReflectionStringTraverser
             {
                 try
                 {
-                    if (log.isDebugEnabled())
-                    {
-                        log.debug("Traverse field <" + field.getName() + "> of "
-                                + object.getClass() + ":\n\t" + object);
-                    }
                     traverseField(object, field);
                 } catch (Exception ex)
                 {
                     log.error("Failed accessing field <" + field.getName() + "> of "
                             + object.getClass() + ":\n\t" + object);
                     ex.printStackTrace();
+
                     throw new IllegalStateException("Should not happen: " + ex.getMessage());
                 }
             }
@@ -187,6 +167,11 @@ public class ReflectionStringTraverser
 
     private void traverseField(Object object, Field field) throws IllegalAccessException
     {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Traverse field <" + field.getName() + "> of " + object.getClass() + ":\n\t"
+                    + object);
+        }
         field.setAccessible(true);
         Object fieldValue = field.get(object);
         if (fieldValue == null)
@@ -243,28 +228,27 @@ public class ReflectionStringTraverser
 
         if (isStringClass(componentType))
         {
-            Collection<?> newCollection = visitStringCollection(collection, field);
+            Collection<?> newCollection = visitStringCollection(collection);
             field.set(object, newCollection);
         } else
         {
-            for (Object element : collection)
-            {
-                if (isMutable(element))
-                {
-                    traverseMutable(element, element.getClass());
-                } else
-                {
-                    // NOTE: we do not handle e.g. list of list of Strings
-                    throw createCannotTraverseImmutableObjectException(object);
-                }
-            }
+            traverseMutableCollection(collection);
         }
     }
 
-    private IllegalStateException createCannotTraverseImmutableObjectException(Object object)
+    private void traverseMutableCollection(Collection<?> collection)
     {
-        return new IllegalStateException("Cannot traverse primitive collections or primitives "
-                + object);
+        for (Object element : collection)
+        {
+            if (isMutable(element))
+            {
+                traverseMutable(element, element.getClass());
+            } else
+            {
+                // NOTE: we do not handle e.g. list of list of Strings
+                log.error("Cannot traverse primitive collections or primitives " + collection);
+            }
+        }
     }
 
     private boolean isMutable(Object element)
@@ -273,13 +257,13 @@ public class ReflectionStringTraverser
                 && isStringCollection(element) == false;
     }
 
-    private Collection<String> visitStringCollection(Object collection, Field fieldOrNull)
+    private Collection<String> visitStringCollection(Object collection)
     {
         Collection<String> castedSource = asStringCollection(collection);
         Collection<String> newCollection = createEmptyCollection(castedSource);
         for (String element : castedSource)
         {
-            String newElement = tryVisitString(element, fieldOrNull);
+            String newElement = tryVisitString(element);
             newCollection.add(newElement != null ? newElement : element);
         }
         return newCollection;
@@ -303,7 +287,7 @@ public class ReflectionStringTraverser
             }
             if (isString(element))
             {
-                visitStringArrayElement(array, index, element, componentType);
+                visitStringArrayElement(array, index, (String) element, componentType);
             } else
             {
                 if (isStringCollection(element))
@@ -320,24 +304,24 @@ public class ReflectionStringTraverser
     // array[index] contains collection of primitive types which will be modified if necessary
     private void visitStringCollectionArrayElement(Object array, int index, Object collection)
     {
-        Collection<String> newCollection = visitStringCollection(collection, null);
+        Collection<String> newCollection = visitStringCollection(collection);
         Array.set(array, index, newCollection);
     }
 
     // array[index] contains a value of primitive type which will be modified if necessary
-    private void visitStringArrayElement(Object array, int index, Object element,
+    private void visitStringArrayElement(Object array, int index, String element,
             Class<?> componentType)
     {
-        Object newElement = tryVisitString(element, null);
+        String newElement = tryVisitString(element);
         if (newElement != null)
         {
             Array.set(array, index, newElement);
         }
     }
 
-    private String tryVisitString(Object element, Field fieldOrNull)
+    private String tryVisitString(String element)
     {
-        return visitor.tryVisit((String) element, element, fieldOrNull);
+        return visitor.tryVisit(element, element, null);
     }
 
     // assumes that all elements are of the same type

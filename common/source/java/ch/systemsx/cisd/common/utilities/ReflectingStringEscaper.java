@@ -59,6 +59,10 @@ public class ReflectingStringEscaper
             ReflectingStringEscaperUnrestricted<T> escaper =
                     new ReflectingStringEscaperUnrestricted<T>(true, bean);
             return escaper.escape();
+        } catch (Exception exception)
+        {
+            operationLog.error(exception.getMessage());
+            return null;
         } finally
         {
             operationLog.info((System.currentTimeMillis() - time) + "ms for escaping "
@@ -256,7 +260,7 @@ class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl
             }
             if (null == fieldOrNull)
             {
-                // TODO 2010-11-16, Piotr Buczek: how is this possible?
+                // happens e.g. when array of strings is escaped
                 return StringEscapeUtils.escapeHtml(value);
             }
 
