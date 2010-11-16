@@ -16,12 +16,19 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.server;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.lang.SerializationUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.springframework.aop.framework.ProxyFactory;
@@ -31,22 +38,45 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.convert.NativeTaggedArray;
+import ch.systemsx.cisd.base.image.IImageTransformer;
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
+import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.common.io.FileBasedContent;
+import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
+import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreeningInternal;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingTransformerDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 
@@ -57,6 +87,21 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFe
  */
 public class DssServiceRpcScreeningTest extends AssertJUnit
 {
+    private static final class ImageTransformerFactory implements IImageTransformerFactory
+    {
+        private static final long serialVersionUID = 1L;
+        private static int counter;
+        
+        private int id = counter++;
+
+        public IImageTransformer createTransformer()
+        {
+            return null;
+        }
+    }
+    
+    private static final String EXPERIMENT_PERM_ID = "exp-123";
+
     private static final String SESSION_TOKEN = "session";
 
     private Mockery context;
@@ -71,7 +116,11 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private DssServiceRpcScreening screeningService;
 
+    private ImageTransformerFactory transformerFactory;
+
     private IImagingTransformerDAO transformerDAO;
+
+    private IHCSImageDatasetLoader imageLoader;
 
     @BeforeMethod
     public void beforeMethod()
@@ -80,10 +129,33 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         service = context.mock(IEncapsulatedOpenBISService.class);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
         transformerDAO = context.mock(IImagingTransformerDAO.class);
+        imageLoader = context.mock(IHCSImageDatasetLoader.class);
+        transformerFactory = new ImageTransformerFactory();
         featureVectorDatasetIdentifier1 = create("ds1");
         featureVectorDatasetIdentifier2 = create("ds2");
+        final PlateImageParameters imageParameters = new PlateImageParameters();
+        imageParameters.setRowsNum(7);
+        imageParameters.setColsNum(4);
+        imageParameters.setTileRowsNum(1);
+        imageParameters.setTileColsNum(2);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(imageLoader).getImageParameters();
+                    will(returnValue(imageParameters));
+                }
+            });
 
-        screeningService = new DssServiceRpcScreening("targets", dao, transformerDAO, service, false);
+        screeningService =
+                new DssServiceRpcScreening("targets", dao, transformerDAO, service, false)
+                    {
+                        @Override
+                        IHCSImageDatasetLoader createImageLoader(String datasetCode,
+                                File datasetRoot)
+                        {
+                            return imageLoader;
+                        }
+                    };
     }
 
     private IFeatureVectorDatasetIdentifier create(final String dataSetCode)
@@ -181,7 +253,179 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testLoadImages() throws IOException
+    {
+        final String channel = "GFP";
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).getHomeDatabaseInstance();
+                    DatabaseInstance databaseInstance = new DatabaseInstance();
+                    databaseInstance.setUuid("12345");
+                    will(returnValue(databaseInstance));
+                    
+                    Size thumbnailSize = new Size(2, 1);
+                    one(imageLoader).tryGetImage(
+                            channel,
+                            ImageChannelStackReference.createFromLocations(new Location(3, 1),
+                                    new Location(1, 1)), thumbnailSize);
+                    will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
+                            null, thumbnailSize)));
+                    one(imageLoader).tryGetImage(
+                            channel,
+                            ImageChannelStackReference.createFromLocations(new Location(3, 1),
+                                    new Location(2, 1)), thumbnailSize);
+                    will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
+                            null, thumbnailSize)));
+                }
+            });
 
+        InputStream images =
+                screeningService.loadImages(SESSION_TOKEN, new DatasetIdentifier("ds1", "url1"),
+                        Arrays.asList(new WellPosition(1, 3)), channel, new ImageSize(2, 1));
+
+        ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(images);
+        BufferedImage image1 = extractNextImage(imagesWriter);
+        assertEquals(1, image1.getWidth());
+        assertEquals(1, image1.getHeight());
+        BufferedImage image2 = extractNextImage(imagesWriter);
+        assertEquals(1, image2.getWidth());
+        assertEquals(1, image2.getHeight());
+
+        context.assertIsSatisfied();
+    }
+
+    BufferedImage extractNextImage(ConcatenatedFileOutputStreamWriter imagesWriter)
+            throws IOException
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        imagesWriter.writeNextBlock(outputStream);    
+        return ImageUtil.loadImage(new ByteArrayInputStream(outputStream.toByteArray()));
+    }
+    
+    @Test
+    public void testGetImageTransformerFactoryForChannel()
+    {
+        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        final String channel = "dapi";
+        prepareGetExperimentPermIDs(ds1, ds2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryGetChannelByChannelCodeAndExperimentPermId(EXPERIMENT_PERM_ID,
+                            channel);
+                    ImgChannelDTO channelDTO =
+                            ImgChannelDTO.createDatasetChannel("dapi", null, null, 42, "dapi");
+                    channelDTO.setSerializedImageTransformerFactory(SerializationUtils
+                            .serialize(transformerFactory));
+                    will(returnValue(channelDTO));
+                }
+            });
+        
+        IImageTransformerFactory result = screeningService.getImageTransformerFactoryOrNull(SESSION_TOKEN,
+                Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel);
+
+        assertEquals(transformerFactory.id, ((ImageTransformerFactory) result).id);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetImageTransformerFactoryForExperiment()
+    {
+        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        prepareGetExperimentPermIDs(ds1, ds2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).tryGetExperimentByPermId(EXPERIMENT_PERM_ID);
+                    ImgExperimentDTO experiment = new ImgExperimentDTO();
+                    experiment.setSerializedImageTransformerFactory(SerializationUtils
+                            .serialize(transformerFactory));
+                    will(returnValue(experiment));
+                }
+            });
+
+        IImageTransformerFactory result =
+                screeningService.getImageTransformerFactoryOrNull(SESSION_TOKEN,
+                        Arrays.<IDatasetIdentifier> asList(ds1, ds2),
+                        ScreeningConstants.MERGED_CHANNELS);
+
+        assertEquals(transformerFactory.id, ((ImageTransformerFactory) result).id);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testSaveImageTransformerFactoryForChannel()
+    {
+        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        final String channel = "dapi";
+        prepareGetExperimentPermIDs(ds1, ds2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(transformerDAO).saveTransformerFactoryForChannel(EXPERIMENT_PERM_ID,
+                            channel, transformerFactory);
+                    one(transformerDAO).commit();
+                }
+            });
+
+        screeningService.saveImageTransformerFactory(SESSION_TOKEN,
+                Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel, transformerFactory);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSaveImageTransformerFactoryForExperiment()
+    {
+        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
+        prepareGetExperimentPermIDs(ds1, ds2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(transformerDAO).saveTransformerFactoryForExperiment(EXPERIMENT_PERM_ID,
+                            transformerFactory);
+                    one(transformerDAO).commit();
+                }
+            });
+
+        screeningService.saveImageTransformerFactory(SESSION_TOKEN,
+                Arrays.<IDatasetIdentifier> asList(ds1, ds2), ScreeningConstants.MERGED_CHANNELS,
+                transformerFactory);
+
+        context.assertIsSatisfied();
+    }
+
+    public void prepareGetExperimentPermIDs(final DatasetIdentifier... dataSetIdentifiers)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    ExternalData externalData = new ExternalData();
+                    Experiment experiment = new Experiment();
+                    experiment.setPermId(EXPERIMENT_PERM_ID);
+                    externalData.setExperiment(experiment);
+                    for (DatasetIdentifier datasetIdentifier : dataSetIdentifiers)
+                    {
+                        one(service).tryGetDataSet(SESSION_TOKEN, datasetIdentifier.getDatasetCode());
+                        will(returnValue(externalData));
+                    }
+                }
+            });
+    }
+
+    private IContent image(String fileName)
+    {
+        return new FileBasedContent(new File(ImageChannelsUtilsTest.TEST_IMAGE_FOLDER, fileName));
+    }
+    
     private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,
             FeatureVector featureVector, double... expectedValues)
     {

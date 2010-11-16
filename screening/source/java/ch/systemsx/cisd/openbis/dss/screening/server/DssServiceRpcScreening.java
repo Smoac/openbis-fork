@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -185,11 +187,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         return result;
     }
 
-    private static ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
+    private ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
             File datasetRoot)
     {
-        IHCSImageDatasetLoader imageAccessor =
-                HCSImageDatasetLoaderFactory.create(datasetRoot, dataset.getDatasetCode());
+        IHCSImageDatasetLoader imageAccessor = createImageLoader(dataset.getDatasetCode(), datasetRoot);
         Size imageSize = getImageSize(dataset, imageAccessor);
         PlateImageParameters params = imageAccessor.getImageParameters();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
@@ -352,15 +353,14 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     {
         String datasetCode = dataSetIdentifier.getDatasetCode();
         File rootDir = getRootDirectoryForDataSet(datasetCode);
-        IHCSImageDatasetLoader imageAccessor =
-                HCSImageDatasetLoaderFactory.create(rootDir, datasetCode);
+        IHCSImageDatasetLoader imageAccessor = createImageLoader(datasetCode, rootDir);
         List<PlateImageReference> imageReferences =
                 createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
         Size size = null;
         if (thumbnailSizeOrNull != null)
         {
             size = new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
-        }
+   }
         List<IContent> imageContents = new ArrayList<IContent>();
         for (PlateImageReference imageReference : imageReferences)
         {
@@ -375,7 +375,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public void saveImageTransformerFactory(String sessionToken, List<IDatasetIdentifier> dataSetIdentifiers,
             String channel, IImageTransformerFactory transformerFactory)
     {
-        List<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
+        Set<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
         for (String experimentPermID : experimentPermIDs)
         {
             if (ScreeningConstants.MERGED_CHANNELS.equals(channel))
@@ -385,8 +385,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                     operationLog.info("save image transformer factory " + transformerFactory
                             + " for experiment " + experimentPermID);
                 }
-                transformerDAO
-                .saveTransformerFactoryForExperiment(experimentPermID, transformerFactory);
+                transformerDAO.saveTransformerFactoryForExperiment(experimentPermID,
+                        transformerFactory);
             } else
             {
                 if (operationLog.isInfoEnabled())
@@ -406,7 +406,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     public IImageTransformerFactory getImageTransformerFactoryOrNull(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
-        List<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
+        Set<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
         if (experimentPermIDs.isEmpty())
         {
             throw new UserFailureException("No data set identifers specified.");
@@ -416,7 +416,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             throw new UserFailureException("All data sets have to belong to the same experiment: "
                     + dataSetIdentifiers);
         }
-        String experimentPermID = experimentPermIDs.get(0);
+        String experimentPermID = experimentPermIDs.iterator().next();
         if (ScreeningConstants.MERGED_CHANNELS.equals(channel))
         {
             return getDAO().tryGetExperimentByPermId(experimentPermID).getImageTransformerFactory();
@@ -425,10 +425,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 .getImageTransformerFactory();
     }
 
-    private List<String> getExperimentPermIDs(String sessionToken,
+    private Set<String> getExperimentPermIDs(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers)
     {
-        List<String> experimentPermIDs = new ArrayList<String>();
+        Set<String> experimentPermIDs = new HashSet<String>();
         for (IDatasetIdentifier dataSetIdentifier : dataSetIdentifiers)
         {
             ExternalData dataSet =
@@ -546,6 +546,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private IHCSImageDatasetLoader createImageLoader(String datasetCode)
     {
         File datasetRoot = getRootDirectoryForDataSet(datasetCode);
+        return createImageLoader(datasetCode, datasetRoot);
+    }
+
+    IHCSImageDatasetLoader createImageLoader(String datasetCode, File datasetRoot)
+    {
         return HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
     }
 

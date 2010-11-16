@@ -47,6 +47,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  */
 public class ImageChannelsUtilsTest extends AssertJUnit
 {
+    public static final File TEST_IMAGE_FOLDER = new File("../screening/sourceTest/java/"
+            + ImageChannelsUtilsTest.class.getPackage().getName().replace('.', '/'));
+
     private static final String SESSION_ID = "session-42";
     private static final String DATASET_CODE = "dataset-123";
 
@@ -73,7 +76,6 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
     private Mockery context;
     private IHCSImageDatasetLoader loader;
-    private File imageFolder;
     private IImageTransformerFactory transformerFactory;
 
     @BeforeMethod
@@ -82,8 +84,6 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         context = new Mockery();
         loader = context.mock(IHCSImageDatasetLoader.class);
         transformerFactory = context.mock(IImageTransformerFactory.class);
-        
-        imageFolder = new File("../screening/sourceTest/java/" + getClass().getPackage().getName().replace('.', '/'));
     }
     
     @AfterMethod
@@ -228,7 +228,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     
     private IContent image(String fileName)
     {
-        return new FileBasedContent(new File(imageFolder, fileName));
+        return new FileBasedContent(new File(TEST_IMAGE_FOLDER, fileName));
     }
     
     private String getImageContentDescription(IContent image)
