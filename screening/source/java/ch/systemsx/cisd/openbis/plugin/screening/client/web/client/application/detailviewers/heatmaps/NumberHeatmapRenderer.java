@@ -45,13 +45,9 @@ public class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         {
             throw new IllegalArgumentException();
         }
-        if (value == max)
-        {
-            return new Color(colors[colors.length - 1]);
-        }
         float range = value - min;
         float part = range / step;
-        int colorNumber = (int) Math.floor(part);
+        int colorNumber = Math.min((int) Math.floor(part), colors.length - 1);
         return new Color(colors[colorNumber]);
     }
 

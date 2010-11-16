@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
+import java.util.List;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
 /**
  * @author Izabela Adamczyk
@@ -106,5 +110,36 @@ public class NumberHeatmapRendererTest
         AssertJUnit.assertEquals(COLOR2, renderer.getColor(1.5f).getHexColor());
         AssertJUnit.assertEquals(COLOR2, renderer.getColor(2f).getHexColor());
         AssertJUnit.assertEquals(COLOR2, renderer.getColor(3f).getHexColor());
+    }
+
+    @Test
+    public void testScaleOneColor() throws Exception
+    {
+        String[] colors =
+            { COLOR1 };
+        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(-1, 3, colors);
+        List<HeatmapScaleElement> scale = renderer.calculateScale();
+        AssertJUnit.assertEquals(1, scale.size());
+        HeatmapScaleElement element = scale.get(0);
+        AssertJUnit.assertEquals(-1.0 + "", renderer.tryGetFirstLabel());
+        AssertJUnit.assertEquals(COLOR1, element.getColor().getHexColor());
+        AssertJUnit.assertEquals(3.0 + "", element.getLabel());
+    }
+
+    @Test
+    public void testScaleTwoColor() throws Exception
+    {
+        String[] colors =
+            { COLOR1, COLOR2 };
+        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(-1, 3, colors);
+        List<HeatmapScaleElement> scale = renderer.calculateScale();
+        AssertJUnit.assertEquals(2, scale.size());
+        AssertJUnit.assertEquals(-1.0 + "", renderer.tryGetFirstLabel());
+        HeatmapScaleElement element1 = scale.get(0);
+        AssertJUnit.assertEquals(COLOR1, element1.getColor().getHexColor());
+        AssertJUnit.assertEquals(1.0 + "", element1.getLabel());
+        HeatmapScaleElement element2 = scale.get(1);
+        AssertJUnit.assertEquals(COLOR2, element2.getColor().getHexColor());
+        AssertJUnit.assertEquals(3.0 + "", element2.getLabel());
     }
 }
