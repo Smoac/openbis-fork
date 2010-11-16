@@ -92,7 +92,8 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
     @Override
     public boolean equals(Object obj)
     {
-        assert getDatabaseInstance() != null;
+        // FIXME - there are cases when DatabaseInstance is null!
+        // assert getDatabaseInstance() != null;
         if (obj == this)
         {
             return true;
@@ -102,8 +103,8 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
             return false;
         }
         final Person that = (Person) obj;
-        return getUserId().equals(that.getUserId())
-                && getDatabaseInstance().equals(that.getDatabaseInstance());
+        return getUserId().equals(that.getUserId());
+        // && getDatabaseInstance().equals(that.getDatabaseInstance());
     }
 
     @Override
