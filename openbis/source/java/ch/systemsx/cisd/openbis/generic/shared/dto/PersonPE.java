@@ -152,6 +152,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     @Length(max = 50, message = ValidationMessages.USER_ID_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.USER_ID_NOT_NULL_MESSAGE)
     @Pattern(regex = USER_CODE_REGEX, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.VALID_USER_CODE_DESCRIPTION)
+    @Field(index = Index.NO, name = SearchFieldConstants.PERSON_USER_ID, store = Store.YES)
     public final String getUserId()
     {
         return userId;

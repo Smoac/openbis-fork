@@ -56,6 +56,8 @@ public final class SearchFieldConstants
 
     public static final String PERSON_EMAIL = "Email";
 
+    public static final String PERSON_USER_ID = "User Id";
+
     public static final String ID = "id";
 
     public static final String CODE = "code";
