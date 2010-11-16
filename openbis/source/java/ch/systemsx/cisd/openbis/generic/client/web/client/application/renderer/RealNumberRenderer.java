@@ -15,7 +15,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
  * 
  * @author Izabela Adamczyk
  */
-public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>
+public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>,
+        IRealNumberRenderer
 {
     private static final String EXPONENT_FORMAT = "E000";
 
@@ -59,6 +60,11 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
     public RealNumberRenderer(RealNumberFormatingParameters realNumberFormatingParameters)
     {
         this.realNumberFormatingParameters = realNumberFormatingParameters;
+    }
+
+    public String render(float value)
+    {
+        return render("" + value, realNumberFormatingParameters);
     }
 
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,

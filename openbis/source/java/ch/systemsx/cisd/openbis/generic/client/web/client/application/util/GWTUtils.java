@@ -233,12 +233,16 @@ public final class GWTUtils
 
     /**
      * Sets the tooltip of the component using default configuration (disappear after mouse moved),
-     * replace new lines with html breaks.
+     * replace new lines with html breaks. If null value is passed, tooltip is removed.
      */
-    public static void setToolTip(Component component, String text)
+    public static void setToolTip(Component component, String textOrNull)
     {
-        String preparedText = text != null ? text.replace("\n", "<br>") : text;
-        ToolTipConfig config = new ToolTipConfig(preparedText);
+        ToolTipConfig config = null;
+        if (textOrNull != null)
+        {
+            String preparedText = textOrNull.replace("\n", "<br>");
+            config = new ToolTipConfig(preparedText);
+        }
         component.setToolTip(config);
     }
 
