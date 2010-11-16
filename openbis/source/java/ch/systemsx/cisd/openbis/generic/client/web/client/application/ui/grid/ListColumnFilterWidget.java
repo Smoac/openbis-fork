@@ -96,7 +96,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         String label = filteredField.getHeader();
         setEmptyText(label);
         setToolTip(label);
-        setTemplate(GWTUtils.getTooltipTemplate(MODEL_DISPLAY_KEY, ModelDataPropertyNames.TOOLTIP));
+        setTemplate(GWTUtils.getTooltipTemplate(MODEL_VALUE_KEY, ModelDataPropertyNames.TOOLTIP));
 
         GWTUtils.setupAutoWidth(this);
     }
@@ -154,7 +154,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
             displayValue = StringEscapeUtils.unescapeHtml(displayValue);
             model.set(MODEL_DISPLAY_KEY, displayValue);
             model.set(MODEL_VALUE_KEY, value);
-            model.set(ModelDataPropertyNames.TOOLTIP, value);
+            model.set(ModelDataPropertyNames.TOOLTIP, StringEscapeUtils.escapeHtml(value));
             models.add(model);
         }
         return models;
