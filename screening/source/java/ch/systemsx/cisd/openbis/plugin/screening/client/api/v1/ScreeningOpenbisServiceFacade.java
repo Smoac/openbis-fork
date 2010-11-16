@@ -582,8 +582,15 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public IImageTransformerFactory getImageTransformerFactoryOrNull(
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(dataSetIdentifiers);
+        Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
+        if (entrySet.size() != 1)
+        {
+            throw new IllegalArgumentException("Only one data store expected instead of " + map.keySet());
+        }
+        Entry<String, List<IDatasetIdentifier>> entry = entrySet.iterator().next();
+        IDssServiceRpcScreening service = dssServiceCache.createDssService(entry.getKey()).getService();
+        return service.getImageTransformerFactoryOrNull(sessionToken, dataSetIdentifiers, channel);
     }
 
     /**

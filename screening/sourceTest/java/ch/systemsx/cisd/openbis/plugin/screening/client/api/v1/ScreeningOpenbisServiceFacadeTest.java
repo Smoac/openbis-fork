@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.IContent;
@@ -38,12 +39,15 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -89,6 +93,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 
     private IImageOutputStreamProvider outputStreamProvider;
 
+    private IImageTransformerFactory transformerFactory;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -103,6 +109,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         dssService2 = context.mock(IDssServiceRpcScreening.class, "dss2");
         outputStreamProvider =
                 context.mock(ScreeningOpenbisServiceFacade.IImageOutputStreamProvider.class);
+        transformerFactory = context.mock(IImageTransformerFactory.class);
         context.checking(new Expectations()
             {
                 {
@@ -292,6 +299,77 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         assertSame(m2, metaData.get(1));
         assertSame(m3, metaData.get(2));
         assertEquals(3, metaData.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testLoadImagesAsByteArrays() throws IOException
+    {
+        final DatasetIdentifier ds = new DatasetIdentifier("ds1", URL1);
+        final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
+        final String channel = "dapi";
+        final ImageSize thumbnailSize = new ImageSize(10, 7);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService1).loadImages(SESSION_TOKEN, ds, wellPositions, channel, thumbnailSize);
+                    ByteArrayBasedContent content1 =
+                            new ByteArrayBasedContent("hello 1".getBytes(), "h1");
+                    ByteArrayBasedContent content2 =
+                        new ByteArrayBasedContent("hello 2".getBytes(), "h2");
+                    ConcatenatedContentInputStream stream =
+                        new ConcatenatedContentInputStream(true, Arrays
+                                .<IContent> asList(content1, content2));
+                    will(returnValue(stream));
+                }
+            });
+
+        List<byte[]> images = facade.loadImages(ds, wellPositions, channel, thumbnailSize);
+        assertEquals("hello 1", new String(images.get(0)));
+        assertEquals("hello 2", new String(images.get(1)));
+        assertEquals(2, images.size());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetImageTransformerFactoryOrNull()
+    {
+        final String channel = "DAPI";
+        final List<IDatasetIdentifier> ids = Arrays.<IDatasetIdentifier>asList(new DatasetIdentifier("ds1", URL1));
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService1).getImageTransformerFactoryOrNull(SESSION_TOKEN, ids, channel);
+                    will(returnValue(transformerFactory));
+                }
+            });
+        
+        IImageTransformerFactory factory = facade.getImageTransformerFactoryOrNull(ids, channel);
+        
+        assertSame(transformerFactory, factory);
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testSaveImageTransformerFactoryOrNull()
+    {
+        final String channel = "DAPI";
+        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", URL1);
+        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", URL2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService1).saveImageTransformerFactory(SESSION_TOKEN,
+                            Arrays.<IDatasetIdentifier> asList(ds1), channel, transformerFactory);
+                    one(dssService2).saveImageTransformerFactory(SESSION_TOKEN,
+                            Arrays.<IDatasetIdentifier> asList(ds2), channel, transformerFactory);
+                }
+            });
+
+        facade.saveImageTransformerFactory(Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel,
+                transformerFactory);
+        
         context.assertIsSatisfied();
     }
 }
