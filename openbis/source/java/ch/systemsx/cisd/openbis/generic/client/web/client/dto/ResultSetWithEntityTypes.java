@@ -21,6 +21,7 @@ import java.util.Set;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 
 /**
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
  * 
  * @author Tomasz Pylak
  */
+@DoNotEscape
 public class ResultSetWithEntityTypes<T extends IEntityInformationHolder> implements
         IsSerializable, IResultSetHolder<T>
 {

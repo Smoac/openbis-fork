@@ -30,10 +30,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.Unescape;
 
 /**
  * The advisor for automatically escaping HTML strings in the values returned by implementations of
@@ -94,38 +92,7 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
                 return false;
             }
 
-            // This is handled in the cache manager
-            if (method.getReturnType() == TypedTableResultSet.class)
-            {
-                return false; // FIXME?
-            }
-
-            // This is handled in the cache manager
-            if (method.getReturnType() == ResultSet.class)
-            {
-                return false;
-            }
-
-            // don't escape these beans that contain application information
-            // TODO 2010-11-15, Piotr Buczek: add an annotation on methods that shouldn't be escaped
-            if (method.getReturnType() == ApplicationInfo.class)
-            {
-                return false;
-            }
-
-            if (method.getReturnType() == SessionContext.class)
-            {
-                return false;
-            }
-
-            // Don't need to escape this method
-            if ("getLastModificationState".equals(method.getName()))
-            {
-                return false;
-            }
-
-            // This is handled in the cache manager
-            if (method.getReturnType() == ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes.class)
+            if (method.getReturnType().isAnnotationPresent(DoNotEscape.class))
             {
                 return false;
             }
@@ -157,28 +124,28 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
             return result;
         }
 
-        private Object escapeObject(MethodInvocation methodInvocation, Object unescapedResult)
+        private Object escapeObject(MethodInvocation methodInvocation, Object originalResult)
         {
-            Object result = unescapedResult;
+            Object result = originalResult;
             // Need to log unescaped result here, since it might be modified below
-            escapeLog.info(methodInvocation.getMethod().getName() + " converting   "
-                    + unescapedResult);
-            if (unescapedResult instanceof String)
+            escapeLog.debug(methodInvocation.getMethod().getName() + " converting   "
+                    + originalResult);
+            if (originalResult instanceof String)
             {
-                if ("getExportTable".equals(methodInvocation.getMethod().getName()))
+                if (methodInvocation.getMethod().isAnnotationPresent(Unescape.class))
                 {
-                    result = StringEscapeUtils.unescapeHtml((String) unescapedResult);
+                    result = StringEscapeUtils.unescapeHtml((String) originalResult);
                 } else
                 {
-                    // Do we need to escape strings in general?
+                    // TODO 2010-11-15, CR: Do we need to escape strings in general?
                     // StringEscapeUtils.escapeHtml((String) unescapedResult);
                 }
             } else
             {
                 // Escape the result objects
-                ReflectingStringEscaper.escapeDeep(unescapedResult);
+                ReflectingStringEscaper.escapeDeep(originalResult);
             }
-            escapeLog.info(methodInvocation.getMethod().getName() + " converted to " + result);
+            escapeLog.debug(methodInvocation.getMethod().getName() + " converted to " + result);
             return result;
         }
     }

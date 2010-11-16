@@ -24,12 +24,15 @@ import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+
 /**
  * Stores information about the time and kind of the last modification, separately for each kind of
  * database object.
  * 
  * @author Tomasz Pylak
  */
+@DoNotEscape
 public class LastModificationState implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

@@ -19,17 +19,22 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
- * Context of a web session. Contains session ID, {@link User}, and {@link DisplaySettings}. 
- *
- * @author     Franz-Josef Elmer
+ * Context of a web session. Contains session ID, {@link User}, and {@link DisplaySettings}.
+ * 
+ * @author Franz-Josef Elmer
  */
+@DoNotEscape
 public class SessionContext implements IsSerializable
 {
+
     private User user;
+
     private String sessionID;
+
     private DisplaySettings displaySettings;
 
     public final User getUser()
@@ -72,5 +77,4 @@ public class SessionContext implements IsSerializable
         this.displaySettings = displaySettings;
     }
 
-    
 }

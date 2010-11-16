@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+
 /**
  * A result set that has been returned by the server.
  * <p>
@@ -26,6 +28,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
+@DoNotEscape
 public final class ResultSet<T> implements IsSerializable, IResultSetHolder<T>
 {
     private GridRowModels<T> list;
