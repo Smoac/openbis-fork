@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleRange;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
 /**
  * @author Tomasz Pylak
@@ -30,5 +30,10 @@ public interface IHeatmapRenderer<T>
     Color getColor(T value);
 
     /** @return heatmap scale description, order is relevant. */
-    List<HeatmapScaleRange> calculateScale();
+    List<HeatmapScaleElement> calculateScale();
+
+    /**
+     * @return first label of the scale or null
+     */
+    String tryGetFirstLabel();
 }

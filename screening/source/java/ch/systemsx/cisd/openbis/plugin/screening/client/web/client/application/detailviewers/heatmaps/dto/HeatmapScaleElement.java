@@ -21,13 +21,13 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
  * 
  * @author Tomasz Pylak
  */
-public class HeatmapScaleRange
+public class HeatmapScaleElement
 {
     private final String label;
 
     private final Color color;
 
-    public HeatmapScaleRange(String label, Color color)
+    public HeatmapScaleElement(String label, Color color)
     {
         this.label = label;
         this.color = color;

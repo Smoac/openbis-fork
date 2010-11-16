@@ -1,61 +1,34 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleRange;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
-public class ScaleDrawer
+/**
+ * Creates {@link Widget}s presenting a heat map scale.
+ * 
+ * @author Izabela Adamczyk
+ */
+public class HeatmapScaleFactory
 {
 
-    static public void example()
-    {
-        List<HeatmapScaleRange> ranges = new ArrayList<HeatmapScaleRange>();
-        for (String s : Arrays.asList("#67001F", "#B2182B", "#D6604D", "#F4A582", "#FDDBC7",
-                "#F7F7F7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC", "#053061"))
-        {
-            ranges.add(new HeatmapScaleRange(s, new Color(s)));
-        }
-
-        Dialog dialog = new Dialog();
-        List<String> list1 = new ArrayList<String>();
-        for (int i = 0; i < 5; i++)
-        {
-            list1.add("Value A" + i);
-        }
-        List<String> list2 = new ArrayList<String>();
-        for (int i = 0; i < 20; i++)
-        {
-            list2.add("Value B" + i);
-        }
-        Widget w1 = draw(ranges);
-        Widget w2 = draw("First", ranges);
-        Widget w3 = draw(new StringHeatmapRenderer(list1).calculateScale());
-        Widget w4 = draw(new StringHeatmapRenderer(list2).calculateScale());
-        dialog.add(WidgetUtils.inRow(w1, w2, w3, w4));
-        dialog.show();
-    }
-
-    public static Widget draw(List<HeatmapScaleRange> ranges)
-    {
-        return draw(null, ranges);
-    }
-
-    public static Widget draw(String firstLabelOrNull, List<HeatmapScaleRange> ranges)
+    /**
+     * @param firstLabelOrNull - if null, creates a scale widget with one color described by one
+     *            label. Otherwise creates a scale widget with one color described by a range (two
+     *            labels).
+     */
+    public static Widget create(String firstLabelOrNull, List<HeatmapScaleElement> scaleElements)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(2));
@@ -68,7 +41,7 @@ public class ScaleDrawer
                     createLabelData(isFirstLabel));
             container.add(createBox(null), createBoxData());
         }
-        for (HeatmapScaleRange r : ranges)
+        for (HeatmapScaleElement r : scaleElements)
         {
             container.add(createLabel(isFirstLabel, r.getLabel()), createLabelData(isFirstLabel));
             container.add(createBox(r.getColor()), createBoxData());
