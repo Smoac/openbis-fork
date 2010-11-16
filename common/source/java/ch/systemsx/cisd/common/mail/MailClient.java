@@ -40,6 +40,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -135,7 +136,7 @@ public final class MailClient extends Authenticator implements IMailClient
         {
             properties.put(JavaMailProperties.MAIL_SMTP_HOST, smtpHost);
         }
-        if (smtpPassword != null && smtpUsername != null)
+        if (StringUtils.isNotBlank(smtpPassword) && StringUtils.isNotBlank(smtpUsername))
         {
             properties.put(JavaMailProperties.MAIL_SMTP_AUTH, Boolean.TRUE.toString());
         }

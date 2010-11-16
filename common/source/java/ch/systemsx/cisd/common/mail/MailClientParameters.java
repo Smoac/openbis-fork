@@ -52,6 +52,11 @@ public class MailClientParameters implements Serializable
 
     public final void setSmtpUser(String smtpUser)
     {
+        // Check for Spring injection artefact
+        if (smtpUser != null && smtpUser.startsWith("${"))
+        {
+            this.smtpUser = null;
+        }
         this.smtpUser = smtpUser;
     }
 
@@ -62,6 +67,11 @@ public class MailClientParameters implements Serializable
 
     public final void setSmtpPassword(String smtpPassword)
     {
+        // Check for Spring injection artefact
+        if (smtpPassword != null && smtpPassword.startsWith("${"))
+        {
+            this.smtpPassword = null;
+        }
         this.smtpPassword = smtpPassword;
     }
 
