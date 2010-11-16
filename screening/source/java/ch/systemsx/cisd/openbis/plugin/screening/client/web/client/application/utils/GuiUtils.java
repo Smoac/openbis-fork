@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.core.El;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.util.Rectangle;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
@@ -124,4 +128,29 @@ public class GuiUtils
         return new Rectangle(minX, minY, maxX - minX, maxY - minY);
     }
 
+    /**
+     * Selects first element of the specified combobox if nothing was selected before.
+     */
+    public static <T extends ModelData> void autoselect(ComboBox<T> combo)
+    {
+        autoselect(combo, true);
+    }
+
+    /**
+     * Selects first element of the specified combobox.
+     * 
+     * @onlyIfEmpty if true nothing is done if something is already selected
+     */
+    public static <T extends ModelData> void autoselect(ComboBox<T> combo, boolean onlyIfEmpty)
+    {
+        if (onlyIfEmpty && combo.getValue() != null)
+        {
+            return;
+        }
+        List<T> models = combo.getStore().getModels();
+        if (models.size() > 0)
+        {
+            combo.setValue(models.get(0));
+        }
+    }
 }
