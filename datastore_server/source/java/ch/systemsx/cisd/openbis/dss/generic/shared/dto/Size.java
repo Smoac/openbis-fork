@@ -37,4 +37,25 @@ public final class Size
     {
         return height;
     }
+
+    @Override
+    public int hashCode()
+    {
+        return 37 * width + height;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+         if (obj instanceof Size == false)
+        {
+            return false;
+        }
+        Size size = (Size) obj;
+        return size.width == width && size.height == height;
+    }
 }
