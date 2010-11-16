@@ -184,8 +184,8 @@ public class FeatureTableBuilderTest extends AssertJUnit
     {
         assertEquals(expectedDataSetCode, row.getDataSetCode());
         String rowLetter =
-                PlateUtils.translateRowNumberIntoLetterCode(row.getWellPosition().getWellRow());
-        assertEquals(expectedWell, rowLetter + row.getWellPosition().getWellColumn());
+                PlateUtils.translateRowNumberIntoLetterCode(row.getWellLocation().getRow());
+        assertEquals(expectedWell, rowLetter + row.getWellLocation().getColumn());
         assertEquals(expectedPlate, row.getPlateIdentifier().toString());
         assertEquals(expectedValues, render(row.getFeatureValuesAsDouble()));
     }

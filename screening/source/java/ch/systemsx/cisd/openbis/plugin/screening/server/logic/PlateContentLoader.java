@@ -43,6 +43,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -51,7 +53,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChann
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 
 /**
  * Loads content of the plate.
@@ -61,8 +65,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoade
 public class PlateContentLoader
 {
     /**
-     * loads data about the plate for a specified sample id. Attaches information about images and
-     * image analysis only if one dataset with such a data exist.
+     * Loads data about the plate for a specified sample id. Attaches information about images and
+     * image analysis datasets.
      */
     public static PlateContent loadImagesAndMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
@@ -71,8 +75,7 @@ public class PlateContentLoader
     }
 
     /**
-     * loads data about the plate for a specified dataset, which is supposed to contain images in
-     * BDS-HCS format.
+     * Loads data about the plate for a specified dataset, which is supposed to contain images.
      */
     public static PlateImages loadImagesAndMetadataForDataset(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, TechId datasetId)
@@ -153,10 +156,7 @@ public class PlateContentLoader
         List<DatasetImagesReference> imageDatasetReferences =
                 translateAndFetchImageParams(imageDatasets);
 
-        List<ExternalDataPE> analysisDatasets =
-                ScreeningUtils.filterImageAnalysisDatasets(datasets);
-        List<DatasetReference> analysisDatasetReferences =
-                createDatasetReferences(analysisDatasets);
+        List<FeatureVectorDataset> featureVectorDatasets = filterAndFetchFeatureVectors(datasets);
 
         List<ExternalDataPE> unknownDatasets = ScreeningUtils.filterUnknownDatasets(datasets);
         List<DatasetReference> unknownDatasetReferences = createDatasetReferences(unknownDatasets);
@@ -165,8 +165,36 @@ public class PlateContentLoader
         int rows = plateGeometry.getNumberOfRows();
         int cols = plateGeometry.getNumberOfColumns();
         PlateMetadata plateMetadata = new PlateMetadata(plate, wells, rows, cols);
-        return new PlateContent(plateMetadata, imageDatasetReferences, analysisDatasetReferences,
+        return new PlateContent(plateMetadata, imageDatasetReferences, featureVectorDatasets,
                 unknownDatasetReferences);
+    }
+
+    private List<FeatureVectorDataset> filterAndFetchFeatureVectors(List<ExternalDataPE> datasets)
+    {
+        List<ExternalDataPE> analysisDatasets =
+                ScreeningUtils.filterImageAnalysisDatasets(datasets);
+        List<DatasetReference> featureVectorDatasetReferences =
+                createDatasetReferences(analysisDatasets);
+        return fetchFeatureVectors(featureVectorDatasetReferences);
+    }
+
+    private List<FeatureVectorDataset> fetchFeatureVectors(
+            List<DatasetReference> featureVectorDatasetReferences)
+    {
+        List<FeatureVectorDataset> featureVectorDatasets = new ArrayList<FeatureVectorDataset>();
+        for (DatasetReference datasetReference : featureVectorDatasetReferences)
+        {
+            IHCSFeatureVectorLoader loader =
+                    businessObjectFactory.createHCSFeatureVectorLoader(datasetReference
+                            .getDatastoreCode());
+            WellFeatureCollection<FeatureVectorValues> featureValues =
+                    loader.fetchDatasetFeatureValues(datasetReference.getCode());
+            FeatureVectorDataset featureVectorDataset =
+                    new FeatureVectorDataset(datasetReference, featureValues.getFeatures(),
+                            featureValues.getFeatureLabels());
+            featureVectorDatasets.add(featureVectorDataset);
+        }
+        return featureVectorDatasets;
     }
 
     private List<DatasetReference> createDatasetReferences(List<ExternalDataPE> datasets)

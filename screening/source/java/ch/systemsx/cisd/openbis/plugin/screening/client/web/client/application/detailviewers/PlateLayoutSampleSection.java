@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -52,10 +51,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.SimpleModelComboBox;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.SimpleModelComboBox.SimpleComboboxItem;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 
 /**
@@ -77,6 +78,8 @@ public class PlateLayoutSampleSection extends TabContent
     private static final String UNKNOWN_DATASETS_LABEL = "Other data connected to this plate:";
 
     private static final String SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON = "Advanced";
+
+    private static final String SHOW_CHOSEN_ANALYSIS_DATASET_BUTTON = "Show Report";
 
     private static final String NO_IMAGES_DATASET_LABEL = "No images data has been acquired.";
 
@@ -123,7 +126,6 @@ public class PlateLayoutSampleSection extends TabContent
                     setScrollMode(Scroll.AUTO);
 
                     addPlateVisualisation(plateContent);
-                    addImageAnalysisChooser(plateContent);
                     addPlateMetadataReportLink(plateContent);
                     addUnknownDatasetsLinks(plateContent.getUnknownDatasets());
 
@@ -132,38 +134,15 @@ public class PlateLayoutSampleSection extends TabContent
             };
     }
 
-    private void addImageAnalysisChooser(final PlateContent plateContent)
+    private static List<DatasetReference> asFeatureVectorReferences(
+            List<FeatureVectorDataset> featureVectorDatasets)
     {
-        Widget analysisPanel;
-        List<DatasetReference> analysisDatasets = plateContent.getImageAnalysisDatasets();
-        if (analysisDatasets.size() > 1)
+        List<DatasetReference> refs = new ArrayList<DatasetReference>();
+        for (FeatureVectorDataset dataset : featureVectorDatasets)
         {
-            final DatasetChooserComboBox<DatasetReference> datasetChooser =
-                    new DatasetChooserComboBox<DatasetReference>(viewContext, analysisDatasets,
-                            createDatasetLabels(analysisDatasets));
-            final Anchor detailsButton = createImageAnalysisDetailsButton(datasetChooser);
-            datasetChooser
-                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<DatasetChoosableItem<DatasetReference>>>()
-                        {
-                            @Override
-                            public void selectionChanged(
-                                    SelectionChangedEvent<SimpleComboValue<DatasetChoosableItem<DatasetReference>>> se)
-                            {
-                                updateDatasetSimpleViewModeLink(datasetChooser, detailsButton);
-                            }
-                        });
-            analysisPanel =
-                    GuiUtils.renderInRow(new Text(IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL),
-                            datasetChooser, detailsButton);
-        } else if (analysisDatasets.size() == 1)
-        {
-            Widget datasetDetailsLink = createDatasetDetailsLink(analysisDatasets.get(0));
-            analysisPanel = withLabel(datasetDetailsLink, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL);
-        } else
-        {
-            analysisPanel = new Text(NO_IMAGE_ANALYSIS_DATASET_LABEL);
+            refs.add(dataset.getDatasetReference());
         }
-        add(analysisPanel, PlateLayouter.createRowLayoutMarginData());
+        return refs;
     }
 
     private void addUnknownDatasetsLinks(List<DatasetReference> unknownDatasets)
@@ -180,7 +159,7 @@ public class PlateLayoutSampleSection extends TabContent
             Widget detailsLink = createDatasetDetailsLink(dataset, label);
             c.add(detailsLink);
         }
-        add(c, PlateLayouter.createRowLayoutMarginData());
+        add(c, PlateLayouter.createRowLayoutSurroundingData());
     }
 
     private static Widget withLabel(Widget widet, String label)
@@ -194,62 +173,11 @@ public class PlateLayoutSampleSection extends TabContent
         return container;
     }
 
-    private static class DatasetChoosableItem<T>
+    private static <T> SimpleModelComboBox<T> createDatasetChooserComboBox(
+            IMessageProvider messageProvider, List<T> items, List<String> labels)
     {
-        private final T item;
-
-        private final String label;
-
-        public DatasetChoosableItem(T item, String label)
-        {
-            this.item = item;
-            this.label = label;
-        }
-
-        public T getItem()
-        {
-            return item;
-        }
-
-        @Override
-        public String toString()
-        {
-            return label;
-        }
-    }
-
-    private static class DatasetChooserComboBox<T> extends SimpleComboBox<DatasetChoosableItem<T>>
-    {
-        /**
-         * Creates a combobox and selects the first value.
-         */
-        public DatasetChooserComboBox(IMessageProvider messageProvider, List<T> items,
-                String[] labels)
-        {
-            setTriggerAction(TriggerAction.ALL);
-            setAllowBlank(false);
-            setEditable(false);
-            setEmptyText(messageProvider.getMessage(Dict.COMBO_BOX_CHOOSE));
-            setWidth(DATASET_COMBOBOX_CHOOSER_WIDTH_PX);
-            int i = 0;
-            for (T item : items)
-            {
-                add(new DatasetChoosableItem<T>(item, labels[i]));
-                i++;
-            }
-            autoselect();
-        }
-
-        /**
-         * Selects first element if nothing was selected before.
-         */
-        private void autoselect()
-        {
-            if (getStore().getModels().size() > 0 && getValue() == null)
-            {
-                setValue(getStore().getModels().get(0));
-            }
-        }
+        return new SimpleModelComboBox<T>(messageProvider, items, labels,
+                DATASET_COMBOBOX_CHOOSER_WIDTH_PX);
     }
 
     private static String createDatasetLabel(DatasetReference datasetReference)
@@ -269,101 +197,181 @@ public class PlateLayoutSampleSection extends TabContent
 
     private void addPlateVisualisation(PlateContent plateContent)
     {
-        LayoutContainer container = new LayoutContainer();
         PlateMetadata plateMetadata = plateContent.getPlateMetadata();
-        List<DatasetImagesReference> imageDatasets = plateContent.getImageDatasets();
-        RowData margin = PlateLayouter.createRowLayoutMarginData();
-        if (imageDatasets.size() == 0)
-        {
-            container.add(new Text(NO_IMAGES_DATASET_LABEL));
-            container.add(PlateLayouter.createVisualization(plateMetadata, viewContext));
-        } else
-        {
-            Widget renderedPlate;
-            if (imageDatasets.size() > 1)
-            {
-                renderedPlate = renderPlateWithManyImageDatasets(imageDatasets, plateMetadata);
-            } else
-            {
-                renderedPlate = renderPlateWithOneImageDataset(imageDatasets.get(0), plateMetadata);
-            }
-            container.add(renderedPlate);
-        }
+        PlateLayouter plateLayouter = new PlateLayouter(viewContext, plateMetadata);
 
-        add(container, margin);
+        List<DatasetImagesReference> imageDatasets = plateContent.getImageDatasets();
+        Widget imageDatasetDetailsRow = createImageDatasetDetailsRow(imageDatasets, plateLayouter);
+        Widget featureVectorDatasetDatailsRow =
+                createFeatureVectorDatasetDetailsRow(plateContent, plateLayouter);
+
+        Widget plateLayout = plateLayouter.getView();
+
+        boolean manyImageDatasets = imageDatasets.size() > 1;
+        boolean manyFeatureVectorDatasets = plateContent.getFeatureVectorDatasets().size() > 1;
+        layoutComponents(plateLayout, imageDatasetDetailsRow, manyImageDatasets,
+                featureVectorDatasetDatailsRow, manyFeatureVectorDatasets);
     }
 
-    private Widget renderPlateWithOneImageDataset(DatasetImagesReference datasetImagesReference,
-            PlateMetadata plateMetadata)
+    private void layoutComponents(Widget plateLayout, Widget imageDatasetDetailsRow,
+            boolean manyImageDatasets, Widget featureVectorDatasetDatailsRow,
+            boolean manyFeatureVectorDatasets)
     {
         LayoutContainer container = new LayoutContainer();
-        PlateImages plateImages = new PlateImages(plateMetadata, datasetImagesReference);
-        container.add(PlateLayouter.createVisualization(plateImages, viewContext));
+        container.setLayout(new RowLayout());
+        if (manyImageDatasets)
+        {
+            container.add(imageDatasetDetailsRow);
+        }
+        if (manyFeatureVectorDatasets)
+        {
+            container.add(featureVectorDatasetDatailsRow);
+        }
 
+        container.add(plateLayout);
+
+        RowData horizontalMargin = PlateLayouter.createRowLayoutHorizontalMargin();
+        if (manyImageDatasets == false)
+        {
+            container.add(imageDatasetDetailsRow, horizontalMargin);
+        }
+        if (manyFeatureVectorDatasets == false)
+        {
+            container.add(featureVectorDatasetDatailsRow, horizontalMargin);
+        }
+        add(container, PlateLayouter.createRowLayoutSurroundingData());
+    }
+
+    private Widget createImageDatasetDetailsRow(List<DatasetImagesReference> imageDatasets,
+            PlateLayouter plateLayouter)
+    {
+        if (imageDatasets.size() == 0)
+        {
+            return new Text(NO_IMAGES_DATASET_LABEL);
+        } else if (imageDatasets.size() == 1)
+        {
+            DatasetImagesReference datasetImagesReference = imageDatasets.get(0);
+            return createAndConnectImageDatasetInfo(datasetImagesReference, plateLayouter);
+        } else
+        {
+            return createAndConnectImageDatasetChooser(imageDatasets, plateLayouter);
+        }
+    }
+
+    private Widget createFeatureVectorDatasetDetailsRow(final PlateContent plateContent,
+            PlateLayouter plateLayouter)
+    {
+        List<FeatureVectorDataset> featureVectorDatasets = plateContent.getFeatureVectorDatasets();
+        if (featureVectorDatasets.size() == 0)
+        {
+            return new Text(NO_IMAGE_ANALYSIS_DATASET_LABEL);
+        } else if (featureVectorDatasets.size() == 1)
+        {
+            FeatureVectorDataset featureVectorDataset = featureVectorDatasets.get(0);
+            return createAndConnectFeatureVectorDatasetInfo(featureVectorDataset, plateLayouter);
+        } else
+        {
+            return createAndConnectFeatureVectorDatasetChooser(featureVectorDatasets, plateLayouter);
+        }
+    }
+
+    private Widget createAndConnectImageDatasetInfo(DatasetImagesReference datasetImagesReference,
+            PlateLayouter plateLayouter)
+    {
         Widget datasetDetailsButton =
                 createDatasetDetailsLink(datasetImagesReference.getDatasetReference(),
                         SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON);
-        container.add(withLabel(datasetDetailsButton, SINGLE_IMAGE_DATASET_DETAILS_LABEL));
-
-        return container;
+        Widget imageDatasetDetailsRow =
+                withLabel(datasetDetailsButton, SINGLE_IMAGE_DATASET_DETAILS_LABEL);
+        plateLayouter.changeDisplayedImageDataset(datasetImagesReference);
+        return imageDatasetDetailsRow;
     }
 
-    private LayoutContainer renderPlateWithManyImageDatasets(
-            List<DatasetImagesReference> imageDatasets, final PlateMetadata plateMetadata)
+    private Widget createAndConnectImageDatasetChooser(List<DatasetImagesReference> imageDatasets,
+            final PlateLayouter plateLayouter)
     {
-        final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser =
-                new DatasetChooserComboBox<DatasetImagesReference>(viewContext, imageDatasets,
+        final SimpleModelComboBox<DatasetImagesReference> datasetChooser =
+                createDatasetChooserComboBox(viewContext, imageDatasets,
                         createDatasetLabels(asReferences(imageDatasets)));
 
-        DatasetImagesReference chosenImageDataset = getChosenDataset(imageDatasetChooser);
-        final PlateLayouter plateLayouter =
-                new PlateLayouter(viewContext, plateMetadata, chosenImageDataset);
-
-        final Anchor imageDetailsButton = createImageDetailsButton(imageDatasetChooser);
-        imageDatasetChooser
-                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<DatasetChoosableItem<DatasetImagesReference>>>()
+        final Anchor datasetDetailsButton = createImageDetailsButton(datasetChooser);
+        datasetChooser
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<SimpleComboboxItem<DatasetImagesReference>>>()
                     {
                         @Override
                         public void selectionChanged(
-                                SelectionChangedEvent<SimpleComboValue<DatasetChoosableItem<DatasetImagesReference>>> se)
+                                SelectionChangedEvent<SimpleComboValue<SimpleComboboxItem<DatasetImagesReference>>> se)
                         {
-                            DatasetImagesReference imageDataset =
-                                    se.getSelectedItem().getValue().getItem();
-                            plateLayouter.changeDisplayedImageDataset(imageDataset);
-                            updateImageDatasetSimpleViewModeLink(imageDatasetChooser,
-                                    imageDetailsButton);
+                            DatasetImagesReference chosenDataset =
+                                    SimpleModelComboBox.getChosenItem(se);
+                            plateLayouter.changeDisplayedImageDataset(chosenDataset);
+                            updateImageDatasetSimpleViewModeLink(datasetChooser,
+                                    datasetDetailsButton);
                         }
                     });
+        DatasetImagesReference chosenDataset = datasetChooser.getChosenItem();
+        plateLayouter.changeDisplayedImageDataset(chosenDataset);
 
-        Widget plateLayout = plateLayouter.renderVisualizationWidget();
-
-        Widget chooserRow =
-                GuiUtils.renderInRow(new Text(IMAGES_DATASET_CHOOSER_LABEL), imageDatasetChooser,
-                        imageDetailsButton);
-        LayoutContainer layoutWithToolbar = layoutWithToolbar(plateLayout, chooserRow);
-        return layoutWithToolbar;
+        return GuiUtils.renderInRow(withLabel(datasetChooser, IMAGES_DATASET_CHOOSER_LABEL),
+                datasetDetailsButton);
     }
 
-    private static <T> T getChosenDataset(DatasetChooserComboBox<T> imageDatasetChooser)
+    private Widget createAndConnectFeatureVectorDatasetChooser(
+            List<FeatureVectorDataset> featureVectorDatasets, final PlateLayouter plateLayouter)
     {
-        return imageDatasetChooser.getSimpleValue().getItem();
+        final SimpleModelComboBox<FeatureVectorDataset> datasetChooser =
+                createDatasetChooserComboBox(viewContext, featureVectorDatasets,
+                        createDatasetLabels(asFeatureVectorReferences(featureVectorDatasets)));
+        final Anchor datasetDetailsButton = createImageAnalysisDetailsButton(datasetChooser);
+        datasetChooser
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<SimpleComboboxItem<FeatureVectorDataset>>>()
+                    {
+                        @Override
+                        public void selectionChanged(
+                                SelectionChangedEvent<SimpleComboValue<SimpleComboboxItem<FeatureVectorDataset>>> se)
+                        {
+                            FeatureVectorDataset chosenDataset =
+                                    SimpleModelComboBox.getChosenItem(se);
+                            plateLayouter.changeDisplayedFeatureVectorDataset(chosenDataset);
+                            updateFeatureVectorDatasetSimpleViewModeLink(datasetChooser,
+                                    datasetDetailsButton);
+                        }
+                    });
+        FeatureVectorDataset chosenDataset = datasetChooser.getChosenItem();
+        plateLayouter.changeDisplayedFeatureVectorDataset(chosenDataset);
+
+        return GuiUtils.renderInRow(
+                withLabel(datasetChooser, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL),
+                datasetDetailsButton);
+    }
+
+    private Widget createAndConnectFeatureVectorDatasetInfo(
+            FeatureVectorDataset featureVectorDataset, PlateLayouter plateLayouter)
+    {
+        plateLayouter.changeDisplayedFeatureVectorDataset(featureVectorDataset);
+
+        Widget datasetDetailsLink =
+                createDatasetDetailsLink(featureVectorDataset.getDatasetReference(),
+                        SHOW_CHOSEN_ANALYSIS_DATASET_BUTTON);
+        return withLabel(datasetDetailsLink, IMAGE_ANALYSIS_DATASET_CHOOSER_LABEL);
     }
 
     private Anchor createImageAnalysisDetailsButton(
-            final DatasetChooserComboBox<DatasetReference> datasetChooser)
+            final SimpleModelComboBox<FeatureVectorDataset> datasetChooser)
     {
-        return LinkRenderer.getLinkAnchor(viewContext.getMessage(Dict.BUTTON_SHOW),
-                new ClickHandler()
-                    {
-                        public void onClick(ClickEvent event)
-                        {
-                            openDatasetDetails(getChosenDataset(datasetChooser));
-                        }
-                    }, createDatasetSimpleViewModeHref(datasetChooser));
+        return LinkRenderer.getLinkAnchor(SHOW_CHOSEN_ANALYSIS_DATASET_BUTTON, new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    DatasetReference datasetReference =
+                            datasetChooser.getChosenItem().getDatasetReference();
+                    openDatasetDetails(datasetReference);
+                }
+            }, createDatasetSimpleViewModeHref(datasetChooser));
     }
 
     private Anchor createImageDetailsButton(
-            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser)
+            final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser)
     {
         return LinkRenderer.getLinkAnchor(SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON,
                 new ClickHandler()
@@ -376,7 +384,7 @@ public class PlateLayoutSampleSection extends TabContent
     }
 
     private void updateImageDatasetSimpleViewModeLink(
-            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser,
+            final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser,
             final Anchor anchor)
     {
         if (viewContext.isSimpleMode())
@@ -385,8 +393,8 @@ public class PlateLayoutSampleSection extends TabContent
         }
     }
 
-    private void updateDatasetSimpleViewModeLink(
-            final DatasetChooserComboBox<DatasetReference> datasetChooser, final Anchor anchor)
+    private void updateFeatureVectorDatasetSimpleViewModeLink(
+            final SimpleModelComboBox<FeatureVectorDataset> datasetChooser, final Anchor anchor)
     {
         if (viewContext.isSimpleMode())
         {
@@ -395,26 +403,21 @@ public class PlateLayoutSampleSection extends TabContent
     }
 
     private static String createImageDatasetSimpleViewModeHref(
-            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser)
+            final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser)
     {
         return LinkExtractor.tryExtract(getChosenDatasetReference(imageDatasetChooser));
     }
 
     private String createDatasetSimpleViewModeHref(
-            DatasetChooserComboBox<DatasetReference> datasetChooser)
+            SimpleModelComboBox<FeatureVectorDataset> datasetChooser)
     {
-        return LinkExtractor.tryExtract(getChosenDataset(datasetChooser));
+        return LinkExtractor.tryExtract(datasetChooser.getChosenItem().getDatasetReference());
     }
 
     private static DatasetReference getChosenDatasetReference(
-            final DatasetChooserComboBox<DatasetImagesReference> imageDatasetChooser)
+            final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser)
     {
-        return getChosenDataset(imageDatasetChooser).getDatasetReference();
-    }
-
-    private Widget createDatasetDetailsLink(final DatasetReference dataset)
-    {
-        return createDatasetDetailsLink(dataset, viewContext.getMessage(Dict.BUTTON_SHOW));
+        return imageDatasetChooser.getChosenItem().getDatasetReference();
     }
 
     private Widget createDatasetDetailsLink(final DatasetReference dataset, String label)
@@ -436,15 +439,6 @@ public class PlateLayoutSampleSection extends TabContent
         new OpenEntityDetailsTabAction(selectedDatasetReference, viewContext).execute();
     }
 
-    private static LayoutContainer layoutWithToolbar(Widget mainComponent, Widget toolbar)
-    {
-        LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
-        container.add(toolbar);
-        container.add(mainComponent);
-        return container;
-    }
-
     private static List<DatasetReference> asReferences(List<DatasetImagesReference> imageDatasets)
     {
         List<DatasetReference> refs = new ArrayList<DatasetReference>();
@@ -455,14 +449,12 @@ public class PlateLayoutSampleSection extends TabContent
         return refs;
     }
 
-    private static String[] createDatasetLabels(List<DatasetReference> datasetReferences)
+    private static List<String> createDatasetLabels(List<DatasetReference> datasetReferences)
     {
-        String[] labels = new String[datasetReferences.size()];
-        int i = 0;
+        List<String> labels = new ArrayList<String>(datasetReferences.size());
         for (DatasetReference dataset : datasetReferences)
         {
-            labels[i] = createDatasetLabel(dataset);
-            i++;
+            labels.add(createDatasetLabel(dataset));
         }
         return labels;
     }
@@ -472,7 +464,7 @@ public class PlateLayoutSampleSection extends TabContent
         Sample plate = plateContent.getPlateMetadata().getPlate();
         Widget generateLink = createPlateMetadataLink(plate, viewContext);
         add(withLabel(generateLink, PLATE_METADATA_REPORT_LABEL),
-                PlateLayouter.createRowLayoutMarginData());
+                PlateLayouter.createRowLayoutSurroundingData());
     }
 
     /** @return a button which shows a grid with the plate metadata */

@@ -61,21 +61,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCodesCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.MaterialSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.SingleExperimentSearchCriteria;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 
@@ -98,8 +97,8 @@ public class WellContentLoader
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId, String experimentPermId)
     {
-        return new WellContentLoader(session, businessObjectFactory, daoFactory)
-                .loadLocations(geneMaterialId, experimentPermId);
+        return new WellContentLoader(session, businessObjectFactory, daoFactory).loadLocations(
+                geneMaterialId, experimentPermId);
     }
 
     /** loads wells metadata, but no information about image or image analysis datasets */
@@ -385,7 +384,7 @@ public class WellContentLoader
         DatasetReference featureVectorDataset = wellContent.tryGetFeatureVectorDataset();
         if (location != null && featureVectorDataset != null)
         {
-            WellPosition pos = new WellPosition(location.getRow(), location.getColumn());
+            WellLocation pos = new WellLocation(location.getRow(), location.getColumn());
             ref = new WellFeatureVectorReference(featureVectorDataset.getCode(), pos);
 
         }

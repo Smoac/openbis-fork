@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
 /**
@@ -35,63 +37,77 @@ public class NumberHeatmapRendererTest
     @Test
     public void testFirstLabel() throws Exception
     {
-        String[] colors =
-            { COLOR1 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(0, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1);
+        NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
         AssertJUnit.assertEquals(0f + "", renderer.tryGetFirstLabel());
+    }
+
+    private NumberHeatmapRenderer createMinNeg1Max3Renderer(List<String> colors)
+    {
+        return new NumberHeatmapRenderer(-1, 3, colors, createDummyRealRenderer());
+    }
+
+    private NumberHeatmapRenderer createMin0Max3Renderer(List<String> colors)
+    {
+        return new NumberHeatmapRenderer(0, 3, colors, createDummyRealRenderer());
+    }
+
+    private IRealNumberRenderer createDummyRealRenderer()
+    {
+        return new IRealNumberRenderer()
+            {
+                public String render(float value)
+                {
+                    return "" + value;
+                }
+            };
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testValueTooSmall() throws Exception
     {
-        String[] colors =
-            { COLOR1 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(0, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1);
+        NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(-1f).getHexColor());
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testValueTooBig() throws Exception
     {
-        String[] colors =
-            { COLOR1 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(0, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1);
+        NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(10f).getHexColor());
     }
 
     @Test
     public void testMiddleValueOneColor() throws Exception
     {
-        String[] colors =
-            { COLOR1 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(0, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1);
+        NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(1.5f).getHexColor());
     }
 
     @Test
     public void testMaxValueOneColor() throws Exception
     {
-        String[] colors =
-            { COLOR1 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(0, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1);
+        NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(3f).getHexColor());
     }
 
     @Test
     public void testMinValueOneColor() throws Exception
     {
-        String[] colors =
-            { COLOR1 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(0, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1);
+        NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(1f).getHexColor());
     }
 
     @Test
     public void testTwoColors() throws Exception
     {
-        String[] colors =
-            { COLOR1, COLOR2 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(0, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1, COLOR2);
+        NumberHeatmapRenderer renderer = createMin0Max3Renderer(colors);
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(0f).getHexColor());
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(1f).getHexColor());
         AssertJUnit.assertEquals(COLOR2, renderer.getColor(1.5f).getHexColor());
@@ -102,9 +118,8 @@ public class NumberHeatmapRendererTest
     @Test
     public void testManyColors() throws Exception
     {
-        String[] colors =
-            { COLOR1, COLOR2 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(-1, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1, COLOR2);
+        NumberHeatmapRenderer renderer = createMinNeg1Max3Renderer(colors);
         AssertJUnit.assertEquals(COLOR1, renderer.getColor(-1f).getHexColor());
         AssertJUnit.assertEquals(COLOR2, renderer.getColor(1f).getHexColor());
         AssertJUnit.assertEquals(COLOR2, renderer.getColor(1.5f).getHexColor());
@@ -115,9 +130,8 @@ public class NumberHeatmapRendererTest
     @Test
     public void testScaleOneColor() throws Exception
     {
-        String[] colors =
-            { COLOR1 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(-1, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1);
+        NumberHeatmapRenderer renderer = createMinNeg1Max3Renderer(colors);
         List<HeatmapScaleElement> scale = renderer.calculateScale();
         AssertJUnit.assertEquals(1, scale.size());
         HeatmapScaleElement element = scale.get(0);
@@ -129,9 +143,8 @@ public class NumberHeatmapRendererTest
     @Test
     public void testScaleTwoColor() throws Exception
     {
-        String[] colors =
-            { COLOR1, COLOR2 };
-        NumberHeatmapRenderer renderer = new NumberHeatmapRenderer(-1, 3, colors);
+        List<String> colors = Arrays.asList(COLOR1, COLOR2);
+        NumberHeatmapRenderer renderer = createMinNeg1Max3Renderer(colors);
         List<HeatmapScaleElement> scale = renderer.calculateScale();
         AssertJUnit.assertEquals(2, scale.size());
         AssertJUnit.assertEquals(-1.0 + "", renderer.tryGetFirstLabel());

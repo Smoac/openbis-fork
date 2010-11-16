@@ -37,10 +37,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -113,11 +114,26 @@ public class FeatureVectorLoader
      * @throws UserFailureException if the specified dataset contains no feature vectors or does not
      *             exist.
      */
-    public static WellFeatureCollection<FeatureTableRow> fetchDatasetFeatures(String datasetCode,
-            IImagingReadonlyQueryDAO dao)
+    public static WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatures(
+            String datasetCode, IImagingReadonlyQueryDAO dao)
     {
         List<String> allFeatures = new ArrayList<String>();
-        return fetchDatasetFeatures(Arrays.asList(datasetCode), allFeatures, dao, null);
+        WellFeatureCollection<FeatureTableRow> features =
+                fetchDatasetFeatures(Arrays.asList(datasetCode), allFeatures, dao, null);
+        return asFeatureVectorValues(features);
+    }
+
+    private static WellFeatureCollection<FeatureVectorValues> asFeatureVectorValues(
+            WellFeatureCollection<FeatureTableRow> featureRowsCollection)
+    {
+        List<FeatureTableRow> featureRows = featureRowsCollection.getFeatures();
+        List<FeatureVectorValues> fvs = new ArrayList<FeatureVectorValues>();
+        for (FeatureTableRow row : featureRows)
+        {
+            fvs.add(new FeatureVectorValues(row.getFeatureVectorReference(), row.getFeatureValues()));
+        }
+        return new WellFeatureCollection<FeatureVectorValues>(fvs,
+                featureRowsCollection.getFeatureCodesAndLabels());
     }
 
     /**
@@ -396,7 +412,7 @@ public class FeatureVectorLoader
             if (bundle != null)
             {
                 FeatureVectorValues featureVector =
-                        createFeatureVector(bundle, reference.getWellPosition());
+                        createFeatureVector(bundle, reference.getWellLocation());
                 featureVectors.add(featureVector);
             }
         }
@@ -451,24 +467,29 @@ public class FeatureVectorLoader
             SampleIdentifier identifierOrNull, FeatureVectorDatasetWellReference reference,
             WellPosition wellPosition)
     {
-        FeatureVectorValues featureVector = createFeatureVector(bundle, wellPosition);
+        FeatureVectorValues featureVector = createFeatureVector(bundle, convert(wellPosition));
         FeatureTableRow row = new FeatureTableRow(featureVector);
         row.setPlateIdentifier(identifierOrNull);
         row.setReference(reference);
         return row;
     }
 
+    private static WellLocation convert(WellPosition wellPosition)
+    {
+        return new WellLocation(wellPosition.getWellRow(), wellPosition.getWellColumn());
+    }
+
     private FeatureVectorValues createFeatureVector(DatasetFeaturesBundle bundle,
-            WellPosition wellPosition)
+            WellLocation wellLocation)
     {
         String permId = bundle.dataSet.getPermId();
-        float[] valueArray = createFeatureValueArray(bundle.featureDefToValuesMap, wellPosition);
-        return new FeatureVectorValues(permId, wellPosition, valueArray);
+        float[] valueArray = createFeatureValueArray(bundle.featureDefToValuesMap, wellLocation);
+        return new FeatureVectorValues(permId, wellLocation, valueArray);
     }
 
     private float[] createFeatureValueArray(
             Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap,
-            WellPosition wellPosition)
+            WellLocation wellLocation)
     {
         float[] valueArray = new float[featureCodeLabelToIndexMap.size()];
         Arrays.fill(valueArray, Float.NaN);
@@ -480,17 +501,16 @@ public class FeatureVectorLoader
             // We take only the first set of feature value sets
             ImgFeatureValuesDTO featureValueDTO = featureValueSets.get(0);
             PlateFeatureValues featureValues = featureValueDTO.getValues();
-            if (wellPosition.getWellRow() > featureValues.getGeometry().getNumberOfRows()
-                    || wellPosition.getWellColumn() > featureValues.getGeometry()
-                            .getNumberOfColumns())
+            if (wellLocation.getRow() > featureValues.getGeometry().getNumberOfRows()
+                    || wellLocation.getColumn() > featureValues.getGeometry().getNumberOfColumns())
             {
                 break;
             }
             Integer index = featureCodeLabelToIndexMap.get(getCodeAndLabel(featureDefinition));
             assert index != null : "No index for feature " + featureDefinition.getCode();
             valueArray[index] =
-                    featureValues.getForWellLocation(wellPosition.getWellRow(),
-                            wellPosition.getWellColumn());
+                    featureValues.getForWellLocation(wellLocation.getRow(),
+                            wellLocation.getColumn());
         }
         return valueArray;
     }

@@ -33,10 +33,26 @@ class WellData
 
     private WellMetadata wellMetadataOrNull;
 
+    private float[] featureValuesOrNull;
+
     public WellData(WellLocation wellLocation, Experiment experiment)
     {
         this.wellLocation = wellLocation;
         this.experiment = experiment;
+    }
+
+    public void setFeatureValues(float[] featureValues)
+    {
+        this.featureValuesOrNull = featureValues;
+    }
+
+    public Float tryGetFeatureValue(int featureVectorIndex)
+    {
+        if (featureValuesOrNull == null)
+        {
+            return null;
+        }
+        return featureValuesOrNull[featureVectorIndex];
     }
 
     public void setMetadata(WellMetadata well)

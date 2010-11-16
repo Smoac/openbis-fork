@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageRef
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
@@ -93,7 +94,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
      * The minor version of this service.
      */
     public static final int MINOR_VERSION = 3;
-    
+
     static
     {
         QueryTool.getTypeMap().put(IImageTransformerFactory.class, new TransformerFactoryMapper());
@@ -103,7 +104,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
     private IImagingReadonlyQueryDAO dao;
 
     private final IImagingTransformerDAO transformerDAO;
-    
+
     public DssServiceRpcScreening(String storeRootDir)
     {
         this(storeRootDir, null, QueryTool.getQuery(ServiceProvider.getDataSourceProvider()
@@ -111,8 +112,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
                 IImagingTransformerDAO.class), ServiceProvider.getOpenBISService(), true);
     }
 
-    DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao, IImagingTransformerDAO transformerDAO,
-            IEncapsulatedOpenBISService service, boolean registerAtNameService)
+    DssServiceRpcScreening(String storeRootDir, IImagingReadonlyQueryDAO dao,
+            IImagingTransformerDAO transformerDAO, IEncapsulatedOpenBISService service,
+            boolean registerAtNameService)
     {
         super(service);
         this.dao = dao;
@@ -263,12 +265,17 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         List<FeatureVector> featureVectors = new ArrayList<FeatureVector>();
         for (FeatureTableRow featureTableRow : datasetFeatures.getFeatures())
         {
-            WellPosition wellPosition = featureTableRow.getWellPosition();
+            WellLocation wellPosition = featureTableRow.getWellLocation();
             double[] values = featureTableRow.getFeatureValuesAsDouble();
-            featureVectors.add(new FeatureVector(wellPosition, values));
+            featureVectors.add(new FeatureVector(convert(wellPosition), values));
         }
         return new FeatureVectorDataset(dataset, datasetFeatures.getFeatureCodes(),
                 datasetFeatures.getFeatureLabels(), featureVectors);
+    }
+
+    private static WellPosition convert(WellLocation wellPosition)
+    {
+        return new WellPosition(wellPosition.getRow(), wellPosition.getColumn());
     }
 
     private List<String> normalize(List<String> names)
@@ -337,7 +344,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             final IHCSImageDatasetLoader imageAccessor =
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
-            IContent content = tryGetImageContent(imageAccessor, imageReference, null, convertToPng);
+            IContent content =
+                    tryGetImageContent(imageAccessor, imageReference, null, convertToPng);
             imageContents.add(content);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
@@ -369,11 +377,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }
-    
-    
 
-    public void saveImageTransformerFactory(String sessionToken, List<IDatasetIdentifier> dataSetIdentifiers,
-            String channel, IImageTransformerFactory transformerFactory)
+    public void saveImageTransformerFactory(String sessionToken,
+            List<IDatasetIdentifier> dataSetIdentifiers, String channel,
+            IImageTransformerFactory transformerFactory)
     {
         Set<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
         for (String experimentPermID : experimentPermIDs)
@@ -391,10 +398,9 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             {
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog
-                    .info("save image transformer factory " + transformerFactory
-                            + " for experiment " + experimentPermID + " and channel '"
-                            + channel + "'.");
+                    operationLog.info("save image transformer factory " + transformerFactory
+                            + " for experiment " + experimentPermID + " and channel '" + channel
+                            + "'.");
                 }
                 transformerDAO.saveTransformerFactoryForChannel(experimentPermID, channel,
                         transformerFactory);
@@ -402,7 +408,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         }
         transformerDAO.commit();
     }
-    
+
     public IImageTransformerFactory getImageTransformerFactoryOrNull(String sessionToken,
             List<IDatasetIdentifier> dataSetIdentifiers, String channel)
     {
@@ -432,7 +438,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         for (IDatasetIdentifier dataSetIdentifier : dataSetIdentifiers)
         {
             ExternalData dataSet =
-                getOpenBISService().tryGetDataSet(sessionToken, dataSetIdentifier.getDatasetCode());
+                    getOpenBISService().tryGetDataSet(sessionToken,
+                            dataSetIdentifier.getDatasetCode());
             if (dataSet == null)
             {
                 throw new UserFailureException("Unkown data set " + dataSetIdentifier);
@@ -529,7 +536,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             return null; // no image found
         }
     }
-    
+
     // tile - start from 0
     private static Location getTileLocation(int tile, int tileColumnsNum)
     {

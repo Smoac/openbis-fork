@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.WellFeatureVectorReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
@@ -75,6 +75,12 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
                         List<WellFeatureVectorReference> references)
                 {
                     return FeatureVectorLoader.fetchWellFeatureValuesIfPossible(references, dao);
+                }
+
+                public WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(
+                        String dataSetCode)
+                {
+                    return FeatureVectorLoader.fetchDatasetFeatures(dataSetCode, dao);
                 }
             };
     }

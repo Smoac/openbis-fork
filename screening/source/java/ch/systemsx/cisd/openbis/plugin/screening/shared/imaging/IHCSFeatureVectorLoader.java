@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureVectorValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.WellFeatureVectorReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
 
 /**
@@ -30,9 +30,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoa
 public interface IHCSFeatureVectorLoader
 {
     /**
-     * Fetches all features of specified wells. Uses basic data types. If a reference to a dataset
-     * without any feature vectors is specified, it is silently ignored.
+     * Fetches all feature vectors of specified wells. Uses basic data types. If a reference to a
+     * dataset without any feature vectors is specified, it is silently ignored.
      */
     WellFeatureCollection<FeatureVectorValues> fetchWellFeatureValuesIfPossible(
             List<WellFeatureVectorReference> references);
+
+    /**
+     * Fetches all features vectors from a specified dataset.<br>
+     * Can be empty if a dataset contains no feature vectors.
+     */
+    WellFeatureCollection<FeatureVectorValues> fetchDatasetFeatureValues(String dataSetCode);
 }

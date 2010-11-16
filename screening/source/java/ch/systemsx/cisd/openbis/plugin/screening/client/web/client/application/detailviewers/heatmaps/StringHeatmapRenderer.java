@@ -1,7 +1,12 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.CATEGORY_OTHERS_COLOR;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.DOUBLE_DEFAULT_COLORS;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.LONG_DEFAULT_COLORS;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.SHORT_DEFAULT_COLORS;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.SINGLE_DEFAULT_COLORS;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,19 +22,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  */
 public class StringHeatmapRenderer implements IHeatmapRenderer<String>
 {
-    private static final Color CATEGORY_OTHERS_COLOR = new Color("#00FF00");
-
-    private static final List<String> LONG_DEFAULT_COLORS = Arrays.asList("#67001F", "#B2182B",
-            "#D6604D", "#F4A582", "#FDDBC7", "#F7F7F7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC",
-            "#053061");
-
-    private static final List<String> SHORT_DEFAULT_COLORS = Arrays.asList("#5E3C99", "$B2ABD2",
-            "#F7F7F7", "#FDB863", "#E66101");
-
-    private static final List<String> DOUBLE_DEFAULT_COLORS = Arrays.asList("#5E3C99", "#F7F7F7");
-
-    private static final List<String> SINGLE_DEFAULT_COLORS = Arrays.asList("#F7F7F7");
-
     private static final String CATEGORY_OTHERS_LABEL = "Others";
 
     private final List<HeatmapScaleElement> scale;
@@ -44,15 +36,15 @@ public class StringHeatmapRenderer implements IHeatmapRenderer<String>
      */
     public StringHeatmapRenderer(List<String> values)
     {
-        this(values, asColors(getDefaultColors(values.size())));
+        this(values, ColorConstants.asColors(getDefaultColors(values.size())));
     }
 
     private static List<String> getDefaultColors(int size)
     {
-        if (size == 1)
+        if (size <= SINGLE_DEFAULT_COLORS.size())
         {
             return SINGLE_DEFAULT_COLORS;
-        } else if (size == 2)
+        } else if (size <= DOUBLE_DEFAULT_COLORS.size())
         {
             return DOUBLE_DEFAULT_COLORS;
         } else if (size <= SHORT_DEFAULT_COLORS.size())
@@ -68,23 +60,15 @@ public class StringHeatmapRenderer implements IHeatmapRenderer<String>
      * Assigns specified colors to string labels using colors in the specified order. If there are
      * more values than colors, the "overhead values" are marked as belonging to one "Others" group.
      */
-    public StringHeatmapRenderer(List<String> uniqueValues, List<Color> scaleColors)
+    private StringHeatmapRenderer(List<String> uniqueValues, List<Color> scaleColors)
     {
         this.scale = calculateScale(uniqueValues, scaleColors);
         this.colorsMap = calculateColorMap(scale);
-        scale.add(new HeatmapScaleElement(CATEGORY_OTHERS_LABEL, CATEGORY_OTHERS_COLOR));
-
         this.moreLabelsThanColors = (uniqueValues.size() > scaleColors.size());
-    }
-
-    private static List<Color> asColors(List<String> defaultColors)
-    {
-        List<Color> colors = new ArrayList<Color>();
-        for (String color : LONG_DEFAULT_COLORS)
+        if (moreLabelsThanColors)
         {
-            colors.add(new Color(color));
+            scale.add(new HeatmapScaleElement(CATEGORY_OTHERS_LABEL, CATEGORY_OTHERS_COLOR));
         }
-        return colors;
     }
 
     private static Map<String, Color> calculateColorMap(List<HeatmapScaleElement> scale)

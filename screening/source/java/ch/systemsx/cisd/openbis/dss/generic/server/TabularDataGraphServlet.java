@@ -28,8 +28,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
@@ -118,12 +118,12 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
             for (FeatureTableRow row : rows)
             {
                 String[] line = new String[headerTokensLength];
-                WellPosition pos = row.getWellPosition();
-                String rowLetter = PlateUtils.translateRowNumberIntoLetterCode(pos.getWellRow());
-                String columnNumber = Integer.toString(row.getWellPosition().getWellColumn());
+                WellLocation pos = row.getWellLocation();
+                String rowLetter = PlateUtils.translateRowNumberIntoLetterCode(pos.getRow());
+                String columnNumber = Integer.toString(row.getWellLocation().getColumn());
                 line[0] = rowLetter + columnNumber;
-                line[1] = Integer.toString(pos.getWellRow());
-                line[2] = Integer.toString(pos.getWellColumn());
+                line[1] = Integer.toString(pos.getRow());
+                line[2] = Integer.toString(pos.getColumn());
                 i = 3;
                 float[] values = row.getFeatureValues();
                 for (float value : values)

@@ -14,25 +14,37 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Bean for one feature vector of the well. Contains data set code, well position and and array of
- * feature values. Double.NaN is used for unknown feature value in this array.
+ * Bean for one feature vector of the well. Contains data set code, well position and array of
+ * feature values. Float.NaN is used for unknown feature value in this array.
  * 
  * @author Tomasz Pylak
  */
-public class FeatureVectorValues
+public class FeatureVectorValues implements IsSerializable
 {
     private WellFeatureVectorReference featureVectorReference;
 
     private float[] featureValues;
 
-    public FeatureVectorValues(String dataSetCode, WellPosition wellPosition, float[] featureValues)
+    // GWT only
+    @SuppressWarnings("unused")
+    private FeatureVectorValues()
     {
-        this.featureVectorReference = new WellFeatureVectorReference(dataSetCode, wellPosition);
+    }
+
+    public FeatureVectorValues(String dataSetCode, WellLocation wellLocation, float[] featureValues)
+    {
+        this(new WellFeatureVectorReference(dataSetCode, wellLocation), featureValues);
+    }
+
+    public FeatureVectorValues(WellFeatureVectorReference featureVectorReference,
+            float[] featureValues)
+    {
+        this.featureVectorReference = featureVectorReference;
         this.featureValues = featureValues;
     }
 
@@ -56,9 +68,9 @@ public class FeatureVectorValues
         return featureVectorReference.getDatasetCode();
     }
 
-    public WellPosition getWellPosition()
+    public WellLocation getWellLocation()
     {
-        return featureVectorReference.getWellPosition();
+        return featureVectorReference.getWellLocation();
     }
 
     public WellFeatureVectorReference getFeatureVectorReference()

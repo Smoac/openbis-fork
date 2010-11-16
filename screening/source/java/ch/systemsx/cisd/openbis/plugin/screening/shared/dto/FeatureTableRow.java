@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 
 /**
  * Bean for a row in a table of feature vectors. Each row is specified by data set code, plate
@@ -33,7 +34,7 @@ public class FeatureTableRow extends FeatureVectorValues
 
     public FeatureTableRow(FeatureVectorValues featureVector)
     {
-        super(featureVector.getDataSetCode(), featureVector.getWellPosition(), featureVector
+        super(featureVector.getDataSetCode(), featureVector.getWellLocation(), featureVector
                 .getFeatureValues());
     }
 

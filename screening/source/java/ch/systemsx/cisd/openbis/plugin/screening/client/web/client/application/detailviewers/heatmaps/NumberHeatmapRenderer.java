@@ -3,6 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
 
@@ -13,58 +14,71 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  */
 public class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
 {
-
-    private static String[] DEFAULT_COLORS =
-        { "#67001F", "#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#F7F7F7", "#D1E5F0", "#92C5DE",
-                "#4393C3", "#2166AC", "#053061" };
-
     private final float min;
 
-    private float step;
+    private final float step;
 
-    private final String[] colors;
+    private final List<Color> colors;
 
     private final float max;
 
-    public NumberHeatmapRenderer(float min, float max)
+    private final IRealNumberRenderer realNumberRenderer;
+
+    public NumberHeatmapRenderer(float min, float max, IRealNumberRenderer realNumberRenderer)
     {
-        this(min, max, DEFAULT_COLORS);
+        this(min, max, ColorConstants.LONG_DEFAULT_COLORS, realNumberRenderer);
     }
 
-    public NumberHeatmapRenderer(float min, float max, String[] colors)
+    public NumberHeatmapRenderer(float min, float max, List<String> colors,
+            IRealNumberRenderer realNumberRenderer)
     {
         this.min = min;
         this.max = max;
-        this.colors = colors;
-        step = (max - min) / colors.length;
+        this.colors = ColorConstants.asColors(colors);
+        this.step = (max - min) / this.colors.size();
+        this.realNumberRenderer = realNumberRenderer;
     }
 
     public Color getColor(Float value)
     {
+        if (value == null || Float.isNaN(value) || Float.isInfinite(value))
+        {
+            return ColorConstants.EMPTY_VALUE_COLOR;
+        }
         if (value > max || value < min)
         {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("value from the wrong range " + value);
         }
         float range = value - min;
         float part = range / step;
-        int colorNumber = Math.min((int) Math.floor(part), colors.length - 1);
-        return new Color(colors[colorNumber]);
+        int colorNumber = Math.min((int) Math.floor(part), colors.size() - 1);
+        return colors.get(colorNumber);
     }
 
     public List<HeatmapScaleElement> calculateScale()
     {
         ArrayList<HeatmapScaleElement> scale = new ArrayList<HeatmapScaleElement>();
-        for (int i = 0; i < colors.length; i++)
+        for (int i = 0; i < colors.size(); i++)
         {
-            String label = (min + step * (i + 1)) + "";
-            scale.add(new HeatmapScaleElement(label, new Color(colors[i])));
+            String label = round((min + step * (i + 1)));
+            scale.add(new HeatmapScaleElement(label, colors.get(i)));
         }
         return scale;
     }
 
     public String tryGetFirstLabel()
     {
-        return min + "";
+        return round(min);
     }
 
+    private String round(float labelValue)
+    {
+        if (Math.abs(step) > 10)
+        {
+            return "" + Math.round(labelValue);
+        } else
+        {
+            return realNumberRenderer.render(labelValue);
+        }
+    }
 }

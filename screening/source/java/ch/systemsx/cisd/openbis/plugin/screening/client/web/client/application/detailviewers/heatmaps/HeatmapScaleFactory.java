@@ -78,7 +78,7 @@ public class HeatmapScaleFactory
         {
             box.setStyleAttribute("background-color", color.getHexColor());
         }
-        box.setWidth("1em");
+        box.setWidth("2em");
         box.setHeight("2em");
         return box;
     }
@@ -86,7 +86,7 @@ public class HeatmapScaleFactory
     private static Component createLabel(boolean isFirstLabel, String text)
     {
         Text label = new Text(text);
-        label.setStyleAttribute("font-size", "0.5em");
+        label.setStyleAttribute("font-size", "0.75em");
         label.setStyleAttribute("position", "relative");
         if (isFirstLabel)
         {

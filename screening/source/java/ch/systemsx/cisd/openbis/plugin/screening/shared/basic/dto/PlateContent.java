@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+
 /**
  * Describes the whole plate - metadata of each non-empty well, references to images datasets,
  * analysis results datasets and all other connected datasets.
@@ -32,7 +33,7 @@ public class PlateContent implements IsSerializable
 
     private List<DatasetImagesReference> imagesDatasets;
 
-    private List<DatasetReference> imageAnalysisDatasets;
+    private List<FeatureVectorDataset> featureVectorDatasets;
 
     private List<DatasetReference> unknownDatasets;
 
@@ -43,11 +44,11 @@ public class PlateContent implements IsSerializable
     }
 
     public PlateContent(PlateMetadata plateMetadata, List<DatasetImagesReference> imagesDatasets,
-            List<DatasetReference> imageAnalysisDatasets, List<DatasetReference> unknownDatasets)
+            List<FeatureVectorDataset> featureVectorDatasets, List<DatasetReference> unknownDatasets)
     {
         this.plateMetadata = plateMetadata;
         this.imagesDatasets = imagesDatasets;
-        this.imageAnalysisDatasets = imageAnalysisDatasets;
+        this.featureVectorDatasets = featureVectorDatasets;
         this.unknownDatasets = unknownDatasets;
     }
 
@@ -61,9 +62,9 @@ public class PlateContent implements IsSerializable
         return imagesDatasets;
     }
 
-    public List<DatasetReference> getImageAnalysisDatasets()
+    public List<FeatureVectorDataset> getFeatureVectorDatasets()
     {
-        return imageAnalysisDatasets;
+        return featureVectorDatasets;
     }
 
     public List<DatasetReference> getUnknownDatasets()

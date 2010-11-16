@@ -105,8 +105,8 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
             values.add(new StringTableCell(row.getDataSetCode()));
             values.add(new StringTableCell(row.getPlateIdentifier().toString()));
             values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row
-                    .getWellPosition().getWellRow())));
-            values.add(new IntegerTableCell(row.getWellPosition().getWellColumn()));
+                    .getWellLocation().getRow())));
+            values.add(new IntegerTableCell(row.getWellLocation().getColumn()));
             float[] featureValues = row.getFeatureValues();
             StringTableCell nullValue = new StringTableCell("");
             for (float value : featureValues)

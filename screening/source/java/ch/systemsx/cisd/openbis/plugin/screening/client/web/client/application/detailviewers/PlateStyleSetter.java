@@ -19,65 +19,41 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import com.extjs.gxt.ui.client.widget.Component;
 
 /**
- * Helper class which sets CSS styles of widgets.
+ * Helper class which sets CSS styles of components.
  * 
  * @author Tomasz Pylak
  */
 // TODO 2009-12-07, Tomasz Pylak: screening - move to CSS file and remove this class
 public class PlateStyleSetter
 {
-    private static final String WELL_WIDGET_SIZE = "20";
+    private static final String WELL_component_SIZE = "20";
 
-    public static Component setNonControlWellStyle(Component widget)
+    public static Component setWellStyle(Component component)
     {
-        setBackgroudColor(widget, "#DDCCFF");
-        setPointerCursor(widget);
-        setWellSize(widget);
-        return widget;
+        setPointerCursor(component);
+        setWellSize(component);
+        return component;
     }
 
-    public static Component setControlWellStyle(Component widget)
+    public static Component setWellLabelStyle(Component component)
     {
-        setBackgroudColor(widget, "#DAFFB3");
-        setPointerCursor(widget);
-        setWellSize(widget);
-        return widget;
+        setWellSize(component);
+        return component;
     }
 
-    public static Component setWellLabelStyle(Component widget)
+    private static void setWellSize(Component component)
     {
-        setWellSize(widget);
-        return widget;
+        component.setWidth(WELL_component_SIZE);
+        component.setHeight(WELL_component_SIZE);
     }
 
-    public static Component setEmptyWellStyle(Component widget)
+    public static void setPointerCursor(Component component)
     {
-        setBackgroudColor(widget, "#EEEEEE");
-        setWellSize(widget);
-        return widget;
+        component.setStyleAttribute("cursor", "pointer");
     }
 
-    public static Component setNoMetadataWellStyle(Component widget)
+    public static void setBackgroudColor(Component component, String color)
     {
-        setBackgroudColor(widget, "#BBBBBB");
-        setPointerCursor(widget);
-        setWellSize(widget);
-        return widget;
-    }
-
-    private static void setWellSize(Component widget)
-    {
-        widget.setWidth(WELL_WIDGET_SIZE);
-        widget.setHeight(WELL_WIDGET_SIZE);
-    }
-
-    public static void setPointerCursor(Component widget)
-    {
-        widget.setStyleAttribute("cursor", "pointer");
-    }
-
-    private static void setBackgroudColor(Component widget, String color)
-    {
-        widget.setStyleAttribute("background-color", color);
+        component.setStyleAttribute("background-color", color);
     }
 }

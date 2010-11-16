@@ -81,6 +81,6 @@ public class PlateLayoutDatasetSection extends TabContent
     {
         LayoutContainer container = new LayoutContainer();
         container.add(PlateLayouter.createVisualization(plateImages, viewContext));
-        add(container, PlateLayouter.createRowLayoutMarginData());
+        add(container, PlateLayouter.createRowLayoutSurroundingData());
     }
 }
