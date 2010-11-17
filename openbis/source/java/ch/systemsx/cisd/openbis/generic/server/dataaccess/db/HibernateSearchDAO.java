@@ -361,13 +361,14 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             final String registratorIdOrNull =
                     tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
                             + SearchFieldConstants.PERSON_USER_ID);
-            if (registratorIdOrNull != null)
+            final String firstNameOrNull =
+                    tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                            + SearchFieldConstants.PERSON_FIRST_NAME);
+            if (registratorIdOrNull != null || firstNameOrNull != null)
             {
                 Person registrator = new Person();
                 registrator.setUserId(registratorIdOrNull);
-                registrator.setFirstName(tryGetFieldValue(doc,
-                        SearchFieldConstants.PREFIX_REGISTRATOR
-                                + SearchFieldConstants.PERSON_FIRST_NAME));
+                registrator.setFirstName(firstNameOrNull);
                 registrator.setLastName(tryGetFieldValue(doc,
                         SearchFieldConstants.PREFIX_REGISTRATOR
                                 + SearchFieldConstants.PERSON_LAST_NAME));
