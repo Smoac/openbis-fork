@@ -148,7 +148,10 @@ public class ScriptExecutionFramework
                         public void selectionChanged(
                                 SelectionChangedEvent<SimpleComboValue<String>> se)
                         {
+                            state.setChosenEntity(null);
                             updateVisibleEntityChooser(map, entityKindChooser);
+                            updateVisibleEntityLink(state, entityLink);
+                            evaluationResultPanel.setVisible(false);
                         }
                     });
         setChosenEntityListener(sampleChooser.getChooserField(), state, entityLink);
@@ -345,8 +348,10 @@ public class ScriptExecutionFramework
     {
         for (Field<?> w : map.values())
         {
+            w.reset();
             EntityKind kind = entityKindChooser.tryGetEntityKind();
-            FieldUtil.setVisibility(kind != null && w == map.get(kind), w);
+            boolean visible = kind != null && w == map.get(kind);
+            FieldUtil.setVisibility(visible, w);
         }
     }
 
