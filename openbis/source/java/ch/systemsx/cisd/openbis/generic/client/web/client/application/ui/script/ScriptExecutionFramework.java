@@ -123,7 +123,7 @@ public class ScriptExecutionFramework
         entityKindChooser = new EntityKindSelectionWidget(viewContext, null, true, false);
         sampleChooser =
                 SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true, null, true,
-                        false, true, viewContext.getCommonViewContext(),
+                        true, false, viewContext.getCommonViewContext(),
                         SampleTypeDisplayID.SCRIPT_EDITOR_SAMPLE_CHOOSER);
         experimentChooser =
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,
