@@ -82,7 +82,8 @@ public class ImageUrlUtils
     private static void addUrlWidget(LayoutContainer container, String url, int width, int height)
     {
         Component tileContent = new Html(url);
-        tileContent.setSize("" + width, "" + height);
+        // do not set the width to preserve aspect ratio
+        tileContent.setHeight("" + height);
         PlateStyleSetter.setPointerCursor(tileContent);
         container.add(tileContent);
     }

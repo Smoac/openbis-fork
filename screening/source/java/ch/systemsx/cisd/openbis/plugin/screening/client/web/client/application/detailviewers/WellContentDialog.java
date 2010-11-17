@@ -279,26 +279,33 @@ public class WellContentDialog extends Dialog
                                 contentDialog.show();
                             } else
                             {
-                                final WellImages wellImages = new WellImages(imageDataset, wellLocation);
+                                final WellImages wellImages =
+                                        new WellImages(imageDataset, wellLocation);
                                 final String sessionId = getSessionId(viewContext);
-                                final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
-                                    {
-                                        public LayoutContainer create(String channel)
-                                        {
-                                            return WellContentTimepointsViewer.createTilesGrid(sessionId,
-                                                    channelStackImages, wellImages, channel, getImageWidth(wellImages),
-                                                    getImageHeight(wellImages));
-                                        }
-                                
-                                        public void setChannelChooser(
-                                                SelectionProvider<SimpleComboValue<String>> selectionProvider)
-                                        {
-                                            contentDialog.setChannelChooser(selectionProvider);
-                                        }
-                                    };
+                                final IChanneledViewerFactory viewerFactory =
+                                        new IChanneledViewerFactory()
+                                            {
+                                                public LayoutContainer create(String channel)
+                                                {
+                                                    return WellContentTimepointsViewer
+                                                            .createTilesGrid(sessionId,
+                                                                    channelStackImages, wellImages,
+                                                                    channel,
+                                                                    getImageWidth(wellImages),
+                                                                    getImageHeight(wellImages));
+                                                }
+
+                                                public void setChannelChooser(
+                                                        SelectionProvider<SimpleComboValue<String>> selectionProvider)
+                                                {
+                                                    contentDialog
+                                                            .setChannelChooser(selectionProvider);
+                                                }
+                                            };
                                 LayoutContainer imageViewer =
-                                        ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                                wellImages.getChannelsCodes());
+                                        ChannelChooser.createViewerWithChannelChooser(
+                                                viewerFactory, channelState,
+                                                wellImages.getChannelsCodes());
                                 contentDialog.addComponent(imageViewer);
                                 contentDialog.show();
                             }
@@ -383,10 +390,17 @@ public class WellContentDialog extends Dialog
                 public void handleEvent(BaseEvent be)
                 {
                     Rectangle bounds = GuiUtils.calculateBounds(getElement());
+                    // Note: neither image widget nor html IMG tag has the width set to maintain the
+                    // correct aspect ratio of the images. The current dialog width is computed
+                    // before the images are loaded, so we have to fix the width.
+                    int preferedWidth = Math.max(800, bounds.width + getFrameWidth());
+                    int preferedHeight = bounds.height;
+
                     int maxWidth = (9 * XDOM.getBody().getOffsetWidth()) / 10;
                     int maxHeight = (9 * XDOM.getBody().getOffsetHeight()) / 10;
-                    int w = Math.min(maxWidth, bounds.width + getFrameWidth());
-                    int h = Math.min(maxHeight, bounds.height);
+
+                    int w = Math.min(maxWidth, preferedWidth);
+                    int h = Math.min(maxHeight, preferedHeight);
                     setSize(w, h);
                     center();
                 }
@@ -397,7 +411,7 @@ public class WellContentDialog extends Dialog
             addImageViewerLaunchButton();
         }
     }
-    
+
     private void addImageViewerLaunchButton()
     {
         ButtonBar buttonBar = getButtonBar();
@@ -434,8 +448,9 @@ public class WellContentDialog extends Dialog
         buttonBar.insert(new FillToolItem(), 0);
         buttonBar.insert(launchButton, 0);
     }
-    
-    private void setChannelChooser(final SelectionProvider<SimpleComboValue<String>> selectionProvider)
+
+    private void setChannelChooser(
+            final SelectionProvider<SimpleComboValue<String>> selectionProvider)
     {
         this.selectionProvider = selectionProvider;
     }
