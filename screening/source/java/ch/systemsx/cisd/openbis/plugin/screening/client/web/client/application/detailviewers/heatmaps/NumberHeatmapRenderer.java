@@ -49,7 +49,7 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         {
             throw new IllegalArgumentException("value from the wrong range " + value);
         }
-        float range = value - min;
+        float range = max - value;
         float part = range / step;
         int colorNumber = Math.min((int) Math.floor(part), colors.size() - 1);
         return colors.get(colorNumber);
@@ -60,7 +60,7 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
         ArrayList<HeatmapScaleElement> scale = new ArrayList<HeatmapScaleElement>();
         for (int i = 0; i < colors.size(); i++)
         {
-            String label = round((min + step * (i + 1)));
+            String label = round((max - step * (i + 1)));
             scale.add(new HeatmapScaleElement(label, colors.get(i)));
         }
         return scale;
@@ -68,7 +68,7 @@ class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
 
     public String tryGetFirstLabel()
     {
-        return round(min);
+        return round(max);
     }
 
     private String round(float labelValue)
