@@ -25,14 +25,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 /**
  * @author Tomasz Pylak
  */
-public class ColorConstants
+class ColorConstants
 {
-    public static final List<String> LONG_DEFAULT_COLORS = Arrays.asList("#67001F", "#B2182B",
-            "#D6604D", "#F4A582", "#FDDBC7", "#F7F7F7", "#D1E5F0", "#92C5DE", "#4393C3", "#2166AC",
-            "#053061");
+    public static final List<String> LONG_GRADIENT_DEFAULT_COLORS = Arrays.asList("#67001F",
+            "#B2182B", "#D6604D", "#F4A582", "#FDDBC7", "#F7F7F7", "#D1E5F0", "#92C5DE", "#4393C3",
+            "#2166AC", "#053061");
 
     public static final List<String> SHORT_DEFAULT_COLORS = Arrays.asList("#5E3C99", "#B2ABD2",
-            "#F7F7F7", "#FDB863", "#E66101");
+            "#4393C3", "#FDB863", "#E66101");
 
     public static final List<String> DOUBLE_DEFAULT_COLORS = Arrays.asList("#5E3C99", "#F7F7F7");
 

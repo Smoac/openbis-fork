@@ -2,7 +2,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.CATEGORY_OTHERS_COLOR;
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.DOUBLE_DEFAULT_COLORS;
-import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.LONG_DEFAULT_COLORS;
+import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.LONG_GRADIENT_DEFAULT_COLORS;
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.SHORT_DEFAULT_COLORS;
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.SINGLE_DEFAULT_COLORS;
 
@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  * 
  * @author Tomasz Pylak
  */
-public class StringHeatmapRenderer implements IHeatmapRenderer<String>
+class StringHeatmapRenderer implements IHeatmapRenderer<String>
 {
     private static final String CATEGORY_OTHERS_LABEL = "Others";
 
@@ -52,7 +52,7 @@ public class StringHeatmapRenderer implements IHeatmapRenderer<String>
             return SHORT_DEFAULT_COLORS;
         } else
         {
-            return LONG_DEFAULT_COLORS;
+            return LONG_GRADIENT_DEFAULT_COLORS;
         }
     }
 

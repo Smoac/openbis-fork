@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  * 
  * @author Izabela Adamczyk
  */
-public class HeatmapScaleFactory
+class HeatmapScaleFactory
 {
 
     /**

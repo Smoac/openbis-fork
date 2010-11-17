@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 /**
  * @author Tomasz Pylak
  */
-public interface IHeatmapRenderer<T>
+interface IHeatmapRenderer<T>
 {
     /** @return color on the heatmap for the specified value */
     Color getColor(T value);

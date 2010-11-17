@@ -43,6 +43,7 @@ class ChannelChooser
     public static interface IChanneledViewerFactory
     {
         Widget create(String value);
+
         void setChannelChooser(SelectionProvider<SimpleComboValue<String>> selectionProvider);
     }
 
@@ -84,33 +85,5 @@ class ChannelChooser
         container.add(viewerFactory.create(initialChannel));
         container.setScrollMode(Scroll.AUTO);
         return container;
-    }
-
-    /**
-     * Allows to get and set the channel which is chosen by default when well images are shown.
-     * Channel 0 consists of all other channels merged.
-     */
-    public static class DefaultChannelState
-    {
-        private String defaultChannel = null;
-
-        public DefaultChannelState()
-        {
-
-        }
-
-        public String getDefaultChannel(List<String> channelsNames)
-        {
-            if (defaultChannel == null)
-            {
-                defaultChannel = channelsNames.get(0);
-            }
-            return defaultChannel;
-        }
-
-        public void setDefaultChannel(String value)
-        {
-            this.defaultChannel = value;
-        }
     }
 }

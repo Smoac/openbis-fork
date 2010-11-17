@@ -12,7 +12,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  * 
  * @author Izabela Adamczyk
  */
-public class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
+class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
 {
     private final float min;
 
@@ -26,7 +26,7 @@ public class NumberHeatmapRenderer implements IHeatmapRenderer<Float>
 
     public NumberHeatmapRenderer(float min, float max, IRealNumberRenderer realNumberRenderer)
     {
-        this(min, max, ColorConstants.LONG_DEFAULT_COLORS, realNumberRenderer);
+        this(min, max, ColorConstants.LONG_GRADIENT_DEFAULT_COLORS, realNumberRenderer);
     }
 
     public NumberHeatmapRenderer(float min, float max, List<String> colors,

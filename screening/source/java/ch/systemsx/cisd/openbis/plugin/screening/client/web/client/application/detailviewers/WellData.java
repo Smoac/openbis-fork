@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  * 
  * @author Tomasz Pylak
  */
-class WellData
+public class WellData
 {
     private final WellLocation wellLocation;
 
