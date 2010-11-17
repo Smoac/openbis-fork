@@ -142,7 +142,7 @@ class HeatmapPresenter
         Float value = wellData.tryGetFeatureValue(featureIndex);
         List<String> featureLabels = model.tryGetFeatureLabels();
         assert featureLabels != null : "feature labels not set";
-        String tooltip = featureLabels.get(featureIndex) + ": " + value;
+        String tooltip = featureLabels.get(featureIndex) + ": <b>" + value + "</b>";
         String metadataTooltip = tryGenerateMetadataTooltip(wellData);
         if (metadataTooltip != null)
         {
