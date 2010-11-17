@@ -18,9 +18,9 @@ abstract class DetegatingStringHeatmapRenderer<T> implements IHeatmapRenderer<T>
 
     private final IHeatmapRenderer<String> delegator;
 
-    public DetegatingStringHeatmapRenderer(List<String> uniqueValues)
+    public DetegatingStringHeatmapRenderer(List<String> uniqueValues, List<Color> colorsOrNull)
     {
-        this.delegator = new StringHeatmapRenderer(uniqueValues);
+        this.delegator = new StringHeatmapRenderer(uniqueValues, colorsOrNull);
     }
 
     public Color getColor(T value)

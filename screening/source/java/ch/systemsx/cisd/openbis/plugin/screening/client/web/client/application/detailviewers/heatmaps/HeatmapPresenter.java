@@ -1,8 +1,10 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -206,39 +208,88 @@ class HeatmapPresenter
     private static class WellMetadataHeatmapRenderer extends
             DetegatingStringHeatmapRenderer<WellData>
     {
+        private static final int MAX_SPECIFIC_COLORS = 3;
+
+        private static final Color EMPTY_WELL_COLOR = new Color("#F2F0F7");
+
+        private static final List<Color> CONTROL_COLORS = Arrays.asList(new Color("#DAFFB3"), // green
+                new Color("#9CFFB3"), // dark green
+                new Color("#FFFFB3") // yellow
+                );
+
+        private static final List<Color> NON_CONTROL_COLORS = Arrays.asList(new Color("#D3CCFF"), // violet
+                new Color("#BDCCFF"), // blue
+                new Color("#E9CCFF") // pink
+                );
+
         public static IHeatmapRenderer<WellData> create(List<WellData> wells)
         {
-            List<String> uniqueValues = extractUniqueSortedValues(wells);
-            return new WellMetadataHeatmapRenderer(uniqueValues);
-        }
-
-        private WellMetadataHeatmapRenderer(List<String> uniqueValues)
-        {
-            super(uniqueValues);
-        }
-
-        private static List<String> extractUniqueSortedValues(List<WellData> wells)
-        {
-            Set<String> uniqueValues = new HashSet<String>();
+            Set<String> labels = new HashSet<String>();
             boolean emptyWellsEncountered = false;
             for (WellData well : wells)
             {
                 String label = tryExtractLabel(well);
                 if (label != null)
                 {
-                    uniqueValues.add(label);
+                    labels.add(label);
                 } else
                 {
                     emptyWellsEncountered = true;
                 }
             }
-            ArrayList<String> result = new ArrayList<String>(uniqueValues);
-            Collections.sort(result);
+            ArrayList<String> uniqueValues = new ArrayList<String>(labels);
+            Collections.sort(uniqueValues);
             if (emptyWellsEncountered)
             {
-                result.add(UNKNOWN_WELL_MSG);
+                uniqueValues.add(UNKNOWN_WELL_MSG);
             }
-            return result;
+            List<Color> colorsOrNull =
+                    tryGetMetadataLegendColors(uniqueValues, emptyWellsEncountered);
+            return new WellMetadataHeatmapRenderer(uniqueValues, colorsOrNull);
+        }
+
+        private static List<Color> tryGetMetadataLegendColors(List<String> uniqueValues,
+                boolean emptyWellsEncountered)
+        {
+            int colorsNumber = uniqueValues.size();
+            int nonEmptyColors = colorsNumber - (emptyWellsEncountered ? 1 : 0);
+            if (nonEmptyColors > MAX_SPECIFIC_COLORS)
+            {
+                return null;
+            }
+
+            assert CONTROL_COLORS.size() >= MAX_SPECIFIC_COLORS : "not enough control colors";
+            assert NON_CONTROL_COLORS.size() >= MAX_SPECIFIC_COLORS : "not enough non-control colors";
+
+            Iterator<Color> controlColorsIter = CONTROL_COLORS.iterator();
+            Iterator<Color> nonControlColorsIter = NON_CONTROL_COLORS.iterator();
+
+            List<Color> colors = new ArrayList<Color>();
+            for (int i = 0; i < nonEmptyColors; i++)
+            {
+                if (isControl(uniqueValues.get(i)))
+                {
+                    colors.add(controlColorsIter.next());
+                } else
+                {
+                    colors.add(nonControlColorsIter.next());
+                }
+            }
+            if (emptyWellsEncountered)
+            {
+                colors.add(EMPTY_WELL_COLOR);
+            }
+            return colors;
+        }
+
+        private static boolean isControl(String label)
+        {
+            return label.toUpperCase().indexOf(ScreeningConstants.CONTROL_WELL_CODE_MARKER) != -1;
+        }
+
+        private WellMetadataHeatmapRenderer(List<String> uniqueValues, List<Color> colorsOrNull)
+        {
+            super(uniqueValues, colorsOrNull);
         }
 
         @Override

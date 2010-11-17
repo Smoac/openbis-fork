@@ -34,26 +34,31 @@ class StringHeatmapRenderer implements IHeatmapRenderer<String>
      */
     public StringHeatmapRenderer(List<String> values)
     {
-        this(values, ColorConstants.asColors(getDefaultColors(values.size())));
+        this(values, null);
     }
 
-    private static List<String> getDefaultColors(int size)
+    private static List<Color> getDefaultColors(int size)
     {
+        List<String> colors;
         if (size <= SHORT_DEFAULT_COLORS.size())
         {
-            return SHORT_DEFAULT_COLORS;
+            colors = SHORT_DEFAULT_COLORS;
         } else
         {
-            return LONG_GRADIENT_DEFAULT_COLORS;
+            colors = LONG_GRADIENT_DEFAULT_COLORS;
         }
+        return ColorConstants.asColors(colors);
     }
 
     /**
      * Assigns specified colors to string labels using colors in the specified order. If there are
      * more values than colors, the "overhead values" are marked as belonging to one "Others" group.
      */
-    private StringHeatmapRenderer(List<String> uniqueValues, List<Color> scaleColors)
+    public StringHeatmapRenderer(List<String> uniqueValues, List<Color> scaleColorsOrNull)
     {
+        List<Color> scaleColors =
+                scaleColorsOrNull != null ? scaleColorsOrNull : getDefaultColors(uniqueValues
+                        .size());
         this.scale = calculateScale(uniqueValues, scaleColors);
         this.colorsMap = calculateColorMap(scale);
         this.moreLabelsThanColors = (uniqueValues.size() > scaleColors.size());

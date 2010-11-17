@@ -43,7 +43,8 @@ public class ScreeningConstants
 
     public static final String SIRNA_WELL_TYPE_CODE = "SIRNA_WELL";
 
-    public static final String CONTROL_WELL_TYPE_CODE = "CONTROL_WELL";
+    // the well is considered to be a control well if its type code contains this string
+    public static final String CONTROL_WELL_CODE_MARKER = "CONTROL";
 
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 
@@ -66,7 +67,7 @@ public class ScreeningConstants
 
     /** path to the datastore screening servlet able to display images in different channels */
     public static final String DATASTORE_SCREENING_SERVLET_URL = "datastore_server_screening";
-    
+
     public static final String IMAGE_VIEWER_LAUNCH_URL = "image-viewer-launch";
 
     public static final String MERGED_CHANNELS = "Merged Channels";
