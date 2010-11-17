@@ -1,10 +1,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.CATEGORY_OTHERS_COLOR;
-import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.DOUBLE_DEFAULT_COLORS;
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.LONG_GRADIENT_DEFAULT_COLORS;
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.SHORT_DEFAULT_COLORS;
-import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.ColorConstants.SINGLE_DEFAULT_COLORS;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,13 +39,7 @@ class StringHeatmapRenderer implements IHeatmapRenderer<String>
 
     private static List<String> getDefaultColors(int size)
     {
-        if (size <= SINGLE_DEFAULT_COLORS.size())
-        {
-            return SINGLE_DEFAULT_COLORS;
-        } else if (size <= DOUBLE_DEFAULT_COLORS.size())
-        {
-            return DOUBLE_DEFAULT_COLORS;
-        } else if (size <= SHORT_DEFAULT_COLORS.size())
+        if (size <= SHORT_DEFAULT_COLORS.size())
         {
             return SHORT_DEFAULT_COLORS;
         } else
