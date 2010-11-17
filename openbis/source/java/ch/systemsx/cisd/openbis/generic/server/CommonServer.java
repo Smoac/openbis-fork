@@ -2054,10 +2054,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public String evaluate(String sessionToken, DynamicPropertyEvaluationInfo info)
     {
         Session session = getSession(sessionToken);
-        DynamicPropertyCalculator calculator = DynamicPropertyCalculator.create(info.getScript());
-        calculator.setEntity(EntityAdaptorFactory.create(getEntity(info, session),
-                new DynamicPropertyEvaluator()));
-        return calculator.evalAsString();
+        IEntityInformationWithPropertiesHolder entity = getEntity(info, session);
+        try
+        {
+            DynamicPropertyCalculator calculator =
+                    DynamicPropertyCalculator.create(info.getScript());
+            calculator.setEntity(EntityAdaptorFactory
+                    .create(entity, new DynamicPropertyEvaluator()));
+            return calculator.evalAsString();
+        } catch (Throwable e)
+        {
+            // return error message if there is a problem with evaluation
+            return e.getMessage();
+        }
     }
 
     public IEntityInformationWithPropertiesHolder getEntity(DynamicPropertyEvaluationInfo info,
@@ -2082,7 +2091,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
                 sampleBO.tryToLoadBySampleIdentifier(SampleIdentifierFactory.parse(info
                         .getEntityIdentifier()));
-                entity = sampleBO.getSample();
+                entity = sampleBO.tryToGetSample();
                 break;
             case MATERIAL:
                 entity =

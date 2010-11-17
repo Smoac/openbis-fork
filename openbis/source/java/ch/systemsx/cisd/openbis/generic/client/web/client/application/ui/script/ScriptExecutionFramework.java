@@ -328,7 +328,8 @@ public class ScriptExecutionFramework
                         @Override
                         public void finishOnFailure(Throwable caught)
                         {
-                            updateEvaluationResultField(caught.getMessage());
+                            updateEvaluationResultField("");
+                            evaluationResultPanel.setVisible(false);
                         }
                     });
     }

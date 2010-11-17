@@ -121,9 +121,9 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             final String validatedValue =
                     validator.validatePropertyValue(etpt.getPropertyType(), dynamicValue);
             return validatedValue;
-        } catch (Exception e)
+        } catch (Throwable t)
         {
-            final String errorValue = errorPropertyValue(e.getMessage());
+            final String errorValue = errorPropertyValue(t.getMessage());
             return errorValue;
         }
     }
