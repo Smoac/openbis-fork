@@ -22,6 +22,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -81,7 +82,8 @@ class ReflectionStringTraverser
         }
         if (isMutable(object) == false)
         {
-            log.error("Cannot traverse primitive collections or primitives " + object);
+            LogUtils.logErrorWithFailingAssertion(log,
+                    "Cannot traverse primitive collections or primitives " + object);
             return;
         } else if (clazz.isArray())
         {
@@ -128,13 +130,13 @@ class ReflectionStringTraverser
                 try
                 {
                     traverseField(object, field);
-                } catch (Exception ex)
+                } catch (Throwable t)
                 {
-                    log.error("Failed accessing field <" + field.getName() + "> of "
-                            + object.getClass() + ":\n\t" + object);
-                    ex.printStackTrace();
-
-                    throw new IllegalStateException("Should not happen: " + ex.getMessage());
+                    t.printStackTrace();
+                    LogUtils.logErrorWithFailingAssertion(
+                            log,
+                            "Failed accessing field <" + field.getName() + "> of "
+                                    + object.getClass() + ":\n\t" + object);
                 }
             }
         }
@@ -246,7 +248,8 @@ class ReflectionStringTraverser
             } else
             {
                 // NOTE: we do not handle e.g. list of list of Strings
-                log.error("Cannot traverse primitive collections or primitives " + collection);
+                LogUtils.logErrorWithFailingAssertion(log,
+                        "Cannot traverse primitive collections or primitives " + collection);
             }
         }
     }
@@ -346,7 +349,7 @@ class ReflectionStringTraverser
             return new ArrayList<T>();
         } else if (Set.class.isAssignableFrom(clazz))
         {
-            return new HashSet<T>();
+            return new LinkedHashSet<T>(); // preserve order
         } else
         {
             throw new IllegalStateException("Do not know how to create a collection of type "

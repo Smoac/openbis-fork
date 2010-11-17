@@ -59,9 +59,11 @@ public class ReflectingStringEscaper
             ReflectingStringEscaperUnrestricted<T> escaper =
                     new ReflectingStringEscaperUnrestricted<T>(true, bean);
             return escaper.escape();
-        } catch (Exception exception)
+        } catch (Throwable t)
         {
-            operationLog.error(exception.getMessage());
+            t.printStackTrace();
+            LogUtils.logErrorWithFailingAssertion(operationLog,
+                    "Cannot traverse primitive collections or primitives " + t);
             return null;
         } finally
         {
