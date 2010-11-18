@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.server.IRemoteHostProvider;
+import ch.systemsx.cisd.common.test.Retry10;
 
 /**
  * Test cases for the {@link DefaultSessionManager}.
@@ -292,7 +293,7 @@ public class DefaultSessionManagerTest
         context.assertIsSatisfied();
     }
 
-    @Test(invocationCount = 10)
+    @Test(retryAnalyzer = Retry10.class)
     public void testSessionRemoval()
     {
         final String user = "bla";
