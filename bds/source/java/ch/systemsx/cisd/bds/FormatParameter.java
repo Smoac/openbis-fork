@@ -21,7 +21,6 @@ package ch.systemsx.cisd.bds;
  * 
  * @author Franz-Josef Elmer
  */
-// TODO 2008-04-18, Christian Ribeaud: Type this class (should look like FormatParameter<T>).
 public final class FormatParameter
 {
     private final String name;
