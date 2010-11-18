@@ -292,7 +292,7 @@ public class DefaultSessionManagerTest
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(invocationCount = 10)
     public void testSessionRemoval()
     {
         final String user = "bla";
