@@ -211,7 +211,6 @@ public class Console extends Composite
                 {
                     public void onClick(Widget sender)
                     {
-                        // TODO 2008-07-16, Christian Ribeaud: Put a link instead of a button.
                         final DialogBox box = new DialogBox(true);
                         box.setText("Error Details");
                         box.add(new HTML("<pre>" + datamoverInfo.getErrorMessage() + "</pre>"));
