@@ -127,8 +127,6 @@ public class SampleAnt
         buildfile = f;
     }
 
-    // TODO 2008-06-15, Christian Ribeaud: How to handle that?
-    // -D<property>=<value> use value for given property
     private TreeMap<String, String> props = new TreeMap<String, String>();
 
     @Option(name = "-keep-going", usage = "execute all targets that do not depend\non failed target(s)")
@@ -146,10 +144,6 @@ public class SampleAnt
     @Option(name = "-inputhandler", usage = "the class which will handle input requests", metaVar = "<class>")
     private String inputhandler;
 
-    // TODO 2008-06-15, Christian Ribeaud: Another problem
-    // -find <file> (s)earch for buildfile towards the root of
-    // -s <file> the filesystem and use it
-    // problem is: info text has two lines and there are two lines for different option strings
     @Option(name = "-find", usage = "(s)earch for buildfile towards the root of\nthe filesystem and use it", metaVar = "<file>")
     private File file;
 
