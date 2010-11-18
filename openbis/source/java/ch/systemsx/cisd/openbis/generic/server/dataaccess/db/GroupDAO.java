@@ -108,9 +108,6 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
     public final void createGroup(final GroupPE group) throws DataAccessException
     {
         assert group != null : "Unspecified space";
-        // TODO 2008-11-28, Christian Ribeaud: This is a business rule. Find a better location for
-        // this.
-        assert group.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
         validatePE(group);
 
         final HibernateTemplate template = getHibernateTemplate();

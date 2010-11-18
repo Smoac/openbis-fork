@@ -68,8 +68,9 @@ public final class GroupBOTest extends AbstractBOTest
     @Test
     public final void testDefineAndSave()
     {
-        final GroupBO projectBO = createGroupBO();
+        final GroupBO spaceBO = createGroupBO();
         final DatabaseInstancePE instance = new DatabaseInstancePE();
+        instance.setOriginalSource(true);
         final GroupPE groupDTO = new GroupPE();
         groupDTO.setCode("MY_CODE");
         groupDTO.setDatabaseInstance(instance);
@@ -82,8 +83,8 @@ public final class GroupBOTest extends AbstractBOTest
                     one(groupDAO).createGroup(groupDTO);
                 }
             });
-        projectBO.define(groupDTO.getCode(), null);
-        projectBO.save();
+        spaceBO.define(groupDTO.getCode(), null);
+        spaceBO.save();
         context.assertIsSatisfied();
     }
 }

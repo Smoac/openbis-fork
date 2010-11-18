@@ -60,6 +60,11 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         assert group != null : "Space not defined";
         try
         {
+            if (group.getDatabaseInstance().isOriginalSource() == false)
+            {
+                throw new UserFailureException("Registration of space " + group
+                        + " on a non-home database is not allowed.");
+            }
             getGroupDAO().createGroup(group);
         } catch (final DataAccessException e)
         {
