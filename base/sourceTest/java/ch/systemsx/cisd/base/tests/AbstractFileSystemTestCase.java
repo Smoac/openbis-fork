@@ -18,6 +18,7 @@ package ch.systemsx.cisd.base.tests;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
@@ -68,8 +69,13 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
     public void setUp() throws IOException
     {
         deleteDirectory(workingDirectory);
-        workingDirectory.mkdir();
-        assertTrue(workingDirectory.isDirectory() && workingDirectory.listFiles().length == 0);
+        workingDirectory.mkdirs();
+        assertEquals(true, workingDirectory.isDirectory());
+        File[] files = workingDirectory.listFiles();
+        if (files != null)
+        {
+            assertEquals("Unexpected files " + Arrays.asList(files), 0, files.length);
+        }
     }
 
     private void deleteDirectory(File dir)
@@ -81,6 +87,14 @@ public abstract class AbstractFileSystemTestCase extends AssertJUnit
         {
             System.err.println("Could not delete the directory " + dir.getPath() + " because: "
                     + e.getMessage());
+            try
+            {
+                FileUtils.deleteDirectory(dir);
+            } catch (IOException e2)
+            {
+                System.err.println("Could not delete the directory " + dir.getPath()
+                        + " in second try because: " + e2.getMessage());
+            }
         }
     }
 
