@@ -33,7 +33,6 @@ final class MultiValueFieldSetter implements Setter<Object>
     @SuppressWarnings("unchecked")
     public Class<Object> getType()
     {
-        // TODO 2008-06-15, Christian Ribeaud: compute this correctly
         Type t = f.getGenericType();
         if (t instanceof ParameterizedType)
         {
