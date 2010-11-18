@@ -54,6 +54,11 @@ public interface IProteomicsDataApiFacade
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType);
     
+    /**
+     * Processes the specified data sets by the DSS processing plug-in of specified key for the
+     * specified user. Implementations should check that the specified user is allowed to read
+     * specified data sets.
+     */
     public void processDataSets(String userID, String dataSetProcessingKey, List<String> dataSetCodes);
 
     /**
