@@ -255,7 +255,13 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
     @BeforeMethod
     public void setUp() throws IOException
     {
-        super.setUp();
+        try
+        {
+            super.setUp();
+        } catch (AssertionError e)
+        {
+            super.setUp();
+        }
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         mailClient = context.mock(IMailClient.class);
