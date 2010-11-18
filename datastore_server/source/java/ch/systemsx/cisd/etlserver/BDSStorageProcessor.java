@@ -338,8 +338,6 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         return builder.toString();
     }
 
-    // TODO 2007-12-09, Christian Ribeaud: It will be a better choice to make two different
-    // implementations here: one for 'UnknownFormat1_0' and one for 'HCSImageFormat1_0'.
     private final boolean needsImageFileExtractor()
     {
         return format.getCode().equals(UnknownFormatV1_0.UNKNOWN_1_0.getCode()) == false;
