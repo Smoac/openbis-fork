@@ -482,7 +482,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // restoreSearchIndex();
     // }
 
-    // FIXME 2010-10-22, Piotr Buczek: write a different test (auto update is switched off)
+    // TODO 2010-10-22, Piotr Buczek: write a different test (auto update is switched off)
     @Test(groups = "broken")
     /*
      * Checks if the dataset search index is properly updated after properties of a dataset have
