@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -30,10 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridCustomColumnValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
@@ -70,14 +71,14 @@ public class BaseEntityModel<T> extends SimplifiedBaseModelData
                         ((IColumnDefinitionUI<T>) column).tryGetLink(entity.getOriginalObject()));
             }
         }
-        addCustomColumns(entity.getCalculatedColumnValues());
+        addCustomColumns(entity);
     }
 
-    private void addCustomColumns(List<GridCustomColumnValue> list)
+    private void addCustomColumns(final GridRowModel<T> model)
     {
-        for (GridCustomColumnValue column : list)
+        for (Entry<String, PrimitiveValue> entry : model.getCalculatedColumnValues().entrySet())
         {
-            set(column.getColumnId(), column.getValue());
+            set(entry.getKey(), entry.getValue());
         }
     }
 

@@ -117,7 +117,6 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 public void postRefresh(boolean wasSuccessful)
                 {
                     updateFilterFields();
-                    // TODO 2010-04-16, Piotr Buczek: not needed if column filter is selected
                     // Because of this code there is a reload of data visible on the client
                     // when user shows filter toolbar. It is quite fast as data are taken from cache
                     // but the loading mask is visible.

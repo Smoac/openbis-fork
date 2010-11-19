@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -36,33 +34,18 @@ public class GridRowModel<T> implements IsSerializable, Serializable
 
     private T originalObject;
 
-    // TODO 2010-03-09, Piotr Buczek: Now that we use GWT 2.0 it should be possible to use map here.
-    // We would like to have a Map field, but we cannot do it because of a bug in
-    // displaying serialization warnings in GWT 1.5. It was fixed in GWT 1.6
-    private List<GridCustomColumnValue> calculatedColumnValues;
+    /** <column id, value> */
+    private Map<String, PrimitiveValue> calculatedColumnValues;
 
     public static <T> GridRowModel<T> createWithoutCustomColumns(T originalObject)
     {
         return new GridRowModel<T>(originalObject, new HashMap<String, PrimitiveValue>());
     }
 
-    public GridRowModel(T originalObject, HashMap<String, PrimitiveValue> calculatedColumnMap)
+    public GridRowModel(T originalObject, Map<String, PrimitiveValue> calculatedColumnMap)
     {
         this.originalObject = originalObject;
-        this.calculatedColumnValues = asList(calculatedColumnMap);
-    }
-
-    private List<GridCustomColumnValue> asList(HashMap<String, PrimitiveValue> map)
-    {
-        List<GridCustomColumnValue> result = new ArrayList<GridCustomColumnValue>();
-        for (Entry<String, PrimitiveValue> entry : map.entrySet())
-        {
-            GridCustomColumnValue column = new GridCustomColumnValue();
-            column.setColumnId(entry.getKey());
-            column.setValue(entry.getValue());
-            result.add(column);
-        }
-        return result;
+        this.calculatedColumnValues = calculatedColumnMap;
     }
 
     public T getOriginalObject()
@@ -70,21 +53,21 @@ public class GridRowModel<T> implements IsSerializable, Serializable
         return originalObject;
     }
 
-    public List<GridCustomColumnValue> getCalculatedColumnValues()
+    public Map<String, PrimitiveValue> getCalculatedColumnValues()
     {
         return calculatedColumnValues;
     }
 
     public PrimitiveValue findColumnValue(String columnId)
     {
-        for (GridCustomColumnValue value : calculatedColumnValues)
+        PrimitiveValue valueOrNull = calculatedColumnValues.get(columnId);
+        if (valueOrNull != null)
         {
-            if (value.getColumnId().equals(columnId))
-            {
-                return value.getValue();
-            }
+            return valueOrNull;
+        } else
+        {
+            throw new IllegalStateException("Column not found: " + columnId);
         }
-        throw new IllegalStateException("Column not found: " + columnId);
     }
 
     // GWT only
