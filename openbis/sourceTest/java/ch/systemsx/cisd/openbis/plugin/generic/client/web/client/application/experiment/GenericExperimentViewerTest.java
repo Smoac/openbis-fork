@@ -307,7 +307,6 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private final static String versionCellText(int version)
     {
-        // TODO 2010-07-08, Piotr Buczek: implement better html tag stripping in TestUtil
         return version + " (<a href=\"#\">show all versions</a>)";
     }
 }
