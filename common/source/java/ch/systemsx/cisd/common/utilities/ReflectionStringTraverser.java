@@ -20,7 +20,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,6 +44,14 @@ class ReflectionStringTraverser
 {
     private static final Logger log = LogFactory.getLogger(LogCategory.OPERATION,
             ReflectionStringTraverser.class);
+
+    @SuppressWarnings("unchecked")
+    /** set of primitive types and its wrappers + Date.class */
+    private final static Set<Class<?>> primitiveTypes = new HashSet<Class<?>>(Arrays.asList(
+            Boolean.class, boolean.class, Character.class, char.class, Byte.class, byte.class,
+            Short.class, short.class, Integer.class, int.class, Long.class, long.class,
+            Float.class, float.class, Double.class, double.class, Void.class, void.class,
+            Date.class));
 
     public static interface ReflectionFieldVisitor
     {
@@ -80,6 +90,11 @@ class ReflectionStringTraverser
         {
             seenObjects.add(object);
         }
+        if (isPrimitive(clazz))
+        {
+            // do nothing
+            return;
+        }
         if (isMutable(object) == false)
         {
             LogUtils.logErrorWithFailingAssertion(log,
@@ -97,11 +112,16 @@ class ReflectionStringTraverser
         }
     }
 
+    private boolean isPrimitive(Class<?> clazz)
+    {
+        return primitiveTypes.contains(clazz);
+    }
+
     private final ReflectionFieldVisitor visitor;
 
     private final boolean isDeep;
 
-    private final HashSet<Object> seenObjects = new HashSet<Object>();
+    private final Set<Object> seenObjects = new HashSet<Object>();
 
     private ReflectionStringTraverser(ReflectionFieldVisitor fieldVisitor, boolean isDeep)
     {
@@ -188,9 +208,10 @@ class ReflectionStringTraverser
         } else if (isCollection(fieldValue) && isDeep)
         {
             traverseCollectionField(object, field, (Collection<?>) fieldValue);
-        } else if (clazz.isPrimitive())
+        } else if (isPrimitive(clazz))
         {
             // do nothing
+            return;
         } else if (isString(fieldValue))
         {
             String newValue = visitor.tryVisit((String) fieldValue, object, field);
@@ -208,6 +229,7 @@ class ReflectionStringTraverser
                     return;
                 } else
                 {
+                    seenObjects.add(fieldValue);
                     traverseFields(fieldValue, clazz);
                 }
             }
@@ -242,15 +264,7 @@ class ReflectionStringTraverser
     {
         for (Object element : collection)
         {
-            if (isMutable(element))
-            {
-                traverseMutable(element, element.getClass());
-            } else
-            {
-                // NOTE: we do not handle e.g. list of list of Strings
-                LogUtils.logErrorWithFailingAssertion(log,
-                        "Cannot traverse primitive collections or primitives " + collection);
-            }
+            traverseMutable(element, element.getClass());
         }
     }
 
