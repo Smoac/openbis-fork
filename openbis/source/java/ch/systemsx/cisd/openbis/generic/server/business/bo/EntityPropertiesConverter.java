@@ -85,8 +85,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     public EntityPropertiesConverter(final EntityKind entityKind, final IDAOFactory daoFactory)
     {
-        this(entityKind, daoFactory, new PropertyValidator(daoFactory),
-                new DynamicPropertiesUpdateChecker(), new DynamicProperiesPlaceholderCreator());
+        this(entityKind, daoFactory, new PropertyValidator(), new DynamicPropertiesUpdateChecker(),
+                new DynamicProperiesPlaceholderCreator());
     }
 
     @Private
@@ -257,9 +257,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         final T entityProperty = EntityPropertyPE.createEntityProperty(entityKind);
         entityProperty.setRegistrator(registrator);
         entityProperty.setEntityTypePropertyType(entityTypePropertyType);
-        final VocabularyTermPE vocabularyTerm = tryGetVocabularyTerm(value, propertyType);
-        final MaterialPE material = tryGetMaterial(value, propertyType);
-        entityProperty.setUntypedValue(value, vocabularyTerm, material);
+        setPropertyValue(entityProperty, propertyType, value);
         return entityProperty;
     }
 
@@ -395,6 +393,25 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         assert validatedValue != null;
         return createEntityProperty(registrator, propertyType, entityTypPropertyType,
                 validatedValue);
+    }
+
+    public final <T extends EntityPropertyPE> void setPropertyValue(final T entityProperty,
+            final PropertyTypePE propertyType, final String validatedValue)
+    {
+        assert validatedValue != null;
+        final VocabularyTermPE vocabularyTerm = tryGetVocabularyTerm(validatedValue, propertyType);
+        final MaterialPE material = tryGetMaterial(validatedValue, propertyType);
+        entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material);
+    }
+
+    public final <T extends EntityPropertyPE> void setPropertyValue(T entityProperty,
+            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
+            final PersonPE registrator, String validatedValue)
+    {
+        assert validatedValue != null;
+        final VocabularyTermPE vocabularyTerm = tryGetVocabularyTerm(validatedValue, propertyType);
+        final MaterialPE material = tryGetMaterial(validatedValue, propertyType);
+        entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material);
     }
 
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,

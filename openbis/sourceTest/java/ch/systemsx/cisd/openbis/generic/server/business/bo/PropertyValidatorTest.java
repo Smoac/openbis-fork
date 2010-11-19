@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.jmock.Expectations;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -46,7 +45,7 @@ public final class PropertyValidatorTest extends AbstractBOTest
 {
     private final PropertyValidator createPropertyValidator()
     {
-        return new PropertyValidator(daoFactory);
+        return new PropertyValidator();
     }
 
     private final static PropertyTypePE createPropertyType(final DataTypeCode entityDataType)
@@ -178,9 +177,9 @@ public final class PropertyValidatorTest extends AbstractBOTest
         }
     }
 
-    // 
+    //
     // XML property with schema
-    // 
+    //
 
     @Test
     public final void testValidateXMLPropertyValue()
@@ -211,8 +210,8 @@ public final class PropertyValidatorTest extends AbstractBOTest
                     "Provided value doesn't validate against schema of property type '%s'. "
                             + "cvc-complex-type.2.4.d: "
                             + "Invalid content was found starting with element 'footer'. "
-                            + "No child element is expected at this point.", propertyLabel), ex
-                    .getMessage());
+                            + "No child element is expected at this point.", propertyLabel),
+                    ex.getMessage());
         }
     }
 
@@ -236,17 +235,7 @@ public final class PropertyValidatorTest extends AbstractBOTest
     public final void testValidateControlledVocabularyPropertyValue()
     {
         final PropertyTypePE propertyType = createControlledVocabularyPropertyType();
-        final VocabularyPE vocabulary = propertyType.getVocabulary();
         final String value = "goodValue";
-        final String code = value.toUpperCase();
-        final VocabularyTermPE term = createVocabularyTerm(code);
-        context.checking(new Expectations()
-            {
-                {
-                    one(vocabularyDAO).tryFindVocabularyTermByCode(vocabulary, code);
-                    will(returnValue(term));
-                }
-            });
         final PropertyValidator propertyValidator = createPropertyValidator();
         propertyValidator.validatePropertyValue(propertyType, value);
     }
@@ -255,16 +244,7 @@ public final class PropertyValidatorTest extends AbstractBOTest
     public final void testValidateControlledVocabularyPropertyValueFailed()
     {
         PropertyTypePE propertyType = createControlledVocabularyPropertyType();
-        final VocabularyPE vocabulary = propertyType.getVocabulary();
         final String value = "wrongValue";
-        final String code = value.toUpperCase();
-        context.checking(new Expectations()
-            {
-                {
-                    one(vocabularyDAO).tryFindVocabularyTermByCode(vocabulary, code);
-                    will(returnValue(null));
-                }
-            });
         final PropertyValidator propertyValidator = createPropertyValidator();
         try
         {

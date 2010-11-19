@@ -60,6 +60,12 @@ public interface IEntityPropertiesConverter
             EntityTypePropertyTypePE entityTypePropertyType, final PersonPE registrator,
             String validatedValue);
 
+    /**
+     * Modifies value of given {@link EntityPropertyPE}. Value should be already validated.
+     */
+    public <T extends EntityPropertyPE> void setPropertyValue(final T entityProperty,
+            final PropertyTypePE propertyType, final String validatedValue);
+
     /** Updates Set<T> of properties. */
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,

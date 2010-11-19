@@ -115,20 +115,6 @@ public final class PropertyValidator implements IPropertyValueValidator
         return datePatterns.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
-    public PropertyValidator()
-    {
-        // NOTE: controlled vocabulary validator will always fail
-    }
-
-    public PropertyValidator(IDAOFactory daoFactory)
-    {
-        assert daoFactory != null : "Unspecified DAO factory.";
-
-        final IDataTypeValidator dataTypeValidator =
-                dataTypeValidators.get(DataTypeCode.CONTROLLEDVOCABULARY);
-        ((ControlledVocabularyValidator) dataTypeValidator).setDaoFactory(daoFactory);
-    }
-
     //
     // IPropertyValidator
     //
@@ -287,16 +273,9 @@ public final class PropertyValidator implements IPropertyValueValidator
 
         private VocabularyPE vocabulary;
 
-        private IDAOFactory daoFactory;
-
         final void setVocabulary(final VocabularyPE vocabulary)
         {
             this.vocabulary = vocabulary;
-        }
-
-        public void setDaoFactory(final IDAOFactory daoFactory)
-        {
-            this.daoFactory = daoFactory;
         }
 
         //
@@ -308,16 +287,9 @@ public final class PropertyValidator implements IPropertyValueValidator
             assert value != null : "Unspecified value.";
             assert vocabulary != null : "Unspecified vocabulary.";
 
-            if (daoFactory == null)
-            {
-                throw UserFailureException
-                        .fromTemplate("Controlled vocabulary validator wasn't initialized.");
-            }
-
             final String upperCaseValue = value.toUpperCase();
-            VocabularyTermPE termOrNull =
-                    daoFactory.getVocabularyDAO().tryFindVocabularyTermByCode(vocabulary,
-                            upperCaseValue);
+            vocabulary.tryGetVocabularyTerm(upperCaseValue);
+            VocabularyTermPE termOrNull = vocabulary.tryGetVocabularyTerm(upperCaseValue);
             if (termOrNull != null)
             {
                 return upperCaseValue;
