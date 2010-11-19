@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -53,19 +53,15 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DynamicPropertyEvaluationRunnable.class);
 
-    private final IBatchDynamicPropertyEvaluator evaluator;
-
     private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
 
     private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
 
     public DynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory,
-            final IDAOFactory daoFactory,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
     {
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         setSessionFactory(sessionFactory);
-        evaluator = new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE, daoFactory);
 
         final File queueFile = getEvaluatorQueueFile();
         operationLog.info(String.format("Evaluator queue file: %s.", queueFile.getAbsolutePath()));
@@ -127,6 +123,11 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     {
         try
         {
+            // WORKAROUND to cyclic dependencies between beans 
+            // (can't pass IDaoFactory throuhg constructor)
+            final IBatchDynamicPropertyEvaluator evaluator =
+                    new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE,
+                            CommonServiceProvider.getDAOFactory());
             while (true)
             {
                 final DynamicPropertyEvaluationOperation operation = evaluatorQueue.peekWait();
