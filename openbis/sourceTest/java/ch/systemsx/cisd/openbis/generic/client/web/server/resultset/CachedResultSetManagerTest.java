@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridCustomColumnValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
@@ -957,10 +956,9 @@ public final class CachedResultSetManagerTest extends AssertJUnit
     {
         StringBuilder builder = new StringBuilder();
         builder.append(model.getOriginalObject().getData());
-        List<GridCustomColumnValue> calculatedColumnValues = model.getCalculatedColumnValues();
-        for (GridCustomColumnValue value : calculatedColumnValues)
+        for (PrimitiveValue value : model.getCalculatedColumnValues().values())
         {
-            builder.append(" ").append(value.getValue());
+            builder.append(" ").append(value);
         }
         return builder.toString();
     }

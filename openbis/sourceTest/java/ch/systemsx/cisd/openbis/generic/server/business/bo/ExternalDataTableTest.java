@@ -173,14 +173,6 @@ public final class ExternalDataTableTest extends AbstractBOTest
                 new ExperimentIdentifier(new ProjectIdentifier("db", "group", "project"), "exp");
         final ExperimentPE experimentPE = CommonTestUtils.createExperiment(identifier);
         experimentPE.setId(experimentId.getId());
-        final ExternalDataPE data1 = new ExternalDataPE();
-        data1.setCode("d1");
-        data1.setDataSetType(new DataSetTypePE());
-        final ExternalDataPE data2 = new ExternalDataPE();
-        data2.setCode("d2");
-        // data2.setDeleted(true);
-        data2.setDataSetType(new DataSetTypePE());
-        // TODO 2009-06-02, Piotr Buczek: are these datasets used at all?
 
         context.checking(new Expectations()
             {
@@ -270,8 +262,8 @@ public final class ExternalDataTableTest extends AbstractBOTest
         {
             assertEquals(
                     "The following data sets are unknown by any registered Data Store Server. "
-                            + "May be the responsible Data Store Server is not running.\n[d2]", e
-                            .getMessage());
+                            + "May be the responsible Data Store Server is not running.\n[d2]",
+                    e.getMessage());
         }
 
         context.assertIsSatisfied();

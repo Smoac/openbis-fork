@@ -837,7 +837,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         try
         {
             final Set<ExternalDataPE> resultSet = new LinkedHashSet<ExternalDataPE>();
-            // TODO 2009-08-17, Piotr Buczek: optimize performance
+            // TODO 2009-08-17, Piotr Buczek: [LMS-1149] optimize performance
             addRelatedDataSets(resultSet, relatedEntities.getEntities());
             final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
             for (final ExternalDataPE hit : resultSet)
