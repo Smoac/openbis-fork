@@ -185,7 +185,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         return (ICallbackListener<T>) callbackListener;
     }
 
-    // TODO 2009-10-05, Piotr Buczek: make protected if one finds a way to easily delegate it
     /**
      * Terminates {@link #onFailure(Throwable)}.
      * <p>
