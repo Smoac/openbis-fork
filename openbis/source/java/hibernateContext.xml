@@ -156,7 +156,6 @@
     <bean id="dynamic-property-evaluator"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationRunnable">
         <constructor-arg ref="hibernate-session-factory" />
-        <constructor-arg ref="dao-factory" />
         <constructor-arg ref="full-text-index-updater" />
     </bean>
     
