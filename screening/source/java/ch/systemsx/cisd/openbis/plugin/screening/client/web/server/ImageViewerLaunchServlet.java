@@ -30,14 +30,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
@@ -90,11 +87,9 @@ public class ImageViewerLaunchServlet extends AbstractServlet
                         + "${data-set-and-wells-arguments}\n"
                         + "  </application-desc>\n" + "</jnlp>\n");
     
-    private  final Logger operationLog;
 
     public ImageViewerLaunchServlet()
     {
-        operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
     }
 
     @Override
