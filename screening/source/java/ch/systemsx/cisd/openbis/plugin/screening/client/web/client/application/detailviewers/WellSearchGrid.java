@@ -582,8 +582,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                             public void setChannelChooser(
                                     SelectionProvider<SimpleComboValue<String>> selectionProvider)
                             {
-                                // TODO Auto-generated method stub
-                                
+                                // TODO 2010-11-09, felmer: Auto-generated method stub
                             }
                         };
                     ChannelWidgetWithListener widgetWithListener =

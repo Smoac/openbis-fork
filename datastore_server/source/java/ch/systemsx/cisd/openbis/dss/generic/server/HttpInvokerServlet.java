@@ -17,7 +17,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-// TODO Refactor to make the reference to DataStoreServlet use the HttpInvokerServlet.
+// TODO 2010-04-21, Tomasz Pylak: Refactor to make the reference to DataStoreServlet use the HttpInvokerServlet.
 public class HttpInvokerServlet extends HttpServlet
 {
     private static final long serialVersionUID = 1L;

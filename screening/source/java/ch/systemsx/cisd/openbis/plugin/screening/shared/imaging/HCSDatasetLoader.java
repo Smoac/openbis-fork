@@ -102,8 +102,8 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     private static WellImageChannelStack convert(ImgChannelStackDTO stack)
     {
-        return new WellImageChannelStack(stack.getId(), stack.getRow(), stack.getColumn(), stack
-                .getT(), stack.getZ());
+        return new WellImageChannelStack(stack.getId(), stack.getRow(), stack.getColumn(),
+                stack.getT(), stack.getZ());
     }
 
     public PlateImageParameters getImageParameters()
@@ -119,6 +119,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         List<String> channelsLabels = new ArrayList<String>();
         for (ImgChannelDTO channel : channels)
         {
+            // TODO 2010-11-19, IA: is this escaping needed?
             channelsCodes.add(StringEscapeUtils.escapeCsv(channel.getCode()));
             channelsLabels.add(StringEscapeUtils.escapeCsv(channel.getLabel()));
         }

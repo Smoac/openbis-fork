@@ -17,21 +17,19 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PersonTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private Person person;
-    
+
     public PersonTableCell(Person person)
     {
         this.person = person;
     }
-    
+
     public Person getPerson()
     {
         return person;
@@ -39,7 +37,7 @@ public class PersonTableCell implements ISerializableComparable
 
     public int compareTo(ISerializableComparable o)
     {
-        // TODO Auto-generated method stub
+        // TODO 2010-10-25, felmer: Auto-generated method stub
         return 0;
     }
 

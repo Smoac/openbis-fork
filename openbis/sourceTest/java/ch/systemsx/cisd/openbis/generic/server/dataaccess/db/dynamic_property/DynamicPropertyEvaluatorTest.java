@@ -43,7 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 /**
  * @author Piotr Buczek
  */
-public class DynamicPropertyEvaluatorTest extends AssertJUnit // TODO extend AbstractDAOTest
+// TODO 2010-11-19, Piotr Buczek: extend AbstractDAOTest
+public class DynamicPropertyEvaluatorTest extends AssertJUnit
 {
 
     @Test

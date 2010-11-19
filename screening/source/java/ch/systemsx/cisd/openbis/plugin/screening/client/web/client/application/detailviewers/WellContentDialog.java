@@ -547,7 +547,6 @@ public class WellContentDialog extends Dialog
 
         container.add(new Text("["));
         String geneSymbolsOrNull = tryGetGeneSymbols(material);
-        // TODO 2010-10-11, Piotr Buczek: change links in normal view mode not to change URL
         if (geneSymbolsOrNull != null && StringUtils.isBlank(geneSymbolsOrNull) == false)
         {
             String[] symbols = geneSymbolsOrNull.split(" ");

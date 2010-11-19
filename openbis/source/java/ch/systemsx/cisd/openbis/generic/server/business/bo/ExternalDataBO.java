@@ -87,8 +87,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public ExternalDataPE getExternalData()
     {
-        // TODO This should throw an exception if the external data is null -- will that cause
-        // problems with clients?
+        // TODO 2010-04-12, CR: This should throw an exception if the external data is null
+        // -- will that cause problems with clients?
         return externalData;
     }
 

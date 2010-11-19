@@ -39,8 +39,8 @@ import ch.systemsx.cisd.common.ssl.SslCertificateHelper;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-// TODO: This code should be refactored and moved into a common location, but it is a bit difficult
-// due to dependencies.
+// TODO 2010-05-11, CR: This code should be refactored and moved into a common location,
+// but it is a bit difficult due to dependencies.
 public class DssServiceRpcFactory implements IRpcServiceFactory
 {
     private static final int SERVER_TIMEOUT_MIN = 5;
@@ -82,7 +82,7 @@ public class DssServiceRpcFactory implements IRpcServiceFactory
     {
         return new File(getConfigDirectory(), "keystore");
     }
-    
+
     private File getConfigDirectory()
     {
         String homeDir = System.getProperty("dss.root");
