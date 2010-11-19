@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.DynamicPropertyCalculator;
@@ -59,6 +60,14 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     private final List<EntityTypePropertyTypePE> evaluationPath =
             new ArrayList<EntityTypePropertyTypePE>();
 
+    private final IDAOFactory daoFactory;
+
+    public DynamicPropertyEvaluator(IDAOFactory daoFactory)
+    {
+        assert daoFactory != null;
+        this.daoFactory = daoFactory;
+    }
+
     /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
     private DynamicPropertyCalculator getCalculator(ScriptPE scriptPE)
     {
@@ -87,7 +96,14 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             if (etpt.isDynamic())
             {
                 final String dynamicValue = evaluateProperty(entityAdaptor, etpt, true);
-                property.setValue(dynamicValue);
+
+                if (dynamicValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+                {
+                    property.setValue(dynamicValue);
+                } else
+                {
+                    property.setUntypedValue(dynamicValue, null, null);
+                }
             }
         }
     }
@@ -102,7 +118,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         return evaluateProperty(entityAdaptor, etpt, false);
     }
 
-    public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt,
+    private String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt,
             boolean startPath)
     {
         assert etpt.isDynamic() == true : "expected dynamic property";

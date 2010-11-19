@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
 import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -59,11 +60,12 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
 
     public DynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory,
+            final IDAOFactory daoFactory,
             final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
     {
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
         setSessionFactory(sessionFactory);
-        evaluator = new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE);
+        evaluator = new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE, daoFactory);
 
         final File queueFile = getEvaluatorQueueFile();
         operationLog.info(String.format("Evaluator queue file: %s.", queueFile.getAbsolutePath()));

@@ -22,9 +22,12 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.jmock.Mockery;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.AbstractEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.BasicPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
@@ -43,15 +46,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 /**
  * @author Piotr Buczek
  */
-// TODO 2010-11-19, Piotr Buczek: extend AbstractDAOTest
 public class DynamicPropertyEvaluatorTest extends AssertJUnit
 {
+
+    private DynamicPropertyEvaluator evaluator;
+
+    private IDAOFactory daoFactory;
+
+    @BeforeMethod
+    public void setUp()
+    {
+        daoFactory = new Mockery().mock(IDAOFactory.class);
+        evaluator = new DynamicPropertyEvaluator(daoFactory);
+    }
 
     @Test
     public void testEvaluateProperty()
     {
         // test evaluation of a single dynamic property
-        final DynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
 
         IEntityPropertyAdaptor p1 = createProperty("p1", "v1");
         IEntityPropertyAdaptor p2 = createProperty("p2", "v2");
@@ -78,7 +90,6 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
         // - error handling (error messages are stored as property values)
         // -- storing validation error when script evaluates to string instead of expected integer
         // -- storing python error when script tries to invoke nonexisting method
-        final DynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
 
         Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
         // create normal properties
@@ -130,7 +141,6 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
     {
         // check evaluation of dynamic properties that depend on other dynamic properties
         // (with and without cyclic dependencies)
-        final DynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
 
         final SamplePropertyPE p1 = createSampleProperty("p1", "v1"); // normal property
         final ScriptPE scriptP1 = createScript("get p1", "entity.propertyValue('p1')");

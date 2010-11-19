@@ -71,8 +71,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.EntityAdaptorFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
@@ -2059,8 +2061,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             DynamicPropertyCalculator calculator =
                     DynamicPropertyCalculator.create(info.getScript());
-            calculator.setEntity(EntityAdaptorFactory
-                    .create(entity, new DynamicPropertyEvaluator()));
+            IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(getDAOFactory());
+            IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
+            calculator.setEntity(adaptor);
             return calculator.evalAsString();
         } catch (Throwable e)
         {

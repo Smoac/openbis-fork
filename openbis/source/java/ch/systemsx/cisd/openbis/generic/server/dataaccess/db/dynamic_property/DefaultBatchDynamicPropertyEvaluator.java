@@ -33,6 +33,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -66,10 +67,18 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
 
     private final int batchSize;
 
-    DefaultBatchDynamicPropertyEvaluator(final int batchSize)
+    private final IDAOFactory daoFactory;
+
+    DefaultBatchDynamicPropertyEvaluator(final int batchSize, IDAOFactory daoFactory)
     {
         assert batchSize > -1 : "Batch size can not be negative.";
         this.batchSize = batchSize;
+        this.daoFactory = daoFactory;
+    }
+
+    private DynamicPropertyEvaluator createEvaluator()
+    {
+        return new DynamicPropertyEvaluator(daoFactory);
     }
 
     //
@@ -82,7 +91,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         operationLog.info(String.format("Evaluating dynamic properties for all %ss...",
                 clazz.getSimpleName()));
 
-        final IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
+        final IDynamicPropertyEvaluator evaluator = createEvaluator();
 
         Transaction transaction = null;
         try
@@ -137,7 +146,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         operationLog.info(String.format("Evaluating dynamic properties for %ss...",
                 clazz.getSimpleName()));
 
-        final IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator();
+        final IDynamicPropertyEvaluator evaluator = createEvaluator();
 
         Transaction transaction = null;
         try
