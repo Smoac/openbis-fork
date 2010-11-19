@@ -96,7 +96,7 @@ public final class GWTUtils
      * Sets up {@link ComboBox} to have width of list auto adjusted to maximum width of elements in
      * the list.
      */
-    // FIXME 2010-05-19, PTR: the width is not updated when store is changed;
+    // FIXME 2010-05-19, Piotr Buczek: the width is not updated when store is changed;
     public static void setupAutoWidth(final ComboBox<?> comboBox)
     {
         // can't get el() of listView before it is rendered
@@ -126,7 +126,6 @@ public final class GWTUtils
                     // if it takes whole width of the window.
                     return Math.min(Window.getClientWidth() / 2, maxLabelWidth);
                 }
-
             });
     }
 
