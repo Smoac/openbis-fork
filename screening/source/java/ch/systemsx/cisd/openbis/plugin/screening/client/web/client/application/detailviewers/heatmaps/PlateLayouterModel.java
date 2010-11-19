@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
@@ -129,7 +130,7 @@ class PlateLayouterModel
     // Elements will NOT contain null even if well is empty.
     private static WellData[][] createWellMatrix(PlateMetadata plateMetadata)
     {
-        WellData[][] matrix = PlateLayouter.createEmptyWellMatrix(plateMetadata);
+        WellData[][] matrix = createEmptyWellMatrix(plateMetadata);
         List<WellMetadata> wells = plateMetadata.getWells();
         for (WellMetadata well : wells)
         {
@@ -141,6 +142,20 @@ class PlateLayouterModel
             }
         }
         return matrix;
+    }
+
+    private static WellData[][] createEmptyWellMatrix(PlateMetadata plateMetadata)
+    {
+        WellData[][] data = new WellData[plateMetadata.getRowsNum()][plateMetadata.getColsNum()];
+        Experiment experiment = plateMetadata.getPlate().getExperiment();
+        for (int row = 0; row < data.length; row++)
+        {
+            for (int col = 0; col < data[row].length; col++)
+            {
+                data[row][col] = new WellData(new WellLocation(row + 1, col + 1), experiment);
+            }
+        }
+        return data;
     }
 
     private static <T> List<T> asList(T[][] matrix)

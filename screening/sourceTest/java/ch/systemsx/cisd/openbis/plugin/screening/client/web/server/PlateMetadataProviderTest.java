@@ -27,31 +27,30 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.ObjectCreationUtilForTests;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataGridIDs;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PlateMetadataProviderTest extends AbstractServerTestCase
 {
     private IScreeningServer service;
+
     private TechId plateId;
+
     private PlateMetadataProvider provider;
 
     @Override
@@ -63,7 +62,7 @@ public class PlateMetadataProviderTest extends AbstractServerTestCase
         plateId = new TechId(42);
         provider = new PlateMetadataProvider(service, SESSION_TOKEN, plateId);
     }
-    
+
     @Test
     public void test()
     {
@@ -73,27 +72,22 @@ public class PlateMetadataProviderTest extends AbstractServerTestCase
         SampleType sampleType = new SampleType();
         sampleType.setCode("my-type");
         wellSample.setSampleType(sampleType);
-        EntityProperty property = new EntityProperty();
-        PropertyType propertyType = new PropertyType();
-        propertyType.setLabel("answer");
-        propertyType.setCode("ANSWER");
-        propertyType.setDataType(new DataType(DataTypeCode.INTEGER));
-        property.setPropertyType(propertyType);
-        property.setValue("42");
-        wellSample.setProperties(Arrays.<IEntityProperty>asList(property));
+        EntityProperty property = ObjectCreationUtilForTests.createIntProperty("answer", 42);
+        wellSample.setProperties(Arrays.<IEntityProperty> asList(property));
         wellMetadata.setWellSample(wellSample, null);
         context.checking(new Expectations()
             {
                 {
                     one(service).getPlateContent(SESSION_TOKEN, plateId);
                     Sample plate = new Sample();
-                    will(returnValue(new PlateContent(new PlateMetadata(plate, Arrays.asList(wellMetadata), 0, 0), null, null, null)));
+                    will(returnValue(new PlateContent(new PlateMetadata(plate, Arrays
+                            .asList(wellMetadata), 0, 0), null, null, null)));
                 }
             });
-        
+
         TypedTableModel<WellMetadata> tableModel = provider.getTableModel();
         assertSame(tableModel, provider.getTableModel());
-        
+
         List<TableModelColumnHeader> headers = tableModel.getHeader();
         assertEquals(null, headers.get(0).getTitle());
         assertEquals(PlateMetadataGridIDs.CODE, headers.get(0).getId());
@@ -108,12 +102,13 @@ public class PlateMetadataProviderTest extends AbstractServerTestCase
         assertEquals(2, headers.get(2).getIndex());
         assertEquals(DataTypeCode.INTEGER, headers.get(2).getDataType());
         assertEquals(3, headers.size());
-        
+
         List<TableModelRowWithObject<WellMetadata>> rows = tableModel.getRows();
         assertSame(wellMetadata, rows.get(0).getObjectOrNull());
         assertEquals("[my-code, my-type, 42]", rows.get(0).getValues().toString());
         assertEquals(1, rows.size());
-        
+
         context.assertIsSatisfied();
     }
+
 }

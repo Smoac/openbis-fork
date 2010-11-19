@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.I
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter;
@@ -55,7 +54,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesR
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Utilities to create plate visualization. Visualizes wells metadata and at most one image dataset.
@@ -303,20 +301,6 @@ public class PlateLayouter
     private static Component createBox()
     {
         return new Text("");
-    }
-
-    static WellData[][] createEmptyWellMatrix(PlateMetadata plateMetadata)
-    {
-        WellData[][] data = new WellData[plateMetadata.getRowsNum()][plateMetadata.getColsNum()];
-        Experiment experiment = plateMetadata.getPlate().getExperiment();
-        for (int row = 0; row < data.length; row++)
-        {
-            for (int col = 0; col < data[row].length; col++)
-            {
-                data[row][col] = new WellData(new WellLocation(row + 1, col + 1), experiment);
-            }
-        }
-        return data;
     }
 
     // ---------

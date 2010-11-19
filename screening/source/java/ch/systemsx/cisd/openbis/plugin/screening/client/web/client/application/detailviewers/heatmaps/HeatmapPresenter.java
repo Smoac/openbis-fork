@@ -14,6 +14,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.I
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
@@ -83,14 +84,16 @@ class HeatmapPresenter
     private void refreshHeatmap(IHeatmapRenderer<WellData> renderer, Integer featureIndexOrNull)
     {
         WellData[][] wellMatrix = model.getWellMatrix();
-        for (int row = 0; row < wellMatrix.length; row++)
+        for (int rowIx = 0; rowIx < wellMatrix.length; rowIx++)
         {
-            for (int col = 0; col < wellMatrix[row].length; col++)
+            for (int colIx = 0; colIx < wellMatrix[rowIx].length; colIx++)
             {
-                WellData wellData = wellMatrix[row][col];
+                WellData wellData = wellMatrix[rowIx][colIx];
                 Color color = renderer.getColor(wellData);
-                String tooltipOrNull = tryGenerateTooltip(wellData, featureIndexOrNull);
-                viewManipulations.refreshWellStyle(row, col, color, tooltipOrNull);
+                String tooltipOrNull =
+                        WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx,
+                                featureIndexOrNull);
+                viewManipulations.refreshWellStyle(rowIx, colIx, color, tooltipOrNull);
             }
         }
         refreshLegend(renderer);
@@ -126,82 +129,6 @@ class HeatmapPresenter
                     return well.tryGetFeatureValue(featureIndex);
                 }
             };
-    }
-
-    private String tryGenerateTooltip(WellData wellData, Integer featureIndexOrNull)
-    {
-        if (featureIndexOrNull != null)
-        {
-            return tryGenerateFeatureTooltip(wellData, featureIndexOrNull);
-        } else
-        {
-            return tryGenerateMetadataTooltip(wellData);
-        }
-    }
-
-    private String tryGenerateFeatureTooltip(WellData wellData, int featureIndex)
-    {
-        Float value = wellData.tryGetFeatureValue(featureIndex);
-        List<String> featureLabels = model.tryGetFeatureLabels();
-        assert featureLabels != null : "feature labels not set";
-        String tooltip = featureLabels.get(featureIndex) + ": <b>" + value + "</b>";
-        String metadataTooltip = tryGenerateMetadataTooltip(wellData);
-        if (metadataTooltip != null)
-        {
-            tooltip += "\n" + metadataTooltip;
-        }
-        return tooltip;
-    }
-
-    private static String tryGenerateMetadataTooltip(WellData wellData)
-    {
-        WellMetadata metadata = wellData.tryGetMetadata();
-        if (metadata == null)
-        {
-            return null;
-        }
-        String tooltip = getWellDescription(metadata);
-
-        List<IEntityProperty> properties = metadata.getWellSample().getProperties();
-        Collections.sort(properties);
-        for (IEntityProperty property : properties)
-        {
-            PropertyType propertyType = property.getPropertyType();
-            tooltip += "\n" + propertyType.getLabel() + ": " + getPropertyDisplayText(property);
-            Material material = property.getMaterial();
-            if (material != null
-                    && material.getMaterialType().getCode()
-                            .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
-            {
-                List<IEntityProperty> geneProperties = material.getProperties();
-                for (IEntityProperty geneProperty : geneProperties)
-                {
-                    if (geneProperty.getPropertyType().getCode()
-                            .equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
-                    {
-                        tooltip += " [" + geneProperty.tryGetAsString() + "]";
-                    }
-                }
-            }
-        }
-        return tooltip;
-    }
-
-    private static String getPropertyDisplayText(IEntityProperty property)
-    {
-        Material material = property.getMaterial();
-        if (material != null)
-        {
-            return material.getCode();
-        } else
-        {
-            return property.tryGetAsString();
-        }
-    }
-
-    private static String getWellDescription(WellMetadata metadata)
-    {
-        return "Well: " + metadata.getWellSample().getSubCode();
     }
 
     /** */
@@ -315,6 +242,182 @@ class HeatmapPresenter
             {
                 return metadata.getWellSample().getEntityType().getCode();
             }
+        }
+    }
+
+    static class WellTooltipGenerator
+    {
+        private static final String NEWLINE = "\n";
+
+        private static final int MAX_DESCRIBED_FEATURES = 7;
+
+        /**
+         * Generates a short description of the well, which can be used as e.g. a tooltip
+         * 
+         * @param featureIndexOrNull if not null contains an index of the feature which should be
+         *            distinguished.
+         */
+        public static String tryGenerateTooltip(PlateLayouterModel model, int rowIx, int colIx,
+                Integer featureIndexOrNull)
+        {
+            return new WellTooltipGenerator(model).tryGenerateShortDescription(rowIx, colIx,
+                    featureIndexOrNull);
+        }
+
+        private final PlateLayouterModel model;
+
+        private WellTooltipGenerator(PlateLayouterModel model)
+        {
+            this.model = model;
+        }
+
+        private String tryGenerateShortDescription(int rowIx, int colIx, Integer featureIndexOrNull)
+        {
+            WellData wellData = model.getWellMatrix()[rowIx][colIx];
+            String tooltip = "";
+            if (featureIndexOrNull != null)
+            {
+                tooltip += generateOneFeatureDescription(wellData, featureIndexOrNull, true);
+            }
+
+            tooltip += generateMetadataDescription(wellData);
+
+            int featuresNum = getNumberOfFeatures();
+            if (featuresNum - (featureIndexOrNull != null ? 1 : 0) > 0)
+            {
+                if (tooltip.length() == 0)
+                {
+                    tooltip += getWellCodeDescription(wellData);
+                } else
+                {
+                    tooltip += NEWLINE; // separate metadata from the text below
+                }
+                int describedFeaturesNum = Math.min(MAX_DESCRIBED_FEATURES, featuresNum);
+                for (int ix = 0; ix < describedFeaturesNum; ix++)
+                {
+                    if (featureIndexOrNull == null || ix != featureIndexOrNull.intValue())
+                    {
+                        tooltip += generateOneFeatureDescription(wellData, ix, false);
+                    }
+                }
+                if (featuresNum > describedFeaturesNum)
+                {
+                    tooltip += "...";
+                }
+            }
+            return tooltip;
+
+        }
+
+        private int getNumberOfFeatures()
+        {
+            List<String> featureLabels = model.tryGetFeatureLabels();
+            return featureLabels == null ? 0 : featureLabels.size();
+        }
+
+        private String generateOneFeatureDescription(WellData wellData, int featureIndex,
+                boolean distinguished)
+        {
+            List<String> featureLabels = model.tryGetFeatureLabels();
+            assert featureLabels != null : "feature labels not set";
+
+            Float value = wellData.tryGetFeatureValue(featureIndex);
+            // if the value should be distinguished we show it even if it's null
+            if (value == null && distinguished == false)
+            {
+                return "";
+            }
+            String textValue = (value == null ? "" : "" + value);
+            if (distinguished)
+            {
+                textValue = "<b>" + textValue + "</b>";
+            }
+            return featureLabels.get(featureIndex) + ": " + textValue + NEWLINE;
+        }
+
+        private static String generateMetadataDescription(WellData wellData)
+        {
+            WellMetadata metadata = wellData.tryGetMetadata();
+            if (metadata == null)
+            {
+                return "";
+            }
+            String tooltip = getWellCodeDescription(metadata);
+
+            List<IEntityProperty> properties = metadata.getWellSample().getProperties();
+            Collections.sort(properties);
+            for (IEntityProperty property : properties)
+            {
+                PropertyType propertyType = property.getPropertyType();
+                tooltip +=
+                        NEWLINE + propertyType.getLabel() + ": " + getPropertyDisplayText(property);
+                Material material = property.getMaterial();
+                if (material != null
+                        && material.getMaterialType().getCode()
+                                .equalsIgnoreCase(ScreeningConstants.GENE_PLUGIN_TYPE_CODE))
+                {
+                    List<IEntityProperty> geneProperties = material.getProperties();
+                    for (IEntityProperty geneProperty : geneProperties)
+                    {
+                        if (geneProperty.getPropertyType().getCode()
+                                .equalsIgnoreCase(ScreeningConstants.GENE_SYMBOLS))
+                        {
+                            tooltip += " [" + geneProperty.tryGetAsString() + "]";
+                        }
+                    }
+                }
+            }
+            return tooltip + NEWLINE;
+        }
+
+        private static String getPropertyDisplayText(IEntityProperty property)
+        {
+            Material material = property.getMaterial();
+            if (material != null)
+            {
+                return material.getCode();
+            } else
+            {
+                return property.tryGetAsString();
+            }
+        }
+
+        private static String getWellCodeDescription(WellData wellData)
+        {
+            WellMetadata metadata = wellData.tryGetMetadata();
+            return metadata == null ? "" : getWellCodeDescription(metadata) + NEWLINE;
+        }
+
+        private static String getWellCodeDescription(WellMetadata metadata)
+        {
+            Sample wellSample = metadata.getWellSample();
+            String sampleTypeCode = wellSample.getSampleType().getCode();
+            return printFriendlyCode(sampleTypeCode) + ": " + wellSample.getSubCode();
+        }
+
+        // private
+        static String printFriendlyCode(String code)
+        {
+            String[] tokens = code.split("_|-");
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < tokens.length; i++)
+            {
+                if (sb.length() > 0)
+                {
+                    sb.append(" ");
+                }
+                sb.append(capitalizeFirst(tokens[i]));
+            }
+            return sb.toString();
+        }
+
+        private static String capitalizeFirst(String value)
+        {
+            if (value == null || value.length() == 0)
+            {
+                return value;
+            }
+            return ("" + value.charAt(0)).toUpperCase() + value.substring(1).toLowerCase();
         }
     }
 
