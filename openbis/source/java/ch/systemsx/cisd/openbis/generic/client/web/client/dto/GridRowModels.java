@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
  * 
  * @author Tomasz Pylak
  */
-public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSerializable
+public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSerializable,
+        Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private List<TableModelColumnHeader> columnHeaders;
 
     /**
@@ -52,12 +54,12 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
     /** Creates a new instance with the specified list of data and previous values for other fields */
     public GridRowModels<T> cloneWithData(List<GridRowModel<T>> list)
     {
-        return new GridRowModels<T>(list, this.getColumnHeaders(), this.getCustomColumnsMetadata(), this
-                .getColumnDistinctValues());
+        return new GridRowModels<T>(list, this.getColumnHeaders(), this.getCustomColumnsMetadata(),
+                this.getColumnDistinctValues());
     }
 
-    public GridRowModels(List<GridRowModel<T>> list,
-            List<TableModelColumnHeader> headers, List<GridCustomColumnInfo> customColumnsMetadata, List<ColumnDistinctValues> arrayList)
+    public GridRowModels(List<GridRowModel<T>> list, List<TableModelColumnHeader> headers,
+            List<GridCustomColumnInfo> customColumnsMetadata, List<ColumnDistinctValues> arrayList)
     {
         super(list);
         columnHeaders = headers;
@@ -69,7 +71,7 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
     {
         return columnHeaders;
     }
-    
+
     /** Used when items are not displayed in a grid (usually we need the values for comboboxes) */
     // TODO 2009-10-08, Tomasz Pylak: this method is a source of many anti-patterns where the
     // existance of server cache is simply forgotten and cache is never cleared.

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,8 +27,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class ColumnDistinctValues implements IsSerializable
+public class ColumnDistinctValues implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private String columnIdentifier;
 
     // sorted alphabetically

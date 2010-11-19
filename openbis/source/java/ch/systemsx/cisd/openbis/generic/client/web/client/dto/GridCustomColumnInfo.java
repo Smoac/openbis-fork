@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -25,8 +27,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
  * 
  * @author Tomasz Pylak
  */
-public class GridCustomColumnInfo implements IsSerializable
+public class GridCustomColumnInfo implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private String code;
 
     private String label;

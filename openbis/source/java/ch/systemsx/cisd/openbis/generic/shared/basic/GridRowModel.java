@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +30,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class GridRowModel<T> implements IsSerializable
+public class GridRowModel<T> implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private T originalObject;
 
     // TODO 2010-03-09, Piotr Buczek: Now that we use GWT 2.0 it should be possible to use map here.

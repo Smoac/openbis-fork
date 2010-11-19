@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
@@ -23,8 +25,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class GridCustomColumnValue implements IsSerializable
+public class GridCustomColumnValue implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private String columnId;
 
     private PrimitiveValue value;
