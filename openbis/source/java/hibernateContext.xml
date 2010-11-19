@@ -114,7 +114,7 @@
                 <prop key="hibernate.search.indexing_strategy">manual</prop>
                 <!--  Uncomment this for debugging the Hibernate sql queries
 <prop key="hibernate.show_sql">true</prop>
-<prop key="hibernate.use_sql_comments">true</prop> 
+<prop key="hibernate.use_sql_comments">true</prop>
 <prop key="hibernate.format_sql">true</prop> 
                   -->
 
@@ -156,6 +156,7 @@
     <bean id="dynamic-property-evaluator"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationRunnable">
         <constructor-arg ref="hibernate-session-factory" />
+        <constructor-arg ref="dao-factory" />
         <constructor-arg ref="full-text-index-updater" />
     </bean>
     
