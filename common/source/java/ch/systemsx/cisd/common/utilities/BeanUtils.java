@@ -19,6 +19,11 @@ package ch.systemsx.cisd.common.utilities;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -155,11 +160,10 @@ public final class BeanUtils
         };
 
     @SuppressWarnings("unchecked")
-    private static final Set<Class> immutableTypes =
-            new LinkedHashSet<Class>(Arrays.asList(boolean.class, Boolean.class, byte.class,
-                    Byte.class, short.class, Short.class, int.class, Integer.class, long.class,
-                    Long.class, float.class, Float.class, double.class, Double.class, String.class,
-                    Date.class));
+    static final Set<Class> immutableTypes = new LinkedHashSet<Class>(Arrays.asList(boolean.class,
+            Boolean.class, byte.class, Byte.class, short.class, Short.class, int.class,
+            Integer.class, long.class, Long.class, float.class, Float.class, double.class,
+            Double.class, String.class, Date.class));
 
     /**
      * Creates a new list of Beans of type <var>clazz</var>.
@@ -755,10 +759,10 @@ public final class BeanUtils
                         valueOrNull = propertyValueOrNull;
                     } else if (resultType == boolean.class || resultType == Boolean.class)
                     {
-                        valueOrNull = Boolean.parseBoolean(propertyValueOrNull); 
+                        valueOrNull = Boolean.parseBoolean(propertyValueOrNull);
                     } else if (resultType == int.class || resultType == Integer.class)
                     {
-                        valueOrNull = Integer.parseInt(propertyValueOrNull); 
+                        valueOrNull = Integer.parseInt(propertyValueOrNull);
                     } else if (resultType == float.class || resultType == Float.class)
                     {
                         valueOrNull = Float.parseFloat(propertyValueOrNull);
@@ -911,11 +915,11 @@ public final class BeanUtils
         }
     }
 
-    private final static Map<Class<?>, Collection<Class<?>>> sourceBeanClassesCache =
-            Collections.synchronizedMap(new HashMap<Class<?>, Collection<Class<?>>>());
+    private final static Map<Class<?>, Collection<Class<?>>> sourceBeanClassesCache = Collections
+            .synchronizedMap(new HashMap<Class<?>, Collection<Class<?>>>());
 
-    private final static Map<Class<?>, Method[]> converterMethodsCache =
-            Collections.synchronizedMap(new HashMap<Class<?>, Method[]>());
+    private final static Map<Class<?>, Method[]> converterMethodsCache = Collections
+            .synchronizedMap(new HashMap<Class<?>, Method[]>());
 
     private static Method getConverterMethod(final Method setter, final Object sourceBean,
             final Converter converter)
@@ -1045,6 +1049,40 @@ public final class BeanUtils
         } catch (final IntrospectionException ex)
         {
             throw new CheckedExceptionTunnel(ex);
+        }
+    }
+
+    /**
+     * Returns a deeply cloned java bean.
+     * <p>
+     * NOTE: Throws an exception one of the related objects is not serializable.
+     * 
+     * @param bean java bean to be cloned.
+     * @return a new java bean cloned from fromBean.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T clone(T bean) throws IOException, ClassNotFoundException
+    {
+        ObjectOutputStream oos = null;
+        ObjectInputStream ois = null;
+        try
+        {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(bean);
+            oos.flush();
+            ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+            return (T) ois.readObject();
+        } finally
+        {
+            if (oos != null)
+            {
+                oos.close();
+            }
+            if (ois != null)
+            {
+                ois.close();
+            }
         }
     }
 }
