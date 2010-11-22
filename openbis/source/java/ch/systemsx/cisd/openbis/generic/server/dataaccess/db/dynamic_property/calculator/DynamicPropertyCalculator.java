@@ -46,10 +46,11 @@ public class DynamicPropertyCalculator extends AbstractCalculator
     public static DynamicPropertyCalculator create(String expression)
     {
         String calculatedExpression = expression;
-        String initialScript = BASIC_INITIAL_SCRIPT;
+        String initialScript = getBasicInitialScript();
+        initialScript += importFunctions(DynamicPropertyFunctions.class) + NEWLINE;
         if (Evaluator.isMultiline(expression))
         {
-            initialScript += "\n" + expression;
+            initialScript += expression;
             calculatedExpression = INVOKE_CALCULATE_EXPR;
         }
         return new DynamicPropertyCalculator(new Evaluator(calculatedExpression, Math.class,

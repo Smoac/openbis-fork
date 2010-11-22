@@ -41,7 +41,7 @@ class RowCalculator extends AbstractCalculator
             Set<ParameterWithValue> parameters)
     {
         super(new Evaluator(substitudeParameters(expression, parameters), Math.class,
-                BASIC_INITIAL_SCRIPT));
+                getBasicInitialScript()));
         row = new Row(provider);
         evaluator.set("row", row);
     }
