@@ -291,11 +291,13 @@ public final class Evaluator
     /**
      * Evaluates the expression of this evaluator and returns the result as a String. This method
      * can always be called.
+     * <p>
+     * NOTE: null will be returned if expression results in {@link PyNone}
      */
     public String evalAsString() throws EvaluatorException
     {
-        doEval();
-        return getInterpreterResult().toString();
+        Object result = eval();
+        return result == null ? null : result.toString();
     }
 
     private void doEval() throws EvaluatorException

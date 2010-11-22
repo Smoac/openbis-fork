@@ -41,6 +41,14 @@ public class EvaluatorTest
     }
 
     @Test
+    public void testEvalWithNull()
+    {
+        final Evaluator eval = new Evaluator("None");
+        assertEquals(null, eval.eval());
+        assertEquals(null, eval.evalAsString());
+    }
+
+    @Test
     public void testSimpleExpression()
     {
         final Evaluator eval = new Evaluator("1+1");
