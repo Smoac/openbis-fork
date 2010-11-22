@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -40,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class AbstractDssServiceRpc
+public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger<T>
 {
     static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDssServiceRpc.class);

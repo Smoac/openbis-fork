@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
@@ -437,7 +438,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         return workingDirectory;
     }
 
-    private static class MockDssServiceRpcV1_0 extends AbstractDssServiceRpc implements
+    private static class MockDssServiceRpcV1_0 extends AbstractDssServiceRpc<IDssServiceRpcGeneric> implements
             IDssServiceRpcGenericInternal
     {
         private final FileInfoDssDTO[] fileInfos;
@@ -511,6 +512,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 IllegalArgumentException
         {
             throw new IllegalArgumentException("Unimplemented in v1.0");
+        }
+
+        public IDssServiceRpcGeneric createLogger(IInvocationLoggerContext context)
+        {
+            return null;
         }
     }
 

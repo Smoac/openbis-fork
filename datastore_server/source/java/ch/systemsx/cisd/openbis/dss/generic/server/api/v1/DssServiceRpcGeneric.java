@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.etlserver.api.v1.PutDataSetService;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
+public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGenericInternal> implements
         IDssServiceRpcGenericInternal
 {
     private final PutDataSetService putService;
@@ -66,6 +67,11 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc implements
         super(openBISService);
         putService = service;
         operationLog.info("[rpc] Started DSS API V1 service.");
+    }
+
+    public IDssServiceRpcGenericInternal createLogger(IInvocationLoggerContext context)
+    {
+        return new DssServiceRpcGenericLogger(context);
     }
 
     public FileInfoDssDTO[] listFilesForDataSet(String sessionToken, String dataSetCode,
