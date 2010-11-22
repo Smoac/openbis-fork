@@ -21,9 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
@@ -59,7 +61,10 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
                 final String value;
                 if (property.getMaterialValue() != null)
                 {
-                    value = property.getMaterialValue().getCode();
+                    final MaterialPE material = property.getMaterialValue();
+                    value =
+                            MaterialIdentifier.print(material.getCode(), material.getEntityType()
+                                    .getCode());
                 } else if (property.getVocabularyTerm() != null)
                 {
                     value = property.getVocabularyTerm().getCode();
