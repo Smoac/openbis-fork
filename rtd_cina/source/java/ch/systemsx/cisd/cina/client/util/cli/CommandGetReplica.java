@@ -88,11 +88,22 @@ public class CommandGetReplica extends
         protected ResultCode doExecute(ICinaUtilities component)
         {
             // Find all datasets connected to this sample
+            for (String sampleCode : arguments.getReplicaIdentifiers())
+            {
+                executeForSampleCode(component, sampleCode);
+            }
+            return ResultCode.OK;
+        }
+
+        protected void executeForSampleCode(ICinaUtilities component, String sampleCode)
+        {
+            // Find all datasets connected to this sample
+            component.listDataSetsForSampleCode(sampleCode);
+            // List<DataSet> dataSets = component.listDataSetsForSampleCode(sampleCode);
             // Download the raw-data dataset
             // Download the ...
             // List<Experiment> results =
             // component.listVisibleExperiments(arguments.getReplicaIdentifier());
-            return ResultCode.OK;
         }
     }
 
@@ -115,6 +126,6 @@ public class CommandGetReplica extends
     @Override
     protected String getRequiredArgumentsString()
     {
-        return "<replica identifier>";
+        return "<replica identifier> [<replica identifier> ...]";
     }
 }

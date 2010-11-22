@@ -25,14 +25,18 @@ import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -187,6 +191,12 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     {
         return state.listVisibleExperiments(experimentType);
     }
+
+    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+            EnvironmentFailureException
+    {
+        return state.listDataSetsForSampleCode(sampleCode);
+    }
 }
 
 /**
@@ -225,6 +235,12 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
 
     public List<Experiment> listVisibleExperiments(String experimentType)
             throws IllegalStateException, EnvironmentFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+            EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
     }
@@ -301,6 +317,8 @@ class AuthenticatedState extends AbstractCinaFacadeState
 
     private final IETLLIMSService openbisService;
 
+    private final int generalInformationServiceMinorVersion;
+
     /**
      * @param service
      */
@@ -310,6 +328,7 @@ class AuthenticatedState extends AbstractCinaFacadeState
         super(service);
         this.sessionToken = sessionToken;
         this.openbisService = openbisService;
+        this.generalInformationServiceMinorVersion = service.getMinorVersion();
     }
 
     @Override
@@ -328,7 +347,7 @@ class AuthenticatedState extends AbstractCinaFacadeState
             throws IllegalStateException, EnvironmentFailureException
     {
         // This functionality has only been supported since version 1.1
-        int minorVersion = service.getMinorVersion();
+        int minorVersion = generalInformationServiceMinorVersion;
         if (minorVersion < 1)
         {
             throw new EnvironmentFailureException("Server does not support this feature.");
@@ -359,7 +378,7 @@ class AuthenticatedState extends AbstractCinaFacadeState
             throws IllegalStateException, EnvironmentFailureException
     {
         // This functionality has only been supported since version 1.2
-        int minorVersion = service.getMinorVersion();
+        int minorVersion = generalInformationServiceMinorVersion;
         if (minorVersion < 2)
         {
             throw new EnvironmentFailureException("Server does not support this feature.");
@@ -376,6 +395,37 @@ class AuthenticatedState extends AbstractCinaFacadeState
 
         // Then get the experiments for these spaces
         return service.listExperiments(sessionToken, projects, experimentType);
+    }
+
+    @Override
+    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+            EnvironmentFailureException
+    {
+        // This functionality has only been supported since version 1.1
+        int minorVersion = generalInformationServiceMinorVersion;
+        if (minorVersion < 1)
+        {
+            throw new EnvironmentFailureException("Server does not support this feature.");
+        }
+
+        // Find the sample that matches the given code (there should only be 1)
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
+                sampleCode));
+        List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
+        if (samples.size() < 1)
+        {
+            throw new UserFailureException("No sample with specified code.");
+        }
+
+        // There should only be 1
+        if (samples.size() > 1)
+        {
+            throw new EnvironmentFailureException(
+                    "Found multiple matching samples -- this should not happen. Please contact administrator to resolve this problem.");
+        }
+
+        return service.listDataSets(sessionToken, samples);
     }
 
 }

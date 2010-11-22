@@ -19,6 +19,8 @@ package ch.systemsx.cisd.cina.client.util.v1;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -73,6 +75,20 @@ public interface ICinaUtilities
      */
     public List<Experiment> listVisibleExperiments(String experimentType)
             throws IllegalStateException, EnvironmentFailureException;
+
+    /**
+     * Return a list of data sets for the sample specified by code.
+     * 
+     * @param sampleCode The code of the sample we are interested in. It is assumed that the code is
+     *            unique.
+     * @return The data sets connected to the sample
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server or if there are multiple samples with the given code.
+     * @throws UserFailureException Thrown if no sample exists with the specified code.
+     */
+    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException;
 
     /**
      * Logs the current user out.

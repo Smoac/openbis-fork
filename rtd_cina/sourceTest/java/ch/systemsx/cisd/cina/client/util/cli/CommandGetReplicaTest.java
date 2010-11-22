@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cina.client.util.cli;
 
+import java.util.ArrayList;
+
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -24,10 +26,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -83,44 +92,51 @@ public class CommandGetReplicaTest extends AssertJUnit
                 {
                     one(service).tryToAuthenticateForAllServices(USER_ID, PASSWORD);
                     will(returnValue(SESSION_TOKEN));
+
+                    one(service).getMinorVersion();
+                    will(returnValue(1));
+
                     one(service).logout(SESSION_TOKEN);
                 }
             });
+    }
 
+    private void setupListDataSetsExpectations(final String sampleCode)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    SearchCriteria searchCriteria = new SearchCriteria();
+                    searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                            MatchClauseAttribute.CODE, sampleCode));
+
+                    ArrayList<Sample> samples = new ArrayList<Sample>();
+                    SampleInitializer initializer = new SampleInitializer();
+                    initializer.setCode(sampleCode);
+                    initializer.setId((long) 1);
+                    initializer.setIdentifier("SPACE/" + sampleCode);
+                    initializer.setPermId("PERM-ID");
+                    initializer.setSampleTypeCode("SAMPLE-TYPE");
+                    initializer.setSampleTypeId((long) 1);
+                    Sample sample = new Sample(initializer);
+                    samples.add(sample);
+
+                    one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
+                    will(returnValue(samples));
+
+                    ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
+                    one(service).listDataSets(SESSION_TOKEN, samples);
+                    will(returnValue(dataSets));
+
+                }
+            });
     }
 
     @Test
     public void testCodePath()
     {
         setupAuthenticationExpectations();
-        context.checking(new Expectations()
-            {
-                {
-                    // final ArrayList<Project> projects = new ArrayList<Project>();
-                    // Project project = new Project("PROJECT-1", "SPACE-1");
-                    // projects.add(project);
-                    //
-                    // final ArrayList<Experiment> experiments = new ArrayList<Experiment>();
-                    //
-                    // final ArrayList<SpaceWithProjectsAndRoleAssignments> spaces =
-                    // new ArrayList<SpaceWithProjectsAndRoleAssignments>();
-                    // SpaceWithProjectsAndRoleAssignments space =
-                    // new SpaceWithProjectsAndRoleAssignments("SPACE-1");
-                    // space.add(project);
-                    // space.add("user", new Role("ADMIN", true));
-                    // spaces.add(space);
-
-                    // one(service).getMinorVersion();
-                    // will(returnValue(2));
-
-                    // one(service).listSpacesWithProjectsAndRoleAssignments(SESSION_TOKEN, null);
-                    // will(returnValue(spaces));
-                    //
-                    // one(service).listExperiments(SESSION_TOKEN, projects, "EXP-TYPE");
-                    // will(returnValue(experiments));
-
-                }
-            });
+        setupListDataSetsExpectations("REPLICA-ID");
 
         ICommand command = new MockCommandGetReplica();
 
@@ -135,6 +151,7 @@ public class CommandGetReplicaTest extends AssertJUnit
     public void testOutputFolder()
     {
         setupAuthenticationExpectations();
+        setupListDataSetsExpectations("REPLICA-ID");
 
         ICommand command = new MockCommandGetReplica();
 
@@ -149,6 +166,8 @@ public class CommandGetReplicaTest extends AssertJUnit
     public void testMultipleReplicas()
     {
         setupAuthenticationExpectations();
+        setupListDataSetsExpectations("REPLICA-ID1");
+        setupListDataSetsExpectations("REPLICA-ID2");
 
         ICommand command = new MockCommandGetReplica();
 
@@ -157,5 +176,35 @@ public class CommandGetReplicaTest extends AssertJUnit
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testOldVersion()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryToAuthenticateForAllServices(USER_ID, PASSWORD);
+                    will(returnValue(SESSION_TOKEN));
+
+                    // The service used wasn't available in version 0
+                    one(service).getMinorVersion();
+                    will(returnValue(0));
+
+                    one(service).logout(SESSION_TOKEN);
+                }
+            });
+
+        ICommand command = new MockCommandGetReplica();
+
+        try
+        {
+            command.execute(new String[]
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "REPLICA-ID" });
+            fail("Command should throw an exception when run against an older version of the interface.");
+        } catch (EnvironmentFailureException e)
+        {
+            assertEquals("Server does not support this feature.", e.getMessage());
+        }
     }
 }
