@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IDssService
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataSetFileDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
-import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**

@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;

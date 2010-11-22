@@ -25,6 +25,7 @@ import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;

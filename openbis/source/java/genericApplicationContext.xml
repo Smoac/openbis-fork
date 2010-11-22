@@ -52,7 +52,7 @@
             <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory" />
         </constructor-arg>
         <constructor-arg>
-            <bean class="ch.systemsx.cisd.openbis.generic.server.LogMessagePrefixGenerator" />
+            <bean class="ch.systemsx.cisd.openbis.generic.shared.LogMessagePrefixGenerator" />
         </constructor-arg>
         <constructor-arg ref="authentication-service" />
         <constructor-arg>

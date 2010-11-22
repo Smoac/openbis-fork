@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server;
+package ch.systemsx.cisd.openbis.generic.shared;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
-import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
@@ -54,7 +54,7 @@ public abstract class AbstractServerLogger implements IServer
 
     private final Logger trackingLog;
 
-    protected final LogMessagePrefixGenerator logMessagePrefixGenerator;
+    protected final ILogMessagePrefixGenerator<Session> logMessagePrefixGenerator;
 
     private final ISessionManager<Session> sessionManagerOrNull;
 
