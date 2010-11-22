@@ -76,7 +76,10 @@ public class QueueingPathRemoverServiceTest
     {
         for (File f : workingDirectory.listFiles(SHREDDER_FILTER))
         {
-            FileUtilities.deleteRecursively(f);
+            for (int i = 0; f.exists() && i < 3; i++)
+            {
+                FileUtilities.deleteRecursively(f);
+            }
             assertFalse(f.exists());
         }
     }
