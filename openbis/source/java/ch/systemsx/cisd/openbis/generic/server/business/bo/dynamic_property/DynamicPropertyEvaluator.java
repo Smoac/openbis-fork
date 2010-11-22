@@ -154,8 +154,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt)
     {
-        // TODO 2010-11-22, Piotr Buczek: will dependency with Vocabulary/Material fail?
-        // are values computed by dependent properties thrown away?
+        // TODO 2010-11-22, Piotr Buczek: are values computed by dependent properties thrown away?
         return evaluateProperty(entityAdaptor, etpt, false);
     }
 

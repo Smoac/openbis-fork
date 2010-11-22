@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.HyperlinkValidationHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -139,6 +140,10 @@ public final class PropertyValidator implements IPropertyValueValidator
             case CONTROLLEDVOCABULARY:
                 ((ControlledVocabularyValidator) dataTypeValidator).setVocabulary(propertyType
                         .getVocabulary());
+                break;
+            case MATERIAL:
+                ((MaterialValidator) dataTypeValidator).setMaterialType(propertyType
+                        .getMaterialType());
                 break;
             case XML:
                 ((XmlValidator) dataTypeValidator).setXmlSchema(propertyType.getSchema());
@@ -336,6 +341,13 @@ public final class PropertyValidator implements IPropertyValueValidator
     private final static class MaterialValidator implements IDataTypeValidator
     {
 
+        private MaterialTypePE materialTypeOrNull;
+
+        public void setMaterialType(MaterialTypePE materialType)
+        {
+            this.materialTypeOrNull = materialType;
+        }
+
         //
         // IDataTypeValidator
         //
@@ -343,14 +355,24 @@ public final class PropertyValidator implements IPropertyValueValidator
         public final String validate(final String value) throws UserFailureException
         {
             assert value != null : "Unspecified value.";
+
             if (StringUtils.isBlank(value))
             {
                 return null;
             }
-            if (MaterialIdentifier.tryParseIdentifier(value) == null)
+            final MaterialIdentifier identifierOrNull =
+                    MaterialIdentifier.tryParseIdentifier(value);
+            if (identifierOrNull == null)
             {
                 throw UserFailureException.fromTemplate(
                         "Material specification '%s' has improper format.", value);
+            }
+            if (materialTypeOrNull != null
+                    && identifierOrNull.getTypeCode().equals(materialTypeOrNull.getCode()) == false)
+            {
+                throw UserFailureException.fromTemplate(
+                        "Material '%s' is of wrong type. Expected: '%'.", value,
+                        materialTypeOrNull.getCode());
             }
             return value;
         }

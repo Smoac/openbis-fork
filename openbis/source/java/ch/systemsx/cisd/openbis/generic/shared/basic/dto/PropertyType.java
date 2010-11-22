@@ -64,7 +64,7 @@ public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpd
 
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
-    // xml type specifig
+    // xml type specific
 
     private String schema;
 

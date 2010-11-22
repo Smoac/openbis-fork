@@ -35,15 +35,20 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * @author Piotr Buczek
@@ -137,6 +142,126 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
         final String expectedDp3ErrorValue =
                 expectedErrorMessage("Error evaluating '" + s3 + "': AttributeError: getCode");
         assertEquals(expectedDp3ErrorValue, dp3Error.getValue());
+    }
+
+    @Test
+    public void testEvaluateVocabularyProperties()
+    {
+        // check handling of vocabulary properties
+        Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
+
+        PropertyTypePE vocabularyPropertyType =
+                createPropertyType("vp", DataTypeCode.CONTROLLEDVOCABULARY);
+        VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setCode("v");
+        vocabulary.setChosenFromList(true);
+        VocabularyTermPE term1 = createTerm("t1");
+        VocabularyTermPE term2 = createTerm("t2");
+        VocabularyTermPE term3 = createTerm("t3");
+        vocabulary.addTerm(term1);
+        vocabulary.addTerm(term2);
+        vocabulary.addTerm(term3);
+        vocabularyPropertyType.setVocabulary(vocabulary);
+
+        SamplePropertyPE vp = createSampleVocabularyProperty(vocabularyPropertyType, term2);
+        properties.add(vp);
+
+        // create dynamic properties
+        final ScriptPE script1 = createScript("s1", "entity.propertyValue('vp')");
+        final SamplePropertyPE dpVarchar = createDynamicSampleProperty("dpVarchar", script1);
+        final PropertyTypePE dynamicPropertyType =
+                createPropertyType("dpVocabulary", DataTypeCode.CONTROLLEDVOCABULARY);
+        dynamicPropertyType.setVocabulary(vocabulary);
+        final SamplePropertyPE dpVocabulary =
+                createDynamicSampleProperty(dynamicPropertyType, script1);
+        final ScriptPE script2 = createScript("s2", "'fake_term'");
+        final PropertyTypePE dynamicPropertyTypeError =
+                createPropertyType("dpVocabularyError", DataTypeCode.CONTROLLEDVOCABULARY);
+        dynamicPropertyTypeError.setVocabulary(vocabulary);
+        final SamplePropertyPE dpVocabularyError =
+                createDynamicSampleProperty(dynamicPropertyTypeError, script2);
+        properties.add(dpVarchar);
+        properties.add(dpVocabulary);
+        properties.add(dpVocabularyError);
+
+        // create sample with all properties created above and evaluate dynamic properties
+        final SamplePE sample = createSample("s1", properties);
+        evaluator.evaluateProperties(sample);
+
+        // check if evaluated values are correct
+        assertEquals(term2.getCode(), dpVarchar.getValue());
+        assertEquals(null, dpVarchar.getVocabularyTerm());
+        assertEquals(null, dpVocabulary.getValue());
+        assertEquals(term2, dpVocabulary.getVocabularyTerm());
+        final String expectedDpVocabularyErrorValue =
+                expectedErrorMessage("Vocabulary value 'FAKE_TERM' is not valid. "
+                        + "It must exist in '" + vocabulary.getCode()
+                        + "' controlled vocabulary [T1, T2, T3]");
+        assertEquals(expectedDpVocabularyErrorValue, dpVocabularyError.getValue());
+        assertEquals(null, dpVocabularyError.getVocabularyTerm());
+    }
+
+    @Test(groups = "broken")
+    public void testEvaluateMaterialProperties()
+    {
+        // check handling of material properties
+        Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
+
+        PropertyTypePE materialPropertyType = createPropertyType("mp", DataTypeCode.MATERIAL);
+        String materialTypeCode = "M_TYPE";
+        MaterialTypePE materialType = new MaterialTypePE();
+        materialType.setCode(materialTypeCode);
+        materialPropertyType.setMaterialType(materialType);
+
+        MaterialPE material = new MaterialPE();
+        material.setCode("M_CODE");
+        material.setMaterialType(materialType);
+
+        SamplePropertyPE mp = createSampleMaterialProperty(materialPropertyType, material);
+        properties.add(mp);
+
+        // create dynamic properties
+        final ScriptPE script1 = createScript("s1", "entity.propertyValue('mp')");
+        final SamplePropertyPE dpVarchar = createDynamicSampleProperty("dpVarchar", script1);
+        final PropertyTypePE dynamicPropertyType =
+                createPropertyType("dpMaterial", DataTypeCode.MATERIAL);
+        dynamicPropertyType.setMaterialType(materialType);
+        final SamplePropertyPE dpMaterial =
+                createDynamicSampleProperty(dynamicPropertyType, script1);
+        final ScriptPE scriptError1 = createScript("se1", "'fake_material'");
+        final PropertyTypePE dynamicPropertyTypeError1 =
+                createPropertyType("dpMaterialError1", DataTypeCode.MATERIAL);
+        dynamicPropertyTypeError1.setMaterialType(materialType);
+        final SamplePropertyPE dpMaterialError1 =
+                createDynamicSampleProperty(dynamicPropertyTypeError1, scriptError1);
+        final ScriptPE scriptError2 = createScript("se2", "'fake_material (fake_type)'");
+        final PropertyTypePE dynamicPropertyTypeError2 =
+                createPropertyType("dpMaterialError2", DataTypeCode.MATERIAL);
+        final SamplePropertyPE dpMaterialError2 =
+                createDynamicSampleProperty(dynamicPropertyTypeError2, scriptError2);
+        properties.add(dpVarchar);
+        properties.add(dpMaterial);
+        properties.add(dpMaterialError1);
+        properties.add(dpMaterialError2);
+
+        // create sample with all properties created above and evaluate dynamic properties
+        final SamplePE sample = createSample("s1", properties);
+        evaluator.evaluateProperties(sample);
+
+        // check if evaluated values are correct
+        final String materialIdentifier =
+                MaterialIdentifier.print(material.getCode(), materialTypeCode);
+        assertEquals(materialIdentifier, dpVarchar.getValue());
+        assertEquals(null, dpVarchar.getMaterialValue());
+        assertEquals(null, dpMaterial.getValue());
+        assertEquals(material, dpMaterial.getMaterialValue());
+        final String expectedDpMaterialError1Value =
+                expectedErrorMessage("Material specification 'fake_material' has improper format.");
+        assertEquals(expectedDpMaterialError1Value, dpMaterialError1.getValue());
+        assertEquals(null, dpMaterialError1.getVocabularyTerm());
+        final String expectedDpMaterialError2Value = expectedErrorMessage("");
+        assertEquals(expectedDpMaterialError2Value, dpMaterialError2.getValue());
+        assertEquals(null, dpMaterialError2.getVocabularyTerm());
     }
 
     @Test
@@ -281,6 +406,28 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
         return result;
     }
 
+    private static SamplePropertyPE createSampleVocabularyProperty(
+            final PropertyTypePE propertyType, final VocabularyTermPE term)
+    {
+        final SamplePropertyPE result = new SamplePropertyPE();
+        final SampleTypePropertyTypePE entityTypePropertyType = new SampleTypePropertyTypePE();
+        entityTypePropertyType.setPropertyType(propertyType);
+        result.setEntityTypePropertyType(entityTypePropertyType);
+        result.setVocabularyTerm(term);
+        return result;
+    }
+
+    private static SamplePropertyPE createSampleMaterialProperty(final PropertyTypePE propertyType,
+            final MaterialPE material)
+    {
+        final SamplePropertyPE result = new SamplePropertyPE();
+        final SampleTypePropertyTypePE entityTypePropertyType = new SampleTypePropertyTypePE();
+        entityTypePropertyType.setPropertyType(propertyType);
+        result.setEntityTypePropertyType(entityTypePropertyType);
+        result.setMaterialValue(material);
+        return result;
+    }
+
     private static SamplePropertyPE createDynamicSampleProperty(final String propertyTypeCode,
             final ScriptPE script)
     {
@@ -327,6 +474,13 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
             final String value)
     {
         return new BasicPropertyAdaptor(propertyTypeCode, value);
+    }
+
+    private static VocabularyTermPE createTerm(String termCode)
+    {
+        final VocabularyTermPE result = new VocabularyTermPE();
+        result.setCode(termCode);
+        return result;
     }
 
 }

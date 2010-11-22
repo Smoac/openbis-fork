@@ -23,11 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.AbstractEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.BasicPropertyAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.DynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityPropertyAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtilsTest;
 
 /**
@@ -132,6 +128,17 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
             final String expectedMsg = "Error evaluating 'calculate()': NameError: calculate";
             assertEquals("expected exception message: " + expectedMsg, expectedMsg, e.getMessage());
         }
+    }
+
+    @Test
+    public void testMaterialFunction()
+    {
+        final String code = "CODE";
+        final String typeCode = "TYPE";
+
+        final DynamicPropertyCalculator calculator =
+                DynamicPropertyCalculator.create("material(" + code + ", " + typeCode + ")");
+        assertEquals(MaterialIdentifier.print(code, typeCode), calculator.evalAsString());
     }
 
     private static IEntityAdaptor createEntity(final String code,

@@ -29,8 +29,8 @@ public class DynamicPropertyFunctionsTest extends AssertJUnit
     @Test
     public void testMaterial()
     {
-        String code = "CODE";
-        String typeCode = "TYPE";
+        final String code = "CODE";
+        final String typeCode = "TYPE";
 
         final String materialIdentifier = DynamicPropertyFunctions.material(code, typeCode);
         assertEquals(MaterialIdentifier.print(code, typeCode), materialIdentifier);
