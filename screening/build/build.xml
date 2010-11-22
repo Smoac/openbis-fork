@@ -194,6 +194,10 @@
 			<param name="jar" value="cisd-base.jar" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/sybit-image-viewer" />
+			<param name="jar" value="image-viewer.jar" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/spring" />
 			<param name="jar" value="spring-web.jar" />
 		</antcall>

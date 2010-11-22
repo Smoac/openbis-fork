@@ -30,11 +30,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
@@ -66,6 +69,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
                         + "    <j2se version='1.5+'/>\n"
                         + "    <jar href='screening.jar'/>\n"
                         + "    <jar href='cisd-base.jar'/>\n"
+                        + "    <jar href='image-viewer.jar'/>\n"
                         + "    <jar href='spring-web.jar'/>\n"
                         + "    <jar href='spring-context.jar'/>\n"
                         + "    <jar href='spring-beans.jar'/>\n"
@@ -87,9 +91,11 @@ public class ImageViewerLaunchServlet extends AbstractServlet
                         + "${data-set-and-wells-arguments}\n"
                         + "  </application-desc>\n" + "</jnlp>\n");
     
+    private  final Logger operationLog;
 
     public ImageViewerLaunchServlet()
     {
+        operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
     }
 
     @Override
@@ -107,8 +113,10 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             template.bind("base-URL", createBaseURL(request));
             template.bind("main-class", getMainClass());
             template.bind("service-URL", basicURL);
-            template.bind("session-id", getSessionToken(request));
-            template.bind("channel", getParam(request, ParameterNames.CHANNEL));
+            String sessionToken = getSessionToken(request);
+            template.bind("session-id", sessionToken);
+            String channel = getParam(request, ParameterNames.CHANNEL);
+            template.bind("channel", channel);
             StringBuilder builder = new StringBuilder();
             for (String dataSetAndWells : getParams(request, ParameterNames.DATA_SET_AND_WELLS))
             {
@@ -117,6 +125,11 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             template.bind("data-set-and-wells-arguments", builder.toString());
             writer.print(template.createText());
             writer.close();
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Start Image Viewer for session " + sessionToken
+                        + " and channel " + channel);
+            }
         } catch (UserFailureException ex)
         {
             printError(response, ex.getMessage());
@@ -125,7 +138,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
     
     private String getMainClass()
     {
-        return "ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ImageViewer";
+        return "ch.systemsx.sybit.imageviewer.gui.ImageViewer";
     }
     
     private String createBaseURL(HttpServletRequest request)

@@ -442,6 +442,7 @@ public class WellContentDialog extends Dialog
 
                                     Window.open(urlParams.toString(), "_blank",
                                             "resizable=yes,scrollbars=yes,dependent=yes");
+                                    hide();
 
                                 }
                             });

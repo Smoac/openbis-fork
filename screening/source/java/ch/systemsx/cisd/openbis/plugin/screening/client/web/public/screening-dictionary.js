@@ -79,7 +79,7 @@ var screening = {
     EXPERIMENT_PLATE_MATERIAL_BROWSER_SECTION: "Library Index",
 		EXACT_MATCH_ONLY: "Exact Matches Only",
 	
-  image_viewer_button: "Launch Image Viewer",
+  image_viewer_button: "Adjust Colors",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

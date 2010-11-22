@@ -44,5 +44,6 @@
 	<classpathentry kind="lib" path="/libraries/nativedata"/>
 	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jline/jline.jar" sourcepath="/libraries/jline/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/sybit-image-viewer/image-viewer.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
