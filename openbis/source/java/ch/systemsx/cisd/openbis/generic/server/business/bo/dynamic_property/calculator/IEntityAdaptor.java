@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator;
 
 import java.util.Collection;
 

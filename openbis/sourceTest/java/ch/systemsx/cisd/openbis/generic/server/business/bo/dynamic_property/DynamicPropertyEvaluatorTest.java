@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,11 +27,12 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.AbstractEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.BasicPropertyAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.AbstractEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.BasicPropertyAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;

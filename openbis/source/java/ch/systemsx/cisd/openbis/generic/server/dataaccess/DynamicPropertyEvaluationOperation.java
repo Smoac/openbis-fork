@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.io.Serializable;
 import java.util.List;

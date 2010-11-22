@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property;
 
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -22,6 +22,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 
 /**

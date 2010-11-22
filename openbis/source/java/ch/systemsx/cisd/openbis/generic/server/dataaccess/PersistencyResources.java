@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 
 /**

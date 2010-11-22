@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,6 +23,11 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.AbstractEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.BasicPropertyAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.DynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.util.XmlUtilsTest;
 
 /**

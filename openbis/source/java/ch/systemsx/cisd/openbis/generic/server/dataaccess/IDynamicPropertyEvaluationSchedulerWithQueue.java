@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
+
 
 /**
  * {@link IDynamicPropertyEvaluationScheduler} extension with methods for reading from the queue.

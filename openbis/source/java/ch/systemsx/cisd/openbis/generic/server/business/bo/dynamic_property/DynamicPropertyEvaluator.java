@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,11 +29,11 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.ComplexPropertyValueHelper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.DynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityAdaptorFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.DynamicPropertyCalculator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.EntityAdaptorFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;

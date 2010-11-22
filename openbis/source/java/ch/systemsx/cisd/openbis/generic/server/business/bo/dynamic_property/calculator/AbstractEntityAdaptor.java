@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.IDynamicPropertyEvaluator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
