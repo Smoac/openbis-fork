@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -32,10 +33,21 @@ public final class MD5ChecksumCalculator implements IChecksumCalculator
 {
     public String calculateChecksum(InputStream inputStream) throws IOException
     {
-        return calculate(inputStream, 4096);
+        return doCalculation(inputStream, 4096);
     }
 
-    private static String calculate(InputStream inputStream, int bufferSize) throws IOException
+    private static String calculate(InputStream inputStream, int bufferSize)
+    {
+        try
+        {
+            return doCalculation(inputStream, bufferSize);
+        } catch (IOException ex)
+        {
+            throw new IllegalStateException("This should not happen: " + ex.getMessage());
+        }
+    }
+
+    static String doCalculation(InputStream inputStream, int bufferSize) throws IOException
     {
         byte[] buf = new byte[bufferSize];
         MD5InputStream in = new MD5InputStream(inputStream);
@@ -43,6 +55,13 @@ public final class MD5ChecksumCalculator implements IChecksumCalculator
         {
         }
         return MD5.asHex(in.hash());
+    }
+    
+    /** Calculates a checksum for specified byte array. */
+    public static String calculate(byte[] bytes)
+    {
+        assert bytes != null : "Unspecified byte array.";
+        return calculate(new ByteArrayInputStream(bytes), bytes.length);
     }
 
     /** Calculates a checksum for a given String */
@@ -60,12 +79,6 @@ public final class MD5ChecksumCalculator implements IChecksumCalculator
                 }
 
             };
-        try
-        {
-            return calculate(inputStream, value.length());
-        } catch (IOException ex)
-        {
-            throw new IllegalStateException("This should not happen: " + ex.getMessage());
-        }
+        return calculate(inputStream, value.length());
     }
 }
