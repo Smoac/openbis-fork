@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -399,19 +400,17 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             final PropertyTypePE propertyType, final String validatedValue)
     {
         assert validatedValue != null;
-        final VocabularyTermPE vocabularyTerm = tryGetVocabularyTerm(validatedValue, propertyType);
-        final MaterialPE material = tryGetMaterial(validatedValue, propertyType);
-        entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material);
-    }
-
-    public final <T extends EntityPropertyPE> void setPropertyValue(T entityProperty,
-            PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypPropertyType,
-            final PersonPE registrator, String validatedValue)
-    {
-        assert validatedValue != null;
-        final VocabularyTermPE vocabularyTerm = tryGetVocabularyTerm(validatedValue, propertyType);
-        final MaterialPE material = tryGetMaterial(validatedValue, propertyType);
-        entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material);
+        if (validatedValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+        {
+            // save errors as strings
+            entityProperty.setValue(validatedValue);
+        } else
+        {
+            final VocabularyTermPE vocabularyTerm =
+                    tryGetVocabularyTerm(validatedValue, propertyType);
+            final MaterialPE material = tryGetMaterial(validatedValue, propertyType);
+            entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material);
+        }
     }
 
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,

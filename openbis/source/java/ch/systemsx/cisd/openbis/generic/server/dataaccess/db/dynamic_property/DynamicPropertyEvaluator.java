@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -32,10 +33,15 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.ca
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 
 /**
  * Default implementation of {@link IDynamicPropertyEvaluator}. For efficient evaluation of
@@ -97,15 +103,71 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             {
                 final String dynamicValue = evaluateProperty(entityAdaptor, etpt, true);
 
+                String valueOrNull = null;
+                MaterialPE materialOrNull = null;
+                VocabularyTermPE termOrNull = null;
                 if (dynamicValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
                 {
-                    property.setValue(dynamicValue);
+                    valueOrNull = dynamicValue;
                 } else
                 {
-                    property.setUntypedValue(dynamicValue, null, null);
+                    try
+                    {
+                        switch (etpt.getPropertyType().getType().getCode())
+                        {
+                            case CONTROLLEDVOCABULARY:
+                                termOrNull =
+                                        tryGetVocabularyTerm(dynamicValue, etpt.getPropertyType());
+                                break;
+                            case MATERIAL:
+                                materialOrNull = tryGetMaterial(dynamicValue);
+                                break;
+                            default:
+                                valueOrNull = dynamicValue;
+                        }
+                    } catch (Throwable t)
+                    {
+                        valueOrNull = errorPropertyValue(t.getMessage());
+                    }
                 }
+                property.setUntypedValue(valueOrNull, termOrNull, materialOrNull);
             }
         }
+    }
+
+    private MaterialPE tryGetMaterial(String value)
+    {
+        MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
+        if (materialIdentifier == null)
+        {
+            // identifier is valid but null
+            return null;
+        }
+        MaterialPE material = daoFactory.getMaterialDAO().tryFindMaterial(materialIdentifier);
+        if (material == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No material could be found for identifier '%s'.", materialIdentifier);
+        }
+        return material;
+    }
+
+    private VocabularyTermPE tryGetVocabularyTerm(final String value,
+            final PropertyTypePE propertyType)
+    {
+        final VocabularyPE vocabulary = propertyType.getVocabulary();
+        if (vocabulary == null)
+        {
+            return null;
+        }
+        final VocabularyTermPE term = vocabulary.tryGetVocabularyTerm(value);
+        if (term != null)
+        {
+            return term;
+        }
+        throw UserFailureException.fromTemplate(
+                "Incorrect value '%s' for a controlled vocabulary set '%s'.", value,
+                vocabulary.getCode());
     }
 
     public List<EntityTypePropertyTypePE> getEvaluationPath()
@@ -115,6 +177,8 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt)
     {
+        // TODO dependency with Vovabulary/Material will fail?
+        // are values computed by dependent properties thrown away?
         return evaluateProperty(entityAdaptor, etpt, false);
     }
 
