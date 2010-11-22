@@ -56,16 +56,16 @@ public abstract class AbstractServerLogger implements IServer
 
     protected final LogMessagePrefixGenerator logMessagePrefixGenerator;
 
-    private final ISessionManager<Session> sessionManager;
+    private final ISessionManager<Session> sessionManagerOrNull;
 
     private final IInvocationLoggerContext context;
 
     private final String prefixOrNull;
 
-    public AbstractServerLogger(final ISessionManager<Session> sessionManager,
+    public AbstractServerLogger(final ISessionManager<Session> sessionManagerNull,
             IInvocationLoggerContext context)
     {
-        this.sessionManager = sessionManager;
+        this.sessionManagerOrNull = sessionManagerNull;
         this.context = context;
         logMessagePrefixGenerator = new LogMessagePrefixGenerator();
         String sessionTokenOrNull = context.tryToGetSessionToken();
@@ -110,13 +110,14 @@ public abstract class AbstractServerLogger implements IServer
 
     private String tryToCreatePrefixFromSession(String sessionToken)
     {
-        if (sessionManager.isAWellFormedSessionToken(sessionToken) == false)
+        if (sessionManagerOrNull == null
+                || sessionManagerOrNull.isAWellFormedSessionToken(sessionToken) == false)
         {
             return null;
         }
         try
         {
-            Session session = sessionManager.getSession(sessionToken);
+            Session session = sessionManagerOrNull.getSession(sessionToken);
             return logMessagePrefixGenerator.createPrefix(session);
         } catch (InvalidSessionException e)
         {
