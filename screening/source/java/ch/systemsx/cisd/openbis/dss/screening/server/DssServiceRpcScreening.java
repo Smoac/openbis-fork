@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreeningInternal;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -86,7 +88,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Trans
  * 
  * @author Tomasz Pylak
  */
-public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
+public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpcScreeningInternal> implements
         IDssServiceRpcScreeningInternal
 {
 
@@ -143,6 +145,11 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets)
     {
         return listAvailableFeatureCodes(sessionToken, featureDatasets);
+    }
+
+    public IDssServiceRpcScreeningInternal createLogger(IInvocationLoggerContext context)
+    {
+        return new DssServiceRpcScreeningLogger(context);
     }
 
     public List<String> listAvailableFeatureCodes(String sessionToken,
@@ -368,7 +375,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc implements
         if (thumbnailSizeOrNull != null)
         {
             size = new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
-   }
+        }
         List<IContent> imageContents = new ArrayList<IContent>();
         for (PlateImageReference imageReference : imageReferences)
         {

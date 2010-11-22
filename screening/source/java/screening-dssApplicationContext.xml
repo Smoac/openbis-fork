@@ -46,10 +46,21 @@
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening" />
     </bean>
     
-        <!-- 
+    <!-- 
+        // This discovers on-the-fly all <code>org.springframework.aop.Advisor</code> implementations.
+    -->
+    <bean id="bean-post-processor"
+        class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+        
+    <!-- 
         // Authorization
     -->
 
     <bean id="screening-rpc-authorization-advisor" class="ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor" />    
     
+    <!-- 
+        // Logging
+    -->
+
+    <bean class="ch.systemsx.cisd.common.spring.LogAdvisor" />
 </beans>

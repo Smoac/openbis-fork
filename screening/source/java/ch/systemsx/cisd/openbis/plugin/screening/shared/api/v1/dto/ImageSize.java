@@ -48,5 +48,11 @@ public class ImageSize implements Serializable
     {
         return height;
     }
+
+    @Override
+    public String toString()
+    {
+        return width + "x" + height;
+    }
     
 }
