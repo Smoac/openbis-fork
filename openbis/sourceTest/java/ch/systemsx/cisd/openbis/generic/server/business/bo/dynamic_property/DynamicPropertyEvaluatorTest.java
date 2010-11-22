@@ -27,7 +27,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.AbstractEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.BasicPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
@@ -57,6 +58,7 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
     @BeforeMethod
     public void setUp()
     {
+        LogInitializer.init();
         daoFactory = new Mockery().mock(IDAOFactory.class);
         evaluator = new DynamicPropertyEvaluator(daoFactory);
     }
@@ -202,9 +204,9 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
         sample = createSample("s1", properties);
         evaluator.evaluateProperties(sample);
         // cyclic dependency should be found
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp1.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp2.getValue());
-        assertEquals(expectedCyclicDependencyErrorMessage(dp1, dp2, dp3, dp1), dp3.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp1.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp2.getValue());
+        assertEquals(expectedCyclicDependencyErrorMessage(dp2, dp3, dp1, dp2), dp3.getValue());
     }
 
     //
@@ -303,6 +305,7 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
         assignment.setPropertyType(propertyType);
         assignment.setDynamic(true);
         assignment.setScript(script);
+        assignment.setEntityType(new SampleTypePE());
         return assignment;
     }
 

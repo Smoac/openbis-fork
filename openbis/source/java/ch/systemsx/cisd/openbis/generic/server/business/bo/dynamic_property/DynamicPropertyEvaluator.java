@@ -29,10 +29,10 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.ComplexPropertyValueHelper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
@@ -174,7 +174,6 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             }
             final DynamicPropertyCalculator calculator = getCalculator(etpt.getScript());
             calculator.setEntity(entityAdaptor);
-            etpt.getEntityType().getEntityKind();
             final String dynamicValue = calculator.evalAsString();
             final String validatedValue =
                     entityPropertiesConverter.tryCreateValidatedPropertyValue(etpt.getEntityType()
