@@ -35,4 +35,26 @@ final class DynamicPropertyFunctions
     {
         return MaterialIdentifier.print(code, typeCode);
     }
+
+    /**
+     * @return code of material with given identifier or null if the identifier is not a valid
+     *         material identifier
+     */
+    public static String materialCode(String materialIdentifier)
+    {
+        final MaterialIdentifier identifierOrNull =
+                MaterialIdentifier.tryParseIdentifier(materialIdentifier);
+        return identifierOrNull == null ? null : identifierOrNull.getCode();
+    }
+
+    /**
+     * @return type of material with given identifier or null if the identifier is not a valid
+     *         material identifier
+     */
+    public static String materialTypeCode(String materialIdentifier)
+    {
+        final MaterialIdentifier identifierOrNull =
+                MaterialIdentifier.tryParseIdentifier(materialIdentifier);
+        return identifierOrNull == null ? null : identifierOrNull.getTypeCode();
+    }
 }
