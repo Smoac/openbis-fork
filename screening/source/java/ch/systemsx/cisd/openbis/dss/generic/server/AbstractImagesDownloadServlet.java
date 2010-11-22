@@ -152,21 +152,29 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
+        TileImageReference reference = null;
         try
         {
-            TileImageReference params = RequestParams.createTileImageReference(request);
-            HttpSession session = tryGetOrCreateSession(request, params.getSessionId());
+            reference = RequestParams.createTileImageReference(request);
+            HttpSession session = tryGetOrCreateSession(request, reference.getSessionId());
             if (session == null)
             {
                 printSessionExpired(response);
             } else
             {
-                deliverFile(response, params, session);
+                deliverFile(response, reference, session);
             }
         } catch (Exception e)
         {
-            //e.printStackTrace();
-            printErrorResponse(response, "Error: " + e.getMessage());
+            String message = "Error: Couldn't deliver image";
+            if (reference != null)
+            {
+                message +=
+                        " for data set " + reference.getDatasetCode() + " and channel "
+                                + reference.getChannel();
+            }
+            operationLog.error(message, e);
+            printErrorResponse(response, message);
         }
 
     }

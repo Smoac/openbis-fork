@@ -91,4 +91,10 @@ public class WellImages
     {
         return getDataset().getDatastoreCode();
     }
+    
+    public String getTransformerFactorySignatureOrNull(String channelCode)
+    {
+        return getImageParams().getTransformerFactorySignatureOrNull(channelCode);
+    }
+    
 }

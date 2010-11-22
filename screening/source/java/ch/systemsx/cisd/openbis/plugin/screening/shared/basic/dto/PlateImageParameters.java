@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -41,6 +43,8 @@ public class PlateImageParameters implements IsSerializable
     private List<String> channelsCodes;
 
     private List<String> channelsLabels;
+
+    private Map<String, String> channelsTransformerFactorySignatures = new HashMap<String, String>();
 
     // true if any well in the dataset has a time series (or depth stack) of images
     private boolean isMultidimensional;
@@ -128,6 +132,16 @@ public class PlateImageParameters implements IsSerializable
     public List<String> getChannelsLabels()
     {
         return channelsLabels;
+    }
+
+    public void addTransformerFactorySignatureFor(String channelCode, String signatureOrNull)
+    {
+        channelsTransformerFactorySignatures.put(channelCode, signatureOrNull);
+    }
+    
+    public String getTransformerFactorySignatureOrNull(String channelCode)
+    {
+        return channelsTransformerFactorySignatures.get(channelCode);
     }
 
 }

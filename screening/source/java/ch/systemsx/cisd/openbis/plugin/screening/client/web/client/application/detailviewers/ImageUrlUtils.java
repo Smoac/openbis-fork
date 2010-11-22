@@ -104,6 +104,11 @@ public class ImageUrlUtils
         methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());
         methodWithParameters.addParameter("tileRow", tileRow);
         methodWithParameters.addParameter("tileCol", tileCol);
+        String signature = images.getTransformerFactorySignatureOrNull(channel);
+        if (signature != null)
+        {
+            methodWithParameters.addParameter("transformerFactorySignature", signature);
+        }
         String linkURL = createImageLinks ? methodWithParameters.toString() : null;
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
 

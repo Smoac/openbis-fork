@@ -36,10 +36,13 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter;
@@ -283,15 +286,31 @@ public class PlateLayouter
 
     private static Component createWellWidget(final WellData wellData,
             final DefaultChannelState channelState, final PlateLayouterModel model,
-            final ScreeningViewContext viewContext)
+            final ScreeningViewContext screeningViewContext)
     {
         Component widget = createWellBox(wellData);
+
         widget.addListener(Events.OnMouseDown, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent ce)
                 {
-                    WellContentDialog.showContentDialog(wellData, model.tryGetImageDataset(),
-                            channelState, viewContext);
+                    IScreeningClientServiceAsync service = screeningViewContext.getService();
+                    // Reload meta data because they might be out dated especially when
+                    // image transformer factory has changed. For the image URL the
+                    // signature of the factory is needed to distinguish them. This is important
+                    // because Web browser cache images.
+                    service.getPlateContentForDataset(new TechId(model.tryGetImageDataset()
+                            .getDatasetId()), new AbstractAsyncCallback<PlateImages>(
+                            screeningViewContext)
+                        {
+                            @Override
+                            protected void process(PlateImages plateContent)
+                            {
+                                DatasetImagesReference ds = plateContent.getImagesDataset();
+                                WellContentDialog.showContentDialog(wellData, ds, channelState,
+                                        screeningViewContext);
+                            }
+                        });
                 }
             });
         widget.sinkEvents(Events.OnMouseDown.getEventCode());

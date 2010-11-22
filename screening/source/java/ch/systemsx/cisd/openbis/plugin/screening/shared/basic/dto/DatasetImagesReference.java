@@ -60,6 +60,11 @@ public class DatasetImagesReference implements IsSerializable
     {
         return dataset.getCode();
     }
+    
+    public Long getDatasetId()
+    {
+        return dataset.getId();
+    }
 
     public DatasetReference getDatasetReference()
     {
