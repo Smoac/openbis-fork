@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -611,6 +612,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#getEntityInformationHolder(EntityKind, String)
      */
     public void getEntityInformationHolder(EntityKind entityKind, String permId,
+            AsyncCallback<IEntityInformationHolderWithPermId> callback);
+
+    /**
+     * @see ICommonClientService#getEntityInformationHolder(BasicEntityDescription)
+     */
+    public void getEntityInformationHolder(BasicEntityDescription info,
             AsyncCallback<IEntityInformationHolderWithPermId> callback);
 
     /**

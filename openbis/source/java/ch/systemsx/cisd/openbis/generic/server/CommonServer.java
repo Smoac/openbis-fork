@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -2072,40 +2073,49 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
-    public IEntityInformationWithPropertiesHolder getEntity(DynamicPropertyEvaluationInfo info,
+    public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
+            BasicEntityDescription info)
+    {
+        Session session = getSession(sessionToken);
+        IEntityInformationWithPropertiesHolder entity = getEntity(info, session);
+        return createInformationHolder(info.getEntityKind(), entity);
+    }
+
+    private IEntityInformationWithPropertiesHolder getEntity(BasicEntityDescription info,
             Session session)
     {
         IEntityInformationWithPropertiesHolder entity = null;
-        switch (info.getEntityKind())
+        String entityIdentifier = info.getEntityIdentifier();
+        EntityKind entityKind = info.getEntityKind();
+        switch (entityKind)
         {
             case DATA_SET:
                 IExternalDataBO bo = businessObjectFactory.createExternalDataBO(session);
-                bo.loadByCode(info.getEntityIdentifier());
+                bo.loadByCode(entityIdentifier);
                 entity = bo.getExternalData();
                 break;
             case EXPERIMENT:
                 IExperimentBO expBO = businessObjectFactory.createExperimentBO(session);
                 ExperimentIdentifier expIdentifier =
-                        new ExperimentIdentifierFactory(info.getEntityIdentifier())
-                                .createIdentifier();
+                        new ExperimentIdentifierFactory(entityIdentifier).createIdentifier();
                 entity = expBO.tryFindByExperimentIdentifier(expIdentifier);
                 break;
             case SAMPLE:
                 ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-                sampleBO.tryToLoadBySampleIdentifier(SampleIdentifierFactory.parse(info
-                        .getEntityIdentifier()));
+                sampleBO.tryToLoadBySampleIdentifier(SampleIdentifierFactory
+                        .parse(entityIdentifier));
                 entity = sampleBO.tryToGetSample();
                 break;
             case MATERIAL:
                 entity =
                         getDAOFactory().getMaterialDAO().tryFindMaterial(
-                                MaterialIdentifier.tryParseIdentifier(info.getEntityIdentifier()));
+                                MaterialIdentifier.tryParseIdentifier(entityIdentifier));
                 break;
         }
         if (entity == null)
         {
-            throw new UserFailureException(String.format("%s '%s' not found", info.getEntityKind()
-                    .getDescription(), info.getEntityIdentifier()));
+            throw new UserFailureException(String.format("%s '%s' not found",
+                    entityKind.getDescription(), entityIdentifier));
         }
         return entity;
     }

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -926,6 +927,14 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "evaluate", "%s(%s)", info.getEntityKind().name(),
                 info.getEntityIdentifier());
+        return null;
+    }
+
+    public IEntityInformationHolderWithPermId getEntityInformationHolder(String sessionToken,
+            BasicEntityDescription info)
+    {
+        logAccess(sessionToken, "getEntityInformationHolder", "KIND(%s) IDENTIFIER(%s)",
+                info.getEntityKind(), info.getEntityIdentifier());
         return null;
     }
 }

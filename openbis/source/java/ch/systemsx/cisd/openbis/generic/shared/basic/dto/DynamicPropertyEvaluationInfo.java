@@ -16,22 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 /**
  * @author Izabela Adamczyk
  */
-public class DynamicPropertyEvaluationInfo implements IsSerializable, Serializable
+public class DynamicPropertyEvaluationInfo extends BasicEntityDescription
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private EntityKind entityKind;
-
     private String script;
-
-    private String entityIdentifier;
 
     public DynamicPropertyEvaluationInfo()
     {
@@ -40,19 +32,8 @@ public class DynamicPropertyEvaluationInfo implements IsSerializable, Serializab
     public DynamicPropertyEvaluationInfo(EntityKind entityKind, String entityIdentifier,
             String script)
     {
-        this.entityKind = entityKind;
-        this.entityIdentifier = entityIdentifier;
+        super(entityKind, entityIdentifier);
         this.script = script;
-    }
-
-    public EntityKind getEntityKind()
-    {
-        return entityKind;
-    }
-
-    public void setEntityKind(EntityKind entityKind)
-    {
-        this.entityKind = entityKind;
     }
 
     public String getScript()
@@ -63,16 +44,6 @@ public class DynamicPropertyEvaluationInfo implements IsSerializable, Serializab
     public void setScript(String script)
     {
         this.script = script;
-    }
-
-    public String getEntityIdentifier()
-    {
-        return entityIdentifier;
-    }
-
-    public void setEntityIdentifier(String entityIdentifier)
-    {
-        this.entityIdentifier = entityIdentifier;
     }
 
 }

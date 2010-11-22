@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -710,6 +711,13 @@ public interface ICommonClientService extends IClientService
      */
     public IEntityInformationHolderWithPermId getEntityInformationHolder(EntityKind entityKind,
             String permId) throws UserFailureException;
+
+    /**
+     * For given {@link BasicEntityDescription} returns the corresponding
+     * {@link IEntityInformationHolderWithPermId}.
+     */
+    public IEntityInformationHolderWithPermId getEntityInformationHolder(BasicEntityDescription info)
+            throws UserFailureException;
 
     /**
      * For given {@link MaterialIdentifier} returns the corresponding
