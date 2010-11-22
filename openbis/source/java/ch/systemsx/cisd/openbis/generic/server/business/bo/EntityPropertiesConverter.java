@@ -78,6 +78,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     private TableMap<PropertyTypePE, EntityTypePropertyTypePE> entityTypePropertyTypesByPropertyTypes;
 
+    private final ComplexPropertyValueHelper complexPropertyValueHelper;
+
     private final IPropertyValueValidator propertyValueValidator;
 
     private final IDynamicPropertiesUpdateChecker dynamicPropertiesUpdateChecker;
@@ -106,6 +108,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         this.propertyValueValidator = propertyValueValidator;
         this.dynamicPropertiesUpdateChecker = dynamicPropertiesUpdateChecker;
         this.placeholderCreator = placeholderCreator;
+        this.complexPropertyValueHelper = new ComplexPropertyValueHelper(daoFactory);
     }
 
     private final Set<String> getDynamicProperties(final EntityTypePE entityTypePE)
@@ -161,50 +164,6 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             propertyTypesByCode.add(propertyType);
         }
         return propertyType;
-    }
-
-    private MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
-    {
-        if (propertyType.getType().getCode() != DataTypeCode.MATERIAL)
-        {
-            return null; // this is not a property of MATERIAL type
-        }
-        MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
-        if (materialIdentifier == null)
-        {
-            // identifier is valid but null
-            return null;
-        }
-        MaterialPE material = daoFactory.getMaterialDAO().tryFindMaterial(materialIdentifier);
-        if (material == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No material could be found for identifier '%s'.", materialIdentifier);
-        }
-        return material;
-    }
-
-    private final static VocabularyTermPE tryGetVocabularyTerm(final String untypedValue,
-            final PropertyTypePE propertyType)
-    {
-        if (propertyType.getType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY)
-        {
-            return null; // this is not a property of CONTROLLED VOCABULARY type
-        }
-
-        final VocabularyPE vocabulary = propertyType.getVocabulary();
-        if (vocabulary == null)
-        {
-            return null;
-        }
-        final VocabularyTermPE term = vocabulary.tryGetVocabularyTerm(untypedValue);
-        if (term != null)
-        {
-            return term;
-        }
-        throw UserFailureException.fromTemplate(
-                "Incorrect value '%s' for a controlled vocabulary set '%s'.", untypedValue,
-                vocabulary.getCode());
     }
 
     private final EntityTypePropertyTypePE getEntityTypePropertyType(
@@ -403,12 +362,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         if (validatedValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
         {
             // save errors as strings
-            entityProperty.setValue(validatedValue);
+            entityProperty.setUntypedValue(validatedValue, null, null);
         } else
         {
             final VocabularyTermPE vocabularyTerm =
-                    tryGetVocabularyTerm(validatedValue, propertyType);
-            final MaterialPE material = tryGetMaterial(validatedValue, propertyType);
+                    complexPropertyValueHelper.tryGetVocabularyTerm(validatedValue, propertyType);
+            final MaterialPE material =
+                    complexPropertyValueHelper.tryGetMaterial(validatedValue, propertyType);
             entityProperty.setUntypedValue(validatedValue, vocabularyTerm, material);
         }
     }
@@ -493,6 +453,61 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         public final PropertyTypePE getKey(final EntityTypePropertyTypePE e)
         {
             return e.getPropertyType();
+        }
+    }
+
+    public final static class ComplexPropertyValueHelper
+    {
+
+        private final IDAOFactory daoFactory;
+
+        public ComplexPropertyValueHelper(IDAOFactory daoFactory)
+        {
+            this.daoFactory = daoFactory;
+        }
+
+        public MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
+        {
+            if (propertyType.getType().getCode() != DataTypeCode.MATERIAL)
+            {
+                return null; // this is not a property of MATERIAL type
+            }
+            MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
+            if (materialIdentifier == null)
+            {
+                // identifier is valid but null
+                return null;
+            }
+            MaterialPE material = daoFactory.getMaterialDAO().tryFindMaterial(materialIdentifier);
+            if (material == null)
+            {
+                throw UserFailureException.fromTemplate(
+                        "No material could be found for identifier '%s'.", materialIdentifier);
+            }
+            return material;
+        }
+
+        public VocabularyTermPE tryGetVocabularyTerm(final String value,
+                final PropertyTypePE propertyType)
+        {
+            if (propertyType.getType().getCode() != DataTypeCode.CONTROLLEDVOCABULARY)
+            {
+                return null; // this is not a property of CONTROLLED VOCABULARY type
+            }
+
+            final VocabularyPE vocabulary = propertyType.getVocabulary();
+            if (vocabulary == null)
+            {
+                return null;
+            }
+            final VocabularyTermPE term = vocabulary.tryGetVocabularyTerm(value);
+            if (term != null)
+            {
+                return term;
+            }
+            throw UserFailureException.fromTemplate(
+                    "Incorrect value '%s' for a controlled vocabulary set '%s'.", value,
+                    vocabulary.getCode());
         }
     }
 

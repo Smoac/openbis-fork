@@ -57,7 +57,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 
     private static final String NEW_SAMPLE_IDENTIFIER = "/CISD/" + NEW_SAMPLE_CODE;
 
-    private static long SLEEP_TIME = 3000; // 3s
+    private static long SLEEP_TIME = 5000; // 5s
 
     private TechId createdSampleId = null;
 

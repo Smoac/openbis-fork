@@ -18,30 +18,31 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.ComplexPropertyValueHelper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyValueValidator;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Default implementation of {@link IDynamicPropertyEvaluator}. For efficient evaluation of
@@ -54,8 +55,6 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DynamicPropertyEvaluator.class);
 
-    private static final IPropertyValueValidator validator = new PropertyValidator();
-
     public static final String ERROR_PREFIX = "ERROR: ";
 
     /** cache of calculators with precompiled expressions */
@@ -66,12 +65,12 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     private final List<EntityTypePropertyTypePE> evaluationPath =
             new ArrayList<EntityTypePropertyTypePE>();
 
-    private final IDAOFactory daoFactory;
+    private EntityPropertiesConverterDelegatorFacade entityPropertiesConverter;
 
     public DynamicPropertyEvaluator(IDAOFactory daoFactory)
     {
         assert daoFactory != null;
-        this.daoFactory = daoFactory;
+        this.entityPropertiesConverter = new EntityPropertiesConverterDelegatorFacade(daoFactory);
     }
 
     /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
@@ -96,6 +95,8 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                     entity));
         }
         final IEntityAdaptor entityAdaptor = EntityAdaptorFactory.create(entity, this);
+
+        Set<EntityPropertyPE> propertiesToRemove = new HashSet<EntityPropertyPE>();
         for (EntityPropertyPE property : entity.getProperties())
         {
             EntityTypePropertyTypePE etpt = property.getEntityTypePropertyType();
@@ -106,9 +107,12 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                 String valueOrNull = null;
                 MaterialPE materialOrNull = null;
                 VocabularyTermPE termOrNull = null;
-                if (dynamicValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+                if (dynamicValue == null)
                 {
-                    valueOrNull = dynamicValue;
+                    propertiesToRemove.add(property);
+                } else if (dynamicValue.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+                {
+                    property.setUntypedValue(dynamicValue, null, null);
                 } else
                 {
                     try
@@ -117,10 +121,13 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                         {
                             case CONTROLLEDVOCABULARY:
                                 termOrNull =
-                                        tryGetVocabularyTerm(dynamicValue, etpt.getPropertyType());
+                                        entityPropertiesConverter.tryGetVocabularyTerm(
+                                                dynamicValue, etpt.getPropertyType());
                                 break;
                             case MATERIAL:
-                                materialOrNull = tryGetMaterial(dynamicValue);
+                                materialOrNull =
+                                        entityPropertiesConverter.tryGetMaterial(dynamicValue,
+                                                etpt.getPropertyType());
                                 break;
                             default:
                                 valueOrNull = dynamicValue;
@@ -129,45 +136,15 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                     {
                         valueOrNull = errorPropertyValue(t.getMessage());
                     }
+                    property.setUntypedValue(valueOrNull, termOrNull, materialOrNull);
                 }
-                property.setUntypedValue(valueOrNull, termOrNull, materialOrNull);
             }
         }
-    }
-
-    private MaterialPE tryGetMaterial(String value)
-    {
-        MaterialIdentifier materialIdentifier = MaterialIdentifier.tryParseIdentifier(value);
-        if (materialIdentifier == null)
+        // remove properties in a separate loop not to cause ConcurrentModificationException
+        for (EntityPropertyPE property : propertiesToRemove)
         {
-            // identifier is valid but null
-            return null;
+            property.getEntity().removeProperty(property);
         }
-        MaterialPE material = daoFactory.getMaterialDAO().tryFindMaterial(materialIdentifier);
-        if (material == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No material could be found for identifier '%s'.", materialIdentifier);
-        }
-        return material;
-    }
-
-    private VocabularyTermPE tryGetVocabularyTerm(final String value,
-            final PropertyTypePE propertyType)
-    {
-        final VocabularyPE vocabulary = propertyType.getVocabulary();
-        if (vocabulary == null)
-        {
-            return null;
-        }
-        final VocabularyTermPE term = vocabulary.tryGetVocabularyTerm(value);
-        if (term != null)
-        {
-            return term;
-        }
-        throw UserFailureException.fromTemplate(
-                "Incorrect value '%s' for a controlled vocabulary set '%s'.", value,
-                vocabulary.getCode());
     }
 
     public List<EntityTypePropertyTypePE> getEvaluationPath()
@@ -177,7 +154,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     public String evaluateProperty(IEntityAdaptor entityAdaptor, EntityTypePropertyTypePE etpt)
     {
-        // TODO dependency with Vovabulary/Material will fail?
+        // TODO 2010-11-22, Piotr Buczek: will dependency with Vocabulary/Material fail?
         // are values computed by dependent properties thrown away?
         return evaluateProperty(entityAdaptor, etpt, false);
     }
@@ -197,9 +174,11 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             }
             final DynamicPropertyCalculator calculator = getCalculator(etpt.getScript());
             calculator.setEntity(entityAdaptor);
+            etpt.getEntityType().getEntityKind();
             final String dynamicValue = calculator.evalAsString();
             final String validatedValue =
-                    validator.validatePropertyValue(etpt.getPropertyType(), dynamicValue);
+                    entityPropertiesConverter.tryCreateValidatedPropertyValue(etpt.getEntityType()
+                            .getEntityKind(), etpt.getPropertyType(), etpt, dynamicValue);
             return validatedValue;
         } catch (Throwable t)
         {
@@ -216,4 +195,40 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
         return BasicConstant.ERROR_PROPERTY_PREFIX + errorMsg;
     }
 
+    private static class EntityPropertiesConverterDelegatorFacade
+    {
+        final Map<EntityKind, IEntityPropertiesConverter> convertersByEntityKind =
+                new HashMap<EntityKind, IEntityPropertiesConverter>();
+
+        private final ComplexPropertyValueHelper complexPropertyValueHelper;
+
+        public EntityPropertiesConverterDelegatorFacade(IDAOFactory daoFactory)
+        {
+            this.complexPropertyValueHelper =
+                    new EntityPropertiesConverter.ComplexPropertyValueHelper(daoFactory);
+            for (EntityKind entityKind : EntityKind.values())
+            {
+                convertersByEntityKind.put(entityKind, new EntityPropertiesConverter(entityKind,
+                        daoFactory));
+            }
+        }
+
+        public String tryCreateValidatedPropertyValue(final EntityKind entityKind,
+                PropertyTypePE propertyType, EntityTypePropertyTypePE entityTypePropertyType,
+                String value)
+        {
+            return convertersByEntityKind.get(entityKind).tryCreateValidatedPropertyValue(
+                    propertyType, entityTypePropertyType, value);
+        }
+
+        public MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
+        {
+            return complexPropertyValueHelper.tryGetMaterial(value, propertyType);
+        }
+
+        public VocabularyTermPE tryGetVocabularyTerm(String value, PropertyTypePE propertyType)
+        {
+            return complexPropertyValueHelper.tryGetVocabularyTerm(value, propertyType);
+        }
+    }
 }
