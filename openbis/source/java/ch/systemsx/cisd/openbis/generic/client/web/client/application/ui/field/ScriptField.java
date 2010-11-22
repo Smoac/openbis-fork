@@ -59,7 +59,7 @@ public class ScriptField extends MultilineVarcharField
                 final String[] lines = fieldValue.split(NEWLINE);
                 for (String line : lines)
                 {
-                    if (line.equals(CALCULATE_DEFINITION))
+                    if (line.startsWith(CALCULATE_DEFINITION))
                     {
                         // validated value is valid
                         return null;
