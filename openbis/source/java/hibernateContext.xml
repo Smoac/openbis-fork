@@ -153,10 +153,16 @@
         <constructor-arg ref="full-text-index-updater" />
     </bean>
 
+    <bean id="dynamic-property-scheduler"
+        class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationScheduler">
+    </bean>
+
     <bean id="dynamic-property-evaluator"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property.DynamicPropertyEvaluationRunnable">
         <constructor-arg ref="hibernate-session-factory" />
+        <constructor-arg ref="dao-factory" />
         <constructor-arg ref="full-text-index-updater" />
+        <constructor-arg ref="dynamic-property-scheduler" />
     </bean>
     
     <bean id="maintenance-task-starter" 

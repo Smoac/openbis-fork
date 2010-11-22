@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.dynamic_property;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +25,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.systemsx.cisd.common.collections.ExtendedBlockingQueueFactory;
-import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -39,13 +36,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
  * @author Piotr Buczek
  */
 public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport implements
-        IDynamicPropertyEvaluationScheduler, Runnable
+        Runnable
 {
 
     private static final int BATCH_SIZE = 1000;
-
-    public final static String DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME =
-            ".dynamic_property_evaluator_queue";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DynamicPropertyEvaluationRunnable.class);
@@ -53,65 +47,21 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             DynamicPropertyEvaluationRunnable.class);
 
-    private final IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> evaluatorQueue;
-
     private final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler;
 
+    private final IDynamicPropertyEvaluationSchedulerWithQueue evaluationQueue;
+
+    private final IBatchDynamicPropertyEvaluator evaluator;
+
     public DynamicPropertyEvaluationRunnable(final SessionFactory sessionFactory,
-            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler)
+            final IDAOFactory daoFactory,
+            final IFullTextIndexUpdateScheduler fullTextIndexUpdateScheduler,
+            final IDynamicPropertyEvaluationSchedulerWithQueue evaluationQueue)
     {
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
+        this.evaluationQueue = evaluationQueue;
         setSessionFactory(sessionFactory);
-
-        final File queueFile = getEvaluatorQueueFile();
-        operationLog.info(String.format("Evaluator queue file: %s.", queueFile.getAbsolutePath()));
-        evaluatorQueue = createEvaluatorQueue(queueFile);
-    }
-
-    private static IExtendedBlockingQueue<DynamicPropertyEvaluationOperation> createEvaluatorQueue(
-            final File queueFile)
-    {
-        try
-        {
-            return ExtendedBlockingQueueFactory
-                    .<DynamicPropertyEvaluationOperation> createPersistRecordBased(queueFile);
-        } catch (RuntimeException e)
-        {
-            // don't fail if e.g. deserialization of the queue fails (see SE-286)
-            String newFileName =
-                    DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME + "_" + System.currentTimeMillis();
-            notificationLog.error(String.format("%s.\n "
-                    + "Renaming '%s' to '%s' and using an empty queue file. "
-                    + "Restart server with the queue that caused the problem or "
-                    + "wait for maintenance task to reevaluate all properties.", e.getMessage(),
-                    queueFile, newFileName));
-            queueFile.renameTo(new File(newFileName));
-            return ExtendedBlockingQueueFactory
-                    .<DynamicPropertyEvaluationOperation> createPersistRecordBased(queueFile);
-        }
-    }
-
-    private static File getEvaluatorQueueFile()
-    {
-        return new File(DYNAMIC_PROPERTY_EVALUATOR_QUEUE_FILENAME);
-    }
-
-    public void clear()
-    {
-        evaluatorQueue.clear();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Cleared evaluator queue.");
-        }
-    }
-
-    public void scheduleUpdate(DynamicPropertyEvaluationOperation operation)
-    {
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Scheduling update: " + operation);
-        }
-        evaluatorQueue.add(operation);
+        evaluator = new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE, daoFactory);
     }
 
     //
@@ -123,14 +73,9 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
     {
         try
         {
-            // WORKAROUND to cyclic dependencies between beans 
-            // (can't pass IDaoFactory throuhg constructor)
-            final IBatchDynamicPropertyEvaluator evaluator =
-                    new DefaultBatchDynamicPropertyEvaluator(BATCH_SIZE,
-                            CommonServiceProvider.getDAOFactory());
             while (true)
             {
-                final DynamicPropertyEvaluationOperation operation = evaluatorQueue.peekWait();
+                final DynamicPropertyEvaluationOperation operation = evaluationQueue.peekWait();
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info("Update: " + operation);
@@ -185,7 +130,7 @@ public final class DynamicPropertyEvaluationRunnable extends HibernateDaoSupport
                         }
                     }
                 }
-                evaluatorQueue.take();
+                evaluationQueue.take();
             }
         } catch (final Throwable th)
         {

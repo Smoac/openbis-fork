@@ -37,7 +37,7 @@
         <constructor-arg ref="hibernate-session-factory" />
         <constructor-arg ref="hibernate-search-context" />
         <constructor-arg ref="full-text-index-updater" />
-        <constructor-arg ref="dynamic-property-evaluator" />
+        <constructor-arg ref="dynamic-property-scheduler" />
     </bean>
     
     <bean id="dss-factory" class="ch.systemsx.cisd.openbis.generic.server.business.DataStoreServiceFactory"/>
