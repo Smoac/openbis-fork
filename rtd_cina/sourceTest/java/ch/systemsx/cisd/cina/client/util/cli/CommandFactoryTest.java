@@ -72,8 +72,8 @@ public class CommandFactoryTest extends AssertJUnit
         cmd.printUsage(out);
         String helpText =
                 "usage: cina_client.sh COMMAND [options...] <command arguments>\n" + "\n"
-                        + "Commands:\n" + " listsamps\n" + " gencode\n" + " listexps\n" + " ls\n"
-                        + " get\n" + " put\n" + "\n" + "Options:\n"
+                        + "Commands:\n" + " listsamps\n" + " gencode\n" + " listexps\n"
+                        + " getreplica\n" + " ls\n" + " get\n" + " put\n" + "\n" + "Options:\n"
                         + " [-p,--password] VAL        : User login password\n"
                         + " [-s,--server-base-url] VAL : URL for openBIS Server (required)\n"
                         + " [-u,--username] VAL        : User login name\n";
