@@ -38,6 +38,15 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 public final class ThreadParameters
 {
+
+    /**
+     * A path to a script which should be called from command line after successful data set
+     * registration. The script gets two parameters: data set code and absolute path to the data set
+     * in the data store.
+     */
+    @Private
+    static final String POSTREFGISTRATION_SCRIPT_KEY = "postregistration-script";
+
     @Private
     static final String GROUP_CODE_KEY = "group-code";
 
@@ -51,8 +60,8 @@ public final class ThreadParameters
     @Private
     static final String INCOMING_DATA_COMPLETENESS_CONDITION_AUTODETECTION = "auto-detection";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ThreadParameters.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ThreadParameters.class);
 
     private static final String INCOMING_DIR = "incoming-dir";
 
@@ -72,6 +81,8 @@ public final class ThreadParameters
 
     private final String groupCode;
 
+    private final String postRegistrationScript;
+
     private final boolean useIsFinishedMarkerFile;
 
     private final boolean deleteUnidentified;
@@ -87,6 +98,7 @@ public final class ThreadParameters
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties);
         this.plugin = new PropertiesBasedETLServerPlugin(threadProperties);
         this.groupCode = tryGetGroupCode(threadProperties);
+        this.postRegistrationScript = tryGetPostRegistartionScript(threadProperties);
         String completenessCondition =
                 PropertyUtils.getProperty(threadProperties, INCOMING_DATA_COMPLETENESS_CONDITION,
                         INCOMING_DATA_COMPLETENESS_CONDITION_MARKER_FILE);
@@ -150,6 +162,12 @@ public final class ThreadParameters
         return nullIfEmpty(PropertyUtils.getProperty(properties, GROUP_CODE_KEY));
     }
 
+    @Private
+    static final String tryGetPostRegistartionScript(final Properties properties)
+    {
+        return nullIfEmpty(PropertyUtils.getProperty(properties, POSTREFGISTRATION_SCRIPT_KEY));
+    }
+
     private static String nullIfEmpty(String value)
     {
         return StringUtils.defaultIfEmpty(value, null);
@@ -161,6 +179,11 @@ public final class ThreadParameters
     final String tryGetGroupCode()
     {
         return groupCode;
+    }
+
+    public final String tryGetPostRegistrationScript()
+    {
+        return postRegistrationScript;
     }
 
     public boolean useIsFinishedMarkerFile()

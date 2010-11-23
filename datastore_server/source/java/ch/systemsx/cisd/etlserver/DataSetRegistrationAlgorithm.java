@@ -83,9 +83,13 @@ public abstract class DataSetRegistrationAlgorithm
 
     protected String errorMessageTemplate;
 
+    private IPostRegistrationAction postRegistrationAction;
+
     public DataSetRegistrationAlgorithm(File incomingDataSetFile,
-            IDelegatedActionWithResult<Boolean> cleanAftrewardsAction)
+            IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+            IPostRegistrationAction postRegistrationAction)
     {
+        this.postRegistrationAction = postRegistrationAction;
         this.errorMessageTemplate = DataSetRegistrationAlgorithm.DATA_SET_STORAGE_FAILURE_TEMPLATE;
         this.incomingDataSetFile = incomingDataSetFile;
         this.cleanAftrewardsAction = cleanAftrewardsAction;
@@ -225,9 +229,10 @@ public abstract class DataSetRegistrationAlgorithm
             }
             assert dataFile != null : "The folder that contains the stored data should not be null.";
             final String relativePath = FileUtilities.getRelativeFile(storeRoot, dataFile);
+            String absolutePath = dataFile.getAbsolutePath();
             assert relativePath != null : String.format(
-                    TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT,
-                    dataFile.getAbsolutePath(), storeRoot.getAbsolutePath());
+                    TransferredDataSetHandler.TARGET_NOT_RELATIVE_TO_STORE_ROOT, absolutePath,
+                    storeRoot.getAbsolutePath());
             final StorageFormat availableFormat = getStorageProcessor().getStorageFormat();
             final BooleanOrUnknown isCompleteFlag = dataSetInformation.getIsCompleteFlag();
             // Ensure that we either register the data set and initiate the processing copy or
@@ -238,6 +243,7 @@ public abstract class DataSetRegistrationAlgorithm
                 errorMessageTemplate =
                         DataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
                 plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
+                postRegistrationAction.execute(data.getCode(), absolutePath);
                 clean();
             } finally
             {

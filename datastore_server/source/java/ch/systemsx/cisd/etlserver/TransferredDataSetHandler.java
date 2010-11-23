@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.utils.PostregistrationExecutor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -57,14 +58,14 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     static final String TARGET_NOT_RELATIVE_TO_STORE_ROOT =
             "Target path '%s' is not relative to store root directory '%s'.";
 
-    static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, TransferredDataSetHandler.class);
+    static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            TransferredDataSetHandler.class);
 
-    static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, TransferredDataSetHandler.class);
+    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            TransferredDataSetHandler.class);
 
-    static final NamedDataStrategy ERROR_DATA_STRATEGY =
-            new NamedDataStrategy(DataStoreStrategyKey.ERROR);
+    static final NamedDataStrategy ERROR_DATA_STRATEGY = new NamedDataStrategy(
+            DataStoreStrategyKey.ERROR);
 
     private final IStoreRootDirectoryHolder storeRootDirectoryHolder;
 
@@ -100,6 +101,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final IDataSetValidator dataSetValidator;
 
+    private final IPostRegistrationAction postRegistrationAction;
+
     /**
      * @param dataSetValidator
      * @param useIsFinishedMarkerFile if true, file/directory is processed when a marker file for it
@@ -109,12 +112,13 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
             final IEncapsulatedOpenBISService limsService, final IMailClient mailClient,
             IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
-            boolean useIsFinishedMarkerFile, boolean deleteUnidentified)
+            boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
+            String postRegistrationScriptOrNull)
 
     {
         this(dssCode, plugin.getStorageProcessor(), plugin, limsService, mailClient,
                 dataSetValidator, notifySuccessfulRegistration, useIsFinishedMarkerFile,
-                deleteUnidentified);
+                deleteUnidentified, postRegistrationScriptOrNull);
     }
 
     TransferredDataSetHandler(String dssCode,
@@ -122,7 +126,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
             final IMailClient mailClient, IDataSetValidator dataSetValidator,
             final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
-            boolean deleteUnidentified)
+            boolean deleteUnidentified, String postRegistrationScriptOrNull)
 
     {
         assert dssCode != null : "Unspecified data store code";
@@ -146,6 +150,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
         this.deleteUnidentified = deleteUnidentified;
+        this.postRegistrationAction = PostregistrationExecutor.create(postRegistrationScriptOrNull);
     }
 
     /**
@@ -208,8 +213,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             if (fileOperations.exists(storeRootDirectory) == false)
             {
                 throw EnvironmentFailureException.fromTemplate(
-                        "Store root directory '%s' does not exist.", storeRootDirectory
-                                .getAbsolutePath());
+                        "Store root directory '%s' does not exist.",
+                        storeRootDirectory.getAbsolutePath());
             } else
             {
                 throw new ConfigurationFailureException(errorMessage);
@@ -263,7 +268,13 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                             return deleteAndLogIsFinishedMarkerFile(isFinishedFile);
                         }
                     };
-        return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction);
+        return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
+                createPostRegistrationAction());
+    }
+
+    private IPostRegistrationAction createPostRegistrationAction()
+    {
+        return postRegistrationAction;
     }
 
     private DataSetRegistrationAlgorithm createRegistrationHelperWithQuietPeriodFilter(
@@ -277,7 +288,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                             return true; // do nothing
                         }
                     };
-        return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction);
+        return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
+                createPostRegistrationAction());
     }
 
     /**
@@ -303,8 +315,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             fileOperations.delete(isFinishedPath);
             throw EnvironmentFailureException.fromTemplate(String.format(
                     "Error moving path '%s' from '%s' to '%s': %s", incomingDataSetPath.getName(),
-                    incomingDataSetPath.getParent(), storeRootDirectoryHolder
-                            .getStoreRootDirectory(), errorMsg));
+                    incomingDataSetPath.getParent(),
+                    storeRootDirectoryHolder.getStoreRootDirectory(), errorMsg));
         }
         return incomingDataSetPath;
     }
@@ -337,11 +349,14 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
          * @param transferredDataSetHandler
          * @param incomingDataSetFile
          * @param cleanAftrewardsAction
+         * @param postRegistrationAction
          */
         RegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
-                File incomingDataSetFile, IDelegatedActionWithResult<Boolean> cleanAftrewardsAction)
+                File incomingDataSetFile,
+                IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+                IPostRegistrationAction postRegistrationAction)
         {
-            super(incomingDataSetFile, cleanAftrewardsAction);
+            super(incomingDataSetFile, cleanAftrewardsAction, postRegistrationAction);
         }
 
         // state accessors
@@ -475,8 +490,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                             new BaseDirectoryHolder(TransferredDataSetHandler.ERROR_DATA_STRATEGY,
                                     baseDirectory, incomingDataSetFile);
                     boolean moveInCaseOfErrorOk =
-                            FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder
-                                    .getTargetFile());
+                            FileRenamer.renameAndLog(incomingDataSetFile,
+                                    baseDirectoryHolder.getTargetFile());
                     writeThrowable(throwable);
                     if (moveInCaseOfErrorOk)
                     {

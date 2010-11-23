@@ -38,6 +38,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
+import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
@@ -46,7 +47,6 @@ import ch.systemsx.cisd.common.filesystem.LastModificationChecker;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
-import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -84,11 +84,11 @@ public final class ETLDaemon
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ETLDaemon.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ETLDaemon.class);
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, ETLDaemon.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            ETLDaemon.class);
 
     @Private
     static IExitHandler exitHandler = SystemExit.SYSTEM_EXIT;
@@ -170,8 +170,8 @@ public final class ETLDaemon
                         + "available at at later time, we keep the server running anyway.", e);
             } else
             {
-                System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(), e
-                        .getMessage());
+                System.err.printf(msgStart + " [%s: %s]\n", e.getClass().getSimpleName(),
+                        e.getMessage());
                 exitHandler.exit(1);
             }
         } catch (final RuntimeException e)
@@ -309,9 +309,11 @@ public final class ETLDaemon
         plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
         String dssCode = DssPropertyParametersUtil.getDataStoreCode(properties);
         boolean deleteUnidentified = threadParameters.deleteUnidentified();
+
         return new TransferredDataSetHandler(dssCode, plugin, openBISService, mailClient,
-                dataSetValidator, notifySuccessfulRegistration, threadParameters
-                        .useIsFinishedMarkerFile(), deleteUnidentified);
+                dataSetValidator, notifySuccessfulRegistration,
+                threadParameters.useIsFinishedMarkerFile(), deleteUnidentified,
+                threadParameters.tryGetPostRegistrationScript());
     }
 
     private static FileFilter createFileFilter(File incomingDataDirectory,
@@ -333,14 +335,14 @@ public final class ETLDaemon
         LastModificationChecker lastModificationChecker =
                 new LastModificationChecker(incomingDataDirectory);
         final IStoreItemFilter quietPeriodFilter =
-                new QuietPeriodFileFilter(lastModificationChecker, parameters
-                        .getQuietPeriodMillis(), ignoredErrorCountBeforeNotification);
+                new QuietPeriodFileFilter(lastModificationChecker,
+                        parameters.getQuietPeriodMillis(), ignoredErrorCountBeforeNotification);
         return new FileFilter()
             {
                 public boolean accept(File pathname)
                 {
-                    assert pathname.getParentFile().getAbsolutePath().equals(
-                            incomingDataDirectory.getAbsolutePath()) : "The file should come to the filter only from the incoming directory";
+                    assert pathname.getParentFile().getAbsolutePath()
+                            .equals(incomingDataDirectory.getAbsolutePath()) : "The file should come to the filter only from the incoming directory";
 
                     StoreItem storeItem = new StoreItem(pathname.getName());
                     return quietPeriodFilter.accept(storeItem);
@@ -367,8 +369,9 @@ public final class ETLDaemon
                                 mover.getRegistrationLock().tryLock(timeoutMillis,
                                         TimeUnit.MILLISECONDS);
                         final long timeoutLeftMillis =
-                                Math.max(timeoutMillis / 2, timeoutMillis
-                                        - (System.currentTimeMillis() - startTimeMillis));
+                                Math.max(timeoutMillis / 2,
+                                        timeoutMillis
+                                                - (System.currentTimeMillis() - startTimeMillis));
                         if (lockOK == false)
                         {
                             operationLog.error("Failed to get lock for shutdown of thread '"

@@ -263,7 +263,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         dataSetValidator = context.mock(IDataSetValidator.class);
         handler =
                 new TransferredDataSetHandler("dss", storageProcessor, plugin,
-                        authorizedLimsService, mailClient, dataSetValidator, true, true, false);
+                        authorizedLimsService, mailClient, dataSetValidator, true, true, false,
+                        null);
 
         dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetType(DATA_SET_TYPE);
@@ -307,8 +308,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private final String normalize(final String message)
     {
-        return message.replace(workingDirectory.getAbsolutePath(), "/<wd>").replace(
-                workingDirectory.getPath(), "<wd>").replace('\\', '/');
+        return message.replace(workingDirectory.getAbsolutePath(), "/<wd>")
+                .replace(workingDirectory.getPath(), "<wd>").replace('\\', '/');
     }
 
     private final NewExternalData createTargetData(final File dataSet)
@@ -631,8 +632,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         assert data1.exists() && data2.exists();
         prepareForStrategy(data1, null);
         final File toDir =
-                new File(new File(workingDirectory, NamedDataStrategy
-                        .getDirectoryName(DataStoreStrategyKey.UNIDENTIFIED)),
+                new File(new File(workingDirectory,
+                        NamedDataStrategy.getDirectoryName(DataStoreStrategyKey.UNIDENTIFIED)),
                         IdentifiedDataStrategy.createDataSetTypeDirectory(DATA_SET_TYPE));
 
         final LogMonitoringAppender appender =
@@ -699,8 +700,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new File(workingDirectory, NamedDataStrategy.getDirectoryName(key));
         assertEquals(true, strategyDirectory.exists());
         final File dataSetTypeDir =
-                new File(strategyDirectory, IdentifiedDataStrategy
-                        .createDataSetTypeDirectory(DATA_SET_TYPE));
+                new File(strategyDirectory,
+                        IdentifiedDataStrategy.createDataSetTypeDirectory(DATA_SET_TYPE));
         assertEquals(true, dataSetTypeDir.exists());
         final File targetFile = new File(dataSetTypeDir, dataSet.getName());
         assertEquals(true, targetFile.exists());
