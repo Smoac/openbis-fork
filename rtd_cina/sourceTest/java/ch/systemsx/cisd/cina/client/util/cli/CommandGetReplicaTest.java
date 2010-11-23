@@ -174,16 +174,16 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 
         final String rawImagesFolderName = sampleCode + "RawImages";
         ArrayList<FileInfoDssDTO> rawImagesInfos =
-                getFileInfosForPath(new File(parent, "RawImages"), "ReplicaRawImages",
-                        rawImagesFolderName);
+                getFileInfosForPath(new File(parent, "RawImages"), new File(parent,
+                        "RawImages/original"), "ReplicaRawImages", rawImagesFolderName);
         final FileInfoDssDTO[] rawImagesInfosArray =
                 (rawImagesInfos.size() > 0) ? rawImagesInfos
                         .toArray(new FileInfoDssDTO[rawImagesInfos.size()]) : new FileInfoDssDTO[0];
 
         final String metadataFolderName = sampleCode + "Metadata";
         ArrayList<FileInfoDssDTO> metadataInfos =
-                getFileInfosForPath(new File(parent, "Metadata"), "ReplicaMetadata",
-                        metadataFolderName);
+                getFileInfosForPath(new File(parent, "Metadata"), new File(parent,
+                        "Metadata/original"), "ReplicaMetadata", metadataFolderName);
         final FileInfoDssDTO[] metadataInfosArray =
                 (metadataInfos.size() > 0) ? metadataInfos.toArray(new FileInfoDssDTO[metadataInfos
                         .size()]) : new FileInfoDssDTO[0];
@@ -193,19 +193,20 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                 {
                     one(dssComponent).getDataSet(sampleCode + "-RAW-IMAGES");
                     will(returnValue(dataSetDss));
-                    one(dataSetDss).listFiles("/", true);
+                    final String startPath = "/original/";
+                    one(dataSetDss).listFiles(startPath, true);
                     will(returnValue(rawImagesInfosArray));
-                    one(dataSetDss).getFile("/" + rawImagesFolderName + "/Image.txt");
+                    one(dataSetDss).getFile(startPath + rawImagesFolderName + "/Image.txt");
                     will(returnValue(new FileInputStream(new File(parent,
-                            "RawImages/ReplicaRawImages/Image.txt"))));
+                            "RawImages/original/ReplicaRawImages/Image.txt"))));
 
                     one(dssComponent).getDataSet(sampleCode + "-METADATA-NEW");
                     will(returnValue(dataSetDss));
-                    one(dataSetDss).listFiles("/", true);
+                    one(dataSetDss).listFiles(startPath, true);
                     will(returnValue(metadataInfosArray));
-                    one(dataSetDss).getFile("/" + metadataFolderName + "/Metadata.txt");
+                    one(dataSetDss).getFile(startPath + metadataFolderName + "/Metadata.txt");
                     will(returnValue(new FileInputStream(new File(parent,
-                            "Metadata/ReplicaMetadata/Metadata.txt"))));
+                            "Metadata/original/ReplicaMetadata/Metadata.txt"))));
 
                     // The command should not ask for the -METADATA-OLD dataset!
                 }
@@ -213,23 +214,20 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<FileInfoDssDTO> getFileInfosForPath(File file, String original,
-            String replacement) throws IOException
+    private ArrayList<FileInfoDssDTO> getFileInfosForPath(File dataSetRoot, File listingRoot,
+            String original, String replacement) throws IOException
     {
         ArrayList<FileInfoDssDTO> rawFileInfos = new ArrayList<FileInfoDssDTO>();
-        if (false == file.exists())
+        if (false == dataSetRoot.exists())
         {
             return rawFileInfos;
         }
 
-        String path = file.getCanonicalPath();
-        if (false == file.isDirectory())
-        {
-            path = file.getParentFile().getCanonicalPath();
-        }
+        String dataSetRootPath = dataSetRoot.getCanonicalPath();
+        String listingRootPath = listingRoot.getCanonicalPath();
 
-        FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
-        builder.appendFileInfosForFile(file, rawFileInfos, true);
+        FileInfoDssBuilder builder = new FileInfoDssBuilder(dataSetRootPath, listingRootPath);
+        builder.appendFileInfosForFile(listingRoot, rawFileInfos, true);
 
         // Massage the results
         ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();

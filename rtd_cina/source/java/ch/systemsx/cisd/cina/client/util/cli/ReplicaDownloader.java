@@ -106,7 +106,7 @@ class ReplicaDownloader
     private void downloadDataSet(DataSet dataSet, String subfolderName)
     {
         IDataSetDss dataSetDss = component.getDataSet(dataSet.getCode());
-        FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/", true);
+        FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/original/", true);
 
         FileInfoDssDownloader downloader =
                 new FileInfoDssDownloader(dataSetDss, fileInfos,
