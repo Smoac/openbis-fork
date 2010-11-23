@@ -59,7 +59,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
                         + "<jnlp spec='1.0+' codebase='${base-URL}'>\n"
                         + "  <information>\n"
                         + "    <title>${title}</title>\n"
-                        + "    <vendor>Center for Information Science and Databases</vendor>\n"
+                        + "    <vendor>SyBIT</vendor>\n"
                         + "    <description>${description}</description>\n"
                         + "  </information>\n"
                         + "  <security>\n"
@@ -108,7 +108,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream()));
             Template template = JNLP_TEMPLATE.createFreshCopy();
             template.bind("title", "Image Viewer");
-            template.bind("description", "Image Viewer for testing image transformations.");
+            template.bind("description", "Image Viewer for color adjustment.");
             String basicURL = getBasicURL(request);
             template.bind("base-URL", createBaseURL(request));
             template.bind("main-class", getMainClass());

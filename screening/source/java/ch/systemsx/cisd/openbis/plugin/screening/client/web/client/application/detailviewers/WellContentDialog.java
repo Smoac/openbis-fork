@@ -405,7 +405,7 @@ public class WellContentDialog extends Dialog
                     center();
                 }
             });
-        if (wellLocationOrNull != null && viewContext.isSimpleMode() == false
+        if (wellLocationOrNull != null
                 && "true".equals(viewContext.getPropertyOrNull("image-viewer-enabled")))
         {
             addImageViewerLaunchButton();
