@@ -285,6 +285,9 @@
       <lib dir="${lib}/eodsql">
         <include name="*.jar" />
       </lib>
+      <lib dir="${lib}/fast-md5">
+        <include name="*.jar" />
+      </lib>
       <lib dir="${lib}/csv">
         <include name="*.jar" />
       </lib>
