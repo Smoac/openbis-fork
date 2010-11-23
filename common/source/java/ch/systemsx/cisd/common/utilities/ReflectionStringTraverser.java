@@ -150,9 +150,9 @@ class ReflectionStringTraverser
                 try
                 {
                     traverseField(object, field);
-                } catch (Throwable t)
+                } catch (Exception ex)
                 {
-                    t.printStackTrace();
+                    ex.printStackTrace();
                     LogUtils.logErrorWithFailingAssertion(
                             log,
                             "Failed accessing field <" + field.getName() + "> of "

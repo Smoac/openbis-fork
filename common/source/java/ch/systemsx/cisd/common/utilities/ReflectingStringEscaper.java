@@ -74,11 +74,11 @@ public class ReflectingStringEscaper
                         + (bean == null ? "" : bean.getClass().getSimpleName()));
             }
             return result;
-        } catch (Throwable t)
+        } catch (Exception ex)
         {
             // fail in development mode, in production mode return unescaped object
-            LogUtils.logErrorWithFailingAssertion(operationLog, t.toString());
-            t.printStackTrace();
+            LogUtils.logErrorWithFailingAssertion(operationLog, ex.toString());
+            ex.printStackTrace();
             return bean;
         }
     }
@@ -99,10 +99,10 @@ public class ReflectingStringEscaper
                         + (bean == null ? "" : bean.getClass().getSimpleName()));
             }
             return result;
-        } catch (Throwable t)
+        } catch (Exception ex)
         {
-            t.printStackTrace();
-            LogUtils.logErrorWithFailingAssertion(operationLog, t.toString());
+            ex.printStackTrace();
+            LogUtils.logErrorWithFailingAssertion(operationLog, ex.toString());
             return null;
         }
     }

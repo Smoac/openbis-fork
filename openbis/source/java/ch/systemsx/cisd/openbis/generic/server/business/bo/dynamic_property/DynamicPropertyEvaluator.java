@@ -132,9 +132,9 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                             default:
                                 valueOrNull = dynamicValue;
                         }
-                    } catch (Throwable t)
+                    } catch (Exception ex)
                     {
-                        valueOrNull = errorPropertyValue(t.getMessage());
+                        valueOrNull = errorPropertyValue(ex.getMessage());
                     }
                     property.setUntypedValue(valueOrNull, termOrNull, materialOrNull);
                 }
@@ -178,9 +178,9 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                     entityPropertiesConverter.tryCreateValidatedPropertyValue(etpt.getEntityType()
                             .getEntityKind(), etpt.getPropertyType(), etpt, dynamicValue);
             return validatedValue;
-        } catch (Throwable t)
+        } catch (Exception ex)
         {
-            final String errorValue = errorPropertyValue(t.getMessage());
+            final String errorValue = errorPropertyValue(ex.getMessage());
             return errorValue;
         }
     }
