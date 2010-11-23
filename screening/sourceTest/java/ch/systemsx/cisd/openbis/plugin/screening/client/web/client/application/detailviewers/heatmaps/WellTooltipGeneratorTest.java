@@ -25,6 +25,7 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -129,14 +130,12 @@ public class WellTooltipGeneratorTest extends AssertJUnit
         model.setFeatureVectorDataset(createLargeFeatureVectorDataset());
 
         String desc = tryGenerateShortDescription(model, 0, 1, null);
-        assertEquals("Feature0: 0.0\n" + "Feature1: 1.0\n" + "Feature2: 2.0\n" + "Feature3: 3.0\n"
-                + "Feature4: 4.0\n" + "Feature5: 5.0\n" + "Feature6: 6.0\n" + "...", desc);
+        AssertionUtil.assertStarts("Feature0: 0.0", desc);
+        AssertionUtil.assertEnds("Feature29: 29.0\n" + "...", desc);
 
         desc = tryGenerateShortDescription(model, 0, 1, 4);
-        assertEquals("Feature4: <b>4.0</b>\n" + "\n" + "Feature0: 0.0\n" + "Feature1: 1.0\n"
-                + "Feature2: 2.0\n" + "Feature3: 3.0\n" + "Feature5: 5.0\n" + "Feature6: 6.0\n"
-                + "...", desc);
-
+        AssertionUtil.assertStarts("Feature4: <b>4.0</b>", desc);
+        AssertionUtil.assertEnds("Feature29: 29.0\n" + "...", desc);
     }
 
     @Test
@@ -151,7 +150,7 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     // 10 features for well A2
     private static FeatureVectorDataset createLargeFeatureVectorDataset()
     {
-        int size = 10;
+        int size = 40;
         List<String> featureLabels = new ArrayList<String>(size);
         float[] featureValues = new float[size];
         for (int i = 0; i < featureValues.length; i++)
