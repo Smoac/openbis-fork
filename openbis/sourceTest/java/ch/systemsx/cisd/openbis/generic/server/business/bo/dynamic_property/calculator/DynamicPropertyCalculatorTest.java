@@ -137,7 +137,7 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
         final String typeCode = "TYPE";
 
         final DynamicPropertyCalculator calculator =
-                DynamicPropertyCalculator.create("material(" + code + ", " + typeCode + ")");
+                DynamicPropertyCalculator.create("material('" + code + "', '" + typeCode + "')");
         assertEquals(MaterialIdentifier.print(code, typeCode), calculator.evalAsString());
     }
 
