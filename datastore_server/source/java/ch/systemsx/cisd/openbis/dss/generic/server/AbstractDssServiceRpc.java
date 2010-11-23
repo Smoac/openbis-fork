@@ -18,9 +18,10 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -167,7 +168,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
     /**
      * Asserts that specified data sets are all accessible by the user of the specified session.
      */
-    protected void checkDatasetsAuthorization(String sessionToken, List<String> dataSetCodes)
+    protected void checkDatasetsAuthorization(String sessionToken, Set<String> dataSetCodes)
     {
         if (isSessionAuthorizedForDatasets(sessionToken, dataSetCodes) == false)
         {
@@ -185,7 +186,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
      * @param dataSetCodes The data set codes we want to check access for.
      * @return True if all the data sets are accessible, false if one or more are not accessible.
      */
-    protected boolean isSessionAuthorizedForDatasets(String sessionToken, List<String> dataSetCodes)
+    protected boolean isSessionAuthorizedForDatasets(String sessionToken, Set<String> dataSetCodes)
     {
         boolean access;
         if (operationLog.isInfoEnabled())
@@ -196,7 +197,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
 
         try
         {
-            openBISService.checkDataSetCollectionAccess(sessionToken, dataSetCodes);
+            openBISService.checkDataSetCollectionAccess(sessionToken, new ArrayList<String>(dataSetCodes));
             access = true;
         } catch (UserFailureException ex)
         {
@@ -231,7 +232,7 @@ public abstract class AbstractDssServiceRpc<T> extends AbstractServiceWithLogger
      * Return a map keyed by data set code with value root directory for that data set.
      */
     protected Map<String, File> checkAccessAndGetRootDirectories(String sessionToken,
-            List<String> dataSetCodes) throws IllegalArgumentException
+            Set<String> dataSetCodes) throws IllegalArgumentException
     {
         if (isSessionAuthorizedForDatasets(sessionToken, dataSetCodes) == false)
         {

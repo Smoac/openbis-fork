@@ -643,6 +643,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.tryGetDataSet(sToken, dataSetCode);
     }
 
+    synchronized public void checkInstanceAdminAuthorization(String sToken) throws UserFailureException
+    {
+        checkSessionToken();
+        service.checkInstanceAdminAuthorization(sToken);
+    }
+
     synchronized public void checkDataSetAccess(String sToken, String dataSetCode)
             throws UserFailureException
     {
