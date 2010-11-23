@@ -295,14 +295,21 @@ public class PlateLayouter
                 public void handleEvent(BaseEvent ce)
                 {
                     IScreeningClientServiceAsync service = screeningViewContext.getService();
-                    // Reload meta data because they might be out dated especially when
-                    // image transformer factory has changed. For the image URL the
-                    // signature of the factory is needed to distinguish them. This is important
-                    // because Web browser cache images.
-                    service.getPlateContentForDataset(new TechId(model.tryGetImageDataset()
-                            .getDatasetId()), new AbstractAsyncCallback<PlateImages>(
-                            screeningViewContext)
-                        {
+                    DatasetImagesReference dataset = model.tryGetImageDataset();
+                    if (dataset == null)
+                    {
+                        WellContentDialog.showContentDialog(wellData, null, channelState,
+                                screeningViewContext);
+                    } else
+                    {
+                        // Reload meta data because they might be out dated especially when
+                        // image transformer factory has changed. For the image URL the
+                        // signature of the factory is needed to distinguish them. This is important
+                        // because Web browser cache images.
+                        service.getPlateContentForDataset(new TechId(dataset
+                                .getDatasetId()), new AbstractAsyncCallback<PlateImages>(
+                                        screeningViewContext)
+                                        {
                             @Override
                             protected void process(PlateImages plateContent)
                             {
@@ -310,7 +317,8 @@ public class PlateLayouter
                                 WellContentDialog.showContentDialog(wellData, ds, channelState,
                                         screeningViewContext);
                             }
-                        });
+                                        });
+                    }
                 }
             });
         widget.sinkEvents(Events.OnMouseDown.getEventCode());

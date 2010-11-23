@@ -104,7 +104,8 @@ public class WellContentDialog extends Dialog
             DatasetImagesReference imageDatasetOrNull, DefaultChannelState channelState,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        final WellContentDialog contentDialog = createContentDialog(wellData, viewContext);
+        final WellContentDialog contentDialog =
+                createContentDialog(wellData, viewContext, imageDatasetOrNull != null);
         showContentDialog(contentDialog, imageDatasetOrNull, channelState, viewContext);
     }
 
@@ -122,7 +123,7 @@ public class WellContentDialog extends Dialog
     }
 
     private static WellContentDialog createContentDialog(final WellData wellData,
-            final IViewContext<IScreeningClientServiceAsync> viewContext)
+            final IViewContext<IScreeningClientServiceAsync> viewContext, boolean hasDataSet)
     {
         WellLocation wellLocation = wellData.getWellLocation();
         WellMetadata wellMetadata = wellData.tryGetMetadata();
@@ -133,7 +134,7 @@ public class WellContentDialog extends Dialog
             wellOrNull = wellMetadata.getWellSample();
             wellPropertiesOrNull = wellMetadata.getWellSample().getProperties();
         }
-        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation,
+        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation, hasDataSet,
                 getExperiment(wellData), viewContext);
     }
 
@@ -177,7 +178,7 @@ public class WellContentDialog extends Dialog
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        showContentDialog(viewContext, wellContent, imageDataset);
+                        showContentDialog(viewContext, wellContent, imageDataset, false);
                     }
                 });
         }
@@ -186,10 +187,10 @@ public class WellContentDialog extends Dialog
     }
 
     private static void showContentDialog(IViewContext<IScreeningClientServiceAsync> viewContext,
-            WellContent wellContent, DatasetImagesReference imageDatasetOrNull)
+            WellContent wellContent, DatasetImagesReference imageDatasetOrNull, boolean hasDataSet)
     {
         WellContentDialog contentDialog =
-                new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(),
+                new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(), hasDataSet,
                         getExperiment(wellContent.getExperiment()), viewContext);
 
         // NOTE: channel chooser state will be not reused among different dialogs
@@ -369,6 +370,7 @@ public class WellContentDialog extends Dialog
 
     private WellContentDialog(IEntityInformationHolderWithPermId wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, final WellLocation wellLocationOrNull,
+            boolean hasDataSet,
             final SingleExperimentSearchCriteria experimentCriteria,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
@@ -405,7 +407,7 @@ public class WellContentDialog extends Dialog
                     center();
                 }
             });
-        if (wellLocationOrNull != null
+        if (wellLocationOrNull != null && hasDataSet
                 && "true".equals(viewContext.getPropertyOrNull("image-viewer-enabled")))
         {
             addImageViewerLaunchButton();
