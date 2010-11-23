@@ -96,12 +96,12 @@ public final class FileInfoDssDownloader
             if (fileInfo.isDirectory())
             {
                 listener.willCreateDirectory(fileInfo);
-                File dir = new File(outputDir, fileInfo.getPathInDataSet());
+                File dir = new File(outputDir, fileInfo.getPathInListing());
                 dir.mkdirs();
             } else
             {
                 listener.willDownload(fileInfo);
-                File file = new File(outputDir, fileInfo.getPathInDataSet());
+                File file = new File(outputDir, fileInfo.getPathInListing());
                 // Make sure the parent exists
                 file.getParentFile().mkdirs();
 
