@@ -21,7 +21,7 @@ export LIMB=bs-openbis03.ethz.ch
 function create_individual_greeting_message {
 # Creates an individual greeting message
 	if [ -f ~openbis/config/openbis_instance.txt ]; then
-	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/jetty/webapps/openbis/config_files-dictionary.js
+	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/jetty/webapps/openbis/common-dictionary.js
 	   export SERVER_INSTANCE_NAME=`cat ~openbis/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
@@ -62,7 +62,7 @@ function add_yeastx_plugin {
 	 echo installing yeastx...
 	 cd ~openbis/config
 	 unzip ~openbis/config/datastore_server_plugin*.zip
-	 mv -f ~openbis/config/lib/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	 mv -f ~openbis/config/lib/*.jar ~openbis/sprint/datastore_server/lib
 	 rmdir ~openbis/config/lib
 	 mv -f ~openbis/config/datastore_server_plugin*.zip ~openbis/old/
 }
