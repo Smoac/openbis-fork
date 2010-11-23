@@ -27,6 +27,7 @@ import java.util.Set;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -65,8 +66,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDataServiceInternal> implements
         IProteomicsDataServiceInternal
 {
-    @Private static final String SEARCH_EXPERIMENT_TYPE = "MS_SEARCH";
-
     @Private
     static final String SPACE_CODE = "MS_DATA";
 
@@ -153,31 +152,43 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         processDataSets(session, dataSetProcessingKey, dataSetCodes, new HashMap<String, String>());
     }
 
-    public List<Experiment> listSearchExperiments(String sessionToken)
+    public List<Experiment> listSearchExperiments(String sessionToken, String experimentTypeCode)
     {
         checkSession(sessionToken);
         
-        return listSearchExperiments();
+        IDAOFactory daoFactory = getDAOFactory();
+        IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT);
+        ExperimentTypePE type =
+                (ExperimentTypePE) entityTypeDAO.tryToFindEntityTypeByCode(experimentTypeCode);
+        List<ExperimentPE> experiments =
+                daoFactory.getExperimentDAO().listExperimentsWithProperties(type, null);
+        return ExperimentTranslator.translate(experiments, "",
+                ExperimentTranslator.LoadableFields.PROPERTIES);
     }
 
-    public void processSearchData(String sessionToken, String dataSetProcessingKey,
-            long[] searchExperimentIDs)
+    public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,
+            String experimentType, long[] searchExperimentIDs)
     {
         Session session = getSession(sessionToken);
         PersonPE person = session.tryGetPerson();
-
-        Set<Long> ids = asSet(searchExperimentIDs);
+        
         List<String> dataSetCodes = new ArrayList<String>();
-        List<Experiment> experiments = listSearchExperiments();
-        IExternalDataDAO dataSetDAO = getDAOFactory().getExternalDataDAO();
         IExperimentDAO experimentDAO = getDAOFactory().getExperimentDAO();
-        for (Experiment experiment : experiments)
+        IExternalDataDAO dataSetDAO = getDAOFactory().getExternalDataDAO();
+        for (long experimentID : searchExperimentIDs)
         {
-            if (EXPERIMENT_VALIDATOR.isValid(person, experiment)
-                    && ids.contains(experiment.getId()))
+            ExperimentPE experiment = experimentDAO.tryGetByTechId(new TechId(experimentID));
+            String actualExperimentTypeCode = experiment.getExperimentType().getCode();
+            if (actualExperimentTypeCode.equals(experimentType) == false)
             {
-                ExperimentPE exp = experimentDAO.tryGetByTechId(new TechId(experiment.getId()));
-                List<ExternalDataPE> dataSets = dataSetDAO.listExternalData(exp);
+                throw new UserFailureException("Experiment with technical id " + experimentID
+                        + " [" + experiment.getIdentifier() + "] is not of type " + experimentType
+                        + " but of type " + actualExperimentTypeCode + ".");
+            }
+            Experiment translatedExperiment = ExperimentTranslator.translate(experiment, "");
+            if (EXPERIMENT_VALIDATOR.isValid(person, translatedExperiment))
+            {
+                List<ExternalDataPE> dataSets = dataSetDAO.listExternalData(experiment);
                 for (ExternalDataPE dataSet : dataSets)
                 {
                     dataSetCodes.add(dataSet.getCode());
@@ -186,18 +197,6 @@ public class ProteomicsDataServiceInternal extends AbstractServer<IProteomicsDat
         }
 
         processDataSets(session, dataSetProcessingKey, dataSetCodes, new HashMap<String, String>());
-    }
-
-    private List<Experiment> listSearchExperiments()
-    {
-        IDAOFactory daoFactory = getDAOFactory();
-        IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.EXPERIMENT);
-        ExperimentTypePE type =
-                (ExperimentTypePE) entityTypeDAO.tryToFindEntityTypeByCode(SEARCH_EXPERIMENT_TYPE);
-        List<ExperimentPE> experiments =
-                daoFactory.getExperimentDAO().listExperimentsWithProperties(type, null);
-        return ExperimentTranslator.translate(experiments, "",
-                ExperimentTranslator.LoadableFields.PROPERTIES);
     }
 
     private List<MsInjectionSample> loadAllRawDataSamples(Session session)

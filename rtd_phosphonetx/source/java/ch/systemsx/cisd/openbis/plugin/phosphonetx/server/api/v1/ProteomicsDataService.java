@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 @Component(Constants.PROTEOMICS_DATA_SERVICE)
 public class ProteomicsDataService extends AbstractServer<IProteomicsDataService> implements IProteomicsDataService
 {
+    private static final String MS_SEARCH = "MS_SEARCH";
     @Resource(name = Constants.PROTEOMICS_DATA_SERVICE_INTERNAL)
     private IProteomicsDataServiceInternal service;
 
@@ -229,11 +230,17 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     public List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> listSearchExperiments(
             String sessionToken, String userID)
     {
+        return listSearchExperiments(sessionToken, userID, MS_SEARCH);
+    }
+
+    public List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> listSearchExperiments(
+            String sessionToken, String userID, String experimentTypeCode)
+    {
         checkSession(sessionToken);
         SessionContextDTO session = login(userID);
         try
         {
-            List<Experiment> experiments = service.listSearchExperiments(session.getSessionToken());
+            List<Experiment> experiments = service.listSearchExperiments(session.getSessionToken(), experimentTypeCode);
             List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> result =
                     new ArrayList<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment>();
             for (Experiment experiment : experiments)
@@ -266,12 +273,19 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs)
     {
+        processProteinResultDataSets(sessionToken, userID, dataSetProcessingKey, MS_SEARCH,
+                searchExperimentIDs);
+    }
+    
+    public void processProteinResultDataSets(String sessionToken, String userID,
+            String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs)
+    {
         checkSession(sessionToken);
         SessionContextDTO session = login(userID);
         try
         {
-            service.processSearchData(session.getSessionToken(), dataSetProcessingKey,
-                    searchExperimentIDs);
+            service.processProteinResultDataSets(session.getSessionToken(), dataSetProcessingKey, experimentTypeCode,
+                    experimentIDs);
         } finally
         {
             service.logout(session.getSessionToken());

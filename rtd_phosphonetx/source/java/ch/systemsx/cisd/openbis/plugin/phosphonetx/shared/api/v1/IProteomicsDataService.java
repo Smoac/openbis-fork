@@ -100,18 +100,37 @@ public interface IProteomicsDataService extends IRpcService
      * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
      * read.
      */
+    @Deprecated
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<Experiment> listSearchExperiments(String sessionToken, String userID);
+
+    /**
+     * Returns all experiments of specified type which the specified user is allowed to read.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<Experiment> listSearchExperiments(String sessionToken, String userID, String experimentTypeCode);
     
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
      * processing plug-in of specified key for the specified user. It will be checked if the
      * experiments are of search experiments and if the user is allowed to read them.
      */
+    @Deprecated
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs);
+    
+    /**
+     * Processes the data sets of specified experiments by the DSS
+     * processing plug-in of specified key for the specified user. It will be checked if the
+     * experiments are of specified type and if the user is allowed to read them.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public void processProteinResultDataSets(String sessionToken, String userID,
+            String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs);
 
 }

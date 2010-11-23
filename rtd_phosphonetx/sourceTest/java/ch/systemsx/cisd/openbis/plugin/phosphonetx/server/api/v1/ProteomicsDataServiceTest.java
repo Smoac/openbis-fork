@@ -66,6 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
  */
 public class ProteomicsDataServiceTest extends AbstractServerTestCase
 {
+    private static final String MS_SEARCH = "MS_SEARCH";
     private static final String RAW_DATA = "RAW_DATA";
     private static final String MZXML_DATA = "MZXML_DATA";
     
@@ -321,7 +322,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).listSearchExperiments(session2.getSessionToken());
+                    one(internalService).listSearchExperiments(session2.getSessionToken(), MS_SEARCH);
                     will(returnValue(Arrays.asList(e)));
                 }
             });
@@ -356,7 +357,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).processSearchData(session2.getSessionToken(), "dsp1", ids);
+                    one(internalService).processProteinResultDataSets(session2.getSessionToken(), "dsp1", MS_SEARCH, ids);
                 }
             });
 

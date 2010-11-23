@@ -63,17 +63,19 @@ class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implement
                 dataSetCodes.size());
     }
 
-    public List<Experiment> listSearchExperiments(String sessionToken)
+    public List<Experiment> listSearchExperiments(String sessionToken, String experimentTypeCode)
     {
-        logAccess(sessionToken, "list_search_experiments");
+        logAccess(sessionToken, "list_search_experiments", "EXPERIMENT_TYPE(%s)", experimentTypeCode);
         return null;
     }
 
-    public void processSearchData(String sessionToken, String dataSetProcessingKey,
-            long[] searchExperimentIDs)
+    public void processProteinResultDataSets(String sessionToken, String dataSetProcessingKey,
+            String experimentTypeCode, long[] searchExperimentIDs)
     {
-        int numberOfDataSets = searchExperimentIDs == null ? 0 : searchExperimentIDs.length;
-        logAccess(sessionToken, "copy_search_data", "NUMBER_OF_DATA_SETS(%s)", numberOfDataSets);
+        int experimentCount = searchExperimentIDs == null ? 0 : searchExperimentIDs.length;
+        logAccess(sessionToken, "process_protein_result_data_sets",
+                "DSS_PROCESSING_PLUGIN(%s) EXPERIMENT_TYPE(%s) NUMBER_OF_EXPERIMENTS(%s)",
+                dataSetProcessingKey, experimentTypeCode, experimentCount);
     }
 
 }

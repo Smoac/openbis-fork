@@ -79,11 +79,27 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         return null;
     }
 
+    public List<Experiment> listSearchExperiments(String sessionToken, String userID,
+            String experimentTypeCode)
+    {
+        logAccess(sessionToken, "list_search_experiments", "EXPERIMENT_TYPE(%s)", experimentTypeCode);
+        return null;
+    }
+
     public void processSearchData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs)
     {
         int numberOfDataSets = searchExperimentIDs == null ? 0 : searchExperimentIDs.length;
         logAccess(sessionToken, "copy_search_data", "NUMBER_OF_DATA_SETS(%s)", numberOfDataSets);
+    }
+
+    public void processProteinResultDataSets(String sessionToken, String userID,
+            String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs)
+    {
+        int experimentCount = experimentIDs == null ? 0 : experimentIDs.length;
+        logAccess(sessionToken, "process_protein_result_data_sets",
+                "DSS_PROCESSING_PLUGIN(%s) EXPERIMENT_TYPE(%s) NUMBER_OF_EXPERIMENTS(%s)",
+                dataSetProcessingKey, experimentTypeCode, experimentCount);
     }
 
     public int getMajorVersion()

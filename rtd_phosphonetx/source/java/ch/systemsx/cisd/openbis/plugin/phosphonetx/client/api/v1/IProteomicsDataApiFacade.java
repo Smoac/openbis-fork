@@ -18,7 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.api.v1;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.DataStoreServerProcessingPluginInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
@@ -70,17 +74,31 @@ public interface IProteomicsDataApiFacade
      * Returns all experiments of type <tt>MS_SEARCH</tt> which the specified user is allowed to
      * read.
      */
+    @Deprecated
     public List<Experiment> listSearchExperiments(String userID);
 
+    /**
+     * Returns all experiments of specified type which the specified user is allowed to read.
+     */
+    public List<Experiment> listSearchExperiments(String sessionToken, String userID, String experimentTypeCode);
+    
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS
      * processing plug-in of specified key for the specified user. It will be checked if the
      * experiments are of search experiments and if the user has USER access rights.
      */
+    @Deprecated
     public void processSearchData(String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs);
     
-
+    /**
+     * Processes the data sets of specified experiments by the DSS
+     * processing plug-in of specified key for the specified user. It will be checked if the
+     * experiments are of specified type and if the user has USER access rights.
+     */
+    public void processProteinResultDataSets(String sessionToken, String userID,
+            String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs);
+    
     /**
      * Logs current user out.
      */

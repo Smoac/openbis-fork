@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.SEARCH_EXPERIMENT_TYPE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.ProteomicsDataServiceInternal.SPACE_CODE;
 
 import java.util.ArrayList;
@@ -74,8 +73,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
 public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 {
     private static final String GROUP_CODE = "g";
-
     private static final String COPY_PROCESSING_KEY = "copy-data-sets";
+    private static final String EXPERIMENT_TYPE = "EXPE";
 
     private IProteomicsDataServiceInternal service;
 
@@ -97,7 +96,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         sampleLoader = context.mock(ISampleLoader.class);
         service = new ProteomicsDataServiceInternal(sessionManager, daoFactory, commonBoFactory, boFactory);
         experimentType = new ExperimentTypePE();
-        experimentType.setCode(SEARCH_EXPERIMENT_TYPE);
+        experimentType.setCode(EXPERIMENT_TYPE);
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         PersonPE person = new PersonPE();
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
@@ -145,7 +144,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         final ExperimentPE e2 = experiment(2, "a");
         prepareListSearchExperiments(e1, e2);
         
-        List<Experiment> list = service.listSearchExperiments(SESSION_TOKEN);
+        List<Experiment> list = service.listSearchExperiments(SESSION_TOKEN, EXPERIMENT_TYPE);
         
         assertEquals("HOME_DATABASE:/G/P/e1", list.get(0).getIdentifier());
         assertEquals(1, list.get(0).getRegistrationDate().getTime());
@@ -165,7 +164,6 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         final Session session = createSessionAndPrepareGetSession(GROUP_CODE);
         final ExperimentPE e1 = experiment(1);
         final ExperimentPE e2 = experiment(2, "a");
-        prepareListSearchExperiments(e1, e2);
         context.checking(new Expectations()
             {
                 {
@@ -188,7 +186,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
             });
         prepareProcessDataSets(session, new HashMap<String, String>(), "ds1", "ds2");
         
-        service.processSearchData(SESSION_TOKEN, COPY_PROCESSING_KEY, new long[] {e1.getId(), e2.getId()});
+        service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
+                new long[] { e1.getId(), e2.getId() });
         
         context.assertIsSatisfied();
     }
@@ -199,10 +198,20 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         Session session = createSessionAndPrepareGetSession(GROUP_CODE + 2);
         final ExperimentPE e1 = experiment(1);
         final ExperimentPE e2 = experiment(2, "a");
-        prepareListSearchExperiments(e1, e2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).tryGetByTechId(new TechId(e1.getId()));
+                    will(returnValue(e1));
+
+                    one(experimentDAO).tryGetByTechId(new TechId(e2.getId()));
+                    will(returnValue(e2));
+                }
+            });
         prepareProcessDataSets(session, new HashMap<String, String>());
         
-        service.processSearchData(SESSION_TOKEN, COPY_PROCESSING_KEY, new long[] {e1.getId(), e2.getId()});
+        service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
+                new long[] {e1.getId(), e2.getId()});
         
         context.assertIsSatisfied();
     }
@@ -212,8 +221,6 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     {
         Session session = createSessionAndPrepareGetSession(GROUP_CODE);
         final ExperimentPE e1 = experiment(1);
-        final ExperimentPE e2 = experiment(2, "a");
-        prepareListSearchExperiments(e1, e2);
         context.checking(new Expectations()
             {
                 {
@@ -228,7 +235,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
             });
         prepareProcessDataSets(session, new HashMap<String, String>(), "ds1");
 
-        service.processSearchData(SESSION_TOKEN, COPY_PROCESSING_KEY, new long[] {e1.getId()});
+        service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
+                new long[] {e1.getId()});
         
         context.assertIsSatisfied();
     }
@@ -264,7 +272,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                     one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
 
-                    one(entityTypeDAO).tryToFindEntityTypeByCode(SEARCH_EXPERIMENT_TYPE);
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);
                     will(returnValue(experimentType));
 
                     one(experimentDAO).listExperimentsWithProperties(experimentType, null);
@@ -401,9 +409,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
             LinkedHashSet<EntityPropertyPE> props = new LinkedHashSet<EntityPropertyPE>();
             for (String property : properties)
             {
-                props.add(CommonTestUtils.createExperimentPropertyPE(property,
-                        ProteomicsDataServiceInternal.SEARCH_EXPERIMENT_TYPE, DataTypeCode.VARCHAR,
-                        property + "-value"));
+                props.add(CommonTestUtils.createExperimentPropertyPE(property, EXPERIMENT_TYPE,
+                        DataTypeCode.VARCHAR, property + "-value"));
             }
             experiment.setProperties(props);
         }
