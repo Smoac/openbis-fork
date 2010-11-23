@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -55,21 +56,29 @@ public class ImageChannelsUtils
     // MIME type of the images which are produced by this class
     public static final String IMAGES_CONTENT_TYPE = "image/png";
 
+    
     /**
      * Returns content of image for the specified tile in the specified size and for the requested
      * channel or with all channels merged.
      */
     public static IContent getImage(IHCSImageDatasetLoader imageAccessor, TileImageReference params)
     {
+        return getImage(imageAccessor, params, true, true);
+    }
+    
+    private static IContent getImage(IHCSImageDatasetLoader imageAccessor,
+            TileImageReference params, boolean transform, boolean convertToPng)
+    {
         List<AbsoluteImageReference> images = getImageReferences(imageAccessor, params);
         if (images.size() > 1)
         {
-            return mergeAllChannels(images);
+            return mergeAllChannels(images, transform, convertToPng);
         } else
         {
             AbsoluteImageReference imageReference = images.get(0);
-            return calculateSingleImageContent(imageReference,
-                    imageReference.getTransformerFactory(), true);
+            IImageTransformerFactory transformerFactory =
+                    transform ? imageReference.getTransformerFactory() : null;
+            return calculateSingleImageContent(imageReference, transformerFactory, convertToPng);
         }
     }
 
@@ -80,10 +89,12 @@ public class ImageChannelsUtils
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
             Size thumbnailSizeOrNull, boolean convertToPng)
     {
-        AbsoluteImageReference imageReference =
-                getImageReference(imageAccessor, channelStackReference, chosenChannelCode,
-                        thumbnailSizeOrNull);
-        return calculateSingleImageContent(imageReference, null, convertToPng);
+        TileImageReference tileImageReference = new TileImageReference();
+        tileImageReference.setChannelStack(channelStackReference);
+        tileImageReference.setChannel(chosenChannelCode);
+        tileImageReference.setThumbnailSizeOrNull(thumbnailSizeOrNull);
+        tileImageReference.setMergeAllChannels(ScreeningConstants.MERGED_CHANNELS.equalsIgnoreCase(chosenChannelCode));
+        return getImage(imageAccessor, tileImageReference, false, convertToPng);
     }
 
     private static List<AbsoluteImageReference> getImageReferences(
@@ -188,21 +199,24 @@ public class ImageChannelsUtils
         return image;
     }
 
-    private static IContent mergeAllChannels(List<AbsoluteImageReference> imageReferences)
+    private static IContent mergeAllChannels(List<AbsoluteImageReference> imageReferences, boolean transform, boolean convertToPng)
     {
         AbsoluteImageReference allChannelsImageReference =
                 tryCreateAllChannelsImageReference(imageReferences);
         if (allChannelsImageReference != null)
         {
             // all channels are on an image in one file, no pixel-level operations needed
-            return calculateSingleImageContent(allChannelsImageReference,
-                    allChannelsImageReference.getTransformerFactoryForMergedChannels(), true);
+            IImageTransformerFactory transformerFactory =
+                    transform ? allChannelsImageReference.getTransformerFactoryForMergedChannels()
+                            : null;
+            return calculateSingleImageContent(allChannelsImageReference, transformerFactory,
+                    convertToPng);
         } else
         {
             List<BufferedImage> images = calculateSingleImages(imageReferences);
             BufferedImage mergedImage = mergeChannels(images);
-            IImageTransformerFactory transformerFactory =
-                    imageReferences.get(0).getTransformerFactoryForMergedChannels();
+            IImageTransformerFactory transformerFactory = transform ? 
+                    imageReferences.get(0).getTransformerFactoryForMergedChannels() : null;
             return createPngContent(transform(mergedImage, transformerFactory), null);
         }
     }
