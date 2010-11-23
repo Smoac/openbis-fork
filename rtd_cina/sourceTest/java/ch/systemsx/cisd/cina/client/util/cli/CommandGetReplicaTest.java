@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
+import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
@@ -170,14 +171,19 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
     private void setupDownloadDataSetExpectations(final String sampleCode) throws IOException
     {
         final File parent = new File("sourceTest/java/ch/systemsx/cisd/cina/client/util/cli/");
+
+        final String rawImagesFolderName = sampleCode + "RawImages";
         ArrayList<FileInfoDssDTO> rawImagesInfos =
-                getFileInfosForPath(new File(parent, "RawImages"));
+                getFileInfosForPath(new File(parent, "RawImages"), "ReplicaRawImages",
+                        rawImagesFolderName);
         final FileInfoDssDTO[] rawImagesInfosArray =
                 (rawImagesInfos.size() > 0) ? rawImagesInfos
                         .toArray(new FileInfoDssDTO[rawImagesInfos.size()]) : new FileInfoDssDTO[0];
 
-        ArrayList<FileInfoDssDTO> metadataInfos = getFileInfosForPath(new File(parent, "Metadata"));
-
+        final String metadataFolderName = sampleCode + "Metadata";
+        ArrayList<FileInfoDssDTO> metadataInfos =
+                getFileInfosForPath(new File(parent, "Metadata"), "ReplicaMetadata",
+                        metadataFolderName);
         final FileInfoDssDTO[] metadataInfosArray =
                 (metadataInfos.size() > 0) ? metadataInfos.toArray(new FileInfoDssDTO[metadataInfos
                         .size()]) : new FileInfoDssDTO[0];
@@ -189,7 +195,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     will(returnValue(dataSetDss));
                     one(dataSetDss).listFiles("/", true);
                     will(returnValue(rawImagesInfosArray));
-                    one(dataSetDss).getFile("/ReplicaRawImages/Image.txt");
+                    one(dataSetDss).getFile("/" + rawImagesFolderName + "/Image.txt");
                     will(returnValue(new FileInputStream(new File(parent,
                             "RawImages/ReplicaRawImages/Image.txt"))));
 
@@ -197,7 +203,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     will(returnValue(dataSetDss));
                     one(dataSetDss).listFiles("/", true);
                     will(returnValue(metadataInfosArray));
-                    one(dataSetDss).getFile("/ReplicaMetadata/Metadata.txt");
+                    one(dataSetDss).getFile("/" + metadataFolderName + "/Metadata.txt");
                     will(returnValue(new FileInputStream(new File(parent,
                             "Metadata/ReplicaMetadata/Metadata.txt"))));
                 }
@@ -205,12 +211,13 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException
+    private ArrayList<FileInfoDssDTO> getFileInfosForPath(File file, String original,
+            String replacement) throws IOException
     {
-        ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+        ArrayList<FileInfoDssDTO> rawFileInfos = new ArrayList<FileInfoDssDTO>();
         if (false == file.exists())
         {
-            return fileInfos;
+            return rawFileInfos;
         }
 
         String path = file.getCanonicalPath();
@@ -220,16 +227,50 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         }
 
         FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
-        builder.appendFileInfosForFile(file, fileInfos, true);
+        builder.appendFileInfosForFile(file, rawFileInfos, true);
 
-        // Strip SVN stuff
-        for (FileInfoDssDTO fileInfo : (ArrayList<FileInfoDssDTO>) fileInfos.clone())
+        // Massage the results
+        ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+        for (FileInfoDssDTO fileInfo : (ArrayList<FileInfoDssDTO>) rawFileInfos.clone())
         {
-            if (fileInfo.getPathInDataSet().matches(".*/.svn/.*"))
-                fileInfos.remove(fileInfo);
+            // Strip SVN stuff
+            if (fileInfo.getPathInDataSet().matches(".*/.svn.*"))
+            {
+                continue;
+            }
+
+            // Alter the filenames in the desired way
+            String pathInDataSet = fileInfo.getPathInDataSet().replaceFirst(original, replacement);
+            String pathInListing = fileInfo.getPathInListing().replaceFirst(original, replacement);
+            fileInfos.add(new FileInfoDssDTO(pathInDataSet, pathInListing, fileInfo.isDirectory(),
+                    fileInfo.getFileSize()));
+
         }
 
         return fileInfos;
+    }
+
+    private void verifyMetadataContents(File outputFolder, int replicaCount)
+    {
+        File metadata = new File(outputFolder, BundleStructureConstants.METADATA_FOLDER_NAME);
+        String[] metadataContents = metadata.list();
+        assertEquals(replicaCount, metadataContents.length);
+    }
+
+    private void verifyRawDataContents(File outputFolder, int replicaCount)
+    {
+        File rawData = new File(outputFolder, BundleStructureConstants.RAW_IMAGES_FOLDER_NAME);
+        String[] rawDataContents = rawData.list();
+        assertEquals(replicaCount, rawDataContents.length);
+    }
+
+    private void verifyBundleTopLevel(File outputFolder)
+    {
+        String[] bundleContents = outputFolder.list();
+        Arrays.sort(bundleContents);
+        assertEquals(2, bundleContents.length);
+        assertEquals(BundleStructureConstants.METADATA_FOLDER_NAME, bundleContents[0]);
+        assertEquals(BundleStructureConstants.RAW_IMAGES_FOLDER_NAME, bundleContents[1]);
     }
 
     @Test
@@ -250,11 +291,10 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 
         assertEquals(ResultCode.OK, exitCode);
 
-        String[] bundleContents = outputFolder.list();
-        Arrays.sort(bundleContents);
-        assertEquals(2, bundleContents.length);
-        assertEquals("Annotations", bundleContents[0]);
-        assertEquals("RawData", bundleContents[1]);
+        // Check the contents of the bundle
+        verifyBundleTopLevel(outputFolder);
+        verifyRawDataContents(outputFolder, 1);
+        verifyMetadataContents(outputFolder, 1);
 
         context.assertIsSatisfied();
     }
@@ -280,6 +320,12 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                             "REPLICA-ID1", "REPLICA-ID2" });
 
         assertEquals(ResultCode.OK, exitCode);
+
+        // Check the contents of the bundle
+        verifyBundleTopLevel(outputFolder);
+        verifyRawDataContents(outputFolder, 2);
+        verifyMetadataContents(outputFolder, 2);
+
         context.assertIsSatisfied();
     }
 
