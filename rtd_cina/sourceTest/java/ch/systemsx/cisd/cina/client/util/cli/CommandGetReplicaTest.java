@@ -255,6 +255,14 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         File metadata = new File(outputFolder, BundleStructureConstants.METADATA_FOLDER_NAME);
         String[] metadataContents = metadata.list();
         assertEquals(replicaCount, metadataContents.length);
+
+        for (String replicaFolder : metadataContents)
+        {
+            File replica = new File(metadata, replicaFolder);
+            String[] replicaContents = replica.list();
+            assertEquals(1, replicaContents.length);
+            assertEquals("Metadata.txt", replicaContents[0]);
+        }
     }
 
     private void verifyRawDataContents(File outputFolder, int replicaCount)
@@ -262,6 +270,14 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         File rawData = new File(outputFolder, BundleStructureConstants.RAW_IMAGES_FOLDER_NAME);
         String[] rawDataContents = rawData.list();
         assertEquals(replicaCount, rawDataContents.length);
+
+        for (String replicaFolder : rawDataContents)
+        {
+            File replica = new File(rawData, replicaFolder);
+            String[] replicaContents = replica.list();
+            assertEquals(1, replicaContents.length);
+            assertEquals("Image.txt", replicaContents[0]);
+        }
     }
 
     private void verifyBundleTopLevel(File outputFolder)
