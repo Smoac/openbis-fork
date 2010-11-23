@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 
 import org.jmock.Expectations;
@@ -203,6 +204,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
             });
     }
 
+    @SuppressWarnings("unchecked")
     private ArrayList<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException
     {
         ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
@@ -219,6 +221,14 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 
         FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
         builder.appendFileInfosForFile(file, fileInfos, true);
+
+        // Strip SVN stuff
+        for (FileInfoDssDTO fileInfo : (ArrayList<FileInfoDssDTO>) fileInfos.clone())
+        {
+            if (fileInfo.getPathInDataSet().matches(".*/.svn/.*"))
+                fileInfos.remove(fileInfo);
+        }
+
         return fileInfos;
     }
 
@@ -239,6 +249,13 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                             "REPLICA-ID" });
 
         assertEquals(ResultCode.OK, exitCode);
+
+        String[] bundleContents = outputFolder.list();
+        Arrays.sort(bundleContents);
+        assertEquals(2, bundleContents.length);
+        assertEquals("Annotations", bundleContents[0]);
+        assertEquals("RawData", bundleContents[1]);
+
         context.assertIsSatisfied();
     }
 
