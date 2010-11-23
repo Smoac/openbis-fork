@@ -64,10 +64,10 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
      */
     public StringHtmlEscapingPointcutAdvisor(MethodInterceptor methodInterceptor)
     {
-        super(new CommonClientServiceMatchingPointcut(), methodInterceptor);
+        super(new ClientServiceMatchingPointcut(), methodInterceptor);
     }
 
-    private static class CommonClientServiceMatchingPointcut extends StaticMethodMatcherPointcut
+    private static class ClientServiceMatchingPointcut extends StaticMethodMatcherPointcut
     {
 
         @Override
