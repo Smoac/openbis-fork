@@ -62,19 +62,31 @@ class CommandGet extends AbstractDssCommand<CommandGet.CommandGetArguments>
     private static class DownloaderListener implements
             FileInfoDssDownloader.FileInfoDssDownloaderListener
     {
+        private final File targetDir;
+
+        DownloaderListener(File targetDir)
+        {
+            this.targetDir = targetDir;
+        }
+
         public void willDownload(FileInfoDssDTO fileInfo)
         {
-            System.out.println("downloading " + fileInfo.getPathInListing());
+            System.out.println("downloading " + getPathForFileInfo(fileInfo));
         }
 
         public void willCreateDirectory(FileInfoDssDTO fileInfo)
         {
-            System.out.println("mkdir " + fileInfo.getPathInListing());
+            System.out.println("mkdir " + getPathForFileInfo(fileInfo));
         }
 
         public void didFinish()
         {
             System.out.println("Finished.");
+        }
+
+        private String getPathForFileInfo(FileInfoDssDTO fileInfo)
+        {
+            return targetDir.getPath() + "/" + fileInfo.getPathInListing();
         }
     }
 
@@ -120,7 +132,7 @@ class CommandGet extends AbstractDssCommand<CommandGet.CommandGetArguments>
 
             FileInfoDssDownloader downloader =
                     new FileInfoDssDownloader(dataSet, fileInfos, outputDir,
-                            new DownloaderListener());
+                            new DownloaderListener(outputDir));
             downloader.downloadFiles();
         }
 

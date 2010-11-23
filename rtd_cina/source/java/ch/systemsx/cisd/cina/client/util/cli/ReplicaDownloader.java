@@ -50,19 +50,31 @@ class ReplicaDownloader
     private static class DownloaderListener implements
             FileInfoDssDownloader.FileInfoDssDownloaderListener
     {
+        private final File targetDir;
+
+        DownloaderListener(File targetDir)
+        {
+            this.targetDir = targetDir;
+        }
+
         public void willDownload(FileInfoDssDTO fileInfo)
         {
-            System.out.println("downloading " + fileInfo.getPathInListing());
+            System.out.println("downloading " + getPathForFileInfo(fileInfo));
         }
 
         public void willCreateDirectory(FileInfoDssDTO fileInfo)
         {
-            System.out.println("mkdir " + fileInfo.getPathInListing());
+            System.out.println("mkdir " + getPathForFileInfo(fileInfo));
         }
 
         public void didFinish()
         {
             System.out.println("Finished.");
+        }
+
+        private String getPathForFileInfo(FileInfoDssDTO fileInfo)
+        {
+            return targetDir.getPath() + "/" + fileInfo.getPathInListing();
         }
     }
 
@@ -108,9 +120,10 @@ class ReplicaDownloader
         IDataSetDss dataSetDss = component.getDataSet(dataSet.getCode());
         FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/original/", true);
 
+        File targetDir = new File(outputDir, subfolderName);
         FileInfoDssDownloader downloader =
-                new FileInfoDssDownloader(dataSetDss, fileInfos,
-                        new File(outputDir, subfolderName), new DownloaderListener());
+                new FileInfoDssDownloader(dataSetDss, fileInfos, targetDir, new DownloaderListener(
+                        targetDir));
         downloader.downloadFiles();
     }
 }
