@@ -47,6 +47,7 @@ echo Making a database dump...
 # restored with pg_restore, for example:
 # pg_restore -d dbname filename
 pg_dump -Uopenbis -Fc $DB_NAME > $DB_SNAPSHOT/$SERVERS_PREV_VER-$DB_NAMEi_${DATE}.dmp
+
 # we actually need to clean that up from time to time
 /usr/bin/find $DB_SNAPSHOT -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
 
@@ -62,34 +63,29 @@ cd openBIS-server
 ./install.sh $PWD $CONFIG_DIR/service.properties $CONFIG_DIR/openbis.conf
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE jetty/etc/openBIS.keystore
-  sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' jetty/bin/openbis.conf > new-openbis.conf
-  mv -f new-openbis.conf jetty/bin/openbis.conf
 fi
-cp ~openbis/old/$SERVERS_PREV_VER/openBIS-server/jetty/etc/jetty.xml ~openbis/$SERVERS_VER/openBIS-server/jetty/etc/jetty.xml
-#jetty/bin/startup.sh
 
 echo Installing datastore server...
 cd ..
 unzip -q ../datastore_server-*$VER*
-for file in ../datastore_server_plugin-*$VER*; do unzip -q -d datastore_server $file; done
+if [ -f ../datastore_server_plugin-* ]; then
+	for file in ../datastore_server_plugin-*$VER*; do unzip -q -d datastore_server $file; done
+fi
 cd datastore_server
 cp -p $CONFIG_DIR/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE etc/openBIS.keystore
-  #cp -Rf ~openbis/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
   sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
   mv -f xxx datastore_server.sh
 fi
 chmod 744 datastore_server.sh
 export JAVA_HOME=/usr
-#./datastore_server.sh start
 
-#echo Doing some cleaning...
 cd ~openbis
 mv -f *.zip old/
 rm -rf openbis
 cd ~openbis/sprint/openBIS-server
-rm jetty.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh jetty.xml service.properties jetty-version.txt
+rm jetty.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh jetty.xml service.properties jetty-version.txt setup-env web-client.properties shutdown.sh startup.sh
 
 # Reset the rm command alias
 alias 'rm=rm -i'

@@ -10,7 +10,7 @@ export YEASTX=obis.ethz.ch
 export PHOSPHONETX=openbis-phosphonetx.ethz.ch
 export LIVERX=openbis-liverx.ethz.ch
 export AGRONOMICS=bs-agronomics01.ethz.ch
-export DSU=openbis-dsu
+export DSU=bs-openbis04.ethz.ch
 export SCU=openbis-scu
 export BASYSBIO=bs-basysbio01.ethz.ch
 export BASYSBIO_TEST=openbis-test
@@ -21,18 +21,22 @@ export LIMB=bs-openbis03.ethz.ch
 function create_individual_greeting_message {
 # Creates an individual greeting message
 	if [ -f ~openbis/config/openbis_instance.txt ]; then
-	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/jetty/webapps/openbis/common-dictionary.js
+	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/jetty/webapps/openbis/config_files-dictionary.js
 	   export SERVER_INSTANCE_NAME=`cat ~openbis/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
 }
 
-function restore_common {
+function restore_config_files {
+  echo restoring config files...
+  if [ -d ~openbis/config/images ]; then
+	cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
+  fi
   if [ -f ~openbis/config/loginHeader.html ]; then
-    echo restoring loginHeader.html, etc...
-    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
-    cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
-    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
+	cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
+  fi
+  if [ -f ~openbis/config/help.html ]; then
+	cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
   fi
   if [ -f ~openbis/config/index.html ]; then
   	cp ~openbis/config/index.html  ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
@@ -49,10 +53,13 @@ function restore_common {
   if  [ -f ~openbis/config/welcomePageSimple.html ]; then
   	cp ~openbis/config/welcomePageSimple.html ~openbis/sprint/openBIS-server/jetty/webapps/openbis/
   fi  
+  if  [ -f ~openbis/config/datastore_server.conf ]; then
+  	cp ~openbis/config/datastore_server.conf ~openbis/sprint/datastore_server/etc/
+  fi  
 }
 
 function add_yeastx_plugin {
-	 echo copying yeastx...
+	 echo installing yeastx...
 	 cd ~openbis/config
 	 unzip ~openbis/config/datastore_server_plugin*.zip
 	 mv -f ~openbis/config/lib/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
@@ -64,81 +71,81 @@ case "$SERVER" in
 
 	$SPRINT)
 	echo SPRINT:$SPRINT;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	
 	$BIN/sprint_post_install_sprint.sh
 	;;
 	$DEMO)
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	echo DEMO:$DEMO;
 	$BIN/sprint_post_install_demo.sh
 	;;
 	$YEASTX)
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	echo YEASTX:$YEASTX;
 	$BIN/sprint_post_install_yeastx.sh
 	;;
 	$PHOSPHONETX)
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	$BIN/sprint_post_install_phosphonetx.sh
 	echo PHOSPHONETX:$PHOSPHONETX;
 	;;
 	$LIVERX)
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	echo LIVERX:$LIVERX;
 	;;
 	$AGRONOMICS)
 	echo AGRONOMICS:$AGRONOMICS;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	add_yeastx_plugin
 	$BIN/sprint_post_install_agronomics.sh
 	;;
 	$DSU)
 	echo DSU:$DSU;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	DSU_SERVER_HOME=~openbis/sprint/openBIS-server/jetty/webapps/openbis
     	cp ~openbis/config/openBIS_for_DSU.pdf $DSU_SERVER_HOME
 	;;
 	$SCU)
 	echo SCU:$SCU;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	;;
 	$BASYSBIO)
 	echo BASYSBIO:$BASYSBIO;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	add_yeastx_plugin
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	$BASYSBIO_TEST)
 	echo BASYSBIO_TEST:$BASYSBIO_TEST;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	add_yeastx_plugin
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	$CINA)
 	echo CINA:$CINA;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	;;
 	$PLASMIDS)
 	echo PLASMIDS:$PLASMIDS;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
     	$BIN/sprint_post_install_plasmids.sh
 	;;
 	$LIMB)
 	echo LIMB:$LIMB;
-	restore_common
+	restore_config_files
 	create_individual_greeting_message
 	;;
 	*)
