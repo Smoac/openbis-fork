@@ -52,12 +52,12 @@ class ReplicaDownloader
     {
         public void willDownload(FileInfoDssDTO fileInfo)
         {
-            System.out.println("downloading " + fileInfo.getPathInDataSet());
+            System.out.println("downloading " + fileInfo.getPathInListing());
         }
 
         public void willCreateDirectory(FileInfoDssDTO fileInfo)
         {
-            System.out.println("mkdir " + fileInfo.getPathInDataSet());
+            System.out.println("mkdir " + fileInfo.getPathInListing());
         }
 
         public void didFinish()
