@@ -103,6 +103,7 @@
     		<include name="native/**/*"/>
     	</fileset>
     </jar>
+    <copy file="${lib}/sybit-image-viewer/image-viewer.jar" todir="${dist.datastore_server.lib}" />
   	<copy todir="${dist.datastore_server}/data">
   		<fileset dir="${original.dist}/data" />
   	</copy>
