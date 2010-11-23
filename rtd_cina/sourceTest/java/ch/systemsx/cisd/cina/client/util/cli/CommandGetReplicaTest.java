@@ -206,6 +206,8 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     one(dataSetDss).getFile("/" + metadataFolderName + "/Metadata.txt");
                     will(returnValue(new FileInputStream(new File(parent,
                             "Metadata/ReplicaMetadata/Metadata.txt"))));
+
+                    // The command should not ask for the -METADATA-OLD dataset!
                 }
             });
     }
