@@ -176,7 +176,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<? extends IImageDatasetIdentifier> imageDatasets)
     {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageDatasets);
-        ArrayList<String> datasetCodes = new ArrayList<String>();
+        Set<String> datasetCodes = new HashSet<String>();
         for (IImageDatasetIdentifier dataset : imageDatasets)
         {
             datasetCodes.add(dataset.getDatasetCode());
@@ -341,8 +341,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             boolean convertToPng)
     {
-        Size thumbnailSizeOrNull = null;
-        return loadImages(sessionToken, imageReferences, thumbnailSizeOrNull, convertToPng);
+        return loadImages(sessionToken, imageReferences, null, convertToPng);
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
@@ -407,6 +406,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             List<IDatasetIdentifier> dataSetIdentifiers, String channel,
             IImageTransformerFactory transformerFactory)
     {
+        getOpenBISService().checkInstanceAdminAuthorization(sessionToken);
         Set<String> experimentPermIDs = getExperimentPermIDs(sessionToken, dataSetIdentifiers);
         for (String experimentPermID : experimentPermIDs)
         {
@@ -647,7 +647,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
             List<? extends IDatasetIdentifier> identifiers)
     {
-        List<String> dataSetCodes = new ArrayList<String>();
+        Set<String> dataSetCodes = new HashSet<String>();
         for (IDatasetIdentifier identifier : identifiers)
         {
             dataSetCodes.add(identifier.getDatasetCode());
