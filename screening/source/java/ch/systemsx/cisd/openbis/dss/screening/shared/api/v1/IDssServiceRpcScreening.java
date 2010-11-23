@@ -134,6 +134,24 @@ public interface IDssServiceRpcScreening extends IRpcService
             boolean convertToPng);
 
     /**
+     * Provide images (PNG encoded) for a given list of image references (given by data set code,
+     * well position, channel and tile). The result is encoded into one stream, which consist of
+     * multiple blocks in a format: (<block-size><block-of-bytes>)*, where block-size is the block
+     * size in bytes encoded as one long number. The number of blocks is equal to the number of
+     * specified references and the order of blocks corresponds to the order of image references. If
+     * <code>size</code> is specified, the images will be scaled conserving aspect ratio in order to
+     * fit into specified size. Otherwise images of original size are delivered.
+     * 
+     * @since 1.4
+     */
+    @MinimalMinorVersion(4)
+    @DataSetAccessGuard
+    public InputStream loadImages(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences,
+            ImageSize size);
+    
+    /**
      * Provide images for a given list of image references (given by data set code, well position,
      * channel and tile). The result is encoded into one stream, which consist of multiple blocks in
      * a format: (<block-size><block-of-bytes>)*, where block-size is the block size in bytes
@@ -147,11 +165,10 @@ public interface IDssServiceRpcScreening extends IRpcService
             @AuthorizationGuard(guardClass = DatasetIdentifierPredicate.class) List<PlateImageReference> imageReferences);
 
     /**
-     * Provide images for a specified data set, a list of well positions (empty list means all
-     * wells), a channel, and an optional thumb nail size. Images of all tiles are delivered. If
-     * thumb nail size isn't specified the original image is delivered otherwise a thumb nail image
-     * with same aspect ratio as the original image but which fits into specified size will be
-     * delivered.
+     * Provide images for specified data set, list of well positions (empty list means all wells),
+     * channel, and optional thumb nail size. Images of all tiles are delivered. If thumb nail size
+     * isn't specified the original image is delivered otherwise a thumb nail image with same aspect
+     * ratio as the original image but which fits into specified size will be delivered.
      * <p>
      * The result is encoded into one stream, which consist of multiple blocks in a format:
      * (<block-size><block-of-bytes>)*, where block-size is the block size in bytes encoded as one
@@ -167,7 +184,18 @@ public interface IDssServiceRpcScreening extends IRpcService
             String sessionToken,
             @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull);
-    
+
+    /**
+     * Lists plate image references for specified data set, list of well positions (empty list means
+     * all wells), and channel.
+     */
+    @MinimalMinorVersion(4)
+    @DataSetAccessGuard
+    public List<PlateImageReference> listPlateImageReferences(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SingleDataSetIdentifierPredicate.class) IDatasetIdentifier dataSetIdentifier,
+            List<WellPosition> wellPositions, String channel);
+
     /**
      * Saves the specified transformer factory for the specified channel and the experiment to
      * which the specified data sets belong.

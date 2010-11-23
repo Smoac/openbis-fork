@@ -100,6 +100,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
         return null;
     }
 
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            ImageSize thumbnailSizeOrNull)
+    {
+        logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s) SIZE(%s)", imageReferences,
+                thumbnailSizeOrNull);
+        return null;
+    }
+
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
         logAccess(sessionToken, "load_images", "IMAGE_REFERENCES(%s)", imageReferences);
@@ -111,6 +119,14 @@ public class DssServiceRpcScreeningLogger extends AbstractServerLogger implement
     {
         logAccess(sessionToken, "load_images", "DATA_SET(%s) CHANNEL(%s) IMAGE_SIZE(%s)",
                 dataSetIdentifier, channel, thumbnailSizeOrNull);
+        return null;
+    }
+
+    public List<PlateImageReference> listPlateImageReferences(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
+    {
+        logAccess(sessionToken, "list_plate_image_references", "DATA_SET(%s) CHANNEL(%s)",
+                dataSetIdentifier, channel);
         return null;
     }
 

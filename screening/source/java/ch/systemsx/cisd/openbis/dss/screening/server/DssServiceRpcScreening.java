@@ -341,6 +341,19 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
             boolean convertToPng)
     {
+        Size thumbnailSizeOrNull = null;
+        return loadImages(sessionToken, imageReferences, thumbnailSizeOrNull, convertToPng);
+    }
+
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            ImageSize thumbnailSizeOrNull)
+    {
+        return loadImages(sessionToken, imageReferences, convertToSize(thumbnailSizeOrNull), true);
+    }
+
+    public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
+            Size sizeOrNull, boolean convertToPng)
+    {
         checkDatasetsAuthorizationForIDatasetIdentifier(sessionToken, imageReferences);
         final Map<String, IHCSImageDatasetLoader> imageLoadersMap =
                 getImageDatasetsMap(sessionToken, imageReferences);
@@ -351,11 +364,12 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                     imageLoadersMap.get(imageReference.getDatasetCode());
             assert imageAccessor != null : "imageAccessor not found for: " + imageReference;
             IContent content =
-                    tryGetImageContent(imageAccessor, imageReference, null, convertToPng);
+                    tryGetImageContent(imageAccessor, imageReference, sizeOrNull, convertToPng);
             imageContents.add(content);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }
+
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
@@ -370,11 +384,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         IHCSImageDatasetLoader imageAccessor = createImageLoader(datasetCode, rootDir);
         List<PlateImageReference> imageReferences =
                 createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
-        Size size = null;
-        if (thumbnailSizeOrNull != null)
-        {
-            size = new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
-        }
+        Size size = convertToSize(thumbnailSizeOrNull);
         List<IContent> imageContents = new ArrayList<IContent>();
         for (PlateImageReference imageReference : imageReferences)
         {
@@ -382,6 +392,15 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             imageContents.add(content);
         }
         return new ConcatenatedContentInputStream(true, imageContents);
+    }
+
+    public List<PlateImageReference> listPlateImageReferences(String sessionToken,
+            IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
+    {
+        String datasetCode = dataSetIdentifier.getDatasetCode();
+        File rootDir = getRootDirectoryForDataSet(datasetCode);
+        IHCSImageDatasetLoader imageAccessor = createImageLoader(datasetCode, rootDir);
+        return createPlateImageReferences(imageAccessor, dataSetIdentifier, wellPositions, channel);
     }
 
     public void saveImageTransformerFactory(String sessionToken,
@@ -555,7 +574,16 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         return new Location(wellPosition.getWellColumn(), wellPosition.getWellRow());
     }
-
+    
+    private Size convertToSize(ImageSize thumbnailSizeOrNull)
+    {
+        if (thumbnailSizeOrNull == null)
+        {
+            return null;
+        }
+        return new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
+    }
+    
     private IHCSImageDatasetLoader createImageLoader(String datasetCode)
     {
         File datasetRoot = getRootDirectoryForDataSet(datasetCode);

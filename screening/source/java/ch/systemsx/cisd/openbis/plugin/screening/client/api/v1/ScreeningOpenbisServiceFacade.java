@@ -566,6 +566,35 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return result;
     }
 
+    public void loadImages(IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions,
+            String channel, ImageSize thumbnailSizeOrNull, IPlateImageHandler plateImageHandler)
+            throws IOException
+    {
+        DssServiceRpcScreeningHolder dssServiceHolder =
+                dssServiceCache.createDssService(dataSetIdentifier.getDatastoreServerUrl());
+        IDssServiceRpcScreening service = dssServiceHolder.getService();
+        List<PlateImageReference> plateImageReferences =
+                service.listPlateImageReferences(sessionToken, dataSetIdentifier, wellPositions,
+                        channel);
+        InputStream stream =
+                service.loadImages(sessionToken, plateImageReferences, thumbnailSizeOrNull);
+        ConcatenatedFileOutputStreamWriter imagesWriter =
+                new ConcatenatedFileOutputStreamWriter(stream);
+        int index = 0;
+        long size;
+        do
+        {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            size = imagesWriter.writeNextBlock(outputStream);
+            if (size > 0)
+            {
+                plateImageHandler.handlePlateImage(plateImageReferences.get(index),
+                        outputStream.toByteArray());
+            }
+            index++;
+        } while (size >= 0);
+    }
+
     public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers, String channel,
             IImageTransformerFactory transformerFactory)
     {

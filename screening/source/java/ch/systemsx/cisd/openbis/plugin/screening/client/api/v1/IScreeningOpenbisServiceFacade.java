@@ -266,6 +266,19 @@ public interface IScreeningOpenbisServiceFacade
             throws IOException;
     
     /**
+     * Loads PNG-encoded images for specified data set, list of well positions (empty
+     * list means all wells), channel, and optional thumb nail size. Images of all tiles are
+     * delivered. If thumb nail size isn't specified the original image is delivered otherwise a
+     * thumb nail image with same aspect ratio as the original image but which fits into specified
+     * size will be delivered.
+     * 
+     * @param plateImageHandler Handles delivered images.
+     */
+    public void loadImages(IDatasetIdentifier datasetIdentifier, List<WellPosition> wellPositions,
+            String channel, ImageSize thumbnailSizeOrNull, IPlateImageHandler plateImageHandler)
+            throws IOException;
+    
+    /**
      * Saves the specified transformer factory for the specified channel and the experiment to
      * which the specified data sets belong.
      */
