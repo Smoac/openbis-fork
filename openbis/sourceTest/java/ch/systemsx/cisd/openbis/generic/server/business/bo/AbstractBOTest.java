@@ -59,61 +59,61 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 @Friend(toClasses = ScriptBO.IScriptFactory.class)
 public abstract class AbstractBOTest extends AssertJUnit
 {
-    Mockery context;
+    protected Mockery context;
 
-    IDAOFactory daoFactory;
+    protected IDAOFactory daoFactory;
 
-    IScriptFactory scriptFactory;
+    protected IScriptFactory scriptFactory;
 
-    IGroupDAO groupDAO;
+    protected IGroupDAO groupDAO;
 
-    IScriptDAO scriptDAO;
+    protected IScriptDAO scriptDAO;
 
-    IRelationshipTypeDAO relationshipTypeDAO;
+    protected IRelationshipTypeDAO relationshipTypeDAO;
 
-    IExperimentDAO experimentDAO;
+    protected IExperimentDAO experimentDAO;
 
-    IProjectDAO projectDAO;
+    protected IProjectDAO projectDAO;
 
-    IEntityTypeDAO entityTypeDAO;
+    protected IEntityTypeDAO entityTypeDAO;
 
-    IMaterialDAO materialDAO;
+    protected IMaterialDAO materialDAO;
 
-    IExternalDataDAO externalDataDAO;
+    protected IExternalDataDAO externalDataDAO;
 
-    IDatabaseInstanceDAO databaseInstanceDAO;
+    protected IDatabaseInstanceDAO databaseInstanceDAO;
 
-    ISampleDAO sampleDAO;
+    protected ISampleDAO sampleDAO;
 
-    IEntityPropertyTypeDAO entityPropertyTypeDAO;
+    protected IEntityPropertyTypeDAO entityPropertyTypeDAO;
 
-    IPropertyTypeDAO propertyTypeDAO;
+    protected IPropertyTypeDAO propertyTypeDAO;
 
-    IPersonDAO personDAO;
+    protected IPersonDAO personDAO;
 
-    ISampleTypeDAO sampleTypeDAO;
+    protected ISampleTypeDAO sampleTypeDAO;
 
-    IVocabularyDAO vocabularyDAO;
+    protected IVocabularyDAO vocabularyDAO;
 
-    IVocabularyTermDAO vocabularyTermDAO;
+    protected IVocabularyTermDAO vocabularyTermDAO;
 
-    IEntityPropertiesConverter propertiesConverter;
+    protected IEntityPropertiesConverter propertiesConverter;
 
-    IDataSetTypeDAO dataSetTypeDAO;
+    protected IDataSetTypeDAO dataSetTypeDAO;
 
-    IFileFormatTypeDAO fileFormatTypeDAO;
+    protected IFileFormatTypeDAO fileFormatTypeDAO;
 
-    ILocatorTypeDAO locatorTypeDAO;
+    protected ILocatorTypeDAO locatorTypeDAO;
 
-    IDataStoreDAO dataStoreDAO;
+    protected IDataStoreDAO dataStoreDAO;
 
-    IPermIdDAO permIdDAO;
+    protected IPermIdDAO permIdDAO;
 
-    IEventDAO eventDAO;
+    protected IEventDAO eventDAO;
 
-    IAuthorizationGroupDAO authorizationGroupDAO;
+    protected IAuthorizationGroupDAO authorizationGroupDAO;
 
-    IGridCustomFilterDAO filterDAO;
+    protected IGridCustomFilterDAO filterDAO;
 
     @BeforeMethod
     public void beforeMethod()
@@ -184,6 +184,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(personDAO));
                     allowing(daoFactory).getScriptDAO();
                     will(returnValue(scriptDAO));
+                    allowing(daoFactory).getMaterialDAO();
+                    will(returnValue(materialDAO));
                 }
             });
     }

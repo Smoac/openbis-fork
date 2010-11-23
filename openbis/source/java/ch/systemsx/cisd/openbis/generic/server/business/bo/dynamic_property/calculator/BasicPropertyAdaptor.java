@@ -71,7 +71,7 @@ public class BasicPropertyAdaptor implements IEntityPropertyAdaptor
     @Override
     public String toString()
     {
-        return propertyTypeCode() + " " + valueAsString();
+        return "code: " + propertyTypeCode() + ", value: " + valueAsString();
     }
 
 }

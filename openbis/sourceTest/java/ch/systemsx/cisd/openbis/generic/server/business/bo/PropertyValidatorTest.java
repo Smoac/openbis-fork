@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator.SupportedDatePattern;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -216,14 +217,13 @@ public final class PropertyValidatorTest extends AbstractBOTest
     }
 
     //
-    // Controlled Vocabulary with DAO access
+    // Controlled Vocabulary
     //
 
     private final static PropertyTypePE createControlledVocabularyPropertyType()
     {
         final PropertyTypePE propertyType = createPropertyType(DataTypeCode.CONTROLLEDVOCABULARY);
         final VocabularyPE vocabularyPE = new VocabularyPE();
-        // terms list is currently not used in validation but lets keep it here
         final List<VocabularyTermPE> terms = new ArrayList<VocabularyTermPE>();
         terms.add(createVocabularyTerm("GOODVALUE"));
         vocabularyPE.setTerms(terms);
@@ -253,6 +253,74 @@ public final class PropertyValidatorTest extends AbstractBOTest
         } catch (final UserFailureException ex)
         {
             // Nothing to do here.
+        }
+    }
+
+    //
+    // Material
+    //
+
+    private final static PropertyTypePE createMaterialPropertyType(MaterialTypePE materialType)
+    {
+        final PropertyTypePE propertyType = createPropertyType(DataTypeCode.MATERIAL);
+        propertyType.setMaterialType(materialType);
+        return propertyType;
+    }
+
+    @Test
+    public final void testValidateMaterialPropertyValueNoType()
+    {
+        final PropertyTypePE propertyType = createMaterialPropertyType(null);
+        final String value = "code (type)";
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        propertyValidator.validatePropertyValue(propertyType, value);
+    }
+
+    @Test
+    public final void testValidateMaterialPropertyValueWithType()
+    {
+        final MaterialTypePE materialType = new MaterialTypePE();
+        materialType.setCode("t1");
+        final PropertyTypePE propertyType = createMaterialPropertyType(materialType);
+        final String value = "code (" + materialType.getCode() + ")";
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        propertyValidator.validatePropertyValue(propertyType, value);
+    }
+
+    @Test
+    public final void testValidateMaterialPropertyValueNoTypeFailed()
+    {
+        PropertyTypePE propertyType = createMaterialPropertyType(null);
+        final String value = "noType";
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        try
+        {
+            propertyValidator.validatePropertyValue(propertyType, value);
+            fail(String.format("'%s' expected.", UserFailureException.class.getSimpleName()));
+        } catch (final UserFailureException ex)
+        {
+            assertEquals("Material specification '" + value
+                    + "' has improper format. Expected '<CODE> (<TYPE>)'.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public final void testValidateMaterialPropertyValueWithTypeFailed()
+    {
+        final MaterialTypePE materialType = new MaterialTypePE();
+        materialType.setCode("t1");
+        PropertyTypePE propertyType = createMaterialPropertyType(materialType);
+        final String value = "wrongType (t2)";
+        final PropertyValidator propertyValidator = createPropertyValidator();
+        try
+        {
+            propertyValidator.validatePropertyValue(propertyType, value);
+            fail(String.format("'%s' expected.", UserFailureException.class.getSimpleName()));
+        } catch (final UserFailureException ex)
+        {
+            assertEquals(
+                    "Material '" + value + "' is of wrong type. Expected: '"
+                            + materialType.getCode() + "'.", ex.getMessage());
         }
     }
 }

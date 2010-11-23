@@ -365,13 +365,14 @@ public final class PropertyValidator implements IPropertyValueValidator
             if (identifierOrNull == null)
             {
                 throw UserFailureException.fromTemplate(
-                        "Material specification '%s' has improper format.", value);
+                        "Material specification '%s' has improper format. "
+                                + "Expected '<CODE> (<TYPE>)'.", value);
             }
             if (materialTypeOrNull != null
                     && identifierOrNull.getTypeCode().equals(materialTypeOrNull.getCode()) == false)
             {
                 throw UserFailureException.fromTemplate(
-                        "Material '%s' is of wrong type. Expected: '%'.", value,
+                        "Material '%s' is of wrong type. Expected: '%s'.", value,
                         materialTypeOrNull.getCode());
             }
             return value;

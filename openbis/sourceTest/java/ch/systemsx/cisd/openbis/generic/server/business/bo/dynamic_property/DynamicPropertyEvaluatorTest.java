@@ -22,17 +22,16 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.jmock.Mockery;
-import org.testng.AssertJUnit;
+import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.AbstractEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.BasicPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityPropertyAdaptor;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -53,18 +52,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 /**
  * @author Piotr Buczek
  */
-public class DynamicPropertyEvaluatorTest extends AssertJUnit
+public class DynamicPropertyEvaluatorTest extends AbstractBOTest
 {
 
     private DynamicPropertyEvaluator evaluator;
-
-    private IDAOFactory daoFactory;
 
     @BeforeMethod
     public void setUp()
     {
         LogInitializer.init();
-        daoFactory = new Mockery().mock(IDAOFactory.class);
         evaluator = new DynamicPropertyEvaluator(daoFactory);
     }
 
@@ -201,19 +197,19 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
         assertEquals(null, dpVocabularyError.getVocabularyTerm());
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testEvaluateMaterialProperties()
     {
         // check handling of material properties
         Set<SamplePropertyPE> properties = new HashSet<SamplePropertyPE>();
 
         PropertyTypePE materialPropertyType = createPropertyType("mp", DataTypeCode.MATERIAL);
-        String materialTypeCode = "M_TYPE";
+        final String materialTypeCode = "M_TYPE";
         MaterialTypePE materialType = new MaterialTypePE();
         materialType.setCode(materialTypeCode);
         materialPropertyType.setMaterialType(materialType);
 
-        MaterialPE material = new MaterialPE();
+        final MaterialPE material = new MaterialPE();
         material.setCode("M_CODE");
         material.setMaterialType(materialType);
 
@@ -222,27 +218,58 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
 
         // create dynamic properties
         final ScriptPE script1 = createScript("s1", "entity.propertyValue('mp')");
+
         final SamplePropertyPE dpVarchar = createDynamicSampleProperty("dpVarchar", script1);
+
         final PropertyTypePE dynamicPropertyType =
                 createPropertyType("dpMaterial", DataTypeCode.MATERIAL);
         dynamicPropertyType.setMaterialType(materialType);
         final SamplePropertyPE dpMaterial =
                 createDynamicSampleProperty(dynamicPropertyType, script1);
+
         final ScriptPE scriptError1 = createScript("se1", "'fake_material'");
         final PropertyTypePE dynamicPropertyTypeError1 =
                 createPropertyType("dpMaterialError1", DataTypeCode.MATERIAL);
         dynamicPropertyTypeError1.setMaterialType(materialType);
         final SamplePropertyPE dpMaterialError1 =
                 createDynamicSampleProperty(dynamicPropertyTypeError1, scriptError1);
-        final ScriptPE scriptError2 = createScript("se2", "'fake_material (fake_type)'");
+
+        final MaterialIdentifier fakeTypeIdentifier = new MaterialIdentifier("fake", "fake_type");
+        final ScriptPE scriptError2 =
+                createScript("se2", "'" + fakeTypeIdentifier.toString() + "'");
         final PropertyTypePE dynamicPropertyTypeError2 =
                 createPropertyType("dpMaterialError2", DataTypeCode.MATERIAL);
+        dynamicPropertyTypeError2.setMaterialType(materialType);
         final SamplePropertyPE dpMaterialError2 =
                 createDynamicSampleProperty(dynamicPropertyTypeError2, scriptError2);
+
+        final MaterialIdentifier fakeMaterialIdentifier =
+                new MaterialIdentifier("fake", materialTypeCode);
+        final ScriptPE scriptError3 =
+                createScript("se3", "'" + fakeMaterialIdentifier.toString() + "'");
+        final PropertyTypePE dynamicPropertyTypeError3 =
+                createPropertyType("dpMaterialError3", DataTypeCode.MATERIAL);
+        dynamicPropertyTypeError3.setMaterialType(materialType);
+        final SamplePropertyPE dpMaterialError3 =
+                createDynamicSampleProperty(dynamicPropertyTypeError3, scriptError3);
+
         properties.add(dpVarchar);
         properties.add(dpMaterial);
         properties.add(dpMaterialError1);
         properties.add(dpMaterialError2);
+        properties.add(dpMaterialError3);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(materialDAO).tryFindMaterial(
+                            new MaterialIdentifier(material.getCode(), materialTypeCode));
+                    will(returnValue(material));
+
+                    one(materialDAO).tryFindMaterial(fakeMaterialIdentifier);
+                    will(returnValue(null));
+                }
+            });
 
         // create sample with all properties created above and evaluate dynamic properties
         final SamplePE sample = createSample("s1", properties);
@@ -253,15 +280,27 @@ public class DynamicPropertyEvaluatorTest extends AssertJUnit
                 MaterialIdentifier.print(material.getCode(), materialTypeCode);
         assertEquals(materialIdentifier, dpVarchar.getValue());
         assertEquals(null, dpVarchar.getMaterialValue());
+
         assertEquals(null, dpMaterial.getValue());
         assertEquals(material, dpMaterial.getMaterialValue());
+
         final String expectedDpMaterialError1Value =
-                expectedErrorMessage("Material specification 'fake_material' has improper format.");
+                expectedErrorMessage("Material specification 'fake_material' has improper format. "
+                        + "Expected '<CODE> (<TYPE>)'.");
         assertEquals(expectedDpMaterialError1Value, dpMaterialError1.getValue());
         assertEquals(null, dpMaterialError1.getVocabularyTerm());
-        final String expectedDpMaterialError2Value = expectedErrorMessage("");
+
+        final String expectedDpMaterialError2Value =
+                expectedErrorMessage("Material '" + fakeTypeIdentifier.toString()
+                        + "' is of wrong type. Expected: '" + materialTypeCode + "'.");
         assertEquals(expectedDpMaterialError2Value, dpMaterialError2.getValue());
         assertEquals(null, dpMaterialError2.getVocabularyTerm());
+
+        final String expectedDpMaterialError3Value =
+                expectedErrorMessage("No material could be found for identifier '"
+                        + fakeMaterialIdentifier.toString() + "'.");
+        assertEquals(expectedDpMaterialError3Value, dpMaterialError3.getValue());
+        assertEquals(null, dpMaterialError3.getVocabularyTerm());
     }
 
     @Test
