@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -45,6 +46,8 @@ public final class DataSet implements Serializable
 
         private String dataSetTypeCode;
 
+        private Date registrationDate;
+
         private HashMap<String, String> properties = new HashMap<String, String>();
 
         public String getCode()
@@ -67,6 +70,16 @@ public final class DataSet implements Serializable
             return dataSetTypeCode;
         }
 
+        public void setRegistrationDate(Date registrationDate)
+        {
+            this.registrationDate = registrationDate;
+        }
+
+        public Date getRegistrationDate()
+        {
+            return registrationDate;
+        }
+
         public HashMap<String, String> getProperties()
         {
             return properties;
@@ -82,6 +95,8 @@ public final class DataSet implements Serializable
 
     private final String dataSetTypeCode;
 
+    private final Date registrationDate;
+
     private final HashMap<String, String> properties;
 
     /**
@@ -96,6 +111,8 @@ public final class DataSet implements Serializable
 
         checkValidString(initializer.getDataSetTypeCode(), "Unspecified data set type code.");
         this.dataSetTypeCode = initializer.getDataSetTypeCode();
+
+        this.registrationDate = initializer.getRegistrationDate();
 
         this.properties = initializer.getProperties();
     }
@@ -119,6 +136,11 @@ public final class DataSet implements Serializable
     public String getDataSetTypeCode()
     {
         return dataSetTypeCode;
+    }
+
+    public Date getRegistrationDate()
+    {
+        return registrationDate;
     }
 
     public HashMap<String, String> getProperties()
