@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -647,7 +648,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     public void checkDatasetsAuthorizationForIDatasetIdentifier(String sessionToken,
             List<? extends IDatasetIdentifier> identifiers)
     {
-        Set<String> dataSetCodes = new HashSet<String>();
+        Set<String> dataSetCodes = new LinkedHashSet<String>();
         for (IDatasetIdentifier identifier : identifiers)
         {
             dataSetCodes.add(identifier.getDatasetCode());

@@ -369,6 +369,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
+                    
                     one(transformerDAO).saveTransformerFactoryForChannel(EXPERIMENT_PERM_ID,
                             channel, transformerFactory);
                     one(transformerDAO).commit();
@@ -390,6 +392,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
+                    
                     one(transformerDAO).saveTransformerFactoryForExperiment(EXPERIMENT_PERM_ID,
                             transformerFactory);
                     one(transformerDAO).commit();
