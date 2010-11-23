@@ -92,7 +92,7 @@ class HeatmapPresenter
                 Color color = renderer.getColor(wellData);
                 String tooltipOrNull =
                         WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx,
-                                featureIndexOrNull);
+                                featureIndexOrNull, realNumberRenderer);
                 viewManipulations.refreshWellStyle(rowIx, colIx, color, tooltipOrNull);
             }
         }
@@ -249,7 +249,7 @@ class HeatmapPresenter
     {
         private static final String NEWLINE = "\n";
 
-        private static final int MAX_DESCRIBED_FEATURES = 7;
+        private static final int MAX_DESCRIBED_FEATURES = 30;
 
         /**
          * Generates a short description of the well, which can be used as e.g. a tooltip
@@ -258,17 +258,21 @@ class HeatmapPresenter
          *            distinguished.
          */
         public static String tryGenerateTooltip(PlateLayouterModel model, int rowIx, int colIx,
-                Integer featureIndexOrNull)
+                Integer featureIndexOrNull, IRealNumberRenderer realNumberRenderer)
         {
-            return new WellTooltipGenerator(model).tryGenerateShortDescription(rowIx, colIx,
-                    featureIndexOrNull);
+            return new WellTooltipGenerator(model, realNumberRenderer).tryGenerateShortDescription(
+                    rowIx, colIx, featureIndexOrNull);
         }
 
         private final PlateLayouterModel model;
 
-        private WellTooltipGenerator(PlateLayouterModel model)
+        private final IRealNumberRenderer realNumberRenderer;
+
+        private WellTooltipGenerator(PlateLayouterModel model,
+                IRealNumberRenderer realNumberRenderer)
         {
             this.model = model;
+            this.realNumberRenderer = realNumberRenderer;
         }
 
         private String tryGenerateShortDescription(int rowIx, int colIx, Integer featureIndexOrNull)
@@ -327,12 +331,17 @@ class HeatmapPresenter
             {
                 return "";
             }
-            String textValue = (value == null ? "" : "" + value);
+            String textValue = (value == null ? "" : "" + renderFloat(value));
             if (distinguished)
             {
                 textValue = "<b>" + textValue + "</b>";
             }
             return featureLabels.get(featureIndex) + ": " + textValue + NEWLINE;
+        }
+
+        private String renderFloat(float value)
+        {
+            return realNumberRenderer.render(value);
         }
 
         private static String generateMetadataDescription(WellData wellData)

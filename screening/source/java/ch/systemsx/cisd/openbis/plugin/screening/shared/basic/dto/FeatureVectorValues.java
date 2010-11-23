@@ -18,12 +18,15 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+
 /**
  * Bean for one feature vector of the well. Contains data set code, well position and array of
  * feature values. Float.NaN is used for unknown feature value in this array.
  * 
  * @author Tomasz Pylak
  */
+@DoNotEscape
 public class FeatureVectorValues implements IsSerializable
 {
     private WellFeatureVectorReference featureVectorReference;

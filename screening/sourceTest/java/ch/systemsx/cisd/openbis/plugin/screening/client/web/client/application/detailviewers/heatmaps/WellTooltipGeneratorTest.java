@@ -25,6 +25,7 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -72,7 +73,19 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     private static String tryGenerateShortDescription(PlateLayouterModel model, int rowIx,
             int colIx, Integer featureIndexOrNull)
     {
-        return WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx, featureIndexOrNull);
+        return WellTooltipGenerator.tryGenerateTooltip(model, rowIx, colIx, featureIndexOrNull,
+                createDummyRealNumberRenderer());
+    }
+
+    private static IRealNumberRenderer createDummyRealNumberRenderer()
+    {
+        return new IRealNumberRenderer()
+            {
+                public String render(float value)
+                {
+                    return "" + value;
+                }
+            };
     }
 
     @Test

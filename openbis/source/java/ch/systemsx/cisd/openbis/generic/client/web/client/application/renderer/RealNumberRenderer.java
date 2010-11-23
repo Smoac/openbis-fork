@@ -27,6 +27,12 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
     public static String render(String value,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
+        return render(value, realNumberFormatingParameters, true);
+    }
+
+    public static String render(String value,
+            RealNumberFormatingParameters realNumberFormatingParameters, boolean withTooltip)
+    {
         if (realNumberFormatingParameters.isFormatingEnabled() == false || value.length() == 0)
         {
             return value;
@@ -48,7 +54,13 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
                 formattedValue =
                         NumberFormat.getFormat(format + EXPONENT_FORMAT).format(doubleValue);
             }
-            return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
+            if (withTooltip)
+            {
+                return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
+            } else
+            {
+                return formattedValue;
+            }
         } catch (NumberFormatException ex)
         {
             return value;
@@ -64,7 +76,7 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
 
     public String render(float value)
     {
-        return render("" + value, realNumberFormatingParameters);
+        return render("" + value, realNumberFormatingParameters, false);
     }
 
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,

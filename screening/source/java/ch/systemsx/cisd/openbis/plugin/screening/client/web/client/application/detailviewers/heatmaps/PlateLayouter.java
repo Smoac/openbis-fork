@@ -166,6 +166,7 @@ public class PlateLayouter
             SimpleModelComboBox<Integer> heatmapKindChooser, LayoutContainer legendContainer)
     {
         LayoutContainer container = new LayoutContainer();
+        container.setScrollMode(Scroll.AUTO);
         container.setLayout(new RowLayout());
         container.add(new Text(
                 "Hold the mouse cursor over a well or click on it to get the details."),
@@ -191,7 +192,6 @@ public class PlateLayouter
     private static LayoutContainer renderPlateLayout(Component[][] renderedWells)
     {
         LayoutContainer plateMatrix = new LayoutContainer();
-        plateMatrix.setScrollMode(Scroll.AUTO);
         TableLayout layout = new TableLayout(getColumnsNum(renderedWells) + 1);
         layout.setCellSpacing(2);
         plateMatrix.setLayout(layout);
