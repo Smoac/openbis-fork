@@ -208,6 +208,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException
+    {
+        logAccess(sessionToken, "checkInstanceAdminAuthorization");
+    }
+
     public void checkDataSetAccess(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

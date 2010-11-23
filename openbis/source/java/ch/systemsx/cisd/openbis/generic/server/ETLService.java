@@ -644,6 +644,12 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return ExternalDataTranslator.translate(externalDataPE, session.getBaseIndexURL());
     }
 
+    public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException
+    {
+        checkSession(sessionToken);
+        // do nothing, the access rights specified in method annotations are checked by a proxy
+    }
+
     public void checkDataSetAccess(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

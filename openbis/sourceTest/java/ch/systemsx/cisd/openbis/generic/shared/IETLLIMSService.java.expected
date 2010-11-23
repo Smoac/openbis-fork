@@ -295,6 +295,13 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void deleteDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode,
             String reason) throws UserFailureException;
+    
+    /**
+     * Checks that the user of specified session has INSTANCE_ADMIN access rights.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException;
 
     /**
      * Does nothing besides checking that the current user has rights to access the content of the
