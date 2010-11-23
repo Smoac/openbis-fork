@@ -44,11 +44,11 @@ public class DataSetLister
     {
         String serverUrl = args[0];
         String userId = args[1];
-        
+
         String password;
         if (args.length == 3)
         {
-            password =args[2];
+            password = args[2];
         } else
         {
             password = getConsoleReader().readLine("Password: ", Character.valueOf('*'));
@@ -78,11 +78,10 @@ public class DataSetLister
             return new ConsoleReader();
         } catch (final IOException ex)
         {
-            throw new EnvironmentFailureException("ConsoleReader could not be instantiated.",
-                    ex);
+            throw new EnvironmentFailureException("ConsoleReader could not be instantiated.", ex);
         }
     }
-    
+
     private final IGeneralInformationService generalInformationService;
 
     private final String sessionToken;
@@ -126,6 +125,30 @@ public class DataSetLister
         sb.append(property);
         sb.append("=");
         sb.append(desiredValue);
+        sb.append(". Data sets attached to these samples:\n");
+        sb.append(result);
+
+        System.out.println(sb.toString());
+        System.out.println("\n");
+    }
+
+    /**
+     * Find data sets with a specific value for a property.
+     */
+    @SuppressWarnings("unused")
+    private void findDataSetsForSamplesWithCode(String code)
+    {
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, code));
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
+        List<DataSet> result = generalInformationService.listDataSets(sessionToken, samples);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Found ");
+        sb.append(samples.size());
+        sb.append(" sample(s) with code");
+        sb.append("=");
+        sb.append(code);
         sb.append(". Data sets attached to these samples:\n");
         sb.append(result);
 
