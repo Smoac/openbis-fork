@@ -39,25 +39,33 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  *
  * @author Franz-Josef Elmer
  */
-public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfoExtractorWithService
+public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoExtractorWithService
 {
-    @Private static final String EXPERIMENT_TYPE_CODE = "MS_SEARCH";
+    @Private static final String EXPERIMENT_TYPE_CODE_KEY = "experiment-type-code";
+    @Private static final String EXPERIMENT_PROPERTIES_FILE_NAME_KEY = "experiment-properties-file-name";
+    @Private static final String DEFAULT_EXPERIMENT_TYPE_CODE = "MS_SEARCH";
     @Private static final String SEPARATOR_KEY = "separator";
     @Private static final String DEFAULT_SEPARATOR = "&";
-    @Private static final String SEARCH_PROPERTIES = "search.properties";
+    @Private static final String DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME = "search.properties";
     @Private static final String PARENT_DATA_SET_CODES = "parent-data-set-codes";
     
     private final String separator;
+    private final String experimentPropertiesFileName;
+    private final String experimentTypeCode;
     
-    public DataSetInfoExtractorForSearchExperiment(Properties properties)
+    public DataSetInfoExtractorForProteinResults(Properties properties)
     {
         this(properties, ServiceProvider.getOpenBISService());
     }
 
-    DataSetInfoExtractorForSearchExperiment(Properties properties, IEncapsulatedOpenBISService service)
+    DataSetInfoExtractorForProteinResults(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(service);
         separator = properties.getProperty(SEPARATOR_KEY, DEFAULT_SEPARATOR);
+        experimentPropertiesFileName =
+                properties.getProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY,
+                        DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME);
+        experimentTypeCode = properties.getProperty(EXPERIMENT_TYPE_CODE_KEY, DEFAULT_EXPERIMENT_TYPE_CODE);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -75,10 +83,12 @@ public class DataSetInfoExtractorForSearchExperiment extends AbstractDataSetInfo
         ProjectIdentifier projectIdentifier = new ProjectIdentifier(items[0], items[1]);
         ExperimentIdentifier experimentIdentifier =
                 new ExperimentIdentifier(projectIdentifier, "E" + service.drawANewUniqueID());
-        NewExperiment experiment = new NewExperiment(experimentIdentifier.toString(),
-                EXPERIMENT_TYPE_CODE);
-        ExperimentType experimentType = service.getExperimentType(EXPERIMENT_TYPE_CODE);
-        Properties properties = loadSearchProperties(new File(incomingDataSetPath, SEARCH_PROPERTIES));
+        NewExperiment experiment =
+                new NewExperiment(experimentIdentifier.toString(), experimentTypeCode);
+        ExperimentType experimentType = service.getExperimentType(experimentTypeCode);
+
+        Properties properties =
+                loadSearchProperties(new File(incomingDataSetPath, experimentPropertiesFileName));
         experiment.setProperties(Util.getAndCheckProperties(properties, experimentType));
         service.registerExperiment(experiment);
         DataSetInformation info = new DataSetInformation();

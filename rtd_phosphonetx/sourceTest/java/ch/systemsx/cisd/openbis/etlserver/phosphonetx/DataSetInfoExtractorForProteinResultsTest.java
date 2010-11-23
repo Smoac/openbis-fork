@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
-import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForSearchExperiment.EXPERIMENT_TYPE_CODE;
-import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForSearchExperiment.PARENT_DATA_SET_CODES;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.DEFAULT_EXPERIMENT_TYPE_CODE;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.PARENT_DATA_SET_CODES;
 
 import java.io.File;
 import java.util.Arrays;
@@ -49,8 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=DataSetInfoExtractorForSearchExperiment.class)
-public class DataSetInfoExtractorForSearchExperimentTest extends AbstractFileSystemTestCase
+@Friend(toClasses=DataSetInfoExtractorForProteinResults.class)
+public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSystemTestCase
 {
     private Mockery context;
     private IEncapsulatedOpenBISService service;
@@ -77,7 +77,7 @@ public class DataSetInfoExtractorForSearchExperimentTest extends AbstractFileSys
     public void testRegistrationWithOneMandatoryProperty()
     {
         FileUtilities.writeToFile(new File(dataSet,
-                DataSetInfoExtractorForSearchExperiment.SEARCH_PROPERTIES),
+                DataSetInfoExtractorForProteinResults.DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME),
                 "answer=42\nblabla=blub\n" + PARENT_DATA_SET_CODES + "=1 2  3   4\n");
         prepare();
 
@@ -91,7 +91,7 @@ public class DataSetInfoExtractorForSearchExperimentTest extends AbstractFileSys
                                 if (item instanceof NewExperiment)
                                 {
                                     NewExperiment experiment = (NewExperiment) item;
-                                    assertEquals(EXPERIMENT_TYPE_CODE, experiment
+                                    assertEquals(DEFAULT_EXPERIMENT_TYPE_CODE, experiment
                                             .getExperimentTypeCode());
                                     IEntityProperty[] properties = experiment.getProperties();
                                     assertEquals(1, properties.length);
@@ -144,7 +144,7 @@ public class DataSetInfoExtractorForSearchExperimentTest extends AbstractFileSys
                     one(service).drawANewUniqueID();
                     will(returnValue(4711L));
                     
-                    one(service).getExperimentType(EXPERIMENT_TYPE_CODE);
+                    one(service).getExperimentType(DEFAULT_EXPERIMENT_TYPE_CODE);
                     ExperimentType type = new ExperimentType();
                     ExperimentTypePropertyType etpt = new ExperimentTypePropertyType();
                     PropertyType propertyType = new PropertyType();
@@ -159,6 +159,6 @@ public class DataSetInfoExtractorForSearchExperimentTest extends AbstractFileSys
     
     private IDataSetInfoExtractor createExtractor(Properties properties)
     {
-        return new DataSetInfoExtractorForSearchExperiment(properties, service);
+        return new DataSetInfoExtractorForProteinResults(properties, service);
     }
 }
