@@ -16,22 +16,32 @@
 
 package ch.systemsx.cisd.cina.client.util.cli;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
+import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ResultCode;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
@@ -41,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CommandGetReplicaTest extends AssertJUnit
+public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 {
     private final class MockCommandGetReplica extends CommandGetReplica
     {
@@ -50,7 +60,7 @@ public class CommandGetReplicaTest extends AssertJUnit
         {
             facade =
                     ch.systemsx.cisd.cina.client.util.v1.impl.CinaUtilitiesFacadeTest.createFacade(
-                            service, openbisService, USER_ID, PASSWORD);
+                            service, openbisService, dssComponent, USER_ID, PASSWORD);
             return facade;
         }
     }
@@ -69,12 +79,20 @@ public class CommandGetReplicaTest extends AssertJUnit
 
     private IETLLIMSService openbisService;
 
+    private IDssComponent dssComponent;
+
+    private IDataSetDss dataSetDss;
+
+    @Override
     @BeforeMethod
-    public void setUp()
+    public void setUp() throws IOException
     {
+        super.setUp();
         context = new Mockery();
         service = context.mock(IGeneralInformationService.class);
         openbisService = context.mock(IETLLIMSService.class);
+        dssComponent = context.mock(IDssComponent.class);
+        dataSetDss = context.mock(IDataSetDss.class);
     }
 
     @AfterMethod
@@ -111,68 +129,138 @@ public class CommandGetReplicaTest extends AssertJUnit
                             MatchClauseAttribute.CODE, sampleCode));
 
                     ArrayList<Sample> samples = new ArrayList<Sample>();
-                    SampleInitializer initializer = new SampleInitializer();
-                    initializer.setCode(sampleCode);
-                    initializer.setId((long) 1);
-                    initializer.setIdentifier("SPACE/" + sampleCode);
-                    initializer.setPermId("PERM-ID");
-                    initializer.setSampleTypeCode("SAMPLE-TYPE");
-                    initializer.setSampleTypeId((long) 1);
-                    Sample sample = new Sample(initializer);
-                    samples.add(sample);
+                    SampleInitializer sampInitializer = new SampleInitializer();
+                    sampInitializer.setCode(sampleCode);
+                    sampInitializer.setId((long) 1);
+                    sampInitializer.setIdentifier("SPACE/" + sampleCode);
+                    sampInitializer.setPermId("PERM-ID");
+                    sampInitializer.setSampleTypeCode("SAMPLE-TYPE");
+                    sampInitializer.setSampleTypeId((long) 1);
+                    samples.add(new Sample(sampInitializer));
 
                     one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
                     will(returnValue(samples));
 
                     ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
+                    DataSetInitializer dsInitializer = new DataSetInitializer();
+                    dsInitializer.setCode(sampleCode + "-RAW-IMAGES");
+                    dsInitializer.setDataSetTypeCode(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
+                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    dataSets.add(new DataSet(dsInitializer));
+
+                    dsInitializer = new DataSetInitializer();
+                    dsInitializer.setCode(sampleCode + "-METADATA-OLD");
+                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    dataSets.add(new DataSet(dsInitializer));
+
+                    dsInitializer = new DataSetInitializer();
+                    dsInitializer.setCode(sampleCode + "-METADATA-NEW");
+                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1).getTime());
+                    dataSets.add(new DataSet(dsInitializer));
+
                     one(service).listDataSets(SESSION_TOKEN, samples);
                     will(returnValue(dataSets));
-
                 }
             });
     }
 
+    private void setupDownloadDataSetExpectations(final String sampleCode) throws IOException
+    {
+        final File parent = new File("sourceTest/java/ch/systemsx/cisd/cina/client/util/cli/");
+        ArrayList<FileInfoDssDTO> rawImagesInfos =
+                getFileInfosForPath(new File(parent, "RawImages"));
+        final FileInfoDssDTO[] rawImagesInfosArray =
+                (rawImagesInfos.size() > 0) ? rawImagesInfos
+                        .toArray(new FileInfoDssDTO[rawImagesInfos.size()]) : new FileInfoDssDTO[0];
+
+        ArrayList<FileInfoDssDTO> metadataInfos = getFileInfosForPath(new File(parent, "Metadata"));
+
+        final FileInfoDssDTO[] metadataInfosArray =
+                (metadataInfos.size() > 0) ? metadataInfos.toArray(new FileInfoDssDTO[metadataInfos
+                        .size()]) : new FileInfoDssDTO[0];
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssComponent).getDataSet(sampleCode + "-RAW-IMAGES");
+                    will(returnValue(dataSetDss));
+                    one(dataSetDss).listFiles("/", true);
+                    will(returnValue(rawImagesInfosArray));
+                    one(dataSetDss).getFile("/ReplicaRawImages/Image.txt");
+                    will(returnValue(new FileInputStream(new File(parent,
+                            "RawImages/ReplicaRawImages/Image.txt"))));
+
+                    one(dssComponent).getDataSet(sampleCode + "-METADATA-NEW");
+                    will(returnValue(dataSetDss));
+                    one(dataSetDss).listFiles("/", true);
+                    will(returnValue(metadataInfosArray));
+                    one(dataSetDss).getFile("/ReplicaMetadata/Metadata.txt");
+                    will(returnValue(new FileInputStream(new File(parent,
+                            "Metadata/ReplicaMetadata/Metadata.txt"))));
+                }
+            });
+    }
+
+    private ArrayList<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException
+    {
+        ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+        if (false == file.exists())
+        {
+            return fileInfos;
+        }
+
+        String path = file.getCanonicalPath();
+        if (false == file.isDirectory())
+        {
+            path = file.getParentFile().getCanonicalPath();
+        }
+
+        FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
+        builder.appendFileInfosForFile(file, fileInfos, true);
+        return fileInfos;
+    }
+
     @Test
-    public void testCodePath()
+    public void testCodePath() throws IOException
     {
         setupAuthenticationExpectations();
         setupListDataSetsExpectations("REPLICA-ID");
+        setupDownloadDataSetExpectations("REPLICA-ID");
 
         ICommand command = new MockCommandGetReplica();
 
-        ResultCode exitCode = command.execute(new String[]
-            { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "REPLICA-ID" });
+        File outputFolder = new File(workingDirectory, "Foo.bundle/");
+
+        ResultCode exitCode =
+                command.execute(new String[]
+                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                            "REPLICA-ID" });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testOutputFolder()
+    public void testMultipleReplicas() throws IOException
     {
         setupAuthenticationExpectations();
-        setupListDataSetsExpectations("REPLICA-ID");
 
-        ICommand command = new MockCommandGetReplica();
-
-        ResultCode exitCode = command.execute(new String[]
-            { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", "Foo.bundle/", "REPLICA-ID" });
-
-        assertEquals(ResultCode.OK, exitCode);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testMultipleReplicas()
-    {
-        setupAuthenticationExpectations();
         setupListDataSetsExpectations("REPLICA-ID1");
         setupListDataSetsExpectations("REPLICA-ID2");
 
+        setupDownloadDataSetExpectations("REPLICA-ID1");
+        setupDownloadDataSetExpectations("REPLICA-ID2");
+
         ICommand command = new MockCommandGetReplica();
 
-        ResultCode exitCode = command.execute(new String[]
-            { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "REPLICA-ID1", "REPLICA-ID2" });
+        File outputFolder = new File(workingDirectory, "Foo.bundle/");
+
+        ResultCode exitCode =
+                command.execute(new String[]
+                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                            "REPLICA-ID1", "REPLICA-ID2" });
 
         assertEquals(ResultCode.OK, exitCode);
         context.assertIsSatisfied();

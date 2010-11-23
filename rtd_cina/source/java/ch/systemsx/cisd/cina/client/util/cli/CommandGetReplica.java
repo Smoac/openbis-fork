@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cina.client.util.cli;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import ch.systemsx.cisd.args4j.Option;
@@ -33,8 +34,8 @@ public class CommandGetReplica extends
 {
     static class CommandGetReplicaArguments extends GlobalArguments
     {
-        @Option(name = "o", longName = "output", usage = "Output folder")
-        private String outputFolder = "";
+        @Option(name = "o", longName = "output", usage = "Path for output")
+        private String output = "";
 
         public ArrayList<String> getReplicaIdentifiers()
         {
@@ -49,9 +50,9 @@ public class CommandGetReplica extends
             return replicaIds;
         }
 
-        public String getOutputFolder()
+        public String getOutput()
         {
-            return outputFolder;
+            return output;
         }
 
         @Override
@@ -87,23 +88,32 @@ public class CommandGetReplica extends
         @Override
         protected ResultCode doExecute(ICinaUtilities component)
         {
+            // Create the output directory
+            File outputDir = getOutputDir();
+            outputDir.mkdirs();
+
             // Find all datasets connected to this sample
             for (String sampleCode : arguments.getReplicaIdentifiers())
             {
-                executeForSampleCode(component, sampleCode);
+                ReplicaDownloader downloader =
+                        new ReplicaDownloader(component, sampleCode, outputDir);
+                downloader.download();
             }
             return ResultCode.OK;
         }
 
-        protected void executeForSampleCode(ICinaUtilities component, String sampleCode)
+        private File getOutputDir()
         {
-            // Find all datasets connected to this sample
-            component.listDataSetsForSampleCode(sampleCode);
-            // List<DataSet> dataSets = component.listDataSetsForSampleCode(sampleCode);
-            // Download the raw-data dataset
-            // Download the ...
-            // List<Experiment> results =
-            // component.listVisibleExperiments(arguments.getReplicaIdentifier());
+            File outputDir;
+            if (arguments.getOutput().length() > 0)
+            {
+                // create the directory specified by output
+                outputDir = new File(arguments.getOutput());
+            } else
+            {
+                outputDir = new File(".");
+            }
+            return outputDir;
         }
     }
 

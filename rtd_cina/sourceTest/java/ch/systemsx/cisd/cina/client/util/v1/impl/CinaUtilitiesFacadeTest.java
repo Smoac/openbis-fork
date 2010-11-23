@@ -26,6 +26,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -182,7 +183,7 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
     public static CinaUtilitiesFacade createFacade(IGeneralInformationService service,
             IETLLIMSService openbisService)
     {
-        CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null);
+        CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null, null);
         return facade;
     }
 
@@ -192,8 +193,22 @@ public class CinaUtilitiesFacadeTest extends AssertJUnit
     public static CinaUtilitiesFacade createFacade(IGeneralInformationService service,
             IETLLIMSService openbisService, String userId, String password)
     {
-        CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null);
+        CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null, null);
         facade.login(userId, password);
+        return facade;
+    }
+
+    /**
+     * Utility method to create a CinaUtilitiesFacade object with a mocked dssComponent for testing.
+     */
+    @SuppressWarnings("deprecation")
+    public static CinaUtilitiesFacade createFacade(IGeneralInformationService service,
+            IETLLIMSService openbisService, IDssComponent dssComponent, String userId,
+            String password)
+    {
+        CinaUtilitiesFacade facade = new CinaUtilitiesFacade(service, openbisService, null, null);
+        // The loginForTesting method is marked deprecated to discourage accidental use.
+        facade.loginForTesting(userId, password, dssComponent);
         return facade;
     }
 }

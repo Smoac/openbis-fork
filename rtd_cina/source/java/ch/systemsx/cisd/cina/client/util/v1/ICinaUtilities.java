@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -88,6 +89,18 @@ public interface ICinaUtilities
      * @throws UserFailureException Thrown if no sample exists with the specified code.
      */
     public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException;
+
+    /**
+     * Return
+     * 
+     * @param dataSetCode The code of the data set to download
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server or if there are multiple samples with the given code.
+     * @throws UserFailureException Thrown if no sample exists with the specified code.
+     */
+    public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
             EnvironmentFailureException, UserFailureException;
 
     /**

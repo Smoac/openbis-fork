@@ -26,6 +26,10 @@ import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponent;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
@@ -94,6 +98,12 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
     }
 
+    private static IDssComponent createDssComponent(IETLLIMSService openbisService,
+            String sessionTokenOrNull)
+    {
+        return new DssComponent(openbisService, new DssServiceRpcFactory(), sessionTokenOrNull);
+    }
+
     /** The interface for accessing the remote services. */
     private final IGeneralInformationService generalInformationService;
 
@@ -128,8 +138,26 @@ public class CinaUtilitiesFacade implements ICinaUtilities
      * @param sessionTokenOrNull A session token, if the user has already logged in, or null
      *            otherwise.
      */
-    protected CinaUtilitiesFacade(IGeneralInformationService generalInformationService,
+    private CinaUtilitiesFacade(IGeneralInformationService generalInformationService,
             IETLLIMSService openbisService, String sessionTokenOrNull)
+
+    {
+        this(generalInformationService, openbisService, createDssComponent(openbisService,
+                sessionTokenOrNull), sessionTokenOrNull);
+    }
+
+    /**
+     * Internal constructor, also used for testing.
+     * 
+     * @param generalInformationService A proxy to the openBIS application server's general
+     *            information service
+     * @param openbisService A proxy to the openBIS application server's ETLLIMS Service
+     * @param dssComponent A dss component facade for interacting with dss services
+     * @param sessionTokenOrNull A session token, if the user has already logged in, or null
+     *            otherwise.
+     */
+    protected CinaUtilitiesFacade(IGeneralInformationService generalInformationService,
+            IETLLIMSService openbisService, IDssComponent dssComponent, String sessionTokenOrNull)
 
     {
         this.generalInformationService = generalInformationService;
@@ -140,9 +168,27 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         } else
         {
             this.state =
-                    new AuthenticatedState(generalInformationService, openbisService,
+                    new AuthenticatedState(generalInformationService, openbisService, dssComponent,
                             sessionTokenOrNull);
         }
+    }
+
+    /**
+     * FOR TESTING ONLY <br>
+     * This method makes it possible to hand in a mocked dssComponent -- it should only be used for
+     * testing and it therefore marked deprecated.
+     * 
+     * @deprecated
+     */
+    @Deprecated
+    void loginForTesting(String user, String password, IDssComponent dssComponent)
+            throws AuthorizationFailureException, EnvironmentFailureException
+    {
+        // login and transition to the authenticated state
+        state.login(user, password);
+        state =
+                new AuthenticatedState(generalInformationService, openbisService, dssComponent,
+                        state.getSessionToken());
     }
 
     /**
@@ -159,6 +205,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         state.login(user, password);
         state =
                 new AuthenticatedState(generalInformationService, openbisService,
+                        createDssComponent(openbisService, state.getSessionToken()),
                         state.getSessionToken());
     }
 
@@ -196,6 +243,12 @@ public class CinaUtilitiesFacade implements ICinaUtilities
             EnvironmentFailureException
     {
         return state.listDataSetsForSampleCode(sampleCode);
+    }
+
+    public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException
+    {
+        return state.getDataSet(dataSetCode);
     }
 }
 
@@ -241,6 +294,12 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
 
     public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
             EnvironmentFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException
     {
         throw new IllegalStateException("Please log in");
     }
@@ -317,17 +376,20 @@ class AuthenticatedState extends AbstractCinaFacadeState
 
     private final IETLLIMSService openbisService;
 
+    private final IDssComponent dssComponent;
+
     private final int generalInformationServiceMinorVersion;
 
     /**
      * @param service
      */
     AuthenticatedState(IGeneralInformationService service, IETLLIMSService openbisService,
-            String sessionToken)
+            IDssComponent dssComponent, String sessionToken)
     {
         super(service);
         this.sessionToken = sessionToken;
         this.openbisService = openbisService;
+        this.dssComponent = dssComponent;
         this.generalInformationServiceMinorVersion = service.getMinorVersion();
     }
 
@@ -426,6 +488,13 @@ class AuthenticatedState extends AbstractCinaFacadeState
         }
 
         return service.listDataSets(sessionToken, samples);
+    }
+
+    @Override
+    public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException
+    {
+        return dssComponent.getDataSet(dataSetCode);
     }
 
 }
