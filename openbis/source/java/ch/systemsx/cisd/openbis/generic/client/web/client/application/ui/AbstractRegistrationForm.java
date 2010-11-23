@@ -234,7 +234,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         protected AbstractRegistrationCallback(final IViewContext<?> viewContext)
         {
             super(viewContext, new InfoBoxCallbackListener<T>(infoBox));
-            saveButton.disable();
+            setUploadEnabled(false);
         }
 
         //
@@ -254,7 +254,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                 // server
             }
             setUploadEnabled(true);
-            saveButton.enable();
         }
 
         protected abstract String createSuccessfullRegistrationInfo(T result);
@@ -263,7 +262,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         public final void finishOnFailure(final Throwable caught)
         {
             setUploadEnabled(true);
-            saveButton.enable();
         }
 
     }

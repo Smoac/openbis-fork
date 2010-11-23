@@ -99,6 +99,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     private String openUploadWindowWithSampleOrNull = null;
 
+    private Button saveUploadButton;
+
     protected AbstractGenericSampleRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext)
     {
@@ -116,6 +118,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         sesionKeys.add(attachmentsSessionKey);
         addUploadFeatures(sesionKeys);
         extractInitialValues(actionContext);
+        saveUploadButton = createSaveAndUploadButton();
         boolean cifexConfigured =
                 StringUtils
                         .isBlank(viewContext.getModel().getApplicationInfo().getCifexRecipient()) == false
@@ -123,7 +126,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                                 .getCIFEXURL()) == false;
         if (cifexConfigured)
         {
-            formPanel.addButton(createSaveAndUploadButton());
+            formPanel.addButton(saveUploadButton);
         }
     }
 
@@ -149,6 +152,13 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         String label = viewContext.getMessage(Dict.EXPERIMENT);
         return ExperimentChooserField.create(label, false, initialExperimentIdentifierOrNull,
                 viewContext.getCommonViewContext());
+    }
+
+    @Override
+    protected void setUploadEnabled(boolean enabled)
+    {
+        super.setUploadEnabled(enabled);
+        saveUploadButton.setEnabled(enabled);
     }
 
     private void redefineSaveListeners()
