@@ -129,14 +129,14 @@ public class DssComponent implements IDssComponent
     }
 
     /**
-     * Internal constructor, also used for testing.
+     * Constructor for clients that already have an IETLLIMSService; also used for testing.
      * 
      * @param service A proxy to the openBIS application server.
      * @param dssServiceFactory A proxy to the DSS server.
      * @param sessionTokenOrNull A session token, if the user has already logged in, or null
      *            otherwise.
      */
-    protected DssComponent(IETLLIMSService service, IRpcServiceFactory dssServiceFactory,
+    public DssComponent(IETLLIMSService service, IRpcServiceFactory dssServiceFactory,
             String sessionTokenOrNull)
     {
         this.openBisService = service;
