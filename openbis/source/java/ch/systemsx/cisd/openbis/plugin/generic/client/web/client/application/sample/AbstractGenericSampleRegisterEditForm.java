@@ -24,25 +24,32 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ActionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IOnSuccessAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserButton;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserButton.SampleChooserButtonAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -90,6 +97,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected ParentSamplesArea parentsArea;
 
+    private String openUploadWindowWithSampleOrNull = null;
+
     protected AbstractGenericSampleRegisterEditForm(
             IViewContext<IGenericClientServiceAsync> viewContext, ActionContext actionContext)
     {
@@ -107,6 +116,15 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         sesionKeys.add(attachmentsSessionKey);
         addUploadFeatures(sesionKeys);
         extractInitialValues(actionContext);
+        boolean cifexConfigured =
+                StringUtils
+                        .isBlank(viewContext.getModel().getApplicationInfo().getCifexRecipient()) == false
+                        && StringUtils.isBlank(viewContext.getModel().getApplicationInfo()
+                                .getCIFEXURL()) == false;
+        if (cifexConfigured)
+        {
+            formPanel.addButton(createSaveAndUploadButton());
+        }
     }
 
     private void extractInitialValues(ActionContext context)
@@ -154,6 +172,57 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                     }
                 }
             });
+    }
+
+    private Button createSaveAndUploadButton()
+    {
+        Button button = new Button(viewContext.getMessage(Dict.BUTTON_SAVE_AND_UPLOAD));
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        openUploadWindowWithSampleOrNull = createSampleIdentifier();
+                        if (attachmentsManager.filesDefined() > 0)
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            save();
+                        }
+                    }
+                }
+            });
+        return button;
+    }
+
+    protected <R, T extends AbstractRegistrationForm.AbstractRegistrationCallback<R>> T enrichWithPostRegistration(
+            T callback)
+    {
+        callback.addOnFailureAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    openUploadWindowWithSampleOrNull = null;
+                }
+            });
+        callback.addOnSuccessAction(new IOnSuccessAction<R>()
+            {
+                public void execute(R result)
+                {
+                    if (StringUtils.isBlank(openUploadWindowWithSampleOrNull) == false)
+                    {
+                        DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
+                                .getCommonViewContext())
+                                .getDataSetUploadTab(openUploadWindowWithSampleOrNull));
+                    }
+                    openUploadWindowWithSampleOrNull = null;
+                }
+            });
+        return callback;
     }
 
     protected abstract void save();

@@ -48,9 +48,16 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     List<IOnSuccessAction<T>> successActions = new ArrayList<IOnSuccessAction<T>>();
 
+    List<IDelegatedAction> failureActions = new ArrayList<IDelegatedAction>();
+
     public void addOnSuccessAction(IOnSuccessAction<T> action)
     {
         successActions.add(action);
+    }
+
+    public void addOnFailureAction(IDelegatedAction action)
+    {
+        failureActions.add(action);
     }
 
     public static final ICallbackListener<Object> DEFAULT_CALLBACK_LISTENER =
@@ -254,6 +261,10 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             callbackListener.onFailureOf(viewContext, this, msg, caught);
         }
         finishOnFailure(caught);
+        for (IDelegatedAction a : failureActions)
+        {
+            a.execute();
+        }
     }
 
     private String getMessage(String messageKey, Object... params)

@@ -93,6 +93,8 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     protected LayoutContainer rightPanel;
 
+    private Button resetButton;
+
     protected AbstractRegistrationForm(final IMessageProvider messageProvider, final String id)
     {
         this(messageProvider, id, DEFAULT_LABEL_WIDTH, DEFAULT_FIELD_WIDTH);
@@ -191,7 +193,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
                     }
                 }
             });
-        final Button resetButton = new Button(messageProvider.getMessage(Dict.BUTTON_RESET));
+        resetButton = new Button(messageProvider.getMessage(Dict.BUTTON_RESET));
         resetButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 

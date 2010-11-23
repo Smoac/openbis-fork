@@ -76,6 +76,7 @@ var common = {
   
   button_add: "Add {0}",
   button_save: "Save",
+  button_save_and_upload: "Save + Upload Data Set",
   button_choose: "Choose",
   button_cancel: "Cancel",
   button_reset: "Clear",

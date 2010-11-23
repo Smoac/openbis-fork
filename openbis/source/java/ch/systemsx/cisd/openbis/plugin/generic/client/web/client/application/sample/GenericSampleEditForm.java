@@ -73,7 +73,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
                 new SampleUpdates(attachmentsSessionKey, techIdOrNull, properties, attachments,
                         experimentIdent, originalSample.getModificationDate(),
                         createSampleIdentifier(), containerOrNull, parents),
-                new UpdateSampleCallback(viewContext));
+                enrichWithPostRegistration(new UpdateSampleCallback(viewContext)));
     }
 
     private final class UpdateSampleCallback extends

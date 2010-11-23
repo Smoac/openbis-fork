@@ -121,6 +121,8 @@ public abstract class Dict
 
     public static final String BUTTON_SAVE = "button_save";
 
+    public static final String BUTTON_SAVE_AND_UPLOAD = "button_save_and_upload";
+
     public static final String BUTTON_CHOOSE = "button_choose";
 
     public static final String BUTTON_CANCEL = "button_cancel";

@@ -33,16 +33,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo;
-import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo.DataSetUploadInfoHelper;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
  * Panel that allows to specify information necessary to upload data sets and redirects user to
@@ -52,10 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo.DataSetUp
  */
 public class DataSetUploadForm extends AbstractRegistrationForm
 {
-
-    private static final String ID_SUFFIX = "data-set-upload-panel";
-
-    public static final String ID = GenericConstants.ID_PREFIX + ID_SUFFIX;
 
     private final String cifexURL;
 
@@ -76,11 +72,32 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
     private final DataSetParentsArea parentsArea;
 
-    // 
+    //
 
-    public DataSetUploadForm(IViewContext<ICommonClientServiceAsync> viewContext)
+    public static String createId(String suffix)
     {
-        super(viewContext, ID_SUFFIX);
+        return GenericConstants.ID_PREFIX + createSimpleId(suffix);
+    }
+
+    private static String createSimpleId(String suffix)
+    {
+
+        String withoutSuffix = "data-set-upload-panel";
+        if (suffix == null)
+        {
+            return withoutSuffix;
+        } else
+        {
+            // TODO 2010-11-23, IA: use existing identifier escaper
+            return withoutSuffix
+                    + suffix.toUpperCase().replace("/", "x").replace(":", "xx").replace(".", "xxx");
+        }
+    }
+
+    public DataSetUploadForm(IViewContext<ICommonClientServiceAsync> viewContext,
+            String sampleIdentifierOrNull)
+    {
+        super(viewContext, createSimpleId(sampleIdentifierOrNull));
         cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
         cifexRecipient = viewContext.getModel().getApplicationInfo().getCifexRecipient();
         saveButton.setText(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATA_VIA_CIFEX));
@@ -91,14 +108,16 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
         // both sample and experiment choosers are mandatory but only one will be shown
         sampleChooser =
-                SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true, null, false,
-                        false, true, viewContext, SampleTypeDisplayID.DATA_SET_UPLOAD_SAMPLE_CHOOSER);
+                SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true,
+                        sampleIdentifierOrNull, false, false, true, viewContext,
+                        SampleTypeDisplayID.DATA_SET_UPLOAD_SAMPLE_CHOOSER);
         formPanel.add(sampleChooser.getField());
         experimentChooser =
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,
                         viewContext);
         formPanel.add(experimentChooser.getField());
-        formPanel.add(parentsArea = new DataSetParentsArea(viewContext, ID_SUFFIX));
+        formPanel.add(parentsArea =
+                new DataSetParentsArea(viewContext, createSimpleId(sampleIdentifierOrNull)));
         parentsArea.setMaxLength(1500);
 
         connectedWithSampleCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
@@ -110,11 +129,14 @@ public class DataSetUploadForm extends AbstractRegistrationForm
             });
         updateFieldsVisibility();
 
-        formPanel.add(dataSetTypeSelectionWidget =
-                new DataSetTypeSelectionWidget(viewContext, ID_SUFFIX));
+        formPanel
+                .add(dataSetTypeSelectionWidget =
+                        new DataSetTypeSelectionWidget(viewContext,
+                                createSimpleId(sampleIdentifierOrNull)));
         FieldUtil.markAsMandatory(dataSetTypeSelectionWidget);
         formPanel.add(fileTypeSelectionWidget =
-                new FileFormatTypeSelectionWidget(viewContext, ID_SUFFIX));
+                new FileFormatTypeSelectionWidget(viewContext,
+                        createSimpleId(sampleIdentifierOrNull)));
         FieldUtil.markAsMandatory(fileTypeSelectionWidget);
         if (StringUtils.isBlank(cifexRecipient) || StringUtils.isBlank(cifexURL))
         {
@@ -132,9 +154,9 @@ public class DataSetUploadForm extends AbstractRegistrationForm
     }
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<ICommonClientServiceAsync> viewContext)
+            IViewContext<ICommonClientServiceAsync> viewContext, String sampleIdentifierOrNull)
     {
-        DataSetUploadForm form = new DataSetUploadForm(viewContext);
+        DataSetUploadForm form = new DataSetUploadForm(viewContext, sampleIdentifierOrNull);
         IDatabaseModificationObserver observer = form.createDatabaseModificationObserver();
         return new DatabaseModificationAwareComponent(form, observer);
     }

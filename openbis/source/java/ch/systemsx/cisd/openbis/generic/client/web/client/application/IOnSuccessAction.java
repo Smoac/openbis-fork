@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-interface IOnSuccessAction<T>
+public interface IOnSuccessAction<T>
 {
     void execute(T result);
 }

@@ -57,7 +57,7 @@ public class DataSetMenu extends TopMenuItem
         if (cifexConfigured)
         {
             submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD,
-                    messageProvider, componentProvider.getDataSetUploadTab()));
+                    messageProvider, componentProvider.getDataSetUploadTab(null)));
         }
         setMenu(submenu);
     }

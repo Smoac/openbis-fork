@@ -1362,7 +1362,7 @@ public final class ComponentProvider
             };
     }
 
-    public AbstractTabItemFactory getDataSetUploadTab()
+    public AbstractTabItemFactory getDataSetUploadTab(final String initialSampleIdentifierOrNull)
     {
         return new AbstractTabItemFactory()
             {
@@ -1370,14 +1370,14 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                            DataSetUploadForm.create(viewContext);
+                            DataSetUploadForm.create(viewContext, initialSampleIdentifierOrNull);
                     return createRegistrationTab(getTabTitle(), component);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return DataSetUploadForm.ID;
+                    return DataSetUploadForm.createId(initialSampleIdentifierOrNull);
                 }
 
                 @Override

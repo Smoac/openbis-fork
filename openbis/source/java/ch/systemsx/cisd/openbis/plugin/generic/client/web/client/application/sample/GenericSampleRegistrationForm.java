@@ -95,8 +95,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
     {
         String experimentIdentifier =
                 (experimentField != null && experimentField.tryToGetValue() != null) ? experimentField
-                        .tryToGetValue().getIdentifier()
-                        : null;
+                        .tryToGetValue().getIdentifier() : null;
 
         final String containerOrNull = StringUtils.trimToNull(container.getValue());
         final NewSample newSample =
@@ -107,7 +106,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
         newSample.setAttachments(attachmentsManager.extractAttachments());
         newSample.setExperimentIdentifier(experimentIdentifier);
         viewContext.getService().registerSample(attachmentsSessionKey, newSample,
-                new RegisterSampleCallback(viewContext));
+                enrichWithPostRegistration(new RegisterSampleCallback(viewContext)));
     }
 
     @Override
