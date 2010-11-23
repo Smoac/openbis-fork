@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -77,7 +79,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext
     {
         if (entityKind == EntityKind.EXPERIMENT)
         {
-            return Collections.singleton("MS_SEARCH");
+            return new HashSet<String>(Arrays.asList("MS_SEARCH", "MS_QUANTIFICATION"));
         }
         return Collections.emptySet();
     }
