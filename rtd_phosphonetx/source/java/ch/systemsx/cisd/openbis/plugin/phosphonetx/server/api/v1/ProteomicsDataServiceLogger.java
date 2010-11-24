@@ -79,7 +79,7 @@ class ProteomicsDataServiceLogger extends AbstractServerLogger implements IProte
         return null;
     }
 
-    public List<Experiment> listSearchExperiments(String sessionToken, String userID,
+    public List<Experiment> listExperiments(String sessionToken, String userID,
             String experimentTypeCode)
     {
         logAccess(sessionToken, "list_search_experiments", "EXPERIMENT_TYPE(%s)", experimentTypeCode);

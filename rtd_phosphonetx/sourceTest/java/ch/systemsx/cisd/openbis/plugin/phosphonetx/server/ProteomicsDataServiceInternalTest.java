@@ -137,14 +137,14 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testListSearchExperiments()
+    public void testListExperiments()
     {
         prepareGetSession();
         final ExperimentPE e1 = experiment(1);
         final ExperimentPE e2 = experiment(2, "a");
-        prepareListSearchExperiments(e1, e2);
+        prepareListExperiments(e1, e2);
         
-        List<Experiment> list = service.listSearchExperiments(SESSION_TOKEN, EXPERIMENT_TYPE);
+        List<Experiment> list = service.listExperiments(SESSION_TOKEN, EXPERIMENT_TYPE);
         
         assertEquals("HOME_DATABASE:/G/P/e1", list.get(0).getIdentifier());
         assertEquals(1, list.get(0).getRegistrationDate().getTime());
@@ -264,7 +264,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         return session;
     }
     
-    private void prepareListSearchExperiments(final ExperimentPE... experiments)
+    private void prepareListExperiments(final ExperimentPE... experiments)
     {
         context.checking(new Expectations()
             {

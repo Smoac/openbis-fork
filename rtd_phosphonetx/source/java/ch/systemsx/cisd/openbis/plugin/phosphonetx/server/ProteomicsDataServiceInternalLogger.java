@@ -63,7 +63,7 @@ class ProteomicsDataServiceInternalLogger extends AbstractServerLogger implement
                 dataSetCodes.size());
     }
 
-    public List<Experiment> listSearchExperiments(String sessionToken, String experimentTypeCode)
+    public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode)
     {
         logAccess(sessionToken, "list_search_experiments", "EXPERIMENT_TYPE(%s)", experimentTypeCode);
         return null;

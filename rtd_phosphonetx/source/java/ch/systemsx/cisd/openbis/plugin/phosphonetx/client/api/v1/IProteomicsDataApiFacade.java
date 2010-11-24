@@ -80,7 +80,7 @@ public interface IProteomicsDataApiFacade
     /**
      * Returns all experiments of specified type which the specified user is allowed to read.
      */
-    public List<Experiment> listSearchExperiments(String sessionToken, String userID, String experimentTypeCode);
+    public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
     
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS

@@ -63,7 +63,7 @@ public interface IProteomicsDataServiceInternal extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     @ReturnValueFilter(validatorClass = ExperimentValidator.class)
-    public List<Experiment> listSearchExperiments(String sessionToken, String experimentTypeCode);
+    public List<Experiment> listExperiments(String sessionToken, String experimentTypeCode);
     
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)

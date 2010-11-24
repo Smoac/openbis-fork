@@ -110,7 +110,7 @@ public interface IProteomicsDataService extends IRpcService
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
-    public List<Experiment> listSearchExperiments(String sessionToken, String userID, String experimentTypeCode);
+    public List<Experiment> listExperiments(String sessionToken, String userID, String experimentTypeCode);
     
     /**
      * Processes the data sets of specified experiments of type <tt>MS_SEARCH</tt> by the DSS

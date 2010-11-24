@@ -110,10 +110,10 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
         return service.listSearchExperiments(sessionToken, userID);
     }
 
-    public List<Experiment> listSearchExperiments(String sessionToken, String userID,
+    public List<Experiment> listExperiments(String sessionToken, String userID,
             String experimentTypeCode)
     {
-        return service.listSearchExperiments(sessionToken, userID, experimentTypeCode);
+        return service.listExperiments(sessionToken, userID, experimentTypeCode);
     }
 
     public void processSearchData(String userID, String dataSetProcessingKey,

@@ -230,17 +230,17 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     public List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> listSearchExperiments(
             String sessionToken, String userID)
     {
-        return listSearchExperiments(sessionToken, userID, MS_SEARCH);
+        return listExperiments(sessionToken, userID, MS_SEARCH);
     }
 
-    public List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> listSearchExperiments(
+    public List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> listExperiments(
             String sessionToken, String userID, String experimentTypeCode)
     {
         checkSession(sessionToken);
         SessionContextDTO session = login(userID);
         try
         {
-            List<Experiment> experiments = service.listSearchExperiments(session.getSessionToken(), experimentTypeCode);
+            List<Experiment> experiments = service.listExperiments(session.getSessionToken(), experimentTypeCode);
             List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> result =
                     new ArrayList<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment>();
             for (Experiment experiment : experiments)

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.DEFAULT_EXPERIMENT_TYPE_CODE;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.EXPERIMENT_PROPERTIES_FILE_NAME_KEY;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.EXPERIMENT_TYPE_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.PARENT_DATA_SET_CODES;
 
 import java.io.File;
@@ -74,12 +76,39 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     }
     
     @Test
+    public void testWithNonDefaultExperimentTypeAndPropertiesFileName()
+    {
+        String propertiesFile = "my.properties";
+        FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + PARENT_DATA_SET_CODES + "=1 2  3   4\n");
+        Properties properties = new Properties();
+        String experimentType = "MY_EXPERIMENT";
+        properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
+        properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepare(experimentType);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).registerExperiment(with(any(NewExperiment.class)));
+                }
+            });
+
+        IDataSetInfoExtractor extractor = createExtractor(properties);
+        
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+        
+        assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
+        assertEquals("[1, 2, 3, 4]", info.getParentDataSetCodes().toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testRegistrationWithOneMandatoryProperty()
     {
         FileUtilities.writeToFile(new File(dataSet,
                 DataSetInfoExtractorForProteinResults.DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME),
                 "answer=42\nblabla=blub\n" + PARENT_DATA_SET_CODES + "=1 2  3   4\n");
-        prepare();
+        prepare(DEFAULT_EXPERIMENT_TYPE_CODE);
 
         context.checking(new Expectations()
             {
@@ -121,7 +150,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     @Test
     public void testRegistrationWithMissingMandatoryProperty()
     {
-        prepare();
+        prepare(DEFAULT_EXPERIMENT_TYPE_CODE);
         
         IDataSetInfoExtractor extractor = createExtractor(new Properties());
         try
@@ -136,7 +165,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         context.assertIsSatisfied();
     }
     
-    private void prepare()
+    private void prepare(final String experimentType)
     {
         context.checking(new Expectations()
             {
@@ -144,7 +173,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                     one(service).drawANewUniqueID();
                     will(returnValue(4711L));
                     
-                    one(service).getExperimentType(DEFAULT_EXPERIMENT_TYPE_CODE);
+                    one(service).getExperimentType(experimentType);
                     ExperimentType type = new ExperimentType();
                     ExperimentTypePropertyType etpt = new ExperimentTypePropertyType();
                     PropertyType propertyType = new PropertyType();

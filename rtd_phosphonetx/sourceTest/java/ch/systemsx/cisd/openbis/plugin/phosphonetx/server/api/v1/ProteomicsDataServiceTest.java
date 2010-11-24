@@ -297,7 +297,7 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
     }
     
     @Test
-    public void testListSearchExperiments()
+    public void testListExperiments()
     {
         prepareGetSession();
         prepareLoginLogout(session2);
@@ -322,13 +322,13 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).listSearchExperiments(session2.getSessionToken(), MS_SEARCH);
+                    one(internalService).listExperiments(session2.getSessionToken(), MS_SEARCH);
                     will(returnValue(Arrays.asList(e)));
                 }
             });
         
         List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> experiments =
-                service.listSearchExperiments(SESSION_TOKEN, "abc");
+                service.listExperiments(SESSION_TOKEN, "abc", MS_SEARCH);
         
         assertEquals(e.getId().longValue(), experiments.get(0).getId());
         assertEquals(e.getCode(), experiments.get(0).getCode());
@@ -353,15 +353,16 @@ public class ProteomicsDataServiceTest extends AbstractServerTestCase
     {
         prepareGetSession();
         prepareLoginLogout(session2);
-        final long[] ids = new long[] {42};
+        final long[] ids = new long[] { 42 };
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).processProteinResultDataSets(session2.getSessionToken(), "dsp1", MS_SEARCH, ids);
+                    one(internalService).processProteinResultDataSets(session2.getSessionToken(),
+                            "dsp1", MS_SEARCH, ids);
                 }
             });
 
-        service.processSearchData(SESSION_TOKEN, "abc", "dsp1", ids);
+        service.processProteinResultDataSets(SESSION_TOKEN, "abc", "dsp1", MS_SEARCH, ids);
 
         context.assertIsSatisfied();
     }
