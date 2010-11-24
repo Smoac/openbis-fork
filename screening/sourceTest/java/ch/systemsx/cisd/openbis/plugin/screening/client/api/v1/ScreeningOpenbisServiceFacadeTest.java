@@ -61,6 +61,23 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 @Friend(toClasses = DssServiceRpcScreeningHolder.class)
 public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 {
+    private static final class MockPlateImageHandler implements IPlateImageHandler
+    {
+        private final StringBuilder recorder = new StringBuilder();
+
+        public void handlePlateImage(PlateImageReference plateImageReference, byte[] imageFileBytes)
+        {
+            recorder.append(plateImageReference).append(", ");
+            recorder.append(new String(imageFileBytes)).append('\n');
+        }
+
+        @Override
+        public String toString()
+        {
+            return recorder.toString();
+        }
+    }
+    
     private static final String DATA_SET1 = "ds1";
 
     private static final String DATA_SET2 = "ds2";
@@ -328,7 +345,46 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         assertEquals("hello 1", new String(images.get(0)));
         assertEquals("hello 2", new String(images.get(1)));
         assertEquals(2, images.size());
-        
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testLoadImagesUsingPlateImageHandler() throws IOException
+    {
+        final DatasetIdentifier ds = new DatasetIdentifier("ds1", URL1);
+        final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
+        final String channel = "dapi";
+        final ImageSize thumbnailSize = new ImageSize(10, 7);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssService1).listPlateImageReferences(SESSION_TOKEN, ds, wellPositions,
+                            channel);
+                    PlateImageReference r1 = new PlateImageReference(1, 3, 1, channel, ds);
+                    PlateImageReference r2 = new PlateImageReference(1, 3, 2, channel, ds);
+                    List<PlateImageReference> references = Arrays.asList(r1, r2);
+                    will(returnValue(references));
+
+                    one(dssService1).loadImages(SESSION_TOKEN, references, thumbnailSize);
+                    ByteArrayBasedContent content1 =
+                            new ByteArrayBasedContent("hello 1".getBytes(), "h1");
+                    ByteArrayBasedContent content2 =
+                            new ByteArrayBasedContent("hello 2".getBytes(), "h2");
+                    ConcatenatedContentInputStream stream =
+                            new ConcatenatedContentInputStream(true, Arrays.<IContent> asList(
+                                    content1, content2));
+                    will(returnValue(stream));
+                }
+            });
+
+        MockPlateImageHandler plateImageHandler = new MockPlateImageHandler();
+        facade.loadImages(ds, wellPositions, channel, thumbnailSize, plateImageHandler);
+
+        assertEquals("Image for [dataset ds1, well [1, 3], channel DAPI, tile 1], hello 1\n"
+                + "Image for [dataset ds1, well [1, 3], channel DAPI, tile 2], hello 2\n",
+                plateImageHandler.toString());
+
         context.assertIsSatisfied();
     }
     

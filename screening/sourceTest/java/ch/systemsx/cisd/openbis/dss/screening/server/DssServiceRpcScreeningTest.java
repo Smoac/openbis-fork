@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVectorDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -102,6 +103,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     
     private static final String EXPERIMENT_PERM_ID = "exp-123";
 
+    private static final String URL1 = "url1";
+    
     private static final String SESSION_TOKEN = "session";
 
     private Mockery context;
@@ -177,6 +180,25 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         // The following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testListPlateImageReferences()
+    {
+        final DatasetIdentifier ds = new DatasetIdentifier("ds1", URL1);
+        final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
+        final String channel = "dapi";
+        prepareGetHomeDatabaseInstance();
+
+        List<PlateImageReference> plateImageReferences =
+                screeningService
+                        .listPlateImageReferences(SESSION_TOKEN, ds, wellPositions, channel);
+
+        assertEquals("[Image for [dataset ds1, well [1, 3], channel DAPI, tile 0], "
+                + "Image for [dataset ds1, well [1, 3], channel DAPI, tile 1]]",
+                plateImageReferences.toString());
+        
         context.assertIsSatisfied();
     }
 
@@ -258,14 +280,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testLoadImages() throws IOException
     {
         final String channel = "GFP";
+        prepareGetHomeDatabaseInstance();
         context.checking(new Expectations()
             {
                 {
-                    one(service).getHomeDatabaseInstance();
-                    DatabaseInstance databaseInstance = new DatabaseInstance();
-                    databaseInstance.setUuid("12345");
-                    will(returnValue(databaseInstance));
-                    
                     Size thumbnailSize = new Size(2, 1);
                     one(imageLoader).tryGetImage(
                             channel,
@@ -447,6 +465,19 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             list.add(value);
         }
         return list;
+    }
+
+    private void prepareGetHomeDatabaseInstance()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).getHomeDatabaseInstance();
+                    DatabaseInstance databaseInstance = new DatabaseInstance();
+                    databaseInstance.setUuid("12345");
+                    will(returnValue(databaseInstance));
+                }
+            });
     }
 
     private void prepareCreateFeatureVectorDataSet(final long dataSetID,
