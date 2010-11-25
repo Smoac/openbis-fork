@@ -20,16 +20,20 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,11 +45,12 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.text.JTextComponent;
+import javax.xml.stream.events.StartDocument;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
@@ -60,6 +65,7 @@ public class ScreeningClientApiTester
 {
     private static final class Form extends JPanel
     {
+        private static final long serialVersionUID = 1L;
         private final JPanel panel;
         private final Component parent;
         private final String title;
@@ -117,6 +123,7 @@ public class ScreeningClientApiTester
             content = new JPanel();
             content.setLayout(new BorderLayout());
             JScrollPane scrollPane = new JScrollPane(content);
+            scrollPane.getVerticalScrollBar().setBlockIncrement(40);
             contentPane.add(scrollPane);
             
             JMenuBar menuBar = new JMenuBar();
@@ -165,45 +172,150 @@ public class ScreeningClientApiTester
             JTextComponent dataSetField = form.createTextField("Data Set", 20, false);
             JTextComponent wellsField = form.createTextField("Wells", 20, false);
             JTextComponent channelField = form.createTextField("Channel", 20, false);
+            JTextComponent sizeField = form.createTextField("Size", 20, false);
+            sizeField.setText("200x160");
             form.showForm();
             String dataSetCode = dataSetField.getText();
-            List<IDatasetIdentifier> datasetIdentifiers = facade.getDatasetIdentifiers(Arrays.asList(dataSetCode));
+            final List<IDatasetIdentifier> datasetIdentifiers = facade.getDatasetIdentifiers(Arrays.asList(dataSetCode));
             if (datasetIdentifiers.isEmpty())
             {
                 JOptionPane.showMessageDialog(this, "Unkown data set: " + dataSetCode);
             }
-            List<WellPosition> wellPositions = WellPosition.parseWellPositions(wellsField.getText());
             try
             {
+                final List<WellPosition> wellPositions = WellPosition.parseWellPositions(wellsField.getText());
                 content.removeAll();
                 final JPanel imagePanel = new JPanel();
                 imagePanel.setLayout(new BoxLayout(imagePanel, BoxLayout.Y_AXIS));
                 content.add(imagePanel, BorderLayout.CENTER);
-                facade.loadImages(datasetIdentifiers.get(0), wellPositions, channelField.getText(), new ImageSize(
-                        200, 100), new IPlateImageHandler()
+                final String channel = channelField.getText().toUpperCase();
+                final ImageSize imageSize = getImageSize(sizeField);
+                new Thread(new Runnable()
                     {
-                        public void handlePlateImage(PlateImageReference plateImageReference,
-                                byte[] imageFileBytes)
+                        public void run()
                         {
-                            System.out.println(new Date() + " handle " + plateImageReference);
-                            JLabel image =
-                                    new JLabel(plateImageReference.toString(), new ImageIcon(
-                                            imageFileBytes), SwingConstants.LEFT);
-                            imagePanel.add(image);
-                            validate(imagePanel);
+                            final long t0 = System.currentTimeMillis();
+                            try
+                            {
+                                facade.loadImages(datasetIdentifiers.get(0), wellPositions,
+                                        channel, imageSize, createPlateImageHandler(imagePanel, t0));
+                            } catch (final IOException ex)
+                            {
+                                ex.printStackTrace();
+                                EventQueue.invokeLater(new Runnable()
+                                    {
+
+                                        public void run()
+                                        {
+                                            JOptionPane.showMessageDialog(TesterFrame.this,
+                                                    ex.toString());
+                                        }
+                                    });
+                            }
                         }
-                    });
+                    }).start();
             } catch (Exception ex)
             {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, ex.toString());
             }
         }
+
+        private void showFullImage(final PlateImageReference plateImageReference)
+        {
+            new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        try
+                        {
+                            facade.loadImages(Collections.singletonList(plateImageReference),
+                                    new IImageOutputStreamProvider()
+                                        {
+                                            public OutputStream getOutputStream(
+                                                    PlateImageReference imageReference)
+                                                    throws IOException
+                                            {
+                                                return outputStream;
+                                            }
+                                        }, true);
+                            EventQueue.invokeLater(new Runnable()
+                                {
+                                    public void run()
+                                    {
+                                        ImageIcon image = new ImageIcon(outputStream.toByteArray());
+                                        JScrollPane scrollPane = new JScrollPane(new JLabel(image));
+                                        scrollPane.getHorizontalScrollBar().setBlockIncrement(40);
+                                        scrollPane.getVerticalScrollBar().setBlockIncrement(40);
+                                        scrollPane.setPreferredSize(new Dimension(800, 600));
+                                        JFrame frame = new JFrame(plateImageReference.toString());
+                                        frame.getContentPane().add(scrollPane);
+                                        frame.setSize(800, 600);
+                                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                        frame.setVisible(true);
+                                    }
+                                });
+                        } catch (Exception ex)
+                        {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(TesterFrame.this, ex.toString());
+                        }
+                    }
+                }).start();
+        }
+
+        private ImageSize getImageSize(JTextComponent sizeField)
+        {
+            String text = sizeField.getText();
+            if (text == null || text.length() == 0)
+            {
+                return null;
+            }
+            int indexOfX = text.indexOf('x');
+            
+            int width = Integer.parseInt(text.substring(0, indexOfX));
+            int height = Integer.parseInt(text.substring(indexOfX + 1));
+            return new ImageSize(width, height);
+        }
         
         private void validate(JComponent component)
         {
             component.invalidate();
             getContentPane().validate();
+        }
+
+        private IPlateImageHandler createPlateImageHandler(final JPanel imagePanel, final long t0)
+        {
+            return new IPlateImageHandler()
+                {
+                    public void handlePlateImage(final PlateImageReference plateImageReference,
+                            final byte[] imageFileBytes)
+                    {
+                        System.out.println(plateImageReference + " loaded after "
+                                + (System.currentTimeMillis() - t0) + " msec");
+                        EventQueue.invokeLater(new Runnable()
+                            {
+
+                                public void run()
+                                {
+                                    JButton image =
+                                            new JButton(plateImageReference.toString(),
+                                                    new ImageIcon(imageFileBytes));
+                                    image.addActionListener(new ActionListener()
+                                        {
+
+                                            public void actionPerformed(ActionEvent e)
+                                            {
+                                                showFullImage(plateImageReference);
+                                            }
+                                        });
+                                    imagePanel.add(image);
+                                    validate(imagePanel);
+                                }
+                            });
+                    }
+                };
         }
     }
     
