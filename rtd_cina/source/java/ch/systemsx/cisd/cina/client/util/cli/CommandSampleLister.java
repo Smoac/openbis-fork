@@ -33,9 +33,39 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
+public class CommandSampleLister extends
+        AbstractCinaCommand<CommandSampleLister.CommandListSamplesArguments>
 {
-    private static class SampleListerExecutor extends AbstractExecutor<GlobalArguments>
+    static class CommandListSamplesArguments extends GlobalArguments
+    {
+
+        public String getSampleTypeCode()
+        {
+            String sampleTypeCode = getArguments().get(0);
+            if (sampleTypeCode.length() > 0)
+            {
+                return sampleTypeCode.toUpperCase();
+            }
+            return CinaConstants.REPLICA_SAMPLE_TYPE_CODE;
+        }
+
+        @Override
+        public boolean isComplete()
+        {
+
+            if (null == getSampleTypeCode())
+            {
+                return false;
+            }
+
+            if (false == super.isComplete())
+                return false;
+
+            return true;
+        }
+    }
+
+    private static class SampleListerExecutor extends AbstractExecutor<CommandListSamplesArguments>
     {
         private static final String FIELD_SEPARATOR = "\t";
 
@@ -52,7 +82,7 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
         {
             SearchCriteria searchCriteria = new SearchCriteria();
             searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                    MatchClauseAttribute.TYPE, CinaConstants.REPLICA_SAMPLE_TYPE_CODE));
+                    MatchClauseAttribute.TYPE, arguments.getSampleTypeCode()));
             List<Sample> results = component.searchForSamples(searchCriteria);
             printHeader();
             printResults(results);
@@ -110,7 +140,7 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
 
     public CommandSampleLister()
     {
-        super(new GlobalArguments());
+        super(new CommandListSamplesArguments());
     }
 
     public ResultCode execute(String[] args) throws UserFailureException,
@@ -127,6 +157,6 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
     @Override
     protected String getRequiredArgumentsString()
     {
-        return "";
+        return "[<sample type code>]";
     }
 }
