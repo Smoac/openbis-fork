@@ -80,15 +80,14 @@ public interface ICinaUtilities
     /**
      * Return a list of data sets for the sample specified by code.
      * 
-     * @param sampleCode The code of the sample we are interested in. It is assumed that the code is
-     *            unique.
+     * @param samples The samples we want to retrieve data sets for
      * @return The data sets connected to the sample
      * @throws IllegalStateException Thrown if the user has not yet been authenticated.
      * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
      *             the server or if there are multiple samples with the given code.
      * @throws UserFailureException Thrown if no sample exists with the specified code.
      */
-    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+    public List<DataSet> listDataSets(List<Sample> samples) throws IllegalStateException,
             EnvironmentFailureException, UserFailureException;
 
     /**

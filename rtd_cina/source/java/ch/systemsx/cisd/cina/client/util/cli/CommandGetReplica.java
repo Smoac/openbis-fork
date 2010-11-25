@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cina.client.util.cli;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
@@ -37,11 +38,24 @@ public class CommandGetReplica extends
         @Option(name = "o", longName = "output", usage = "Path for output")
         private String output = "";
 
+        public String tryBundleMetadataOwnerIdentifier()
+        {
+            String replicaId = getArguments().get(0);
+            if (replicaId.length() > 0)
+            {
+                return replicaId.toUpperCase();
+            }
+            return null;
+        }
+
         public ArrayList<String> getReplicaIdentifiers()
         {
             ArrayList<String> replicaIds = new ArrayList<String>();
-            for (String replicaId : getArguments())
+            List<String> args = getArguments();
+            int size = args.size();
+            for (int i = 1; i < size; ++i)
             {
+                String replicaId = args.get(i);
                 if (replicaId.length() > 0)
                 {
                     replicaIds.add(replicaId.toUpperCase());
@@ -58,7 +72,12 @@ public class CommandGetReplica extends
         @Override
         public boolean isComplete()
         {
-            if (getArguments().size() < 1)
+            if (getArguments().size() < 2)
+            {
+                return false;
+            }
+
+            if (null == tryBundleMetadataOwnerIdentifier())
             {
                 return false;
             }
@@ -92,11 +111,15 @@ public class CommandGetReplica extends
             File outputDir = getOutputDir();
             outputDir.mkdirs();
 
+            // Grid Id must be non-null & non-empty -- otherwise, we wouldn't be here
+            String gridIdentifier = arguments.tryBundleMetadataOwnerIdentifier();
+
             // Find all datasets connected to this sample
-            for (String sampleCode : arguments.getReplicaIdentifiers())
+            for (String sampleIdentifier : arguments.getReplicaIdentifiers())
             {
                 ReplicaDownloader downloader =
-                        new ReplicaDownloader(component, sampleCode, outputDir);
+                        new ReplicaDownloader(component, gridIdentifier, sampleIdentifier,
+                                outputDir);
                 downloader.download();
             }
             return ResultCode.OK;
@@ -136,6 +159,6 @@ public class CommandGetReplica extends
     @Override
     protected String getRequiredArgumentsString()
     {
-        return "<replica identifier> [<replica identifier> ...]";
+        return "<grid identifier> <replica identifier> [<replica identifier> ...]";
     }
 }

@@ -126,11 +126,16 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    SearchCriteria searchCriteria = new SearchCriteria();
-                    searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                    // Expectations for the replica samples
+                    SearchCriteria replicaSearchCriteria = new SearchCriteria();
+                    replicaSearchCriteria.addMatchClause(MatchClause.createAttributeMatch(
                             MatchClauseAttribute.CODE, sampleCode));
 
-                    ArrayList<Sample> samples = new ArrayList<Sample>();
+                    SearchCriteria gridSearchCriteria = new SearchCriteria();
+                    gridSearchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                            MatchClauseAttribute.CODE, "GRID-ID"));
+
+                    ArrayList<Sample> replicaSamples = new ArrayList<Sample>();
                     SampleInitializer sampInitializer = new SampleInitializer();
                     sampInitializer.setCode(sampleCode);
                     sampInitializer.setId((long) 1);
@@ -138,10 +143,10 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     sampInitializer.setPermId("PERM-ID");
                     sampInitializer.setSampleTypeCode("SAMPLE-TYPE");
                     sampInitializer.setSampleTypeId((long) 1);
-                    samples.add(new Sample(sampInitializer));
+                    replicaSamples.add(new Sample(sampInitializer));
 
-                    one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
-                    will(returnValue(samples));
+                    one(service).searchForSamples(SESSION_TOKEN, replicaSearchCriteria);
+                    will(returnValue(replicaSamples));
 
                     ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
                     DataSetInitializer dsInitializer = new DataSetInitializer();
@@ -162,8 +167,32 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1).getTime());
                     dataSets.add(new DataSet(dsInitializer));
 
-                    one(service).listDataSets(SESSION_TOKEN, samples);
+                    one(service).listDataSets(SESSION_TOKEN, replicaSamples);
                     will(returnValue(dataSets));
+
+                    // Expectations for the grid samples
+                    ArrayList<Sample> gridSamples = new ArrayList<Sample>();
+                    sampInitializer = new SampleInitializer();
+                    sampInitializer.setCode("GRID-ID");
+                    sampInitializer.setId((long) 2);
+                    sampInitializer.setIdentifier("SPACE/GRID-ID");
+                    sampInitializer.setPermId("GRID-PERM-ID");
+                    sampInitializer.setSampleTypeCode("GRID-SAMPLE-TYPE");
+                    sampInitializer.setSampleTypeId((long) 2);
+                    gridSamples.add(new Sample(sampInitializer));
+
+                    one(service).searchForSamples(SESSION_TOKEN, gridSearchCriteria);
+                    will(returnValue(gridSamples));
+
+                    ArrayList<DataSet> gridDataSets = new ArrayList<DataSet>();
+                    dsInitializer = new DataSetInitializer();
+                    dsInitializer.setCode("BUNDLE-METADATA");
+                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    gridDataSets.add(new DataSet(dsInitializer));
+                    one(service).listDataSets(SESSION_TOKEN, gridSamples);
+                    will(returnValue(gridDataSets));
+
                 }
             });
     }
@@ -188,6 +217,14 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                 (metadataInfos.size() > 0) ? metadataInfos.toArray(new FileInfoDssDTO[metadataInfos
                         .size()]) : new FileInfoDssDTO[0];
 
+        ArrayList<FileInfoDssDTO> bundleMetadataInfos =
+                getFileInfosForPath(new File(parent, "Bundle"),
+                        new File(parent, "Bundle/original"), "BundleMetadata", "BundleMetadata");
+        final FileInfoDssDTO[] bundleMetadataInfosArray =
+                (bundleMetadataInfos.size() > 0) ? bundleMetadataInfos
+                        .toArray(new FileInfoDssDTO[bundleMetadataInfos.size()])
+                        : new FileInfoDssDTO[0];
+
         context.checking(new Expectations()
             {
                 {
@@ -209,6 +246,14 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                             "Metadata/original/ReplicaMetadata/Metadata.txt"))));
 
                     // The command should not ask for the -METADATA-OLD dataset!
+
+                    one(dssComponent).getDataSet("BUNDLE-METADATA");
+                    will(returnValue(dataSetDss));
+                    one(dataSetDss).listFiles(startPath, true);
+                    will(returnValue(bundleMetadataInfosArray));
+                    one(dataSetDss).getFile(startPath + "BundleMetadata.xml");
+                    will(returnValue(new FileInputStream(new File(parent,
+                            "Bundle/original/BundleMetadata.xml"))));
                 }
             });
     }
@@ -284,9 +329,10 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
     {
         String[] bundleContents = outputFolder.list();
         Arrays.sort(bundleContents);
-        assertEquals(2, bundleContents.length);
+        assertEquals(3, bundleContents.length);
         assertEquals(BundleStructureConstants.METADATA_FOLDER_NAME, bundleContents[0]);
-        assertEquals(BundleStructureConstants.RAW_IMAGES_FOLDER_NAME, bundleContents[1]);
+        assertEquals(BundleStructureConstants.BUNDLE_METADATA_FILE_NAME, bundleContents[1]);
+        assertEquals(BundleStructureConstants.RAW_IMAGES_FOLDER_NAME, bundleContents[2]);
     }
 
     @Test
@@ -303,7 +349,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         ResultCode exitCode =
                 command.execute(new String[]
                     { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "REPLICA-ID" });
+                            "GRID-ID", "REPLICA-ID" });
 
         assertEquals(ResultCode.OK, exitCode);
 
@@ -333,7 +379,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         ResultCode exitCode =
                 command.execute(new String[]
                     { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "REPLICA-ID1", "REPLICA-ID2" });
+                            "GRID-ID", "REPLICA-ID1", "REPLICA-ID2" });
 
         assertEquals(ResultCode.OK, exitCode);
 
@@ -367,7 +413,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         try
         {
             command.execute(new String[]
-                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "REPLICA-ID" });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "GRID-ID", "REPLICA-ID" });
             fail("Command should throw an exception when run against an older version of the interface.");
         } catch (EnvironmentFailureException e)
         {

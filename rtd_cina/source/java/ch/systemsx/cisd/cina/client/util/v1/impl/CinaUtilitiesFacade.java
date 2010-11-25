@@ -39,8 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -239,10 +237,10 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         return state.listVisibleExperiments(experimentType);
     }
 
-    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+    public List<DataSet> listDataSets(List<Sample> samples) throws IllegalStateException,
             EnvironmentFailureException
     {
-        return state.listDataSetsForSampleCode(sampleCode);
+        return state.listDataSets(samples);
     }
 
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
@@ -292,7 +290,7 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
         throw new IllegalStateException("Please log in");
     }
 
-    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+    public List<DataSet> listDataSets(List<Sample> samples) throws IllegalStateException,
             EnvironmentFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -460,7 +458,7 @@ class AuthenticatedState extends AbstractCinaFacadeState
     }
 
     @Override
-    public List<DataSet> listDataSetsForSampleCode(String sampleCode) throws IllegalStateException,
+    public List<DataSet> listDataSets(List<Sample> samples) throws IllegalStateException,
             EnvironmentFailureException
     {
         // This functionality has only been supported since version 1.1
@@ -468,23 +466,6 @@ class AuthenticatedState extends AbstractCinaFacadeState
         if (minorVersion < 1)
         {
             throw new EnvironmentFailureException("Server does not support this feature.");
-        }
-
-        // Find the sample that matches the given code (there should only be 1)
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE,
-                sampleCode));
-        List<Sample> samples = service.searchForSamples(sessionToken, searchCriteria);
-        if (samples.size() < 1)
-        {
-            throw new UserFailureException("No sample with specified code.");
-        }
-
-        // There should only be 1
-        if (samples.size() > 1)
-        {
-            throw new EnvironmentFailureException(
-                    "Found multiple matching samples -- this should not happen. Please contact administrator to resolve this problem.");
         }
 
         return service.listDataSets(sessionToken, samples);
