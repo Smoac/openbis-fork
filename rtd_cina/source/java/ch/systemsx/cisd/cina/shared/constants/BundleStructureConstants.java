@@ -59,6 +59,10 @@ public class BundleStructureConstants
 
     public static final String REPLICA_SAMPLE_CODE_KEY = "database id (replica)";
 
+    public static final String REPLICA_SAMPLE_DESCRIPTION_KEY = "description";
+
+    public static final String REPLICA_SAMPLE_CREATOR_NAME = "creator name (e-mail)";
+
     /**
      * No reason to instantiate this class.
      */

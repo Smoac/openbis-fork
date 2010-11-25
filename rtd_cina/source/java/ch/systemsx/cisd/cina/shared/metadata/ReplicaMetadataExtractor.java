@@ -37,6 +37,12 @@ public class ReplicaMetadataExtractor implements IMetadataExtractor
     private static final String REPLICA_SAMPLE_CODE_KEY =
             BundleStructureConstants.REPLICA_SAMPLE_CODE_KEY;
 
+    private static final String REPLICA_SAMPLE_DESCRIPTION_KEY =
+            BundleStructureConstants.REPLICA_SAMPLE_DESCRIPTION_KEY;
+
+    private static final String REPLICA_SAMPLE_CREATOR_NAME =
+            BundleStructureConstants.REPLICA_SAMPLE_CREATOR_NAME;
+
     private final ArrayList<ImageMetadataExtractor> metadataExtractors;
 
     private final File folder;
@@ -122,6 +128,28 @@ public class ReplicaMetadataExtractor implements IMetadataExtractor
     {
         checkPrepared();
         return metadataMap.get(REPLICA_SAMPLE_CODE_KEY);
+    }
+
+    /**
+     * Return the description for the replica sample.
+     * 
+     * @return Return the code, or null if none was found
+     */
+    public String tryReplicaSampleDescription()
+    {
+        checkPrepared();
+        return metadataMap.get(REPLICA_SAMPLE_DESCRIPTION_KEY);
+    }
+
+    /**
+     * Return the creator name for the replica sample.
+     * 
+     * @return Return the code, or null if none was found
+     */
+    public String tryReplicaSampleCreatorName()
+    {
+        checkPrepared();
+        return metadataMap.get(REPLICA_SAMPLE_CREATOR_NAME);
     }
 
     public File getFolder()

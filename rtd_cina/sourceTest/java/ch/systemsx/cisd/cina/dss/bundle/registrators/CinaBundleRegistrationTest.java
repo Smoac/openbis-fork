@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cina.dss.bundle.registrators;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -34,11 +35,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -61,8 +67,12 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
     private static final String SPACE_CODE = "SPACE";
 
-    protected static final String EXPERIMENT_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE
-            + "/PROJECT/EXP-1";
+    private static final String PROJECT_CODE = "PROJECT";
+
+    private static final String EXPERIMENT_CODE = "EXP-1";
+
+    protected static final String EXPERIMENT_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
+            + PROJECT_CODE + "/" + EXPERIMENT_CODE;
 
     private static final String GRID_SAMPLE_CODE = "GRID-CODE";
 
@@ -206,6 +216,17 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         final Sample sample = new Sample();
         Experiment exp = new Experiment();
         exp.setIdentifier(EXPERIMENT_IDENTIFIER);
+        exp.setCode(EXPERIMENT_CODE);
+        Project project = new Project();
+        project.setCode(PROJECT_CODE);
+        Space space = new Space();
+        space.setCode(SPACE_CODE);
+        DatabaseInstance dbInstance = new DatabaseInstance();
+        dbInstance.setCode(DB_CODE);
+        space.setInstance(dbInstance);
+        project.setSpace(space);
+        exp.setProject(project);
+        sample.setId((long) 1);
         sample.setExperiment(exp);
         sample.setIdentifier(REPLICA_SAMPLE_IDENTIFIER);
 
@@ -213,6 +234,53 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
+                    // Get the sample
+                    one(openbisService).tryGetSampleWithExperiment(
+                            with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
+                                    .createIdentifier()));
+                    will(returnValue(sample));
+
+                    // Update it with new data
+                    one(openbisService).updateSample(with(new MatcherNoDesc<SampleUpdatesDTO>()
+                        {
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof SampleUpdatesDTO)
+                                {
+                                    SampleUpdatesDTO sampleUpdatesDto = (SampleUpdatesDTO) item;
+                                    assertEquals(REPLICA_SAMPLE_IDENTIFIER, sampleUpdatesDto
+                                            .getSampleIdentifier().toString());
+                                    assertEquals(EXPERIMENT_IDENTIFIER, sampleUpdatesDto
+                                            .getExperimentIdentifierOrNull().toString());
+                                    List<IEntityProperty> properties =
+                                            sampleUpdatesDto.getProperties();
+
+                                    assertTrue("The update should include properties.",
+                                            properties.size() > 0);
+                                    for (IEntityProperty property : properties)
+                                    {
+                                        if (property.getPropertyType().getCode()
+                                                .equals(CinaConstants.DESCRIPTION_PROPERTY_CODE))
+                                        {
+                                            assertEquals(
+                                                    "This replica is a test for imported MRC files",
+                                                    property.getValue());
+                                        }
+
+                                        if (property.getPropertyType().getCode()
+                                                .equals(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE))
+                                        {
+                                            assertEquals("thomas.braun@bsse.ethz.ch",
+                                                    property.getValue());
+                                        }
+                                    }
+                                    return true;
+                                }
+                                return false;
+                            }
+                        }));
+
+                    // Return the sample
                     one(openbisService).tryGetSampleWithExperiment(
                             with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
                                     .createIdentifier()));
@@ -474,6 +542,17 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
                             }
                         }), with(TEST_USER_NAME));
                     will(returnValue(new Long(2)));
+
+                    Sample sample = new Sample();
+                    Experiment exp = new Experiment();
+                    exp.setIdentifier(EXPERIMENT_IDENTIFIER);
+                    sample.setId((long) 1);
+                    sample.setExperiment(exp);
+                    sample.setIdentifier(REPLICA_SAMPLE_IDENTIFIER);
+                    one(openbisService).tryGetSampleWithExperiment(
+                            with(new SampleIdentifierFactory(REPLICA_SAMPLE_IDENTIFIER)
+                                    .createIdentifier()));
+                    will(returnValue(sample));
                 }
             });
     }

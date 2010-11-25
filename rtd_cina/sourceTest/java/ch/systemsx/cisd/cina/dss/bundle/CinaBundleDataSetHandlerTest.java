@@ -47,7 +47,6 @@ public class CinaBundleDataSetHandlerTest extends CinaBundleRegistrationTest
         setupNewEntititesExpectations();
 
         setupExistingGridPrepExpectations();
-        setupExistingReplicaExpectations();
         setupHandleRawDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/RawData/ReplicTest");
         setupHandleReplicaMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/Annotations/ReplicTest");
         setupHandleBundleMetadataDataSetExpectations("sourceTest/java/ch/systemsx/cisd/cina/shared/metadata/Test.bundle/BundleMetadata.xml");

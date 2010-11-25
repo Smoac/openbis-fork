@@ -17,14 +17,25 @@
 package ch.systemsx.cisd.cina.dss.bundle.registrators;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.cina.shared.constants.BundleStructureConstants;
+import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
 import ch.systemsx.cisd.cina.shared.metadata.ImageMetadataExtractor;
 import ch.systemsx.cisd.cina.shared.metadata.ReplicaMetadataExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -92,19 +103,53 @@ public class ReplicaRegistrator extends BundleDataSetHelper
         replicaSample = getOpenbisService().tryGetSampleWithExperiment(replicaSampleId);
         didCreateSample = false;
 
-        // Sample doesn't exist, create it
+        // Get the relevant metadata from the file
+        String sampleDescriptionOrNull = replicaMetadataExtractor.tryReplicaSampleDescription();
+        String sampleCreatorOrNull = replicaMetadataExtractor.tryReplicaSampleCreatorName();
+
+        ArrayList<IEntityProperty> properties = new ArrayList<IEntityProperty>();
+        if (null != sampleDescriptionOrNull)
+        {
+            EntityProperty prop = createProperty(CinaConstants.DESCRIPTION_PROPERTY_CODE);
+            prop.setValue(sampleDescriptionOrNull);
+            properties.add(prop);
+        }
+
+        if (null != sampleCreatorOrNull)
+        {
+            EntityProperty prop = createProperty(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE);
+            prop.setValue(sampleCreatorOrNull);
+            properties.add(prop);
+        }
+
         if (replicaSample == null)
         {
+            // Sample doesn't exist, create it
             NewSample newSample =
                     NewSample.createWithParent(replicaSampleId.toString(),
                             globalState.getReplicaSampleType(), null, gridPrepSampleId.toString());
             newSample.setExperimentIdentifier(gridPrepSample.getExperiment().getIdentifier());
+            newSample.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
 
             String userId = getSessionContext().getUserName();
             getOpenbisService().registerSample(newSample, userId);
-            replicaSample = getOpenbisService().tryGetSampleWithExperiment(replicaSampleId);
             didCreateSample = true;
+        } else
+        {
+            ExperimentIdentifier experimentId =
+                    new ExperimentIdentifier(replicaSample.getExperiment());
+            experimentId.setDatabaseInstanceCode(replicaSample.getExperiment().getProject()
+                    .getSpace().getInstance().getCode());
+            // Sample does exist, update the metadata
+            SampleUpdatesDTO sampleUpdate =
+                    new SampleUpdatesDTO(TechId.create(replicaSample), properties, experimentId,
+                            new ArrayList<NewAttachment>(), replicaSample.getModificationDate(),
+                            replicaSampleId, null, null);
+            getOpenbisService().updateSample(sampleUpdate);
+            didCreateSample = false;
         }
+
+        replicaSample = getOpenbisService().tryGetSampleWithExperiment(replicaSampleId);
 
         assert replicaSample != null;
     }
@@ -153,5 +198,18 @@ public class ReplicaRegistrator extends BundleDataSetHelper
             List<DataSetInformation> registeredDataSetInfos = registrator.register();
             getDataSetInformation().addAll(registeredDataSetInfos);
         }
+    }
+
+    private EntityProperty createProperty(String propertyTypeCode)
+    {
+        PropertyType propertyType = new PropertyType();
+        DataType dataType = new DataType();
+        dataType.setCode(DataTypeCode.VARCHAR);
+        propertyType.setCode(propertyTypeCode);
+        propertyType.setDataType(dataType);
+
+        EntityProperty property = new EntityProperty();
+        property.setPropertyType(propertyType);
+        return property;
     }
 }

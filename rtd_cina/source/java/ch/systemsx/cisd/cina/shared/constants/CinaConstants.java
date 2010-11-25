@@ -37,6 +37,10 @@ public class CinaConstants
 
     public static final String SIZE_PREFIX = "Size";
 
+    public static final String DESCRIPTION_PROPERTY_CODE = "Description";
+
+    public static final String CREATOR_EMAIL_PROPERTY_CODE = "CREATOR_EMAIL";
+
     // No need to instantiate this class
     private CinaConstants()
     {
