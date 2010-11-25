@@ -86,7 +86,7 @@ public class CommandSampleListerTest extends AssertJUnit
     }
 
     @Test
-    public void testCodePath()
+    public void testNoArguments()
     {
         context.checking(new Expectations()
             {
@@ -120,6 +120,42 @@ public class CommandSampleListerTest extends AssertJUnit
     }
 
     @Test
+    public void testCodePath()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    final SearchCriteria searchCriteria = new SearchCriteria();
+                    searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                            MatchClauseAttribute.TYPE, CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE));
+
+                    final ArrayList<Sample> samples = new ArrayList<Sample>();
+
+                    one(service).tryToAuthenticateForAllServices(USER_ID, PASSWORD);
+                    will(returnValue(SESSION_TOKEN));
+
+                    one(service).getMinorVersion();
+                    will(returnValue(1));
+
+                    one(service).searchForSamples(SESSION_TOKEN, searchCriteria);
+                    will(returnValue(samples));
+
+                    one(service).logout(SESSION_TOKEN);
+                }
+            });
+
+        ICommand command = new MockCommandSampleLister();
+
+        ResultCode exitCode =
+                command.execute(new String[]
+                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD,
+                            CinaConstants.GRID_PREP_SAMPLE_TYPE_CODE });
+
+        assertEquals(ResultCode.OK, exitCode);
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testOldVersion()
     {
         context.checking(new Expectations()
@@ -141,7 +177,8 @@ public class CommandSampleListerTest extends AssertJUnit
         try
         {
             command.execute(new String[]
-                { "-s", "url", "-u", USER_ID, "-p", PASSWORD });
+                { "-s", "url", "-u", USER_ID, "-p", PASSWORD,
+                        CinaConstants.REPLICA_SAMPLE_TYPE_CODE });
             fail("Command should throw an exception when run against an older version of the interface.");
         } catch (EnvironmentFailureException e)
         {

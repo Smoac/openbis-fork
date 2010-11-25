@@ -41,6 +41,11 @@ public class CommandSampleLister extends
 
         public String getSampleTypeCode()
         {
+            if (getArguments().size() < 1)
+            {
+                return CinaConstants.REPLICA_SAMPLE_TYPE_CODE;
+            }
+
             String sampleTypeCode = getArguments().get(0);
             if (sampleTypeCode.length() > 0)
             {
