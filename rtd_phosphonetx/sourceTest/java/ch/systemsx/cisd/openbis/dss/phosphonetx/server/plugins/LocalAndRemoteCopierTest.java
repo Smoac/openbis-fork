@@ -46,8 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = MsInjectionCopier.class)
-public class MsInjectionCopierTest extends AbstractFileSystemTestCase
+@Friend(toClasses = LocalAndRemoteCopier.class)
+public class LocalAndRemoteCopierTest extends AbstractFileSystemTestCase
 {
     private static final ProcessResult OK_RESULT = new ProcessResult(Arrays.asList(""), 0, null,
             null, 0, null, null, null);
@@ -115,8 +115,8 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = new Properties();
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
-        MsInjectionCopier msInjectionCopier =
-                new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
+        LocalAndRemoteCopier msInjectionCopier =
+                new LocalAndRemoteCopier(properties, copierFactory, sshExecutorFactory);
         prepareForCheckingLastModifiedDate();
 
         DataSetInformation dataSetInformation = new DataSetInformation();
@@ -141,8 +141,8 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = new Properties();
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
-        MsInjectionCopier msInjectionCopier =
-                new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
+        LocalAndRemoteCopier msInjectionCopier =
+                new LocalAndRemoteCopier(properties, copierFactory, sshExecutorFactory);
 
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
@@ -162,8 +162,8 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
     {
         Properties properties = new Properties();
         properties.setProperty(DataSetCopier.DESTINATION_KEY, destination.getPath());
-        MsInjectionCopier msInjectionCopier =
-                new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
+        LocalAndRemoteCopier msInjectionCopier =
+                new LocalAndRemoteCopier(properties, copierFactory, sshExecutorFactory);
         File copiedDataSet = new File(destination, FOLDER_NAME);
         copiedDataSet.mkdirs();
         File dummy = new File(copiedDataSet, "dummy");
@@ -186,9 +186,10 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testRemote()
+    public void testRemoteWithMarkerFile()
     {
         Properties properties = new Properties();
+        properties.setProperty(LocalAndRemoteCopier.MARKER_FILE_PREFIX, "MARKER-");
         properties.setProperty(DataSetCopier.DESTINATION_KEY, "localhost:" + destination.getPath());
         properties.setProperty(DataSetCopier.RSYNC_EXEC + "-executable", rsyncExec.getPath());
         properties.setProperty(DataSetCopier.SSH_EXEC + "-executable", sshExec.getPath());
@@ -221,10 +222,15 @@ public class MsInjectionCopierTest extends AbstractFileSystemTestCase
                             "mv " + new File(destination, dataSet.getName()) + " " + copiedDataSet,
                             SSH_TIMEOUT_MILLIS);
                     will(returnValue(OK_RESULT));
+                    
+                    one(sshExecutor).executeCommandRemotely(
+                            "touch " + new File(destination, "MARKER-" + FOLDER_NAME),
+                            SSH_TIMEOUT_MILLIS);
+                    will(returnValue(OK_RESULT));
                 }
             });
-        MsInjectionCopier msInjectionCopier =
-                new MsInjectionCopier(properties, copierFactory, sshExecutorFactory);
+        LocalAndRemoteCopier msInjectionCopier =
+                new LocalAndRemoteCopier(properties, copierFactory, sshExecutorFactory);
 
         DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetCode(DATA_SET_CODE);

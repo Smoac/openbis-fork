@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.phosphonetx.server.plugins;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
@@ -49,8 +51,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 /**
  * @author Franz-Josef Elmer
  */
-class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
+class LocalAndRemoteCopier implements Serializable, IPostRegistrationDatasetHandler
 {
+
+    @Private static final String MARKER_FILE_PREFIX = "marker-file-prefix";
 
     @Private
     static final String SAMPLE_UNKNOWN = "sample-unknown";
@@ -87,6 +91,8 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
         void copyDataSet(File dataSet, File destination);
 
         void renameTo(File newFile, File oldFile);
+        
+        void createMarkerFile(File markerFile);
     }
 
     private static final class LocalExcecutor implements IExecutor
@@ -141,6 +147,22 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
             {
                 operationLog.error("Couldn't rename '" + oldFile + "' to '" + newFile + "'.");
                 throw new ExceptionWithStatus(Status.createError("rename failed"));
+            }
+        }
+
+        public void createMarkerFile(File markerFile)
+        {
+            try
+            {
+                boolean result = markerFile.createNewFile();
+                if (result == false)
+                {
+                    throw new IOException("File '" + markerFile + "' already exists.");
+                }
+            } catch (IOException ex)
+            {
+                operationLog.error("Couldn't create marker file '" + markerFile + "'.", ex);
+                throw new ExceptionWithStatus(Status.createError("creating a marker file failed"), ex);
             }
         }
 
@@ -226,12 +248,34 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
                 throw new ExceptionWithStatus(Status.createError("moving leads to a problem"));
             }
         }
+
+        public void createMarkerFile(File markerFile)
+        {
+            ProcessResult result =
+                executor.executeCommandRemotely(
+                        "touch " + markerFile.getPath(),
+                        DataSetCopier.SSH_TIMEOUT_MILLIS);
+            if (result.isOK() == false)
+            {
+                operationLog.error("Creation of marker file '" + markerFile
+                        + "' failed with exit value: " + result.getExitValue());
+                throw new ExceptionWithStatus(Status.createError("creating a marker file failed"));
+            }
+            List<String> output = result.getOutput();
+            if (output.isEmpty() == false)
+            {
+                operationLog.error("Creation of marker file '" + markerFile
+                        + "' seemed to be successful but produced following output:\n"
+                        + StringUtilities.concatenateWithNewLine(output));
+                throw new ExceptionWithStatus(Status.createError("creating a marker file leads to a problem"));
+            }
+        }
     }
 
     private static final long serialVersionUID = 1L;
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            MsInjectionCopier.class);
+            LocalAndRemoteCopier.class);
 
     private final Properties properties;
 
@@ -243,12 +287,19 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
 
     private transient File destination;
 
-    MsInjectionCopier(Properties properties, IPathCopierFactory pathCopierFactory,
+    private String markerFilePrefix;
+
+    LocalAndRemoteCopier(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
         this.properties = properties;
         this.pathCopierFactory = pathCopierFactory;
         this.sshCommandExecutorFactory = sshCommandExecutorFactory;
+        markerFilePrefix = properties.getProperty(MARKER_FILE_PREFIX);
+        if (markerFilePrefix != null && markerFilePrefix.length() == 0)
+        {
+            throw new ConfigurationFailureException("marker-file-prefix is an empty string.");
+        }
         init();
     }
 
@@ -303,6 +354,10 @@ class MsInjectionCopier implements Serializable, IPostRegistrationDatasetHandler
             deleteTargetFolder(targetFolder);
             executor.copyDataSet(originalData, destination);
             executor.renameTo(targetFolder, new File(destination, originalData.getName()));
+            if (markerFilePrefix != null)
+            {
+                executor.createMarkerFile(new File(destination, markerFilePrefix + target));
+            }
             return Status.OK;
 
         } catch (ExceptionWithStatus ex)

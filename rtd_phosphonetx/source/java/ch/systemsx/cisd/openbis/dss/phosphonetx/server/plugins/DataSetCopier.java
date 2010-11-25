@@ -31,19 +31,19 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandEx
  *
  * @author Franz-Josef Elmer
  */
-public class MsInjectionDataSetCopier extends AbstractDropboxProcessingPlugin
+public class DataSetCopier extends AbstractDropboxProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
     
-    public MsInjectionDataSetCopier(Properties properties, File storeRoot)
+    public DataSetCopier(Properties properties, File storeRoot)
     {
         this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
     }
 
-    @Private MsInjectionDataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
+    @Private DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
-        super(properties, storeRoot, new MsInjectionCopier(properties, pathCopierFactory,
+        super(properties, storeRoot, new LocalAndRemoteCopier(properties, pathCopierFactory,
                 sshCommandExecutorFactory));
     }
 }
