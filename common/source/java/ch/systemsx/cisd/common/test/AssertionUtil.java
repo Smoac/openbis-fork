@@ -25,6 +25,22 @@ import org.testng.AssertJUnit;
  */
 public class AssertionUtil
 {
+    /** asserts that given text starts with expectedSubstring */
+    public static void assertStarts(String expectedPrefix, String text)
+    {
+        String errorMsg =
+                String.format("String '%s' was expected to start with '%s'.", text, expectedPrefix);
+        AssertJUnit.assertTrue(errorMsg, text.startsWith(expectedPrefix));
+    }
+
+    /** asserts that given text ends with expectedSubstring */
+    public static void assertEnds(String expectedSuffix, String text)
+    {
+        String errorMsg =
+                String.format("String '%s' was expected to end with '%s'.", text, expectedSuffix);
+        AssertJUnit.assertTrue(errorMsg, text.endsWith(expectedSuffix));
+    }
+
     /** asserts that given text contains expectedSubstring */
     public static void assertContains(String expectedSubstring, String text)
     {
