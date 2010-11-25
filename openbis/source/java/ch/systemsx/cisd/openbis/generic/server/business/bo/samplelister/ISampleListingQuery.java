@@ -183,7 +183,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join groups g on s.grou_id=g.id "
             + " where g.dbin_id=?{1} and s.saty_id=?{2}                        "
-            + " order by s.code", fetchSize = FETCH_SIZE)
+            + " order by s.code", fetchSize = FETCH_SIZE, rubberstamp = true)
     public DataIterator<SampleRecord> getAllGroupSamplesForSampleType(long dbInstanceId,
             long sampleTypeId);
 

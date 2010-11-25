@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Experim
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -255,6 +254,17 @@ final class SampleListingWorker extends AbstractLister
         return sampleList;
     }
 
+    private static void log(StopWatch watch, String message)
+    {
+        if (operationLog.isDebugEnabled())
+        {
+            watch.stop();
+            operationLog.debug(String.format("%s took %s s", message, watch.toString()));
+            watch.reset();
+            watch.start();
+        }
+    }
+
     //
     // Private worker methods
     //
@@ -271,12 +281,7 @@ final class SampleListingWorker extends AbstractLister
                                 return sampleMap.get(id);
                             }
                         });
-            if (operationLog.isDebugEnabled())
-            {
-                watch.stop();
-                operationLog.debug(String.format("Enrichment with properties took %s s",
-                        watch.toString()));
-            }
+            log(watch, "Enrichment with properties");
         }
     }
 
@@ -511,7 +516,6 @@ final class SampleListingWorker extends AbstractLister
     private void retrievePrimaryBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
     {
         assert sampleList != null;
-
         retrieveBasicSamples(sampleIteratorOrNull, sampleList);
     }
 
@@ -528,6 +532,7 @@ final class SampleListingWorker extends AbstractLister
             return;
         }
         final boolean primarySample = (sampleListOrNull != null);
+
         for (SampleRecord row : sampleIteratorOrNull)
         {
             final Sample sampleOrNull = tryCreateSample(row, primarySample);
@@ -550,6 +555,7 @@ final class SampleListingWorker extends AbstractLister
         sample.setCode(IdentifierHelper.convertCode(row.code, null));
         sample.setSubCode(IdentifierHelper.convertSubCode(row.code));
         sample.setSampleType(sampleTypes.get(row.saty_id));
+
         // set group or instance
         if (row.grou_id == null)
         {
@@ -581,8 +587,6 @@ final class SampleListingWorker extends AbstractLister
             sample.setProperties(new ArrayList<IEntityProperty>());
             sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
                     row.perm_id));
-            sample.setSearchlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
-                    EntityKind.SAMPLE, row.code));
             sample.setRegistrationDate(row.registration_timestamp);
             sample.setModificationDate(row.modification_timestamp);
             if (row.inva_id != null)

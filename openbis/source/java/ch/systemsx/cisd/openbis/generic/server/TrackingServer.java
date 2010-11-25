@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatase
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -75,7 +77,18 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         final ListOrSearchSampleCriteria listerCriteria = new ListOrSearchSampleCriteria(criteria);
         listerCriteria.setEnrichDependentSamplesWithProperties(true);
-        return sampleLister.list(listerCriteria);
+        List<Sample> result = sampleLister.list(listerCriteria);
+        fillSearchLinks(result, session.getBaseIndexURL());
+        return result;
+    }
+
+    private void fillSearchLinks(List<Sample> samples, String baseIndexURL)
+    {
+        for (Sample sample : samples)
+        {
+            sample.setPermlink(SearchlinkUtilities.createSearchlinkURL(baseIndexURL,
+                    EntityKind.SAMPLE, sample.getCode()));
+        }
     }
 
     public List<ExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)

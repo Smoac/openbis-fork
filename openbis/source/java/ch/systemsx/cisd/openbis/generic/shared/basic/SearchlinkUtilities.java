@@ -31,14 +31,14 @@ public class SearchlinkUtilities
     public static final String SEARCH_ACTION = "SEARCH";
 
     public final static String createSearchlinkURL(final String baseIndexURL,
-            final EntityKind entityKind, final String searchString)
+            final EntityKind entityKind, final String code)
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
         ulrWithParameters.startHistoryToken();
         ulrWithParameters.addParameter(BasicConstant.LOCATOR_ACTION_PARAMETER, SEARCH_ACTION);
-        ulrWithParameters.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY, entityKind
-                .name());
-        ulrWithParameters.addParameter(CODE_PARAMETER_KEY, searchString);
+        ulrWithParameters.addParameter(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY,
+                entityKind.name());
+        ulrWithParameters.addParameter(CODE_PARAMETER_KEY, code);
         return ulrWithParameters.toString();
     }
 }

@@ -96,6 +96,8 @@ public final class Sample extends CodeWithRegistration<Sample> implements IInval
         this.permlink = permlink;
     }
 
+    // WORKAROUND for performance reasons search links are not filled in SampleLister
+    // (they are only used in TrackingServer they are filled just before samples are being returned)
     public String getSearchlink()
     {
         return searchlink;
