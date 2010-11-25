@@ -73,9 +73,10 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "select pr.mate_id as entity_id, etpt.prty_id, pr.value from material_properties pr"
-            + "      join material_type_property_types etpt on pr.mtpt_id=etpt.id"
-            + "   where pr.value is not null and pr.mate_id = any(?{1})", parameterBindings =
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, pr.value "
+            + "      FROM material_properties pr"
+            + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
+            + "     WHERE pr.value is not null AND pr.mate_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds);
@@ -86,11 +87,11 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "select pr.mate_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
-            + "      from material_properties pr"
-            + "      join material_type_property_types etpt on pr.mtpt_id=etpt.id"
-            + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id"
-            + "   where pr.mate_id = any(?{1})", parameterBindings =
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
+            + "      FROM material_properties pr"
+            + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
+            + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"
+            + "     WHERE pr.cvte_id is not null AND pr.mate_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
             LongSet entityIds);
@@ -100,10 +101,11 @@ public interface IMaterialListingQuery extends TransactionQuery, IPropertyListin
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
-    @Select(sql = "select pr.mate_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
-            + "      from material_properties pr"
-            + "      join material_type_property_types etpt on pr.mtpt_id=etpt.id"
-            + "      join materials m on pr.mate_prop_id=m.id where pr.mate_id = any(?{1})", parameterBindings =
+    @Select(sql = "SELECT pr.mate_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
+            + "      FROM material_properties pr"
+            + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
+            + "      JOIN materials m ON pr.mate_prop_id=m.id "
+            + "     WHERE pr.mate_prop_id is not null AND pr.mate_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);

@@ -345,9 +345,10 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, sp.value from sample_properties sp"
-            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
-            + "   where sp.value is not null and sp.samp_id = any(?{1})", parameterBindings =
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, sp.value "
+            + "      FROM sample_properties sp"
+            + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
+            + "     WHERE sp.value is not null AND sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet sampleIds);
@@ -358,11 +359,11 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
-            + "      from sample_properties sp"
-            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
-            + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
-            + "   where sp.samp_id = any(?{1})", parameterBindings =
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
+            + "      FROM sample_properties sp"
+            + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
+            + "      JOIN controlled_vocabulary_terms cvte ON sp.cvte_id=cvte.id"
+            + "     WHERE sp.cvte_id is not null AND sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
             LongSet sampleIds);
@@ -372,10 +373,11 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * 
      * @param sampleIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, m.id, m.code, m.maty_id"
-            + "      from sample_properties sp"
-            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
-            + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id = any(?{1})", parameterBindings =
+    @Select(sql = "SELECT sp.samp_id as entity_id, stpt.prty_id, m.id, m.code, m.maty_id"
+            + "      FROM sample_properties sp"
+            + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
+            + "      JOIN materials m ON sp.mate_prop_id=m.id "
+            + "     WHERE sp.mate_prop_id is not null AND sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet sampleIds);
