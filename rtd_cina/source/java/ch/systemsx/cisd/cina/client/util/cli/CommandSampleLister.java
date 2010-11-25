@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cina.client.util.cli;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
 import ch.systemsx.cisd.cina.shared.constants.CinaConstants;
@@ -36,6 +37,8 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
 {
     private static class SampleListerExecutor extends AbstractExecutor<GlobalArguments>
     {
+        private static final String FIELD_SEPARATOR = "\t";
+
         /**
          * @param command The parent command
          */
@@ -51,11 +54,56 @@ public class CommandSampleLister extends AbstractCinaCommand<GlobalArguments>
             searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
                     MatchClauseAttribute.TYPE, CinaConstants.REPLICA_SAMPLE_TYPE_CODE));
             List<Sample> results = component.searchForSamples(searchCriteria);
+            printHeader();
+            printResults(results);
+            return ResultCode.OK;
+        }
+
+        private void printHeader()
+        {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("EXPERIMENT");
+            sb.append(FIELD_SEPARATOR);
+            sb.append("SAMPLE");
+            sb.append(FIELD_SEPARATOR);
+            sb.append(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE);
+            sb.append(FIELD_SEPARATOR);
+            sb.append(CinaConstants.DESCRIPTION_PROPERTY_CODE);
+
+            System.out.println(sb.toString());
+
+        }
+
+        private void printResults(List<Sample> results)
+        {
             for (Sample sample : results)
             {
-                System.out.println(sample.toString());
+                StringBuilder sb = new StringBuilder();
+                String experimentId = sample.getExperimentIdentifierOrNull();
+                if (null != experimentId)
+                {
+                    sb.append(experimentId);
+                }
+                sb.append(FIELD_SEPARATOR);
+                sb.append(sample.getIdentifier());
+                sb.append(FIELD_SEPARATOR);
+                Map<String, String> properties = sample.getProperties();
+                // Show the value of the creator email and the description properties
+                String propValue = properties.get(CinaConstants.CREATOR_EMAIL_PROPERTY_CODE);
+                if (null != propValue)
+                {
+                    sb.append(propValue);
+                }
+                sb.append(FIELD_SEPARATOR);
+                propValue = properties.get(CinaConstants.DESCRIPTION_PROPERTY_CODE);
+                if (null != propValue)
+                {
+                    sb.append(propValue);
+                }
+
+                System.out.println(sb.toString());
             }
-            return ResultCode.OK;
         }
 
     }
