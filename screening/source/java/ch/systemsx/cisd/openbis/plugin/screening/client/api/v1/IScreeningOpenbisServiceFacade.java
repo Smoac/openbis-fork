@@ -283,7 +283,7 @@ public interface IScreeningOpenbisServiceFacade
      * which the specified data sets belong.
      */
     public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers, String channel,
-            IImageTransformerFactory transformerFactory);
+            IImageTransformerFactory transformerFactoryOrNull);
 
     /**
      * Returns the transformer factory for the specified channel and the experiment to which

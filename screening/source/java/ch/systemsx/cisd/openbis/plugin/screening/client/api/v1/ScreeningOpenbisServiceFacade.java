@@ -596,7 +596,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     }
 
     public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers, String channel,
-            IImageTransformerFactory transformerFactory)
+            IImageTransformerFactory transformerFactoryOrNull)
     {
         Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(dataSetIdentifiers);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
@@ -604,7 +604,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         {
             String serverUrl = entry.getKey();
             IDssServiceRpcScreening service = dssServiceCache.createDssService(serverUrl).getService();
-            service.saveImageTransformerFactory(sessionToken, entry.getValue(), channel, transformerFactory);
+            service.saveImageTransformerFactory(sessionToken, entry.getValue(), channel, transformerFactoryOrNull);
         }
     }
 
