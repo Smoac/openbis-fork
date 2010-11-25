@@ -60,6 +60,13 @@ class Translator
             initializer.putProperty(prop.getPropertyType().getCode(), prop.getValue());
         }
 
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
+                privateSample.getExperiment();
+        if (null != experimentOrNull)
+        {
+            initializer.setExperimentIdentifierOrNull(experimentOrNull.getIdentifier());
+        }
+
         return new Sample(initializer);
     }
 

@@ -54,6 +54,8 @@ public final class Sample implements Serializable
 
         private String identifier;
 
+        private String experimentIdentifierOrNull;
+
         private Long sampleTypeId;
 
         private String sampleTypeCode;
@@ -100,6 +102,16 @@ public final class Sample implements Serializable
             this.identifier = identifier;
         }
 
+        public String getExperimentIdentifierOrNull()
+        {
+            return experimentIdentifierOrNull;
+        }
+
+        public void setExperimentIdentifierOrNull(String experimentIdentifierOrNull)
+        {
+            this.experimentIdentifierOrNull = experimentIdentifierOrNull;
+        }
+
         public void setSampleTypeId(Long sampleTypeId)
         {
             this.sampleTypeId = sampleTypeId;
@@ -140,6 +152,8 @@ public final class Sample implements Serializable
 
     private final String identifier;
 
+    private final String experimentIdentifierOrNull;
+
     private final Long sampleTypeId;
 
     private final String sampleTypeCode;
@@ -164,6 +178,8 @@ public final class Sample implements Serializable
 
         checkValidString(initializer.getIdentifier(), "Unspecified identifier.");
         this.identifier = initializer.getIdentifier();
+
+        this.experimentIdentifierOrNull = initializer.getExperimentIdentifierOrNull();
 
         checkValidLong(initializer.getSampleTypeId(), "Unspecified sample type id.");
         this.sampleTypeId = initializer.getSampleTypeId();
@@ -220,6 +236,11 @@ public final class Sample implements Serializable
     public String getIdentifier()
     {
         return identifier;
+    }
+
+    public String getExperimentIdentifierOrNull()
+    {
+        return experimentIdentifierOrNull;
     }
 
     /**
