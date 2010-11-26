@@ -46,7 +46,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
-import javax.xml.stream.events.StartDocument;
 
 import org.apache.log4j.PropertyConfigurator;
 
