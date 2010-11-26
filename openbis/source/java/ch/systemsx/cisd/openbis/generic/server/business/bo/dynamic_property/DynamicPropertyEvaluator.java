@@ -29,6 +29,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.ComplexPropertyValueHelper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.DynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.EntityAdaptorFactory;
@@ -67,10 +68,11 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     private EntityPropertiesConverterDelegatorFacade entityPropertiesConverter;
 
-    public DynamicPropertyEvaluator(IDAOFactory daoFactory)
+    public DynamicPropertyEvaluator(IDAOFactory daoFactory, IHibernateSessionProvider customSessionProviderOrNull)
     {
         assert daoFactory != null;
-        this.entityPropertiesConverter = new EntityPropertiesConverterDelegatorFacade(daoFactory);
+        this.entityPropertiesConverter =
+                new EntityPropertiesConverterDelegatorFacade(daoFactory, customSessionProviderOrNull);
     }
 
     /** Returns a calculator for given script (creates a new one if nothing is found in cache). */
@@ -200,10 +202,12 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
         private final ComplexPropertyValueHelper complexPropertyValueHelper;
 
-        public EntityPropertiesConverterDelegatorFacade(IDAOFactory daoFactory)
+        public EntityPropertiesConverterDelegatorFacade(IDAOFactory daoFactory,
+                IHibernateSessionProvider customSessionProviderOrNull)
         {
             this.complexPropertyValueHelper =
-                    new EntityPropertiesConverter.ComplexPropertyValueHelper(daoFactory);
+                    new EntityPropertiesConverter.ComplexPropertyValueHelper(daoFactory,
+                            customSessionProviderOrNull);
             for (EntityKind entityKind : EntityKind.values())
             {
                 convertersByEntityKind.put(entityKind, new EntityPropertiesConverter(entityKind,

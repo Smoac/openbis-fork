@@ -2062,7 +2062,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             DynamicPropertyCalculator calculator =
                     DynamicPropertyCalculator.create(info.getScript());
-            IDynamicPropertyEvaluator evaluator = new DynamicPropertyEvaluator(getDAOFactory());
+            IDynamicPropertyEvaluator evaluator =
+                    new DynamicPropertyEvaluator(getDAOFactory(), null);
             IEntityAdaptor adaptor = EntityAdaptorFactory.create(entity, evaluator);
             calculator.setEntity(adaptor);
             return calculator.evalAsString();

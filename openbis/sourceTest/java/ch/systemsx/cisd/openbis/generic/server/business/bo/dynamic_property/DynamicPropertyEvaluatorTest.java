@@ -22,12 +22,15 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.AbstractEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.BasicPropertyAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calculator.IEntityAdaptor;
@@ -57,11 +60,21 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
 
     private DynamicPropertyEvaluator evaluator;
 
+    private IHibernateSessionProvider sessionProvider;
+
     @BeforeMethod
     public void setUp()
     {
         LogInitializer.init();
-        evaluator = new DynamicPropertyEvaluator(daoFactory);
+        final Session session = new Mockery().mock(Session.class);
+        sessionProvider = new IHibernateSessionProvider()
+            {
+                public Session getSession()
+                {
+                    return session;
+                }
+            };
+        evaluator = new DynamicPropertyEvaluator(daoFactory, sessionProvider);
     }
 
     @Test
@@ -262,11 +275,12 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(materialDAO).tryFindMaterial(
+                    one(materialDAO).tryFindMaterial(sessionProvider.getSession(),
                             new MaterialIdentifier(material.getCode(), materialTypeCode));
                     will(returnValue(material));
 
-                    one(materialDAO).tryFindMaterial(fakeMaterialIdentifier);
+                    one(materialDAO).tryFindMaterial(sessionProvider.getSession(),
+                            fakeMaterialIdentifier);
                     will(returnValue(null));
                 }
             });

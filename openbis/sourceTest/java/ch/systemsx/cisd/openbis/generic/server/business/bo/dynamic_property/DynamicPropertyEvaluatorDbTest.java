@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.DynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 
 /**
@@ -34,7 +33,7 @@ public class DynamicPropertyEvaluatorDbTest extends AbstractDAOTest
     @BeforeMethod
     public void beforeClass() throws Exception
     {
-        evaluator = new DynamicPropertyEvaluator(daoFactory);
+        evaluator = new DynamicPropertyEvaluator(daoFactory, null);
     }
 
 }

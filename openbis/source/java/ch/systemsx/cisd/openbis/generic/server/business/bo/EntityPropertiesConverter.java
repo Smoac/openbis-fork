@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Session;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -108,7 +110,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         this.propertyValueValidator = propertyValueValidator;
         this.dynamicPropertiesUpdateChecker = dynamicPropertiesUpdateChecker;
         this.placeholderCreator = placeholderCreator;
-        this.complexPropertyValueHelper = new ComplexPropertyValueHelper(daoFactory);
+        this.complexPropertyValueHelper = new ComplexPropertyValueHelper(daoFactory, null);
     }
 
     private final Set<String> getDynamicProperties(final EntityTypePE entityTypePE)
@@ -456,14 +458,31 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
     }
 
+    public interface IHibernateSessionProvider
+    {
+        public Session getSession();
+    }
+
     public final static class ComplexPropertyValueHelper
     {
 
         private final IDAOFactory daoFactory;
 
-        public ComplexPropertyValueHelper(IDAOFactory daoFactory)
+        // WORKAROUND This information needs to be exposed to force MaterialDAO to use given session
+        // for requests coming from DynamicPropertyEvaluator. Otherwise each call to tryGetMaterial
+        // creates a new DB connection that are not closed.
+        private final IHibernateSessionProvider customSessionProviderOrNull;
+
+        /**
+         * @param customSessionProviderOrNull Provider of custom session that should be used for
+         *            accessing DB instead of default one. If null the standard way of getting the
+         *            session should be used.
+         */
+        public ComplexPropertyValueHelper(IDAOFactory daoFactory,
+                IHibernateSessionProvider customSessionProviderOrNull)
         {
             this.daoFactory = daoFactory;
+            this.customSessionProviderOrNull = customSessionProviderOrNull;
         }
 
         public MaterialPE tryGetMaterial(String value, PropertyTypePE propertyType)
@@ -478,7 +497,18 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 // identifier is valid but null
                 return null;
             }
-            MaterialPE material = daoFactory.getMaterialDAO().tryFindMaterial(materialIdentifier);
+
+            final MaterialPE material;
+            if (customSessionProviderOrNull != null)
+            {
+                material =
+                        daoFactory.getMaterialDAO().tryFindMaterial(
+                                customSessionProviderOrNull.getSession(), materialIdentifier);
+            } else
+            {
+                material = daoFactory.getMaterialDAO().tryFindMaterial(materialIdentifier);
+            }
+
             if (material == null)
             {
                 throw UserFailureException.fromTemplate(

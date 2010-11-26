@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -113,12 +114,17 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier)
     {
+        return tryFindMaterial(getSession(), identifier);
+    }
+
+    public MaterialPE tryFindMaterial(Session session, MaterialIdentifier identifier)
+    {
         assert identifier != null : "identifier not given";
 
         String code = CodeConverter.tryToDatabase(identifier.getCode());
         String typeCode = CodeConverter.tryToDatabase(identifier.getTypeCode());
 
-        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
+        final Criteria criteria = session.createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", code));
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.createCriteria("materialType").add(Restrictions.eq("code", typeCode));

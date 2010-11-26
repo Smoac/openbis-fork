@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -45,6 +47,9 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
 
     /** @return material with the given identifier or null if it is not found. */
     public MaterialPE tryFindMaterial(MaterialIdentifier identifier);
+
+    /** same as {@link #tryFindMaterial(MaterialIdentifier)} but works with given session */
+    public MaterialPE tryFindMaterial(Session session, MaterialIdentifier identifier);
 
     public List<MaterialPE> listMaterialsById(final List<Long> ids);
 

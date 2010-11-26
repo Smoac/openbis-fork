@@ -33,6 +33,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -76,9 +77,15 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         this.daoFactory = daoFactory;
     }
 
-    private DynamicPropertyEvaluator createEvaluator()
+    private DynamicPropertyEvaluator createEvaluator(final Session hibernateSession)
     {
-        return new DynamicPropertyEvaluator(daoFactory);
+        return new DynamicPropertyEvaluator(daoFactory, new IHibernateSessionProvider()
+            {
+                public Session getSession()
+                {
+                    return hibernateSession;
+                }
+            });
     }
 
     //
@@ -91,12 +98,11 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         operationLog.info(String.format("Evaluating dynamic properties for all %ss...",
                 clazz.getSimpleName()));
 
-        final IDynamicPropertyEvaluator evaluator = createEvaluator();
-
         Transaction transaction = null;
         try
         {
             transaction = hibernateSession.beginTransaction();
+            final IDynamicPropertyEvaluator evaluator = createEvaluator(hibernateSession);
             // we evaluate properties of entities in batches loading them in groups restricted by
             // id: [ ids[index], ids[min(index+batchSize, maxIndex))] )
             int index = 0;
@@ -146,12 +152,11 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         operationLog.info(String.format("Evaluating dynamic properties for %ss...",
                 clazz.getSimpleName()));
 
-        final IDynamicPropertyEvaluator evaluator = createEvaluator();
-
         Transaction transaction = null;
         try
         {
             transaction = hibernateSession.beginTransaction();
+            final IDynamicPropertyEvaluator evaluator = createEvaluator(hibernateSession);
             List<Long> dynamicIds = new ArrayList<Long>(ids);
             retainDynamicIds(hibernateSession, clazz, dynamicIds);
             operationLog.info(String.format("... got %d '%s' ids...", dynamicIds.size(),
