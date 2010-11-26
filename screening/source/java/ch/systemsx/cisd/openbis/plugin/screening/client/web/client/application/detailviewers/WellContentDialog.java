@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.SelectionProvider;
 import com.extjs.gxt.ui.client.util.Rectangle;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -173,6 +174,7 @@ public class WellContentDialog extends Dialog
 
         if (imageParameters.isMultidimensional())
         {
+            // NOTE: this supresses the action which just shows image magnification
             staticTilesGrid.sinkEvents(Events.OnClick.getEventCode());
             staticTilesGrid.addListener(Events.OnClick, new Listener<BaseEvent>()
                 {
@@ -190,8 +192,8 @@ public class WellContentDialog extends Dialog
             WellContent wellContent, DatasetImagesReference imageDatasetOrNull, boolean hasDataSet)
     {
         WellContentDialog contentDialog =
-                new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(), hasDataSet,
-                        getExperiment(wellContent.getExperiment()), viewContext);
+                new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(),
+                        hasDataSet, getExperiment(wellContent.getExperiment()), viewContext);
 
         // NOTE: channel chooser state will be not reused among different dialogs
         DefaultChannelState channelState = new DefaultChannelState();
@@ -226,7 +228,7 @@ public class WellContentDialog extends Dialog
             LayoutContainer imageViewer =
                     ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
                             imagesOrNull.getChannelsCodes());
-            contentDialog.addComponent(imageViewer);
+            contentDialog.addImageView(imageViewer);
         }
         contentDialog.show();
     }
@@ -307,7 +309,7 @@ public class WellContentDialog extends Dialog
                                         ChannelChooser.createViewerWithChannelChooser(
                                                 viewerFactory, channelState,
                                                 wellImages.getChannelsCodes());
-                                contentDialog.addComponent(imageViewer);
+                                contentDialog.addImageView(imageViewer);
                                 contentDialog.show();
                             }
                         }
@@ -344,7 +346,7 @@ public class WellContentDialog extends Dialog
     {
         float dim = Math.max(images.getTileRowsNum(), images.getTileColsNum());
         // if there are more than 3 tiles, make them smaller, if there are less, make them bigger
-        return 3.0F / dim;
+        return 4.0F / dim;
     }
 
     private static String getSessionId(IViewContext<?> viewContext)
@@ -370,8 +372,7 @@ public class WellContentDialog extends Dialog
 
     private WellContentDialog(IEntityInformationHolderWithPermId wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, final WellLocation wellLocationOrNull,
-            boolean hasDataSet,
-            final SingleExperimentSearchCriteria experimentCriteria,
+            boolean hasDataSet, final SingleExperimentSearchCriteria experimentCriteria,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         this.wellOrNull = wellOrNull;
@@ -387,6 +388,15 @@ public class WellContentDialog extends Dialog
         setHideOnButtonClick(true);
         setHeading(WELL_LABEL + getWellDescription());
         setTopComponent(createContentDescription());
+        // setLayout(new RowLayout());
+        //
+        // BorderLayoutData layoutData = new BorderLayoutData(LayoutRegion.WEST, 200, 20, 2000);
+        // layoutData.setCollapsible(true);
+        // layoutData.setHideCollapseTool(false);
+        // layoutData.setSplit(true);
+        // layoutData.setFloatable(true);
+        // add(createContentDescription(), layoutData);
+
         addListener(Events.Show, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
@@ -463,8 +473,10 @@ public class WellContentDialog extends Dialog
         this.datasetCode = datasetCode;
     }
 
-    private void addComponent(LayoutContainer component)
+    private void addImageView(LayoutContainer component)
     {
+        // BorderLayoutData layoutData = new BorderLayoutData(LayoutRegion.CENTER);
+        // add(component, layoutData);
         add(component);
     }
 
@@ -481,7 +493,7 @@ public class WellContentDialog extends Dialog
 
     private LayoutContainer createContentDescription()
     {
-        final LayoutContainer container = new LayoutContainer();
+        final ContentPanel container = new ContentPanel();
         TableLayout tableLayout = new TableLayout(2);
         tableLayout.setCellPadding(3);
         container.setLayout(tableLayout);
@@ -499,6 +511,7 @@ public class WellContentDialog extends Dialog
         {
             addProperties(container, cellLayout, wellPropertiesOrNull);
         }
+
         return container;
     }
 
