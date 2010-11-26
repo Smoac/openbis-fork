@@ -369,7 +369,8 @@ public final class PropertyValidator implements IPropertyValueValidator
                                 + "Expected '<CODE> (<TYPE>)'.", value);
             }
             if (materialTypeOrNull != null
-                    && identifierOrNull.getTypeCode().equals(materialTypeOrNull.getCode()) == false)
+                    && identifierOrNull.getTypeCode()
+                            .equalsIgnoreCase(materialTypeOrNull.getCode()) == false)
             {
                 throw UserFailureException.fromTemplate(
                         "Material '%s' is of wrong type. Expected: '%s'.", value,
