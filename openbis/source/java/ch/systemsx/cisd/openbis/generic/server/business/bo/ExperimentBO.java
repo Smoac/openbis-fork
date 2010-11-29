@@ -526,6 +526,9 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         return new HashSet<String>(Arrays.asList(objects));
     }
 
+    /**
+     * See also {@link ExperimentTable#updateProject}.
+     */
     @Private
     void updateProject(ProjectIdentifier newProjectIdentifier)
     {

@@ -221,7 +221,11 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         int expCount = 10;
         // Create some experiments to update
         ArrayList<String> expIds = registerNewExperiments(expCount);
-        String bulkUpdateString = createBulkUpdateString(expIds);
+        String[] codes = new String[]
+            { "DESCRIPTION" };
+        String[] values = new String[]
+            { "New déscription" };
+        String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         // Update the experiments
         addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
@@ -236,7 +240,106 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
                 .getMessage());
 
         // Verify the results
-        verifyBulkUpdate(expIds);
+        verifyBulkUpdate(expIds, codes, values);
+    }
+
+    @Test
+    public void testBulkUpdateExperimentsWithProjectChanges()
+    {
+        logIntoCommonClientService();
+
+        int expCount = 10;
+        // Create some experiments to update
+        ArrayList<String> expIds = registerNewExperiments(expCount);
+        String[] codes = new String[]
+            { "DESCRIPTION" };
+        String[] values = new String[]
+            { "New déscription" };
+        String bulkUpdateString = createBulkUpdateString(expIds, "/cisd/nemo", codes, values);
+
+        // Update the experiments
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+        List<BatchRegistrationResult> results =
+                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+
+        // Check the return value
+        assertEquals(1, results.size());
+        assertEquals("Update of " + expCount + " experiment(s) is complete.", results.get(0)
+                .getMessage());
+
+        // Verify the results
+        ArrayList<String> newExpIds = new ArrayList<String>(expIds.size());
+        for (String expId : expIds)
+        {
+            newExpIds.add(expId.replaceFirst("/cisd/default/", "/cisd/nemo/"));
+        }
+        verifyBulkUpdate(newExpIds, codes, values);
+    }
+
+    @Test
+    public void testBulkUpdateExperimentsDeletingMandatoryProperty()
+    {
+        logIntoCommonClientService();
+
+        int expCount = 10;
+        // Create some experiments to update
+        ArrayList<String> expIds = registerNewExperiments(expCount);
+        String bulkUpdateString = createBulkUpdateString(expIds, new String[]
+            { "DESCRIPTION" }, new String[]
+            { "--DELETE--" });
+
+        // Update the experiments
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+        try
+        {
+            genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+            fail("Should have thrown an excption");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Value of mandatory property 'description' not specified.",
+                    ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testBulkUpdateExperimentsDeletingNonMandatoryProperty()
+    {
+        logIntoCommonClientService();
+
+        int expCount = 10;
+        // Create some experiments to update
+        ArrayList<String> expIds = registerNewExperiments(expCount);
+        String[] codes = new String[]
+            { "DESCRIPTION", "GENDER" };
+        String[] values = new String[]
+            { "New déscription", "MALE" };
+        String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
+
+        // Add/Modify some properties
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+
+        genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+        verifyBulkUpdate(expIds, codes, values);
+
+        // Delete some properties
+        codes = new String[]
+            { "GENDER" };
+        values = new String[]
+            { "--DELETE--" };
+        bulkUpdateString = createBulkUpdateString(expIds, codes, values);
+
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+
+        verifyBulkUpdate(expIds, new String[]
+            { "DESCRIPTION" }, new String[]
+            { "New déscription" });
     }
 
     /**
@@ -259,35 +362,78 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         return expIds;
     }
 
-    private String createBulkUpdateString(ArrayList<String> expIds)
+    private String createBulkUpdateString(ArrayList<String> expIds, String[] propertyCodes,
+            String[] propertyValues)
+    {
+        return createBulkUpdateString(expIds, null, propertyCodes, propertyValues);
+    }
+
+    private String createBulkUpdateString(ArrayList<String> expIds,
+            String newProjectIdentifierOrNull, String[] propertyCodes, String[] propertyValues)
     {
         StringBuilder sb = new StringBuilder();
+
         // Write the header
-        sb.append("identifier\tDESCRIPTION\n");
+        sb.append("identifier");
+        if (null != newProjectIdentifierOrNull)
+        {
+            sb.append("\t");
+            sb.append("project");
+        }
+        for (String code : propertyCodes)
+        {
+            sb.append("\t");
+            sb.append(code);
+        }
+        sb.append("\n");
+
+        // Write the data
         for (String experimentId : expIds)
         {
             sb.append(experimentId);
-            sb.append("\t");
-            sb.append("New déscription\n");
+            if (null != newProjectIdentifierOrNull)
+            {
+                sb.append("\t");
+                sb.append(newProjectIdentifierOrNull);
+            }
+            for (String value : propertyValues)
+            {
+                sb.append("\t");
+                sb.append(value);
+            }
+            sb.append("\n");
         }
 
         return sb.toString();
     }
 
-    private void verifyBulkUpdate(ArrayList<String> expIds)
+    private void verifyBulkUpdate(ArrayList<String> expIds, String[] codes, String[] values)
     {
-
         for (String experimentId : expIds)
         {
             Experiment experiment = commonClientService.getExperimentInfo(experimentId);
             assertEquals("SIRNA_HCS", experiment.getExperimentType().getCode());
             List<IEntityProperty> properties = experiment.getProperties();
-            assertEquals("DESCRIPTION", properties.get(0).getPropertyType().getCode());
-            // Make sure the string is escaped
-            assertEquals(StringEscapeUtils.escapeHtml("New déscription"), properties.get(0)
-                    .tryGetAsString());
-            assertEquals(1, properties.size());
+            assertEquals(codes.length, properties.size());
+            for (int i = 0; i < codes.length; ++i)
+            {
+                // Not efficient, but this is just a test
+                boolean found = false;
+                for (IEntityProperty prop : properties)
+                {
+                    if (codes[i].equals(prop.getPropertyType().getCode()))
+                    {
+                        // Make sure the string is escaped
+                        assertEquals(StringEscapeUtils.escapeHtml(values[i]), prop.tryGetAsString());
+                        found = true;
+                        continue;
+                    }
+                }
+                if (false == found)
+                {
+                    fail("Property " + codes[i] + " not found");
+                }
+            }
         }
-
     }
 }

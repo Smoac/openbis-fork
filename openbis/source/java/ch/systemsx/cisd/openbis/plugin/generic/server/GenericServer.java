@@ -964,30 +964,36 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             UpdatedBasicExperiment updatedExperiment = (UpdatedBasicExperiment) experiment;
 
             final ExperimentIdentifier oldExperimentIdentifier =
-                    new ExperimentIdentifierFactory(updatedExperiment.getIdentifier())
+                    new ExperimentIdentifierFactory(updatedExperiment.getIdentifier().toUpperCase())
                             .createIdentifier();
             final List<IEntityProperty> properties =
                     Arrays.asList(updatedExperiment.getProperties());
             // If we allow changing projects, we will have to take new/old experiment identifiers
             // into account, but since this is currently not possible, there is nothing to do.
             final ExperimentIdentifier newExperimentIdentifier;
-            if (updatedExperiment.getNewProjectIdentifierOrNull() != null)
+            final boolean isProjectUpdateRequested;
+            String projectIdentifierOrNull = updatedExperiment.getNewProjectIdentifierOrNull();
+            projectIdentifierOrNull =
+                    (null != projectIdentifierOrNull) ? projectIdentifierOrNull.trim() : null;
+            if (null != projectIdentifierOrNull && projectIdentifierOrNull.length() > 0)
             {
                 // the new experiment identifier is derived form the project id
                 ProjectIdentifier projectIdentifier =
-                        new ProjectIdentifierFactory(
-                                updatedExperiment.getNewProjectIdentifierOrNull())
+                        new ProjectIdentifierFactory(projectIdentifierOrNull.toUpperCase())
                                 .createIdentifier();
                 newExperimentIdentifier =
                         new ExperimentIdentifier(projectIdentifier,
                                 oldExperimentIdentifier.getExperimentCode());
+                isProjectUpdateRequested = true;
             } else
             {
                 newExperimentIdentifier = oldExperimentIdentifier;
+                isProjectUpdateRequested = false;
             }
 
             experiments.add(new ExperimentBatchUpdatesDTO(oldExperimentIdentifier, properties,
-                    newExperimentIdentifier, updatedExperiment.getBatchUpdateDetails()));
+                    newExperimentIdentifier, updatedExperiment.getBatchUpdateDetails(),
+                    isProjectUpdateRequested));
         }
         return experiments;
     }

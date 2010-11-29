@@ -34,15 +34,18 @@ public class ExperimentBatchUpdatesDTO extends ExperimentUpdatesDTO
 
     private ExperimentBatchUpdateDetails details;
 
+    private boolean isProjectUpdateRequested;
+
     public ExperimentBatchUpdatesDTO(ExperimentIdentifier oldExperimentIdentifier,
             List<IEntityProperty> properties, ExperimentIdentifier experimentIdentifier,
-            ExperimentBatchUpdateDetails details)
+            ExperimentBatchUpdateDetails details, boolean isProjectUpdateRequested)
     {
 
         this.oldExperimentIdentifier = oldExperimentIdentifier;
         setProperties(properties);
         setProjectIdentifier(experimentIdentifier);
         this.details = details;
+        this.isProjectUpdateRequested = isProjectUpdateRequested;
     }
 
     public ExperimentIdentifier getOldExperimentIdentifier()
@@ -53,6 +56,11 @@ public class ExperimentBatchUpdatesDTO extends ExperimentUpdatesDTO
     public ExperimentBatchUpdateDetails getDetails()
     {
         return details;
+    }
+
+    public boolean isProjectUpdateRequested()
+    {
+        return isProjectUpdateRequested;
     }
 
 }
