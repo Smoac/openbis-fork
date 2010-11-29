@@ -4,14 +4,14 @@
 export BIN=~/bin
 export SERVER=`uname -n`
 
-export SPRINT=sprint-openbis
-export DEMO=cisd-tongariro
+export SPRINT=bs-openbis07.ethz.ch=
+export DEMO=bs-openbis08.ethz.ch
 export YEASTX=obis.ethz.ch
 export PHOSPHONETX=openbis-phosphonetx.ethz.ch
 export LIVERX=openbis-liverx.ethz.ch
 export AGRONOMICS=bs-agronomics01.ethz.ch
 export DSU=bs-openbis04.ethz.ch
-export SCU=openbis-scu
+export SCU=bs-openbis05.ethz.ch
 export BASYSBIO=bs-basysbio01.ethz.ch
 export BASYSBIO_TEST=openbis-test
 export CINA=bs-openbis01.ethz.ch
