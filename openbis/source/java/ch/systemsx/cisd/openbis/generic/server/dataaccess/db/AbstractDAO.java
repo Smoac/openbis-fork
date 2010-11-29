@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
@@ -69,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 public abstract class AbstractDAO extends HibernateDaoSupport
 {
 
+
     /** The original source database instance. */
     private DatabaseInstancePE databaseInstance;
 
@@ -82,19 +85,28 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         setSessionFactory(sessionFactory);
     }
 
+    private static Map<Class<?>, ClassValidator<?>> validators =
+        new HashMap<Class<?>, ClassValidator<?>>();
+    
     /**
      * Validates given <i>Persistence Entity</i> using an appropriate {@link ClassValidator}.
      */
     @SuppressWarnings("unchecked")
     protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
-        validatePE(pe, new ClassValidator(pe.getClass()));
+        ClassValidator<E> validator = (ClassValidator<E>) validators.get(pe.getClass());
+        if (validator == null)
+        {
+            validator = new ClassValidator(pe.getClass());
+            validators.put(pe.getClass(), validator);
+        }
+        validatePE(pe, validator);
     }
 
     /**
      * Validates given <i>Persistence Entity</i> using the given {@link ClassValidator}.
      */
-    protected final static <E> void validatePE(final E pe, final ClassValidator<E> validator)
+    private final static <E> void validatePE(final E pe, final ClassValidator<E> validator)
             throws DataIntegrityViolationException
     {
         final InvalidValue[] validationMessages = validator.getInvalidValues(pe);

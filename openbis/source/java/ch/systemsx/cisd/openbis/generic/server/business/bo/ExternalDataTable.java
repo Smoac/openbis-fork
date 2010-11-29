@@ -689,29 +689,34 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         assert updates != null : "Unspecified updates.";
         setBatchUpdateMode(true);
-        if (externalData == null)
+
+        loadByDataSetCodes(Code.extractCodes(updates), true, true);
+
+        final Map<String, ExternalDataPE> externalDataByCode =
+                new HashMap<String, ExternalDataPE>();
+        for (ExternalDataPE dataSet : externalData)
         {
-            externalData = new ArrayList<ExternalDataPE>();
+            externalDataByCode.put(dataSet.getIdentifier(), dataSet);
         }
-        for (NewDataSet d : updates)
+        for (NewDataSet dataSetUpdates : updates)
         {
-            externalData.add(prepareBatchUpdate(d));
+            final ExternalDataPE dataSet = externalDataByCode.get(dataSetUpdates.getCode());
+            prepareBatchUpdate(dataSet, dataSetUpdates);
         }
         setBatchUpdateMode(false);
         dataChanged = true;
         operationLog.info("External data updated");
     }
 
-    private ExternalDataPE prepareBatchUpdate(NewDataSet d)
+    private ExternalDataPE prepareBatchUpdate(ExternalDataPE dataSet, NewDataSet dataSetUpdates)
     {
-        ExternalDataPE dataSet =
-                getExternalDataDAO().tryToFindFullDataSetByCode(d.getCode(), true, true);
         if (dataSet == null)
         {
             throw new UserFailureException(String.format("Data set with code '%s' does not exist.",
-                    d.getCode()));
+                    dataSetUpdates.getCode()));
         }
-        updateBatchProperties(dataSet, Arrays.asList(d.getProperties()), d.getPropertiesToUpdate());
+        updateBatchProperties(dataSet, Arrays.asList(dataSetUpdates.getProperties()),
+                dataSetUpdates.getPropertiesToUpdate());
         return dataSet;
     }
 

@@ -31,7 +31,6 @@ import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.validator.ClassValidator;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -79,10 +78,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
     // LockSampleModificationsInterceptor automatically obtains lock
     private final void internalCreateSample(final SamplePE sample,
-            final HibernateTemplate hibernateTemplate,
-            final ClassValidator<SamplePE> classValidator, final boolean doLog)
+            final HibernateTemplate hibernateTemplate, final boolean doLog)
     {
-        validatePE(sample, classValidator);
+        validatePE(sample);
         sample.setCode(CodeConverter.tryToDatabase(sample.getCode()));
 
         hibernateTemplate.saveOrUpdate(sample);
@@ -102,8 +100,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-        internalCreateSample(sample, hibernateTemplate,
-                new ClassValidator<SamplePE>(SamplePE.class), true);
+        internalCreateSample(sample, hibernateTemplate, true);
 
         flushWithSqlExceptionHandling(hibernateTemplate);
     }
@@ -331,11 +328,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
 
         final HibernateTemplate hibernateTemplate = getHibernateTemplate();
 
-        final ClassValidator<SamplePE> classValidator =
-                new ClassValidator<SamplePE>(SamplePE.class);
         for (final SamplePE samplePE : samples)
         {
-            internalCreateSample(samplePE, hibernateTemplate, classValidator, false);
+            internalCreateSample(samplePE, hibernateTemplate, false);
         }
         if (operationLog.isInfoEnabled())
         {
