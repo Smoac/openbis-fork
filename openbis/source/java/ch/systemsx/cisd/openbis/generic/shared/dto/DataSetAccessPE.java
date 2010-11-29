@@ -34,7 +34,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Entity
 @SqlResultSetMapping(name = "implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
 @NamedNativeQuery(name = "dataset_access", query = "select "
-        + "g.code as groupCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
+        + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
         + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE + " g, "
         + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
         + "(select e.proj_id from " + TableNames.DATA_TABLE + " ds, "
