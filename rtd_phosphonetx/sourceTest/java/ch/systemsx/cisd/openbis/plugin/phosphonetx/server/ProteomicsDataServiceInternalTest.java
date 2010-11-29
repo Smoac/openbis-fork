@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -100,13 +100,13 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         PersonPE person = new PersonPE();
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
-        GroupPE group = new GroupPE();
+        SpacePE group = new SpacePE();
         group.setCode("Space-0");
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("db");
         databaseInstance.setUuid("UUID-db");
         group.setDatabaseInstance(databaseInstance);
-        roleAssignment.setGroup(group);
+        roleAssignment.setSpace(group);
         person.setRoleAssignments(Collections.singleton(roleAssignment));
         SESSION.setPerson(person);
     }
@@ -248,10 +248,10 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                 new Session(CommonTestUtils.USER_ID, SESSION_TOKEN, PRINCIPAL, "remote-host", 1);
         PersonPE person = new PersonPE();
         RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
-        GroupPE group = new GroupPE();
+        SpacePE group = new SpacePE();
         group.setCode(spaceCode);
         group.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
-        roleAssignmentPE.setGroup(group);
+        roleAssignmentPE.setSpace(group);
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignmentPE)));
         session.setPerson(person);
         context.checking(new Expectations()
@@ -400,8 +400,8 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         experiment.setCode("e" + id);
         ProjectPE project = new ProjectPE();
         project.setCode("p");
-        GroupPE group = CommonTestUtils.createGroup(GROUP_CODE, CommonTestUtils.createHomeDatabaseInstance());
-        project.setGroup(group);
+        SpacePE group = CommonTestUtils.createGroup(GROUP_CODE, CommonTestUtils.createHomeDatabaseInstance());
+        project.setSpace(group);
         experiment.setProject(project);
         experiment.setRegistrationDate(new Date(id * id));
         if (properties.length > 0)

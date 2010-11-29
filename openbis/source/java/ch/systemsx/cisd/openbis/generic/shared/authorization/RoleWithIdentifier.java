@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
@@ -42,11 +42,11 @@ public final class RoleWithIdentifier
 
     private final DatabaseInstancePE databaseInstanceOrNull;
 
-    private final GroupPE groupOrNull;
+    private final SpacePE groupOrNull;
 
     @Private
     RoleWithIdentifier(final RoleLevel roleGroup, final RoleCode roleName,
-            final DatabaseInstancePE databaseInstanceOrNull, final GroupPE groupOrNull)
+            final DatabaseInstancePE databaseInstanceOrNull, final SpacePE groupOrNull)
     {
         role = RoleWithHierarchy.valueOf(roleGroup, roleName);
         if (RoleLevel.SPACE.equals(roleGroup))
@@ -78,7 +78,7 @@ public final class RoleWithIdentifier
      * 
      * @return group to which the role is assigned
      */
-    public final GroupPE getAssignedGroup()
+    public final SpacePE getAssignedGroup()
     {
         assert groupOrNull != null;
         return groupOrNull;
@@ -93,16 +93,16 @@ public final class RoleWithIdentifier
         final RoleLevel roleGroup = figureRoleLevel(roleAssignment);
         final RoleCode roleName = roleAssignment.getRole();
         final DatabaseInstancePE databaseInstance = roleAssignment.getDatabaseInstance();
-        final GroupPE group = roleAssignment.getGroup();
+        final SpacePE group = roleAssignment.getSpace();
         return new RoleWithIdentifier(roleGroup, roleName, databaseInstance, group);
     }
 
     private static RoleLevel figureRoleLevel(final RoleAssignmentPE roleAssignment)
     {
-        assert roleAssignment.getDatabaseInstance() == null || roleAssignment.getGroup() == null : "Either the space or the database instance must be null";
+        assert roleAssignment.getDatabaseInstance() == null || roleAssignment.getSpace() == null : "Either the space or the database instance must be null";
         final RoleLevel roleGroup =
                 roleAssignment.getDatabaseInstance() != null ? RoleLevel.INSTANCE : roleAssignment
-                        .getGroup() != null ? RoleLevel.SPACE : null;
+                        .getSpace() != null ? RoleLevel.SPACE : null;
         assert roleGroup != null : "Either the space or the database instance must not be null";
         return roleGroup;
     }

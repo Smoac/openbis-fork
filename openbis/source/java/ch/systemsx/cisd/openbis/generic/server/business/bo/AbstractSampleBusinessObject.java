@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -132,7 +132,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
         samplePE.setRegistrator(findRegistrator());
         samplePE.setSampleType(sampleTypePE);
-        samplePE.setGroup(sampleOwner.tryGetGroup());
+        samplePE.setSpace(sampleOwner.tryGetSpace());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
         String containerIdentifier = newSample.getContainerIdentifier();
@@ -378,15 +378,15 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                             + "because there are already datasets attached to the sample.",
                     sample.getIdentifier());
         }
-        if (hasDatasets && sample.getGroup() == null)
+        if (hasDatasets && sample.getSpace() == null)
         {
             throw UserFailureException.fromTemplate("Cannot detach the sample '%s' from the space "
                     + "because there are already datasets attached to the sample.",
                     sample.getIdentifier());
         }
         if (sample.getExperiment() != null
-                && (sample.getGroup() == null || sample.getExperiment().getProject().getGroup()
-                        .equals(sample.getGroup()) == false))
+                && (sample.getSpace() == null || sample.getExperiment().getProject().getSpace()
+                        .equals(sample.getSpace()) == false))
         {
             throw new UserFailureException(
                     "Sample space must be the same as experiment space. Shared samples cannot be attached to experiments.");
@@ -419,9 +419,9 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         {
             final SampleOwner sampleOwner =
                     getSampleOwner(sampleOwnerCacheOrNull, sampleOwnerIdentifier);
-            GroupPE group = sampleOwner.tryGetGroup();
+            SpacePE group = sampleOwner.tryGetSpace();
             sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
-            sample.setGroup(group);
+            sample.setSpace(group);
         }
     }
 
@@ -475,7 +475,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
 
     private void ensureSampleAttachableToExperiment(SamplePE sample)
     {
-        if (sample.getGroup() == null)
+        if (sample.getSpace() == null)
         {
             throw UserFailureException.fromTemplate(
                     "It is not allowed to connect a shared sample '%s' to the experiment.",
@@ -610,10 +610,10 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                                 sampleOwner.tryGetDatabaseInstance());
             } else
             {
-                assert sampleOwner.isGroupLevel() : "Must be of space level.";
+                assert sampleOwner.isSpaceLevel() : "Must be of space level.";
                 samples =
-                        sampleDAO.listByCodesAndGroup(sampleCodes, containerCodeOrNull,
-                                sampleOwner.tryGetGroup());
+                        sampleDAO.listByCodesAndSpace(sampleCodes, containerCodeOrNull,
+                                sampleOwner.tryGetSpace());
             }
             results.addAll(samples);
         }

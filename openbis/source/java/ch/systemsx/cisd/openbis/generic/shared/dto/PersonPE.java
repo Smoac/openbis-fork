@@ -80,7 +80,7 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
      */
     public static final String SYSTEM_USER_ID = "system";
 
-    private GroupPE homeGroup;
+    private SpacePE homeSpace;
 
     private transient Long id;
 
@@ -189,15 +189,15 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.GROUP_COLUMN)
-    public final GroupPE getHomeGroup()
+    @JoinColumn(name = ColumnNames.SPACE_COLUMN)
+    public final SpacePE getHomeSpace()
     {
-        return homeGroup;
+        return homeSpace;
     }
 
-    public final void setHomeGroup(final GroupPE homeGroup)
+    public final void setHomeSpace(final SpacePE homeSpace)
     {
-        this.homeGroup = homeGroup;
+        this.homeSpace = homeSpace;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "personInternal")

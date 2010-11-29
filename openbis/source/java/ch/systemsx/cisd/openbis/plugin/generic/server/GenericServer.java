@@ -546,7 +546,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             for (SampleIdentifier si : sampleIdentifiers)
             {
                 IdentifierHelper
-                        .fillAndCheckGroup(si, experiment.getProject().getGroup().getCode());
+                        .fillAndCheckGroup(si, experiment.getProject().getSpace().getCode());
             }
             for (SampleIdentifier si : sampleIdentifiers)
             {

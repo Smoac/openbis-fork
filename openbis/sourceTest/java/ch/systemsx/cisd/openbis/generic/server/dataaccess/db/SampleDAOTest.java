@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -259,28 +259,27 @@ public final class SampleDAOTest extends AbstractDAOTest
     }
 
     @Test
-    public final void testTryFindByCodeAndGroup()
+    public final void testTryFindByCodeAndSpace()
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final SamplePE sample = createGroupSample();
-        boolean fail = true;
+        final SamplePE sample = createSpaceSample();
         try
         {
-            sampleDAO.tryFindByCodeAndGroup(null, null);
+            sampleDAO.tryFindByCodeAndSpace(null, null);
+            fail("AssertionError expected");
         } catch (final AssertionError e)
         {
-            fail = false;
+            // ignored
         }
-        assertFalse(fail);
-        assertEquals(sample, sampleDAO.tryFindByCodeAndGroup(sample.getCode(), sample.getGroup()));
-        assertNull(sampleDAO.tryFindByCodeAndGroup("", sample.getGroup()));
+        assertEquals(sample, sampleDAO.tryFindByCodeAndSpace(sample.getCode(), sample.getSpace()));
+        assertNull(sampleDAO.tryFindByCodeAndSpace("", sample.getSpace()));
     }
 
-    private final SamplePE findSample(String code, String groupCode)
+    private final SamplePE findSample(String code, String spaceCode)
     {
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        final GroupPE group = findGroup("CISD");
-        final SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group);
+        final SpacePE space = findSpace(spaceCode);
+        final SamplePE sample = sampleDAO.tryFindByCodeAndSpace(code, space);
         assertNotNull(sample);
 
         return sample;
@@ -435,13 +434,13 @@ public final class SampleDAOTest extends AbstractDAOTest
         deleteSample(deletedSample);
     }
 
-    private GroupPE findGroup(String groupCode)
+    private SpacePE findSpace(String spaceCode)
     {
-        GroupPE group =
-                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+        SpacePE space =
+                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
                         daoFactory.getHomeDatabaseInstance());
-        assert group != null : "group not found: " + groupCode;
-        return group;
+        assert space != null : "space not found: " + spaceCode;
+        return space;
     }
 
     @Test
@@ -487,18 +486,18 @@ public final class SampleDAOTest extends AbstractDAOTest
     }
 
     /**
-     * Creates a group sample in the database.
+     * Creates a space sample in the database.
      */
-    private final SamplePE createGroupSample()
+    private final SamplePE createSpaceSample()
     {
         final SampleTypePE sampleType = getSampleType(MASTER_PLATE);
-        final GroupPE group = createGroup("xxx");
+        final SpacePE space = createSpace("xxx");
         final SamplePE sample =
-                createSample(sampleType, "code", null, null, SampleOwner.createGroup(group));
+                createSample(sampleType, "code", null, null, SampleOwner.createSpace(space));
         save(sample);
         assertNotNull(sample);
         assertNotNull(sample.getSampleType());
-        assertNotNull(sample.getGroup());
+        assertNotNull(sample.getSpace());
         return sample;
     }
 
@@ -535,7 +534,7 @@ public final class SampleDAOTest extends AbstractDAOTest
         sample.setPermId(daoFactory.getPermIdDAO().createPermId());
         sample.setSampleType(type);
         sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
-        sample.setGroup(sampleOwner.tryGetGroup());
+        sample.setSpace(sampleOwner.tryGetSpace());
         if (generatorOrNull != null)
         {
             sample.addParentRelationship(new SampleRelationshipPE(generatorOrNull, sample,

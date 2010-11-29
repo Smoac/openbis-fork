@@ -155,7 +155,7 @@ public class SecondaryEntityDAO
 
     public Space[] getAllSpaces(long databaseInstanceId)
     {
-        return query.getAllGroups(databaseInstanceId);
+        return query.getAllSpaces(databaseInstanceId);
     }
 
     public long getGroupIdForCode(String groupCode)

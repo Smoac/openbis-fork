@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationShipSkeleton;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleSkeleton;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -78,8 +78,8 @@ public class SampleLoader implements ISampleLoader
         SampleTypePE sampleTypePE =
                 daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
         final Long sampleTypeID = sampleTypePE.getId();
-        GroupPE space =
-                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(spaceCode,
+        SpacePE space =
+                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
                         daoFactory.getHomeDatabaseInstance());
         final Long spaceID = space.getId();
         List<SampleSkeleton> sampleSkeletons =

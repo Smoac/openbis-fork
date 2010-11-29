@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -171,7 +171,7 @@ public final class DBCreator extends AbstractDAOTest
 
     private DataSetTypePE defaultDataSetType;
 
-    private GroupPE defaultGroup;
+    private SpacePE defaultGroup;
 
     private ProjectPE defaultProject;
 
@@ -221,10 +221,10 @@ public final class DBCreator extends AbstractDAOTest
         return entityType;
     }
 
-    private final GroupPE createDefaultGroup()
+    private final SpacePE createDefaultGroup()
     {
         final String code = CodeGenerator.generateDefaultCode(CreatedEntityKind.GROUP);
-        return createGroup(code);
+        return createSpace(code);
     }
 
     private final ProjectPE createDefaultProject()
@@ -232,7 +232,7 @@ public final class DBCreator extends AbstractDAOTest
         final String code = CodeGenerator.generateDefaultCode(CreatedEntityKind.PROJECT);
         final ProjectPE project = new ProjectPE();
         project.setCode(code);
-        project.setGroup(defaultGroup);
+        project.setSpace(defaultGroup);
         project.setProjectLeader(getSystemPerson());
         project.setRegistrator(getSystemPerson());
         daoFactory.getProjectDAO().createProject(project);
@@ -297,7 +297,7 @@ public final class DBCreator extends AbstractDAOTest
         sample.setSampleType(type);
         sample.setRegistrationDate(new Date());
         sample.setRegistrator(getSystemPerson());
-        sample.setGroup(defaultGroup); // not shared
+        sample.setSpace(defaultGroup); // not shared
         sample.setExperiment(experiment);
         sample.setPermId(daoFactory.getPermIdDAO().createPermId());
         return sample;

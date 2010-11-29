@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -192,11 +192,11 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     {
         DatabaseInstancePE dbInstancePE = new DatabaseInstancePE();
         dbInstancePE.setId(dbInstanceId);
-        GroupPE group =
-                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+        SpacePE group =
+                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
                         dbInstancePE);
         assertNotNull(group);
-        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndGroup(sampleCode, group);
+        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, group);
         assertNotNull(sample);
         return sample;
     }

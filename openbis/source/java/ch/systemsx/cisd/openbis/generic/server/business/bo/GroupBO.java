@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 public final class GroupBO extends AbstractBusinessObject implements IGroupBO
 {
 
-    private GroupPE group;
+    private SpacePE group;
 
     public GroupBO(final IDAOFactory daoFactory, final Session session)
     {
@@ -65,7 +65,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
                 throw new UserFailureException("Registration of space " + group
                         + " on a non-home database is not allowed.");
             }
-            getGroupDAO().createGroup(group);
+            getSpaceDAO().createSpace(group);
         } catch (final DataAccessException e)
         {
             throwException(e, "Space '" + IdentifierHelper.createGroupIdentifier(group) + "'");
@@ -83,14 +83,14 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
 
     private void validateAndSave()
     {
-        getGroupDAO().validateAndSaveUpdatedEntity(group);
+        getSpaceDAO().validateAndSaveUpdatedEntity(group);
     }
 
     public final void define(String groupCode, final String descriptionOrNull)
             throws UserFailureException
     {
         assert groupCode != null : "Unspecified space code.";
-        group = new GroupPE();
+        group = new SpacePE();
         final GroupIdentifier groupIdentifier =
                 new GroupIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
         final DatabaseInstancePE databaseInstance =
@@ -101,7 +101,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         group.setRegistrator(findRegistrator());
     }
 
-    public GroupPE getGroup() throws UserFailureException
+    public SpacePE getGroup() throws UserFailureException
     {
         return group;
     }
@@ -120,7 +120,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
     {
         try
         {
-            group = getGroupDAO().getByTechId(groupId);
+            group = getSpaceDAO().getByTechId(groupId);
         } catch (DataRetrievalFailureException exception)
         {
             throw new UserFailureException(exception.getMessage());
@@ -132,7 +132,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         loadDataByTechId(groupId);
         try
         {
-            getGroupDAO().delete(group);
+            getSpaceDAO().delete(group);
             getEventDAO().persist(createDeletionEvent(group, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
@@ -140,11 +140,11 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         }
     }
 
-    public static EventPE createDeletionEvent(GroupPE group, PersonPE registrator, String reason)
+    public static EventPE createDeletionEvent(SpacePE group, PersonPE registrator, String reason)
     {
         EventPE event = new EventPE();
         event.setEventType(EventType.DELETION);
-        event.setEntityType(EntityType.GROUP);
+        event.setEntityType(EntityType.SPACE);
         event.setIdentifier(group.getCode());
         event.setDescription(getDeletionDescription(group));
         event.setReason(reason);
@@ -153,7 +153,7 @@ public final class GroupBO extends AbstractBusinessObject implements IGroupBO
         return event;
     }
 
-    private static String getDeletionDescription(GroupPE group)
+    private static String getDeletionDescription(SpacePE group)
     {
         return String.format("%s", group.getCode());
     }

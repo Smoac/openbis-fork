@@ -557,7 +557,7 @@ final class SampleListingWorker extends AbstractLister
         sample.setSampleType(sampleTypes.get(row.saty_id));
 
         // set group or instance
-        if (row.grou_id == null)
+        if (row.space_id == null)
         {
             if (row.dbin_id.equals(databaseInstanceId))
             {
@@ -569,10 +569,10 @@ final class SampleListingWorker extends AbstractLister
             }
         } else
         {
-            final Space spaceOrNull = spaceMap.get(row.grou_id);
+            final Space spaceOrNull = spaceMap.get(row.space_id);
             if (spaceOrNull != null)
             {
-                setSpace(sample, spaceMap.get(row.grou_id));
+                setSpace(sample, spaceMap.get(row.space_id));
             } else
             // different db instance
             {

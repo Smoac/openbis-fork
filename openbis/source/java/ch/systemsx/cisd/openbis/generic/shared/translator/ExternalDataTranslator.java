@@ -180,7 +180,7 @@ public class ExternalDataTranslator
         sample.setIdentifier(samplePE.getSampleIdentifier().toString());
         sample.setRegistrationDate(samplePE.getRegistrationDate());
         sample.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
-        sample.setSpace(GroupTranslator.translate(samplePE.getGroup()));
+        sample.setSpace(GroupTranslator.translate(samplePE.getSpace()));
         if (loadSampleProperties)
         {
             sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),

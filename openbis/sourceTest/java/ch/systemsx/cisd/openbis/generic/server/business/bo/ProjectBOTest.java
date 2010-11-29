@@ -131,6 +131,6 @@ public final class ProjectBOTest extends AbstractBOTest
     private ProjectIdentifier createProjectIdent()
     {
         final ProjectPE projectDTO = ManagerTestTool.EXAMPLE_PROJECT;
-        return new ProjectIdentifier(projectDTO.getGroup().getCode(), projectDTO.getCode());
+        return new ProjectIdentifier(projectDTO.getSpace().getCode(), projectDTO.getCode());
     }
 }

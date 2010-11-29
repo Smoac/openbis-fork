@@ -3,10 +3,10 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * Determines who is the <i>owner</i> of the sample: the group or to the database instance.
+ * Determines who is the <i>owner</i> of the sample: the space or to the database instance.
  * <p>
  * Stores the owner <i>PEs</i>.
  * </p>
@@ -14,20 +14,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 public final class SampleOwner
 {
     // if filled, databaseInstanceOrNull must be null
-    private GroupPE groupOrNull;
+    private SpacePE spaceOrNull;
 
-    // if filled, groupOrNull must be null
+    // if filled, spaceOrNull must be null
     private DatabaseInstancePE databaseInstanceOrNull;
 
-    public SampleOwner(final GroupPE groupOrNull, final DatabaseInstancePE databaseInstanceOrNull)
+    public SampleOwner(final SpacePE spaceOrNull, final DatabaseInstancePE databaseInstanceOrNull)
     {
-        assert groupOrNull == null || databaseInstanceOrNull == null;
-        assert groupOrNull != null || databaseInstanceOrNull != null;
-        this.groupOrNull = groupOrNull;
+        assert spaceOrNull == null || databaseInstanceOrNull == null;
+        assert spaceOrNull != null || databaseInstanceOrNull != null;
+        this.spaceOrNull = spaceOrNull;
         this.databaseInstanceOrNull = databaseInstanceOrNull;
     }
 
-    public static SampleOwner createGroup(final GroupPE group)
+    public static SampleOwner createSpace(final SpacePE group)
     {
         return new SampleOwner(group, null);
     }
@@ -37,9 +37,9 @@ public final class SampleOwner
         return new SampleOwner(null, databaseInstance);
     }
 
-    public boolean isGroupLevel()
+    public boolean isSpaceLevel()
     {
-        return groupOrNull != null;
+        return spaceOrNull != null;
     }
 
     public boolean isDatabaseInstanceLevel()
@@ -47,9 +47,9 @@ public final class SampleOwner
         return databaseInstanceOrNull != null;
     }
 
-    public GroupPE tryGetGroup()
+    public SpacePE tryGetSpace()
     {
-        return groupOrNull;
+        return spaceOrNull;
     }
 
     public DatabaseInstancePE tryGetDatabaseInstance()
@@ -64,9 +64,9 @@ public final class SampleOwner
     @Override
     public String toString()
     {
-        if (isGroupLevel())
+        if (isSpaceLevel())
         {
-            return "group: " + groupOrNull;
+            return "space: " + spaceOrNull;
         } else
         {
             return "db instance: " + databaseInstanceOrNull;
@@ -85,9 +85,9 @@ public final class SampleOwner
             return false;
         }
         final SampleOwner that = (SampleOwner) obj;
-        if (isGroupLevel())
+        if (isSpaceLevel())
         {
-            return this.groupOrNull.equals(that.groupOrNull);
+            return this.spaceOrNull.equals(that.spaceOrNull);
         } else
         {
             return this.databaseInstanceOrNull.equals(that.databaseInstanceOrNull);
@@ -98,7 +98,7 @@ public final class SampleOwner
     public final int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(groupOrNull);
+        builder.append(spaceOrNull);
         builder.append(databaseInstanceOrNull);
         return builder.toHashCode();
     }

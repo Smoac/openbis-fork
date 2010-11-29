@@ -54,7 +54,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
 
     public enum EntityType
     {
-        ATTACHMENT, DATASET, EXPERIMENT, GROUP, MATERIAL, PROJECT, PROPERTY_TYPE, SAMPLE,
+        ATTACHMENT, DATASET, EXPERIMENT, SPACE, MATERIAL, PROJECT, PROPERTY_TYPE, SAMPLE,
         VOCABULARY, AUTHORIZATION_GROUP;
     }
 

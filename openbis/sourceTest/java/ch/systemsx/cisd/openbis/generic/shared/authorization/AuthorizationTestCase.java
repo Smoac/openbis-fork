@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -76,7 +76,7 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected RoleWithIdentifier createGroupRole(RoleCode roleCode, GroupIdentifier spaceIdentifier)
     {
-        GroupPE groupPE = new GroupPE();
+        SpacePE groupPE = new SpacePE();
         groupPE.setCode(spaceIdentifier.getSpaceCode());
         DatabaseInstancePE instance = createDatabaseInstancePE(spaceIdentifier);
         groupPE.setDatabaseInstance(instance);
@@ -155,9 +155,9 @@ public class AuthorizationTestCase extends AssertJUnit
      * Creates a list of spaces which contains {@link #createGroup()} and
      * {@link #createAnotherGroup()}.
      */
-    protected List<GroupPE> createGroups()
+    protected List<SpacePE> createGroups()
     {
-        final List<GroupPE> groups = new ArrayList<GroupPE>();
+        final List<SpacePE> groups = new ArrayList<SpacePE>();
         groups.add(createGroup());
         groups.add(createAnotherGroup());
         return groups;
@@ -167,7 +167,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * Creates a group with code {@link #SPACE_CODE} and database instance with code
      * {@link AuthorizationTestCase#INSTANCE_CODE}.
      */
-    protected GroupPE createGroup()
+    protected SpacePE createGroup()
     {
         return createGroup(SPACE_CODE, createDatabaseInstance());
     }
@@ -176,7 +176,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * Creates a group with code {@link #ANOTHER_GROUP_CODE} and database instance with code
      * {@link #ANOTHER_INSTANCE_CODE}.
      */
-    protected GroupPE createAnotherGroup()
+    protected SpacePE createAnotherGroup()
     {
         return createGroup(ANOTHER_GROUP_CODE, createAnotherDatabaseInstance());
     }
@@ -184,7 +184,7 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a group based on the specified identifier.
      */
-    protected GroupPE createGroup(GroupIdentifier identifier)
+    protected SpacePE createGroup(GroupIdentifier identifier)
     {
         final String databaseInstanceCode = identifier.getDatabaseInstanceCode();
         final DatabaseInstancePE instance = createDatabaseInstance(databaseInstanceCode);
@@ -194,10 +194,10 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a group with specified group code and database instance.
      */
-    protected GroupPE createGroup(final String groupCode,
+    protected SpacePE createGroup(final String groupCode,
             final DatabaseInstancePE databaseInstancePE)
     {
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setCode(groupCode);
         group.setDatabaseInstance(databaseInstancePE);
         return group;
@@ -231,7 +231,7 @@ public class AuthorizationTestCase extends AssertJUnit
         // Group assignment
         assignment = new RoleAssignmentPE();
         assignment.setRole(RoleCode.USER);
-        assignment.setGroup(createAnotherGroup());
+        assignment.setSpace(createAnotherGroup());
         person.addRoleAssignment(assignment);
         list.add(assignment);
 
@@ -241,17 +241,17 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a project in the specified group.
      */
-    protected ProjectPE createProject(GroupPE group)
+    protected ProjectPE createProject(SpacePE group)
     {
         final ProjectPE projectPE = new ProjectPE();
-        projectPE.setGroup(group);
+        projectPE.setSpace(group);
         return projectPE;
     }
 
     /**
      * Creates an experiment in the specified group.
      */
-    protected ExperimentPE createExperiment(GroupPE group)
+    protected ExperimentPE createExperiment(SpacePE group)
     {
         final ExperimentPE experiment = new ExperimentPE();
         final ExperimentTypePE experimentType = new ExperimentTypePE();
@@ -264,10 +264,10 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a sample in the specified group.
      */
-    protected SamplePE createSample(GroupPE group)
+    protected SamplePE createSample(SpacePE group)
     {
         final SamplePE sample = new SamplePE();
-        sample.setGroup(group);
+        sample.setSpace(group);
         sample.setSampleType(createSampleType());
         return sample;
     }
@@ -337,7 +337,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * Prepares {@link #provider} to expect a query for the home database instance and groups.
      */
     protected final void prepareProvider(final DatabaseInstancePE databaseInstance,
-            final List<GroupPE> groups)
+            final List<SpacePE> groups)
     {
         context.checking(new Expectations()
             {
@@ -373,7 +373,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * list of groups.
      */
     protected final void prepareProvider(final String databaseInstanceCode,
-            final DatabaseInstancePE databaseInstance, final List<GroupPE> groups)
+            final DatabaseInstancePE databaseInstance, final List<SpacePE> groups)
     {
         prepareProvider(databaseInstanceCode, databaseInstance);
         context.checking(new Expectations()
@@ -390,7 +390,7 @@ public class AuthorizationTestCase extends AssertJUnit
      * list of groups and a query for the specified entity kind and technical id which will return
      * the specifier group.
      */
-    protected final void prepareProvider(final List<GroupPE> groups, final GroupPE groupPE,
+    protected final void prepareProvider(final List<SpacePE> groups, final SpacePE groupPE,
             final SpaceOwnerKind entityKind, final TechId techId)
     {
         context.checking(new Expectations()

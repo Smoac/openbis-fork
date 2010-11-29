@@ -22,10 +22,10 @@ import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -201,14 +201,14 @@ public final class GroupIdentifierHelper
     }
 
     /** finds a space in the database for the given identifier */
-    public static final GroupPE tryGetGroup(final SpaceIdentifier spaceIdentifier,
+    public static final SpacePE tryGetGroup(final SpaceIdentifier spaceIdentifier,
             final PersonPE person, final IAuthorizationDAOFactory daoFactory)
     {
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
         final DatabaseInstancePE databaseInstance =
                 getDatabaseInstance(spaceIdentifier, daoFactory);
-        final IGroupDAO groupDAO = daoFactory.getGroupDAO();
-        return groupDAO.tryFindGroupByCodeAndDatabaseInstance(spaceCode, databaseInstance);
+        final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
+        return groupDAO.tryFindSpaceByCodeAndDatabaseInstance(spaceCode, databaseInstance);
     }
 
     public final static DatabaseInstancePE getDatabaseInstance(

@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -98,7 +98,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
     {
         if (org.apache.commons.lang.StringUtils.isBlank(spaceIdentifier.getSpaceCode()))
         {
-            final GroupPE group =
+            final SpacePE group =
                     GroupIdentifierHelper.tryGetGroup(spaceIdentifier, findRegistrator(), this);
             checkNotNull(spaceIdentifier, group);
             spaceIdentifier.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
@@ -106,7 +106,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
     }
 
-    private static void checkNotNull(final SpaceIdentifier spaceIdentifier, final GroupPE group)
+    private static void checkNotNull(final SpaceIdentifier spaceIdentifier, final SpacePE group)
     {
         if (group == null)
         {
@@ -160,9 +160,9 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return daoFactory.getHomeDatabaseInstance();
     }
 
-    public final IGroupDAO getGroupDAO()
+    public final ISpaceDAO getSpaceDAO()
     {
-        return daoFactory.getGroupDAO();
+        return daoFactory.getSpaceDAO();
     }
 
     public final IScriptDAO getScriptDAO()

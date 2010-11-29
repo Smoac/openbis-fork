@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -178,16 +178,16 @@ public class CommonTestUtils
         return person;
     }
 
-    static public GroupPE createGroup(final String groupCode,
+    static public SpacePE createGroup(final String groupCode,
             final DatabaseInstancePE databaseInstance)
     {
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setCode(groupCode);
         group.setDatabaseInstance(databaseInstance);
         return group;
     }
 
-    public static GroupPE createGroup(SpaceIdentifier identifier)
+    public static SpacePE createGroup(SpaceIdentifier identifier)
     {
         DatabaseInstancePE db = createDatabaseInstance(identifier.getDatabaseInstanceCode());
         return createGroup(identifier.getSpaceCode(), db);
@@ -252,7 +252,7 @@ public class CommonTestUtils
     {
         final ProjectPE project = new ProjectPE();
         project.setCode(pi.getProjectCode());
-        project.setGroup(createGroup(pi.getSpaceCode(), createDatabaseInstance(pi
+        project.setSpace(createGroup(pi.getSpaceCode(), createDatabaseInstance(pi
                 .getDatabaseInstanceCode())));
         return project;
     }

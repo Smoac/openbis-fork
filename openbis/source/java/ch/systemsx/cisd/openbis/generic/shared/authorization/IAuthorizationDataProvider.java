@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
@@ -43,13 +43,13 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     /**
      * Returns a list of all groups.
      */
-    public List<GroupPE> listGroups();
+    public List<SpacePE> listGroups();
 
     /**
      * Returns the space for the given <var>spaceCode</var> or <code>null</code>, if it does not
      * exist.
      */
-    public GroupPE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode);
+    public SpacePE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode);
 
     /**
      * Returns the experiment for the given <var>permId</var> or <code>null</code>, if it does not
@@ -90,7 +90,7 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * 
      * @return <code>null</code> if entity has no group set.
      */
-    public GroupPE tryToGetGroup(SpaceOwnerKind entityKind, TechId techId);
+    public SpacePE tryToGetGroup(SpaceOwnerKind entityKind, TechId techId);
 
     /**
      * Returns the sample with given <var>techId</var>.

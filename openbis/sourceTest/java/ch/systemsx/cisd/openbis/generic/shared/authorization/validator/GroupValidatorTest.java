@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 
@@ -52,7 +52,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     {
         final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPerson();
-        final GroupPE groupPE = createGroup();
+        final SpacePE groupPE = createGroup();
         final Space space = GroupTranslator.translate(groupPE);
         
         assertFalse(groupValidator.isValid(personPE, space));
@@ -65,7 +65,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     {
         final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPersonWithRoleAssignments();
-        final GroupPE groupPE = createAnotherGroup();
+        final SpacePE groupPE = createAnotherGroup();
         final Space space = GroupTranslator.translate(groupPE);
         assertTrue(groupValidator.isValid(personPE, space));
         context.assertIsSatisfied();
@@ -76,7 +76,7 @@ public final class GroupValidatorTest extends AuthorizationTestCase
     {
         final SpaceValidator groupValidator = new SpaceValidator();
         final PersonPE personPE = createPersonWithRoleAssignments();
-        final GroupPE groupPE = createGroup();
+        final SpacePE groupPE = createGroup();
         final Space space = GroupTranslator.translate(groupPE);
         assertTrue(groupValidator.isValid(personPE, space));
         context.assertIsSatisfied();

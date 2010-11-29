@@ -71,7 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -293,18 +293,18 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
-        final GroupPE g1 = CommonTestUtils.createGroup("g1", homeDatabaseInstance);
-        final GroupPE g2 = CommonTestUtils.createGroup("g2", homeDatabaseInstance);
+        final SpacePE g1 = CommonTestUtils.createGroup("g1", homeDatabaseInstance);
+        final SpacePE g2 = CommonTestUtils.createGroup("g2", homeDatabaseInstance);
         final Session session = createSession(CommonTestUtils.USER_ID);
         session.setPerson(person);
-        person.setHomeGroup(g1);
+        person.setHomeSpace(g1);
         g1.setId(42L);
         context.checking(new Expectations()
             {
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(session));
-                    one(groupDAO).listGroups(homeDatabaseInstance);
+                    one(groupDAO).listSpaces(homeDatabaseInstance);
                     will(returnValue(Arrays.asList(g1, g2)));
                 }
             });
@@ -1394,7 +1394,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testChangeUserHomeGroup()
     {
         final TechId groupId = CommonTestUtils.TECH_ID;
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setId(groupId.getId());
         final PersonPE person = new PersonPE();
         context.checking(new Expectations()
@@ -1412,8 +1412,8 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         createServer().changeUserHomeSpace(SESSION_TOKEN, groupId);
 
-        assertSame(group, person.getHomeGroup());
-        assertSame(groupId.getId(), person.getHomeGroup().getId());
+        assertSame(group, person.getHomeSpace());
+        assertSame(groupId.getId(), person.getHomeSpace().getId());
 
         context.assertIsSatisfied();
     }
@@ -1422,10 +1422,10 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testChangeUserHomeGroupToNull()
     {
         final TechId groupId = CommonTestUtils.TECH_ID;
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setId(groupId.getId());
         final PersonPE person = new PersonPE();
-        person.setHomeGroup(group);
+        person.setHomeSpace(group);
         context.checking(new Expectations()
             {
                 {
@@ -1438,7 +1438,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         createServer().changeUserHomeSpace(SESSION_TOKEN, null);
 
-        assertNull(person.getHomeGroup());
+        assertNull(person.getHomeSpace());
 
         context.assertIsSatisfied();
     }

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryDatabaseDefinitionProvider;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
@@ -112,11 +112,11 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
                                 + "' label is used more than once.");
             }
             labels.add(label);
-            GroupPE dataSpaceOrNull = null;
+            SpacePE dataSpaceOrNull = null;
             if (dataSpaceOrNullString != null)
             {
                 dataSpaceOrNull =
-                        daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(
+                        daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(
                                 dataSpaceOrNullString, daoFactory.getHomeDatabaseInstance());
                 if (dataSpaceOrNull == null)
                 {

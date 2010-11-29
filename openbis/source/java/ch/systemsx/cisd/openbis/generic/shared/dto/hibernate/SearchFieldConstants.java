@@ -42,7 +42,7 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_PROJECT = "project" + SEPARATOR;
 
-    public static final String PREFIX_GROUP = "space" + SEPARATOR;
+    public static final String PREFIX_SPACE = "space" + SEPARATOR;
 
     public static final String PREFIX_REGISTRATOR = "registrator" + SEPARATOR;
 

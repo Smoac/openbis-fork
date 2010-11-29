@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -289,7 +289,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 {
                     experiment = dataSet.getExperiment();
                 }
-                HibernateUtils.initialize(experiment.getProject().getGroup());
+                HibernateUtils.initialize(experiment.getProject().getSpace());
                 HibernateUtils.initialize(experiment.getProperties());
             }
             if (StringUtils.isBlank(dataStore.getRemoteUrl()))
@@ -497,7 +497,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         description.setExperimentCode(experiment.getCode());
         ProjectPE project = experiment.getProject();
         description.setProjectCode(project.getCode());
-        GroupPE group = project.getGroup();
+        SpacePE group = project.getSpace();
         description.setGroupCode(group.getCode());
         description.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
         DataSetTypePE dataSetType = dataSet.getDataSetType();

@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -141,17 +141,17 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             createUserAssignment("user1", "s1", RoleCode.USER);
                     will(returnValue(Arrays.asList(assignment1, assignment2, assignment3)));
 
-                    one(groupDAO).listGroups(daoFactory.getHomeDatabaseInstance());
-                    List<GroupPE> spaces = createSpaces("s1", "s2", "s3");
+                    one(groupDAO).listSpaces(daoFactory.getHomeDatabaseInstance());
+                    List<SpacePE> spaces = createSpaces("s1", "s2", "s3");
                     will(returnValue(spaces));
 
                     one(projectDAO).listProjects(spaces.get(0));
                     ProjectPE a = new ProjectPE();
                     a.setCode("a");
-                    a.setGroup(spaces.get(0));
+                    a.setSpace(spaces.get(0));
                     ProjectPE b = new ProjectPE();
                     b.setCode("b");
-                    b.setGroup(spaces.get(0));
+                    b.setSpace(spaces.get(0));
                     will(returnValue(Arrays.asList(a, b)));
 
                     one(projectDAO).listProjects(spaces.get(1));
@@ -160,7 +160,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     one(projectDAO).listProjects(spaces.get(2));
                     ProjectPE c = new ProjectPE();
                     c.setCode("c");
-                    c.setGroup(spaces.get(0));
+                    c.setSpace(spaces.get(0));
                     will(returnValue(Arrays.asList(c)));
                 }
             });
@@ -300,14 +300,14 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             createUserAssignment("user1", "SPACE-2", RoleCode.ADMIN);
                     will(returnValue(Arrays.asList(assignment0, assignment1, assignment2)));
 
-                    one(groupDAO).listGroups(daoFactory.getHomeDatabaseInstance());
-                    List<GroupPE> spaces = createSpaces("SPACE-1", "SPACE-2");
+                    one(groupDAO).listSpaces(daoFactory.getHomeDatabaseInstance());
+                    List<SpacePE> spaces = createSpaces("SPACE-1", "SPACE-2");
                     will(returnValue(spaces));
 
                     one(projectDAO).listProjects(spaces.get(0));
                     ProjectPE project1 = new ProjectPE();
                     project1.setCode("PROJECT-1");
-                    project1.setGroup(spaces.get(0));
+                    project1.setSpace(spaces.get(0));
                     will(returnValue(Collections.singletonList(project1)));
 
                     one(projectDAO).listProjects(spaces.get(1));
@@ -397,7 +397,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         RoleAssignmentPE assignment = new RoleAssignmentPE();
         if (spaceCodeOrNull != null)
         {
-            assignment.setGroup(createGroup(spaceCodeOrNull));
+            assignment.setSpace(createGroup(spaceCodeOrNull));
         }
         assignment.setRole(roleCode);
         PersonPE person = new PersonPE();
@@ -406,9 +406,9 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         return assignment;
     }
 
-    private List<GroupPE> createSpaces(String... codes)
+    private List<SpacePE> createSpaces(String... codes)
     {
-        List<GroupPE> list = new ArrayList<GroupPE>();
+        List<SpacePE> list = new ArrayList<SpacePE>();
         for (String code : codes)
         {
             list.add(createGroup(code));

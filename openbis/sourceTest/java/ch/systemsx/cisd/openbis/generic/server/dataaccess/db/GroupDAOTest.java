@@ -30,19 +30,19 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * Test cases for corresponding {@link GroupDAO} class.
+ * Test cases for corresponding {@link SpaceDAO} class.
  * 
  * @author Franz-Josef Elmer
  */
 @Test(groups =
     { "db", "group" })
-@Friend(toClasses = GroupPE.class)
+@Friend(toClasses = SpacePE.class)
 public final class GroupDAOTest extends AbstractDAOTest
 {
     private static final String NEW_TEST_GROUP = "test-group";
@@ -51,11 +51,11 @@ public final class GroupDAOTest extends AbstractDAOTest
     public void testCreateGroup()
     {
         final String groupCode = NEW_TEST_GROUP;
-        final GroupPE group = createGroup(groupCode);
+        final SpacePE group = createSpace(groupCode);
 
         final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
-        final GroupPE retrievedGroup =
-                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+        final SpacePE retrievedGroup =
+                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
                         databaseInstance);
         AssertJUnit.assertNotNull(retrievedGroup);
         assertEquals(group.getRegistrator(), retrievedGroup.getRegistrator());
@@ -64,7 +64,7 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test
     public void testListGroups()
     {
-        final List<GroupPE> groups = daoFactory.getGroupDAO().listGroups();
+        final List<SpacePE> groups = daoFactory.getSpaceDAO().listSpaces();
         Collections.sort(groups);
         assertEquals("CISD", groups.get(0).getCode());
         assertEquals("TESTGROUP", groups.get(1).getCode());
@@ -74,8 +74,8 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test
     public void testListGroupsOfHomeDatabaseInstance()
     {
-        final List<GroupPE> groups =
-                daoFactory.getGroupDAO().listGroups(daoFactory.getHomeDatabaseInstance());
+        final List<SpacePE> groups =
+                daoFactory.getSpaceDAO().listSpaces(daoFactory.getHomeDatabaseInstance());
         Collections.sort(groups);
         assertEquals("CISD", groups.get(0).getCode());
         assertEquals("TESTGROUP", groups.get(1).getCode());
@@ -87,8 +87,8 @@ public final class GroupDAOTest extends AbstractDAOTest
     {
         final DatabaseInstancePE databaseInstance = createDatabaseInstance("another-db");
         databaseInstance.setOriginalSource(true); // to cheat GroupDAO
-        createGroup("test-group", databaseInstance);
-        final List<GroupPE> groups = daoFactory.getGroupDAO().listGroups(databaseInstance);
+        createSpace("test-group", databaseInstance);
+        final List<SpacePE> groups = daoFactory.getSpaceDAO().listSpaces(databaseInstance);
         assertEquals("TEST-GROUP", groups.get(0).getCode());
         assertEquals(1, groups.size());
     }
@@ -98,10 +98,10 @@ public final class GroupDAOTest extends AbstractDAOTest
     {
         // create new group with no connections
         final String groupCode = NEW_TEST_GROUP;
-        createGroup(groupCode);
+        createSpace(groupCode);
 
-        final IGroupDAO groupDAO = daoFactory.getGroupDAO();
-        final GroupPE deletedGroup = findGroup(groupCode);
+        final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
+        final SpacePE deletedGroup = findGroup(groupCode);
 
         // Deleted group should have all collections which prevent it from deletion empty.
         assertTrue(deletedGroup.getProjects().isEmpty());
@@ -116,8 +116,8 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test(expectedExceptions = DataIntegrityViolationException.class)
     public final void testDeleteFail()
     {
-        final IGroupDAO groupDAO = daoFactory.getGroupDAO();
-        final GroupPE deletedGroup = findGroup("TESTGROUP");
+        final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
+        final SpacePE deletedGroup = findGroup("TESTGROUP");
 
         // Deleted project should have projects which prevent it from deletion.
         assertFalse(deletedGroup.getProjects().isEmpty());
@@ -126,12 +126,12 @@ public final class GroupDAOTest extends AbstractDAOTest
         groupDAO.delete(deletedGroup);
     }
 
-    private final GroupPE findGroup(String code)
+    private final SpacePE findGroup(String code)
     {
-        final IGroupDAO groupDAO = daoFactory.getGroupDAO();
+        final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
         final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
-        final GroupPE group =
-                groupDAO.tryFindGroupByCodeAndDatabaseInstance(code, databaseInstance);
+        final SpacePE group =
+                groupDAO.tryFindSpaceByCodeAndDatabaseInstance(code, databaseInstance);
         assertNotNull(group);
 
         return group;

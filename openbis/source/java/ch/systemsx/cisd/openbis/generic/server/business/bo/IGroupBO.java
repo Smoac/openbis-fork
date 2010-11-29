@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * Business object of a group. Holds an instance of {@link GroupPE}.
+ * Business object of a group. Holds an instance of {@link SpacePE}.
  * 
  * @author Christian Ribeaud
  */
@@ -50,7 +50,7 @@ public interface IGroupBO extends IEntityBusinessObject
     /**
      * Returns the group or null.
      */
-    public GroupPE getGroup() throws UserFailureException;
+    public SpacePE getGroup() throws UserFailureException;
 
     /**
      * Updates the group.

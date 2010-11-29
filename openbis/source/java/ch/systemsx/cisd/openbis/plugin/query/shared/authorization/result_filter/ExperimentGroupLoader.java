@@ -23,7 +23,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * {@link IGroupLoader} for experiments.
@@ -40,13 +40,13 @@ class ExperimentGroupLoader implements IGroupLoader
         this.dao = dao;
     }
 
-    public Map<String, GroupPE> loadGroups(Set<String> keys)
+    public Map<String, SpacePE> loadGroups(Set<String> keys)
     {
-        Map<String, GroupPE> map = new HashMap<String, GroupPE>();
+        Map<String, SpacePE> map = new HashMap<String, SpacePE>();
         List<ExperimentPE> experiments = dao.listByPermID(keys);
         for (ExperimentPE e : experiments)
         {
-            map.put(e.getPermId(), e.getProject().getGroup());
+            map.put(e.getPermId(), e.getProject().getSpace());
         }
         return map;
     }

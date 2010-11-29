@@ -56,15 +56,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  * @author Christian Ribeaud
  */
 @Entity
-@Table(name = TableNames.GROUPS_TABLE, uniqueConstraints =
+@Table(name = TableNames.SPACES_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
         { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
-public final class GroupPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
-        Comparable<GroupPE>, Serializable
+public final class SpacePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
+        Comparable<SpacePE>, Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
-    public static final GroupPE[] EMPTY_ARRAY = new GroupPE[0];
+    public static final SpacePE[] EMPTY_ARRAY = new SpacePE[0];
 
     private transient Long id;
 
@@ -127,9 +127,9 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     // IIdAndCodeHolder
     //
 
-    @SequenceGenerator(name = SequenceNames.GROUP_SEQUENCE, sequenceName = SequenceNames.GROUP_SEQUENCE, allocationSize = 1)
+    @SequenceGenerator(name = SequenceNames.SPACE_SEQUENCE, sequenceName = SequenceNames.SPACE_SEQUENCE, allocationSize = 1)
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.GROUP_SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.SPACE_SEQUENCE)
     @Field(index = Index.NO, store = Store.YES)
     public final Long getId()
     {
@@ -156,11 +156,11 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
         {
             return true;
         }
-        if (obj instanceof GroupPE == false)
+        if (obj instanceof SpacePE == false)
         {
             return false;
         }
-        final GroupPE that = (GroupPE) obj;
+        final SpacePE that = (SpacePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
         builder.append(getDatabaseInstance(), that.getDatabaseInstance());
@@ -195,7 +195,7 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     /**
      * If <code>null</code> values are present for <code>code</code>, then they come first.
      */
-    public final int compareTo(final GroupPE o)
+    public final int compareTo(final SpacePE o)
     {
         return AbstractIdAndCodeHolder.compare(this, o);
     }
@@ -207,7 +207,7 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     private List<ProjectPE> projects = new ArrayList<ProjectPE>();
 
     @Private
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "space")
     public List<ProjectPE> getProjects()
     {
         return projects;

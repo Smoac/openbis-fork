@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -62,7 +62,7 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
         databaseInstancePE.setCode(databaseInstanceCode);
         final long databaseInstanceId = 12L;
         databaseInstancePE.setId(databaseInstanceId);
-        final GroupPE groupPE = new GroupPE();
+        final SpacePE groupPE = new SpacePE();
         groupPE.setCode(groupCode);
         context.checking(new Expectations()
             {
@@ -74,7 +74,7 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(databaseInstanceCode);
                     will(returnValue(databaseInstancePE));
 
-                    one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(groupCode.toUpperCase(),
+                    one(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(groupCode.toUpperCase(),
                             databaseInstancePE);
                     will(returnValue(groupPE));
                 }

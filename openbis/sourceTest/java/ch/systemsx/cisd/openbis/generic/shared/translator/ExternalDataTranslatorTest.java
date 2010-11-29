@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -93,12 +93,12 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         experimentPE.setExperimentType(new ExperimentTypePE());
         ProjectPE projectPE = new ProjectPE();
         projectPE.setCode("my-project");
-        GroupPE groupPE = new GroupPE();
+        SpacePE groupPE = new SpacePE();
         groupPE.setCode("my-group");
         DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
         databaseInstancePE.setCode("my-instance");
         groupPE.setDatabaseInstance(databaseInstancePE);
-        projectPE.setGroup(groupPE);
+        projectPE.setSpace(groupPE);
         experimentPE.setProject(projectPE);
         externalDataPE.setExperiment(experimentPE);
         externalDataPE.setProductionDate(new Date(1));
@@ -159,12 +159,12 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         experimentPE.setExperimentType(new ExperimentTypePE());
         ProjectPE projectPE = new ProjectPE();
         projectPE.setCode("my-project");
-        GroupPE groupPE = new GroupPE();
+        SpacePE groupPE = new SpacePE();
         groupPE.setCode("my-group");
         DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
         databaseInstancePE.setCode("my-instance");
         groupPE.setDatabaseInstance(databaseInstancePE);
-        projectPE.setGroup(groupPE);
+        projectPE.setSpace(groupPE);
         experimentPE.setProject(projectPE);
         externalDataPE.setExperiment(experimentPE);
 

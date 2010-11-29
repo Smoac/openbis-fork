@@ -57,7 +57,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public static final int FETCH_SIZE = 1000;
 
     static final String SELECT_FROM_SAMPLES_S =
-            "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.saty_id, s.dbin_id, "
+            "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, s.dbin_id, "
                     + "   s.registration_timestamp, s.modification_timestamp, s.pers_id_registerer, "
                     + "   s.inva_id, s.samp_id_part_of                                              "
                     + " FROM samples s";
@@ -65,7 +65,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the total number of all samples in the database.
      */
-    @Select(sql = "select count(*) from samples s left join groups g on s.grou_id=g.id where s.dbin_id=?{1} or g.dbin_id=?{1}")
+    @Select(sql = "select count(*) from samples s left join spaces g on s.space_id=g.id where s.dbin_id=?{1} or g.dbin_id=?{1}")
     public long getSampleCount(long dbInstanceId);
 
     // relationships
@@ -101,7 +101,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<SampleRelationRecord> getParentRelations(long relationshipId,
             LongSet childrenSampleIds);
 
-    @Select(sql = "select id, saty_id, grou_id, dbin_id, expe_id from samples", fetchSize = FETCH_SIZE)
+    @Select(sql = "select id, saty_id, space_id, dbin_id, expe_id from samples", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSampleSkeletons();
 
     @Select(sql = "select * from sample_relationships", fetchSize = FETCH_SIZE)
@@ -118,7 +118,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns all samples in the database.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " left join groups g on s.grou_id=g.id"
+    @Select(sql = SELECT_FROM_SAMPLES_S + " left join spaces g on s.space_id=g.id"
             + " where s.dbin_id=?{1} or g.dbin_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamples(long dbInstanceId);
 
@@ -130,14 +130,14 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * Returns the samples for the given <var>groupCode</var>.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join sample_types st on s.saty_id=st.id"
-            + " join groups g on s.grou_id=g.id "
+            + " join spaces g on s.space_id=g.id "
             + " where st.is_listable and g.dbin_id=?{1} and g.code=?{2} order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getListableGroupSamples(long dbInstanceId, String groupCode);
 
     /**
      * Returns the samples for the given <var>groupCode</var> that are assigned to an experiment.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " join groups g on s.grou_id=g.id "
+    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2} "
             + " order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getGroupSamplesWithExperiment(long dbInstanceId,
@@ -146,7 +146,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var>
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " join groups g on s.grou_id=g.id "
+    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3}       "
             + " order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getGroupSamplesForSampleType(long dbInstanceId,
@@ -156,42 +156,42 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var> that are
      * assigned to an experiment.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " join groups g on s.grou_id=g.id "
+    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3} "
             + " order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getGroupSamplesForSampleTypeWithExperiment(long dbInstanceId,
             String groupCode, long sampleTypeId);
 
     /**
-     * Returns the samples for all groups.
+     * Returns the samples for all spaces.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join sample_types st on s.saty_id=st.id"
-            + " join groups g on s.grou_id=g.id "
+            + " join spaces g on s.space_id=g.id "
             + " where st.is_listable and g.dbin_id=?{1} order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getAllListableGroupSamples(long dbInstanceId);
 
     /**
-     * Returns the samples for all groups that are assigned to an experiment.
+     * Returns the samples for all spaces that are assigned to an experiment.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " join groups g on s.grou_id=g.id "
+    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where s.expe_id is not null and g.dbin_id=?{1}                 "
             + " order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getAllGroupSamplesWithExperiment(long dbInstanceId);
 
     /**
-     * Returns the samples for all groups and <var>sampleTypeId</var>
+     * Returns the samples for all spaces and <var>sampleTypeId</var>
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " join groups g on s.grou_id=g.id "
+    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where g.dbin_id=?{1} and s.saty_id=?{2}                        "
             + " order by s.code", fetchSize = FETCH_SIZE, rubberstamp = true)
     public DataIterator<SampleRecord> getAllGroupSamplesForSampleType(long dbInstanceId,
             long sampleTypeId);
 
     /**
-     * Returns the samples for all groups and <var>sampleTypeId</var> that are assigned to an
+     * Returns the samples for all spaces and <var>sampleTypeId</var> that are assigned to an
      * experiment.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " join groups g on s.grou_id=g.id "
+    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
             + " where s.expe_id is not null and g.dbin_id=?{1} and s.saty_id=?{2} "
             + " order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getAllGroupSamplesForSampleTypeWithExperiment(

@@ -55,7 +55,7 @@ public class AuthenticationSystemTest extends SystemTestCase
         String sessionToken = systemUser.getSessionToken();
         PersonPE person = commonServer.getAuthSession(sessionToken).tryGetPerson();
         RoleAssignmentPE role = person.getAllPersonRoles().iterator().next();
-        assertEquals(null, role.getGroup());
+        assertEquals(null, role.getSpace());
         assertEquals(RoleCode.ADMIN, role.getRole());
     }
 }

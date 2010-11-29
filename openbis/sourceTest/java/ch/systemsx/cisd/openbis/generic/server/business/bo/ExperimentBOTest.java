@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -449,9 +449,9 @@ public final class ExperimentBOTest extends AbstractBOTest
         ExperimentIdentifier identifier = CommonTestUtils.createExperimentIdentifier();
         ExperimentPE exp = CommonTestUtils.createExperiment(identifier);
 
-        GroupPE group = CommonTestUtils.createGroup(identifier);
+        SpacePE group = CommonTestUtils.createGroup(identifier);
         SamplePE assignedSample = createSampleWithCode("assignedSample");
-        assignedSample.setGroup(group);
+        assignedSample.setSpace(group);
         exp.setSamples(Arrays.asList(assignedSample));
 
         prepareLoadExperimentByIdentifier(identifier, exp);
@@ -464,12 +464,12 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareTryFindProject(newProjectIdentifier, newProject);
 
         assertFalse(newProject.equals(exp.getProject()));
-        assertFalse(newProject.getGroup().equals(assignedSample.getGroup()));
+        assertFalse(newProject.getSpace().equals(assignedSample.getSpace()));
 
         expBO.updateProject(newProjectIdentifier);
 
         assertEquals(newProject, exp.getProject());
-        assertEquals(newProject.getGroup(), assignedSample.getGroup());
+        assertEquals(newProject.getSpace(), assignedSample.getSpace());
     }
 
     @Test
@@ -487,7 +487,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         exp.setSamples(Arrays.asList(untouchedSample, unassignedSample));
 
         prepareLoadExperimentByIdentifier(identifier, exp);
-        prepareTryFindSample(exp.getProject().getGroup(), assignedSample.getCode(), assignedSample);
+        prepareTryFindSample(exp.getProject().getSpace(), assignedSample.getCode(), assignedSample);
         prepareNoDatasetsFound();
         final ExperimentBO expBO = loadExperiment(identifier, exp);
 
@@ -521,7 +521,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         assert exp.getSamples().size() == 0 : "no samples expected";
 
         prepareLoadExperimentByIdentifier(identifier, exp);
-        prepareTryFindSample(exp.getProject().getGroup(), assignedSample.getCode(), assignedSample);
+        prepareTryFindSample(exp.getProject().getSpace(), assignedSample.getCode(), assignedSample);
 
         final ExperimentBO expBO = loadExperiment(identifier, exp);
 
@@ -552,7 +552,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadExperimentByIdentifier(identifier, exp);
         final ExperimentBO expBO = loadExperiment(identifier, exp);
 
-        prepareTryFindSample(exp.getProject().getGroup(), unknownSampleCode, null);
+        prepareTryFindSample(exp.getProject().getSpace(), unknownSampleCode, null);
         String errorMsg =
                 "Samples with following codes do not exist in the space 'HOME_GROUP': '[unknownSampleCode]'.";
         try
@@ -654,13 +654,13 @@ public final class ExperimentBOTest extends AbstractBOTest
         return expBO;
     }
 
-    private void prepareTryFindSample(final GroupPE group, final String sampleCode,
+    private void prepareTryFindSample(final SpacePE group, final String sampleCode,
             final SamplePE foundSample)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group);
+                    one(sampleDAO).tryFindByCodeAndSpace(sampleCode, group);
                     will(returnValue(foundSample));
                 }
             });
@@ -694,12 +694,12 @@ public final class ExperimentBOTest extends AbstractBOTest
     {
         ProjectPE project = new ProjectPE();
         project.setCode(projectCode);
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setCode(groupCode);
         final DatabaseInstancePE db = new DatabaseInstancePE();
         db.setCode(dbCode);
         group.setDatabaseInstance(db);
-        project.setGroup(group);
+        project.setSpace(group);
         return project;
     }
 

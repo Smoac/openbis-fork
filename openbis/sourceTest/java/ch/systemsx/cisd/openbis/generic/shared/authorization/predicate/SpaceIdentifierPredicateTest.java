@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -58,7 +58,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseInstanceDoesNotExist()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, null, Collections.<GroupPE> emptyList());
+        prepareProvider(INSTANCE_CODE, null, Collections.<SpacePE> emptyList());
         predicate.init(provider);
         predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
                 INSTANCE_CODE, SPACE_CODE)).isError();
@@ -69,7 +69,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<GroupPE> emptyList());
+        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<SpacePE> emptyList());
         predicate.init(provider);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), new GroupIdentifier(
                 INSTANCE_CODE, SPACE_CODE)).isError());
@@ -96,8 +96,8 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createGroups());
         predicate.init(provider);
         final PersonPE person = createPerson();
-        final GroupPE homeGroup = createGroup();
-        person.setHomeGroup(homeGroup);
+        final SpacePE homeGroup = createGroup();
+        person.setHomeSpace(homeGroup);
         final GroupIdentifier groupIdentifier = new GroupIdentifier(INSTANCE_CODE, null);
         final Status evaluation =
                 predicate.doEvaluation(person, createRoles(false), groupIdentifier);
@@ -125,7 +125,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     {
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        final List<GroupPE> groups = createGroups();
+        final List<SpacePE> groups = createGroups();
         groups.add(createGroup(ANOTHER_GROUP_CODE, homeDatabaseInstance));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);
         predicate.init(provider);

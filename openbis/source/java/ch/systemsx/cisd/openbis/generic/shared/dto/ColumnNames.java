@@ -112,9 +112,7 @@ public final class ColumnNames
 
     public static final String GENERATED_FROM_SAMPLE_COLUMN = "samp_id_generated_from";
 
-    public static final String GROUP_COLUMN = "grou_id";
-
-    public static final String GROUP_PARENT_COLUMN = "grou_id_parent";
+    public static final String SPACE_COLUMN = "space_id";
 
     public static final String ID_COLUMN = "id";
 

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared;
 
 import ch.systemsx.cisd.authentication.ILogMessagePrefixGenerator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -36,7 +36,7 @@ public final class LogMessagePrefixGenerator implements ILogMessagePrefixGenerat
         PersonPE person = sessionOrNull.tryGetPerson();
         if (person != null)
         {
-            GroupPE homeGroup = person.getHomeGroup();
+            SpacePE homeGroup = person.getHomeSpace();
             if (homeGroup != null)
             {
                 groupCode = homeGroup.getCode();

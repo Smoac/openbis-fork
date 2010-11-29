@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -118,10 +118,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         Map<String, List<RoleAssignmentPE>> roleAssignmentsPerSpace = getRoleAssignmentsPerSpace();
         List<RoleAssignmentPE> instanceRoleAssignments = roleAssignmentsPerSpace.get(null);
-        List<GroupPE> spaces = listSpaces(databaseInstanceCodeOrNull);
+        List<SpacePE> spaces = listSpaces(databaseInstanceCodeOrNull);
         List<SpaceWithProjectsAndRoleAssignments> result =
                 new ArrayList<SpaceWithProjectsAndRoleAssignments>();
-        for (GroupPE space : spaces)
+        for (SpacePE space : spaces)
         {
             SpaceWithProjectsAndRoleAssignments fullSpace =
                     new SpaceWithProjectsAndRoleAssignments(space.getCode());
@@ -155,7 +155,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 new HashMap<String, List<RoleAssignmentPE>>();
         for (RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            GroupPE space = roleAssignment.getGroup();
+            SpacePE space = roleAssignment.getSpace();
             String spaceCode = space == null ? null : space.getCode();
             List<RoleAssignmentPE> list = roleAssignmentsPerSpace.get(spaceCode);
             if (list == null)
@@ -168,7 +168,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return roleAssignmentsPerSpace;
     }
 
-    private List<GroupPE> listSpaces(String databaseInstanceCodeOrNull)
+    private List<SpacePE> listSpaces(String databaseInstanceCodeOrNull)
     {
         IDAOFactory daoFactory = getDAOFactory();
         DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
@@ -178,10 +178,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             databaseInstance =
                     databaseInstanceDAO.tryFindDatabaseInstanceByCode(databaseInstanceCodeOrNull);
         }
-        return daoFactory.getGroupDAO().listGroups(databaseInstance);
+        return daoFactory.getSpaceDAO().listSpaces(databaseInstance);
     }
 
-    private void addProjectsTo(SpaceWithProjectsAndRoleAssignments fullSpace, GroupPE space)
+    private void addProjectsTo(SpaceWithProjectsAndRoleAssignments fullSpace, SpacePE space)
     {
         List<ProjectPE> projects = getDAOFactory().getProjectDAO().listProjects(space);
         for (ProjectPE project : projects)
@@ -196,7 +196,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         {
             Role role =
                     Translator.translate(roleAssignment.getRole(),
-                            roleAssignment.getGroup() != null);
+                            roleAssignment.getSpace() != null);
             Set<PersonPE> persons;
             AuthorizationGroupPE authorizationGroup = roleAssignment.getAuthorizationGroup();
             if (authorizationGroup != null)

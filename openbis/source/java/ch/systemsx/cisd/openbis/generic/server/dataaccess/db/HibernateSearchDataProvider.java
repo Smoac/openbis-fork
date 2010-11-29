@@ -22,7 +22,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 
 /**
@@ -36,9 +36,9 @@ public class HibernateSearchDataProvider
 
     public HibernateSearchDataProvider(IDAOFactory factory)
     {
-        List<GroupPE> groups = factory.getGroupDAO().listGroups();
+        List<SpacePE> groups = factory.getSpaceDAO().listSpaces();
         groupsById = new HashMap<String, Space>();
-        for (GroupPE group : groups)
+        for (SpacePE group : groups)
         {
             groupsById.put(group.getId().toString(), GroupTranslator.translate(group));
         }

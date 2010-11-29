@@ -70,7 +70,7 @@ public final class AttachmentTranslator
         {
             ProjectPE project = (ProjectPE) holder;
             return PermlinkUtilities.createProjectAttachmentPermlinkURL(baseIndexURL, fileName,
-                    version, project.getCode(), project.getGroup().getCode());
+                    version, project.getCode(), project.getSpace().getCode());
         } else
         {
             return PermlinkUtilities.createAttachmentPermlinkURL(baseIndexURL, fileName, version,

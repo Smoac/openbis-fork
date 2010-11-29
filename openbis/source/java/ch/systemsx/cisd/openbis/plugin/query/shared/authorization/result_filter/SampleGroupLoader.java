@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -40,13 +40,13 @@ class SampleGroupLoader implements IGroupLoader
         this.dao = dao;
     }
 
-    public Map<String, GroupPE> loadGroups(Set<String> keys)
+    public Map<String, SpacePE> loadGroups(Set<String> keys)
     {
-        Map<String, GroupPE> map = new HashMap<String, GroupPE>();
+        Map<String, SpacePE> map = new HashMap<String, SpacePE>();
         List<SamplePE> samples = dao.listByPermID(keys);
         for (SamplePE s : samples)
         {
-            map.put(s.getPermId(), s.getGroup());
+            map.put(s.getPermId(), s.getSpace());
         }
         return map;
     }

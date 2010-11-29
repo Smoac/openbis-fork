@@ -60,9 +60,9 @@ public interface IRoleAssignmentDAO extends IGenericDAO<RoleAssignmentPE>
     public List<RoleAssignmentPE> listRoleAssignmentsByPerson(final PersonPE person);
 
     /**
-     * Returns a {@link RoleAssignmentPE} described by given role, group code and grantee.
+     * Returns a {@link RoleAssignmentPE} described by given role, space code and grantee.
      */
-    public RoleAssignmentPE tryFindGroupRoleAssignment(RoleCode role, String group, Grantee grantee);
+    public RoleAssignmentPE tryFindSpaceRoleAssignment(RoleCode role, String space, Grantee grantee);
 
     /**
      * Returns a {@link RoleAssignmentPE} described by given role and grantee.

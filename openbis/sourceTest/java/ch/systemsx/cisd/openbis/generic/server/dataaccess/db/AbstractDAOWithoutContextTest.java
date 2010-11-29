@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -224,10 +224,10 @@ public abstract class AbstractDAOWithoutContextTest extends
         return databaseInstance;
     }
 
-    protected GroupPE createGroup(final String groupCode)
+    protected SpacePE createSpace(final String spaceCode)
     {
         final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
-        return createGroup(groupCode, databaseInstance);
+        return createSpace(spaceCode, databaseInstance);
     }
 
     protected ScriptPE createScriptInDB(final String name, String script, String description,
@@ -251,14 +251,14 @@ public abstract class AbstractDAOWithoutContextTest extends
         return result;
     }
 
-    protected GroupPE createGroup(final String groupCode, final DatabaseInstancePE databaseInstance)
+    protected SpacePE createSpace(final String spaceCode, final DatabaseInstancePE databaseInstance)
     {
-        final GroupPE group = new GroupPE();
-        group.setCode(groupCode);
-        group.setDatabaseInstance(databaseInstance);
-        group.setRegistrator(getSystemPerson());
-        daoFactory.getGroupDAO().createGroup(group);
-        return group;
+        final SpacePE space = new SpacePE();
+        space.setCode(spaceCode);
+        space.setDatabaseInstance(databaseInstance);
+        space.setRegistrator(getSystemPerson());
+        daoFactory.getSpaceDAO().createSpace(space);
+        return space;
     }
 
     protected ExternalDataPE findExternalData(String code)

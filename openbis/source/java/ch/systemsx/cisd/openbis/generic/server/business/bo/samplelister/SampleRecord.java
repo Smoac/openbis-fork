@@ -19,7 +19,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 // PERS_ID_REGISTERER TECH_ID NOT NULL,
 // INVA_ID TECH_ID,
 // DBIN_ID TECH_ID,
-// GROU_ID TECH_ID,
+// SPACE_ID TECH_ID,
 // SAMP_ID_PART_OF TECH_ID);
 @Private
 public class SampleRecord extends CodeRecord
@@ -28,7 +28,7 @@ public class SampleRecord extends CodeRecord
 
     public Long expe_id;
 
-    public Long grou_id;
+    public Long space_id;
 
     public Long dbin_id;
 

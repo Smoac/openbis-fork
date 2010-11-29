@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -113,31 +113,31 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return sample.getGenerated();
     }
 
-    public final List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
-            final String propertyValue, final GroupPE group) throws DataAccessException
+    public final List<SamplePE> listSamplesBySpaceAndProperty(final String propertyCode,
+            final String propertyValue, final SpacePE space) throws DataAccessException
     {
-        assert group != null : "Unspecified space.";
+        assert space != null : "Unspecified space.";
         assert propertyCode != null : "Unspecified property code";
         assert propertyValue != null : "Unspecified property value";
 
         String queryFormat =
                 "from " + SamplePropertyPE.class.getSimpleName()
-                        + " where %s = ? and entity.group = ? "
+                        + " where %s = ? and entity.space = ? "
                         + " and entityTypePropertyType.propertyTypeInternal.simpleCode = ?"
                         + " and entityTypePropertyType.propertyTypeInternal.internalNamespace = ?";
         List<SamplePE> entities =
-                listByPropertyValue(queryFormat, propertyCode, propertyValue, group);
+                listByPropertyValue(queryFormat, propertyCode, propertyValue, space);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
                     "%d samples have been found for space '%s' and property '%s' equal to '%s'.",
-                    entities.size(), group, propertyCode, propertyValue));
+                    entities.size(), space, propertyCode, propertyValue));
         }
         return entities;
     }
 
     private List<SamplePE> listByPropertyValue(String queryFormat, String propertyCode,
-            String propertyValue, GroupPE parent)
+            String propertyValue, SpacePE parent)
     {
         String simplePropertyCode = CodeConverter.tryToDatabase(propertyCode);
         boolean isInternalNamespace = CodeConverter.isInternalNamespace(propertyCode);
@@ -222,35 +222,35 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return result;
     }
 
-    public final SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
+    public final SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
     {
         assert sampleCode != null : "Unspecified sample code.";
-        assert group != null : "Unspecified space.";
+        assert space != null : "Unspecified space.";
 
-        Criteria criteria = createGroupCriteria(group);
+        Criteria criteria = createSpaceCriteria(space);
         addSampleCodeCriterion(criteria, sampleCode);
         SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (sample == null && isFullCode(sampleCode) == false)
         {
-            criteria = createGroupCriteria(group);
+            criteria = createSpaceCriteria(space);
             sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
         }
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
                     "Following sample '%s' has been found for code '%s' and space '%s'.", sample,
-                    sampleCode, group));
+                    sampleCode, space));
         }
         return sample;
     }
 
-    public final List<SamplePE> listByCodesAndGroup(final List<String> sampleCodes,
-            final String containerCodeOrNull, final GroupPE group)
+    public final List<SamplePE> listByCodesAndSpace(final List<String> sampleCodes,
+            final String containerCodeOrNull, final SpacePE space)
     {
         assert sampleCodes != null : "Unspecified sample codes.";
-        assert group != null : "Unspecified space.";
+        assert space != null : "Unspecified space.";
 
-        Criteria criteria = createGroupCriteria(group);
+        Criteria criteria = createSpaceCriteria(space);
         addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
@@ -286,9 +286,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         return createFindCriteria(Restrictions.eq("databaseInstance", databaseInstance));
     }
 
-    private Criteria createGroupCriteria(final GroupPE group)
+    private Criteria createSpaceCriteria(final SpacePE space)
     {
-        return createFindCriteria(Restrictions.eq("group", group));
+        return createFindCriteria(Restrictions.eq("space", space));
     }
 
     private void addSampleCodesCriterion(Criteria criteria, List<String> sampleCodes,

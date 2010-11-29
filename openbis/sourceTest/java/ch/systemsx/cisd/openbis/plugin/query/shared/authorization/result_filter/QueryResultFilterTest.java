@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.IAuthorizationChecker;
 
@@ -102,7 +102,7 @@ public class QueryResultFilterTest extends AssertJUnit
                     will(returnValue(loader));
 
                     exactly(3).of(loader).loadGroups(new HashSet<String>());
-                    will(returnValue(new HashMap<String, GroupPE>()));
+                    will(returnValue(new HashMap<String, SpacePE>()));
                 }
             });
 
@@ -136,7 +136,7 @@ public class QueryResultFilterTest extends AssertJUnit
                     will(returnValue(loader));
 
                     exactly(3).of(loader).loadGroups(new HashSet<String>());
-                    will(returnValue(new HashMap<String, GroupPE>()));
+                    will(returnValue(new HashMap<String, SpacePE>()));
                 }
             });
 
@@ -179,13 +179,13 @@ public class QueryResultFilterTest extends AssertJUnit
                     keys.add(KEY2);
 
                     one(loader).loadGroups(keys);
-                    HashMap<String, GroupPE> map = new HashMap<String, GroupPE>();
-                    GroupPE group = new GroupPE();
+                    HashMap<String, SpacePE> map = new HashMap<String, SpacePE>();
+                    SpacePE group = new SpacePE();
                     map.put(KEY1, group);
                     will(returnValue(map));
 
                     exactly(2).of(loader).loadGroups(new HashSet<String>());
-                    will(returnValue(new HashMap<String, GroupPE>()));
+                    will(returnValue(new HashMap<String, SpacePE>()));
 
                     one(authorizationChecker).isAuthorized(person, group, RoleWithHierarchy.SPACE_OBSERVER);
                     will(returnValue(true));

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -34,15 +34,15 @@ public interface IProjectDAO extends IGenericDAO<ProjectPE>
     public List<ProjectPE> listProjects();
 
     /**
-     * Lists projects from given group.
+     * Lists projects from given space.
      */
-    public List<ProjectPE> listProjects(GroupPE group);
+    public List<ProjectPE> listProjects(SpacePE space);
 
     /**
-     * Returns project for given database instance code, group code and project code or null if such
+     * Returns project for given database instance code, space code and project code or null if such
      * a project does not exist.
      */
-    public ProjectPE tryFindProject(String databaseInstanceCode, String groupCode,
+    public ProjectPE tryFindProject(String databaseInstanceCode, String spaceCode,
             String projectCode);
 
     /**

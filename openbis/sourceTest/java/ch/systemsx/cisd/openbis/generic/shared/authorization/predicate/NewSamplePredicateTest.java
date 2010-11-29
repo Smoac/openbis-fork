@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -104,7 +104,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");
-        List<GroupPE> groups = Arrays.asList(createGroup(groupIdentifier));
+        List<SpacePE> groups = Arrays.asList(createGroup(groupIdentifier));
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);
         predicate.init(provider);
 

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -65,7 +65,7 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     protected IScriptFactory scriptFactory;
 
-    protected IGroupDAO groupDAO;
+    protected ISpaceDAO groupDAO;
 
     protected IScriptDAO scriptDAO;
 
@@ -121,7 +121,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         context = new Mockery();
         daoFactory = context.mock(IDAOFactory.class);
         scriptFactory = context.mock(IScriptFactory.class);
-        groupDAO = context.mock(IGroupDAO.class);
+        groupDAO = context.mock(ISpaceDAO.class);
         relationshipTypeDAO = context.mock(IRelationshipTypeDAO.class);
         experimentDAO = context.mock(IExperimentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
@@ -152,7 +152,7 @@ public abstract class AbstractBOTest extends AssertJUnit
                     allowing(daoFactory).getSessionFactory();
                     allowing(daoFactory).getDatabaseInstanceDAO();
                     will(returnValue(databaseInstanceDAO));
-                    allowing(daoFactory).getGroupDAO();
+                    allowing(daoFactory).getSpaceDAO();
                     will(returnValue(groupDAO));
                     allowing(daoFactory).getVocabularyDAO();
                     will(returnValue(vocabularyDAO));

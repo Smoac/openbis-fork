@@ -30,10 +30,10 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -49,9 +49,9 @@ public class ManagerTestTool
 
     public static final DatabaseInstancePE EXAMPLE_DATABASE_INSTANCE = createDatabaseInstance();
 
-    public static final GroupPE EXAMPLE_GROUP = createGroup();
+    public static final SpacePE EXAMPLE_GROUP = createGroup();
 
-    public static final GroupPE EXAMPLE_GROUP2 = createGroup2();
+    public static final SpacePE EXAMPLE_GROUP2 = createGroup2();
 
     public static final PersonPE EXAMPLE_PERSON = createPerson();
 
@@ -80,23 +80,23 @@ public class ManagerTestTool
      * Prepares mock GroupDAO with {@link #EXAMPLE_GROUP};
      */
     public final static void prepareGroupDAO(final Mockery context,
-            final IAuthorizationDAOFactory daoFactory, final IGroupDAO groupDAO)
+            final IAuthorizationDAOFactory daoFactory, final ISpaceDAO groupDAO)
     {
         InvocationExpectationBuilder builder = new InvocationExpectationBuilder();
-        builder.of(daoFactory).getGroupDAO();
+        builder.of(daoFactory).getSpaceDAO();
         context.addExpectation(builder.toExpectation(new ReturnValueAction(groupDAO)));
 
         builder = new InvocationExpectationBuilder();
-        builder.of(groupDAO).listGroups();
+        builder.of(groupDAO).listSpaces();
         context.addExpectation(builder.toExpectation(new ReturnValueAction(Arrays
                 .asList(EXAMPLE_GROUP))));
     }
 
     public final static void prepareFindGroup(final Expectations expectations,
-            final IAuthorizationDAOFactory daoFactory, final IGroupDAO groupDAO,
+            final IAuthorizationDAOFactory daoFactory, final ISpaceDAO groupDAO,
             final IDatabaseInstanceDAO databaseInstanceDAO)
     {
-        expectations.allowing(daoFactory).getGroupDAO();
+        expectations.allowing(daoFactory).getSpaceDAO();
         expectations.will(Expectations.returnValue(groupDAO));
 
         expectations.allowing(daoFactory).getDatabaseInstanceDAO();
@@ -106,13 +106,13 @@ public class ManagerTestTool
                 EXAMPLE_DATABASE_INSTANCE.getCode().toUpperCase());
         expectations.will(Expectations.returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-        expectations.allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+        expectations.allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
                 EXAMPLE_GROUP.getCode().toUpperCase(), EXAMPLE_DATABASE_INSTANCE);
         expectations.will(Expectations.returnValue(EXAMPLE_GROUP));
     }
 
-    public static GroupPE prepareFindGroup(final Expectations exp, final String groupCode,
-            final IAuthorizationDAOFactory daoFactory, final IGroupDAO groupDAO)
+    public static SpacePE prepareFindGroup(final Expectations exp, final String groupCode,
+            final IAuthorizationDAOFactory daoFactory, final ISpaceDAO groupDAO)
     {
         exp.allowing(daoFactory).getHomeDatabaseInstance();
         DatabaseInstancePE db = new DatabaseInstancePE();
@@ -121,10 +121,10 @@ public class ManagerTestTool
         db.setId(dbId);
         exp.will(Expectations.returnValue(db));
 
-        exp.allowing(daoFactory).getGroupDAO();
+        exp.allowing(daoFactory).getSpaceDAO();
         exp.will(Expectations.returnValue(groupDAO));
 
-        exp.allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(groupCode.toUpperCase(), db);
+        exp.allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(groupCode.toUpperCase(), db);
         exp.will(Expectations.returnValue(ManagerTestTool.EXAMPLE_GROUP));
         return ManagerTestTool.EXAMPLE_GROUP;
     }
@@ -172,7 +172,7 @@ public class ManagerTestTool
     private static PersonPE createExamplePersonWithGroup()
     {
         final PersonPE person = createPerson();
-        person.setHomeGroup(createGroup());
+        person.setHomeSpace(createGroup());
         return person;
     }
 
@@ -188,18 +188,18 @@ public class ManagerTestTool
         return person;
     }
 
-    public final static GroupPE createGroup()
+    public final static SpacePE createGroup()
     {
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
         group.setCode("MY_GROUP");
         group.setId(4242L);
         return group;
     }
 
-    public final static GroupPE createGroup2()
+    public final static SpacePE createGroup2()
     {
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
         group.setCode("MY_GROUP2");
         group.setId(1984L);
@@ -209,7 +209,7 @@ public class ManagerTestTool
     public final static ProjectPE createProject()
     {
         final ProjectPE project = new ProjectPE();
-        project.setGroup(EXAMPLE_GROUP);
+        project.setSpace(EXAMPLE_GROUP);
         project.setCode("MY_GREAT_PROJECT");
         project.setId(314L);
         return project;

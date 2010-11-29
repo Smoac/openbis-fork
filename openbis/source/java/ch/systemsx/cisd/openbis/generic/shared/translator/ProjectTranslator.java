@@ -61,7 +61,7 @@ public final class ProjectTranslator
         result.setModificationDate(project.getModificationDate());
         result.setCode(project.getCode());
         result.setDescription(project.getDescription());
-        result.setSpace(GroupTranslator.translate(project.getGroup()));
+        result.setSpace(GroupTranslator.translate(project.getSpace()));
         result.setProjectLeader(PersonTranslator.translate(project.getProjectLeader()));
         result.setRegistrator(PersonTranslator.translate(project.getRegistrator()));
         result.setRegistrationDate(project.getRegistrationDate());

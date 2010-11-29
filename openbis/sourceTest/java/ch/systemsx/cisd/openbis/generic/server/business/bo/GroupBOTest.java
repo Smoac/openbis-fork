@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for corresponding {@link GroupBO} class.
@@ -71,7 +71,7 @@ public final class GroupBOTest extends AbstractBOTest
         final GroupBO spaceBO = createGroupBO();
         final DatabaseInstancePE instance = new DatabaseInstancePE();
         instance.setOriginalSource(true);
-        final GroupPE groupDTO = new GroupPE();
+        final SpacePE groupDTO = new SpacePE();
         groupDTO.setCode("MY_CODE");
         groupDTO.setDatabaseInstance(instance);
         context.checking(new Expectations()
@@ -80,7 +80,7 @@ public final class GroupBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(instance));
 
-                    one(groupDAO).createGroup(groupDTO);
+                    one(groupDAO).createSpace(groupDTO);
                 }
             });
         spaceBO.define(groupDTO.getCode(), null);

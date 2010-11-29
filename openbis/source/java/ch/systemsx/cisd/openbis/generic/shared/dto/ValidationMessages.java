@@ -142,7 +142,7 @@ public final class ValidationMessages
     public static final String FIRST_NAME_LENGTH_MESSAGE = LENGTH_PREFIX + "first name"
             + LENGTH_SUFFIX;
 
-    public static final String GROUP_NOT_NULL_MESSAGE = "Space" + CAN_NOT_BE_NULL;
+    public static final String SPACE_NOT_NULL_MESSAGE = "Space" + CAN_NOT_BE_NULL;
 
     public static final String IS_COMPLETE_NOT_NULL_MESSAGE = "Complete flag" + CAN_NOT_BE_NULL;
 

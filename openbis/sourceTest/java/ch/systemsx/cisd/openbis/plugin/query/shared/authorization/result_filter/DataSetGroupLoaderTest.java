@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -78,7 +78,7 @@ public class DataSetGroupLoaderTest extends AssertJUnit
         keys.add(KNOWN_WITHOUT_GROUP);
         keys.add(UNKNOWN);
         final ArrayList<ExternalDataPE> datasets = new ArrayList<ExternalDataPE>();
-        GroupPE knownGroup = new GroupPE();
+        SpacePE knownGroup = new SpacePE();
         datasets.add(createDataset(KNOWN_WITH_GROUP, knownGroup));
         datasets.add(createDataset(KNOWN_WITHOUT_GROUP, null));
         context.checking(new Expectations()
@@ -88,19 +88,19 @@ public class DataSetGroupLoaderTest extends AssertJUnit
                     will(returnValue(datasets));
                 }
             });
-        Map<String, GroupPE> map = createLoader().loadGroups(keys);
+        Map<String, SpacePE> map = createLoader().loadGroups(keys);
         assertNull(map.get(UNKNOWN));
         assertNull(map.get(KNOWN_WITHOUT_GROUP));
         assertEquals(knownGroup, map.get(KNOWN_WITH_GROUP));
         context.assertIsSatisfied();
     }
 
-    private ExternalDataPE createDataset(String code, GroupPE group)
+    private ExternalDataPE createDataset(String code, SpacePE group)
     {
         ExternalDataPE dataset = new ExternalDataPE();
         ExperimentPE experiment = new ExperimentPE();
         ProjectPE project = new ProjectPE();
-        project.setGroup(group);
+        project.setSpace(group);
         experiment.setProject(project);
         dataset.setExperiment(experiment);
         dataset.setCode(code);

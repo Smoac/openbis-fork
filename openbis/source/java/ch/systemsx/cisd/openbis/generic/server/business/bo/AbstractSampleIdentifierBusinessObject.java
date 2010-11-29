@@ -95,8 +95,8 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
                                 sampleOwner.tryGetDatabaseInstance());
             } else
             {
-                assert sampleOwner.isGroupLevel() : "Must be of space level.";
-                result = sampleDAO.tryFindByCodeAndGroup(sampleCode, sampleOwner.tryGetGroup());
+                assert sampleOwner.isSpaceLevel() : "Must be of space level.";
+                result = sampleDAO.tryFindByCodeAndSpace(sampleCode, sampleOwner.tryGetSpace());
             }
             if (result != null)
             {

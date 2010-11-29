@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -55,13 +55,13 @@ public class SpaceCodeHelper
     /**
      * Tries to find out the space.
      * <p>
-     * If not specified in given {@link GroupPE} the real space must be specified as home space in
+     * If not specified in given {@link SpacePE} the real space must be specified as home space in
      * given {@link PersonPE}.
      * </p>
      * 
      * @throws UndefinedSpaceException if no space could be found.
      */
-    public final static String getSpaceCode(final PersonPE person, final GroupPE group)
+    public final static String getSpaceCode(final PersonPE person, final SpacePE group)
             throws UndefinedSpaceException
     {
         return getSpaceCode(person, group.getCode());
@@ -81,7 +81,7 @@ public class SpaceCodeHelper
     {
         if (isHomeSpace(spaceCode))
         {
-            final GroupPE homeGroup = person.getHomeGroup();
+            final SpacePE homeGroup = person.getHomeSpace();
             if (homeGroup == null)
             {
                 throw new UndefinedSpaceException();

@@ -53,7 +53,7 @@ public final class RoleAssignmentTranslator
             return null;
         }
         final RoleAssignment result = new RoleAssignment();
-        result.setSpace(GroupTranslator.translate(role.getGroup()));
+        result.setSpace(GroupTranslator.translate(role.getSpace()));
         result.setInstance(DatabaseInstanceTranslator.translate(role.getDatabaseInstance()));
         result.setPerson(PersonTranslator.translate(role.getPerson()));
         result.setAuthorizationGroup(AuthorizationGroupTranslator.translate(role
@@ -65,7 +65,7 @@ public final class RoleAssignmentTranslator
     private final static RoleWithHierarchy getRoleCode(final RoleAssignmentPE role)
     {
         RoleLevel roleLevel = null;
-        if (role.getGroup() != null)
+        if (role.getSpace() != null)
         {
             roleLevel = RoleLevel.SPACE;
         }

@@ -22,7 +22,7 @@
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE</value>
 
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE</value>

@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -202,7 +202,7 @@ public final class SampleBOTest extends AbstractBOTest
                                     return false;
                                 }
                                 final SamplePE sample = (SamplePE) item;
-                                assertEquals(EXAMPLE_SESSION.tryGetHomeGroup(), sample.getGroup());
+                                assertEquals(EXAMPLE_SESSION.tryGetHomeGroup(), sample.getSpace());
                                 assertNull(sample.getDatabaseInstance());
                                 assertEquals(newSample.getIdentifier(), sample
                                         .getSampleIdentifier().toString());
@@ -260,12 +260,12 @@ public final class SampleBOTest extends AbstractBOTest
 
         final SamplePE generatedFrom = new SamplePE();
         generatedFrom.setRegistrator(EXAMPLE_PERSON);
-        generatedFrom.setGroup(EXAMPLE_GROUP);
+        generatedFrom.setSpace(EXAMPLE_GROUP);
         generatedFrom.setCode("SAMPLE_GENERATOR");
 
         final SamplePE container = new SamplePE();
         container.setRegistrator(EXAMPLE_PERSON);
-        container.setGroup(EXAMPLE_GROUP);
+        container.setSpace(EXAMPLE_GROUP);
         container.setCode("SAMPLE_CONTAINER");
 
         final SampleTypePE sampleType = new SampleTypePE();
@@ -289,11 +289,11 @@ public final class SampleBOTest extends AbstractBOTest
                     ManagerTestTool.prepareFindGroup(this, daoFactory, groupDAO,
                             databaseInstanceDAO);
 
-                    one(sampleDAO).tryFindByCodeAndGroup(generatedFromIdentifier.getSampleCode(),
+                    one(sampleDAO).tryFindByCodeAndSpace(generatedFromIdentifier.getSampleCode(),
                             EXAMPLE_GROUP);
                     will(returnValue(generatedFrom));
 
-                    one(sampleDAO).tryFindByCodeAndGroup(containerIdentifier.getSampleCode(),
+                    one(sampleDAO).tryFindByCodeAndSpace(containerIdentifier.getSampleCode(),
                             EXAMPLE_GROUP);
                     will(returnValue(container));
 
@@ -381,8 +381,8 @@ public final class SampleBOTest extends AbstractBOTest
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("exp1");
         experimentIdentifier.setProjectCode(project.getCode());
-        experimentIdentifier.setSpaceCode(project.getGroup().getCode());
-        experimentIdentifier.setDatabaseInstanceCode(project.getGroup().getDatabaseInstance()
+        experimentIdentifier.setSpaceCode(project.getSpace().getCode());
+        experimentIdentifier.setDatabaseInstanceCode(project.getSpace().getDatabaseInstance()
                 .getCode());
 
         // create a sample already attached to an experiment
@@ -393,7 +393,7 @@ public final class SampleBOTest extends AbstractBOTest
         sample.setId(SAMPLE_TECH_ID.getId());
         sample.setCode("sampleCode");
         sample.setExperiment(sampleExperiment);
-        sample.setGroup(EXAMPLE_GROUP);
+        sample.setSpace(EXAMPLE_GROUP);
         sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
 
         Date now = new Date();
@@ -452,7 +452,7 @@ public final class SampleBOTest extends AbstractBOTest
                 }
             });
         String newSampleIdentifierWithoutDb = "/" + sample.getCode();
-        assertNotNull(sample.getGroup());
+        assertNotNull(sample.getSpace());
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), now, SampleIdentifierFactory
@@ -460,7 +460,7 @@ public final class SampleBOTest extends AbstractBOTest
         String newSampleIdentWithDb =
                 EXAMPLE_DATABASE_INSTANCE.getCode() + ":" + newSampleIdentifierWithoutDb;
         assertEquals(newSampleIdentWithDb, sample.getSampleIdentifier().toString());
-        assertNull(sample.getGroup());
+        assertNull(sample.getSpace());
         context.assertIsSatisfied();
 
     }
@@ -492,11 +492,11 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
-                            parent.getGroup().getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
+                            parent.getSpace().getCode(), EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(EXAMPLE_GROUP));
 
-                    allowing(sampleDAO).tryFindByCodeAndGroup(parent.getCode(), EXAMPLE_GROUP);
+                    allowing(sampleDAO).tryFindByCodeAndSpace(parent.getCode(), EXAMPLE_GROUP);
                     will(returnValue(parent));
 
                     allowing(externalDataDAO).hasExternalData(with(sample));
@@ -546,23 +546,23 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                    allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
                             EXAMPLE_GROUP.getCode(), EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(EXAMPLE_GROUP));
 
-                    allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                    allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
                             EXAMPLE_GROUP2.getCode(), EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(EXAMPLE_GROUP2));
 
-                    allowing(sampleDAO).tryFindByCodeAndGroup(parent1Group1.getCode(),
+                    allowing(sampleDAO).tryFindByCodeAndSpace(parent1Group1.getCode(),
                             EXAMPLE_GROUP);
                     will(returnValue(parent1Group1));
 
-                    allowing(sampleDAO).tryFindByCodeAndGroup(parent2Group1.getCode(),
+                    allowing(sampleDAO).tryFindByCodeAndSpace(parent2Group1.getCode(),
                             EXAMPLE_GROUP);
                     will(returnValue(parent2Group1));
 
-                    allowing(sampleDAO).tryFindByCodeAndGroup(parent3Group2.getCode(),
+                    allowing(sampleDAO).tryFindByCodeAndSpace(parent3Group2.getCode(),
                             EXAMPLE_GROUP2);
                     will(returnValue(parent3Group2));
 
@@ -587,12 +587,12 @@ public final class SampleBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private SamplePE createSample(String code, GroupPE group)
+    private SamplePE createSample(String code, SpacePE group)
     {
         final SamplePE sample = new SamplePE();
         sample.setId(SAMPLE_TECH_ID.getId());
         sample.setCode(code);
-        sample.setGroup(group);
+        sample.setSpace(group);
         sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
         return sample;
     }
@@ -616,11 +616,11 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
-                            container.getGroup().getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
+                            container.getSpace().getCode(), EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(EXAMPLE_GROUP));
 
-                    allowing(sampleDAO).tryFindByCodeAndGroup(container.getCode(), EXAMPLE_GROUP);
+                    allowing(sampleDAO).tryFindByCodeAndSpace(container.getCode(), EXAMPLE_GROUP);
                     will(returnValue(container));
 
                     allowing(externalDataDAO).hasExternalData(with(sample));
@@ -656,11 +656,11 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
-                            container.getGroup().getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
+                            container.getSpace().getCode(), EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(EXAMPLE_GROUP2));
 
-                    allowing(sampleDAO).tryFindByCodeAndGroup(container.getCode(), EXAMPLE_GROUP2);
+                    allowing(sampleDAO).tryFindByCodeAndSpace(container.getCode(), EXAMPLE_GROUP2);
                     will(returnValue(container));
 
                     allowing(externalDataDAO).hasExternalData(with(sample));
@@ -769,9 +769,9 @@ public final class SampleBOTest extends AbstractBOTest
 
                     final SamplePE groupParent = new SamplePE();
                     groupParent.setRegistrator(EXAMPLE_PERSON);
-                    groupParent.setGroup(EXAMPLE_GROUP);
+                    groupParent.setSpace(EXAMPLE_GROUP);
                     groupParent.setCode("SAMPLE_GENERATOR");
-                    one(sampleDAO).tryFindByCodeAndGroup(parentGroupIdentifier.getSampleCode(),
+                    one(sampleDAO).tryFindByCodeAndSpace(parentGroupIdentifier.getSampleCode(),
                             EXAMPLE_GROUP);
                     will(returnValue(groupParent));
 
@@ -852,7 +852,7 @@ public final class SampleBOTest extends AbstractBOTest
                     one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
 
-                    one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
+                    one(sampleDAO).tryFindByCodeAndSpace("DOES_NOT_EXIST",
                             EXAMPLE_SESSION.tryGetHomeGroup());
                     will(returnValue(null));
                 }
@@ -889,7 +889,7 @@ public final class SampleBOTest extends AbstractBOTest
                     one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
                             EXAMPLE_PERSON);
 
-                    one(sampleDAO).tryFindByCodeAndGroup("DOES_NOT_EXIST",
+                    one(sampleDAO).tryFindByCodeAndSpace("DOES_NOT_EXIST",
                             EXAMPLE_SESSION.tryGetHomeGroup());
                     will(returnValue(null));
                 }
@@ -944,7 +944,7 @@ public final class SampleBOTest extends AbstractBOTest
     {
         ProjectPE project = new ProjectPE();
         project.setCode("code");
-        project.setGroup(EXAMPLE_GROUP);
+        project.setSpace(EXAMPLE_GROUP);
         return project;
     }
 
@@ -1007,13 +1007,13 @@ public final class SampleBOTest extends AbstractBOTest
                     databaseInstance.setCode("MY_DATABASE_INSTANCE");
                     will(returnValue(databaseInstance));
 
-                    one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                    one(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
                             sampleIdentifier.getSpaceLevel().getSpaceCode(), databaseInstance);
-                    GroupPE group = new GroupPE();
+                    SpacePE group = new SpacePE();
                     will(returnValue(group));
 
                     String sampleCode = sampleIdentifier.getSampleCode();
-                    one(sampleDAO).tryFindByCodeAndGroup(sampleCode, group);
+                    one(sampleDAO).tryFindByCodeAndSpace(sampleCode, group);
                     will(returnValue(sample));
                 }
             });

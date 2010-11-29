@@ -265,6 +265,7 @@ public final class SqlUnitMigrationTest
         final DatabaseConfigurationContext configurationContext =
                 createDatabaseContext(databaseKind);
         AbstractApplicationContext applicationContext = null;
+        unitTestRootDirectory.mkdirs();
         File migratedSchemaFile = null;
         try
         {

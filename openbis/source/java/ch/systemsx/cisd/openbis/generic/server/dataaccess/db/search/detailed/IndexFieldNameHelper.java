@@ -89,7 +89,7 @@ class IndexFieldNameHelper
             case PROJECT:
                 return SearchFieldConstants.PREFIX_PROJECT + CODE;
             case PROJECT_GROUP:
-                return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_GROUP
+                return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE
                         + CODE;
         }
         return null; // cannot happen
@@ -117,7 +117,7 @@ class IndexFieldNameHelper
             case SAMPLE_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case GROUP:
-                return SearchFieldConstants.PREFIX_GROUP + CODE;
+                return SearchFieldConstants.PREFIX_SPACE + CODE;
         }
         return null; // cannot happen
     }

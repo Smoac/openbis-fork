@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -68,7 +68,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final AbstractTechIdPredicate predicate = createPredicate();
-        prepareProvider(Collections.<GroupPE> emptyList(), createGroup(), ENTITY_KIND, TECH_ID);
+        prepareProvider(Collections.<SpacePE> emptyList(), createGroup(), ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), TECH_ID).isError());
         context.assertIsSatisfied();
@@ -91,9 +91,9 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         final PersonPE person = createPerson();
-        person.setHomeGroup(createGroup());
+        person.setHomeSpace(createGroup());
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
-        final GroupPE homeGroup = createGroup(null, homeDatabaseInstance);
+        final SpacePE homeGroup = createGroup(null, homeDatabaseInstance);
         prepareProvider(createGroups(), homeGroup, ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         final Status evaluation = predicate.doEvaluation(person, createRoles(false), TECH_ID);
@@ -120,8 +120,8 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     {
         final AbstractTechIdPredicate predicate = createPredicate();
         final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
-        final List<GroupPE> groups = createGroups();
-        final GroupPE anotherGroup = createGroup(ANOTHER_GROUP_CODE, homeDatabaseInstance);
+        final List<SpacePE> groups = createGroups();
+        final SpacePE anotherGroup = createGroup(ANOTHER_GROUP_CODE, homeDatabaseInstance);
         groups.add(anotherGroup);
         prepareProvider(groups, anotherGroup, ENTITY_KIND, TECH_ID);
         predicate.init(provider);

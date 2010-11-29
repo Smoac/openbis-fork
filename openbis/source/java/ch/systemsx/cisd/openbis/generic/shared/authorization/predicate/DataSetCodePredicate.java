@@ -48,7 +48,7 @@ public class DataSetCodePredicate extends AbstractGroupPredicate<String>
         {
             String dbInstanceUUID = accessData.getDatabaseInstanceUuid();
             String dbInstanceCode = accessData.getDatabaseInstanceCode();
-            String groupCode = accessData.getGroupCode();
+            String groupCode = accessData.getSpaceCode();
             Status result =
                     evaluate(person, allowedRoles, dbInstanceUUID, dbInstanceCode, groupCode);
             return result;

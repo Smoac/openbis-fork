@@ -29,17 +29,17 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * <i>Data Access Object</i> implementation for {@link GroupPE}.
+ * <i>Data Access Object</i> implementation for {@link SpacePE}.
  * 
  * @author Christian Ribeaud
  */
-final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroupDAO
+final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpaceDAO
 {
 
     /**
@@ -47,40 +47,40 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, GroupDAO.class);
+            LogFactory.getLogger(LogCategory.OPERATION, SpaceDAO.class);
 
-    GroupDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    SpaceDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance, GroupPE.class);
+        super(sessionFactory, databaseInstance, SpacePE.class);
     }
 
     //
-    // IGroupDAO
+    // ISpaceDAO
     //
 
-    public final GroupPE tryFindGroupByCodeAndDatabaseInstance(final String groupCode,
+    public final SpacePE tryFindSpaceByCodeAndDatabaseInstance(final String spaceCode,
             final DatabaseInstancePE databaseInstance) throws DataAccessException
     {
-        assert groupCode != null : "Unspecified space code.";
+        assert spaceCode != null : "Unspecified space code.";
         assert databaseInstance != null : "Unspecified database instance.";
 
-        final List<GroupPE> list =
+        final List<SpacePE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select g from %s g where g.code = ? "
                                 + "and g.databaseInstance = ?", getEntityClass().getSimpleName()),
-                        toArray(CodeConverter.tryToDatabase(groupCode), databaseInstance)));
-        final GroupPE entity = tryFindEntity(list, "group");
+                        toArray(CodeConverter.tryToDatabase(spaceCode), databaseInstance)));
+        final SpacePE entity = tryFindEntity(list, "space");
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s, %s): '%s'.", MethodUtils.getCurrentMethod()
-                    .getName(), groupCode, databaseInstance, entity));
+                    .getName(), spaceCode, databaseInstance, entity));
         }
         return entity;
     }
 
-    public final List<GroupPE> listGroups() throws DataAccessException
+    public final List<SpacePE> listSpaces() throws DataAccessException
     {
-        final List<GroupPE> list = cast(getHibernateTemplate().loadAll(getEntityClass()));
+        final List<SpacePE> list = cast(getHibernateTemplate().loadAll(getEntityClass()));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d space(s) have been found.", MethodUtils
@@ -89,14 +89,14 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
         return list;
     }
 
-    public final List<GroupPE> listGroups(final DatabaseInstancePE databaseInstance)
+    public final List<SpacePE> listSpaces(final DatabaseInstancePE databaseInstance)
             throws DataAccessException
     {
         assert databaseInstance != null : "Unspecified database instance.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
-        final List<GroupPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<SpacePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): %d space(s) have been found.", MethodUtils
@@ -105,18 +105,18 @@ final class GroupDAO extends AbstractGenericEntityDAO<GroupPE> implements IGroup
         return list;
     }
 
-    public final void createGroup(final GroupPE group) throws DataAccessException
+    public final void createSpace(final SpacePE space) throws DataAccessException
     {
-        assert group != null : "Unspecified space";
-        validatePE(group);
+        assert space != null : "Unspecified space";
+        validatePE(space);
 
         final HibernateTemplate template = getHibernateTemplate();
-        group.setCode(CodeConverter.tryToDatabase(group.getCode()));
-        template.save(group);
+        space.setCode(CodeConverter.tryToDatabase(space.getCode()));
+        template.save(space);
         template.flush();
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("ADD: space '%s'.", group));
+            operationLog.info(String.format("ADD: space '%s'.", space));
         }
     }
 

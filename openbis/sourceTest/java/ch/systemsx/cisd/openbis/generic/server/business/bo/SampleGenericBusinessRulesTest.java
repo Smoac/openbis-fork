@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
@@ -53,19 +53,19 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
         return d;
     }
 
-    private static GroupPE createGroup(DatabaseInstancePE db, String code)
+    private static SpacePE createGroup(DatabaseInstancePE db, String code)
     {
-        GroupPE g = new GroupPE();
+        SpacePE g = new SpacePE();
         g.setCode(code);
         g.setDatabaseInstance(db);
         return g;
     }
 
-    private static SamplePE createGroupSample(GroupPE g, String code)
+    private static SamplePE createGroupSample(SpacePE g, String code)
     {
         SamplePE s = new SamplePE();
         s.setCode(code);
-        s.setGroup(g);
+        s.setSpace(g);
         return s;
     }
 

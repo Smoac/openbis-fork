@@ -51,7 +51,7 @@ public interface IAuthorizationDAOFactory
 
     public IPersonDAO getPersonDAO();
 
-    public IGroupDAO getGroupDAO();
+    public ISpaceDAO getSpaceDAO();
 
     public IDatabaseInstanceDAO getDatabaseInstanceDAO();
 

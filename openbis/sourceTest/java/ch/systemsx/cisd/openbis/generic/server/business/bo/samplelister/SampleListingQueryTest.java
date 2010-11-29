@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
@@ -84,7 +84,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private DatabaseInstancePE dbInstance;
 
-    private GroupPE group;
+    private SpacePE group;
 
     private long groupId;
 
@@ -109,7 +109,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group =
-                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(DEFAULT_SPACE_CODE,
+                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(DEFAULT_SPACE_CODE,
                         dbInstance);
         groupId = group.getId();
         groupCode = group.getCode();
@@ -173,9 +173,9 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testGetParentRelations()
     {
         dilutionPlate1 =
-                daoFactory.getSampleDAO().tryFindByCodeAndGroup(DILUTION_PLATE_CODE_1, group);
+                daoFactory.getSampleDAO().tryFindByCodeAndSpace(DILUTION_PLATE_CODE_1, group);
         dilutionPlate2 =
-                daoFactory.getSampleDAO().tryFindByCodeAndGroup(DILUTION_PLATE_CODE_2, group);
+                daoFactory.getSampleDAO().tryFindByCodeAndSpace(DILUTION_PLATE_CODE_2, group);
         final int children1 = 3;
         final int children2 = 6;
         assertEquals(children1, dilutionPlate1.getGenerated().size());
@@ -262,7 +262,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
-            assertEquals(msg, groupId, sample.grou_id.longValue());
+            assertEquals(msg, groupId, sample.space_id.longValue());
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
             ++sampleCount;
         }
@@ -320,7 +320,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
-            assertEquals(msg, groupId, sample.grou_id.longValue());
+            assertEquals(msg, groupId, sample.space_id.longValue());
             assertNotNull(msg, sample.expe_id);
             ++sampleCount;
         }

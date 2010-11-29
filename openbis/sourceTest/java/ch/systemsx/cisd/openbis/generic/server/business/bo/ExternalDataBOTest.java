@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -516,12 +516,12 @@ public class ExternalDataBOTest extends AbstractBOTest
                             DATABASE_INSTANCE_IDENTIFIER.getDatabaseInstanceCode());
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    one(groupDAO).tryFindGroupByCodeAndDatabaseInstance(
+                    one(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
                             GROUP_IDENTIFIER.getSpaceCode(),
                             ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(ManagerTestTool.EXAMPLE_GROUP));
 
-                    one(sampleDAO).tryFindByCodeAndGroup(SAMPLE_IDENTIFIER.getSampleCode(),
+                    one(sampleDAO).tryFindByCodeAndSpace(SAMPLE_IDENTIFIER.getSampleCode(),
                             ManagerTestTool.EXAMPLE_GROUP);
                     will(returnValue(sample));
                 }
@@ -686,12 +686,12 @@ public class ExternalDataBOTest extends AbstractBOTest
         experiment.setCode(experimentCode);
         ProjectPE project = new ProjectPE();
         project.setCode("P");
-        GroupPE group = new GroupPE();
+        SpacePE group = new SpacePE();
         group.setCode("G");
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("DB");
         group.setDatabaseInstance(databaseInstance);
-        project.setGroup(group);
+        project.setSpace(group);
         experiment.setProject(project);
         return experiment;
     }

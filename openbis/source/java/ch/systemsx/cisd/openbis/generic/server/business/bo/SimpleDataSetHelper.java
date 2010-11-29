@@ -52,11 +52,11 @@ public class SimpleDataSetHelper
         SimpleDataSetInformationDTO result = new SimpleDataSetInformationDTO();
         result.setDataSetCode(data.getCode());
         result.setDataSetLocation(data.getLocation());
-        result.setDatabaseInstanceCode(data.getExperiment().getProject().getGroup()
+        result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace()
                 .getDatabaseInstance().getCode());
         result.setExperimentCode(data.getExperiment().getCode());
         result.setProjectCode(data.getExperiment().getProject().getCode());
-        result.setGroupCode(data.getExperiment().getProject().getGroup().getCode());
+        result.setGroupCode(data.getExperiment().getProject().getSpace().getCode());
         SamplePE sampleOrNull = data.tryGetSample();
         result.setSampleCode(sampleOrNull == null ? null : sampleOrNull.getCode());
         result.setDataSetType(data.getDataSetType().getCode());

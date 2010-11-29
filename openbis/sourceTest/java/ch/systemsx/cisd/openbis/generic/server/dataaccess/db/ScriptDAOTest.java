@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
  */
 @Test(groups =
     { "db", "script" })
-@Friend(toClasses = GroupPE.class)
+@Friend(toClasses = SpacePE.class)
 public final class ScriptDAOTest extends AbstractDAOTest
 {
 

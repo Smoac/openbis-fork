@@ -586,7 +586,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             return; // nothing to change
         }
-        if (newSample.getGroup() == null)
+        if (newSample.getSpace() == null)
         {
             throw createWrongSampleException(newSample, "the new sample is shared");
         }

@@ -73,11 +73,11 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
 
     public final List<RoleAssignmentPE> listRoleAssignments()
     {
-        // returns roles connected directly or indirectly (through group) to current db instance
+        // returns roles connected directly or indirectly (through space) to current db instance
         final List<RoleAssignmentPE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select r from %s r left join r.databaseInstance ri"
-                                + " left join r.group g left join g.databaseInstance gi"
+                                + " left join r.space g left join g.databaseInstance gi"
                                 + " where ri = ? or (ri is null and gi = ?)", TABLE_NAME),
                         toArray(getDatabaseInstance(), getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
@@ -152,8 +152,8 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         }
     }
 
-    public final RoleAssignmentPE tryFindGroupRoleAssignment(final RoleCode role,
-            final String group, final Grantee grantee)
+    public final RoleAssignmentPE tryFindSpaceRoleAssignment(final RoleCode role,
+            final String space, final Grantee grantee)
     {
         assert role != null : "Unspecified role.";
         assert grantee != null : "Unspecified grantee.";
@@ -162,10 +162,10 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
                 cast(getHibernateTemplate().find(
                         String.format("from %s r where r."
                                 + getGranteeHqlParameter(grantee.getType())
-                                + " = ? and group.code = ? " + "and r.role = ?", TABLE_NAME),
-                        toArray(grantee.getCode(), group, role)));
+                                + " = ? and space.code = ? " + "and r.role = ?", TABLE_NAME),
+                        toArray(grantee.getCode(), space, role)));
         final RoleAssignmentPE roleAssignment =
-                tryFindEntity(roles, "role_assignments", role, group, grantee);
+                tryFindEntity(roles, "role_assignments", role, space, grantee);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("FIND: space role assignment '%s'.", roleAssignment));

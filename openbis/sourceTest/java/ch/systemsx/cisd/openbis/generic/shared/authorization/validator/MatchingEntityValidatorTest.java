@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCa
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -49,17 +49,17 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
         return result;
     }
 
-    private static GroupPE tryGetGroup(IMatchingEntity matchingEntity)
+    private static SpacePE tryGetGroup(IMatchingEntity matchingEntity)
     {
         final EntityKind entityKind = matchingEntity.getEntityKind();
         switch (entityKind)
         {
             case EXPERIMENT:
                 final ExperimentPE experiment = (ExperimentPE) matchingEntity;
-                return experiment.getProject().getGroup();
+                return experiment.getProject().getSpace();
             case SAMPLE:
                 final SamplePE sample = (SamplePE) matchingEntity;
-                return sample.getGroup();
+                return sample.getSpace();
             default:
                 return null;
         }
@@ -101,7 +101,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithExperimentInTheWrongGroup()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        GroupPE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
         final ExperimentPE experiment = createExperiment(group);
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(false, validator.isValid(person, asMatchingEntityStub(experiment)));
@@ -120,7 +120,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithSampleInTheWrongGroup()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        GroupPE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
         final SamplePE sample = createSample(group);
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(false, validator.isValid(person, asMatchingEntityStub(sample)));

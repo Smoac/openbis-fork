@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -70,7 +70,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     @Test
     public final void testFactory()
     {
-        GroupPE group = new GroupPE();
+        SpacePE group = new SpacePE();
         DatabaseInstancePE instance = new DatabaseInstancePE();
         new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, null, group);
         new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, instance, null);
@@ -132,9 +132,9 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     public final void testCreateRoleFromRoleAssignment()
     {
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
-        GroupPE group = new GroupPE();
+        SpacePE group = new SpacePE();
         group.setDatabaseInstance(new DatabaseInstancePE());
-        roleAssignment.setGroup(group);
+        roleAssignment.setSpace(group);
         roleAssignment.setRole(RoleCode.OBSERVER);
         RoleWithIdentifier role = RoleWithIdentifier.createRole(roleAssignment);
         assertEquals(role.getRoleLevel(), RoleLevel.SPACE);

@@ -34,11 +34,11 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -63,7 +63,7 @@ public final class AuthorizationTestUtil
      * </p>
      */
     public final static <T> T createAndPrepareAuthorizationProxy(final Class<T> proxyInterface,
-            final Mockery context, final List<GroupPE> groups, final String homeDbCode,
+            final Mockery context, final List<SpacePE> groups, final String homeDbCode,
             final String dbCode)
     {
         final IAuthorizationDAOFactory daoFactory =
@@ -74,7 +74,7 @@ public final class AuthorizationTestUtil
         final DatabaseInstancePE db = createDatabaseInstance(dbCode);
         final IDatabaseInstanceDAO databaseInstanceDAO =
                 context.mock(IDatabaseInstanceDAO.class, "authorization IDatabaseInstanceDAO mock");
-        final IGroupDAO groupDAO = context.mock(IGroupDAO.class, "authorization IGroupDAO mock");
+        final ISpaceDAO groupDAO = context.mock(ISpaceDAO.class, "authorization IGroupDAO mock");
         context.checking(new Expectations()
             {
                 {
@@ -88,10 +88,10 @@ public final class AuthorizationTestUtil
                             dbCode.toUpperCase());
                     will(returnValue(db));
 
-                    allowing(daoFactory).getGroupDAO();
+                    allowing(daoFactory).getSpaceDAO();
                     will(returnValue(groupDAO));
 
-                    allowing(groupDAO).listGroups();
+                    allowing(groupDAO).listSpaces();
                     will(returnValue(groups));
                 }
             });
@@ -105,7 +105,7 @@ public final class AuthorizationTestUtil
      * </p>
      */
     public final static <T> T prepareAuthorizationProxy(final T proxyInstance,
-            final Mockery context, final List<GroupPE> groups, final String homeDbCode,
+            final Mockery context, final List<SpacePE> groups, final String homeDbCode,
             final String... otherDatabasesCodes)
     {
         final IAuthorizationDAOFactory daoFactory =
@@ -186,7 +186,7 @@ public final class AuthorizationTestUtil
     // ----------------
 
     private final static void prepareAuthorizationExpectations(final Mockery context,
-            final IAuthorizationDAOFactory daoFactory, final List<GroupPE> groups,
+            final IAuthorizationDAOFactory daoFactory, final List<SpacePE> groups,
             final String homeDbCode, final String... otherDatabasesCodes)
     {
         final DatabaseInstancePE homeDb = createDatabaseInstance(homeDbCode);
@@ -200,12 +200,12 @@ public final class AuthorizationTestUtil
     }
 
     private final static void prepareAuthorizationCalls(final Mockery context,
-            final IAuthorizationDAOFactory daoFactory, final List<GroupPE> groups,
+            final IAuthorizationDAOFactory daoFactory, final List<SpacePE> groups,
             final DatabaseInstancePE homeDb, final List<DatabaseInstancePE> databases)
     {
         final IDatabaseInstanceDAO databaseInstanceDAO =
                 context.mock(IDatabaseInstanceDAO.class, "authorizarion IDatabaseInstanceDAO mock");
-        final IGroupDAO groupDAO = context.mock(IGroupDAO.class, "authorizarion IGroupDAO mock");
+        final ISpaceDAO groupDAO = context.mock(ISpaceDAO.class, "authorizarion IGroupDAO mock");
         context.checking(new Expectations()
             {
                 {
@@ -218,10 +218,10 @@ public final class AuthorizationTestUtil
                     allowing(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(homeDb));
 
-                    allowing(daoFactory).getGroupDAO();
+                    allowing(daoFactory).getSpaceDAO();
                     will(returnValue(groupDAO));
 
-                    allowing(groupDAO).listGroups();
+                    allowing(groupDAO).listSpaces();
                     will(returnValue(groups));
                 }
             });
@@ -251,7 +251,7 @@ public final class AuthorizationTestUtil
 
                 public String tryGetHomeGroupCode()
                 {
-                    GroupPE homeGroup = person.getHomeGroup();
+                    SpacePE homeGroup = person.getHomeSpace();
                     return homeGroup == null ? null : homeGroup.getCode();
                 }
 
@@ -277,8 +277,8 @@ public final class AuthorizationTestUtil
     {
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setRole(roleCode);
-        final GroupPE group = createGroup(instanceCode, groupCode);
-        roleAssignment.setGroup(group);
+        final SpacePE group = createGroup(instanceCode, groupCode);
+        roleAssignment.setSpace(group);
         return roleAssignment;
     }
 
@@ -291,9 +291,9 @@ public final class AuthorizationTestUtil
         return databaseInstance;
     }
 
-    public final static GroupPE createGroup(final String dbCode, final String groupCode)
+    public final static SpacePE createGroup(final String dbCode, final String groupCode)
     {
-        final GroupPE group = new GroupPE();
+        final SpacePE group = new SpacePE();
         group.setCode(CodeConverter.tryToDatabase(groupCode));
         group.setDatabaseInstance(createDatabaseInstance(dbCode));
         return group;

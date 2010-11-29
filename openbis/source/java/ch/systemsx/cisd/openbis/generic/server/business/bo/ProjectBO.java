@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -74,9 +74,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             String leaderId)
     {
         final ProjectPE result = new ProjectPE();
-        final GroupPE group =
+        final SpacePE group =
                 GroupIdentifierHelper.tryGetGroup(projectIdentifier, session.tryGetPerson(), this);
-        result.setGroup(group);
+        result.setSpace(group);
         result.setRegistrator(findRegistrator());
         result.setCode(projectIdentifier.getProjectCode());
         result.setDescription(description);
@@ -226,7 +226,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             addAttachment(AttachmentTranslator.translate(attachment));
         }
         String groupCode = updates.getGroupCode();
-        if (groupCode != null && groupCode.equals(project.getGroup().getCode()) == false)
+        if (groupCode != null && groupCode.equals(project.getSpace().getCode()) == false)
         {
             updateGroup(groupCode);
         }
@@ -235,19 +235,19 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     private void updateGroup(String groupCode)
     {
-        GroupPE group = findGroup(groupCode);
-        project.setGroup(group);
+        SpacePE group = findGroup(groupCode);
+        project.setSpace(group);
         for (ExperimentPE experiment : project.getExperiments())
         {
             SampleUtils.setSamplesGroup(experiment, group);
         }
     }
 
-    private GroupPE findGroup(String groupCode)
+    private SpacePE findGroup(String groupCode)
     {
-        GroupPE group =
-                getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
-                        project.getGroup().getDatabaseInstance());
+        SpacePE group =
+                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
+                        project.getSpace().getDatabaseInstance());
         if (group == null)
         {
             throw UserFailureException

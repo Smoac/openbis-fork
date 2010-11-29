@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -74,9 +74,9 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     public final void loadSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
     {
         onlyNewSamples = false;
-        GroupPE group = findGroup(criteria.getSpaceCode());
+        SpacePE group = findGroup(criteria.getSpaceCode());
         List<SamplePE> foundSamples =
-                getSampleDAO().listSamplesByGroupAndProperty(criteria.getPropertyCode(),
+                getSampleDAO().listSamplesBySpaceAndProperty(criteria.getPropertyCode(),
                         criteria.getPropertyValue(), group);
         LocalExperimentIdentifier localExperimentIdentifier =
                 criteria.tryGetLocalExperimentIdentifier();
@@ -120,7 +120,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                     .fromTemplate(
                             "It was expected that there is exactly one experiment "
                                     + "in the '%s/%s' project with property '%s' set to '%s', but %d were found!",
-                            project.getGroup().getCode(), project.getCode(), propertyCode,
+                            project.getSpace().getCode(), project.getCode(), propertyCode,
                             propertyValue, experiments.size());
         }
         return experiments.get(0);
@@ -147,10 +147,10 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         return filteredSamples;
     }
 
-    private GroupPE findGroup(String groupCode)
+    private SpacePE findGroup(String groupCode)
     {
-        GroupPE group =
-                getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+        SpacePE group =
+                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
                         getHomeDatabaseInstance());
         if (group == null)
         {

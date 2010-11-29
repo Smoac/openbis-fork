@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -50,7 +50,7 @@ public final class IdentifierHelper
     /**
      * Creates a {@link GroupIdentifier} from given <var>groupPE</var>.
      */
-    public final static GroupIdentifier createGroupIdentifier(final GroupPE groupPE)
+    public final static GroupIdentifier createGroupIdentifier(final SpacePE groupPE)
     {
         assert groupPE != null : "Unspecified space";
         assert groupPE.getDatabaseInstance() != null : "Any space must "
@@ -75,7 +75,7 @@ public final class IdentifierHelper
     {
         assert samplePE != null : "Unspecified sample";
         final DatabaseInstancePE databaseInstance = samplePE.getDatabaseInstance();
-        final GroupPE group = samplePE.getGroup();
+        final SpacePE group = samplePE.getSpace();
         final String sampleCode = extractCode(samplePE);
         if (databaseInstance != null)
         {
@@ -181,7 +181,7 @@ public final class IdentifierHelper
     public final static ProjectIdentifier createProjectIdentifier(final ProjectPE project)
     {
         assert project != null : "Unspecified project";
-        final GroupPE group = project.getGroup();
+        final SpacePE group = project.getSpace();
         final DatabaseInstancePE databaseInstance = group.getDatabaseInstance();
         String instanceCode =
                 databaseInstance.isOriginalSource() ? null : databaseInstance.getCode();

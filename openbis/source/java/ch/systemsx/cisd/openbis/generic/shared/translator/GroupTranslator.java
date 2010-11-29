@@ -20,12 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * A {@link Space} &lt;---&gt; {@link GroupPE} translator.
+ * A {@link Space} &lt;---&gt; {@link SpacePE} translator.
  * 
  * @author Franz-Josef Elmer
  */
@@ -36,17 +36,17 @@ public final class GroupTranslator
         // Can not be instantiated.
     }
 
-    public final static List<Space> translate(final List<GroupPE> groups)
+    public final static List<Space> translate(final List<SpacePE> groups)
     {
         final List<Space> result = new ArrayList<Space>();
-        for (final GroupPE group : groups)
+        for (final SpacePE group : groups)
         {
             result.add(GroupTranslator.translate(group));
         }
         return result;
     }
 
-    public static Space translate(final GroupPE group)
+    public static Space translate(final SpacePE group)
     {
         if (group == null)
         {

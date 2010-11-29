@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
@@ -106,7 +106,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     {
         assert initialized : "Predicate has not been initialized";
 
-        GroupPE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
+        SpacePE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
         if (groupOrNull == null)
         {
             return Status.createError(String.format("User '%s' does not have enough privileges.",

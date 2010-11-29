@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -111,7 +111,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected DatabaseInstancePE homeDatabaseInstance;
 
-    protected IGroupDAO groupDAO;
+    protected ISpaceDAO groupDAO;
 
     protected IExternalDataDAO externalDataDAO;
 
@@ -188,7 +188,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         daoFactory = context.mock(IDAOFactory.class);
         databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         personDAO = context.mock(IPersonDAO.class);
-        groupDAO = context.mock(IGroupDAO.class);
+        groupDAO = context.mock(ISpaceDAO.class);
         sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         externalDataDAO = context.mock(IExternalDataDAO.class);
@@ -237,7 +237,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(personDAO));
                     allowing(daoFactory).getProjectDAO();
                     will(returnValue(projectDAO));
-                    allowing(daoFactory).getGroupDAO();
+                    allowing(daoFactory).getSpaceDAO();
                     will(returnValue(groupDAO));
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
@@ -341,15 +341,15 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     protected static ProjectPE createProject(final String groupCode)
     {
         final ProjectPE projectPE = new ProjectPE();
-        final GroupPE groupPE = createGroup(groupCode);
-        projectPE.setGroup(groupPE);
+        final SpacePE groupPE = createGroup(groupCode);
+        projectPE.setSpace(groupPE);
         projectPE.setCode("P");
         return projectPE;
     }
 
-    protected static GroupPE createGroup(final String groupCode)
+    protected static SpacePE createGroup(final String groupCode)
     {
-        final GroupPE groupPE = new GroupPE();
+        final SpacePE groupPE = new SpacePE();
         groupPE.setCode(groupCode);
         DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
         databaseInstancePE.setCode("DB");

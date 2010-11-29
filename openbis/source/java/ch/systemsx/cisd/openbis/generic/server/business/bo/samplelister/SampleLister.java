@@ -81,7 +81,7 @@ public class SampleLister implements ISampleLister
             SampleSkeleton sampleSkeleton = new SampleSkeleton();
             sampleSkeleton.setId(sampleRecord.id);
             sampleSkeleton.setExperimentID(sampleRecord.expe_id);
-            sampleSkeleton.setSpaceID(sampleRecord.grou_id);
+            sampleSkeleton.setSpaceID(sampleRecord.space_id);
             sampleSkeleton.setTypeID(sampleRecord.saty_id);
             sampleSkeleton.setDatabaseInstanceID(sampleRecord.dbin_id);
             if (criteria.isValid(sampleSkeleton))

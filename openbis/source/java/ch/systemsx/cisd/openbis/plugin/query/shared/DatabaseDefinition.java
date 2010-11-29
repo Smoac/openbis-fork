@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.shared;
 
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author Franz-Josef Elmer
@@ -29,14 +29,14 @@ public class DatabaseDefinition
 
     private final String label;
 
-    private final GroupPE dataSpaceOrNull;
+    private final SpacePE dataSpaceOrNull;
 
     private final RoleWithHierarchy creatorMinimalRole;
 
     private final SimpleDatabaseConfigurationContext configurationContext;
 
     public DatabaseDefinition(SimpleDatabaseConfigurationContext configurationContext, String key,
-            String label, RoleWithHierarchy creatorMinimalRole, GroupPE dataSpaceOrNull)
+            String label, RoleWithHierarchy creatorMinimalRole, SpacePE dataSpaceOrNull)
     {
         assert key != null;
         assert label != null;
@@ -64,7 +64,7 @@ public class DatabaseDefinition
         return creatorMinimalRole;
     }
 
-    public GroupPE tryGetDataSpace()
+    public SpacePE tryGetDataSpace()
     {
         return dataSpaceOrNull;
     }

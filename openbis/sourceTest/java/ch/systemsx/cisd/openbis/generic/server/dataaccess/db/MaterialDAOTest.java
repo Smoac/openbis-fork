@@ -145,7 +145,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
 
         // Assert that BACTERIUM-X has been used as a property value
         SamplePE sample =
-                daoFactory.getSampleDAO().tryFindByCodeAndGroup("CP-TEST-1", createGroup("CISD"));
+                daoFactory.getSampleDAO().tryFindByCodeAndSpace("CP-TEST-1", createSpace("CISD"));
         assertNotNull(sample);
         boolean bacteriumFound = false;
         for (SamplePropertyPE property : sample.getProperties())

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -47,13 +47,13 @@ public class SampleUtils
     }
 
     /** for all experiment samples which belonged to a group the specified group will be set */
-    public static void setSamplesGroup(ExperimentPE experiment, GroupPE group)
+    public static void setSamplesGroup(ExperimentPE experiment, SpacePE group)
     {
         for (SamplePE sample : experiment.getSamples())
         {
-            if (sample.getGroup() != null)
+            if (sample.getSpace() != null)
             {
-                sample.setGroup(group);
+                sample.setSpace(group);
             }
         }
     }

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -112,7 +112,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
         } else
         {
             final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();
-            final GroupPE group =
+            final SpacePE group =
                     GroupIdentifierHelper
                             .tryGetGroup(groupIdentifier, session.tryGetPerson(), this);
             if (group == null)
@@ -120,7 +120,7 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
                 throw UserFailureException.fromTemplate("Specified space '%s' could not be found",
                         groupIdentifier);
             }
-            roleAssignment.setGroup(group);
+            roleAssignment.setSpace(group);
         }
         roleAssignment.setRegistrator(findRegistrator());
         roleAssignment.setRole(newRoleAssignment.getRole());

@@ -82,7 +82,7 @@ public class SecondaryEntityListingQueryTest extends AbstractDAOTest
         assertEquals(firstExperiment.getCode(), expFull.getCode());
         ProjectPE project = firstExperiment.getProject();
         assertEquals(project.getCode(), expFull.getProject().getCode());
-        assertEquals(project.getGroup().getCode(), expFull.getProject().getSpace().getCode());
+        assertEquals(project.getSpace().getCode(), expFull.getProject().getSpace().getCode());
         assertEquals(firstExperiment.getEntityType().getCode(), expFull.getEntityType().getCode());
     }
 

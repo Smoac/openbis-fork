@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessContro
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public class AuthorizationChecker implements IAuthorizationChecker
 {
 
-    public boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull, RoleWithHierarchy minimalRole)
+    public boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole)
     {
         final Set<RoleWithHierarchy> requiredRoles = minimalRole.getRoles();
         if (person != null)
@@ -60,7 +60,7 @@ public class AuthorizationChecker implements IAuthorizationChecker
     }
 
     private static boolean isSpaceMatching(List<RoleWithIdentifier> userRoles,
-            final GroupPE requiredSpace)
+            final SpacePE requiredSpace)
     {
 
         for (final RoleWithIdentifier role : userRoles)

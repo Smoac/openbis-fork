@@ -49,9 +49,10 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      * 
      * @param experimentId The id of the experiment to get the code for.
      */
-    @Select("select e.code as e_code, e.perm_id as e_permid, et.code as et_code, p.code as p_code, p.id as p_id, g.code as g_code, g.dbin_id as dbin_id from experiments e "
+    @Select("select e.code as e_code, e.perm_id as e_permid, et.code as et_code, "
+            + "p.code as p_code, p.id as p_id, g.code as g_code, g.dbin_id as dbin_id from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
-            + "join groups g on p.grou_id=g.id where e.id=?{1}")
+            + "join spaces g on p.space_id=g.id where e.id=?{1}")
     public ExperimentProjectGroupCodeRecord getExperimentAndProjectAndGroupCodeForId(
             long experimentId);
 
@@ -65,7 +66,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
     @Select(sql = "select s.id as id, s.perm_id as perm_id, s.code as s_code, s.inva_id as inva_id, "
             + "           st.code as st_code, g.code as g_code, c.code as c_code"
             + "   from samples s join sample_types st on s.saty_id=st.id"
-            + "                  join groups g on s.grou_id=g.id "
+            + "                  join spaces g on s.space_id=g.id "
             + "                  left join samples c on s.samp_id_part_of=c.id "
             + "        where s.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
@@ -92,18 +93,18 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
     public Person getPersonById(long personId);
 
     /**
-     * Returns all groups of this data base instance.
+     * Returns all spaces of this data base instance.
      * 
-     * @param databaseInstanceId The id of the ddatabase to get the groups for.
+     * @param databaseInstanceId The id of the database to get the spaces for.
      */
-    @Select("select id, code from groups where dbin_id=?{1}")
-    public Space[] getAllGroups(long databaseInstanceId);
+    @Select("select id, code from spaces where dbin_id=?{1}")
+    public Space[] getAllSpaces(long databaseInstanceId);
 
     /**
-     * Returns the technical id of a group for given <var>groupCode</code>.
+     * Returns the technical id of a group for given <var>spaceCode</code>.
      */
-    @Select("select id from groups where code=?{1}")
-    public long getGroupIdForCode(String groupCode);
+    @Select("select id from spaces where code=?{1}")
+    public long getGroupIdForCode(String spaceCode);
 
     /**
      * Returns the technical id of a sample type for given <var>sampleTypeCode</code> or

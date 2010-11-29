@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -447,7 +447,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private List<SamplePE> findUnassignedSamplesByCodes(Set<String> codesToAdd)
     {
-        GroupPE group = experiment.getProject().getGroup();
+        SpacePE group = experiment.getProject().getSpace();
         return findUnassignedSamples(getSampleDAO(), codesToAdd, group);
     }
 
@@ -484,13 +484,13 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     // Finds samples in the specified group. Throws exception if some samples do not exist.
     // Throws exception if any sample code specified is already assigned to an experiment.
     private static List<SamplePE> findUnassignedSamples(ISampleDAO sampleDAO,
-            Set<String> sampleCodes, GroupPE group) throws UserFailureException
+            Set<String> sampleCodes, SpacePE group) throws UserFailureException
     {
         List<SamplePE> samples = new ArrayList<SamplePE>();
         List<String> missingSamples = new ArrayList<String>();
         for (String code : sampleCodes)
         {
-            SamplePE sample = sampleDAO.tryFindByCodeAndGroup(code, group);
+            SamplePE sample = sampleDAO.tryFindByCodeAndSpace(code, group);
             if (sample == null)
             {
                 missingSamples.add(code);
@@ -536,9 +536,9 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
             return; // nothing to change
         }
         // if the group has changes, move all samples to that group
-        if (project.getGroup().equals(previousProject.getGroup()) == false)
+        if (project.getSpace().equals(previousProject.getSpace()) == false)
         {
-            SampleUtils.setSamplesGroup(experiment, project.getGroup());
+            SampleUtils.setSamplesGroup(experiment, project.getSpace());
         }
         experiment.setProject(project);
     }

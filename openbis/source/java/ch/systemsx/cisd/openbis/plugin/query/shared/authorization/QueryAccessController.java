@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationAdviso
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.DatabaseDefinition;
@@ -53,7 +53,7 @@ public class QueryAccessController
     {
         DatabaseDefinition database = definitionsByDbKey.get(dbKey);
         PersonPE person = session.tryGetPerson();
-        GroupPE dataSpaceOrNull = database.tryGetDataSpace();
+        SpacePE dataSpaceOrNull = database.tryGetDataSpace();
         RoleWithHierarchy minimalRole = database.getCreatorMinimalRole();
 
         checkAuthorization(session, operation, database, person, dataSpaceOrNull, minimalRole);
@@ -63,14 +63,14 @@ public class QueryAccessController
     {
         DatabaseDefinition database = definitionsByDbKey.get(dbKey);
         PersonPE person = session.tryGetPerson();
-        GroupPE dataSpaceOrNull = database.tryGetDataSpace();
+        SpacePE dataSpaceOrNull = database.tryGetDataSpace();
         RoleWithHierarchy minimalRole = RoleWithHierarchy.SPACE_OBSERVER;
 
         checkAuthorization(session, "perform", database, person, dataSpaceOrNull, minimalRole);
     }
 
     private static void checkAuthorization(Session session, String operation,
-            DatabaseDefinition database, PersonPE person, GroupPE dataSpaceOrNull,
+            DatabaseDefinition database, PersonPE person, SpacePE dataSpaceOrNull,
             RoleWithHierarchy minimalRole)
     {
         if (isAuthorized(person, dataSpaceOrNull, minimalRole) == false)
@@ -82,13 +82,13 @@ public class QueryAccessController
         }
     }
 
-    static boolean isAuthorized(PersonPE person, GroupPE dataSpaceOrNull, RoleWithHierarchy minimalRole)
+    static boolean isAuthorized(PersonPE person, SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole)
     {
         return new AuthorizationChecker().isAuthorized(person, dataSpaceOrNull, minimalRole);
     }
 
     private static String createErrorMessage(String operation, String userName,
-            GroupPE dataSpaceOrNull, RoleWithHierarchy minimalRole, String database)
+            SpacePE dataSpaceOrNull, RoleWithHierarchy minimalRole, String database)
     {
         String minimalRoleDescription = minimalRole.name();
         if (dataSpaceOrNull != null)

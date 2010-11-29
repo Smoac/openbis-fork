@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -288,7 +288,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         PersonPE person = session.tryGetPerson();
         assert person != null : "cannot obtain the person which is logged in";
         result.setDisplaySettings(person.getDisplaySettings());
-        GroupPE homeGroup = person.getHomeGroup();
+        SpacePE homeGroup = person.getHomeSpace();
         result.setHomeGroupCode(homeGroup == null ? null : homeGroup.getCode());
         result.setSessionExpirationTime(session.getSessionExpirationTime());
         result.setSessionToken(session.getSessionToken());
@@ -357,10 +357,10 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         PersonPE person = session.tryGetPerson();
         if (person != null)
         {
-            GroupPE homeGroup =
-                    groupIdOrNull == null ? null : getDAOFactory().getGroupDAO().getByTechId(
+            SpacePE homeGroup =
+                    groupIdOrNull == null ? null : getDAOFactory().getSpaceDAO().getByTechId(
                             groupIdOrNull);
-            person.setHomeGroup(homeGroup);
+            person.setHomeSpace(homeGroup);
             // don't need to updatePerson(person) with DAO because it is attached to a session
         }
     }

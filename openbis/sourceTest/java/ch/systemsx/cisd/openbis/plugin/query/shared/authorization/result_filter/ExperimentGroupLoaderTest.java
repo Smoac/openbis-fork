@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -77,7 +77,7 @@ public class ExperimentGroupLoaderTest extends AssertJUnit
         keys.add(KNOWN_WITHOUT_GROUP);
         keys.add(UNKNOWN);
         final ArrayList<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
-        GroupPE knownGroup = new GroupPE();
+        SpacePE knownGroup = new SpacePE();
         experiments.add(createExperiment(KNOWN_WITH_GROUP, knownGroup));
         experiments.add(createExperiment(KNOWN_WITHOUT_GROUP, null));
         context.checking(new Expectations()
@@ -87,18 +87,18 @@ public class ExperimentGroupLoaderTest extends AssertJUnit
                     will(returnValue(experiments));
                 }
             });
-        Map<String, GroupPE> map = createLoader().loadGroups(keys);
+        Map<String, SpacePE> map = createLoader().loadGroups(keys);
         assertNull(map.get(UNKNOWN));
         assertNull(map.get(KNOWN_WITHOUT_GROUP));
         assertEquals(knownGroup, map.get(KNOWN_WITH_GROUP));
         context.assertIsSatisfied();
     }
 
-    private ExperimentPE createExperiment(String permId, GroupPE group)
+    private ExperimentPE createExperiment(String permId, SpacePE group)
     {
         ExperimentPE experiment = new ExperimentPE();
         ProjectPE project = new ProjectPE();
-        project.setGroup(group);
+        project.setSpace(group);
         experiment.setProject(project);
         experiment.setPermId(permId);
         return experiment;

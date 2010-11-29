@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
@@ -229,14 +229,14 @@ public final class PredicateExecutor
             }
         }
 
-        public List<GroupPE> listGroups()
+        public List<SpacePE> listGroups()
         {
-            return daoFactory.getGroupDAO().listGroups();
+            return daoFactory.getSpaceDAO().listSpaces();
         }
 
-        public GroupPE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode)
+        public SpacePE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode)
         {
-            return daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(spaceCode,
+            return daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
                     homeDatabaseInstance);
         }
 
@@ -374,22 +374,22 @@ public final class PredicateExecutor
             return fullResults;
         }
 
-        public GroupPE tryToGetGroup(SpaceOwnerKind kind, TechId techId)
+        public SpacePE tryToGetGroup(SpaceOwnerKind kind, TechId techId)
         {
             switch (kind)
             {
                 case DATASET:
                     ExternalDataPE dataset = daoFactory.getExternalDataDAO().getByTechId(techId);
-                    return dataset.getExperiment().getProject().getGroup();
+                    return dataset.getExperiment().getProject().getSpace();
                 case EXPERIMENT:
                     ExperimentPE experiment = daoFactory.getExperimentDAO().getByTechId(techId);
-                    return experiment.getProject().getGroup();
+                    return experiment.getProject().getSpace();
                 case SPACE:
-                    GroupPE group = daoFactory.getGroupDAO().getByTechId(techId);
+                    SpacePE group = daoFactory.getSpaceDAO().getByTechId(techId);
                     return group;
                 case PROJECT:
                     ProjectPE project = daoFactory.getProjectDAO().getByTechId(techId);
-                    return project.getGroup();
+                    return project.getSpace();
             }
             return null;
         }

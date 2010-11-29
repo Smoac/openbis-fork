@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredicate<T>
 {
 
-    protected List<GroupPE> groups;
+    protected List<SpacePE> groups;
 
     @Override
     public void init(IAuthorizationDataProvider provider)
@@ -69,9 +69,9 @@ public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstance
                 person.getUserId()));
     }
 
-    private GroupPE tryFindGroup(final String databaseInstanceUUID, final String groupCode)
+    private SpacePE tryFindGroup(final String databaseInstanceUUID, final String groupCode)
     {
-        for (final GroupPE group : groups)
+        for (final SpacePE group : groups)
         {
             if (equalIdentifier(group, databaseInstanceUUID, groupCode))
             {
@@ -103,7 +103,7 @@ public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstance
         return false;
     }
 
-    private boolean equalIdentifier(final GroupPE group, final String databaseInstanceUUID,
+    private boolean equalIdentifier(final SpacePE group, final String databaseInstanceUUID,
             final String groupCodeOrNull)
     {
         return (groupCodeOrNull == null || group.getCode().equals(groupCodeOrNull))

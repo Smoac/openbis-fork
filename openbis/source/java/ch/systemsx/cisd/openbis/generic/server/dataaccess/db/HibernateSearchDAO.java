@@ -393,7 +393,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         private String getSpaceIdFieldName()
         {
-            String groupId = SearchFieldConstants.PREFIX_GROUP + SearchFieldConstants.ID;
+            String groupId = SearchFieldConstants.PREFIX_SPACE + SearchFieldConstants.ID;
             if (searchableEntity.equals(SearchableEntity.EXPERIMENT))
             {
                 return SearchFieldConstants.PREFIX_PROJECT + groupId;

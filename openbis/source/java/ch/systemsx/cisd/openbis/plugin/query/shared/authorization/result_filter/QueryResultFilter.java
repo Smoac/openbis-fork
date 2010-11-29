@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.AuthorizationChecker;
 import ch.systemsx.cisd.openbis.plugin.query.shared.authorization.IAuthorizationChecker;
@@ -78,7 +78,7 @@ public class QueryResultFilter
     {
         List<Integer> columnsToFilter = getColumnsToFilter(table, kind);
         Set<String> entityIdentifiers = getValues(table, columnsToFilter);
-        Map<String, GroupPE> entitySpaces = loadGroups(entityIdentifiers, kind);
+        Map<String, SpacePE> entitySpaces = loadGroups(entityIdentifiers, kind);
         Iterator<TableModelRow> rowIterator = table.getRows().iterator();
         rowLoop: while (rowIterator.hasNext())
         {
@@ -129,7 +129,7 @@ public class QueryResultFilter
         return columns;
     }
 
-    private Map<String, GroupPE> loadGroups(Set<String> values, EntityKind kind)
+    private Map<String, SpacePE> loadGroups(Set<String> values, EntityKind kind)
     {
         return groupLoaderFactory.create(kind).loadGroups(values);
     }

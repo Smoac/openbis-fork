@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
 @Entity
 @Table(name = TableNames.PROJECTS_TABLE, uniqueConstraints =
     { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.GROUP_COLUMN }) })
+        { ColumnNames.CODE_COLUMN, ColumnNames.SPACE_COLUMN }) })
 @Friend(toClasses = ExperimentPE.class)
 public final class ProjectPE extends AttachmentHolderPE implements Comparable<ProjectPE>,
         IIdAndCodeHolder, Serializable
@@ -84,7 +84,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
 
     private transient Long id;
 
-    private GroupPE group;
+    private SpacePE space;
 
     private List<ExperimentPE> experiments = new ArrayList<ExperimentPE>();
 
@@ -135,23 +135,20 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     }
 
     /**
-     * Sets the group which this <code>ProjectDTO</code> is related to.
-     * 
-     * @throws AssertionError if <code>groupId</code> is defined but unequal
-     *             <code>group.getId()</code>.
+     * Sets the space which this <code>ProjectDTO</code> is related to.
      */
-    public final void setGroup(final GroupPE group)
+    public final void setSpace(final SpacePE space)
     {
-        this.group = group;
+        this.space = space;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.GROUP_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_GROUP)
-    public final GroupPE getGroup()
+    @NotNull(message = ValidationMessages.SPACE_NOT_NULL_MESSAGE)
+    @JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SPACE)
+    public final SpacePE getSpace()
     {
-        return group;
+        return space;
     }
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectInternal")
@@ -244,7 +241,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     public final boolean equals(final Object obj)
     {
         EqualsHashUtils.assertDefined(getCode(), "code");
-        EqualsHashUtils.assertDefined(getGroup(), "space");
+        EqualsHashUtils.assertDefined(getSpace(), "space");
         if (obj == this)
         {
             return true;
@@ -256,7 +253,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
         final ProjectPE that = (ProjectPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
-        builder.append(getGroup(), that.getGroup());
+        builder.append(getSpace(), that.getSpace());
         return builder.isEquals();
     }
 
@@ -265,7 +262,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
-        builder.append(getGroup());
+        builder.append(getSpace());
         return builder.toHashCode();
     }
 

@@ -75,19 +75,19 @@ public final class Session extends BasicSession implements IAuthSession
     }
 
     /** Returns the home group or <code>null</code>. */
-    public final GroupPE tryGetHomeGroup()
+    public final SpacePE tryGetHomeGroup()
     {
         if (personOrNull == null)
         {
             return null;
         }
-        return personOrNull.getHomeGroup();
+        return personOrNull.getHomeSpace();
     }
 
     /** Returns home group code or <code>null</code>. */
     public final String tryGetHomeGroupCode()
     {
-        final GroupPE homeGroup = tryGetHomeGroup();
+        final SpacePE homeGroup = tryGetHomeGroup();
         if (homeGroup == null)
         {
             return null;

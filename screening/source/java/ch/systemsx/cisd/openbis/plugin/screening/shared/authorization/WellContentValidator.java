@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.authorization;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.AbstractValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -45,7 +45,7 @@ public class WellContentValidator extends AbstractValidator<WellContent>
                 // Note: Here we assume that we operate on _the only_ db instance (the home db)!
                 return true;
             }
-            final GroupPE group = roleAssignment.getGroup();
+            final SpacePE group = roleAssignment.getSpace();
             if (group != null && group.getCode().equals(spaceCode))
             {
                 return true;

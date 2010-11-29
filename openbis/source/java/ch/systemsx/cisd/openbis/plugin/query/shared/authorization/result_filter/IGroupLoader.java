@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.query.shared.authorization.result_filter
 import java.util.Map;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Loads the groups connected with entities described by given keys.
@@ -28,5 +28,5 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  */
 public interface IGroupLoader
 {
-    Map<String, GroupPE> loadGroups(Set<String> keys);
+    Map<String, SpacePE> loadGroups(Set<String> keys);
 }

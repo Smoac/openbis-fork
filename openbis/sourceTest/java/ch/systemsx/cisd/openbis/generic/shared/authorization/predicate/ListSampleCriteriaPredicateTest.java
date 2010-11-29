@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.SpaceOwnerKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author Bernd Rinn
@@ -56,7 +56,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), Collections.<GroupPE> emptyList());
+        prepareProvider(createDatabaseInstance(), Collections.<SpacePE> emptyList());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(SPACE_CODE);

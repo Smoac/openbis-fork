@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGroupPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
@@ -61,7 +61,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
                     return Status.createError(String.format(
                             "User '%s' does not have enough privileges.", person.getUserId()));
                 }
-                final GroupPE space = sampleOrNull.getGroup();
+                final SpacePE space = sampleOrNull.getSpace();
                 final Status status =
                         evaluate(person, allowedRoles, space.getDatabaseInstance(), space.getCode());
                 if (Status.OK.equals(status) == false)

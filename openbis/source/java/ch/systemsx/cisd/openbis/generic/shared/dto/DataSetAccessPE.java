@@ -35,15 +35,15 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @SqlResultSetMapping(name = "implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
 @NamedNativeQuery(name = "dataset_access", query = "select "
         + "g.code as groupCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
-        + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.GROUPS_TABLE + " g, "
+        + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE + " g, "
         + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
         + "(select e.proj_id from " + TableNames.DATA_TABLE + " ds, "
         + TableNames.EXPERIMENTS_TABLE + " e "
         + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
-        + "and p.grou_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
+        + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "implicit")
 public class DataSetAccessPE
 {
-    private String groupCode;
+    private String spaceCode;
 
     private String databaseInstanceUuid;
 
@@ -61,15 +61,15 @@ public class DataSetAccessPE
             String databaseInstanceCode)
     {
         DataSetAccessPE newMe = new DataSetAccessPE();
-        newMe.setGroupCode(groupCode);
+        newMe.setSpaceCode(groupCode);
         newMe.setDatabaseInstanceUuid(databaseInstanceUuid);
         newMe.setDatabaseInstanceCode(databaseInstanceCode);
         return newMe;
     }
 
-    void setGroupCode(String groupCode)
+    void setSpaceCode(String spaceCode)
     {
-        this.groupCode = groupCode;
+        this.spaceCode = spaceCode;
     }
 
     void setDatabaseInstanceUuid(String databaseInstanceUuid)
@@ -83,9 +83,9 @@ public class DataSetAccessPE
     }
 
     @Id
-    public String getGroupCode()
+    public String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 
     public String getDatabaseInstanceUuid()
@@ -115,7 +115,7 @@ public class DataSetAccessPE
         }
         final DataSetAccessPE that = (DataSetAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getGroupCode(), that.getGroupCode());
+        builder.append(getSpaceCode(), that.getSpaceCode());
         builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
         builder.append(getDatabaseInstanceUuid(), that.getDatabaseInstanceUuid());
         return builder.isEquals();
@@ -125,7 +125,7 @@ public class DataSetAccessPE
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getGroupCode());
+        builder.append(getSpaceCode());
         builder.append(getDatabaseInstanceCode());
         builder.append(getDatabaseInstanceUuid());
         return builder.toHashCode();

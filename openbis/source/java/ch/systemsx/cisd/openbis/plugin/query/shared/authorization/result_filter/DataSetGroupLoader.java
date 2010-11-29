@@ -23,7 +23,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * {@link IGroupLoader} for data sets.
@@ -40,13 +40,13 @@ class DataSetGroupLoader implements IGroupLoader
         this.dao = dao;
     }
 
-    public Map<String, GroupPE> loadGroups(Set<String> keys)
+    public Map<String, SpacePE> loadGroups(Set<String> keys)
     {
-        Map<String, GroupPE> map = new HashMap<String, GroupPE>();
+        Map<String, SpacePE> map = new HashMap<String, SpacePE>();
         List<ExternalDataPE> data = dao.listByCode(keys);
         for (ExternalDataPE d : data)
         {
-            map.put(d.getCode(), d.getExperiment().getProject().getGroup());
+            map.put(d.getCode(), d.getExperiment().getProject().getSpace());
         }
         return map;
     }

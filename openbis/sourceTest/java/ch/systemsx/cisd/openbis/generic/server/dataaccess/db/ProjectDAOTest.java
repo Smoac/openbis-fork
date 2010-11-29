@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -81,7 +81,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         final ProjectPE defaultProject = allProjects.get(0);
         assertEquals(DEFAULT, defaultProject.getCode());
         final List<ProjectPE> groupProjects =
-                daoFactory.getProjectDAO().listProjects(defaultProject.getGroup());
+                daoFactory.getProjectDAO().listProjects(defaultProject.getSpace());
         assertEquals(3, groupProjects.size());
         Collections.sort(groupProjects);
         assertEquals(DEFAULT, groupProjects.get(0).getCode());
@@ -97,7 +97,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         final ProjectPE testProject = allProjects.get(3);
         assertEquals(testProject.getCode(), TESTPROJ);
         final List<ProjectPE> groupProjects =
-                daoFactory.getProjectDAO().listProjects(testProject.getGroup());
+                daoFactory.getProjectDAO().listProjects(testProject.getSpace());
         assertEquals(1, groupProjects.size());
         Collections.sort(groupProjects);
         assertEquals(groupProjects.get(0).getCode(), TESTPROJ);
@@ -113,11 +113,11 @@ public class ProjectDAOTest extends AbstractDAOTest
 
         ProjectPE found =
                 daoFactory.getProjectDAO().tryFindProject(
-                        templateProject.getGroup().getDatabaseInstance().getCode(),
-                        templateProject.getGroup().getCode(), templateProject.getCode());
+                        templateProject.getSpace().getDatabaseInstance().getCode(),
+                        templateProject.getSpace().getCode(), templateProject.getCode());
         assertEquals(TESTPROJ, found.getCode());
-        assertEquals(templateProject.getGroup().getCode(), found.getGroup().getCode());
-        assertEquals(templateProject.getGroup().getDatabaseInstance().getCode(), found.getGroup()
+        assertEquals(templateProject.getSpace().getCode(), found.getSpace().getCode());
+        assertEquals(templateProject.getSpace().getDatabaseInstance().getCode(), found.getSpace()
                 .getDatabaseInstance().getCode());
     }
 
@@ -130,15 +130,15 @@ public class ProjectDAOTest extends AbstractDAOTest
         assertEquals(templateProject.getCode(), TESTPROJ);
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
-                templateProject.getGroup().getDatabaseInstance().getCode(),
-                templateProject.getGroup().getCode(), NONEXISTENT));
+                templateProject.getSpace().getDatabaseInstance().getCode(),
+                templateProject.getSpace().getCode(), NONEXISTENT));
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
-                templateProject.getGroup().getDatabaseInstance().getCode(), NONEXISTENT,
+                templateProject.getSpace().getDatabaseInstance().getCode(), NONEXISTENT,
                 templateProject.getCode()));
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(NONEXISTENT,
-                templateProject.getGroup().getCode(), templateProject.getCode()));
+                templateProject.getSpace().getCode(), templateProject.getCode()));
     }
 
     @Test
@@ -149,28 +149,28 @@ public class ProjectDAOTest extends AbstractDAOTest
         final ProjectPE templateProject = allProjects.get(3);
         assertEquals(templateProject.getCode(), TESTPROJ);
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
-                templateProject.getGroup().getDatabaseInstance().getCode(),
-                templateProject.getGroup().getCode(), NONEXISTENT));
+                templateProject.getSpace().getDatabaseInstance().getCode(),
+                templateProject.getSpace().getCode(), NONEXISTENT));
         final ProjectPE newProject =
-                prepareProject(templateProject.getGroup(), NONEXISTENT, DESCRIPTION_NEW_PROJECT,
+                prepareProject(templateProject.getSpace(), NONEXISTENT, DESCRIPTION_NEW_PROJECT,
                         getSystemPerson());
         daoFactory.getProjectDAO().createProject(newProject);
         final ProjectPE registeredProject =
                 daoFactory.getProjectDAO().tryFindProject(
-                        templateProject.getGroup().getDatabaseInstance().getCode(),
-                        templateProject.getGroup().getCode(), NONEXISTENT);
+                        templateProject.getSpace().getDatabaseInstance().getCode(),
+                        templateProject.getSpace().getCode(), NONEXISTENT);
         AssertJUnit.assertNotNull(registeredProject);
         assertEquals(registeredProject.getDescription(), DESCRIPTION_NEW_PROJECT);
-        assertEquals(registeredProject.getGroup(), templateProject.getGroup());
+        assertEquals(registeredProject.getSpace(), templateProject.getSpace());
         assertEquals(registeredProject.getProjectLeader(), getSystemPerson());
     }
 
-    private ProjectPE prepareProject(GroupPE group, String code, String description, PersonPE leader)
+    private ProjectPE prepareProject(SpacePE group, String code, String description, PersonPE leader)
     {
         final ProjectPE result = new ProjectPE();
         result.setCode(code);
         result.setDescription(description);
-        result.setGroup(group);
+        result.setSpace(group);
         result.setProjectLeader(leader);
         final PersonPE systemPerson = getSystemPerson();
         result.setRegistrator(systemPerson);
@@ -195,9 +195,9 @@ public class ProjectDAOTest extends AbstractDAOTest
 
         // deleted project had objects connected that should not have been deleted:
         // - a group
-        GroupPE group = deletedProject.getGroup();
+        SpacePE group = deletedProject.getSpace();
         assertNotNull(group);
-        assertNotNull(daoFactory.getGroupDAO().tryGetByTechId(
+        assertNotNull(daoFactory.getSpaceDAO().tryGetByTechId(
                 new TechId(HibernateUtils.getId(group))));
     }
 

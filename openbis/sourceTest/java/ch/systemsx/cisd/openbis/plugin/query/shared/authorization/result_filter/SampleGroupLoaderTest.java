@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -76,7 +76,7 @@ public class SampleGroupLoaderTest extends AssertJUnit
         keys.add(KNOWN_WITHOUT_GROUP);
         keys.add(UNKNOWN);
         final ArrayList<SamplePE> samples = new ArrayList<SamplePE>();
-        GroupPE knownGroup = new GroupPE();
+        SpacePE knownGroup = new SpacePE();
         samples.add(createSample(KNOWN_WITH_GROUP, knownGroup));
         samples.add(createSample(KNOWN_WITHOUT_GROUP, null));
         context.checking(new Expectations()
@@ -86,17 +86,17 @@ public class SampleGroupLoaderTest extends AssertJUnit
                     will(returnValue(samples));
                 }
             });
-        Map<String, GroupPE> map = createLoader().loadGroups(keys);
+        Map<String, SpacePE> map = createLoader().loadGroups(keys);
         assertNull(map.get(UNKNOWN));
         assertNull(map.get(KNOWN_WITHOUT_GROUP));
         assertEquals(knownGroup, map.get(KNOWN_WITH_GROUP));
         context.assertIsSatisfied();
     }
 
-    private SamplePE createSample(String permId, GroupPE group)
+    private SamplePE createSample(String permId, SpacePE group)
     {
         SamplePE sample = new SamplePE();
-        sample.setGroup(group);
+        sample.setSpace(group);
         sample.setPermId(permId);
         return sample;
     }

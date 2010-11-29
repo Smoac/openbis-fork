@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  */
 
 @Entity
-@Check(constraints = "((DBIN_ID IS NOT NULL AND GROU_ID IS NULL) OR (DBIN_ID IS NULL AND GROU_ID IS NOT NULL))"
+@Check(constraints = "((DBIN_ID IS NOT NULL AND SPACE_ID IS NULL) OR (DBIN_ID IS NULL AND SPACE_ID IS NOT NULL))"
         + " AND "
         + "((AG_ID_GRANTEE IS NOT NULL AND PERS_ID_GRANTEE IS NULL) OR (AG_ID_GRANTEE IS NULL AND PERS_ID_GRANTEE IS NOT NULL))")
 @Table(name = TableNames.ROLE_ASSIGNMENTS_TABLE)
@@ -68,7 +68,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
 
     private DatabaseInstancePE databaseInstance;
 
-    private GroupPE group;
+    private SpacePE space;
 
     private PersonPE person;
 
@@ -135,15 +135,15 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = false)
-    public final GroupPE getGroup()
+    @JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = false)
+    public final SpacePE getSpace()
     {
-        return group;
+        return space;
     }
 
-    public final void setGroup(final GroupPE group)
+    public final void setSpace(final SpacePE space)
     {
-        this.group = group;
+        this.space = space;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -182,7 +182,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
         {
             EqualsHashUtils.assertDefined(getAuthorizationGroupInternal(), "authorization group");
         }
-        if (getGroup() == null)
+        if (getSpace() == null)
         {
             EqualsHashUtils.assertDefined(getDatabaseInstance(), "db");
         }
@@ -200,7 +200,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
         builder.append(getPerson(), that.getPerson());
         builder.append(getAuthorizationGroup(), that.getAuthorizationGroup());
         builder.append(getDatabaseInstance(), that.getDatabaseInstance());
-        builder.append(getGroup(), that.getGroup());
+        builder.append(getSpace(), that.getSpace());
         return builder.isEquals();
     }
 
@@ -211,7 +211,7 @@ public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder 
         builder.append(getRole());
         builder.append(getPerson());
         builder.append(getDatabaseInstance());
-        builder.append(getGroup());
+        builder.append(getSpace());
         return builder.toHashCode();
     }
 

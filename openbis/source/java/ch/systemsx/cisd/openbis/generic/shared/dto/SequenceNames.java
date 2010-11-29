@@ -64,7 +64,7 @@ public final class SequenceNames
 
     public static final String RELATIONSHIP_TYPE_SEQUENCE = "RELATIONSHIP_TYPE_ID_SEQ";
 
-    public static final String GROUP_SEQUENCE = "GROUP_ID_SEQ";
+    public static final String SPACE_SEQUENCE = "SPACE_ID_SEQ";
 
     public static final String FILTER_SEQUENCE = "FILTER_ID_SEQ";
 

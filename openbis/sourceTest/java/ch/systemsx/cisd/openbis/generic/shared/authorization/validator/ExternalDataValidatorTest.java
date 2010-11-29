@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
  */
 public class ExternalDataValidatorTest extends AuthorizationTestCase
 {
-    private ExternalData createData(GroupPE group)
+    private ExternalData createData(SpacePE group)
     {
         ExternalData data = new ExternalData();
         data.setExperiment(ExperimentTranslator.translate(createExperiment(group), "http://someURL"));
@@ -59,7 +59,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     {
         ExternalDataValidator validator = new ExternalDataValidator();
         PersonPE person = createPersonWithRoleAssignments();
-        GroupPE group = createGroup("blabla", createAnotherDatabaseInstance());
+        SpacePE group = createGroup("blabla", createAnotherDatabaseInstance());
         assertEquals(false, validator.isValid(person, createData(group)));
     }
     

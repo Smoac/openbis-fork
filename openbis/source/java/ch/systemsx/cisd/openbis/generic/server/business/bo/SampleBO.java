@@ -222,7 +222,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     private final static void checkSampleInGroup(final SamplePE sample)
     {
-        if (sample.getGroup() == null)
+        if (sample.getSpace() == null)
         {
             throw UserFailureException.fromTemplate(
                     "The sample '%s' is shared and cannot be assigned to any experiment.",

@@ -157,7 +157,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -275,9 +275,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final DatabaseInstancePE databaseInstance =
                 GroupIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
-        final List<GroupPE> groups = getDAOFactory().getGroupDAO().listGroups(databaseInstance);
-        final GroupPE homeGroupOrNull = session.tryGetHomeGroup();
-        for (final GroupPE group : groups)
+        final List<SpacePE> groups = getDAOFactory().getSpaceDAO().listSpaces(databaseInstance);
+        final SpacePE homeGroupOrNull = session.tryGetHomeGroup();
+        for (final SpacePE group : groups)
         {
             group.setHome(group.equals(homeGroupOrNull));
         }
@@ -366,7 +366,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
 
         final RoleAssignmentPE roleAssignment =
-                getDAOFactory().getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
+                getDAOFactory().getRoleAssignmentDAO().tryFindSpaceRoleAssignment(roleCode,
                         spaceIdentifier.getSpaceCode(), grantee);
         if (roleAssignment == null)
         {

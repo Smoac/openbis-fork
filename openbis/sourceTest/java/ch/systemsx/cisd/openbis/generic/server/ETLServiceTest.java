@@ -647,7 +647,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(sampleBO).getSample();
                     SamplePE sample = new SamplePE();
                     sample.setCode("s2");
-                    sample.setGroup(createGroup("G1"));
+                    sample.setSpace(createGroup("G1"));
                     sample.setExperiment(experiment);
                     will(returnValue(sample));
 

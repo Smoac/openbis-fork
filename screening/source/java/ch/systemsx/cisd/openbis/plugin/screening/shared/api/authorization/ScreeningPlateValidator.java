@@ -3,7 +3,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.AbstractValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -31,7 +31,7 @@ public final class ScreeningPlateValidator extends AbstractValidator<Plate>
                     // home db always)
                     return true;
                 }
-                final GroupPE group = roleAssignment.getGroup();
+                final SpacePE group = roleAssignment.getSpace();
                 if (group != null && group.getCode().equals(spaceCode))
                 {
                     return true;

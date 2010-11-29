@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
@@ -55,12 +55,12 @@ public final class DefaultAccessControllerTest
 
         final RoleAssignmentPE groupRole = new RoleAssignmentPE();
 
-        final GroupPE groupPE = new GroupPE();
+        final SpacePE groupPE = new SpacePE();
         groupPE.setCode("CISD");
         final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
         databaseInstancePE.setCode("DB2");
         groupPE.setDatabaseInstance(databaseInstancePE);
-        groupRole.setGroup(groupPE);
+        groupRole.setSpace(groupPE);
         groupRole.setRole(RoleCode.USER);
         roleAssignments.add(groupRole);
 

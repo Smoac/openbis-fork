@@ -202,7 +202,7 @@ public class ScreeningApiImpl
     {
         final ExperimentIdentifier experimentId =
                 new ExperimentIdentifier(experiment.getCode(), experiment.getProject().getCode(),
-                        experiment.getProject().getGroup().getCode(), experiment.getPermId());
+                        experiment.getProject().getSpace().getCode(), experiment.getPermId());
         return experimentId;
     }
 

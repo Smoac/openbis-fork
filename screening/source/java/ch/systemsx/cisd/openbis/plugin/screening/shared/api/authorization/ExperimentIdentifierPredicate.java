@@ -22,7 +22,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGroupPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
@@ -54,7 +54,7 @@ public class ExperimentIdentifierPredicate extends AbstractGroupPredicate<Experi
                 return Status.createError(String.format(
                         "User '%s' does not have enough privileges.", person.getUserId()));
             }
-            final GroupPE space = experimentOrNull.getProject().getGroup();
+            final SpacePE space = experimentOrNull.getProject().getSpace();
             return evaluate(person, allowedRoles, space.getDatabaseInstance(), space.getCode());
         }
 

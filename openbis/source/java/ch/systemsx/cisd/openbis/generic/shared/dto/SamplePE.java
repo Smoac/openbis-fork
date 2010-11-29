@@ -82,8 +82,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Entity
 @Table(name = TableNames.SAMPLES_TABLE)
 @Check(constraints = "(" + ColumnNames.DATABASE_INSTANCE_COLUMN + " IS NOT NULL AND "
-        + ColumnNames.GROUP_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
-        + " IS NULL AND " + ColumnNames.GROUP_COLUMN + " IS NOT NULL)")
+        + ColumnNames.SPACE_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
+        + " IS NULL AND " + ColumnNames.SPACE_COLUMN + " IS NOT NULL)")
 @Indexed
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityInformationWithPropertiesHolder, IMatchingEntity, Serializable
@@ -102,7 +102,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     private DatabaseInstancePE databaseInstance;
 
-    private GroupPE group;
+    private SpacePE space;
 
     private SampleIdentifier sampleIdentifier;
 
@@ -315,16 +315,16 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = true)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_GROUP)
-    public GroupPE getGroup()
+    @JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SPACE)
+    public SpacePE getSpace()
     {
-        return group;
+        return space;
     }
 
-    public void setGroup(final GroupPE group)
+    public void setSpace(final SpacePE space)
     {
-        this.group = group;
+        this.space = space;
     }
 
     public void setCode(final String code)
@@ -539,7 +539,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
         builder.append(getDatabaseInstance(), that.getDatabaseInstance());
-        builder.append(getGroup(), that.getGroup());
+        builder.append(getSpace(), that.getSpace());
         return builder.isEquals();
     }
 
@@ -549,7 +549,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
         builder.append(getDatabaseInstance());
-        builder.append(getGroup());
+        builder.append(getSpace());
         return builder.toHashCode();
     }
 

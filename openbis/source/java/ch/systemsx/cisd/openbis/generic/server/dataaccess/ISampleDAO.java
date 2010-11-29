@@ -24,7 +24,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -62,19 +62,19 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
             String containerCodeOrNull, final DatabaseInstancePE databaseInstance);
 
     /**
-     * Returns the sample specified by given <var>sampleCode</var> and given <var>group</var>.
+     * Returns the sample specified by given <var>sampleCode</var> and given <var>space</var>.
      */
-    SamplePE tryFindByCodeAndGroup(final String sampleCode, final GroupPE group)
+    SamplePE tryFindByCodeAndSpace(final String sampleCode, final SpacePE space)
             throws DataAccessException;
 
     /**
-     * Returns a list of samples with given <var>group</var> and one of given codes.
+     * Returns a list of samples with given <var>space</var> and one of given codes.
      * 
      * @param containerCodeOrNull if specified all returned samples should have container with
      *            specified code, otherwise they shouldn't have any container
      */
-    List<SamplePE> listByCodesAndGroup(final List<String> sampleCodes, String containerCodeOrNull,
-            final GroupPE group);
+    List<SamplePE> listByCodesAndSpace(final List<String> sampleCodes, String containerCodeOrNull,
+            final SpacePE space);
 
     /**
      * Inserts given list of {@link SamplePE} into the database in one go.
@@ -104,11 +104,11 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     public Set<TechId> listParents(Collection<TechId> children, TechId relationship);
 
     /**
-     * Lists samples (with minimal additional information) belonging to the given <code>group</code>
+     * Lists samples (with minimal additional information) belonging to the given <code>space</code>
      * and having a property with the specified value.
      */
-    List<SamplePE> listSamplesByGroupAndProperty(final String propertyCode,
-            final String propertyValue, final GroupPE group) throws DataAccessException;
+    List<SamplePE> listSamplesBySpaceAndProperty(final String propertyCode,
+            final String propertyValue, final SpacePE space) throws DataAccessException;
 
     /**
      * Lists samples (with minimal additional information) with permanent identifier in given set of

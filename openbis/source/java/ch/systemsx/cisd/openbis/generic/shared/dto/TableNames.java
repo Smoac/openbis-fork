@@ -70,7 +70,7 @@ public final class TableNames
 
     public static final String FILE_FORMAT_TYPES_TABLE = "file_format_types";
 
-    public static final String GROUPS_TABLE = "groups";
+    public static final String SPACES_TABLE = "spaces";
 
     public static final String INVALIDATION_TABLE = "invalidations";
 

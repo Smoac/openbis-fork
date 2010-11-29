@@ -21,33 +21,33 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * <i>Data Access Object</i> for {@link GroupPE}.
+ * <i>Data Access Object</i> for {@link SpacePE}.
  * 
  * @author Christian Ribeaud
  */
-public interface IGroupDAO extends IGenericDAO<GroupPE>
+public interface ISpaceDAO extends IGenericDAO<SpacePE>
 {
 
     /**
-     * Returns a list of {@link GroupPE}s (independent of {@link DatabaseInstancePE} each group
+     * Returns a list of {@link SpacePE}s (independent of {@link DatabaseInstancePE} each space
      * belongs to).
      */
-    public List<GroupPE> listGroups() throws DataAccessException;
+    public List<SpacePE> listSpaces() throws DataAccessException;
 
-    /** Lists all groups which belong to the specified database instance. */
-    public List<GroupPE> listGroups(final DatabaseInstancePE databaseInstance)
+    /** Lists all spaces which belong to the specified database instance. */
+    public List<SpacePE> listSpaces(final DatabaseInstancePE databaseInstance)
             throws DataAccessException;
 
-    /** Creates a new group in the database. */
-    public void createGroup(final GroupPE groupDTO) throws DataAccessException;
+    /** Creates a new space in the database. */
+    public void createSpace(final SpacePE spaceDTO) throws DataAccessException;
 
     /**
-     * Returns <code>GroupPE</code> identified by given <var>groupCode</var> and given
-     * <var>databaseInstanceId</var> or <code>null</code> if such a group does not exist.
+     * Returns space identified by given <var>spaceCode</var> and given
+     * <var>databaseInstanceId</var> or <code>null</code> if such a space does not exist.
      */
-    public GroupPE tryFindGroupByCodeAndDatabaseInstance(final String groupCode,
+    public SpacePE tryFindSpaceByCodeAndDatabaseInstance(final String spaceCode,
             final DatabaseInstancePE databaseInstance) throws DataAccessException;
 }

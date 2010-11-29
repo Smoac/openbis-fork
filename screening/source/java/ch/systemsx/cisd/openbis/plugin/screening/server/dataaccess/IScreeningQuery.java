@@ -46,7 +46,7 @@ public interface IScreeningQuery extends BaseQuery
                     + "      exp.perm_id as exp_perm_id,"
                     + "      exp_type.code as exp_type_code,"
                     + "      projects.code as proj_code,"
-                    + "      groups.code as space_code,"
+                    + "      spaces.code as space_code,"
                     + "      pl.perm_id as plate_perm_id,"
                     + "      pl.code as plate_code,"
                     + "      pl_type.code as plate_type_code,"
@@ -62,7 +62,7 @@ public interface IScreeningQuery extends BaseQuery
                     + "   join experiments exp on pl.expe_id = exp.id"
                     + "   join experiment_types exp_type on exp.exty_id = exp_type.id"
                     + "   join projects on exp.proj_id = projects.id"
-                    + "   join groups on projects.grou_id = groups.id"
+                    + "   join spaces on projects.space_id = spaces.id"
                     + "   join sample_types pl_type on pl.saty_id = pl_type.id"
                     + "   join sample_types well_type on well.saty_id = well_type.id"
                     + "   join sample_properties well_props on well.id = well_props.samp_id"
@@ -153,7 +153,7 @@ public interface IScreeningQuery extends BaseQuery
             + "      well_material.code as material_content_code"
             + " from samples well"
             + "   join samples pl on pl.id = well.samp_id_part_of"
-            + "   join groups sp on pl.grou_id = sp.id"
+            + "   join spaces sp on pl.space_id = sp.id"
             + "   join sample_properties well_props on well.id = well_props.samp_id"
             + "   join materials well_material on well_props.mate_prop_id = well_material.id"
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
@@ -173,7 +173,7 @@ public interface IScreeningQuery extends BaseQuery
             + "      well_material.code as material_content_code"
             + " from samples well"
             + "   join samples pl on pl.id = well.samp_id_part_of"
-            + "   join groups sp on pl.grou_id = sp.id"
+            + "   join spaces sp on pl.space_id = sp.id"
             + "   join sample_properties well_props on well.id = well_props.samp_id"
             + "   join materials well_material on well_props.mate_prop_id = well_material.id"
             + "   join material_types well_material_type on well_material.maty_id = well_material_type.id"
@@ -190,7 +190,7 @@ public interface IScreeningQuery extends BaseQuery
             + "         join controlled_vocabulary_terms cvte on cvte.id = sp.cvte_id "
             + "         join sample_type_property_types stpt on stpt.id = sp.stpt_id "
             + "         join property_types pt on pt.id = stpt.prty_id "
-            + "         join groups space on pl.grou_id = space.id"
+            + "         join spaces space on pl.space_id = space.id"
             + "      where pt.code = 'PLATE_GEOMETRY' "
             + "         and pt.is_internal_namespace = true and pl.perm_id = ?{1}")
     public PlateGeometryContainer tryGetPlateGeometry(String platePermId);
@@ -205,7 +205,7 @@ public interface IScreeningQuery extends BaseQuery
             + "         join controlled_vocabulary_terms cvte on cvte.id = sp.cvte_id "
             + "         join sample_type_property_types stpt on stpt.id = sp.stpt_id "
             + "         join property_types pt on pt.id = stpt.prty_id "
-            + "         join groups space on pl.grou_id = space.id"
+            + "         join spaces space on pl.space_id = space.id"
             + "      where pt.code = 'PLATE_GEOMETRY' "
             + "         and pt.is_internal_namespace = true and space.code = ?{1} and pl.code = ?{2}")
     public PlateGeometryContainer tryGetPlateGeometry(String spaceCode, String plateCode);

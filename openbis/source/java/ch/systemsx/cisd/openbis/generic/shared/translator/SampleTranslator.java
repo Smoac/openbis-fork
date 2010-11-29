@@ -97,7 +97,7 @@ public final class SampleTranslator
                 new HashMap<PropertyTypePE, PropertyType>()));
         if (withDetails)
         {
-            result.setSpace(GroupTranslator.translate(samplePE.getGroup()));
+            result.setSpace(GroupTranslator.translate(samplePE.getSpace()));
             result.setDatabaseInstance(DatabaseInstanceTranslator.translate(samplePE
                     .getDatabaseInstance()));
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));

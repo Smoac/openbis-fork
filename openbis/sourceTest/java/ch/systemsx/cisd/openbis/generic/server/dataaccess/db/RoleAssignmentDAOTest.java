@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
@@ -48,10 +48,10 @@ public class RoleAssignmentDAOTest extends AbstractDAOTest
         AssertJUnit.assertEquals(0, daoFactory.getRoleAssignmentDAO().listRoleAssignmentsByPerson(
                 user).size());
 
-        GroupPE group = daoFactory.getGroupDAO().listGroups().get(0);
+        SpacePE group = daoFactory.getSpaceDAO().listSpaces().get(0);
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setRole(RoleCode.ADMIN);
-        roleAssignment.setGroup(group);
+        roleAssignment.setSpace(group);
         roleAssignment.setRegistrator(getSystemPerson());
 
         user.addRoleAssignment(roleAssignment);
@@ -68,10 +68,10 @@ public class RoleAssignmentDAOTest extends AbstractDAOTest
         AssertJUnit.assertEquals(0, daoFactory.getRoleAssignmentDAO()
                 .listRoleAssignmentsByAuthorizationGroup(authGroup).size());
 
-        GroupPE group = daoFactory.getGroupDAO().listGroups().get(0);
+        SpacePE group = daoFactory.getSpaceDAO().listSpaces().get(0);
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setRole(RoleCode.ADMIN);
-        roleAssignment.setGroup(group);
+        roleAssignment.setSpace(group);
         roleAssignment.setRegistrator(getSystemPerson());
 
         authGroup.addRoleAssignment(roleAssignment);

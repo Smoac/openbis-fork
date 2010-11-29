@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -62,41 +62,40 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         return list;
     }
 
-    public List<ProjectPE> listProjects(final GroupPE group)
+    public List<ProjectPE> listProjects(final SpacePE space)
     {
-        assert group != null : "Unspecified space.";
+        assert space != null : "Unspecified space.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(ProjectPE.class);
-        criteria.add(Restrictions.eq("group", group));
+        criteria.add(Restrictions.eq("space", space));
         final List<ProjectPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(%s): %d project(s) have been found.", MethodUtils
-                    .getCurrentMethod().getName(), group, list.size()));
+                    .getCurrentMethod().getName(), space, list.size()));
         }
         return list;
     }
 
-    public ProjectPE tryFindProject(final String databaseInstanceCode, final String groupCode,
+    public ProjectPE tryFindProject(final String databaseInstanceCode, final String spaceCode,
             final String projectCode)
     {
         assert projectCode != null : "Unspecified project code.";
-        assert groupCode != null : "Unspecified space code.";
+        assert spaceCode != null : "Unspecified space code.";
 
         final Criteria criteria = getSession().createCriteria(ProjectPE.class);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(projectCode)));
-        final Criteria groupCriteria = criteria.createCriteria("group");
-        groupCriteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(groupCode)));
+        final Criteria spaceCriteria = criteria.createCriteria("space");
+        spaceCriteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(spaceCode)));
         if (StringUtils.isBlank(databaseInstanceCode))
         {
-            groupCriteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
+            spaceCriteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         } else
         {
-            groupCriteria.createCriteria("databaseInstance").add(
+            spaceCriteria.createCriteria("databaseInstance").add(
                     Restrictions.eq("code", CodeConverter.tryToDatabase(databaseInstanceCode)));
         }
-        final ProjectPE project = (ProjectPE) criteria.uniqueResult();
-        return project;
+        return (ProjectPE) criteria.uniqueResult();
     }
 
     public void createProject(ProjectPE project)
