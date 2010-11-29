@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -577,20 +578,29 @@ public class GenericClientService extends AbstractClientService implements IGene
             String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-
-        // BatchSamplesOperation info =
-        // parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true,
-        // BatchOperationKind.UPDATE);
-        // try
-        // {
-        // final String sessionToken = getSessionToken();
-        // genericServer.updateSamples(sessionToken, info.getSamples());
-        // return info.getResultList();
-        // } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        // {
-        // throw UserFailureExceptionTranslator.translate(e);
-        // }
-
-        return new ArrayList<BatchRegistrationResult>();
+        HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        try
+        {
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            Collection<NamedInputStream> files =
+                    new ArrayList<NamedInputStream>(uploadedFiles.size());
+            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+            {
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
+                        .getBytes()));
+            }
+            UpdatedExperimentLoader loader = new UpdatedExperimentLoader();
+            loader.load(files);
+            genericServer.updateExperiments(getSessionToken(), new UpdatedExperimentsWithType(
+                    experimentType, loader.getNewBasicExperiments()));
+            return loader.getResults();
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } finally
+        {
+            cleanUploadedFiles(sessionKey, session, uploadedFiles);
+        }
     }
 }

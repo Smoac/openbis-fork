@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2009 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+import java.util.Set;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * A experiment to register.
+ * Holds information about which experiment attributes should be updated.
  * 
- * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class NewBasicExperiment extends Identifier<NewBasicExperiment>
+public class ExperimentBatchUpdateDetails implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
+    private Set<String> propertiesToUpdate; // codes of properties to update
 
-    public NewBasicExperiment()
+    public ExperimentBatchUpdateDetails()
     {
     }
 
-    public NewBasicExperiment(final String identifier)
+    public ExperimentBatchUpdateDetails(Set<String> propertiesToUpdate)
     {
-        setIdentifier(identifier);
+        this.propertiesToUpdate = propertiesToUpdate;
     }
 
-    public final IEntityProperty[] getProperties()
+    public Set<String> getPropertiesToUpdate()
     {
-        return properties;
+        return propertiesToUpdate;
     }
-
-    public final void setProperties(final IEntityProperty[] properties)
-    {
-        this.properties = properties;
-    }
-
-    @Override
-    public final String toString()
-    {
-        return getIdentifier();
-    }
-
 }

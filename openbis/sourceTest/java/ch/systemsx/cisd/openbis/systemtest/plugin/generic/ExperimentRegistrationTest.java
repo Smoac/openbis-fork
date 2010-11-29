@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -54,6 +56,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     private static final String ATTACHMENTS_SESSION_KEY = "attachments";
 
     private static final String SAMPLES_SESSION_KEY = "samples";
+
+    private static final String EXPERIMENTS_SESSION_KEY = "EXPERIMENTS";
 
     @Test
     public void testRegisterExperimentWithoutMissingMandatoryProperty()
@@ -207,5 +211,83 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         assertEquals("hello", attachment.getTitle());
         assertEquals(1, attachment.getVersion());
         assertEquals("hello world", new String(attachment.getContent()));
+    }
+
+    @Test
+    public void testBulkUpdateExperiments()
+    {
+        logIntoCommonClientService();
+
+        int expCount = 10;
+        // Create some experiments to update
+        ArrayList<String> expIds = registerNewExperiments(expCount);
+        String bulkUpdateString = createBulkUpdateString(expIds);
+
+        // Update the experiments
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+        List<BatchRegistrationResult> results =
+                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+
+        // Check the return value
+        assertEquals(1, results.size());
+        assertEquals("Update of " + expCount + " experiment(s) is complete.", results.get(0)
+                .getMessage());
+
+        // Verify the results
+        verifyBulkUpdate(expIds);
+    }
+
+    /**
+     * Register &lt;count&gt; new experiments, returning the identifiers of the new experiments
+     */
+    private ArrayList<String> registerNewExperiments(int count)
+    {
+        ArrayList<String> expIds = new ArrayList<String>();
+        for (int i = 0; i < count; ++i)
+        {
+            String experimentCode = commonClientService.generateCode("EXP");
+            String experimentIdentifier = "/cisd/default/" + experimentCode;
+            NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
+            newExperiment.setProperties(new IEntityProperty[]
+                { property("DESCRIPTION", "my éxpériment") });
+            genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
+                    newExperiment);
+            expIds.add(experimentIdentifier);
+        }
+        return expIds;
+    }
+
+    private String createBulkUpdateString(ArrayList<String> expIds)
+    {
+        StringBuilder sb = new StringBuilder();
+        // Write the header
+        sb.append("identifier\tDESCRIPTION\n");
+        for (String experimentId : expIds)
+        {
+            sb.append(experimentId);
+            sb.append("\t");
+            sb.append("New déscription\n");
+        }
+
+        return sb.toString();
+    }
+
+    private void verifyBulkUpdate(ArrayList<String> expIds)
+    {
+
+        for (String experimentId : expIds)
+        {
+            Experiment experiment = commonClientService.getExperimentInfo(experimentId);
+            assertEquals("SIRNA_HCS", experiment.getExperimentType().getCode());
+            List<IEntityProperty> properties = experiment.getProperties();
+            assertEquals("DESCRIPTION", properties.get(0).getPropertyType().getCode());
+            // Make sure the string is escaped
+            assertEquals(StringEscapeUtils.escapeHtml("New déscription"), properties.get(0)
+                    .tryGetAsString());
+            assertEquals(1, properties.size());
+        }
+
     }
 }

@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -46,6 +48,14 @@ public interface IExperimentTable
      * Defines new experiments of given type.
      */
     public void add(List<NewBasicExperiment> entities, ExperimentTypePE experimentTypePE);
+
+    /**
+     * Prepares the given experiments for update and stores them in this table.
+     * <p>
+     * NOTE: Business rules are checked in this step as well for better performance.
+     */
+    public void prepareForUpdate(List<ExperimentBatchUpdatesDTO> updates)
+            throws UserFailureException;
 
     /**
      * Saves experiments in the database.

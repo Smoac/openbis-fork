@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -59,6 +60,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -96,6 +99,13 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final SampleType sampleType = new SampleType();
         sampleType.setCode(sampleTypeCode);
         return sampleType;
+    }
+
+    private final static ExperimentType createExperimentType(final String experimentTypeCode)
+    {
+        final ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode(experimentTypeCode);
+        return experimentType;
     }
 
     private final static IEntityProperty createSampleProperty(final String propertyTypeCode,
@@ -747,6 +757,165 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         genericClientService.registerExperiment(attachmentSessionKey, sampleSessionKey,
                 newExperiment);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testUpdateExperiments() throws IOException
+    {
+        final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
+        final String sessionKey = "uploaded-files";
+
+        final ExperimentType experimentType = createExperimentType("EXP_TYPE");
+        final String fileName = "fileName.txt";
+
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetHttpSession(this);
+                    prepareGetSessionToken(this);
+
+                    allowing(httpSession).getAttribute(sessionKey);
+                    will(returnValue(uploadedFilesBean));
+
+                    allowing(httpSession).removeAttribute(sessionKey);
+
+                    exactly(1).of(multipartFile).getOriginalFilename();
+                    will(returnValue(fileName));
+
+                    one(multipartFile).transferTo(with(any(File.class)));
+                    will(new CustomAction("copy content")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File target = (File) invocation.getParameter(0);
+                                FileUtilities.writeToFile(target, "identifier\tprop1\tprop2\n"
+                                        + "/SPACE1/PROJECT1/EXP1\tRED\t\n"
+                                        + "/SPACE1/PROJECT2/EXP1\t\t1");
+                                return null;
+                            }
+                        });
+
+                    one(genericServer).updateExperiments(with(equal(SESSION_TOKEN)),
+                            with(new IsAnything<UpdatedExperimentsWithType>()));
+                    will(new CustomAction("check experiment")
+                        {
+
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final UpdatedExperimentsWithType experiments =
+                                        (UpdatedExperimentsWithType) invocation.getParameter(1);
+                                // Do not compare sampleType, as the update code doesn't check it
+                                assertEquals(2, experiments.getUpdatedExperiments().size());
+
+                                final UpdatedBasicExperiment experiment1 =
+                                        experiments.getUpdatedExperiments().get(0);
+                                assertEquals("/SPACE1/PROJECT1/EXP1", experiment1.getIdentifier());
+                                assertEquals(1, experiment1.getProperties().length);
+                                final IEntityProperty prop1 = experiment1.getProperties()[0];
+                                assertEquals("RED", prop1.getValue());
+
+                                final UpdatedBasicExperiment experiment2 =
+                                        experiments.getUpdatedExperiments().get(1);
+                                assertEquals("/SPACE1/PROJECT2/EXP1", experiment2.getIdentifier());
+                                assertEquals(1, experiment2.getProperties().length);
+                                final IEntityProperty prop2 = experiment2.getProperties()[0];
+                                assertEquals("1", prop2.getValue());
+
+                                return null;
+                            }
+                        });
+                }
+            });
+        uploadedFilesBean.addMultipartFile(multipartFile);
+        final List<BatchRegistrationResult> result =
+                genericClientService.updateExperiments(experimentType, sessionKey);
+        assertEquals(1, result.size());
+        final BatchRegistrationResult batchRegistrationResult = result.get(0);
+        assertEquals(fileName, batchRegistrationResult.getFileName());
+        assertEquals("Update of 2 experiment(s) is complete.", batchRegistrationResult.getMessage());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testUpdateExperimentsWithProjects() throws IOException
+    {
+        final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
+        final String sessionKey = "uploaded-files";
+
+        final ExperimentType experimentType = createExperimentType("EXP_TYPE");
+        final String fileName = "fileName.txt";
+
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetHttpSession(this);
+                    prepareGetSessionToken(this);
+
+                    allowing(httpSession).getAttribute(sessionKey);
+                    will(returnValue(uploadedFilesBean));
+
+                    allowing(httpSession).removeAttribute(sessionKey);
+
+                    exactly(1).of(multipartFile).getOriginalFilename();
+                    will(returnValue(fileName));
+
+                    one(multipartFile).transferTo(with(any(File.class)));
+                    will(new CustomAction("copy content")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File target = (File) invocation.getParameter(0);
+                                FileUtilities
+                                        .writeToFile(
+                                                target,
+                                                "identifier\tproject\tprop1\tprop2\n"
+                                                        + "/SPACE1/PROJECT1/EXP1\t/SPACE1/PROJECT3/\tRED\t\n"
+                                                        + "/SPACE1/PROJECT2/EXP1\t\t\t1");
+                                return null;
+                            }
+                        });
+
+                    one(genericServer).updateExperiments(with(equal(SESSION_TOKEN)),
+                            with(new IsAnything<UpdatedExperimentsWithType>()));
+                    will(new CustomAction("check experiment")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final UpdatedExperimentsWithType experiments =
+                                        (UpdatedExperimentsWithType) invocation.getParameter(1);
+                                // Do not compare sampleType, as the update code doesn't check it
+                                assertEquals(2, experiments.getUpdatedExperiments().size());
+
+                                final UpdatedBasicExperiment experiment1 =
+                                        experiments.getUpdatedExperiments().get(0);
+                                assertEquals("/SPACE1/PROJECT1/EXP1", experiment1.getIdentifier());
+                                assertEquals("/SPACE1/PROJECT3/",
+                                        experiment1.getNewProjectIdentifierOrNull());
+                                assertEquals(1, experiment1.getProperties().length);
+                                final IEntityProperty prop1 = experiment1.getProperties()[0];
+                                assertEquals("RED", prop1.getValue());
+
+                                final UpdatedBasicExperiment experiment2 =
+                                        experiments.getUpdatedExperiments().get(1);
+                                assertEquals("/SPACE1/PROJECT2/EXP1", experiment2.getIdentifier());
+                                assertEquals("", experiment2.getNewProjectIdentifierOrNull());
+                                assertEquals(1, experiment2.getProperties().length);
+                                final IEntityProperty prop2 = experiment2.getProperties()[0];
+                                assertEquals("1", prop2.getValue());
+
+                                return null;
+                            }
+                        });
+                }
+            });
+        uploadedFilesBean.addMultipartFile(multipartFile);
+        final List<BatchRegistrationResult> result =
+                genericClientService.updateExperiments(experimentType, sessionKey);
+        assertEquals(1, result.size());
+        final BatchRegistrationResult batchRegistrationResult = result.get(0);
+        assertEquals(fileName, batchRegistrationResult.getFileName());
+        assertEquals("Update of 2 experiment(s) is complete.", batchRegistrationResult.getMessage());
         context.assertIsSatisfied();
     }
 

@@ -16,19 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
-import ch.systemsx.cisd.common.parser.IPropertyModel;
-import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * A {@link AbstractParserObjectFactory} extension for creating {@link NewBasicExperiment}.
@@ -37,50 +27,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Izabela Adamczyk
  */
 public final class NewBasicExperimentParserObjectFactory extends
-        AbstractParserObjectFactory<NewBasicExperiment>
+        AbstractBasicExperimentParserObjectFactory<NewBasicExperiment>
 {
     public NewBasicExperimentParserObjectFactory(final IPropertyMapper propertyMapper)
     {
         super(NewBasicExperiment.class, propertyMapper);
-    }
-
-    private final PropertyType createPropertyType(final String propertyTypeCode)
-    {
-        final PropertyType propertyType = new PropertyType();
-        propertyType.setCode(propertyTypeCode);
-        return propertyType;
-    }
-
-    private final void setProperties(final NewBasicExperiment newExperiment,
-            final String[] lineTokens)
-    {
-        final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
-        for (final String unmatchedProperty : getUnmatchedProperties())
-        {
-            final IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
-            final String propertyValue = getPropertyValue(lineTokens, propertyModel);
-            if (StringUtils.isEmpty(propertyValue) == false)
-            {
-                final IEntityProperty property = new EntityProperty();
-                property.setPropertyType(createPropertyType(unmatchedProperty));
-                property.setValue(isDeletionMark(propertyValue) ? null : propertyValue);
-                properties.add(property);
-            }
-        }
-        newExperiment.setProperties(properties.toArray(IEntityProperty.EMPTY_ARRAY));
-    }
-
-    @Override
-    protected final boolean ignoreUnmatchedProperties()
-    {
-        return true;
-    }
-
-    @Override
-    public final NewBasicExperiment createObject(final String[] lineTokens) throws ParserException
-    {
-        final NewBasicExperiment newExperiment = super.createObject(lineTokens);
-        setProperties(newExperiment, lineTokens);
-        return newExperiment;
     }
 }

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSample
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplesWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleUpdatesPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.UpdatedExperimentsWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -164,7 +166,7 @@ public interface IGenericServer extends IServer
             final Collection<NewAttachment> attachments) throws UserFailureException;
 
     /**
-     * Registers samples in batch.
+     * Registers experiments in batch.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
@@ -172,6 +174,17 @@ public interface IGenericServer extends IServer
     public void registerExperiments(
             String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class) final NewExperimentsWithType experiments)
+            throws UserFailureException;
+
+    /**
+     * Update experiments in batch.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
+    public void updateExperiments(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class) final UpdatedExperimentsWithType experiments)
             throws UserFailureException;
 
     /**

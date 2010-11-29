@@ -83,11 +83,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetail
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -104,6 +107,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -464,7 +469,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final SampleIdentifier newSampleIdentifier;
             if (updatedSample.getExperimentIdentifier() != null)
             {
-                // experiment is provided - new sample identifier takes experiment group
+                // experiment is provided - new sample identifier takes experiment space
                 experimentIdentifierOrNull =
                         new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
                                 .createIdentifier();
@@ -909,6 +914,82 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         BatchOperationExecutor.executeInBatches(new ExperimentBatchRegistration(
                 businessObjectFactory.createExperimentTable(session), newExperiments,
                 experimentTypePE));
+    }
+
+    /**
+     * @param sessionToken The session token for the request
+     * @param experiments Should be a NewExperimentsWithType where the newExperiments contains a
+     *            collection of {@link UpdatedBasicExperiment} objects.
+     */
+    public void updateExperiments(String sessionToken, UpdatedExperimentsWithType experiments)
+            throws UserFailureException
+    {
+        assert experiments != null : "Unspecified experiments.";
+        assert sessionToken != null : "Unspecified session token.";
+        assert experiments.getExperimentType() != null : "Experiments type not specified";
+        assert experiments.getUpdatedExperiments() != null : "Experiments collection not specified";
+
+        final Session session = getSession(sessionToken);
+        final List<UpdatedBasicExperiment> newExperiments = experiments.getUpdatedExperiments();
+        if (newExperiments.size() == 0)
+        {
+            return;
+        }
+        prevalidate(newExperiments, "experiment");
+        final ExperimentTypePE experimentTypePE =
+                (ExperimentTypePE) getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT)
+                        .tryToFindEntityTypeByCode(experiments.getExperimentType().getCode());
+        if (experimentTypePE == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Experiment type with code '%s' does not exist.", experimentTypePE);
+        }
+        BatchOperationExecutor.executeInBatches(new ExperimentBatchUpdate(businessObjectFactory
+                .createExperimentTable(session), convertExperiments(newExperiments),
+                experimentTypePE));
+    }
+
+    /**
+     * @param updatedExperiments The experiments should actually be instances of
+     *            UpdatedBasicExperiment.
+     */
+    private List<ExperimentBatchUpdatesDTO> convertExperiments(
+            final List<UpdatedBasicExperiment> updatedExperiments)
+    {
+        List<ExperimentBatchUpdatesDTO> experiments = new ArrayList<ExperimentBatchUpdatesDTO>();
+
+        for (NewBasicExperiment experiment : updatedExperiments)
+        {
+            assert experiment instanceof UpdatedBasicExperiment;
+            UpdatedBasicExperiment updatedExperiment = (UpdatedBasicExperiment) experiment;
+
+            final ExperimentIdentifier oldExperimentIdentifier =
+                    new ExperimentIdentifierFactory(updatedExperiment.getIdentifier())
+                            .createIdentifier();
+            final List<IEntityProperty> properties =
+                    Arrays.asList(updatedExperiment.getProperties());
+            // If we allow changing projects, we will have to take new/old experiment identifiers
+            // into account, but since this is currently not possible, there is nothing to do.
+            final ExperimentIdentifier newExperimentIdentifier;
+            if (updatedExperiment.getNewProjectIdentifierOrNull() != null)
+            {
+                // the new experiment identifier is derived form the project id
+                ProjectIdentifier projectIdentifier =
+                        new ProjectIdentifierFactory(
+                                updatedExperiment.getNewProjectIdentifierOrNull())
+                                .createIdentifier();
+                newExperimentIdentifier =
+                        new ExperimentIdentifier(projectIdentifier,
+                                oldExperimentIdentifier.getExperimentCode());
+            } else
+            {
+                newExperimentIdentifier = oldExperimentIdentifier;
+            }
+
+            experiments.add(new ExperimentBatchUpdatesDTO(oldExperimentIdentifier, properties,
+                    newExperimentIdentifier, updatedExperiment.getBatchUpdateDetails()));
+        }
+        return experiments;
     }
 
 }

@@ -42,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentBatchUpdateDetails;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -56,8 +58,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -719,6 +724,62 @@ public final class GenericServerTest extends AbstractServerTestCase
         ExperimentUpdateResult result = createServer().updateExperiment(SESSION_TOKEN, updates);
         assertEquals(newModificationDate, result.getModificationDate());
         assertEquals(newSamples.size(), result.getSamples().size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testBulkEditExperimentNothingChanged() throws Exception
+    {
+        final ExperimentBatchUpdateDetails updateDetails = new ExperimentBatchUpdateDetails();
+        UpdatedBasicExperiment updatedExperiment =
+                new UpdatedBasicExperiment(EXPERIMENT_IDENTIFIER1, null, updateDetails);
+        ExperimentType expType = new ExperimentType();
+        expType.setCode(EXPERIMENT_TYPE);
+        UpdatedExperimentsWithType updatedExperiments =
+                new UpdatedExperimentsWithType(expType,
+                        Collections.singletonList(updatedExperiment));
+        final ExperimentTypePE experimentTypePE = createExperimentType(EXPERIMENT_TYPE);
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    will(returnValue(entityTypeDAO));
+                    one(entityTypeDAO).tryToFindEntityTypeByCode(EXPERIMENT_TYPE);
+                    will(returnValue(experimentTypePE));
+                    one(genericBusinessObjectFactory).createExperimentTable(SESSION);
+                    will(returnValue(experimentTable));
+                    one(experimentTable).prepareForUpdate(
+                            with(new BaseMatcher<List<ExperimentBatchUpdatesDTO>>()
+                                {
+
+                                    public boolean matches(Object item)
+                                    {
+                                        if (item instanceof List<?>)
+                                        {
+                                            @SuppressWarnings("unchecked")
+                                            List<ExperimentBatchUpdatesDTO> updates =
+                                                    (List<ExperimentBatchUpdatesDTO>) item;
+                                            if (1 == updates.size())
+                                            {
+                                                return true;
+                                            }
+                                            return false;
+                                        } else
+                                        {
+                                            return false;
+                                        }
+                                    }
+
+                                    public void describeTo(Description description)
+                                    {
+
+                                    }
+                                }));
+                    one(experimentTable).save();
+                }
+            });
+        createServer().updateExperiments(SESSION_TOKEN, updatedExperiments);
         context.assertIsSatisfied();
     }
 

@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -259,6 +260,13 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logTracking(sessionToken, "register_experiments", "TYPE(%s) EXPERIMENTS(%s)",
                 experiments.getExperimentTypeCode(), experiments.getNewExperiments().size());
+    }
+
+    public void updateExperiments(String sessionToken, UpdatedExperimentsWithType experiments)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "update_experiments", "TYPE(%s) EXPERIMENTS(%s)", experiments
+                .getExperimentType().getCode(), experiments.getUpdatedExperiments().size());
     }
 
 }
