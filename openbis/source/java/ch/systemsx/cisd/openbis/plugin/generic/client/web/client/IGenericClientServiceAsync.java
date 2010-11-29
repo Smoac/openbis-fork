@@ -84,6 +84,13 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             throws UserFailureException;
 
     /**
+     * @see IGenericClientService#updateExperiments(ExperimentType, String)
+     */
+    public void updateExperiments(final ExperimentType experimentType, final String sessionKey,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
+            throws UserFailureException;
+
+    /**
      * @see IGenericClientService#getMaterialInfo(TechId)
      */
     public void getMaterialInfo(TechId materialId,

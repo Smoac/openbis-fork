@@ -99,6 +99,15 @@ public interface IGenericClientService extends IClientService
             final String sessionKey, String defaultGroupIdentifier) throws UserFailureException;
 
     /**
+     * Updates experiments from files which have been previously uploaded.
+     * <p>
+     * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
+     * </p>
+     */
+    public List<BatchRegistrationResult> updateExperiments(final ExperimentType experimentType,
+            final String sessionKey) throws UserFailureException;
+
+    /**
      * For given {@link TechId} returns corresponding {@link Material}.
      */
     public Material getMaterialInfo(final TechId materialId) throws UserFailureException;

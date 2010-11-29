@@ -572,4 +572,25 @@ public class GenericClientService extends AbstractClientService implements IGene
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
         }
     }
+
+    public List<BatchRegistrationResult> updateExperiments(ExperimentType experimentType,
+            String sessionKey)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+
+        // BatchSamplesOperation info =
+        // parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true,
+        // BatchOperationKind.UPDATE);
+        // try
+        // {
+        // final String sessionToken = getSessionToken();
+        // genericServer.updateSamples(sessionToken, info.getSamples());
+        // return info.getResultList();
+        // } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        // {
+        // throw UserFailureExceptionTranslator.translate(e);
+        // }
+
+        return new ArrayList<BatchRegistrationResult>();
+    }
 }
