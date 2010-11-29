@@ -43,6 +43,8 @@ public class ExperimentMenu extends TopMenuItem
                 componentProvider.getExperimentRegistration()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_IMPORT, messageProvider,
                 componentProvider.getExperimentBatchRegistration()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_MASS_UPDATE, messageProvider,
+                componentProvider.getExperimentBatchUpdate()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_TYPES, messageProvider,
                 componentProvider.getExperimentTypeBrowser()));
         setMenu(submenu);

@@ -603,7 +603,7 @@ public abstract class Dict
     public static final String CONFIRM_ROLE_REMOVAL_TITLE = "confirm_role_removal_title";
 
     //
-    // Experiment Registration
+    // Experiment Registration/Update
     //
 
     public static final String EXPERIMENT_REGISTRATION = "experiment_registration";
@@ -613,6 +613,8 @@ public abstract class Dict
     public static final String SAMPLES_LIST = "samples_list";
 
     public static final String EXPERIMENT_IMPORT = "experiment_import";
+    
+    public static final String EXPERIMENT_BATCH_UPDATE = "experiment_batch_update";
 
     //
     // Data Set Edition

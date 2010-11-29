@@ -513,6 +513,46 @@ public final class ComponentProvider
             };
     }
 
+    public final AbstractTabItemFactory getExperimentBatchUpdate()
+    {
+        return new AbstractTabItemFactory()
+            {
+                @Override
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component =
+                        ExperimentBatchRegistrationPanel.create(viewContext, true);
+                    return createRegistrationTab(getTabTitle(), component);
+                }
+
+                @Override
+                public String getId()
+                {
+                    return ExperimentBatchRegistrationPanel.getId(true);
+                }
+
+                @Override
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                            HelpPageAction.BATCH_UPDATE);
+                }
+
+                @Override
+                public String getTabTitle()
+                {
+                    return getMessage(Dict.EXPERIMENT_BATCH_UPDATE);
+                }
+
+                @Override
+                public String tryGetLink()
+                {
+                    return null;
+                }
+
+            };
+    }
+
     public final AbstractTabItemFactory getExperimentRegistration()
     {
         return getExperimentRegistration(new ActionContext());

@@ -307,6 +307,7 @@ var common = {
   EXPERIMENT_MENU_BROWSE: "Browse",
   EXPERIMENT_MENU_NEW: "New",
   EXPERIMENT_MENU_IMPORT: "Batch Import",
+  EXPERIMENT_MENU_MASS_UPDATE: "Batch Update",
   EXPERIMENT_MENU_TYPES: "Types",
   
   menu_material: "Material",
@@ -373,6 +374,7 @@ var common = {
   vocabulary_registration: "Vocabulary Registration",
   sample_batch_registration: "Sample Batch Registration",
   sample_batch_update: "Sample Batch Update",
+  experiment_batch_update: "Experiment Batch Update",
   material_batch_update: "Material Batch Update",
   sample_registration: "Sample Registration",
   sample_broser: "Sample Browser",

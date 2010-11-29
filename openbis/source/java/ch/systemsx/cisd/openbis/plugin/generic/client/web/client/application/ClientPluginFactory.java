@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dat
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentBatchUpdateForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
@@ -411,6 +412,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Gener
         public final Widget createBatchRegistrationForEntityType(final ExperimentType type)
         {
             return new GenericExperimentBatchRegistrationForm(getViewContext(), type);
+        }
+
+        @Override
+        public Widget createBatchUpdateForEntityType(ExperimentType entityType)
+        {
+            return new GenericExperimentBatchUpdateForm(getViewContext(), entityType);
         }
 
         @Override

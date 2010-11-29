@@ -1601,6 +1601,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 break;
             case EXPERIMENT:
                 columns.add(NewSample.IDENTIFIER_COLUMN);
+                if (operationKind == BatchOperationKind.UPDATE)
+                {
+                    columns.add("project");
+                }
                 addProperties(columns,
                         ((ExperimentTypePE) entityType).getExperimentTypePropertyTypes());
                 break;

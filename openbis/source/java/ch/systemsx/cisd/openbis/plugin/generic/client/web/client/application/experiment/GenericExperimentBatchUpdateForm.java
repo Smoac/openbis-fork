@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,27 +22,25 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
- * The <i>generic</i> experiment batch registration panel.
  * 
- * @author Izabela Adamczyk
+ *
+ * @author Franz-Josef Elmer
  */
-public final class GenericExperimentBatchRegistrationForm extends
-        AbstractExperimentBatchRegistrationForm
+public class GenericExperimentBatchUpdateForm extends AbstractExperimentBatchRegistrationForm
 {
-    private static final String SESSION_KEY = "experiment-batch-registration";
+    private static final String SESSION_KEY = "experiment-batch-update";
 
-    public GenericExperimentBatchRegistrationForm(
+    public GenericExperimentBatchUpdateForm(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final ExperimentType type)
     {
-        super(viewContext, type, BatchOperationKind.REGISTRATION, SESSION_KEY);
+        super(viewContext, type, BatchOperationKind.UPDATE, SESSION_KEY);
     }
 
     @Override
     protected void save()
     {
-        viewContext.getService().registerExperiments(type, getSessionKey(),
+        viewContext.getService().updateExperiments(type, getSessionKey(),
                 new RegisterExperimentsCallback(viewContext));
     }
-
 }
