@@ -449,22 +449,12 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     }
     
     private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,
-            FeatureVector featureVector, double... expectedValues)
+            FeatureVector featureVector, Object... expectedValues)
     {
         assertEquals(expectedRowNumber, featureVector.getWellPosition().getWellRow());
         assertEquals(expectedColumnNumber, featureVector.getWellPosition().getWellColumn());
 
-        assertEquals(asList(expectedValues), asList(featureVector.getValues()));
-    }
-
-    private List<Double> asList(double[] values)
-    {
-        List<Double> list = new ArrayList<Double>();
-        for (double value : values)
-        {
-            list.add(value);
-        }
-        return list;
+        assertEquals(Arrays.asList(expectedValues).toString(), featureVector.getValueObjects().toString());
     }
 
     private void prepareGetHomeDatabaseInstance()
