@@ -240,12 +240,25 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         this.experimentCriteriaOrNull = experimentCriteriaOrNull;
         this.materialCriteria = materialCriteria;
 
+        final IDefaultChannelState defaultChannelState = createDefaultChannelState(viewContext);
+        channelChooser = new ChannelComboBox(defaultChannelState);
+        linkWellContent();
+        linkExperiment();
+        linkPlate();
+        linkWell();
+        linkImageDataSet();
+        linkImageAnalysisDataSet();
+    }
+
+    private static IDefaultChannelState createDefaultChannelState(
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
         final ScreeningDisplaySettingsManager screeningDisplaySettingManager =
                 ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
         final ScreeningDisplayTypeIDGenerator wellSearchChannelIdGenerator =
                 ScreeningDisplayTypeIDGenerator.WELL_SEARCH_CHANNEL;
         final String wellSearchChannelDisplayTypeId = wellSearchChannelIdGenerator.createID();
-        final IDefaultChannelState defaultChannelState = new IDefaultChannelState()
+        return new IDefaultChannelState()
             {
                 public void setDefaultChannel(String channel)
                 {
@@ -259,14 +272,6 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                             .tryGetDefaultChannel(wellSearchChannelDisplayTypeId);
                 }
             };
-
-        channelChooser = new ChannelComboBox(defaultChannelState);
-        linkWellContent();
-        linkExperiment();
-        linkPlate();
-        linkWell();
-        linkImageDataSet();
-        linkImageAnalysisDataSet();
     }
 
     private void linkWellContent()
