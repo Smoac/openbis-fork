@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 public enum ScreeningDisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
 
-    PLATE_METADATA_GRID("plate-metadata-grid"), EXPERIMENT_CHANNEL("experiment-channel"),
-    WELL_SEARCH_CHANNEL("well-search-channel");
+    PLATE_METADATA_GRID("plate-metadata-grid"), EXPERIMENT_CHANNEL("experiment-channel"), ;
 
     private final String genericNameOrPrefix;
 

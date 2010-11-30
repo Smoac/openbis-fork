@@ -240,7 +240,8 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         this.experimentCriteriaOrNull = experimentCriteriaOrNull;
         this.materialCriteria = materialCriteria;
 
-        final IDefaultChannelState defaultChannelState = createDefaultChannelState(viewContext);
+        final IDefaultChannelState defaultChannelState =
+                createDefaultChannelState(viewContext, experimentCriteriaOrNull);
         channelChooser = new ChannelComboBox(defaultChannelState);
         linkWellContent();
         linkExperiment();
@@ -251,25 +252,36 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
     }
 
     private static IDefaultChannelState createDefaultChannelState(
-            final IViewContext<IScreeningClientServiceAsync> viewContext)
+            final IViewContext<IScreeningClientServiceAsync> viewContext,
+            ExperimentSearchCriteria experimentCriteriaOrNull)
     {
         final ScreeningDisplaySettingsManager screeningDisplaySettingManager =
                 ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
-        final ScreeningDisplayTypeIDGenerator wellSearchChannelIdGenerator =
-                ScreeningDisplayTypeIDGenerator.WELL_SEARCH_CHANNEL;
-        final String wellSearchChannelDisplayTypeId = wellSearchChannelIdGenerator.createID();
+
+        // If there is a single experiment set in criteria reuse default channel settings,
+        // otherwise use global settings.
+        final ScreeningDisplayTypeIDGenerator displayTypeIdGenerator =
+                ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL;
+        final String displayTypeId;
+        if (experimentCriteriaOrNull != null && experimentCriteriaOrNull.tryGetExperiment() != null)
+        {
+            final String experimentPermId =
+                    experimentCriteriaOrNull.tryGetExperiment().getExperimentPermId();
+            displayTypeId = displayTypeIdGenerator.createID(experimentPermId);
+        } else
+        {
+            displayTypeId = displayTypeIdGenerator.createID(null);
+        }
         return new IDefaultChannelState()
             {
                 public void setDefaultChannel(String channel)
                 {
-                    screeningDisplaySettingManager.setDefaultChannel(
-                            wellSearchChannelDisplayTypeId, channel);
+                    screeningDisplaySettingManager.setDefaultChannel(displayTypeId, channel);
                 }
 
                 public String tryGetDefaultChannel()
                 {
-                    return screeningDisplaySettingManager
-                            .tryGetDefaultChannel(wellSearchChannelDisplayTypeId);
+                    return screeningDisplaySettingManager.tryGetDefaultChannel(displayTypeId);
                 }
             };
     }
