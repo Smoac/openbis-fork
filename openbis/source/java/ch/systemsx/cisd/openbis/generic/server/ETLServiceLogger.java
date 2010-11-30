@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -93,9 +94,9 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 sessionToken,
                 "registerDataStoreServer",
                 "CODE(%s) DOWNLOAD-URL(%s) PORT(%s) DSS-TOKEN(%s) REPORTING_PLUGINS(%s), PROCESSING_PLUGINS(%s)",
-                code, downloadUrl, port, dssSessionToken, services
-                        .getReportingServiceDescriptions(), services
-                        .getProcessingServiceDescriptions());
+                code, downloadUrl, port, dssSessionToken,
+                services.getReportingServiceDescriptions(),
+                services.getProcessingServiceDescriptions());
     }
 
     public long registerSample(String sessionToken, NewSample newSample, String userIDOrNull)
@@ -313,4 +314,33 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public void registerSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType,
+            String userIdOrNull) throws UserFailureException
+    {
+
+        logTracking(sessionToken, "registerSamples", "NO_OF_SAMPLES(%s) USER(%s)",
+                print(newSamplesWithType), userIdOrNull);
+
+    }
+
+    private String print(List<NewSamplesWithTypes> newSamplesWithType)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (NewSamplesWithTypes samples : newSamplesWithType)
+        {
+            if (sb.length() != 0)
+            {
+                sb.append(", ");
+            }
+            sb.append(samples.getSampleType().getCode());
+            sb.append(":").append(samples.getNewSamples().size());
+        }
+        return sb.toString();
+    }
+
+    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    {
+        logAccess(sessionToken, "generateCodes", "PREFIX(%s) NUMBER(%s)", prefix, number);
+        return null;
+    }
 }

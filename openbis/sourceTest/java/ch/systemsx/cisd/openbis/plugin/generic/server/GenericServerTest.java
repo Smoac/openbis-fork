@@ -278,7 +278,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
                     will(returnValue(sampleTypePE));
 
-                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples);
+                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
                 }
             });
         createServer().registerOrUpdateSamples(SESSION_TOKEN, samplesWithTypes);
@@ -303,7 +303,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                     one(sampleTypeDAO).tryFindSampleTypeByCode(sampleTypePE.getCode());
                     will(returnValue(sampleTypePE));
 
-                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples);
+                    one(sampleTypeSlaveServerPlugin).registerSamples(SESSION, newSamples, null);
                 }
             });
         createServer().registerSamples(SESSION_TOKEN, samplesWithTypes);

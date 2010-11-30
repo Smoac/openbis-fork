@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -79,8 +80,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISService, FactoryBean
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, EncapsulatedOpenBISService.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            EncapsulatedOpenBISService.class);
 
     private final IETLLIMSService service;
 
@@ -436,6 +437,22 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    synchronized public void registerSamples(List<NewSamplesWithTypes> newSamples,
+            String userIDOrNull) throws UserFailureException
+    {
+        assert newSamples != null : "Unspecified samples.";
+
+        checkSessionToken();
+        try
+        {
+            service.registerSamples(sessionToken, newSamples, userIDOrNull);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            service.registerSamples(sessionToken, newSamples, userIDOrNull);
+        }
+    }
+
     synchronized public long registerSample(NewSample newSample, String userIDOrNull)
             throws UserFailureException
     {
@@ -764,6 +781,24 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public ExternalData tryGetDataSetForServer(String dataSetCode) throws UserFailureException
     {
         return service.tryGetDataSetForServer(sessionToken, dataSetCode);
+    }
+
+    public List<String> generateCodes(String prefix, int size)
+    {
+        checkSessionToken();
+        try
+        {
+            return primGenerateCodes(prefix, size);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return primGenerateCodes(prefix, size);
+        }
+    }
+
+    private List<String> primGenerateCodes(String prefix, int size)
+    {
+        return service.generateCodes(sessionToken, prefix, size);
     }
 
 }

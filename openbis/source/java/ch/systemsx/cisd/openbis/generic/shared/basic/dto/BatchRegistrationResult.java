@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+
+import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -24,8 +26,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public class BatchRegistrationResult implements IsSerializable
+public class BatchRegistrationResult implements IsSerializable, Serializable
 {
+
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private String fileName;
 
     private String message;

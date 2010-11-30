@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
  * {@link IBatchOperation} registering samples.
@@ -32,15 +33,19 @@ public class SampleBatchRegistration implements IBatchOperation<NewSample>
 
     private final List<NewSample> entities;
 
-    public SampleBatchRegistration(ISampleTable businessTable, List<NewSample> entities)
+    private final PersonPE registratorOrNull;
+
+    public SampleBatchRegistration(ISampleTable businessTable, List<NewSample> entities,
+            PersonPE registratorOrNull)
     {
         this.businessTable = businessTable;
         this.entities = entities;
+        this.registratorOrNull = registratorOrNull;
     }
 
     public void execute(List<NewSample> batch)
     {
-        businessTable.prepareForRegistration(batch);
+        businessTable.prepareForRegistration(batch, registratorOrNull);
         businessTable.save();
     }
 

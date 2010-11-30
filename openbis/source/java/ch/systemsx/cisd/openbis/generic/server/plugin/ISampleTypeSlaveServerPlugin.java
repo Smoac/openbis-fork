@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
@@ -46,8 +47,8 @@ public interface ISampleTypeSlaveServerPlugin
     /**
      * Registers given list of {@link NewSample NewSamples}.
      */
-    void registerSamples(final Session session, final List<NewSample> newSamples)
-            throws UserFailureException;
+    void registerSamples(final Session session, final List<NewSample> newSamples,
+            PersonPE registratorOrNUll) throws UserFailureException;
 
     /**
      * Updates given list of samples.

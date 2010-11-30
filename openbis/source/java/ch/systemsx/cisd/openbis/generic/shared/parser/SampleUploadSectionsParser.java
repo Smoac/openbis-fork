@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
+package ch.systemsx.cisd.openbis.generic.shared.parser;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,10 +32,8 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
-import ch.systemsx.cisd.openbis.generic.client.web.server.BisTabFileLoader;
-import ch.systemsx.cisd.openbis.generic.client.web.server.NamedInputStream;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -274,8 +272,7 @@ public class SampleUploadSectionsParser
                         sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName() + ")";
                 final List<NewSample> loadedSamples =
                         tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
-                                .getOriginalFilename()
-                                + sectionInFile));
+                                .getOriginalFilename() + sectionInFile));
                 if (loadedSamples.size() > 0)
                 {
                     newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));

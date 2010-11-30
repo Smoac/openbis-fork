@@ -128,7 +128,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         assert newSample != null : "Unspecified new sample.";
 
-        sample = createSample(newSample, null, null, null);
+        sample = createSample(newSample, null, null, null, null);
         dataChanged = true;
         onlyNewSamples = true;
     }

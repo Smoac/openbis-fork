@@ -165,7 +165,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         return samples;
     }
 
-    public void prepareForRegistration(List<NewSample> newSamples) throws UserFailureException
+    public void prepareForRegistration(List<NewSample> newSamples, PersonPE registratorOrNull)
+            throws UserFailureException
     {
         onlyNewSamples = true;
         samples = new ArrayList<SamplePE>();
@@ -178,7 +179,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
                 new HashMap<SampleOwnerIdentifier, SampleOwner>();
         for (NewSample sample : newSamples)
         {
-            add(sample, sampleTypeCache, sampleOwnerCache, experimentCache);
+            add(sample, sampleTypeCache, sampleOwnerCache, experimentCache, registratorOrNull);
         }
 
         setBatchUpdateMode(false);
@@ -186,10 +187,12 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
     private void add(final NewSample newSample, final Map<String, SampleTypePE> sampleTypeCache,
             final Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,
-            Map<String, ExperimentPE> experimentCache) throws UserFailureException
+            Map<String, ExperimentPE> experimentCache, PersonPE registratorOrNull)
+            throws UserFailureException
     {
         assert newSample != null : "Unspecified new sample.";
-        samples.add(createSample(newSample, sampleTypeCache, sampleOwnerCache, experimentCache));
+        samples.add(createSample(newSample, sampleTypeCache, sampleOwnerCache, experimentCache,
+                registratorOrNull));
         dataChanged = true;
     }
 

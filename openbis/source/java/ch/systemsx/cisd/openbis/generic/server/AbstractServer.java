@@ -41,7 +41,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
@@ -55,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 
 /**
  * An <i>abstract</i> {@link IServer} implementation.
@@ -83,11 +87,11 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Resource(name = ComponentNames.REMOTE_HOST_VALIDATOR)
     private IRemoteHostValidator remoteHostValidator;
-    
+
     protected AbstractServer()
     {
-        operationLog.info(String.format("Creating new '%s' implementation: '%s'.", IServer.class
-                .getSimpleName(), getClass().getName()));
+        operationLog.info(String.format("Creating new '%s' implementation: '%s'.",
+                IServer.class.getSimpleName(), getClass().getName()));
     }
 
     protected AbstractServer(final ISessionManager<Session> sessionManager,
@@ -108,7 +112,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         this.sampleTypeSlaveServerPlugin = sampleTypeSlaveServerPlugin;
         this.dataSetTypeSlaveServerPlugin = dataSetTypeSlaveServerPlugin;
     }
-    
+
     public final void setSampleTypeSlaveServerPlugin(
             ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin)
     {
@@ -173,7 +177,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         return person;
     }
-    
+
     protected final PersonPE getSystemUser()
     {
         return getSystemUser(daoFactory.getPersonDAO().listPersons());
@@ -409,5 +413,31 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         HibernateUtils.initialize(person.getAllPersonRoles());
         session.setPerson(person);
+    }
+
+    protected void registerSamples(final Session session,
+            final NewSamplesWithTypes newSamplesWithType, PersonPE registratorOrNull)
+    {
+        final SampleType sampleType = newSamplesWithType.getSampleType();
+        final List<NewSample> newSamples = newSamplesWithType.getNewSamples();
+        assert sampleType != null : "Unspecified sample type.";
+        assert newSamples != null : "Unspecified new samples.";
+
+        // Does nothing if samples list is empty.
+        if (newSamples.size() == 0)
+        {
+            return;
+        }
+        ServerUtils.prevalidate(newSamples, "sample");
+        final String sampleTypeCode = sampleType.getCode();
+        final SampleTypePE sampleTypePE =
+                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
+        if (sampleTypePE == null)
+        {
+            throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
+                    sampleTypeCode);
+        }
+        getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples,
+                registratorOrNull);
     }
 }

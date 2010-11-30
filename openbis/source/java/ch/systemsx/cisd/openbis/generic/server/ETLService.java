@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -102,12 +104,12 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -506,6 +508,20 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return experimentBO.getExperiment().getId();
     }
 
+    public void registerSamples(String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType, String userIDOrNull)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        PersonPE registratorOrNull =
+                userIDOrNull != null ? getOrCreatePerson(sessionToken, userIDOrNull) : null;
+        for (NewSamplesWithTypes samples : newSamplesWithType)
+        {
+            registerSamples(session, samples, registratorOrNull);
+        }
+    }
+
     public long registerSample(String sessionToken, NewSample newSample, String userIDOrNull)
             throws UserFailureException
     {
@@ -751,6 +767,17 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
                     vocabularyCode));
         }
         return VocabularyTermTranslator.translateTerms(vocabularyOrNull.getTerms());
+    }
+
+    public List<String> generateCodes(String sessionToken, String prefix, int number)
+    {
+        checkSession(sessionToken);
+        ArrayList<String> result = new ArrayList<String>();
+        for (int i = 0; i < number; i++)
+        {
+            result.add(prefix + daoFactory.getCodeSequenceDAO().getNextCodeSequenceId());
+        }
+        return result;
     }
 
 }

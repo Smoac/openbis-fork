@@ -32,7 +32,7 @@ import ch.systemsx.cisd.etlserver.DefaultStorageProcessorTest.TestProcedureAndDa
  */
 public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
 {
-    // TODO 2009-07-09 Izabela Adamczyk: Add more test cases
+    // TODO 2009-07-09, IA: Add more test cases
 
     private final static ITypeExtractor TYPE_EXTRACTOR = new TestProcedureAndDataTypeExtractor();
 
@@ -74,9 +74,11 @@ public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(false, incomingDataSetDirectory.exists());
         assertEquals(true, storeData.isDirectory());
         assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
-        assertEquals("hello world", FileUtilities.loadToString(
-                new File(storeData, DefaultStorageProcessor.ORIGINAL_DIR + "/incoming/read.me"))
-                .trim());
+        assertEquals(
+                "hello world",
+                FileUtilities.loadToString(
+                        new File(storeData, DefaultStorageProcessor.ORIGINAL_DIR
+                                + "/incoming/read.me")).trim());
     }
 
     @Test

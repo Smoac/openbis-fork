@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -70,9 +70,9 @@ public abstract class AbstractExperimentBatchRegistrationForm extends AbstractRe
 
     private final BatchOperationKind batchOperationKind;
 
-    public AbstractExperimentBatchRegistrationForm(IViewContext<IGenericClientServiceAsync> viewContext,
-            ExperimentType type, BatchOperationKind batchOperationKind,
-            String sessionKey)
+    public AbstractExperimentBatchRegistrationForm(
+            IViewContext<IGenericClientServiceAsync> viewContext, ExperimentType type,
+            BatchOperationKind batchOperationKind, String sessionKey)
     {
         super(viewContext.getCommonViewContext(), createId(sessionKey));
         this.viewContext = viewContext;

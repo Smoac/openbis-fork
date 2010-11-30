@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.etl;
+package ch.systemsx.cisd.etlserver;
 
 /**
- * @author Tomasz Pylak
+ * 
+ *
+ * @author Izabela Adamczyk
  */
-public class ConstantsYeastX
+public class Constants
 {
-    public static final String FIAML_EXT = "fiaML";
 
-    public static final String EICML_EXT = "eicML";
+    public static final String ERROR_MARKER_FILE = "_delete_me_after_correcting_errors";
+    public static final String USER_LOG_FILE = "error-log.txt";
 
-    public static final String QUANTML_EXT = "quantML";
-
-    public static final String MZXML_EXT = "mzXML";
 }

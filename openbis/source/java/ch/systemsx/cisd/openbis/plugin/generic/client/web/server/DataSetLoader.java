@@ -26,10 +26,10 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
-import ch.systemsx.cisd.openbis.generic.client.web.server.BisTabFileLoader;
-import ch.systemsx.cisd.openbis.generic.client.web.server.NamedInputStream;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
+import ch.systemsx.cisd.openbis.generic.shared.parser.NamedInputStream;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewDataSetParserObjectFactory;
 
 /**

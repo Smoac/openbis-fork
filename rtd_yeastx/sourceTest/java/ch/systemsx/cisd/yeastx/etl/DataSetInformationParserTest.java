@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
@@ -111,7 +112,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
 
     private List<String> readLogFile() throws IOException, FileNotFoundException
     {
-        File log = new File(workingDirectory, ConstantsYeastX.USER_LOG_FILE);
+        File log = new File(workingDirectory, Constants.USER_LOG_FILE);
         List<String> logLines = readLines(log);
         return logLines;
     }

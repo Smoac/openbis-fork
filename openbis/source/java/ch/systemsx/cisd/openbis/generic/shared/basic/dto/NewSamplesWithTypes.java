@@ -16,15 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.List;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Contains a list of new samples and their type.
  * 
  * @author Izabela Adamczyk
  */
-public class NewSamplesWithTypes
+public class NewSamplesWithTypes implements IsSerializable, Serializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     SampleType sampleType;
 
     List<NewSample> newSamples;

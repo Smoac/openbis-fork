@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -163,6 +164,12 @@ public interface IEncapsulatedOpenBISService
             throws UserFailureException;
 
     /**
+     * Registers samples in batches.
+     */
+    public void registerSamples(List<NewSamplesWithTypes> newSamples, String userIDOrNull)
+            throws UserFailureException;
+
+    /**
      * Updates sample specified by the argument.
      */
     public void updateSample(SampleUpdatesDTO sampleUpdate) throws UserFailureException;
@@ -211,6 +218,11 @@ public interface IEncapsulatedOpenBISService
     public long drawANewUniqueID();
 
     /**
+     * Creates a new unique ID which can be used to create codes which are guaranteed to be unique.
+     */
+    public List<String> generateCodes(String prefix, int size);
+
+    /**
      * Returns the version of the service.
      */
     public int getVersion();
@@ -232,7 +244,7 @@ public interface IEncapsulatedOpenBISService
     public void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
             throws UserFailureException;
 
-    // 
+    //
     // Archiving
     //
 

@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -47,7 +48,8 @@ public interface ISampleTable
     /**
      * Prepares given samples for registration and stores them in this table.
      */
-    public void prepareForRegistration(List<NewSample> newSamples) throws UserFailureException;
+    public void prepareForRegistration(List<NewSample> newSamples, PersonPE registratorOrNull)
+            throws UserFailureException;
 
     /**
      * Prepares given samples for update and stores them in this table.

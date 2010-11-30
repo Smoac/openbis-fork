@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.etlserver.Constants;
 
 /**
  * @author Tomasz Pylak
@@ -208,7 +209,7 @@ class LogUtils
 
     private static File getUserLogFile(File loggingDir)
     {
-        return new File(loggingDir, ConstantsYeastX.USER_LOG_FILE);
+        return new File(loggingDir, Constants.USER_LOG_FILE);
     }
 
     public void adminError(String messageFormat, Object... arguments)
@@ -233,7 +234,7 @@ class LogUtils
 
     public static boolean isUserLog(File file)
     {
-        return file.getName().equals(ConstantsYeastX.USER_LOG_FILE);
+        return file.getName().equals(Constants.USER_LOG_FILE);
     }
 
     public static boolean deleteUserLog(File loggingDir)

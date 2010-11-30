@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -109,7 +110,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     final SamplePE createSample(final NewSample newSample,
             Map<String, SampleTypePE> sampleTypeCacheOrNull,
             Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCacheOrNull,
-            Map<String, ExperimentPE> experimentCacheOrNull) throws UserFailureException
+            Map<String, ExperimentPE> experimentCacheOrNull, PersonPE registratorOrNull)
+            throws UserFailureException
     {
         final SampleIdentifier sampleIdentifier =
                 SampleIdentifierFactory.parse(newSample.getIdentifier());
@@ -130,7 +132,8 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         final SamplePE samplePE = new SamplePE();
         samplePE.setExperiment(experimentPE);
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
-        samplePE.setRegistrator(findRegistrator());
+        PersonPE registrator = registratorOrNull != null ? registratorOrNull : findRegistrator();
+        samplePE.setRegistrator(registrator);
         samplePE.setSampleType(sampleTypePE);
         samplePE.setSpace(sampleOwner.tryGetSpace());
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());

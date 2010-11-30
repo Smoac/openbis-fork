@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
+package ch.systemsx.cisd.openbis.generic.shared.parser;
 
 import java.util.ArrayList;
 import java.util.HashSet;

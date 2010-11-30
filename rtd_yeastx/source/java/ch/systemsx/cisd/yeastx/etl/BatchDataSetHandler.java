@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.yeastx.etl;
 
-import static ch.systemsx.cisd.yeastx.etl.ConstantsYeastX.ERROR_MARKER_FILE;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +32,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.Constants;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.etlserver.utils.PreprocessingExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -94,8 +93,8 @@ public class BatchDataSetHandler implements IDataSetHandler
             return flushErrors(batchDir, mappingFile, log);
         }
 
-        return processDatasets(batchDir, log, mappingFile.tryGetMappings(), mappingFile
-                .getNotificationEmail());
+        return processDatasets(batchDir, log, mappingFile.tryGetMappings(),
+                mappingFile.getNotificationEmail());
     }
 
     private ArrayList<DataSetInformation> flushErrors(File batchDir,
@@ -114,8 +113,8 @@ public class BatchDataSetHandler implements IDataSetHandler
         {
             String errorMsg =
                     String.format("No datasets from '%s' directory can be processed because "
-                            + "the try to acquire write access by openBIS has failed.", batchDir
-                            .getName());
+                            + "the try to acquire write access by openBIS has failed.",
+                            batchDir.getName());
             log.error(errorMsg + " Try again after some time or contact your administrator.");
             log.adminError(errorMsg);
         }
@@ -179,10 +178,9 @@ public class BatchDataSetHandler implements IDataSetHandler
     private void logUnknownMappings(Set<String> unknownMappings, LogUtils log)
     {
         String unknownFiles = CollectionUtils.abbreviate(unknownMappings, -1);
-        log
-                .error("There are following files mentioned in the mapping file which do not exist:\n"
-                        + unknownFiles
-                        + "\nBrowse the mapping file and check if you have not misspelled some file names.");
+        log.error("There are following files mentioned in the mapping file which do not exist:\n"
+                + unknownFiles
+                + "\nBrowse the mapping file and check if you have not misspelled some file names.");
     }
 
     private void logNonWritable(File file, LogUtils log)
@@ -267,7 +265,7 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     private static boolean errorMarkerFileExists(File batchDir)
     {
-        return new File(batchDir, ERROR_MARKER_FILE).isFile();
+        return new File(batchDir, Constants.ERROR_MARKER_FILE).isFile();
     }
 
     private static void cleanMappingFile(File batchDir, Set<String> processedFiles, LogUtils log)
@@ -293,7 +291,7 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     private static void touchErrorMarkerFile(File batchDir, LogUtils log)
     {
-        File errorMarkerFile = new File(batchDir, ERROR_MARKER_FILE);
+        File errorMarkerFile = new File(batchDir, Constants.ERROR_MARKER_FILE);
         if (errorMarkerFile.isFile())
         {
             return;
@@ -307,13 +305,11 @@ public class BatchDataSetHandler implements IDataSetHandler
         }
         if (ok == false)
         {
-            log
-                    .adminError("Could not create an error marker file '%s'.", errorMarkerFile
-                            .getPath());
+            log.adminError("Could not create an error marker file '%s'.", errorMarkerFile.getPath());
         } else
         {
             log.warning("Correct the errors and delete the '%s' file to start processing again.",
-                    ERROR_MARKER_FILE);
+                    Constants.ERROR_MARKER_FILE);
         }
     }
 
@@ -349,8 +345,8 @@ public class BatchDataSetHandler implements IDataSetHandler
         if (ok == false)
         {
             LogUtils.adminWarn(
-                    "The directory '%s' cannot be deleted although it seems to be empty.", dir
-                            .getPath());
+                    "The directory '%s' cannot be deleted although it seems to be empty.",
+                    dir.getPath());
         }
         return ok;
     }

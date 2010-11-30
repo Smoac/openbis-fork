@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleHierarchyFiller
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
@@ -73,14 +74,14 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         return new SampleParentWithDerivedDTO(sample, generated);
     }
 
-    public final void registerSamples(final Session session, final List<NewSample> newSamples)
-            throws UserFailureException
+    public final void registerSamples(final Session session, final List<NewSample> newSamples,
+            PersonPE registratorOrNUll) throws UserFailureException
     {
         assert session != null : "Unspecified session.";
         assert newSamples != null && newSamples.size() > 0 : "Unspecified sample or empty samples.";
 
         BatchOperationExecutor.executeInBatches(new SampleBatchRegistration(businessObjectFactory
-                .createSampleTable(session), newSamples));
+                .createSampleTable(session), newSamples, registratorOrNUll));
     }
 
     public void updateSamples(Session session, List<SampleBatchUpdatesDTO> updateSamples)

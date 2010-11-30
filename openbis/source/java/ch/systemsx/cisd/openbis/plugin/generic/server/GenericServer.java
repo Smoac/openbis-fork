@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
-import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -117,6 +116,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -287,7 +287,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             if (samples.isAllowUpdateIfExist() == false)
             {
-                registerSamples(session, samples);
+                registerSamples(session, samples, null);
             } else
             {
                 BatchOperationExecutor.executeInBatches(new SampleBatchRegisterOrUpdate(
@@ -338,7 +338,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     SampleRegisterOrUpdateUtil.getSamplesToUpdate(newSamples, existingSamples);
             List<NewSample> samplesToRegister = new ArrayList<NewSample>(newSamples);
             samplesToRegister.removeAll(samplesToUpdate);
-            registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister));
+            registerSamples(session, new NewSamplesWithTypes(sampleType, samplesToRegister), null);
             updateSamples(session, new NewSamplesWithTypes(sampleType, samplesToUpdate));
         }
 
@@ -366,7 +366,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final Session session = getSession(sessionToken);
         for (NewSamplesWithTypes samples : newSamplesWithType)
         {
-            registerSamples(session, samples);
+            registerSamples(session, samples, null);
         }
     }
 
@@ -392,7 +392,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-        prevalidate(newDataSets, "data set");
+        ServerUtils.prevalidate(newDataSets, "data set");
         final DataSetTypePE dataSetType =
                 getDAOFactory().getDataSetTypeDAO().tryToFindDataSetTypeByCode(
                         dataSets.getDataSetType().getCode());
@@ -402,30 +402,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     dataSets.getDataSetType());
         }
         getDataSetTypeSlaveServerPlugin(dataSetType).updateDataSets(session, newDataSets);
-    }
-
-    private void registerSamples(final Session session, final NewSamplesWithTypes newSamplesWithType)
-    {
-        final SampleType sampleType = newSamplesWithType.getSampleType();
-        final List<NewSample> newSamples = newSamplesWithType.getNewSamples();
-        assert sampleType != null : "Unspecified sample type.";
-        assert newSamples != null : "Unspecified new samples.";
-
-        // Does nothing if samples list is empty.
-        if (newSamples.size() == 0)
-        {
-            return;
-        }
-        prevalidate(newSamples, "sample");
-        final String sampleTypeCode = sampleType.getCode();
-        final SampleTypePE sampleTypePE =
-                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
-        if (sampleTypePE == null)
-        {
-            throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
-                    sampleTypeCode);
-        }
-        getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
     }
 
     private void updateSamples(final Session session,
@@ -442,7 +418,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             return;
         }
 
-        prevalidate(updatedSamples, "sample");
+        ServerUtils.prevalidate(updatedSamples, "sample");
         final String sampleTypeCode = sampleType.getCode();
         final SampleTypePE sampleTypePE =
                 getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
@@ -577,7 +553,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-        prevalidate(newMaterials, "material");
+        ServerUtils.prevalidate(newMaterials, "material");
         final MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
         final Session session = getSession(sessionToken);
         IBatchOperation<NewMaterial> strategy = new IBatchOperation<NewMaterial>()
@@ -627,7 +603,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             int count;
         }
         final Counter counter = new Counter();
-        prevalidate(newMaterials, "material");
+        ServerUtils.prevalidate(newMaterials, "material");
         final Map<String/* code */, Material> existingMaterials =
                 listMaterials(sessionToken, materialTypeCode);
         final Session session = getSession(sessionToken);
@@ -672,31 +648,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             };
         BatchOperationExecutor.executeInBatches(strategy);
         return counter.count;
-    }
-
-    private <T> void prevalidate(List<T> entities, String entityName)
-    {
-        Collection<T> duplicated = extractDuplicatedElements(entities);
-        if (duplicated.size() > 0)
-        {
-            throw UserFailureException.fromTemplate("Following %s(s) '%s' are duplicated.",
-                    entityName, CollectionUtils.abbreviate(duplicated, 20));
-        }
-    }
-
-    private static <T> Collection<T> extractDuplicatedElements(List<T> entities)
-    {
-        Set<T> entitiesSet = new HashSet<T>(entities);
-        Collection<T> duplicated = new ArrayList<T>();
-        for (T entity : entities)
-        {
-            // this element must have been duplicated
-            if (entitiesSet.remove(entity) == false)
-            {
-                duplicated.add(entity);
-            }
-        }
-        return duplicated;
     }
 
     private MaterialTypePE findMaterialType(String materialTypeCode)
@@ -902,7 +853,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-        prevalidate(newExperiments, "experiment");
+        ServerUtils.prevalidate(newExperiments, "experiment");
         final ExperimentTypePE experimentTypePE =
                 (ExperimentTypePE) getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT)
                         .tryToFindEntityTypeByCode(experiments.getExperimentTypeCode());
@@ -935,7 +886,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         {
             return;
         }
-        prevalidate(newExperiments, "experiment");
+        ServerUtils.prevalidate(newExperiments, "experiment");
         final ExperimentTypePE experimentTypePE =
                 (ExperimentTypePE) getDAOFactory().getEntityTypeDAO(EntityKind.EXPERIMENT)
                         .tryToFindEntityTypeByCode(experiments.getExperimentType().getCode());
