@@ -76,6 +76,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
@@ -236,7 +239,28 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
         this.viewContext = viewContext;
         this.experimentCriteriaOrNull = experimentCriteriaOrNull;
         this.materialCriteria = materialCriteria;
-        channelChooser = new ChannelComboBox();
+
+        final ScreeningDisplaySettingsManager screeningDisplaySettingManager =
+                ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
+        final ScreeningDisplayTypeIDGenerator wellSearchChannelIdGenerator =
+                ScreeningDisplayTypeIDGenerator.WELL_SEARCH_CHANNEL;
+        final String wellSearchChannelDisplayTypeId = wellSearchChannelIdGenerator.createID();
+        final IDefaultChannelState defaultChannelState = new IDefaultChannelState()
+            {
+                public void setDefaultChannel(String channel)
+                {
+                    screeningDisplaySettingManager.setDefaultChannel(
+                            wellSearchChannelDisplayTypeId, channel);
+                }
+
+                public String tryGetDefaultChannel()
+                {
+                    return screeningDisplaySettingManager
+                            .tryGetDefaultChannel(wellSearchChannelDisplayTypeId);
+                }
+            };
+
+        channelChooser = new ChannelComboBox(defaultChannelState);
         linkWellContent();
         linkExperiment();
         linkPlate();

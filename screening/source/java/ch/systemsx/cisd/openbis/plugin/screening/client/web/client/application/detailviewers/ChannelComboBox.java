@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
@@ -33,41 +34,57 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
 public class ChannelComboBox extends SimpleComboBox<String>
 {
 
+    private IDefaultChannelState defaultChannelState;
+
     /**
      * Creates empty {@link ChannelComboBox}.
      */
-    public ChannelComboBox()
+    public ChannelComboBox(final IDefaultChannelState defaultChannelState)
     {
         setTriggerAction(TriggerAction.ALL);
         setAllowBlank(false);
         setEditable(false);
         setEmptyText("Choose...");
+        this.defaultChannelState = defaultChannelState;
+        addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<SimpleComboValue<String>> se)
+                {
+                    String selectedValueOrNull = se.getSelectedItem().getValue();
+                    if (selectedValueOrNull != null)
+                    {
+                        defaultChannelState.setDefaultChannel(selectedValueOrNull);
+                    }
+                }
+            });
     }
 
     /**
      * Creates {@link ChannelComboBox} with initial list of values and selects given initial value.
      */
-    public ChannelComboBox(List<String> names, String initialValue)
+    public ChannelComboBox(List<String> names, IDefaultChannelState defaultChannelState)
     {
-        this();
+        this(defaultChannelState);
         addUniqueCodes(names);
-        if (initialValue != null)
-        {
-            setSimpleValue(initialValue);
-        } else
-        {
-            autoselect();
-        }
+        autoselect();
     }
 
     /**
-     * Selects first element if nothing was selected before.
+     * Selects default channel if such an information was saved before. Otherwise first element if
+     * nothing was selected before.
      */
     private void autoselect()
     {
         if (getStore().getModels().size() > 0 && getValue() == null)
         {
-            setValue(getStore().getModels().get(0));
+            if (defaultChannelState != null && defaultChannelState.tryGetDefaultChannel() != null)
+            {
+                setSimpleValue(defaultChannelState.tryGetDefaultChannel());
+            } else
+            {
+                setValue(getStore().getModels().get(0));
+            }
         }
     }
 

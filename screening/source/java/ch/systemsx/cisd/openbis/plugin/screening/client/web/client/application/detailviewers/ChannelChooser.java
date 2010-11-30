@@ -48,8 +48,8 @@ class ChannelChooser
     }
 
     public static LayoutContainer createViewerWithChannelChooser(
-            final IChanneledViewerFactory viewerFactory, final DefaultChannelState channelState,
-            List<String> channelsNames)
+            final IChanneledViewerFactory viewerFactory,
+            final IDefaultChannelState defaultChannelState, List<String> channelsNames)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
@@ -59,11 +59,15 @@ class ChannelChooser
             container.add(new Label("No images available"));
             return container;
         }
-        String initialChannel = channelState.getDefaultChannel(channelsNames);
+        String initialChannel = defaultChannelState.tryGetDefaultChannel();
+        if (initialChannel == null)
+        {
+            initialChannel = channelsNames.get(0);
+        }
         if (channelsNames.size() > 1)
         {
             ComboBox<SimpleComboValue<String>> channelChooser =
-                    new ChannelComboBox(channelsNames, initialChannel);
+                    new ChannelComboBox(channelsNames, defaultChannelState);
             viewerFactory.setChannelChooser(channelChooser);
             channelChooser
                     .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
@@ -74,7 +78,6 @@ class ChannelChooser
                             {
                                 String value = se.getSelectedItem().getValue();
                                 Widget viewerWidget = viewerFactory.create(value);
-                                channelState.setDefaultChannel(value);
                                 GuiUtils.replaceLastItem(container, viewerWidget);
                             }
                         });

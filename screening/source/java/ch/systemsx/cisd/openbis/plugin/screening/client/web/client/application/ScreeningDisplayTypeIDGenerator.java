@@ -19,14 +19,15 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 
 /**
- * IDisplayTypeIDGenerator specifit to screening.
+ * IDisplayTypeIDGenerator specific to screening.
  * 
  * @author Izabela Adamczyk
  */
 public enum ScreeningDisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
 
-    PLATE_METADATA_GRID("plate-metadata-grid"), ;
+    PLATE_METADATA_GRID("plate-metadata-grid"), EXPERIMENT_CHANNEL("experiment-channel"),
+    WELL_SEARCH_CHANNEL("well-search-channel");
 
     private final String genericNameOrPrefix;
 

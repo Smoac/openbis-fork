@@ -61,6 +61,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
@@ -102,16 +105,44 @@ public class WellContentDialog extends Dialog
      * A dialog which shows the content of the well (static or a timepoints movie).
      */
     public static void showContentDialog(final WellData wellData,
-            DatasetImagesReference imageDatasetOrNull, DefaultChannelState channelState,
+            DatasetImagesReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         final WellContentDialog contentDialog =
                 createContentDialog(wellData, viewContext, imageDatasetOrNull != null);
-        showContentDialog(contentDialog, imageDatasetOrNull, channelState, viewContext);
+
+        final IDefaultChannelState defaultChannelState =
+                createDefaultChannelState(viewContext, wellData.getExperiment().getPermId());
+
+        showContentDialog(contentDialog, imageDatasetOrNull, defaultChannelState, viewContext);
+    }
+
+    private static IDefaultChannelState createDefaultChannelState(
+            final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final String experimentPermId)
+    {
+        final ScreeningDisplaySettingsManager screeningDisplaySettingManager =
+                ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
+        final ScreeningDisplayTypeIDGenerator wellSearchChannelIdGenerator =
+                ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL;
+        final String displayTypeID = wellSearchChannelIdGenerator.createID(experimentPermId);
+
+        return new IDefaultChannelState()
+            {
+                public void setDefaultChannel(String channel)
+                {
+                    screeningDisplaySettingManager.setDefaultChannel(displayTypeID, channel);
+                }
+
+                public String tryGetDefaultChannel()
+                {
+                    return screeningDisplaySettingManager.tryGetDefaultChannel(displayTypeID);
+                }
+            };
     }
 
     private static void showContentDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imagesOrNull, DefaultChannelState channelState,
+            final DatasetImagesReference imagesOrNull, IDefaultChannelState channelState,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         if (imagesOrNull != null && imagesOrNull.getImageParameters().isMultidimensional())
@@ -195,15 +226,15 @@ public class WellContentDialog extends Dialog
                 new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(),
                         hasDataSet, getExperiment(wellContent.getExperiment()), viewContext);
 
-        // NOTE: channel chooser state will be not reused among different dialogs
-        DefaultChannelState channelState = new DefaultChannelState();
-        showContentDialog(contentDialog, imageDatasetOrNull, channelState, viewContext);
+        final IDefaultChannelState defaultChannelState =
+                createDefaultChannelState(viewContext, wellContent.getExperiment().getPermId());
+        showContentDialog(contentDialog, imageDatasetOrNull, defaultChannelState, viewContext);
     }
 
     // --------------- STATIC IMAGES VIEWER
 
     private static void showStaticImageDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imageDatasetOrNull, DefaultChannelState channelState,
+            final DatasetImagesReference imageDatasetOrNull, IDefaultChannelState channelState,
             final IViewContext<?> viewContext)
     {
         WellLocation wellLocation = contentDialog.wellLocationOrNull;
@@ -258,7 +289,7 @@ public class WellContentDialog extends Dialog
     // --------------- TIMEPOINT IMAGES PLAYER
 
     private static void showTimepointImageDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imageDataset, final DefaultChannelState channelState,
+            final DatasetImagesReference imageDataset, final IDefaultChannelState channelState,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         assert imageDataset != null;

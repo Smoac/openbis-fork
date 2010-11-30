@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellContentDialog;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellData;
@@ -208,13 +207,13 @@ public class PlateLayouter
         int colsNum = getColumnsNum(wellMatrix);
 
         Component[][] wells = new Component[rowsNum][colsNum];
-        DefaultChannelState channelState = new DefaultChannelState();
+
         for (int row = 0; row < rowsNum; row++)
         {
             for (int col = 0; col < colsNum; col++)
             {
                 WellData wellData = wellMatrix[row][col];
-                wells[row][col] = createWellWidget(wellData, channelState, model, viewContext);
+                wells[row][col] = createWellWidget(wellData, model, viewContext);
             }
         }
         return wells;
@@ -285,8 +284,7 @@ public class PlateLayouter
     }
 
     private static Component createWellWidget(final WellData wellData,
-            final DefaultChannelState channelState, final PlateLayouterModel model,
-            final ScreeningViewContext screeningViewContext)
+            final PlateLayouterModel model, final ScreeningViewContext screeningViewContext)
     {
         Component widget = createWellBox(wellData);
 
@@ -298,26 +296,25 @@ public class PlateLayouter
                     DatasetImagesReference dataset = model.tryGetImageDataset();
                     if (dataset == null)
                     {
-                        WellContentDialog.showContentDialog(wellData, null, channelState,
-                                screeningViewContext);
+                        WellContentDialog.showContentDialog(wellData, null, screeningViewContext);
                     } else
                     {
                         // Reload meta data because they might be out dated especially when
                         // image transformer factory has changed. For the image URL the
                         // signature of the factory is needed to distinguish them. This is important
                         // because Web browser cache images.
-                        service.getPlateContentForDataset(new TechId(dataset
-                                .getDatasetId()), new AbstractAsyncCallback<PlateImages>(
-                                        screeningViewContext)
+                        service.getPlateContentForDataset(new TechId(dataset.getDatasetId()),
+                                new AbstractAsyncCallback<PlateImages>(screeningViewContext)
+                                    {
+                                        @Override
+                                        protected void process(PlateImages plateContent)
                                         {
-                            @Override
-                            protected void process(PlateImages plateContent)
-                            {
-                                DatasetImagesReference ds = plateContent.getImagesDataset();
-                                WellContentDialog.showContentDialog(wellData, ds, channelState,
-                                        screeningViewContext);
-                            }
-                                        });
+                                            DatasetImagesReference ds =
+                                                    plateContent.getImagesDataset();
+                                            WellContentDialog.showContentDialog(wellData, ds,
+                                                    screeningViewContext);
+                                        }
+                                    });
                     }
                 }
             });

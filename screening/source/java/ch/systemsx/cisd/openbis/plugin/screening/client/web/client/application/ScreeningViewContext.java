@@ -47,4 +47,11 @@ public final class ScreeningViewContext extends
         handlerRegistry.registerHandler(new PlateMetadataBrowserLocatorResolver(this));
         handlerRegistry.registerHandler(new PlateMaterialReviewerLocatorResolver(this));
     }
+
+    public static ScreeningDisplaySettingsManager getTechnologySpecificDisplaySettingsManager(
+            IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        return new ScreeningDisplaySettingsManager(viewContext);
+    }
+
 }

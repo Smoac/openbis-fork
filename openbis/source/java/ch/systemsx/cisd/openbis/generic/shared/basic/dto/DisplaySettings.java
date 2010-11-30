@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,9 +40,10 @@ public class DisplaySettings implements Serializable, IsSerializable
     private static final long serialVersionUID = 1L;
 
     private Map<String, List<ColumnSetting>> columnSettings =
-            new LinkedHashMap<String, List<ColumnSetting>>();
+            new HashMap<String, List<ColumnSetting>>();
 
-    private Map<String, Object> technologySpecificSettings = new HashMap<String, Object>();
+    private Map<String, IsSerializable> technologySpecificSettings =
+            new HashMap<String, IsSerializable>();
 
     private Map<String, String> tabSettings = new HashMap<String, String>();
 
@@ -64,11 +64,11 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
-    public Map<String, Object> getTechnologySpecificSettings()
+    public Map<String, IsSerializable> getTechnologySpecificSettings()
     {
         if (technologySpecificSettings == null)
         {
-            technologySpecificSettings = new HashMap<String, Object>();
+            technologySpecificSettings = new HashMap<String, IsSerializable>();
         }
         return technologySpecificSettings;
     }
@@ -149,7 +149,8 @@ public class DisplaySettings implements Serializable, IsSerializable
     // for serialization
 
     @SuppressWarnings("unused")
-    private void setTechnologySpecificSettings(Map<String, Object> technologySpecificSettings)
+    private void setTechnologySpecificSettings(
+            Map<String, IsSerializable> technologySpecificSettings)
     {
         this.technologySpecificSettings = technologySpecificSettings;
     }
