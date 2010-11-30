@@ -181,7 +181,7 @@ public interface IGenericServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateExperiments(
             String sessionToken,
             @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class) final UpdatedExperimentsWithType experiments)
