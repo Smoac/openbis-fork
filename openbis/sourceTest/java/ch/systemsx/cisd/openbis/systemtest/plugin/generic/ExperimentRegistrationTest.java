@@ -279,6 +279,72 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     }
 
     @Test
+    public void testBulkUpdateExperimentWithSamplesWithProjectChanges()
+    {
+        logIntoCommonClientService();
+
+        // Create an experiment with samples
+        String batchSamplesFileContent = "identifier\torganism\n" + "S2001\tfly\n" + "S2002\tdog\n";
+        addMultiPartFile(SAMPLES_SESSION_KEY, "samples.txt", batchSamplesFileContent.getBytes());
+        String experimentCode = commonClientService.generateCode("EXP-WITH-PROJ");
+        String experimentIdentifier = "/cisd/default/" + experimentCode;
+        List<String> expIds = Collections.singletonList(experimentIdentifier);
+        NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
+        newExperiment.setProperties(new IEntityProperty[]
+            { property("DESCRIPTION", "my experiment") });
+        newExperiment.setRegisterSamples(true);
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("CELL_PLATE");
+        newExperiment.setSampleType(sampleType);
+        genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
+                newExperiment);
+
+        // Change the project of the experiment
+        String[] codes = new String[] {};
+        String[] values = new String[] {};
+        String bulkUpdateString =
+                createBulkUpdateString(expIds, "/testgroup/testproj", codes, values);
+
+        // Update the experiments
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode("SIRNA_HCS");
+        List<BatchRegistrationResult> results =
+                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+
+        // Check the return value
+        assertEquals(1, results.size());
+        assertEquals("Update of 1 experiment(s) is complete.", results.get(0).getMessage());
+
+        // Check that the sample was moved as well
+        String newExperimentIdentifier =
+                experimentIdentifier.replaceFirst("/cisd/default/", "/testgroup/testproj/");
+
+        Experiment experiment = commonClientService.getExperimentInfo(newExperimentIdentifier);
+        TechId experimentId = new TechId(experiment.getId());
+        ListSampleCriteria listCriteria = ListSampleCriteria.createForExperiment(experimentId);
+        ResultSetWithEntityTypes<Sample> samples =
+                commonClientService.listSamples(new ListSampleDisplayCriteria(listCriteria));
+
+        assertEquals("[CELL_PLATE]", samples.getAvailableEntityTypes().toString());
+        List<GridRowModel<Sample>> list =
+                new ArrayList<GridRowModel<Sample>>(samples.getResultSet().getList());
+        Collections.sort(list, new Comparator<GridRowModel<Sample>>()
+            {
+                public int compare(GridRowModel<Sample> o1, GridRowModel<Sample> o2)
+                {
+                    return o1.getOriginalObject().getCode()
+                            .compareTo(o2.getOriginalObject().getCode());
+                }
+            });
+        Sample sample = list.get(0).getOriginalObject();
+        assertEquals("Sample identifier " + sample.getIdentifier()
+                + " should start with CISD:/TESTGROUP/", true,
+                sample.getIdentifier().startsWith("CISD:/TESTGROUP/"));
+        assertEquals("TESTGROUP", sample.getSpace().getCode());
+    }
+
+    @Test
     public void testBulkUpdateExperimentsDeletingMandatoryProperty()
     {
         logIntoCommonClientService();
@@ -368,8 +434,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         return createBulkUpdateString(expIds, null, propertyCodes, propertyValues);
     }
 
-    private String createBulkUpdateString(ArrayList<String> expIds,
-            String newProjectIdentifierOrNull, String[] propertyCodes, String[] propertyValues)
+    private String createBulkUpdateString(List<String> expIds, String newProjectIdentifierOrNull,
+            String[] propertyCodes, String[] propertyValues)
     {
         StringBuilder sb = new StringBuilder();
 
