@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
@@ -56,7 +57,10 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
     public AbsoluteImageReference tryGetImage(String chosenChannelCode,
             ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull)
     {
-        assert StringUtils.isBlank(chosenChannelCode) == false;
+        if (StringUtils.isBlank(chosenChannelCode))
+        {
+            throw new UserFailureException("Unspecified channel.");
+        }
         LocationImageChannelStackReference stackLocations =
                 channelStackReference.tryGetChannelStackLocations();
         if (stackLocations != null)

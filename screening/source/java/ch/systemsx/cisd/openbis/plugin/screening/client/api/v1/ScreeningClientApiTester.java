@@ -26,6 +26,7 @@ import java.awt.event.ActionListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,9 +35,11 @@ import java.util.Properties;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -45,13 +48,16 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.PropertyConfigurator;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
@@ -129,7 +135,16 @@ public class ScreeningClientApiTester
             setJMenuBar(menuBar);
             JMenu callApiMenu = new JMenu("Call API");
             menuBar.add(callApiMenu);
-            JMenuItem loadImagesByDataSetMenu = new JMenuItem("Load images by data set code");
+            JMenuItem loadPlatesMenuItem = new JMenuItem("List Plates");
+            loadPlatesMenuItem.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        loadPlates();
+                    }
+                });
+            callApiMenu.add(loadPlatesMenuItem);
+            JMenuItem loadImagesByDataSetMenu = new JMenuItem("Load Images by Data Set Code...");
             callApiMenu.add(loadImagesByDataSetMenu);
             loadImagesByDataSetMenu.addActionListener(new ActionListener()
                 {
@@ -165,16 +180,37 @@ public class ScreeningClientApiTester
             }
         }
         
+        private void loadPlates()
+        {
+            List<Plate> plates = facade.listPlates();
+            content.removeAll();
+            final JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            content.add(panel, BorderLayout.CENTER);
+            for (Plate plate : plates)
+            {
+                panel.add(new JLabel(plate.toString()));
+            }
+            validate(panel);
+        }
+        
         private void loadImagesByDataSetCode()
         {
             Form form = new Form(this, "Parameters for Loading Images by Data Set");
-            JTextComponent dataSetField = form.createTextField("Data Set", 20, false);
+            List<ImageDatasetReference> dataSets = facade.listImageDatasets(facade.listPlates());
+            List<String> dataSetCodes = new ArrayList<String>();
+            for (ImageDatasetReference imageDataset : dataSets)
+            {
+                dataSetCodes.add(imageDataset.getDatasetCode());
+            }
+            JComboBox dataSetCodesComboBox = new JComboBox(dataSetCodes.toArray(new String[0]));
+            form.addField("Data Set", dataSetCodesComboBox);
             JTextComponent wellsField = form.createTextField("Wells", 20, false);
             JTextComponent channelField = form.createTextField("Channel", 20, false);
             JTextComponent sizeField = form.createTextField("Size", 20, false);
             sizeField.setText("200x160");
             form.showForm();
-            String dataSetCode = dataSetField.getText();
+            String dataSetCode = dataSetCodesComboBox.getSelectedItem().toString();
             final List<IDatasetIdentifier> datasetIdentifiers = facade.getDatasetIdentifiers(Arrays.asList(dataSetCode));
             if (datasetIdentifiers.isEmpty())
             {
@@ -198,7 +234,7 @@ public class ScreeningClientApiTester
                             {
                                 facade.loadImages(datasetIdentifiers.get(0), wellPositions,
                                         channel, imageSize, createPlateImageHandler(imagePanel, t0));
-                            } catch (final IOException ex)
+                            } catch (final Throwable ex)
                             {
                                 ex.printStackTrace();
                                 EventQueue.invokeLater(new Runnable()
