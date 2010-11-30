@@ -31,7 +31,7 @@ public class DetailViewConfiguration implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    Set<String> disabledTabs = new HashSet<String>();
+    private Set<String> disabledTabs = new HashSet<String>();
 
     private boolean hideSmartView = false;
 

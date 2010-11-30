@@ -41,9 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped
- * {@link DisplaySettings} object. The two attributes of this class are assumed to be de facto
- * singletons. The display setting manager will be created as often as components to be managed are
- * created.
+ * {@link DisplaySettings} object. The attributes of this class are assumed to be de facto
+ * singletons. The display setting manager will be created after the user logs into application.
  * 
  * @author Franz-Josef Elmer
  */
@@ -371,21 +370,28 @@ public class DisplaySettingsManager
 
     // delegator
 
-    /**
-     * @returns columns settings for given display id
-     *          <p>
-     *          NOTE: Returned value should be used read only, or modification time should be set
-     *          manually after a modification.
-     */
+    /** @deprecated Should be used only by specific display settings manager */
+    @Deprecated
+    public final Object tryGetTechnologySpecificSettings(String technologyName)
+    {
+        return displaySettings.getTechnologySpecificSettings().get(technologyName);
+    }
+
+    /** @deprecated Should be used only by specific display settings manager */
+    @Deprecated
+    public final void setTechnologySpecificSettings(String technologyName, Object newSettings)
+    {
+        displaySettings.getTechnologySpecificSettings().put(technologyName, newSettings);
+    }
+
+    /** @returns columns settings for given display id */
     @SuppressWarnings("deprecation")
     public final List<ColumnSetting> getColumnSettings(String gridDisplayTypeID)
     {
         return displaySettings.getColumnSettings().get(gridDisplayTypeID);
     }
 
-    /**
-     * update column settings for given display id (modification date is updated automatically)
-     */
+    /** update column settings for given display id */
     @SuppressWarnings("deprecation")
     public final void updateColumnSettings(String gridDisplayTypeID,
             List<ColumnSetting> newSettings, Object modifier)
@@ -393,12 +399,7 @@ public class DisplaySettingsManager
         displaySettings.getColumnSettings().put(gridDisplayTypeID, newSettings);
     }
 
-    /**
-     * @returns tab settings for given panel - which tab should be selected<br>
-     * <br>
-     *          NOTE: Returned value should be used read only, or modification time should be set
-     *          manually after a modification.
-     */
+    /** @returns tab settings for given panel - which tab should be selected */
     @SuppressWarnings("deprecation")
     public final String getActiveTabSettings(String tabGroupDisplayTypeID)
     {
@@ -416,7 +417,7 @@ public class DisplaySettingsManager
     }
 
     /**
-     * update section settings for given display id (modification date is updated automatically)
+     * update section settings for given display id
      */
     @SuppressWarnings("deprecation")
     private final void updateActiveTabSettings(String tabGroupDisplayID,
@@ -465,7 +466,7 @@ public class DisplaySettingsManager
     }
 
     /**
-     * update section settings for given display id (modification date is updated automatically)
+     * update section settings for given display id
      */
     @SuppressWarnings("deprecation")
     public final void updateUseWildcardSearchMode(Boolean newValue)
@@ -476,11 +477,13 @@ public class DisplaySettingsManager
     /**
      * Should error messages from custom columns be displayed in debugging or user format?
      */
+    @SuppressWarnings("deprecation")
     public final boolean isDisplayCustomColumnDebuggingErrorMessages()
     {
         return displaySettings.isDisplayCustomColumnDebuggingErrorMessages();
     }
 
+    @SuppressWarnings("deprecation")
     public final void setDisplayCustomColumnDebuggingErrorMessages(boolean isDebugging)
     {
         displaySettings.setDisplayCustomColumnDebuggingErrorMessages(isDebugging);

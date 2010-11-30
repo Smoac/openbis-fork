@@ -43,6 +43,8 @@ public class DisplaySettings implements Serializable, IsSerializable
     private Map<String, List<ColumnSetting>> columnSettings =
             new LinkedHashMap<String, List<ColumnSetting>>();
 
+    private Map<String, Object> technologySpecificSettings = new HashMap<String, Object>();
+
     private Map<String, String> tabSettings = new HashMap<String, String>();
 
     private Map<String, String> dropDownSettings = new HashMap<String, String>();
@@ -62,8 +64,23 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
+    public Map<String, Object> getTechnologySpecificSettings()
+    {
+        if (technologySpecificSettings == null)
+        {
+            technologySpecificSettings = new HashMap<String, Object>();
+        }
+        return technologySpecificSettings;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
     public final Map<String, List<ColumnSetting>> getColumnSettings()
     {
+        if (columnSettings == null)
+        {
+            columnSettings = new HashMap<String, List<ColumnSetting>>();
+        }
         return columnSettings;
     }
 
@@ -132,6 +149,12 @@ public class DisplaySettings implements Serializable, IsSerializable
     // for serialization
 
     @SuppressWarnings("unused")
+    private void setTechnologySpecificSettings(Map<String, Object> technologySpecificSettings)
+    {
+        this.technologySpecificSettings = technologySpecificSettings;
+    }
+
+    @SuppressWarnings("unused")
     private final void setColumnSettings(Map<String, List<ColumnSetting>> columnSettings)
     {
         this.columnSettings = columnSettings;
@@ -177,7 +200,10 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     /**
      * Are error messages from custom columns displayed in debugging format or user format?
+     * 
+     * @deprecated Should be used only by DisplaySettingsManager.
      */
+    @Deprecated
     public boolean isDisplayCustomColumnDebuggingErrorMessages()
     {
         return displayCustomColumnDebuggingErrorMessages;
@@ -185,7 +211,10 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     /**
      * Are error messages from custom columns displayed in debugging format or user format?
+     * 
+     * @deprecated Should be used only by DisplaySettingsManager.
      */
+    @Deprecated
     public void setDisplayCustomColumnDebuggingErrorMessages(boolean isDebugging)
     {
         displayCustomColumnDebuggingErrorMessages = isDebugging;
