@@ -171,9 +171,6 @@ CREATE TABLE FEATURE_DEFS (
     CODE NAME NOT NULL,
     LABEL NAME NOT NULL,
     DESCRIPTION DESCRIPTION,
-		-- If true then there are some vocabulary terms connected with this feature definition
-		-- and the value matrix references FEATURE_VOCABULARY_TERMS.SEQUENCE_NUMBER
-    HAS_VOCABULARY_VALUES BOOLEAN_CHAR NOT NULL,
     
     DS_ID  TECH_ID NOT NULL,
     
@@ -188,9 +185,7 @@ CREATE TABLE FEATURE_VOCABULARY_TERMS (
 	ID BIGSERIAL  NOT NULL,
 
   CODE NAME NOT NULL,
-	-- If FEATURE_DEFS referenced with FD_ID has HAS_VOCABULARY_VALUES == true 
-  -- then the sequence number is referenced in the FEATURE_VALUES.VALUES matrix
-	SEQUENCE_NUMBER INTEGER NOT NULL,
+  SEQUENCE_NUMBER INTEGER NOT NULL,
 	FD_ID  TECH_ID NOT NULL,
 
 	PRIMARY KEY (ID),
@@ -206,7 +201,12 @@ CREATE TABLE FEATURE_VALUES (
 		Z_in_M REAL,
 		-- we use the fixed dimension seconds here
 		T_in_SEC REAL,
-		-- serialized 2D matrix with values for each spot
+		-- Serialized 2D matrix with values for each spot.
+		-- Contains floats which can be NaN. 
+		-- It is never a case that the whole matrix contains NaN - in such a case we save nothing.
+		-- If feature definition has some connected vocabulary terms then the matrix 
+		-- stores FEATURE_VOCABULARY_TERMS.SEQUENCE_NUMBER of the terms (should be casted from float to int).
+		-- If the term is null the Float.NaN is stored.
 		VALUES BYTEA NOT NULL,
 		
 		FD_ID  TECH_ID NOT NULL,
