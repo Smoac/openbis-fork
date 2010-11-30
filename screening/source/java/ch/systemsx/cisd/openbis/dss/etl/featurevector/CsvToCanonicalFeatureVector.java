@@ -19,8 +19,13 @@ package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
+import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.common.utilities.Counters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
@@ -30,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
  * Converts feature vectors from CSV files to CanonicaFeatureVector objects.
@@ -118,11 +124,12 @@ public class CsvToCanonicalFeatureVector
         Counters<String> counters = new Counters<String>();
         for (FeatureColumn column : columns)
         {
-            if ((true == column.isWellName) || (false == column.isNumeric))
+            if ((true == column.isWellName) || column.isEmpty())
             {
                 continue;
             }
-            CanonicalFeatureVector featureVector = convertColumnToFeatureVector(geometry, column, counters);
+            CanonicalFeatureVector featureVector =
+                    convertColumnToFeatureVector(geometry, column, counters);
             result.add(featureVector);
         }
 
@@ -141,21 +148,52 @@ public class CsvToCanonicalFeatureVector
         int count = counters.count(code);
         featureDef.setCode(count == 1 ? code : code + count);
         featureVector.setFeatureDef(featureDef);
-        final PlateFeatureValues valuesValues = convertColumnToByteArray(geometry, column);
+
+        return setFeatureValues(featureVector, column, geometry);
+    }
+
+    private CanonicalFeatureVector setFeatureValues(CanonicalFeatureVector featureVector,
+            FeatureColumn column, Geometry geometry)
+    {
+        Map<WellLocation, Float> floatValues = column.tryExtractFloatValues();
+        List<ImgFeatureVocabularyTermDTO> vocabularyTerms =
+                new ArrayList<ImgFeatureVocabularyTermDTO>();
+        if (floatValues == null)
+        {
+            VocabularyFeatureColumnValues vocabularyValues = column.extractVocabularyValues();
+
+            floatValues = vocabularyValues.getWellTermsMapping();
+            vocabularyTerms = createVocabularyTerms(vocabularyValues.getValueToSequanceMap());
+        }
+        final PlateFeatureValues valuesValues = convertColumnToByteArray(geometry, floatValues);
         ImgFeatureValuesDTO values = new ImgFeatureValuesDTO(0., 0., valuesValues, 0);
+
         featureVector.setValues(Collections.singletonList(values));
+        featureVector.setVocabularyTerms(vocabularyTerms);
         return featureVector;
     }
 
-    private PlateFeatureValues convertColumnToByteArray(Geometry geometry, FeatureColumn column)
+    private List<ImgFeatureVocabularyTermDTO> createVocabularyTerms(
+            Map<String, Integer> valueToSequanceMap)
+    {
+        List<ImgFeatureVocabularyTermDTO> vocabularyTerms =
+                new ArrayList<ImgFeatureVocabularyTermDTO>();
+        for (Entry<String, Integer> entry : valueToSequanceMap.entrySet())
+        {
+            vocabularyTerms.add(new ImgFeatureVocabularyTermDTO(entry.getKey(), entry.getValue()));
+        }
+        return vocabularyTerms;
+    }
+
+    private PlateFeatureValues convertColumnToByteArray(Geometry geometry,
+            Map<WellLocation, Float> values)
     {
         final PlateFeatureValues featureValues = new PlateFeatureValues(geometry);
-        for (WellLocation loc : column.values.keySet())
+        for (WellLocation loc : values.keySet())
         {
-            final Float value = column.values.get(loc);
+            final Float value = values.get(loc);
             featureValues.setForWellLocation(value, loc);
         }
-
         return featureValues;
     }
 
@@ -179,17 +217,14 @@ public class CsvToCanonicalFeatureVector
         final WellLocation well = readWellLocationFromLine(line);
         for (FeatureColumn column : columns)
         {
-            if ((true == column.isWellName) || (false == column.isNumeric))
+            if (true == column.isWellName)
             {
                 continue;
             }
-            try
+            String columnValue = line[column.index];
+            if (StringUtils.isBlank(columnValue) == false)
             {
-                column.values.put(well, Float.parseFloat(line[column.index]));
-            } catch (NumberFormatException ex)
-            {
-                // skip this column in the future
-                column.isNumeric = false;
+                column.values.put(well, columnValue);
             }
         }
 
@@ -258,17 +293,115 @@ public class CsvToCanonicalFeatureVector
 
         private final boolean isWellName;
 
-        private final HashMap<WellLocation, Float> values;
-
-        // this may change during the course of reading the file
-        private boolean isNumeric = true;
+        private final HashMap<WellLocation, String> values;
 
         private FeatureColumn(int index, String name, boolean isWellName)
         {
             this.index = index;
             this.name = name;
             this.isWellName = isWellName;
-            values = new HashMap<WellLocation, Float>();
+            values = new HashMap<WellLocation, String>();
         }
+
+        public boolean isEmpty()
+        {
+            return values.isEmpty();
+        }
+
+        /**
+         * Tries to parse all values as float numbers.
+         * 
+         * @return null if any column value cannot be parsed as float number.
+         */
+        public Map<WellLocation, Float> tryExtractFloatValues()
+        {
+            Map<WellLocation, Float> map = new HashMap<WellLocation, Float>();
+            for (Entry<WellLocation, String> entry : values.entrySet())
+            {
+                try
+                {
+                    WellLocation wellLocation = entry.getKey();
+                    String value = entry.getValue();
+                    float floatValue = Float.parseFloat(value);
+                    map.put(wellLocation, floatValue);
+                } catch (NumberFormatException ex)
+                {
+                    return null;
+                }
+            }
+            return map;
+        }
+
+        /**
+         * Assuming that all values come from the set fixed of vocabulary terms calculates the
+         * mapping from vocabulary term into a unique term sequence number.<br>
+         * Should be called when {@link #tryExtractFloatValues} returns null.
+         */
+        public VocabularyFeatureColumnValues extractVocabularyValues()
+        {
+            return VocabularyFeatureColumnValues.create(values);
+        }
+
+    }
+
+    private static final class VocabularyFeatureColumnValues
+    {
+        private final Map<String, Integer/* value sequence number */> valueToSequanceMap;
+
+        private final Map<WellLocation, Float> wellTermsMapping;
+
+        public static VocabularyFeatureColumnValues create(Map<WellLocation, String> values)
+        {
+            Map<String, Integer> valueToSequanceMap = fixVocabularyTermSequences(values);
+
+            Map<WellLocation, Float> wellTermsMapping = new HashMap<WellLocation, Float>();
+            for (Entry<WellLocation, String> entry : values.entrySet())
+            {
+                WellLocation wellLocation = entry.getKey();
+                String value = entry.getValue();
+                int sequenceNumber = valueToSequanceMap.get(value);
+                wellTermsMapping.put(wellLocation, (float) sequenceNumber);
+            }
+
+            return new VocabularyFeatureColumnValues(valueToSequanceMap, wellTermsMapping);
+        }
+
+        private static Map<String, Integer/* value sequence number */> fixVocabularyTermSequences(
+                Map<WellLocation, String> values)
+        {
+            Set<String> uniqueValues = new HashSet<String>();
+            for (String value : values.values())
+            {
+                uniqueValues.add(value);
+            }
+
+            Map<String, Integer> valueToSequanceMap = new HashMap<String, Integer>();
+            int sequenceNumber = 0;
+            for (String value : uniqueValues)
+            {
+                valueToSequanceMap.put(value, sequenceNumber++);
+            }
+            return valueToSequanceMap;
+        }
+
+        private VocabularyFeatureColumnValues(Map<String, Integer> valueToSequanceMap,
+                Map<WellLocation, Float> wellTermsMapping)
+        {
+            this.valueToSequanceMap = valueToSequanceMap;
+            this.wellTermsMapping = wellTermsMapping;
+        }
+
+        /** mapping from term code to sequence number */
+        public Map<String, Integer> getValueToSequanceMap()
+        {
+            return valueToSequanceMap;
+        }
+
+        /** mapping between wells and integer sequence numbers of terms casted to floats */
+        public Map<WellLocation, Float> getWellTermsMapping()
+        {
+            return wellTermsMapping;
+        }
+
     }
 }

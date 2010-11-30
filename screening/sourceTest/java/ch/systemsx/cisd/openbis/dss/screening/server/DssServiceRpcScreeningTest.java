@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDa
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
  * Test cases for the {@link DssServiceRpcScreening}.
@@ -91,8 +92,9 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     private static final class ImageTransformerFactory implements IImageTransformerFactory
     {
         private static final long serialVersionUID = 1L;
+
         private static int counter;
-        
+
         private int id = counter++;
 
         public IImageTransformer createTransformer()
@@ -100,11 +102,11 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             return null;
         }
     }
-    
+
     private static final String EXPERIMENT_PERM_ID = "exp-123";
 
     private static final String URL1 = "url1";
-    
+
     private static final String SESSION_TOKEN = "session";
 
     private Mockery context;
@@ -182,7 +184,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testListPlateImageReferences()
     {
@@ -198,7 +200,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals("[Image for [dataset ds1, well [1, 3], channel DAPI, tile 0], "
                 + "Image for [dataset ds1, well [1, 3], channel DAPI, tile 1]]",
                 plateImageReferences.toString());
-        
+
         context.assertIsSatisfied();
     }
 
@@ -275,7 +277,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals(2, dataSets.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadImages() throws IOException
     {
@@ -320,10 +322,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             throws IOException
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        imagesWriter.writeNextBlock(outputStream);    
+        imagesWriter.writeNextBlock(outputStream);
         return ImageUtil.loadImage(new ByteArrayInputStream(outputStream.toByteArray()));
     }
-    
+
     @Test
     public void testGetImageTransformerFactoryForChannel()
     {
@@ -343,9 +345,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     will(returnValue(channelDTO));
                 }
             });
-        
-        IImageTransformerFactory result = screeningService.getImageTransformerFactoryOrNull(SESSION_TOKEN,
-                Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel);
+
+        IImageTransformerFactory result =
+                screeningService.getImageTransformerFactoryOrNull(SESSION_TOKEN,
+                        Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel);
 
         assertEquals(transformerFactory.id, ((ImageTransformerFactory) result).id);
         context.assertIsSatisfied();
@@ -376,7 +379,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals(transformerFactory.id, ((ImageTransformerFactory) result).id);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSaveImageTransformerFactoryForChannel()
     {
@@ -388,7 +391,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 {
                     one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
-                    
+
                     one(transformerDAO).saveTransformerFactoryForChannel(EXPERIMENT_PERM_ID,
                             channel, transformerFactory);
                     one(transformerDAO).commit();
@@ -411,7 +414,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 {
                     one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
-                    
+
                     one(transformerDAO).saveTransformerFactoryForExperiment(EXPERIMENT_PERM_ID,
                             transformerFactory);
                     one(transformerDAO).commit();
@@ -436,7 +439,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     externalData.setExperiment(experiment);
                     for (DatasetIdentifier datasetIdentifier : dataSetIdentifiers)
                     {
-                        one(service).tryGetDataSet(SESSION_TOKEN, datasetIdentifier.getDatasetCode());
+                        one(service).tryGetDataSet(SESSION_TOKEN,
+                                datasetIdentifier.getDatasetCode());
                         will(returnValue(externalData));
                     }
                 }
@@ -447,7 +451,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     {
         return new FileBasedContent(new File(ImageChannelsUtilsTest.TEST_IMAGE_FOLDER, fileName));
     }
-    
+
     private void assertFeatureVector(int expectedRowNumber, int expectedColumnNumber,
             FeatureVector featureVector, Object... expectedValues)
     {
@@ -474,6 +478,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             final String... featureCodes)
     {
         prepareGetFeatureDefinitions(dataSetID, featureCodes);
+        prepareGetFeatureVocabularyTerms(dataSetID);
         context.checking(new Expectations()
             {
                 {
@@ -519,6 +524,17 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                         defs.add(new ImgFeatureDefDTO(code, code, "", 0));
                     }
                     will(returnValue(defs));
+                }
+            });
+    }
+
+    private void prepareGetFeatureVocabularyTerms(final long dataSetID)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).listFeatureVocabularyTermsByDataSetId(dataSetID);
+                    will(returnValue(new ArrayList<ImgFeatureVocabularyTermDTO>()));
                 }
             });
     }

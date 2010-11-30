@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
@@ -61,6 +62,8 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
     private static final String ROW_TITLE = "Row";
 
     private static final String COLUMN_TITLE = "Column";
+
+    private static final ISerializableComparable EMPTY_CELL = new StringTableCell("");
 
     private IMetadataProvider metadataProvider;
 
@@ -107,21 +110,43 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractTableModelRe
             values.add(new StringTableCell(PlateUtils.translateRowNumberIntoLetterCode(row
                     .getWellLocation().getRow())));
             values.add(new IntegerTableCell(row.getWellLocation().getColumn()));
-            float[] featureValues = row.getFeatureValues();
-            StringTableCell nullValue = new StringTableCell("");
-            for (float value : featureValues)
+            FeatureValue[] featureValues = row.getFeatureValues();
+            for (FeatureValue value : featureValues)
             {
-                if (Float.isNaN(value))
-                {
-                    values.add(nullValue);
-                } else
-                {
-                    values.add(new DoubleTableCell(value));
-                }
+                values.add(createCell(value));
             }
             builder.addRow(values);
         }
         return builder.getTableModel();
+    }
+
+    private static ISerializableComparable createCell(FeatureValue value)
+    {
+        if (value.isFloat())
+        {
+            float floatValue = value.asFloat();
+            if (Float.isNaN(floatValue))
+            {
+                return EMPTY_CELL;
+            } else
+            {
+                return new DoubleTableCell(floatValue);
+            }
+        } else if (value.isVocabularyTerm())
+        {
+            String term = value.tryAsVocabularyTerm();
+            if (term == null)
+            {
+                return EMPTY_CELL;
+            } else
+            {
+                return new StringTableCell(term);
+            }
+        } else
+        {
+            throw new IllegalStateException("unknown value");
+        }
+
     }
 
     private static List<String> extractDatasetCodes(List<DatasetDescription> datasets)

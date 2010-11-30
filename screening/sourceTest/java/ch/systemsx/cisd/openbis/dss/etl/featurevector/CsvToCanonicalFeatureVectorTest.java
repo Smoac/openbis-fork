@@ -49,8 +49,8 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
         CsvToCanonicalFeatureVector converter =
                 new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
         ArrayList<CanonicalFeatureVector> fvs = converter.convert();
-        // Not all the columns contain numerical data
-        assertEquals(16, fvs.size());
+        // Not all the columns are not empty
+        assertEquals(18, fvs.size());
         // Check total cells feature
         CanonicalFeatureVector totalCells = fvs.get(0);
         ImgFeatureDefDTO def = totalCells.getFeatureDef();

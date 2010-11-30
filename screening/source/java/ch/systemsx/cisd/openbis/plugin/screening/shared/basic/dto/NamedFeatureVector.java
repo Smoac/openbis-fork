@@ -29,7 +29,7 @@ public class NamedFeatureVector implements IsSerializable
     // Some features may not be available, then the value is Float.NaN.
     // External data structure should be used to figure out which value corresponds to which
     // feature.
-    private float[] featureVectorValues;
+    private FeatureValue[] featureVectorValues;
 
     // codes of the features, indices should match with featureVectorValuesOrNull
     private String[] featureCodes;
@@ -43,7 +43,7 @@ public class NamedFeatureVector implements IsSerializable
     {
     }
 
-    public NamedFeatureVector(float[] featureVectorValues, String[] featureCodes,
+    public NamedFeatureVector(FeatureValue[] featureVectorValues, String[] featureCodes,
             String[] featureLabels)
     {
         assert featureVectorValues.length == featureCodes.length
@@ -53,7 +53,7 @@ public class NamedFeatureVector implements IsSerializable
         this.featureLabels = featureLabels;
     }
 
-    public float[] getValues()
+    public FeatureValue[] getValues()
     {
         return featureVectorValues;
     }

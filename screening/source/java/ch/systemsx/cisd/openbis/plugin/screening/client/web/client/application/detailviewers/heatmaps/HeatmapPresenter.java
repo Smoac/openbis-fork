@@ -18,6 +18,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.HeatmapScaleElement;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -75,9 +76,52 @@ class HeatmapPresenter
      */
     public void setFeatureValueMode(int featureIndex)
     {
-        IHeatmapRenderer<WellData> renderer =
-                createFeatureHeatmapRenderer(model.getWellList(), featureIndex, realNumberRenderer);
+        IHeatmapRenderer<WellData> renderer = createFeatureHeatmapRenderer(featureIndex);
         refreshHeatmap(renderer, featureIndex);
+    }
+
+    private IHeatmapRenderer<WellData> createFeatureHeatmapRenderer(int featureIndex)
+    {
+        List<WellData> wellList = model.getWellList();
+        if (model.isVocabularyFeature(featureIndex))
+        {
+            return createVocabularyFeatureHeatmapRenderer(wellList, featureIndex);
+        } else
+        {
+            return createFloatFeatureHeatmapRenderer(wellList, featureIndex, realNumberRenderer);
+        }
+    }
+
+    // here we are sure that all wells have a vocabulary feature at featureIndex index
+    private static IHeatmapRenderer<WellData> createVocabularyFeatureHeatmapRenderer(
+            List<WellData> wellList, final int featureIndex)
+    {
+        List<String> uniqueValues = extractUniqueVocabularyTerms(wellList, featureIndex);
+        return new DetegatingStringHeatmapRenderer<WellData>(uniqueValues, null)
+            {
+                @Override
+                protected String extractLabel(WellData well)
+                {
+                    return tryAsVocabularyFeature(well, featureIndex);
+                }
+            };
+    }
+
+    private static List<String> extractUniqueVocabularyTerms(List<WellData> wellList,
+            int featureIndex)
+    {
+        Set<String> uniqueValues = new HashSet<String>();
+        for (WellData well : wellList)
+        {
+            String term = tryAsVocabularyFeature(well, featureIndex);
+            if (term != null)
+            {
+                uniqueValues.add(term);
+            }
+        }
+        List<String> result = new ArrayList<String>(uniqueValues);
+        Collections.sort(result);
+        return result;
     }
 
     // updates color of all well components
@@ -107,14 +151,15 @@ class HeatmapPresenter
         viewManipulations.updateLegend(legend);
     }
 
-    private static IHeatmapRenderer<WellData> createFeatureHeatmapRenderer(List<WellData> wells,
-            final int featureIndex, IRealNumberRenderer realNumberRenderer)
+    // here we are sure that all wells have a float feature at featureIndex index
+    private static IHeatmapRenderer<WellData> createFloatFeatureHeatmapRenderer(
+            List<WellData> wells, final int featureIndex, IRealNumberRenderer realNumberRenderer)
     {
         float min = Float.MAX_VALUE;
         float max = Float.MIN_VALUE;
         for (WellData well : wells)
         {
-            Float value = well.tryGetFeatureValue(featureIndex);
+            Float value = tryAsFloatFeature(well, featureIndex);
             if (value != null && Float.isNaN(value) == false && Float.isInfinite(value) == false)
             {
                 min = Math.min(min, value);
@@ -126,9 +171,21 @@ class HeatmapPresenter
                 @Override
                 protected Float convert(WellData well)
                 {
-                    return well.tryGetFeatureValue(featureIndex);
+                    return tryAsFloatFeature(well, featureIndex);
                 }
             };
+    }
+
+    private static float tryAsFloatFeature(WellData well, final int featureIndex)
+    {
+        FeatureValue value = well.tryGetFeatureValue(featureIndex);
+        return value != null ? value.asFloat() : null;
+    }
+
+    private static String tryAsVocabularyFeature(WellData well, final int featureIndex)
+    {
+        FeatureValue value = well.tryGetFeatureValue(featureIndex);
+        return value != null ? value.tryAsVocabularyTerm() : null;
     }
 
     /** */
@@ -325,18 +382,29 @@ class HeatmapPresenter
             List<String> featureLabels = model.tryGetFeatureLabels();
             assert featureLabels != null : "feature labels not set";
 
-            Float value = wellData.tryGetFeatureValue(featureIndex);
+            FeatureValue value = wellData.tryGetFeatureValue(featureIndex);
             // if the value should be distinguished we show it even if it's null
             if (value == null && distinguished == false)
             {
                 return "";
             }
-            String textValue = (value == null ? "" : "" + renderFloat(value));
+            String textValue = (value == null ? "" : "" + renderValue(value));
             if (distinguished)
             {
                 textValue = "<b>" + textValue + "</b>";
             }
             return featureLabels.get(featureIndex) + ": " + textValue + NEWLINE;
+        }
+
+        private String renderValue(FeatureValue value)
+        {
+            if (value.isFloat())
+            {
+                return renderFloat(value.asFloat());
+            } else
+            {
+                return value.toString();
+            }
         }
 
         private String renderFloat(float value)

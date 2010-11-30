@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
  * Test cases for the {@link ImageAnalysisMergedRowsReportingPlugin}.
@@ -110,6 +112,9 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
                     one(dao).listFeatureDefsByDataSetId(1);
                     will(returnValue(Arrays.asList(ds1f1, ds1f2)));
 
+                    one(dao).listFeatureVocabularyTermsByDataSetId(1);
+                    will(returnValue(new ArrayList<ImgFeatureVocabularyTermDTO>()));
+
                     one(dao).getContainerById(101);
                     will(returnValue(p1));
 
@@ -127,6 +132,9 @@ public class ImageAnalysisMergedRowsReportingPluginTest extends AssertJUnit
 
                     one(dao).listFeatureDefsByDataSetId(2);
                     will(returnValue(Arrays.asList(ds2f2, ds2f3)));
+
+                    one(dao).listFeatureVocabularyTermsByDataSetId(2);
+                    will(returnValue(new ArrayList<ImgFeatureVocabularyTermDTO>()));
 
                     one(dao).getContainerById(102);
                     will(returnValue(p2));

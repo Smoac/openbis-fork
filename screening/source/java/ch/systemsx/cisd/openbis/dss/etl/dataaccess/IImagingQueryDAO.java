@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSpotDTO;
 
@@ -88,6 +89,10 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
     @Select("insert into FEATURE_DEFS (LABEL, CODE, DESCRIPTION, DS_ID) values "
             + "(?{1.label}, ?{1.code}, ?{1.description}, ?{1.dataSetId}) RETURNING ID")
     public long addFeatureDef(ImgFeatureDefDTO featureDef);
+
+    @Update(sql = "insert into FEATURE_VOCABULARY_TERMS (CODE, SEQUENCE_NUMBER, FD_ID) values "
+            + "(?{1.code}, ?{1.sequenceNumber}, ?{1.featureDefId})", batchUpdate = true)
+    public void addFeatureVocabularyTerms(List<ImgFeatureVocabularyTermDTO> terms);
 
     @Select(sql = "insert into FEATURE_VALUES (VALUES, Z_in_M, T_in_SEC, FD_ID) values "
             + "(?{1.byteArray}, ?{1.z}, ?{1.t}, ?{1.featureDefId}) RETURNING ID", parameterBindings =

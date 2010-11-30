@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ObjectCreationUtilForTests;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
@@ -152,10 +153,10 @@ public class WellTooltipGeneratorTest extends AssertJUnit
     {
         int size = 40;
         List<String> featureLabels = new ArrayList<String>(size);
-        float[] featureValues = new float[size];
+        FeatureValue[] featureValues = new FeatureValue[size];
         for (int i = 0; i < featureValues.length; i++)
         {
-            featureValues[i] = i;
+            featureValues[i] = FeatureValue.createFloat(i);
             featureLabels.add("Feature" + i);
         }
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
@@ -168,10 +169,10 @@ public class WellTooltipGeneratorTest extends AssertJUnit
         List<String> featureLabels = Arrays.asList("FeatureX", "FeatureY");
 
         List<FeatureVectorValues> features = new ArrayList<FeatureVectorValues>();
-        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), new float[]
-            { 1, 2 }));
-        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), new float[]
-            { -1, -2 }));
+        features.add(new FeatureVectorValues(null, getLocation(WELL_A2), new FeatureValue[]
+            { FeatureValue.createFloat(1), FeatureValue.createFloat(2) }));
+        features.add(new FeatureVectorValues(null, getLocation(WELL_B3), new FeatureValue[]
+            { FeatureValue.createFloat(-1), FeatureValue.createFloat(-2) }));
         return new FeatureVectorDataset(createDatasetReference(), features, featureLabels);
     }
 

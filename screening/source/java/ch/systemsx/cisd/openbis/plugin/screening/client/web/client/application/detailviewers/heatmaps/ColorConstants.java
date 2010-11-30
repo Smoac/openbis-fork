@@ -36,7 +36,7 @@ class ColorConstants
 
     public static final Color EMPTY_VALUE_COLOR = new Color("#000000");
 
-    public static final Color CATEGORY_OTHERS_COLOR = new Color("#00FF00");
+    public static final Color CATEGORY_OTHERS_COLOR = EMPTY_VALUE_COLOR;
 
     public static List<Color> asColors(List<String> colorHexs)
     {

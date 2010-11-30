@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -47,6 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
  * Builder for a table of feature vectors. After building a list of feature codes and a list of
@@ -67,6 +69,8 @@ public class FeatureVectorLoader
         private ImgDatasetDTO dataSet;
 
         private Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap;
+
+        private FeatureVocabularyTermsMap featureDefToVocabularyTerms;
     }
 
     public static interface IMetadataProvider
@@ -308,6 +312,9 @@ public class FeatureVectorLoader
                 createFeatureCodeToDefMap(dao, dataSet);
         bundle.dataSet = dataSet;
         bundle.featureDefToValuesMap = new HashMap<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>>();
+        bundle.featureDefToVocabularyTerms =
+                createFeatureIdToVocabularyTermsMap(dao, dataSet,
+                        bundle.featureDefToValuesMap.keySet());
         bundles.add(bundle);
         if (useAllFeatures)
         {
@@ -335,6 +342,15 @@ public class FeatureVectorLoader
             }
         }
         return true;
+    }
+
+    private static FeatureVocabularyTermsMap createFeatureIdToVocabularyTermsMap(
+            IImagingReadonlyQueryDAO dao, ImgDatasetDTO dataSet,
+            Set<ImgFeatureDefDTO> datasetFeatureDefs)
+    {
+        List<ImgFeatureVocabularyTermDTO> allTerms =
+                dao.listFeatureVocabularyTermsByDataSetId(dataSet.getId());
+        return FeatureVocabularyTermsMap.createVocabularyTermsMap(allTerms, datasetFeatureDefs);
     }
 
     private static Map<String, ImgFeatureDefDTO> createFeatureCodeToDefMap(
@@ -483,16 +499,17 @@ public class FeatureVectorLoader
             WellLocation wellLocation)
     {
         String permId = bundle.dataSet.getPermId();
-        float[] valueArray = createFeatureValueArray(bundle.featureDefToValuesMap, wellLocation);
+        FeatureValue[] valueArray =
+                createFeatureValueArray(bundle.featureDefToValuesMap,
+                        bundle.featureDefToVocabularyTerms, wellLocation);
         return new FeatureVectorValues(permId, wellLocation, valueArray);
     }
 
-    private float[] createFeatureValueArray(
+    private FeatureValue[] createFeatureValueArray(
             Map<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> featureDefToValuesMap,
-            WellLocation wellLocation)
+            FeatureVocabularyTermsMap featureDefToVocabularyTerms, WellLocation wellLocation)
     {
-        float[] valueArray = new float[featureCodeLabelToIndexMap.size()];
-        Arrays.fill(valueArray, Float.NaN);
+        FeatureValue[] valueArray = new FeatureValue[featureCodeLabelToIndexMap.size()];
         for (Entry<ImgFeatureDefDTO, List<ImgFeatureValuesDTO>> entry : featureDefToValuesMap
                 .entrySet())
         {
@@ -508,11 +525,61 @@ public class FeatureVectorLoader
             }
             Integer index = featureCodeLabelToIndexMap.get(getCodeAndLabel(featureDefinition));
             assert index != null : "No index for feature " + featureDefinition.getCode();
-            valueArray[index] =
+            float floatValue =
                     featureValues.getForWellLocation(wellLocation.getRow(),
                             wellLocation.getColumn());
+            valueArray[index] =
+                    createFeatureValue(floatValue, featureDefinition, featureDefToVocabularyTerms);
         }
+        fillEmptyValues(valueArray, featureDefToVocabularyTerms);
         return valueArray;
+    }
+
+    // NOTE: for a fixed dataset any feature vector element [i] will have the same type (vocabulary
+    // or float).
+    // This can be not true for vectors of 2 different datasets, although the length and feature
+    // codes will match. It means that the type of the feature in all datasets cannot be determined
+    // by looking at one value.
+    private void fillEmptyValues(FeatureValue[] valueArray,
+            FeatureVocabularyTermsMap featureDefToVocabularyTerms)
+    {
+        for (CodeAndLabel featureName : featureCodeLabelToIndexMap.keySet())
+        {
+            Integer index = featureCodeLabelToIndexMap.get(featureName);
+            if (valueArray[index] == null)
+            {
+                FeatureValue emptyFeatureValue;
+                if (featureDefToVocabularyTerms.hasVocabularyTerms(featureName.getCode()))
+                {
+                    emptyFeatureValue = FeatureValue.createEmptyVocabularyTerm();
+                } else
+                {
+                    emptyFeatureValue = FeatureValue.createEmptyFloat();
+                }
+                valueArray[index] = emptyFeatureValue;
+            }
+        }
+    }
+
+    private static FeatureValue createFeatureValue(float floatValue,
+            ImgFeatureDefDTO featureDefinition,
+            FeatureVocabularyTermsMap featureDefToVocabularyTerms)
+    {
+        long featureDefId = featureDefinition.getId();
+        if (featureDefToVocabularyTerms.hasVocabularyTerms(featureDefId))
+        {
+            if (Float.isNaN(floatValue))
+            {
+                return FeatureValue.createEmptyVocabularyTerm();
+            } else
+            {
+                return featureDefToVocabularyTerms
+                        .getVocabularyTerm(featureDefId, (int) floatValue);
+            }
+        } else
+        {
+            return FeatureValue.createFloat(floatValue);
+        }
     }
 
     private CodeAndLabel getCodeAndLabel(final ImgFeatureDefDTO featureDefinition)

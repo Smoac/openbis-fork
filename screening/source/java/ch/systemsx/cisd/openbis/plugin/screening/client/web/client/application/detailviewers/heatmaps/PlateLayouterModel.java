@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
@@ -44,6 +45,8 @@ class PlateLayouterModel
     private DatasetImagesReference imageDatasetOrNull;
 
     private List<String> featureLabelsOrNull;
+
+    private boolean[] isVocabularyFeatureMapOrNull;
 
     // ---
 
@@ -78,11 +81,23 @@ class PlateLayouterModel
         return featureLabelsOrNull;
     }
 
+    public boolean isVocabularyFeature(int featureVectorIndex)
+    {
+        if (isVocabularyFeatureMapOrNull == null)
+        {
+            return false;
+        } else
+        {
+            return isVocabularyFeatureMapOrNull[featureVectorIndex];
+        }
+    }
+
     // --- some logic
 
     public void setFeatureVectorDataset(FeatureVectorDataset featureVectorDatasetOrNull)
     {
         unsetFeatureVectors();
+        this.isVocabularyFeatureMapOrNull = null;
         if (featureVectorDatasetOrNull == null)
         {
             this.featureLabelsOrNull = null;
@@ -93,6 +108,11 @@ class PlateLayouterModel
                     featureVectorDatasetOrNull.getDatasetFeatures();
             for (FeatureVectorValues featureVector : features)
             {
+                if (this.isVocabularyFeatureMapOrNull == null)
+                {
+                    // NOTE: for each feature vector in the dataset this map would be the same
+                    this.isVocabularyFeatureMapOrNull = createIsVocabularyMap(featureVector);
+                }
                 WellLocation loc = featureVector.getWellLocation();
                 WellData wellData = tryGetWellData(loc);
                 if (wellData != null)
@@ -101,6 +121,17 @@ class PlateLayouterModel
                 }
             }
         }
+    }
+
+    private static boolean[] createIsVocabularyMap(FeatureVectorValues featureVector)
+    {
+        FeatureValue[] values = featureVector.getFeatureValues();
+        boolean[] map = new boolean[values.length];
+        for (int i = 0; i < map.length; i++)
+        {
+            map[i] = values[i].isVocabularyTerm();
+        }
+        return map;
     }
 
     private WellData tryGetWellData(WellLocation loc)

@@ -159,7 +159,8 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
 
             String featureName = TEST_FEATURE_NAME + i;
             String featureDesc = featureName + " desc";
-            ImgFeatureDefDTO featureDef = new ImgFeatureDefDTO(featureName, featureName, featureDesc, 0);
+            ImgFeatureDefDTO featureDef =
+                    new ImgFeatureDefDTO(featureName, featureName, featureDesc, 0);
             fvec.setFeatureDef(featureDef);
             PlateFeatureValues values = createValues(rowCount, columnCount);
             ImgFeatureValuesDTO featureValues = new ImgFeatureValuesDTO(0.0, 0.0, values, 0);

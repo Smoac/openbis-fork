@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetM
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -90,8 +91,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Trans
  * 
  * @author Tomasz Pylak
  */
-public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpcScreeningInternal> implements
-        IDssServiceRpcScreeningInternal
+public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpcScreeningInternal>
+        implements IDssServiceRpcScreeningInternal
 {
 
     /**
@@ -201,7 +202,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private ImageDatasetMetadata extractImageMetadata(IImageDatasetIdentifier dataset,
             File datasetRoot)
     {
-        IHCSImageDatasetLoader imageAccessor = createImageLoader(dataset.getDatasetCode(), datasetRoot);
+        IHCSImageDatasetLoader imageAccessor =
+                createImageLoader(dataset.getDatasetCode(), datasetRoot);
         Size imageSize = getImageSize(dataset, imageAccessor);
         PlateImageParameters params = imageAccessor.getImageParameters();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
@@ -275,11 +277,31 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         for (FeatureTableRow featureTableRow : datasetFeatures.getFeatures())
         {
             WellLocation wellPosition = featureTableRow.getWellLocation();
-            double[] values = featureTableRow.getFeatureValuesAsDouble();
+            double[] values = getFloatFeaturesAsDouble(featureTableRow);
             featureVectors.add(new FeatureVector(convert(wellPosition), values));
         }
         return new FeatureVectorDataset(dataset, datasetFeatures.getFeatureCodes(),
                 datasetFeatures.getFeatureLabels(), featureVectors);
+    }
+
+    // TODO 2010-11-29, Tomasz Pylak: allow to access Vocabulary Features in the API
+    private static double[] getFloatFeaturesAsDouble(FeatureTableRow featureTableRow)
+    {
+        FeatureValue[] featureValues = featureTableRow.getFeatureValues();
+        double[] doubleValues = new double[featureValues.length];
+        for (int i = 0; i < featureValues.length; ++i)
+        {
+            FeatureValue featureValue = featureValues[i];
+            if (featureValue.isFloat())
+            {
+                doubleValues[i] = featureValue.asFloat();
+            } else
+            {
+                // convert a vocabulary term to NaN
+                doubleValues[i] = Double.NaN;
+            }
+        }
+        return doubleValues;
     }
 
     private static WellPosition convert(WellLocation wellPosition)
@@ -338,7 +360,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             final List<String> featureCodes)
     {
         return new FeatureVectorWithDescription(featureTableRow.getReference(), featureCodes,
-                featureTableRow.getFeatureValuesAsDouble());
+                getFloatFeaturesAsDouble(featureTableRow));
     }
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences,
@@ -369,13 +391,13 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
                 {
                     public IContent getContent()
                     {
-                        return tryGetImageContent(imageAccessor, imageReference, sizeOrNull, convertToPng);
+                        return tryGetImageContent(imageAccessor, imageReference, sizeOrNull,
+                                convertToPng);
                     }
                 }));
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }
-
 
     public InputStream loadImages(String sessionToken, List<PlateImageReference> imageReferences)
     {
@@ -405,7 +427,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
         return new ConcatenatedContentInputStream(true, imageContents);
     }
-    
+
     public List<PlateImageReference> listPlateImageReferences(String sessionToken,
             IDatasetIdentifier dataSetIdentifier, List<WellPosition> wellPositions, String channel)
     {
@@ -587,7 +609,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     {
         return new Location(wellPosition.getWellColumn(), wellPosition.getWellRow());
     }
-    
+
     private Size convertToSize(ImageSize thumbnailSizeOrNull)
     {
         if (thumbnailSizeOrNull == null)
@@ -596,7 +618,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         }
         return new Size(thumbnailSizeOrNull.getWidth(), thumbnailSizeOrNull.getHeight());
     }
-    
+
     private IHCSImageDatasetLoader createImageLoader(String datasetCode)
     {
         File datasetRoot = getRootDirectoryForDataSet(datasetCode);

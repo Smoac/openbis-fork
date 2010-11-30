@@ -31,7 +31,7 @@ public class FeatureVectorValues implements IsSerializable
 {
     private WellFeatureVectorReference featureVectorReference;
 
-    private float[] featureValues;
+    private FeatureValue[] featureValues;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -39,31 +39,22 @@ public class FeatureVectorValues implements IsSerializable
     {
     }
 
-    public FeatureVectorValues(String dataSetCode, WellLocation wellLocation, float[] featureValues)
+    public FeatureVectorValues(String dataSetCode, WellLocation wellLocation,
+            FeatureValue[] featureValues)
     {
         this(new WellFeatureVectorReference(dataSetCode, wellLocation), featureValues);
     }
 
     public FeatureVectorValues(WellFeatureVectorReference featureVectorReference,
-            float[] featureValues)
+            FeatureValue[] featureValues)
     {
         this.featureVectorReference = featureVectorReference;
         this.featureValues = featureValues;
     }
 
-    public float[] getFeatureValues()
+    public FeatureValue[] getFeatureValues()
     {
         return featureValues;
-    }
-
-    public double[] getFeatureValuesAsDouble()
-    {
-        double[] doubleValues = new double[featureValues.length];
-        for (int i = 0; i < featureValues.length; ++i)
-        {
-            doubleValues[i] = featureValues[i];
-        }
-        return doubleValues;
     }
 
     public String getDataSetCode()

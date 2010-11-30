@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgCo
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
  * Tests for {@link IImagingQueryDAO} methods that deal with feature vectors.
@@ -108,7 +110,9 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         assertEquals(TEST_FEATURE_LABEL, featureDef.getLabel());
         assertEquals(CodeAndLabelUtil.normalize(TEST_FEATURE_LABEL), featureDef.getCode());
 
-        createFeatureValues(featureDef);
+        testCreateAndListFeatureVocabularyValues(featureDef);
+
+        createFeatureFloatValues(featureDef);
         List<ImgFeatureValuesDTO> featureValuesList = dao.getFeatureValues(featureDef);
         assertEquals(1, featureValuesList.size());
 
@@ -129,7 +133,7 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         }
     }
 
-    private long createFeatureValues(ImgFeatureDefDTO featureDef)
+    private long createFeatureFloatValues(ImgFeatureDefDTO featureDef)
     {
         final PlateFeatureValues values =
                 new PlateFeatureValues(Geometry.createFromRowColDimensions(2, 3));
@@ -143,6 +147,34 @@ public class FeatureVectorDAOTest extends AbstractDBTest
         final ImgFeatureValuesDTO featureValues =
                 new ImgFeatureValuesDTO(0.0, 0.0, values, featureDef.getId());
         return dao.addFeatureValues(featureValues);
+    }
+
+    private void testCreateAndListFeatureVocabularyValues(ImgFeatureDefDTO featureDef)
+    {
+        String yesCode = "YES";
+        String noCode = "NO";
+
+        List<ImgFeatureVocabularyTermDTO> availableTerms =
+                new ArrayList<ImgFeatureVocabularyTermDTO>();
+        availableTerms.add(new ImgFeatureVocabularyTermDTO(yesCode, 0, featureDef.getId()));
+        availableTerms.add(new ImgFeatureVocabularyTermDTO(noCode, 1, featureDef.getId()));
+        dao.addFeatureVocabularyTerms(availableTerms);
+
+        List<ImgFeatureVocabularyTermDTO> listedTerms =
+                dao.listFeatureVocabularyTermsByDataSetId(featureDef.getDataSetId());
+        assertEquals(availableTerms.size(), listedTerms.size());
+
+        int yesIx = (listedTerms.get(0).getCode().equals(yesCode)) ? 0 : 1;
+
+        ImgFeatureVocabularyTermDTO yesTerm = listedTerms.get(yesIx);
+        assertEquals(yesCode, yesTerm.getCode());
+        assertEquals(0, yesTerm.getSequenceNumber());
+        assertEquals(featureDef.getId(), yesTerm.getFeatureDefId());
+
+        ImgFeatureVocabularyTermDTO noTerm = listedTerms.get(1 - yesIx);
+        assertEquals(noCode, noTerm.getCode());
+        assertEquals(1, noTerm.getSequenceNumber());
+        assertEquals(featureDef.getId(), noTerm.getFeatureDefId());
     }
 
     private long createFeatureDef(ImgDatasetDTO dataSet)

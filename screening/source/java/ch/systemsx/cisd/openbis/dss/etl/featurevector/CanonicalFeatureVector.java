@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
  * Image feature vectors stored in a standardized form.
@@ -32,6 +33,9 @@ public class CanonicalFeatureVector
     private ImgFeatureDefDTO featureDef;
 
     private List<ImgFeatureValuesDTO> values = new ArrayList<ImgFeatureValuesDTO>();
+
+    private List<ImgFeatureVocabularyTermDTO> vocabularyTerms =
+            new ArrayList<ImgFeatureVocabularyTermDTO>();
 
     public CanonicalFeatureVector()
     {
@@ -53,17 +57,31 @@ public class CanonicalFeatureVector
     }
 
     /**
-     * The feature values for this feature vector. If the feature def has not yet been commited to
-     * the DB, then values FK to the feature def will not be valid. If the feature values have not
-     * yet been committed, then their ids will not be valid.
+     * The feature values for this feature. If the feature values have not yet been commited to the
+     * DB, then FK to the feature def will not be valid and PK will not be valid as well.
      */
     public List<ImgFeatureValuesDTO> getValues()
     {
         return values;
     }
 
+    /**
+     * The vocabulary terms for this feature if it is not numerical, empty list otherwise. If the
+     * terms have not yet been commited to the DB, then FK to the feature def will not be valid. The
+     * ids of the terms are NOT valid and are never set after the commit.
+     */
+    public List<ImgFeatureVocabularyTermDTO> getVocabularyTerms()
+    {
+        return vocabularyTerms;
+    }
+
     public void setValues(List<ImgFeatureValuesDTO> values)
     {
         this.values = values;
+    }
+
+    public void setVocabularyTerms(List<ImgFeatureVocabularyTermDTO> vocabularyTerms)
+    {
+        this.vocabularyTerms = vocabularyTerms;
     }
 }

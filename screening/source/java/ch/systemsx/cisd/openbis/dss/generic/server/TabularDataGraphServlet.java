@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
@@ -125,12 +126,26 @@ public class TabularDataGraphServlet extends AbstractTabularDataGraphServlet
                 line[1] = Integer.toString(pos.getRow());
                 line[2] = Integer.toString(pos.getColumn());
                 i = 3;
-                float[] values = row.getFeatureValues();
-                for (float value : values)
+                FeatureValue[] values = row.getFeatureValues();
+                for (FeatureValue value : values)
                 {
-                    line[i++] = Float.toString(value);
+                    line[i++] = toString(value);
                 }
                 lines.add(line);
+            }
+        }
+
+        private String toString(FeatureValue value)
+        {
+            if (value.isFloat())
+            {
+                return Float.toString(value.asFloat());
+            } else
+            {
+                // TODO 2010-11-29, Tomasz Pylak: implement graphs for vocabulary features.
+                // This can be done only if the todo in the class header is done and this class is
+                // removed, otherwise it's hacking the hacked code.
+                return "";
             }
         }
 

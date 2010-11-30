@@ -33,17 +33,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.IMetadataProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
+ * Tests of {@link FeatureVectorLoader}.
+ * 
  * @author Franz-Josef Elmer
  */
 public class FeatureTableBuilderTest extends AssertJUnit
@@ -167,6 +170,9 @@ public class FeatureTableBuilderTest extends AssertJUnit
                     one(dao).listFeatureDefsByDataSetId(dataSetID);
                     will(returnValue(defs));
 
+                    one(dao).listFeatureVocabularyTermsByDataSetId(dataSetID);
+                    will(returnValue(new ArrayList<ImgFeatureVocabularyTermDTO>()));
+
                     one(dao).getContainerById(containerId);
                     String samplePermID = "s" + containerId;
                     will(returnValue(new ImgContainerDTO(samplePermID, geometry.getNumberOfRows(),
@@ -187,13 +193,13 @@ public class FeatureTableBuilderTest extends AssertJUnit
                 PlateUtils.translateRowNumberIntoLetterCode(row.getWellLocation().getRow());
         assertEquals(expectedWell, rowLetter + row.getWellLocation().getColumn());
         assertEquals(expectedPlate, row.getPlateIdentifier().toString());
-        assertEquals(expectedValues, render(row.getFeatureValuesAsDouble()));
+        assertEquals(expectedValues, render(row.getFeatureValues()));
     }
 
-    private String render(double[] values)
+    private String render(FeatureValue[] values)
     {
         StringBuilder builder = new StringBuilder();
-        for (double value : values)
+        for (FeatureValue value : values)
         {
             if (builder.length() > 0)
             {

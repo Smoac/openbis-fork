@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfoHelper;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
 
 /**
  * Helper class for uploading feature vectors from the file system into the data base.
@@ -64,6 +65,7 @@ public class FeatureVectorUploader
                     new FeatureVectorUploaderHelper(dao, dataSetId, fvec);
             fvecUploader.createFeatureDef();
             fvecUploader.createFeatureValues();
+            fvecUploader.createFeatureVocabularyTerms();
         }
     }
 
@@ -102,6 +104,22 @@ public class FeatureVectorUploader
                 featureValues.setFeatureDefId(featureDef.getId());
                 long valuesId = dao.addFeatureValues(featureValues);
                 featureValues.setId(valuesId);
+            }
+        }
+
+        /** Should be called after {@link #createFeatureDef}. */
+        void createFeatureVocabularyTerms()
+        {
+            List<ImgFeatureVocabularyTermDTO> terms = fvec.getVocabularyTerms();
+            long featureDefId = fvec.getFeatureDef().getId();
+            // The FK of the feature def are not yet valid. Patch them up.
+            for (ImgFeatureVocabularyTermDTO term : terms)
+            {
+                term.setFeatureDefId(featureDefId);
+            }
+            if (terms.size() > 0)
+            {
+                dao.addFeatureVocabularyTerms(terms);
             }
         }
     }

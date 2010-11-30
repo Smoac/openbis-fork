@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -33,7 +34,7 @@ public class WellData
 
     private WellMetadata wellMetadataOrNull;
 
-    private float[] featureValuesOrNull;
+    private FeatureValue[] featureValuesOrNull;
 
     public WellData(WellLocation wellLocation, Experiment experiment)
     {
@@ -41,12 +42,12 @@ public class WellData
         this.experiment = experiment;
     }
 
-    public void setFeatureValues(float[] featureValues)
+    public void setFeatureValues(FeatureValue[] featureValues)
     {
         this.featureValuesOrNull = featureValues;
     }
 
-    public Float tryGetFeatureValue(int featureVectorIndex)
+    public FeatureValue tryGetFeatureValue(int featureVectorIndex)
     {
         if (featureValuesOrNull == null)
         {
