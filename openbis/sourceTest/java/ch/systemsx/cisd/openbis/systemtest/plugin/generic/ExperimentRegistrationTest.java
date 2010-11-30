@@ -416,7 +416,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         ArrayList<String> expIds = new ArrayList<String>();
         for (int i = 0; i < count; ++i)
         {
-            String experimentCode = commonClientService.generateCode("EXP");
+            String experimentCode = commonClientService.generateCode("BULK-EXP");
             String experimentIdentifier = "/cisd/default/" + experimentCode;
             NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
             newExperiment.setProperties(new IEntityProperty[]
