@@ -45,7 +45,7 @@ public final class ThreadParameters
      * in the data store.
      */
     @Private
-    static final String POSTREFGISTRATION_SCRIPT_KEY = "postregistration-script";
+    static final String POST_REGISTRATION_SCRIPT_KEY = "post-registration-script";
 
     @Private
     static final String GROUP_CODE_KEY = "group-code";
@@ -65,6 +65,8 @@ public final class ThreadParameters
 
     private static final String INCOMING_DIR = "incoming-dir";
 
+    private static final String INCOMING_DIR_CREATE = "incoming-dir-create";
+
     private static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
 
     private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
@@ -74,6 +76,8 @@ public final class ThreadParameters
      * The directory where data to be processed by the ETL server become available.
      */
     private final File incomingDataDirectory;
+
+    private final boolean createIncomingDirectories;
 
     private final IETLServerPlugin plugin;
 
@@ -96,6 +100,8 @@ public final class ThreadParameters
     public ThreadParameters(final Properties threadProperties, final String threadName)
     {
         this.incomingDataDirectory = extractIncomingDataDir(threadProperties);
+        this.createIncomingDirectories =
+                PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, false);
         this.plugin = new PropertiesBasedETLServerPlugin(threadProperties);
         this.groupCode = tryGetGroupCode(threadProperties);
         this.postRegistrationScript = tryGetPostRegistartionScript(threadProperties);
@@ -136,6 +142,11 @@ public final class ThreadParameters
 
     final void check()
     {
+        if (createIncomingDirectories && incomingDataDirectory.exists() == false)
+        {
+            incomingDataDirectory.mkdir();
+            operationLog.info("Created incoming directory '" + incomingDataDirectory + "'.");
+        }
         if (incomingDataDirectory.isDirectory() == false)
         {
             throw new ConfigurationFailureException("Incoming directory '" + incomingDataDirectory
@@ -165,7 +176,7 @@ public final class ThreadParameters
     @Private
     static final String tryGetPostRegistartionScript(final Properties properties)
     {
-        return nullIfEmpty(PropertyUtils.getProperty(properties, POSTREFGISTRATION_SCRIPT_KEY));
+        return nullIfEmpty(PropertyUtils.getProperty(properties, POST_REGISTRATION_SCRIPT_KEY));
     }
 
     private static String nullIfEmpty(String value)
@@ -223,6 +234,10 @@ public final class ThreadParameters
                             : "no write access for some period";
             logLine("Condition of incoming data completeness: %s.", completenessCond);
             logLine("Delete unidentified: '%s'.", deleteUnidentified);
+            if (postRegistrationScript != null)
+            {
+                logLine("Post registration script: '%s'.", postRegistrationScript);
+            }
         }
     }
 

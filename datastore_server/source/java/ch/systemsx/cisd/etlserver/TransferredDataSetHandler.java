@@ -40,7 +40,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
-import ch.systemsx.cisd.etlserver.utils.PostregistrationExecutor;
+import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -150,7 +150,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
         this.deleteUnidentified = deleteUnidentified;
-        this.postRegistrationAction = PostregistrationExecutor.create(postRegistrationScriptOrNull);
+        this.postRegistrationAction = PostRegistrationExecutor.create(postRegistrationScriptOrNull);
     }
 
     /**

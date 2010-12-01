@@ -39,14 +39,14 @@ import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
  * 
  * @author Izabela Adamczyk
  */
-public class PostregistrationExecutor implements IPostRegistrationAction
+public class PostRegistrationExecutor implements IPostRegistrationAction
 {
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            PostregistrationExecutor.class);
+            PostRegistrationExecutor.class);
 
     private final static Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
-            PostregistrationExecutor.class);
+            PostRegistrationExecutor.class);
 
     static class EmptyScriptExecutor implements IPostRegistrationAction
     {
@@ -61,7 +61,7 @@ public class PostregistrationExecutor implements IPostRegistrationAction
     {
         if (scriptPath != null)
         {
-            return new PostregistrationExecutor(scriptPath);
+            return new PostRegistrationExecutor(scriptPath);
         } else
         {
             operationLog.debug("No postregistration script found, skipping execution.");
@@ -71,7 +71,7 @@ public class PostregistrationExecutor implements IPostRegistrationAction
 
     private final String scriptPath;
 
-    private PostregistrationExecutor(String script)
+    private PostRegistrationExecutor(String script)
     {
         this.scriptPath = script;
         File file = new File(script);
