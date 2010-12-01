@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
 
 /**
  * Describes the whole plate - metadata of each non-empty well, references to images datasets,
@@ -27,6 +28,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
+@DoNotEscape
 public class PlateContent implements IsSerializable
 {
     private PlateMetadata plateMetadata;
