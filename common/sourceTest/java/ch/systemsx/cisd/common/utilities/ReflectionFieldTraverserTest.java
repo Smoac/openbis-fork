@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.utilities.ReflectionStringTraverser.ReflectionFie
  * 
  * @author Tomasz Pylak
  */
+// FIXME [LMS-1893] fix broken tests handling collections of strings and maps
 public class ReflectionFieldTraverserTest extends AssertJUnit
 {
     private static class ReflectionStringCapitalizerVisitor implements ReflectionFieldVisitor
@@ -134,7 +135,7 @@ public class ReflectionFieldTraverserTest extends AssertJUnit
         assertEquals("static", TestStaticFinal.dummyStaticString);
     }
 
-    // FIXME [LMS-1893] lists of strings are not handled properly
+    // BROKEN: lists of strings are not handled properly
     @Test(groups = "broken")
     public void testTraverseListOfStrings()
     {
@@ -148,7 +149,7 @@ public class ReflectionFieldTraverserTest extends AssertJUnit
         assertEquals("EL3", stringList.get(2));
     }
 
-    // FIXME [LMS-1893] sets of strings are not handled properly
+	// BROKEN: sets of strings are not handled properly
     @Test(groups = "broken")
     public void testTraverseSetOfStrings()
     {
@@ -162,7 +163,7 @@ public class ReflectionFieldTraverserTest extends AssertJUnit
         assertEquals("EL3", stringList.get(2));
     }
 
-    // FIXME [LMS-1893] currently only values are escaped - there should be special handling of maps
+    // BROKEN: currently only values are escaped - there should be special handling of maps
     @Test(groups = "broken")
     public void testTraverseMapWithStrings()
     {
