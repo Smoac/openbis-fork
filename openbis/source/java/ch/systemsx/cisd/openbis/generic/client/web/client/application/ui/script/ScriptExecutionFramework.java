@@ -308,23 +308,12 @@ public class ScriptExecutionFramework
 
     private void evaluate()
     {
-        if (StringUtils.isBlank(sampleChooser.getValue()) == false)
+
+        BasicEntityDescription selectedEntityOrNull = tryGetSelectedEntity();
+        if (selectedEntityOrNull != null)
         {
-            evaluate(EntityKind.SAMPLE, sampleChooser.getValue(), state.getScript());
-        }
-        if (experimentChooser.tryToGetValue() != null
-                && StringUtils.isBlank(experimentChooser.tryToGetValue().getIdentifier()) == false)
-        {
-            evaluate(EntityKind.EXPERIMENT, experimentChooser.tryToGetValue().getIdentifier(),
-                    state.getScript());
-        }
-        if (StringUtils.isBlank(materialChooser.getValue()) == false)
-        {
-            evaluate(EntityKind.MATERIAL, materialChooser.getValue(), state.getScript());
-        }
-        if (StringUtils.isBlank(datasetChooser.getValue()) == false)
-        {
-            evaluate(EntityKind.DATA_SET, datasetChooser.getValue(), state.getScript());
+            evaluate(selectedEntityOrNull.getEntityKind(),
+                    selectedEntityOrNull.getEntityIdentifier(), state.getScript());
         }
     }
 
