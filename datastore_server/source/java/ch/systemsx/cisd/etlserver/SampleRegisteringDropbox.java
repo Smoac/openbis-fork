@@ -114,7 +114,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
             logSamplesExtracted(file, info);
             service.registerSamples(info.getSamples(), userOrNull);
             logSamplesRegistered(file, info);
-        } catch (Exception ex)
+        } catch (Throwable ex)
         {
 
             String message = ex.getMessage();
