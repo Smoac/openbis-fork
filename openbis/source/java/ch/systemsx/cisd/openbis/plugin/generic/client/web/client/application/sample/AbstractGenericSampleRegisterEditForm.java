@@ -97,7 +97,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     protected ParentSamplesArea parentsArea;
 
-    private String openUploadWindowWithSampleOrNull = null;
+    private String sampleIdentifierForUploadOrNull = null;
 
     private Button saveUploadButton;
 
@@ -194,7 +194,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                 {
                     if (formPanel.isValid())
                     {
-                        openUploadWindowWithSampleOrNull = createSampleIdentifier();
+                        sampleIdentifierForUploadOrNull = createSampleIdentifier();
                         if (attachmentsManager.filesDefined() > 0)
                         {
                             setUploadEnabled(false);
@@ -216,20 +216,20 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
             {
                 public void execute()
                 {
-                    openUploadWindowWithSampleOrNull = null;
+                    sampleIdentifierForUploadOrNull = null;
                 }
             });
         callback.addOnSuccessAction(new IOnSuccessAction<R>()
             {
                 public void execute(R result)
                 {
-                    if (StringUtils.isBlank(openUploadWindowWithSampleOrNull) == false)
+                    if (StringUtils.isBlank(sampleIdentifierForUploadOrNull) == false)
                     {
                         DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
                                 .getCommonViewContext())
-                                .getDataSetUploadTab(openUploadWindowWithSampleOrNull));
+                                .getDataSetUploadTab(sampleIdentifierForUploadOrNull));
                     }
-                    openUploadWindowWithSampleOrNull = null;
+                    sampleIdentifierForUploadOrNull = null;
                 }
             });
         return callback;
