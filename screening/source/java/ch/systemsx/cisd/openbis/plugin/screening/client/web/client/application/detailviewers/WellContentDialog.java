@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.SelectionProvider;
 import com.extjs.gxt.ui.client.util.Rectangle;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -397,7 +396,7 @@ public class WellContentDialog extends Dialog
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private SelectionProvider<SimpleComboValue<String>> selectionProvider;
+    private SelectionProvider<SimpleComboValue<String>> channelSelectionProvider;
 
     private String datasetCode;
 
@@ -419,14 +418,6 @@ public class WellContentDialog extends Dialog
         setHideOnButtonClick(true);
         setHeading(WELL_LABEL + getWellDescription());
         setTopComponent(createContentDescription());
-        // setLayout(new RowLayout());
-        //
-        // BorderLayoutData layoutData = new BorderLayoutData(LayoutRegion.WEST, 200, 20, 2000);
-        // layoutData.setCollapsible(true);
-        // layoutData.setHideCollapseTool(false);
-        // layoutData.setSplit(true);
-        // layoutData.setFloatable(true);
-        // add(createContentDescription(), layoutData);
 
         addListener(Events.Show, new Listener<BaseEvent>()
             {
@@ -474,10 +465,11 @@ public class WellContentDialog extends Dialog
                                             viewContext.getModel().getSessionContext()
                                                     .getSessionID();
                                     urlParams.addParameter("session", sessionToken);
-                                    if (selectionProvider != null)
+                                    if (channelSelectionProvider != null)
                                     {
                                         urlParams.addParameter(ParameterNames.CHANNEL,
-                                                selectionProvider.getSelection().get(0).getValue());
+                                                channelSelectionProvider.getSelection().get(0)
+                                                        .getValue());
                                     }
                                     urlParams.addParameter(ParameterNames.DATA_SET_AND_WELLS,
                                             datasetCode + ":" + wellLocationOrNull.getRow() + "."
@@ -496,7 +488,7 @@ public class WellContentDialog extends Dialog
     private void setChannelChooser(
             final SelectionProvider<SimpleComboValue<String>> selectionProvider)
     {
-        this.selectionProvider = selectionProvider;
+        this.channelSelectionProvider = selectionProvider;
     }
 
     private void setDataSetCode(String datasetCode)
@@ -506,8 +498,6 @@ public class WellContentDialog extends Dialog
 
     private void addImageView(LayoutContainer component)
     {
-        // BorderLayoutData layoutData = new BorderLayoutData(LayoutRegion.CENTER);
-        // add(component, layoutData);
         add(component);
     }
 
@@ -524,7 +514,7 @@ public class WellContentDialog extends Dialog
 
     private LayoutContainer createContentDescription()
     {
-        final ContentPanel container = new ContentPanel();
+        final LayoutContainer container = new LayoutContainer();
         TableLayout tableLayout = new TableLayout(2);
         tableLayout.setCellPadding(3);
         container.setLayout(tableLayout);
