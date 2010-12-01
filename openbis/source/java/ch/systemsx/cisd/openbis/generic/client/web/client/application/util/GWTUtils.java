@@ -350,7 +350,7 @@ public final class GWTUtils
     public final static String escapeToFormId(final String original)
     {
         return original.toLowerCase().replace(".", "-DOT-").replace("_", "-UNDERSCORE-")
-                .replace("$", "-DOLLAR-");
+                .replace("$", "-DOLLAR-").replace("/", "-SLASH-").replace(":", "-COLON-");
     }
 
     // confirm on exit message

@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -88,9 +89,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
             return withoutSuffix;
         } else
         {
-            // TODO 2010-11-23, IA: use existing identifier escaper
-            return withoutSuffix
-                    + suffix.toUpperCase().replace("/", "x").replace(":", "xx").replace(".", "xxx");
+            return withoutSuffix + GWTUtils.escapeToFormId(suffix.toUpperCase());
         }
     }
 
