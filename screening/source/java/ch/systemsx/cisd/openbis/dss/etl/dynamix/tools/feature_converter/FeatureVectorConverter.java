@@ -54,7 +54,7 @@ public class FeatureVectorConverter
         List<InputRowsNamedCollection> experiments = InputRowsHelper.extract(list);
         for (InputRowsNamedCollection e : experiments)
         {
-            String outName = e.getName() + "__" + inFile.getName();
+            String outName = e.getName() + ".csv";
             File outFile =
                     FileUtilities.createNextNumberedFile(new File(inFile.getParent(), outName),
                             null);

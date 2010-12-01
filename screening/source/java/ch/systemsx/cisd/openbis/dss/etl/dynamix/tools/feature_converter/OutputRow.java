@@ -29,7 +29,7 @@ final class OutputRow extends Features
 
     private static final String CATEGORY = "category";
 
-    private static final String WELL_NAME = "well_name";
+    private static final String WELL_NAME = "WellName";
 
     private String wellName;
 
@@ -62,7 +62,7 @@ final class OutputRow extends Features
     {
         ArrayList<String> list = new ArrayList<String>();
         list.add(WELL_NAME);
-        list.add(CATEGORY);
+        list.add(Features.asHeader(CATEGORY, "Category"));
         list.addAll(Features/* super class */.getHeaderColumns());
         return list;
     }

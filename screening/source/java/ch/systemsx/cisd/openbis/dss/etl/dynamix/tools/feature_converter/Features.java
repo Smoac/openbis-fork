@@ -154,8 +154,17 @@ public class Features
     /** NOTE: Order strictly connected with {@link #getColumns()} */
     public static List<String> getHeaderColumns()
     {
-        return Arrays.asList(END_LOCALIZATION, INITIAL_LOCALIZATION, INTENSITY_CHANGE,
-                LOCALIZATION_CHANGE, POSITION, QUALITY, QUALITY_DESC, SIDE);
+        return Arrays.asList(asHeader(END_LOCALIZATION, "End Localization"),
+                asHeader(INITIAL_LOCALIZATION, "Initial Localization"),
+                asHeader(INTENSITY_CHANGE, "Intensity Change"),
+                asHeader(LOCALIZATION_CHANGE, "Localization Change"), asHeader(POSITION, "Position"),
+                asHeader(QUALITY, "Quality"), asHeader(QUALITY_DESC, "Quality Description"),
+                asHeader(SIDE, "Side"));
+    }
+
+    static String asHeader(String code, String label)
+    {
+        return "<" + code + "> " + label;
     }
 
     /** NOTE: Order strictly connected with {@link #getHeaderColumns()} */
