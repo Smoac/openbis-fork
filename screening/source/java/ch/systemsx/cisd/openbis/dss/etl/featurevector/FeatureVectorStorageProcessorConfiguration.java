@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
@@ -48,6 +51,8 @@ class FeatureVectorStorageProcessorConfiguration implements
 
     private final String wellColumn;
 
+    private final Set<String> columnsToBeIgnored;
+
     FeatureVectorStorageProcessorConfiguration(Properties properties)
     {
         comment = '#';
@@ -60,6 +65,10 @@ class FeatureVectorStorageProcessorConfiguration implements
         this.wellRow = properties.getProperty(WELL_NAME_ROW_PROPERTY_KEY, DEFAULT_WELL_ROW);
 
         this.wellColumn = properties.getProperty(WELL_NAME_COL_PROPERTY_KEY, DEFAULT_WELL_COL);
+        
+        columnsToBeIgnored =
+                new HashSet<String>(Arrays.asList(properties.getProperty("columns-to-be-ignored",
+                        "barcode").split(", *")));
     }
 
     public char getColumnDelimiter()
@@ -90,5 +99,10 @@ class FeatureVectorStorageProcessorConfiguration implements
     public String getWellColumn()
     {
         return wellColumn;
+    }
+
+    public final Set<String> getColumnsToBeIgnored()
+    {
+        return columnsToBeIgnored;
     }
 }

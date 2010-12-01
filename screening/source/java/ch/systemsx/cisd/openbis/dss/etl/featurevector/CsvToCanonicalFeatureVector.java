@@ -52,10 +52,23 @@ public class CsvToCanonicalFeatureVector
 
         private final boolean isSplit;
 
+        private final Set<String> columnsToBeIgnored;
+        
+        public CsvToCanonicalFeatureVectorConfiguration(FeatureVectorStorageProcessorConfiguration config)
+        {
+            this(config.getWellRow(), config.getWellColumn(), config.getColumnsToBeIgnored());
+        }
+
         public CsvToCanonicalFeatureVectorConfiguration(String wellRow, String wellColumn)
+        {
+            this(wellRow, wellColumn, Collections.<String> emptySet());
+        }
+        
+        public CsvToCanonicalFeatureVectorConfiguration(String wellRow, String wellColumn, Set<String> columnsToBeIgnored)
         {
             this.wellRowColumn = wellRow;
             this.wellColumnColumn = wellColumn;
+            this.columnsToBeIgnored = columnsToBeIgnored;
 
             isSplit = (false == wellRow.equals(wellColumn));
         }
@@ -73,6 +86,11 @@ public class CsvToCanonicalFeatureVector
         public boolean isSplit()
         {
             return isSplit;
+        }
+        
+        public boolean shouldColumnBeIgnored(String column)
+        {
+            return columnsToBeIgnored.contains(column);
         }
     }
 
@@ -257,16 +275,14 @@ public class CsvToCanonicalFeatureVector
         for (int i = 0; i < header.length; ++i)
         {
             String headerName = header[i];
-            boolean isWellName;
+            boolean isWellName = true;
             if (configuration.getWellRowColumn().equals(headerName))
             {
                 xColumn = i;
-                isWellName = true;
             } else if (configuration.getWellColumnColumn().equals(headerName))
             {
                 yColumn = i;
-                isWellName = true;
-            } else
+            } else if (configuration.shouldColumnBeIgnored(headerName) == false)
             {
                 isWellName = false;
             }

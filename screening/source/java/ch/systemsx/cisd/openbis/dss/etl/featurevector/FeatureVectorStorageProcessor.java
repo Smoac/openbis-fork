@@ -67,8 +67,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         super(properties);
         this.configuration = new FeatureVectorStorageProcessorConfiguration(properties);
         convertorConfig =
-                new CsvToCanonicalFeatureVectorConfiguration(configuration.getWellRow(),
-                        configuration.getWellColumn());
+                new CsvToCanonicalFeatureVectorConfiguration(configuration);
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.openBisService = ServiceProvider.getOpenBISService();
     }
