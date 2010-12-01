@@ -34,6 +34,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailViewConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -380,8 +381,7 @@ public class DisplaySettingsManager
 
     /** @deprecated Should be used only by specific display settings manager */
     @Deprecated
-    public final void setTechnologySpecificSettings(String technologyName,
-            IsSerializable newSettings)
+    public final void setTechnologySpecificSettings(String technologyName, ISerializable newSettings)
     {
         displaySettings.getTechnologySpecificSettings().put(technologyName, newSettings);
     }

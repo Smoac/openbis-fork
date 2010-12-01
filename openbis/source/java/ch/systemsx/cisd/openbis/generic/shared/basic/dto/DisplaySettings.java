@@ -23,6 +23,8 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+
 /**
  * Class storing personalised display settings. This class implements {@link Serializable} not only
  * for transferring it's content remotely but also to store it in the database. Thus, CHANGES IN
@@ -42,8 +44,8 @@ public class DisplaySettings implements Serializable, IsSerializable
     private Map<String, List<ColumnSetting>> columnSettings =
             new HashMap<String, List<ColumnSetting>>();
 
-    private Map<String, IsSerializable> technologySpecificSettings =
-            new HashMap<String, IsSerializable>();
+    private Map<String, ISerializable> technologySpecificSettings =
+            new HashMap<String, ISerializable>();
 
     private Map<String, String> tabSettings = new HashMap<String, String>();
 
@@ -64,11 +66,11 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
-    public Map<String, IsSerializable> getTechnologySpecificSettings()
+    public Map<String, ISerializable> getTechnologySpecificSettings()
     {
         if (technologySpecificSettings == null)
         {
-            technologySpecificSettings = new HashMap<String, IsSerializable>();
+            technologySpecificSettings = new HashMap<String, ISerializable>();
         }
         return technologySpecificSettings;
     }
@@ -149,8 +151,7 @@ public class DisplaySettings implements Serializable, IsSerializable
     // for serialization
 
     @SuppressWarnings("unused")
-    private void setTechnologySpecificSettings(
-            Map<String, IsSerializable> technologySpecificSettings)
+    private void setTechnologySpecificSettings(Map<String, ISerializable> technologySpecificSettings)
     {
         this.technologySpecificSettings = technologySpecificSettings;
     }

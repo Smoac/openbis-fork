@@ -16,18 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Screening specific display settings.
  * 
  * @author Piotr Buczek
  */
-public class ScreeningDisplaySettings implements Serializable, IsSerializable
+public class ScreeningDisplaySettings implements ISerializable
 {
     private static final long serialVersionUID = 1L;
 
