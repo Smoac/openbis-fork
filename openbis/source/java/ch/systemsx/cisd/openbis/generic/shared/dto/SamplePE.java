@@ -385,12 +385,14 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Transient
     public SamplePE getTop()
     {
-        SamplePE parentPE = getGeneratedFrom();
-        if (parentPE != null)
+        // traverse through parent relationship graph and stops on first sample that doesn't
+        // have parents or has more than one parent
+        final List<SamplePE> parents = getParents();
+        if (parents.size() == 1)
         {
-            return parentPE.getTop() == null ? parentPE : parentPE.getTop();
+            return parents.get(0).getTop();
         }
-        return null;
+        return this;
     }
 
     @Transient
