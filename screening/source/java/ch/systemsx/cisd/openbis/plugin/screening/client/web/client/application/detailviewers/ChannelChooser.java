@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * Handles displaying images in different channels.
@@ -49,12 +50,12 @@ class ChannelChooser
 
     public static LayoutContainer createViewerWithChannelChooser(
             final IChanneledViewerFactory viewerFactory,
-            final IDefaultChannelState defaultChannelState, List<String> channelsNames)
+            final IDefaultChannelState defaultChannelState, List<String> channelCodes)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
 
-        if (channelsNames.size() == 0)
+        if (channelCodes.size() == 0)
         {
             container.add(new Label("No images available"));
             return container;
@@ -62,12 +63,14 @@ class ChannelChooser
         String initialChannel = defaultChannelState.tryGetDefaultChannel();
         if (initialChannel == null)
         {
-            initialChannel = channelsNames.get(0);
+            initialChannel =
+                    channelCodes.size() > 1 ? ScreeningConstants.MERGED_CHANNELS : channelCodes
+                            .get(0);
         }
-        if (channelsNames.size() > 1)
+        if (channelCodes.size() > 1)
         {
             ComboBox<SimpleComboValue<String>> channelChooser =
-                    new ChannelComboBox(channelsNames, defaultChannelState);
+                    new ChannelComboBox(channelCodes, defaultChannelState);
             viewerFactory.setChannelChooser(channelChooser);
             channelChooser
                     .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
