@@ -461,15 +461,27 @@
     </java>
   </target>
 
-  <target name="screening-test-compile-and-run" description="Compile and run the screening openbis from Eclipse">
-    <antcall target="screening-compile-module-test">
-      <param name="module-test.path" value="openbis-test-screening" />
-      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
-    </antcall>
-  	<antcall target="jar"/>
-    <antcall target="screening-test-run" />
+	<!-- 
+		Use this only if you want to use image viewer (screening.jar needs to be created and it slows down the build process).
+		Otherwise use screening-test-compile-and-run.
+	-->
+	<target name="screening-test-compile-and-run-with-image-viewer" description="Compile and run the screening openbis from Eclipse with support for image viewer">
+	    <antcall target="screening-compile-module-test">
+	      <param name="module-test.path" value="openbis-test-screening" />
+	      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+	    </antcall>
+	  	<antcall target="jar"/>
+	    <antcall target="screening-test-run" />
   </target>
-
+	
+	<target name="screening-test-compile-and-run" description="Compile and run the screening openbis from Eclipse (no support for image viewer)">
+	    <antcall target="screening-compile-module-test">
+	      <param name="module-test.path" value="openbis-test-screening" />
+	      <param name="module-test.module" value="ch.systemsx.cisd.openbis.plugin.screening.OpenBIS" />
+	    </antcall>
+	    <antcall target="screening-test-run" />
+	  </target>
+		
   <target name="screening-test-run" description="run the screening openbis from Eclipse">
     <antcall target="screening-run-module-test">
       <param name="module-test.path" value="openbis-test-screening" />
