@@ -54,10 +54,10 @@ public class ReflectingStringEscaper
      * a deep copy of original bean with all the string fields on the bean and all fields of objects
      * referred to by the bean escaped.
      * <p>
-     * NOTE: The provided <code>bean</code> and all beans it referrs to should be
-     * {@link Serializable}, otherwise the result will not be escaped.
+     * NOTE: If serialization of the provided <code>bean</code> fails the result will not be
+     * escaped.
      */
-    public static <T> T escapeDeepWithCopy(T bean)
+    public static <T extends Serializable> T escapeDeepWithCopy(T bean)
     {
         try
         {
