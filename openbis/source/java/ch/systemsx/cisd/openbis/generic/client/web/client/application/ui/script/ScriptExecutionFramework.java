@@ -116,11 +116,12 @@ public class ScriptExecutionFramework
     }
 
     public ScriptExecutionFramework(IViewContext<ICommonClientServiceAsync> viewContext,
-            IValidable validable)
+            IValidable validable, EntityKind entityKindOrNull)
     {
         this.viewContext = viewContext;
         this.validable = validable;
-        entityKindChooser = new EntityKindSelectionWidget(viewContext, null, true, false);
+        entityKindChooser =
+                new EntityKindSelectionWidget(viewContext, entityKindOrNull, true, false);
         sampleChooser =
                 SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true, null, true,
                         true, false, viewContext.getCommonViewContext(),
@@ -283,6 +284,14 @@ public class ScriptExecutionFramework
     public void update(String script)
     {
         state.setScript(script);
+    }
+
+    public void updateEntityKind(EntityKind kind)
+    {
+        if (kind != null)
+        {
+            entityKindChooser.setSimpleValue(kind.name());
+        }
     }
 
     private void evaluate()

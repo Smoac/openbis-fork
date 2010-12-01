@@ -20,8 +20,11 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.Element;
 
@@ -78,12 +81,24 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         super(viewContext, createId(scriptIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
+        this.scriptExecution =
+                new ScriptExecutionFramework(viewContext, asValidable(formPanel), entityKindOrNull);
         this.entityKindField =
                 new EntityKindSelectionWidget(viewContext, entityKindOrNull,
                         scriptIdOrNull == null, true);
+        entityKindField
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
+                    {
+                        @Override
+                        public void selectionChanged(
+                                SelectionChangedEvent<SimpleComboValue<String>> se)
+                        {
+                            scriptExecution.updateEntityKind(entityKindField.tryGetEntityKind());
+                        }
+                    });
         this.descriptionField = AbstractRegistrationDialog.createDescriptionField(viewContext);
         this.scriptField = createScriptField(viewContext);
-        this.scriptExecution = new ScriptExecutionFramework(viewContext, asValidable(formPanel));
+
         scriptField.addListener(Events.Change, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
