@@ -25,12 +25,16 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -41,19 +45,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ChosenEntitySetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DataSetChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MaterialChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DynamicPropertyEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -91,8 +94,6 @@ public class ScriptExecutionFramework
     {
         private String script;
 
-        private IEntityInformationHolderWithPermId chosenEntity;
-
         public String getScript()
         {
             return script;
@@ -101,16 +102,6 @@ public class ScriptExecutionFramework
         public void setScript(String script)
         {
             this.script = script;
-        }
-
-        public IEntityInformationHolderWithPermId getChosenEntity()
-        {
-            return chosenEntity;
-        }
-
-        public void setChosenEntity(IEntityInformationHolderWithPermId chosenEntity)
-        {
-            this.chosenEntity = chosenEntity;
         }
 
     }
@@ -141,7 +132,7 @@ public class ScriptExecutionFramework
         entityLink = createEntityLink();
         html = new MultilineHTML("");
         evaluationResultPanel = createResultField(html);
-        updateVisibleEntityChooser(map, entityKindChooser);
+        updateVisibleEntityChooser(map, entityKindChooser, entityLink);
         entityKindChooser
                 .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
                     {
@@ -149,16 +140,10 @@ public class ScriptExecutionFramework
                         public void selectionChanged(
                                 SelectionChangedEvent<SimpleComboValue<String>> se)
                         {
-                            state.setChosenEntity(null);
-                            updateVisibleEntityChooser(map, entityKindChooser);
-                            updateVisibleEntityLink(state, entityLink);
+                            updateVisibleEntityChooser(map, entityKindChooser, entityLink);
                             evaluationResultPanel.setVisible(false);
                         }
                     });
-        setChosenEntityListener(sampleChooser.getChooserField(), state, entityLink);
-        setChosenEntityListener(experimentChooser.getChooserField(), state, entityLink);
-        setChosenEntityListener(materialChooser, state, entityLink);
-        setChosenEntityListener(datasetChooser, state, entityLink);
 
         panel = createPanel();
         panel.add(entityKindChooser);
@@ -169,23 +154,6 @@ public class ScriptExecutionFramework
         panel.add(entityLink);
         panel.add(createButtonsField());
         panel.add(evaluationResultPanel);
-        updateVisibleEntityLink(state, entityLink);
-    }
-
-    private static <T extends IEntityInformationHolderWithPermId> void setChosenEntityListener(
-            ChosenEntitySetter<T> setter, final State state, final Field<?> entityLink)
-    {
-        setter.addChosenEntityListener(new IChosenEntityListener<T>()
-            {
-                public void entityChosen(T entity)
-                {
-                    if (entity != null)
-                    {
-                        state.setChosenEntity(entity);
-                        updateVisibleEntityLink(state, entityLink);
-                    }
-                }
-            });
     }
 
     private AdapterField createButtonsField()
@@ -205,8 +173,6 @@ public class ScriptExecutionFramework
     private void reset()
     {
         panel.reset();
-        state.setChosenEntity(null);
-        updateVisibleEntityLink(state, entityLink);
         html.setHTML("");
         evaluationResultPanel.setVisible(false);
     }
@@ -255,19 +221,65 @@ public class ScriptExecutionFramework
         return fieldSet;
     }
 
+    private BasicEntityDescription tryGetSelectedEntity()
+    {
+
+        if (StringUtils.isBlank(sampleChooser.getValue()) == false)
+        {
+            return new BasicEntityDescription(EntityKind.SAMPLE, sampleChooser.getValue());
+        }
+        if (experimentChooser.tryToGetValue() != null
+                && StringUtils.isBlank(experimentChooser.tryToGetValue().getIdentifier()) == false)
+        {
+            return new BasicEntityDescription(EntityKind.EXPERIMENT, experimentChooser
+                    .tryToGetValue().getIdentifier());
+        }
+        if (StringUtils.isBlank(materialChooser.getValue()) == false)
+        {
+            return new BasicEntityDescription(EntityKind.MATERIAL, materialChooser.getValue());
+        }
+        if (StringUtils.isBlank(datasetChooser.getValue()) == false)
+        {
+            return new BasicEntityDescription(EntityKind.DATA_SET, datasetChooser.getValue());
+        }
+        return null;
+    }
+
     private AdapterField createEntityLink()
     {
-        AdapterField field =
-                new AdapterField(LinkRenderer.getLinkWidget(
-                        viewContext.getMessage(Dict.SHOW_DETAILS),
-                        new OpenEntityDetailsTabClickListener(null, viewContext)
-                            {
-                                @Override
-                                protected IEntityInformationHolderWithPermId getEntity()
-                                {
-                                    return state.getChosenEntity();
-                                }
-                            }));
+        ClickHandler listener = new ClickHandler()
+            {
+
+                public void onClick(final ClickEvent event)
+                {
+                    final boolean ifSpecialKeyPressed =
+                            WidgetUtils.ifSpecialKeyPressed(event.getNativeEvent());
+                    BasicEntityDescription entity = tryGetSelectedEntity();
+                    if (entity != null)
+                    {
+                        AsyncCallback<IEntityInformationHolderWithPermId> callback =
+                                new AbstractAsyncCallback<IEntityInformationHolderWithPermId>(
+                                        viewContext)
+                                    {
+                                        @Override
+                                        protected void process(
+                                                IEntityInformationHolderWithPermId result)
+                                        {
+                                            new OpenEntityDetailsTabAction(result, viewContext,
+                                                    ifSpecialKeyPressed).execute();
+                                        }
+                                    };
+                        viewContext.getCommonService().getEntityInformationHolder(
+                                tryGetSelectedEntity(), callback);
+                    } else
+                    {
+                        MessageBox.info("Entity not selected", "Please choose the entity", null);
+                    }
+                }
+            };
+        Widget linkWidget =
+                LinkRenderer.getLinkWidget(viewContext.getMessage(Dict.SHOW_DETAILS), listener);
+        AdapterField field = new AdapterField(linkWidget);
         field.setFieldLabel(viewContext.getMessage(Dict.ENTITY_DETAILS));
         return field;
 
@@ -348,21 +360,24 @@ public class ScriptExecutionFramework
         html.setHTML(result == null ? "(null)" : result);
     }
 
-    private static void updateVisibleEntityLink(State state, Field<?> entityLink)
+    private static void updateVisibleEntityLink(boolean visible, Field<?> entityLink)
     {
-        FieldUtil.setVisibility(state.getChosenEntity() != null, entityLink);
+        FieldUtil.setVisibility(visible, entityLink);
     }
 
     private static void updateVisibleEntityChooser(Map<EntityKind, Field<?>> map,
-            EntityKindSelectionWidget entityKindChooser)
+            EntityKindSelectionWidget entityKindChooser, Field<?> entityLink)
     {
+        boolean atLeastOneEntityChooserVisible = false;
         for (Field<?> w : map.values())
         {
             w.reset();
             EntityKind kind = entityKindChooser.tryGetEntityKind();
             boolean visible = kind != null && w == map.get(kind);
+            atLeastOneEntityChooserVisible = atLeastOneEntityChooserVisible || visible;
             FieldUtil.setVisibility(visible, w);
         }
+        updateVisibleEntityLink(atLeastOneEntityChooserVisible, entityLink);
     }
 
     private static FormPanel createPanel()
