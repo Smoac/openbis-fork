@@ -109,7 +109,6 @@ public class DataSetMappingInformation
         this.projectCode = StringUtils.trimToNull(projectCode);
     }
 
-    // TODO 2010-02-23, IA: migrate to getSpaceCode after transition period (group->space)
     public String getSpaceOrGroupCode()
     {
         return spaceCode == null ? groupCode : spaceCode;

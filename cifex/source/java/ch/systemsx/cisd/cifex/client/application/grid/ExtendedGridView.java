@@ -16,7 +16,7 @@ import com.google.gwt.user.client.Element;
  * 
  * @author Izabela Adamczyk
  */
-// TODO 2010-05-19, IA: This is a copy of the one in openBIS ExtendedGridView
+// WORKAROUND 2010-05-19, IA: This is a copy of OpenBIS class (ExtendedGridView).
 class ExtendedGridView extends GridView
 {
     @Override
