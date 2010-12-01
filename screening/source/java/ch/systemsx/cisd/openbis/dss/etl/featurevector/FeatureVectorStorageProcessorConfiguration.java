@@ -21,12 +21,17 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.utils.CsvFileReaderHelper.ICsvFileReaderConfiguration;
 
 class FeatureVectorStorageProcessorConfiguration implements
         ICsvFileReaderConfiguration
 {
+    private static final String DEFAULT_COLUMNS_TO_BE_IGNORED = "barcode";
+
+    @Private static final String COLUMNS_TO_BE_IGNORED_KEY = "columns-to-be-ignored";
+
     private static final String SEPARATOR_PROPERTY_KEY = "separator";
 
     private static final String IGNORE_COMMENTS_PROPERTY_KEY = "ignore-comments";
@@ -67,8 +72,8 @@ class FeatureVectorStorageProcessorConfiguration implements
         this.wellColumn = properties.getProperty(WELL_NAME_COL_PROPERTY_KEY, DEFAULT_WELL_COL);
         
         columnsToBeIgnored =
-                new HashSet<String>(Arrays.asList(properties.getProperty("columns-to-be-ignored",
-                        "barcode").split(", *")));
+                new HashSet<String>(Arrays.asList(properties.getProperty(COLUMNS_TO_BE_IGNORED_KEY,
+                        DEFAULT_COLUMNS_TO_BE_IGNORED).split(", *")));
     }
 
     public char getColumnDelimiter()
