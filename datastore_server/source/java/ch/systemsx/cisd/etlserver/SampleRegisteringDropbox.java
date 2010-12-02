@@ -92,7 +92,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
         File logFile = new File(new File(logDir), createErrorLogFileName(file));
         try
         {
-            if (marker.exists())
+            if (marker.exists() || file.getName().endsWith(Constants.ERROR_MARKER_FILE))
             {
                 return createReturnValue();
             }
