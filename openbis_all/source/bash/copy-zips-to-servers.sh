@@ -1,15 +1,15 @@
 #!/bin/bash
 # Copies all zip files from the current directory to the home directory of the specified servers
 
-export SPRINT=cisd-bamus.ethz.ch
-export DEMO=cisd-tongariro.ethz.ch
+export SPRINT=bs-openbis07.ethz.ch
+export DEMO=cisd-openbis.ethz.ch
 export YEASTX=obis.ethz.ch
 export PHOSPHONETX=openbis-phosphonetx.ethz.ch
 export AGRONOMICS=bs-agronomics01.ethz.ch
-export DSU=bs-dsvr28-openbis-dsu.ethz.ch
-export SCU=bs-dsvr28-openbis-scu.ethz.ch
+export DSU=openbis-dsu.bsse.ethz.ch
+export SCU=openbis-scu.ethz.ch
 export BASYSBIO=basysbio.ethz.ch
-export BASYSBIO_TEST=bs-dsvr28-openbis-test.ethz.ch
+export BASYSBIO_TEST=openbis-test.ethz.ch
 export CINA=bs-openbis01.ethz.ch
 export PLASMIDS=bs-openbis02.ethz.ch
 export LIMB=bs-openbis03.ethz.ch
