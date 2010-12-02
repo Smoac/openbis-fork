@@ -28,19 +28,21 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Loads global properties.
  * <p>
- * Global properties are defined as a comment and start with {@link #GLOBAL_PROPERTIES} followed by
- * a new line character. Each property is defined in a separate line and has the following format:
+ * Global properties are defined as comments and start with a line
+ * <code>#! GLOBAL_PROPERTIES:</code> (followed by a new line character.) Each property is defined
+ * in a separate line and has the following format:
  * <p>
- * # key = value
+ * #! key = value
  * </p>
  * First line in a different format marks the end of global properties. (Empty line can be used).
  * <p>
  * Example:
  * </p>
  * </p> --- FILE ---<br>
- * # GLOBAL_PROPERTIES: <br>
- * # key1 = value1 <br>
- * # key2 = value2 <br>
+ * #! GLOBAL_PROPERTIES_START <br>
+ * #! key1 = value1 <br>
+ * #! key2 = value2 <br>
+ * #! GLOBAL_PROPERTIES_END <br>
  * <br>
  * code parent experiment <br>
  * --- EOF ---
@@ -49,9 +51,11 @@ import org.apache.commons.lang.StringUtils;
  */
 public class GlobalPropertiesLoader
 {
-    private static final String COMMENT_PREFIX = "#";
+    private static final String PREFIX = "#!";
 
-    static String GLOBAL_PROPERTIES = "#GLOBAL_PROPERTIES:";
+    private static String GLOBAL_PROPERTIES_START = "GLOBAL_PROPERTIES_START";
+
+    private static String GLOBAL_PROPERTIES_END = "GLOBAL_PROPERTIES_END";
 
     public static GlobalProperties load(File file) throws FileNotFoundException
     {
@@ -78,7 +82,14 @@ public class GlobalPropertiesLoader
                         continue;
                     } else
                     {
-                        return properties;
+                        if (isGlobalPropertiesStopper(line))
+                        {
+                            return properties;
+                        } else
+                        {
+                            throw new IllegalArgumentException("Illegal global property line '"
+                                    + line.trim() + "'");
+                        }
                     }
                 }
             }
@@ -91,7 +102,7 @@ public class GlobalPropertiesLoader
 
     private static String[] tryGetPropertyDefinition(String line)
     {
-        String commentPrefix = COMMENT_PREFIX;
+        String commentPrefix = PREFIX;
         if (line.startsWith(commentPrefix))
         {
             String[] splitted = StringUtils.split(line.substring(commentPrefix.length()), "=", 2);
@@ -108,7 +119,12 @@ public class GlobalPropertiesLoader
 
     private static boolean isGlobalPropertiesStarter(String line)
     {
-        return line.equals(GLOBAL_PROPERTIES);
+        return line.substring(PREFIX.length()).trim().equals(GLOBAL_PROPERTIES_START);
+    }
+
+    private static boolean isGlobalPropertiesStopper(String line)
+    {
+        return line.substring(PREFIX.length()).trim().equals(GLOBAL_PROPERTIES_END);
     }
 
 }
