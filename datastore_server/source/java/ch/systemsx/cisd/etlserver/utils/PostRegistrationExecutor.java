@@ -103,7 +103,7 @@ public class PostRegistrationExecutor implements IPostRegistrationAction
                     scriptPath, StringUtils.join(args, ",")));
         } else
         {
-            operationLog.debug(String.format(
+            operationLog.info(String.format(
                     "Successful script execution: SCRIPT(%s) PARAMETERS(%s)", scriptPath,
                     StringUtils.join(args, ",")));
         }
