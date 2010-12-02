@@ -120,6 +120,19 @@ public class CsvToCanonicalFeatureVectorTest extends AssertJUnit
         assertEquals(0.001052f, darr.getForWellLocation(2, 1));
     }
     
+    @Test
+    public void testNoIgnoringColumns() throws IOException
+    {
+        Properties properties = new Properties();
+        properties.setProperty(COLUMNS_TO_BE_IGNORED_KEY, "");
+        CsvToCanonicalFeatureVectorConfiguration config =
+            new CsvToCanonicalFeatureVectorConfiguration(new FeatureVectorStorageProcessorConfiguration(properties));
+        CsvToCanonicalFeatureVector converter =
+            new CsvToCanonicalFeatureVector(getDatasetFileLines(), config, 16, 24);
+        ArrayList<CanonicalFeatureVector> fvs = converter.convert();
+        assertEquals(18, fvs.size());
+    }
+    
     /**
      * Return the tabular data as a DatasetFileLines.
      */
