@@ -19,16 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Vocabulary term and its usage statistics.
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyTermWithStats implements IsSerializable
+public class VocabularyTermWithStats implements ISerializable
 {
+    private static final long serialVersionUID = 1L;
+
     private VocabularyTerm term;
 
     // how many times is this term used as a value for each entity kind
