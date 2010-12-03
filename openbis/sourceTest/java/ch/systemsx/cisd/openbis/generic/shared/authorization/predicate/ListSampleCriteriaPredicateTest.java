@@ -115,7 +115,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryToGetGroup(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
+                    one(provider).tryGetSpace(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
                     will(returnValue(createGroup()));
                 }
             });
@@ -136,7 +136,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(provider).tryToGetGroup(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
+                    one(provider).tryGetSpace(SpaceOwnerKind.EXPERIMENT, new TechId(17L));
                     will(returnValue(createAnotherGroup()));
                 }
             });

@@ -229,7 +229,7 @@ public final class PredicateExecutor
             }
         }
 
-        public List<SpacePE> listGroups()
+        public List<SpacePE> listSpaces()
         {
             return daoFactory.getSpaceDAO().listSpaces();
         }
@@ -265,7 +265,7 @@ public final class PredicateExecutor
             return uuidToDbInstanceMap.get(databaseInstanceUUID);
         }
 
-        public ProjectPE tryToGetProject(String dataSetCode)
+        public ProjectPE tryGetProject(String dataSetCode)
         {
             DataPE dataSet = daoFactory.getExternalDataDAO().tryToFindDataSetByCode(dataSetCode);
             if (dataSet != null && dataSet.getExperiment() != null)
@@ -374,7 +374,7 @@ public final class PredicateExecutor
             return fullResults;
         }
 
-        public SpacePE tryToGetGroup(SpaceOwnerKind kind, TechId techId)
+        public SpacePE tryGetSpace(SpaceOwnerKind kind, TechId techId)
         {
             switch (kind)
             {

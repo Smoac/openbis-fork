@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
  * 
  * @author Piotr Buczek
  */
-public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<TechId>
+public abstract class AbstractTechIdPredicate extends AbstractSpacePredicate<TechId>
 {
     private final SpaceOwnerKind entityKind;
 
@@ -106,15 +106,15 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     {
         assert initialized : "Predicate has not been initialized";
 
-        SpacePE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
-        if (groupOrNull == null)
+        final SpacePE spaceOrNull = authorizationDataProvider.tryGetSpace(entityKind, techId);
+        if (spaceOrNull == null)
         {
             return Status.createError(String.format("User '%s' does not have enough privileges.",
                     person.getUserId()));
         }
 
-        final String spaceCode = SpaceCodeHelper.getSpaceCode(person, groupOrNull);
-        final DatabaseInstancePE databaseInstance = groupOrNull.getDatabaseInstance();
+        final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceOrNull);
+        final DatabaseInstancePE databaseInstance = spaceOrNull.getDatabaseInstance();
         return evaluate(person, allowedRoles, databaseInstance, spaceCode);
     }
 

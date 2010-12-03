@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
  * 
  * @author Christian Ribeaud
  */
-public class SpaceIdentifierPredicate extends AbstractGroupPredicate<SpaceIdentifier>
+public class SpaceIdentifierPredicate extends AbstractSpacePredicate<SpaceIdentifier>
 {
     public SpaceIdentifierPredicate()
     {

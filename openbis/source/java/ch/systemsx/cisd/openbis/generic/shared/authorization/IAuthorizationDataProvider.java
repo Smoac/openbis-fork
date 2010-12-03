@@ -41,9 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
 {
     /**
-     * Returns a list of all groups.
+     * Returns a list of all data spaces.
      */
-    public List<SpacePE> listGroups();
+    public List<SpacePE> listSpaces();
 
     /**
      * Returns the space for the given <var>spaceCode</var> or <code>null</code>, if it does not
@@ -68,7 +68,7 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * 
      * @return <code>null</code> if no data set found.
      */
-    public ProjectPE tryToGetProject(String dataSetCode);
+    public ProjectPE tryGetProject(String dataSetCode);
 
     /**
      * Returns the information necessary to determine if a user is allowed to access this data set.
@@ -86,11 +86,11 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleIds);
 
     /**
-     * Returns the group of an entity with given <var>entityKind</var> and <var>techId</var>
+     * Returns the data space of an entity with given <var>entityKind</var> and <var>techId</var>
      * 
      * @return <code>null</code> if entity has no group set.
      */
-    public SpacePE tryToGetGroup(SpaceOwnerKind entityKind, TechId techId);
+    public SpacePE tryGetSpace(SpaceOwnerKind entityKind, TechId techId);
 
     /**
      * Returns the sample with given <var>techId</var>.

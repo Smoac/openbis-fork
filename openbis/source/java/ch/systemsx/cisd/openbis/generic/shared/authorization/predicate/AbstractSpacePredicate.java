@@ -27,20 +27,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * Abstract super class of predicates based on groups.
+ * Abstract super class of predicates based on data spaces.
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredicate<T>
+public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstancePredicate<T>
 {
 
-    protected List<SpacePE> groups;
+    protected List<SpacePE> spaces;
 
     @Override
     public void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
-        groups = provider.listGroups();
+        spaces = provider.listSpaces();
     }
 
     protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
@@ -55,7 +55,7 @@ public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstance
             final String databaseInstanceUUID, final String databaseInstanceCode,
             final String groupCodeOrNull)
     {
-        if (tryFindGroup(databaseInstanceUUID, groupCodeOrNull) == null)
+        if (tryFindSpace(databaseInstanceUUID, groupCodeOrNull) == null)
         {
             return Status.createError(String.format("User '%s' does not have enough privileges.",
                     person.getUserId()));
@@ -69,13 +69,13 @@ public abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstance
                 person.getUserId()));
     }
 
-    private SpacePE tryFindGroup(final String databaseInstanceUUID, final String groupCode)
+    private SpacePE tryFindSpace(final String databaseInstanceUUID, final String groupCode)
     {
-        for (final SpacePE group : groups)
+        for (final SpacePE space : spaces)
         {
-            if (equalIdentifier(group, databaseInstanceUUID, groupCode))
+            if (equalIdentifier(space, databaseInstanceUUID, groupCode))
             {
-                return group;
+                return space;
             }
         }
         return null;

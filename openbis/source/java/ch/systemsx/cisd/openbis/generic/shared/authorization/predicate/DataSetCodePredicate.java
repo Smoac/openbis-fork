@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Franz-Josef Elmer
  */
-public class DataSetCodePredicate extends AbstractGroupPredicate<String>
+public class DataSetCodePredicate extends AbstractSpacePredicate<String>
 {
     @Override
     public String getCandidateDescription()

@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Bernd Rinn
  */
-public class ListSampleCriteriaPredicate extends AbstractGroupPredicate<ListSampleCriteria>
+public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSampleCriteria>
 {
 
     private final ExperimentTechIdPredicate experimentTechIdPredicate =

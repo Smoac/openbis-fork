@@ -20,7 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGroupPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractSpacePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIde
  * 
  * @author Bernd Rinn
  */
-public class ExperimentIdentifierPredicate extends AbstractGroupPredicate<ExperimentIdentifier>
+public class ExperimentIdentifierPredicate extends AbstractSpacePredicate<ExperimentIdentifier>
 {
 
     @Override

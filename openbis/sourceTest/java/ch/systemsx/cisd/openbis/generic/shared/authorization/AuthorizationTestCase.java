@@ -345,7 +345,7 @@ public class AuthorizationTestCase extends AssertJUnit
                     allowing(provider).getHomeDatabaseInstance();
                     will(returnValue(databaseInstance));
 
-                    allowing(provider).listGroups();
+                    allowing(provider).listSpaces();
                     will(returnValue(groups));
                 }
             });
@@ -379,7 +379,7 @@ public class AuthorizationTestCase extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    allowing(provider).listGroups();
+                    allowing(provider).listSpaces();
                     will(returnValue(groups));
                 }
             });
@@ -396,10 +396,10 @@ public class AuthorizationTestCase extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(provider).listGroups();
+                    one(provider).listSpaces();
                     will(returnValue(groups));
 
-                    one(provider).tryToGetGroup(entityKind, techId);
+                    one(provider).tryGetSpace(entityKind, techId);
                     will(returnValue(groupPE));
                 }
             });

@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author Chandrasekhar Ramakrishnan
  */
 @ShouldFlattenCollections(value = false)
-public class DataSetCodeCollectionPredicate extends AbstractGroupPredicate<List<String>>
+public class DataSetCodeCollectionPredicate extends AbstractSpacePredicate<List<String>>
 {
     @Override
     public String getCandidateDescription()

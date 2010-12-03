@@ -21,7 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFlattenCollections;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGroupPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractSpacePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
  */
 @ShouldFlattenCollections(value = false)
 public class ScreeningPlateListReadOnlyPredicate extends
-        AbstractGroupPredicate<List<? extends PlateIdentifier>>
+        AbstractSpacePredicate<List<? extends PlateIdentifier>>
 {
 
     @Override
