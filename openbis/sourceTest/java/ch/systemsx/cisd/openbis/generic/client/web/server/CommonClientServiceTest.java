@@ -252,7 +252,11 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public final void testListProjects()
     {
-        List<Project> entities = Arrays.asList(new Project());
+        final Project project1 = new Project();
+        project1.setIdentifier("p1");
+        final Project project2 = new Project();
+        project1.setIdentifier("p2");
+        List<Project> entities = Arrays.asList(project1, project2);
         final DefaultResultSetConfig<String, Project> criteria =
                 DefaultResultSetConfig.createFetchAll();
         prepareListEntities(entities, criteria);
@@ -313,7 +317,11 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     private <T> void assertEqualEntities(List<T> entities, final ResultSet<T> resultSet)
     {
         assertEquals(entities.size(), resultSet.getList().size());
-        assertEquals(entities.get(0), resultSet.getList().get(0).getOriginalObject());
+        GridRowModels<T> resultSetList = resultSet.getList();
+        for (int i = 0; i < entities.size(); i++)
+        {
+            assertEquals(entities.get(i), resultSetList.get(i).getOriginalObject());
+        }
         assertEquals(entities.size(), resultSet.getTotalLength());
     }
 
