@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvid
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabularyTermsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator.Escape;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
@@ -199,10 +200,16 @@ public final class CommonClientService extends AbstractClientService implements
     protected final <T> GridRowModels<T> fetchCachedEntities(
             final TableExportCriteria<T> exportCriteria)
     {
+        return fetchCachedEntities(exportCriteria, Escape.NO);
+    }
+
+    protected final <T> GridRowModels<T> fetchCachedEntities(
+            final TableExportCriteria<T> exportCriteria, Escape escape)
+    {
         IResultSetConfig<String, T> resultSetConfig = createExportListCriteria(exportCriteria);
         IOriginalDataProvider<T> dummyDataProvider = createDummyDataProvider();
         final IResultSet<String, T> result = getResultSet(resultSetConfig, dummyDataProvider);
-        final ResultSet<T> entities = ResultSetTranslator.translate(result);
+        final ResultSet<T> entities = ResultSetTranslator.translate(result, escape);
         return entities.getList();
     }
 

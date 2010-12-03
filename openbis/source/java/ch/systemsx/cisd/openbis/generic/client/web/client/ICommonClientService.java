@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.Unescape;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -416,7 +415,6 @@ public interface ICommonClientService extends IClientService
      * or {@link #prepareExportExperiments(TableExportCriteria)} has been invoked before and
      * returned with an exportDataKey passed here as a parameter.
      */
-    @Unescape
     public String getExportTable(String exportDataKey, String lineSeparator)
             throws UserFailureException;
 

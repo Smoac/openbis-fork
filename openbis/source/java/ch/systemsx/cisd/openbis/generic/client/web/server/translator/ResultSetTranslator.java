@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.translator;
 
+import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 
@@ -26,15 +28,24 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
  */
 public final class ResultSetTranslator
 {
+    public enum Escape
+    {
+        YES, NO
+    }
+
     private ResultSetTranslator()
     {
         // Can not be instantiated.
     }
 
-    public final static <K, T> ResultSet<T> translate(final IResultSet<String, T> result)
+    public final static <K, T> ResultSet<T> translate(final IResultSet<String, T> result,
+            Escape escape)
     {
         final ResultSet<T> resultSet = new ResultSet<T>();
-        resultSet.setList(result.getList());
+        final GridRowModels<T> resultSetList =
+                escape == Escape.YES ? ReflectingStringEscaper.escapeDeepWithCopy(result.getList())
+                        : result.getList();
+        resultSet.setList(resultSetList);
         resultSet.setTotalLength(result.getTotalLength());
         resultSet.setResultSetKey(result.getResultSetKey());
         return resultSet;

@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
-import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.Unescape;
 
 /**
  * The advisor for automatically escaping HTML strings in the values returned by implementations of
@@ -132,14 +130,12 @@ public class StringHtmlEscapingPointcutAdvisor extends DefaultPointcutAdvisor
                     + originalResult);
             if (originalResult instanceof String)
             {
-                if (methodInvocation.getMethod().isAnnotationPresent(Unescape.class))
-                {
-                    result = StringEscapeUtils.unescapeHtml((String) originalResult);
-                } else
-                {
-                    // TODO 2010-11-15, CR: Do we need to escape strings in general?
-                    // StringEscapeUtils.escapeHtml((String) unescapedResult);
-                }
+                // TODO 2010-11-15, CR: Do we need to escape strings in general?
+                // need to handle prepareExport then, e.g.:
+                // if (methodInvocation.getMethod().isAnnotationPresent(DoNotEscape.class) == false)
+                // {
+                // result = StringEscapeUtils.escapeHtml((String) originalResult);
+                // }
             } else
             {
                 // Escape the result objects

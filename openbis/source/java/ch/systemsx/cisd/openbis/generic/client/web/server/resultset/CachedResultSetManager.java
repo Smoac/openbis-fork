@@ -36,7 +36,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.AlternativesStringFilter;
-import ch.systemsx.cisd.common.utilities.ReflectingStringEscaper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
@@ -689,9 +688,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         List<TableModelColumnHeader> headers = dataProvider.getHeaders();
         TableData<T> tableData =
                 new TableData<T>(rows, headers, customColumnsProvider, columnCalculator);
-
-        ReflectingStringEscaper.escapeDeep(rows);
-        // transformation is performed after escaping not to escape transformed values
         xmlPropertyTransformer.transformXMLProperties(rows);
 
         addToCache(dataKey, tableData);

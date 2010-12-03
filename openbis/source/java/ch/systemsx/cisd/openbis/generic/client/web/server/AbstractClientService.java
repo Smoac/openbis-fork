@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator.Escape;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TableModelUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.XMLPropertyTransformer;
@@ -182,7 +183,7 @@ public abstract class AbstractClientService implements IClientService,
         try
         {
             final IResultSet<String, T> result = getResultSet(criteria, dataProvider);
-            return ResultSetTranslator.translate(result);
+            return ResultSetTranslator.translate(result, Escape.YES);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
