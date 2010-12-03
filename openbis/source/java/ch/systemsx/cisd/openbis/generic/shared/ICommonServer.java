@@ -492,7 +492,7 @@ public interface ICommonServer extends IServer
      * Deletes specified spaces.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SPACE)
     public void deleteSpaces(String sessionToken,
             @AuthorizationGuard(guardClass = SpaceTechIdPredicate.class) List<TechId> spaceIds,
@@ -536,7 +536,7 @@ public interface ICommonServer extends IServer
      * Registers new project.
      */
     @Transactional
-    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROJECT)
     public void registerProject(
             String sessionToken,
