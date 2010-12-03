@@ -39,6 +39,8 @@ public class ReflectingStringEscaper
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ReflectingStringEscaper.class);
 
+    private static int MIN_TIME_LOGGED_MS = 100;
+
     /**
      * Escape all the string fields on the bean.
      */
@@ -67,7 +69,7 @@ public class ReflectingStringEscaper
             T result = doEscapeDeep(beanClone);
             long escapeTime = System.currentTimeMillis();
             long timeSpent = escapeTime - startTime;
-            if (timeSpent > 100)
+            if (timeSpent >= MIN_TIME_LOGGED_MS)
             {
                 operationLog.info((timeSpent) + "ms for escaping (cloning: "
                         + (cloneTime - startTime) + "ms) "
@@ -93,7 +95,7 @@ public class ReflectingStringEscaper
             long time = System.currentTimeMillis();
             T result = doEscapeDeep(bean);
             long timeSpent = System.currentTimeMillis() - time;
-            if (timeSpent > 100)
+            if (timeSpent >= MIN_TIME_LOGGED_MS)
             {
                 operationLog.info((timeSpent) + "ms for escaping "
                         + (bean == null ? "" : bean.getClass().getSimpleName()));
