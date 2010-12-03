@@ -225,7 +225,12 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public final void testListSamples()
     {
-        List<Sample> entities = Arrays.asList(new Sample());
+        final Sample sample1 = new Sample();
+        sample1.setIdentifier("s1");
+        final Sample sample2 = new Sample();
+        sample1.setIdentifier("s2");
+        List<Sample> entities = Arrays.asList(sample1, sample2);
+
         final ListSampleDisplayCriteria criteria = createListCriteria();
         prepareListEntities(entities, criteria);
         // this call is to obtain sample types
