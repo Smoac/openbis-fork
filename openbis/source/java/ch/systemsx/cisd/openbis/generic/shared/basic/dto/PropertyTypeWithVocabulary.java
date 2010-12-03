@@ -16,22 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class PropertyTypeWithVocabulary implements IsSerializable, Serializable
+public class PropertyTypeWithVocabulary implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
-    private String code; 
+
+    private String code;
+
     private Set<String> vocabularyTerms;
 
     public String getCode()
@@ -53,7 +51,7 @@ public class PropertyTypeWithVocabulary implements IsSerializable, Serializable
     {
         return vocabularyTerms;
     }
-    
+
     public void setTerms(Set<VocabularyTerm> terms)
     {
         this.vocabularyTerms = new TreeSet<String>();

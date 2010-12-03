@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Different kinds of reporting plug-ins that are supported. Also keeps track of which
@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public enum ReportingPluginType implements IsSerializable
+public enum ReportingPluginType implements ISerializable
 {
 
     TABLE_MODEL(ImplementedPluginMethods.CREATE_REPORT),

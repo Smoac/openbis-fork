@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Description of the updates which should be performed on a stored expression (e.g. grid custom
@@ -26,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Piotr Buczek
  */
-public interface IExpressionUpdates extends IIdHolder, IsSerializable
+public interface IExpressionUpdates extends IIdHolder, ISerializable
 {
     String getDescription();
 

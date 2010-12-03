@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Available types of entity properties.
  * 
  * @author Izabela Adamczyk
  */
-public enum DataTypeCode implements IsSerializable, Serializable
+public enum DataTypeCode implements ISerializable
 {
     // Do not refactor names - they are stored in database.
     INTEGER, VARCHAR, MULTILINE_VARCHAR, REAL, TIMESTAMP, BOOLEAN, CONTROLLEDVOCABULARY, MATERIAL,

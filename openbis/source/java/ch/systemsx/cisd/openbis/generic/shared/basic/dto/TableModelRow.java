@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The content of one row, without the header specification.
  * 
  * @author Tomasz Pylak
  */
-public class TableModelRow implements IsSerializable, Serializable
+public class TableModelRow implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * General kinds of fields that can be used in detailed text query for an entity.
  * 
  * @author Piotr Buczek
  */
-public enum DetailedSearchFieldKind implements IsSerializable
+public enum DetailedSearchFieldKind implements ISerializable
 {
     ANY_FIELD("Any Field"),
 

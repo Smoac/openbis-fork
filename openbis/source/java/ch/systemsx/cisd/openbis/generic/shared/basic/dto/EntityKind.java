@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The <i>GWT</i> counterpart to
@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public enum EntityKind implements IsSerializable
+public enum EntityKind implements ISerializable
 {
     MATERIAL("Material"), EXPERIMENT("Experiment"), SAMPLE("Sample"), DATA_SET("Data Set");
 

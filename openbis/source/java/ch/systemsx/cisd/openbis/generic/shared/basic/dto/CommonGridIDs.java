@@ -16,18 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class CommonGridIDs
+public class CommonGridIDs implements ISerializable
 {
+    private static final long serialVersionUID = 1L;
+
     public static final String CODE = "CODE";
+
     public static final String LABEL = "LABEL";
+
     public static final String DESCRIPTION = "DESCRIPTION";
+
     public static final String ORDINAL = "ORDINAL";
+
     public static final String REGISTRATOR = "REGISTRATOR";
+
     public static final String REGISTRATION_DATE = "REGISTRATION_DATE";
 
 }

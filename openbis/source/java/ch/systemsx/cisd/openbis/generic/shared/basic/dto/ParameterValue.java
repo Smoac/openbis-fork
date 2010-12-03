@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Piotr Buczek
  */
-public class ParameterValue implements Comparable<ParameterValue>, IsSerializable
+public class ParameterValue implements Comparable<ParameterValue>, ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

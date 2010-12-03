@@ -16,18 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Stores result of experiment update.
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentUpdateResult implements IsSerializable, Serializable
+public class ExperimentUpdateResult implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

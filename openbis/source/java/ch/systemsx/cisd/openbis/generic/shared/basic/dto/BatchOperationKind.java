@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Enumeration for batch operation kinds.
  * 
  * @author Piotr Buczek
  */
-public enum BatchOperationKind implements IsSerializable
+public enum BatchOperationKind implements ISerializable
 {
     REGISTRATION("Registration"), UPDATE("Update");
 

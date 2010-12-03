@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Identifier for searching material through <i>Web Service</i> lookup methods in the database.
  * 
  * @author Christian Ribeaud
  */
-public final class MaterialIdentifier implements IsSerializable, Serializable
+public final class MaterialIdentifier implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

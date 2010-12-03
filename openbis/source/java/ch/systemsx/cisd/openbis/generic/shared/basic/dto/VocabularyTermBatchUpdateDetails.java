@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Holds information about which vocabulary term attributes should be updated.
  * 
  * @author Piotr Buczek
  */
-public class VocabularyTermBatchUpdateDetails implements IsSerializable, Serializable
+public class VocabularyTermBatchUpdateDetails implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

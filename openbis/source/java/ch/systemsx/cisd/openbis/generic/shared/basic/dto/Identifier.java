@@ -19,18 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * An identifier.
  * 
  * @author Christian Ribeaud
  */
-public class Identifier<T extends Identifier<T>> implements IsSerializable, Comparable<T>,
-        IIdentifierHolder, Serializable
+public class Identifier<T extends Identifier<T>> implements ISerializable, Comparable<T>,
+        IIdentifierHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

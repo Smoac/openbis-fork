@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The <i>GWT</i> counterpart to
@@ -26,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Piotr Buczek
  */
-public class BasicProjectIdentifier implements IsSerializable, Serializable
+public class BasicProjectIdentifier implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -22,18 +22,16 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * A code.
  * 
  * @author Christian Ribeaud
  */
-public class Code<T extends Code<T>> implements IsSerializable, ICodeHolder, Comparable<T>,
-        Serializable
+public class Code<T extends Code<T>> implements ISerializable, ICodeHolder, Comparable<T>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

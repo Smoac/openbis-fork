@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The {@link EntityTypePropertyType} extension for <i>Material Type</i>.
@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Izabela Adamczyk
  */
 public class MaterialTypePropertyType extends EntityTypePropertyType<MaterialType> implements
-        IsSerializable
+        ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

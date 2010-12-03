@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * An entity that matches the <i>Hibernate Search</i> query and which has been returned by the
@@ -26,8 +25,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntity implements IsSerializable, IEntityInformationHolderWithPermId
+public final class MatchingEntity implements ISerializable, IEntityInformationHolderWithPermId
 {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
 
     private String code;

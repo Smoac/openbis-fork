@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class NewExpression implements IsSerializable, Serializable
+public class NewExpression implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

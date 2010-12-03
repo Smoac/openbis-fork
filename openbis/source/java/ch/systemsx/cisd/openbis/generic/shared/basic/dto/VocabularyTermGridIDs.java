@@ -16,19 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class VocabularyTermGridIDs extends CommonGridIDs
 {
+    private static final long serialVersionUID = 1L;
+
     public static final String URL = "URL";
+
     public static final String TERM_TOTAL_USAGE = "TERM_TOTAL_USAGE";
+
     public static final String TERM_FOR_SAMPLES_USAGE = "TERM_FOR_SAMPLES_USAGE";
+
     public static final String TERM_FOR_DATA_SET_USAGE = "TERM_FOR_DATA_SET_USAGE";
+
     public static final String TERM_FOR_EXPERIMENTS_USAGE = "TERM_FOR_EXPERIMENTS_USAGE";
+
     public static final String TERM_FOR_MATERIALS_USAGE = "TERM_FOR_MATERIALS_USAGE";
 
 }

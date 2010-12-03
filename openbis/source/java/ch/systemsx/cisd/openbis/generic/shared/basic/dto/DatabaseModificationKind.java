@@ -22,13 +22,17 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+
 /**
  * Stores the kind of database object that was modified and the kind of modification.
  * 
  * @author Tomasz Pylak
  */
-public class DatabaseModificationKind implements IsSerializable
+public class DatabaseModificationKind implements ISerializable
 {
+    private static final long serialVersionUID = 1L;
+
     public static final DatabaseModificationKind[] EMPTY_ARRAY = new DatabaseModificationKind[0];
 
     public enum ObjectKind implements IsSerializable

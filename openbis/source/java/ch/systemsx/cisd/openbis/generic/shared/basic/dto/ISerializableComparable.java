@@ -16,17 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Interface for objects which are comparable, java.io.Serializable and GWT serializable.
- * 
  * Implementations should override {@link Object#equals(Object)} and {@link Object#hashCode()}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public interface ISerializableComparable extends IsSerializable, Serializable, Comparable<ISerializableComparable>
+public interface ISerializableComparable extends ISerializable, Comparable<ISerializableComparable>
 {
 }

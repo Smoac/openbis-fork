@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Full specification of the field connected with an entity which can be used in detailed text
@@ -28,7 +27,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class DetailedSearchField implements IsSerializable, Serializable
+public class DetailedSearchField implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Serializable null object.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class Null implements Serializable, IsSerializable
+public class Null implements ISerializable
 {
 
     private static final long serialVersionUID = 1L;

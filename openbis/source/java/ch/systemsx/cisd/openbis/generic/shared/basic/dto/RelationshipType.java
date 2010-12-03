@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The <i>GWT</i> version of RelationshipTypePE.
  * 
  * @author Piotr Buczek
  */
-public class RelationshipType extends Code<PropertyType> implements IsSerializable, Serializable
+public class RelationshipType extends Code<PropertyType> implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Details of new authorization group.
  * 
  * @author Izabela Adamczyk
  */
-public class NewAuthorizationGroup implements IsSerializable, Serializable
+public class NewAuthorizationGroup implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

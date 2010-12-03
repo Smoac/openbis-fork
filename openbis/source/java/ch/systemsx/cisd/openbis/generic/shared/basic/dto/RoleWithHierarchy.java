@@ -21,6 +21,8 @@ import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+
 /**
  * Hierarchical role. Combines {@link RoleCode} with {@link RoleLevel} and a set of
  * {@link RoleWithHierarchy}s that are stronger.
@@ -46,7 +48,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Izabela Adamczyk
  */
-public enum RoleWithHierarchy implements IsSerializable
+public enum RoleWithHierarchy implements ISerializable
 {
     //
     // NOTE: Each role should match the following naming convention: <RoleLevel>_<RoleCode>,

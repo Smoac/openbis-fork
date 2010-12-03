@@ -16,18 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.List;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * The <i>GWT</i> version of PropertyTypePE.
  * 
  * @author Izabela Adamczyk
  */
-public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpdates,
-        IsSerializable, Serializable
+public class PropertyType extends Code<PropertyType> implements IPropertyTypeUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

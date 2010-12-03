@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Batch registration is based on file input. This class returns to the client a small message after
@@ -26,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public class BatchRegistrationResult implements IsSerializable, Serializable
+public class BatchRegistrationResult implements ISerializable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

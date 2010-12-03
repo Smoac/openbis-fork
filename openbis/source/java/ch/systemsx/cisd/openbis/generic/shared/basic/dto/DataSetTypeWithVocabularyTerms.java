@@ -16,23 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class DataSetTypeWithVocabularyTerms implements IsSerializable, Serializable
+public class DataSetTypeWithVocabularyTerms implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private DataSetType dataSetType;
-    private List<PropertyTypeWithVocabulary> propertyTypes = new ArrayList<PropertyTypeWithVocabulary>();
+
+    private List<PropertyTypeWithVocabulary> propertyTypes =
+            new ArrayList<PropertyTypeWithVocabulary>();
 
     public DataSetType getDataSetType()
     {

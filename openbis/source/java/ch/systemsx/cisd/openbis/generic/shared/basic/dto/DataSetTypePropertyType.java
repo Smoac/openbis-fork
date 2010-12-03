@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * The {@link EntityTypePropertyType} extension for <i>Data Set Type</i>.
@@ -26,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Izabela Adamczyk
  */
 public class DataSetTypePropertyType extends EntityTypePropertyType<DataSetType> implements
-        IsSerializable, Serializable
+        ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

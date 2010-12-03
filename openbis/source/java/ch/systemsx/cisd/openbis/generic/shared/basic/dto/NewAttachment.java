@@ -16,22 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * An attachment to register.
  * 
  * @author Piotr Buczek
  */
-public class NewAttachment implements IsSerializable
+public class NewAttachment implements ISerializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private String filePath;
 
     private String title;
 
     private String description;
-    
+
     private byte[] content;
 
     public NewAttachment()

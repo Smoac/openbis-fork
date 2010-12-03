@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Class storing personalised display settings for a table column. This class implements
@@ -27,9 +27,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * <p>
  * Note: This class has to be Java serializable and GWT serializable.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
-public class ColumnSetting implements Serializable, IsSerializable
+public class ColumnSetting implements ISerializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -105,7 +105,8 @@ public class ColumnSetting implements Serializable, IsSerializable
     @Override
     public String toString()
     {
-         return columnID + "( hidden = " + hidden + ", width = " + width + ", hasFilter = "
-                + hasFilter + " )";   }
+        return columnID + "( hidden = " + hidden + ", width = " + width + ", hasFilter = "
+                + hasFilter + " )";
+    }
 
 }

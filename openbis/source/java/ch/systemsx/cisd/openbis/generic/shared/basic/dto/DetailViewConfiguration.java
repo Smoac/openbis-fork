@@ -16,18 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Entity detail view configuration.
  * 
  * @author Izabela Adamczyk
  */
-public class DetailViewConfiguration implements IsSerializable, Serializable
+public class DetailViewConfiguration implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

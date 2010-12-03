@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * A <code>SampleParentWithDerived</code> encapsulates a <code>Sample</code> (the parent) and its
@@ -26,7 +23,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class SampleParentWithDerived implements IsSerializable, Serializable
+public final class SampleParentWithDerived
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

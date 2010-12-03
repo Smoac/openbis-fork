@@ -21,14 +21,13 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
+// TODO 2010-12-03, Piotr Buczek: change to ISerializable
 public class TableModelRowWithObject<T extends IsSerializable> extends TableModelRow
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private T objectOrNull;
 
     public TableModelRowWithObject(T objectOrNull, List<ISerializableComparable> values)
@@ -36,17 +35,17 @@ public class TableModelRowWithObject<T extends IsSerializable> extends TableMode
         super(values);
         this.objectOrNull = objectOrNull;
     }
-    
+
     // GWT only
     @SuppressWarnings("unused")
     private TableModelRowWithObject()
     {
-        
+
     }
 
     public T getObjectOrNull()
     {
         return objectOrNull;
     }
-    
+
 }

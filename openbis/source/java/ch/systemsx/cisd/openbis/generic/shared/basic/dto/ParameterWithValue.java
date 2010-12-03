@@ -1,17 +1,13 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Stores parameter name and the value.
  * 
  * @author Izabela Adamczyk
  */
-public class ParameterWithValue implements IsSerializable, Serializable
+public class ParameterWithValue implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

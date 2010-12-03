@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -37,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Franz-Josef Elmer
  */
-public class DisplaySettings implements Serializable, IsSerializable
+public class DisplaySettings implements ISerializable
 {
     private static final long serialVersionUID = 1L;
 

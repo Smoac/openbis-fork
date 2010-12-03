@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * An interface for entity properties.
  * 
  * @author Bernd Rinn
  */
-public interface IEntityProperty extends Serializable, IsSerializable, Comparable<IEntityProperty>
+public interface IEntityProperty extends ISerializable, Comparable<IEntityProperty>
 {
     public static final IEntityProperty[] EMPTY_ARRAY = new IEntityProperty[0];
 
@@ -34,9 +32,9 @@ public interface IEntityProperty extends Serializable, IsSerializable, Comparabl
      * will be represented as their CODE, material values will be represented as "CODE (TYPE_CODE)".
      */
     public String tryGetAsString();
-    
+
     public String tryGetOriginalValue();
-    
+
     public Material getMaterial();
 
     public void setMaterial(Material material);

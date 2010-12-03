@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.Date;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Stores information describing the common part of grid custom filter and column.
@@ -29,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * @author Izabela Adamczyk
  */
 public abstract class AbstractExpression extends AbstractRegistrationHolder implements
-        IsSerializable, Serializable, IIdHolder, IExpressionUpdates
+        ISerializable, IIdHolder, IExpressionUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

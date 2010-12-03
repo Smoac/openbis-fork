@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Kinds of fields connected with Material attributes that can be used in detailed text queries.
  * 
  * @author Piotr Buczek
  */
-public enum MaterialAttributeSearchFieldKind implements IsSerializable, IAttributeSearchFieldKind
+public enum MaterialAttributeSearchFieldKind implements ISerializable, IAttributeSearchFieldKind
 {
     CODE("Code"),
 

@@ -16,14 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Type of query.
  * 
  * @author Izabela Adamczyk
  */
-public enum QueryType implements IsSerializable
+public enum QueryType implements ISerializable
 {
 
     GENERIC,

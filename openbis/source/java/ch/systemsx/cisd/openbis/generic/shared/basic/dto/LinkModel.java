@@ -22,6 +22,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+
 /**
  * A model for reporting plug-ins of type DSS_LINK. It keeps the different parts of the URL separate
  * so that users can easily use only the parts they need.
@@ -39,7 +41,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class LinkModel implements IsSerializable, Serializable
+public class LinkModel implements ISerializable
 {
     // Package visible constant
     static final String SESSION_ID_PARAMETER_NAME = "sessionID";

@@ -16,18 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Column header for {@link TableModel}.
  * 
  * @author Tomasz Pylak
  */
-public class TableModelColumnHeader implements IsSerializable, Serializable
+public class TableModelColumnHeader implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -42,11 +41,11 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 
     // if column values contain permIds of certain entities entity kind is stored here
     private EntityKind entityKindOrNull;
-    
+
     private Map<String, String> properties;
 
     private int defaultColumnWidth = 150;
-    
+
     private boolean hidden;
 
     public TableModelColumnHeader()
@@ -80,7 +79,7 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
         // NOTE: id shouldn't contain spaces or some features of columns (e.g. links) will not work
         this.id = id.replaceAll(" ", "_");
     }
-    
+
     public final String getId()
     {
         return id;
@@ -90,7 +89,7 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     {
         this.index = index;
     }
-    
+
     public int getIndex()
     {
         return index;
@@ -135,7 +134,7 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     {
         this.entityKindOrNull = entityKind;
     }
-    
+
     public void setProperty(String key, String value)
     {
         if (properties == null)
@@ -144,7 +143,7 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
         }
         properties.put(key, value);
     }
-    
+
     public String tryToGetProperty(String key)
     {
         return properties == null ? null : properties.get(key);

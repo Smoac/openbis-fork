@@ -23,18 +23,21 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 
 /**
- * Table model for {@link TypedTableGrid} classes. It contains column meta-data as a
- * list of {@link TableModelColumnHeader} instances and the row data as a list of
+ * Table model for {@link TypedTableGrid} classes. It contains column meta-data as a list of
+ * {@link TableModelColumnHeader} instances and the row data as a list of
  * {@link TableModelRowWithObject} instances for row objects of type <code>T</code>.
- *
+ * 
  * @author Franz-Josef Elmer
  */
+// TODO 2010-12-03, Piotr Buczek: change to ISerializable
 public class TypedTableModel<T extends IsSerializable>
 {
     private final List<TableModelColumnHeader> header;
+
     private final List<TableModelRowWithObject<T>> rows;
 
-    public TypedTableModel(List<TableModelColumnHeader> header, List<TableModelRowWithObject<T>> rows)
+    public TypedTableModel(List<TableModelColumnHeader> header,
+            List<TableModelRowWithObject<T>> rows)
     {
         this.header = header;
         this.rows = rows;

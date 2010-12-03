@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.Date;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Super class of <i>DTO</i>s which hold registration data.
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractRegistrationHolder implements IsSerializable, Serializable
+public abstract class AbstractRegistrationHolder implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

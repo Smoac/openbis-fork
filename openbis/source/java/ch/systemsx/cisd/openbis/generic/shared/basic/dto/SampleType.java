@@ -22,16 +22,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * A {@link EntityType} extension for <i>Sample Type</i>.
  * 
  * @author Izabela Adamczyk
  */
-public final class SampleType extends EntityType implements IsSerializable
+public final class SampleType extends EntityType implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -161,7 +160,7 @@ public final class SampleType extends EntityType implements IsSerializable
 
     //
     // Object
-    // 
+    //
 
     @Override
     public boolean equals(Object obj)

@@ -16,11 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.Collection;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -38,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class ListSampleCriteria implements IsSerializable, Serializable
+public class ListSampleCriteria implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -64,7 +62,7 @@ public class ListSampleCriteria implements IsSerializable, Serializable
 
     // --------- filter 5 fields
     private TechId experimentId;
-    
+
     private Collection<Long> childrenSampleIds;
 
     // ----
@@ -96,7 +94,7 @@ public class ListSampleCriteria implements IsSerializable, Serializable
         criteria.setChildrenSampleIds(childrenSampleIds);
         return criteria;
     }
-    
+
     public static ListSampleCriteria createForExperiment(final TechId experimentId)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();

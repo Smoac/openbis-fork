@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Tomasz Pylak
  */
-public enum DataStoreServiceKind implements Serializable, IsSerializable
+public enum DataStoreServiceKind implements ISerializable
 {
     // Do not refactor names - they are stored in database.
     PROCESSING("Processing"), QUERIES("Query");

@@ -16,15 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * The {@link EntityTypePropertyType} extension for <i>Sample Type</i>.
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypePropertyType extends EntityTypePropertyType<SampleType> implements
-        IsSerializable
+public class SampleTypePropertyType extends EntityTypePropertyType<SampleType>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

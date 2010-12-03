@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Criteria for tracking <i>data sets</i> connected to samples of a particular type with technical
@@ -29,7 +27,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Piotr Buczek
  */
-public class TrackingDataSetCriteria implements IsSerializable, Serializable
+public class TrackingDataSetCriteria implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

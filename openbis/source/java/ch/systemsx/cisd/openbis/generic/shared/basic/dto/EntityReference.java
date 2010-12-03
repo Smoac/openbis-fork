@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Reference to an entity with minimal information to uniquely identify it in the database and to
@@ -28,8 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
  * 
  * @author Tomasz Pylak
  */
-public class EntityReference implements Serializable, IsSerializable,
-        IEntityInformationHolderWithPermId
+public class EntityReference implements ISerializable, IEntityInformationHolderWithPermId
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

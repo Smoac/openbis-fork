@@ -19,14 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Aggregates sort field and sort direction.
  * 
  * @author Christian Ribeaud
  */
-public final class SortInfo<T> implements IsSerializable
+public final class SortInfo<T> implements ISerializable
 {
+    private static final long serialVersionUID = 1L;
+
     private IColumnDefinition<T> sortField;
 
     private SortDir sortDir = SortDir.NONE;

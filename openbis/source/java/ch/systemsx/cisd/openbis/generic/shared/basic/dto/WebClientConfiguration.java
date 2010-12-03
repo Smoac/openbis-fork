@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
 
 /**
@@ -29,23 +27,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
  * 
  * @author Izabela Adamczyk
  */
-public class WebClientConfiguration implements IsSerializable, Serializable
+public class WebClientConfiguration implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private Map<String, DetailViewConfiguration> views =
             new HashMap<String, DetailViewConfiguration>();
-    
-    private Map<String, Map<String, String>> technologyProperties = new HashMap<String, Map<String, String>>();
+
+    private Map<String, Map<String, String>> technologyProperties =
+            new HashMap<String, Map<String, String>>();
 
     private ViewMode defaultViewMode;
-    
+
     public String getPropertyOrNull(String technology, String key)
     {
         Map<String, String> properties = technologyProperties.get(technology);
         return properties == null ? null : properties.get(key);
     }
-    
+
     public void addPropertiesForTechnology(String technology, Map<String, String> properties)
     {
         technologyProperties.put(technology, properties);

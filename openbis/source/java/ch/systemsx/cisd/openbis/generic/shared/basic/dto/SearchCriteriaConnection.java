@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Izabela Adamczyk
  */
-public enum SearchCriteriaConnection implements IsSerializable
+public enum SearchCriteriaConnection implements ISerializable
 {
     MATCH_ALL, MATCH_ANY
 }
