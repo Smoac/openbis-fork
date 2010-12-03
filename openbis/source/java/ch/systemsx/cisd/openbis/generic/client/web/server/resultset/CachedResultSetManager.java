@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -499,12 +498,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         public boolean isMatching(final GridRowModel<T> row)
         {
             IColumnDefinition<T> definition = filteredField;
-            String escapedValue = getOriginalValue(definition, row).toLowerCase();
-            // NOTE: We cannot escape filter expressions because some complex pattern may contain
-            // special characters e.g. '&' that would stop working after being escaped.
-            // The only option is to unescape the cached value before passing it to the filter.
-            String unescapedValue = StringEscapeUtils.unescapeHtml(escapedValue);
-            return filter.passes(unescapedValue);
+            String value = getOriginalValue(definition, row).toLowerCase();
+            return filter.passes(value);
         }
 
     }

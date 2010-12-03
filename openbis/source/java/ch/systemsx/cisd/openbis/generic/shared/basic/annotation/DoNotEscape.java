@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * <ol>
  * <li>object contains important information used internally by application that are not shown to
  * the user and shouldn't be escaped (like session id)
- * <li>object is escaped in a different place (e.g. in CachedResultSetManager)
+ * <li>object is escaped in a different place (e.g. in ResultSetTranslator)
  * </ol>
  * 
  * @author Piotr Buczek
