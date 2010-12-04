@@ -16,29 +16,26 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class AbundanceColumnDefinition implements Serializable, IsSerializable, Comparable<AbundanceColumnDefinition>
+public class AbundanceColumnDefinition implements ISerializable,
+        Comparable<AbundanceColumnDefinition>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private List<Long> sampleIDs = new ArrayList<Long>(1);
-    
+
     private String sampleCode;
-    
+
     private List<Treatment> treatments;
-    
+
     public final long getID()
     {
         long id = 0;
@@ -48,7 +45,7 @@ public class AbundanceColumnDefinition implements Serializable, IsSerializable, 
         }
         return id;
     }
-    
+
     public final List<Long> getSampleIDs()
     {
         return sampleIDs;
@@ -63,7 +60,7 @@ public class AbundanceColumnDefinition implements Serializable, IsSerializable, 
     {
         sampleIDs.add(sampleID);
     }
-    
+
     public final String getSampleCode()
     {
         return sampleCode;

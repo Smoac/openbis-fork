@@ -16,35 +16,31 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class ProteinInfo implements Serializable, IsSerializable
+public class ProteinInfo implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private TechId id;
-    
+
     private String accessionNumber;
-    
+
     private TechId experimentID;
-    
+
     private String dataSetPermID;
-    
+
     private String description;
-    
+
     private double coverage;
-    
+
     private Map<Long, Double> abundances;
 
     public final TechId getId()

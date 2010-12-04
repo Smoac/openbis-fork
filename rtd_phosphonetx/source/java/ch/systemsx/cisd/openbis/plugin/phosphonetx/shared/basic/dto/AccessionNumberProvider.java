@@ -16,25 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class AccessionNumberProvider implements IsSerializable, Serializable
+public class AccessionNumberProvider implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String accessionNumberType;
-    
+
     private String accessionNumber;
-    
+
     public final String getAccessionNumberType()
     {
         return accessionNumberType;

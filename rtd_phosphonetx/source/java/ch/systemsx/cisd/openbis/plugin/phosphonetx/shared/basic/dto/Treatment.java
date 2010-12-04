@@ -16,27 +16,22 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class Treatment implements Serializable, IsSerializable, Comparable<Treatment>
+public class Treatment implements ISerializable, Comparable<Treatment>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String value;
-    
+
     private String type;
-    
+
     private String typeCode;
-    
+
     private String valueType;
 
     public final String getValue()
@@ -68,7 +63,7 @@ public class Treatment implements Serializable, IsSerializable, Comparable<Treat
     {
         this.type = type;
     }
-    
+
     public final String getTypeCode()
     {
         return typeCode;
@@ -99,7 +94,7 @@ public class Treatment implements Serializable, IsSerializable, Comparable<Treat
         }
         return Double.compare(thisNumber, thatNumber);
     }
-    
+
     private double convert(String numberOrString)
     {
         try
@@ -116,6 +111,5 @@ public class Treatment implements Serializable, IsSerializable, Comparable<Treat
     {
         return getLabel();
     }
-    
-    
+
 }

@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 import java.util.Arrays;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Aggregate functions.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public enum AggregateFunction implements IsSerializable
+public enum AggregateFunction implements ISerializable
 {
     MEAN("mean")
     {
@@ -93,21 +93,21 @@ public enum AggregateFunction implements IsSerializable
         }
     },
     ;
-    
+
     private final String label;
 
     private AggregateFunction(String label)
     {
         this.label = label;
     }
-    
+
     public final String getLabel()
     {
         return label;
     }
 
     /**
-     * Aggregates the specified array of numbers to one number. 
+     * Aggregates the specified array of numbers to one number.
      * 
      * @param values an array with at least one value.
      */

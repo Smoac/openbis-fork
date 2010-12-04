@@ -16,27 +16,25 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
-import java.io.Serializable;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * @author Tomasz Pylak
  */
-public class ProteinDetails implements IsSerializable, Serializable
+public class ProteinDetails implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String sequence;
 
     private String databaseNameAndVersion;
-    
+
     private double probability;
-    
+
     private double coverage;
 
     private double falseDiscoveryRate;
@@ -46,11 +44,11 @@ public class ProteinDetails implements IsSerializable, Serializable
     private Long dataSetTechID;
 
     private String dataSetTypeCode;
-    
+
     private TechId proteinID;
 
     private List<Peptide> peptides;
-    
+
     private List<IndistinguishableProteinInfo> indistinguishableProteinInfos;
 
     public String getSequence()
@@ -82,12 +80,12 @@ public class ProteinDetails implements IsSerializable, Serializable
     {
         return probability;
     }
-    
+
     public void setProbability(double probability)
     {
         this.probability = probability;
     }
-    
+
     public void setCoverage(double coverage)
     {
         this.coverage = coverage;
@@ -97,7 +95,7 @@ public class ProteinDetails implements IsSerializable, Serializable
     {
         return coverage;
     }
-    
+
     public void setFalseDiscoveryRate(double falseDiscoveryRate)
     {
         this.falseDiscoveryRate = falseDiscoveryRate;
@@ -153,7 +151,8 @@ public class ProteinDetails implements IsSerializable, Serializable
         this.dataSetTypeCode = dataSetTypeCode;
     }
 
-    public void setIndistinguishableProteinInfos(List<IndistinguishableProteinInfo> indistinguishableProteinInfos)
+    public void setIndistinguishableProteinInfos(
+            List<IndistinguishableProteinInfo> indistinguishableProteinInfos)
     {
         this.indistinguishableProteinInfos = indistinguishableProteinInfos;
     }
