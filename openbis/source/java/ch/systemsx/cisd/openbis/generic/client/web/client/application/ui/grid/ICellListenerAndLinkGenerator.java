@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * Interface for classes implementing click listener action and generating corresponding
- * URL for simple view mode.
- *
+ * Interface for classes implementing click listener action and generating corresponding URL for
+ * simple view mode.
+ * 
  * @author Franz-Josef Elmer
  */
-public interface ICellListenerAndLinkGenerator<T extends IsSerializable> extends
-        ILinkGenerator<T>, ICellListener<TableModelRowWithObject<T>>
+public interface ICellListenerAndLinkGenerator<T extends ISerializable> extends ILinkGenerator<T>,
+        ICellListener<TableModelRowWithObject<T>>
 {
 }

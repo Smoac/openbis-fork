@@ -16,16 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public interface ITableModelProvider<T extends IsSerializable>
+public interface ITableModelProvider<T extends ISerializable>
 {
     public TypedTableModel<T> getTableModel();
 }

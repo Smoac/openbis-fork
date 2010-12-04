@@ -16,17 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
  * Superclass of {@link ITableModelProvider} implementations which creates the actual table model
  * lazily.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractTableModelProvider<T extends IsSerializable> implements ITableModelProvider<T>
+public abstract class AbstractTableModelProvider<T extends ISerializable> implements
+        ITableModelProvider<T>
 {
     private TypedTableModel<T> model;
 
@@ -44,5 +44,5 @@ public abstract class AbstractTableModelProvider<T extends IsSerializable> imple
      * .
      */
     protected abstract TypedTableModel<T> createTableModel();
-    
+
 }

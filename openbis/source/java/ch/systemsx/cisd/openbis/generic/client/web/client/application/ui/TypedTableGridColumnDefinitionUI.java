@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypedTableGridColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ILinkGenerator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 /**
  * @author Franz-Josef Elmer
  */
-public class TypedTableGridColumnDefinitionUI<T extends IsSerializable> extends
+public class TypedTableGridColumnDefinitionUI<T extends ISerializable> extends
         TypedTableGridColumnDefinition<T> implements
         IColumnDefinitionUI<TableModelRowWithObject<T>>
 {

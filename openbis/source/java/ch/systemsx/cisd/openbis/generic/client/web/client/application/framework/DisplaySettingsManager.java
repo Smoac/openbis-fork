@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext.ClientStaticState;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -374,7 +373,7 @@ public class DisplaySettingsManager
 
     /** @deprecated Should be used only by specific display settings manager */
     @Deprecated
-    public final IsSerializable tryGetTechnologySpecificSettings(String technologyName)
+    public final ISerializable tryGetTechnologySpecificSettings(String technologyName)
     {
         return displaySettings.getTechnologySpecificSettings().get(technologyName);
     }

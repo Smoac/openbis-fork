@@ -30,8 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
@@ -48,10 +47,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
  * Builder class for creating an instance of {@link TypedTableModel}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public class TypedTableModelBuilder<T extends IsSerializable>
+public class TypedTableModelBuilder<T extends ISerializable>
 {
     private static final StringTableCell EMPTY_CELL = new StringTableCell("");
 
@@ -63,7 +62,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         {
             this.column = column;
         }
-        
+
         public IColumnMetaData withTitle(String title)
         {
             column.getHeader().setTitle(title);
@@ -75,7 +74,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
             column.getHeader().setDefaultColumnWidth(width);
             return this;
         }
-        
+
         public IColumnMetaData withDataType(DataTypeCode dataType)
         {
             column.getHeader().setDataType(dataType);
@@ -88,21 +87,21 @@ public class TypedTableModelBuilder<T extends IsSerializable>
             return this;
         }
     }
-    
+
     private static interface IIndexProvider
     {
         public int getIndex();
     }
-    
+
     private static interface IColumnItem
     {
         public List<Column> getColumns();
     }
-    
+
     private final class ColumnGroup implements IColumnGroup, IColumnItem
     {
         private final String groupKey;
-        
+
         private final Set<Column> cols = new LinkedHashSet<TypedTableModelBuilder.Column>();
 
         private ColumnGroup(String groupKey)
@@ -127,8 +126,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
             addProperties(groupKey, properties);
         }
 
-        public void addProperties(String idPrefix,
-                Collection<IEntityProperty> properties)
+        public void addProperties(String idPrefix, Collection<IEntityProperty> properties)
         {
             for (IEntityProperty property : properties)
             {
@@ -137,7 +135,8 @@ public class TypedTableModelBuilder<T extends IsSerializable>
                 String code = idPrefix + propertyType.getCode();
                 IColumn column = column(code).withTitle(label);
                 DataTypeCode dataType = propertyType.getDataType().getCode();
-                ISerializableComparable value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
+                ISerializableComparable value =
+                        DataTypeUtils.convertTo(dataType, property.tryGetAsString());
                 column.withDataType(dataType).addValue(value);
             }
         }
@@ -146,7 +145,10 @@ public class TypedTableModelBuilder<T extends IsSerializable>
     private static final class Column implements IColumn, IColumnItem
     {
         private final TableModelColumnHeader header;
-        private final List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
+
+        private final List<ISerializableComparable> values =
+                new ArrayList<ISerializableComparable>();
+
         private final IIndexProvider indexProvider;
 
         Column(String id, IIndexProvider indexProvider)
@@ -154,12 +156,12 @@ public class TypedTableModelBuilder<T extends IsSerializable>
             header = new TableModelColumnHeader(null, id, 0);
             this.indexProvider = indexProvider;
         }
-        
+
         public TableModelColumnHeader getHeader()
         {
             return header;
         }
-        
+
         public ISerializableComparable getValue(int index)
         {
             return index < values.size() ? values.get(index) : EMPTY_CELL;
@@ -206,7 +208,8 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         public void addString(String valueOrNull)
         {
             setDataType(DataTypeCode.VARCHAR);
-            StringTableCell value = valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
+            StringTableCell value =
+                    valueOrNull == null ? EMPTY_CELL : new StringTableCell(valueOrNull);
             addValue(value);
         }
 
@@ -214,7 +217,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         {
             setDataType(DataTypeCode.INTEGER);
             ISerializableComparable value =
-                valueOrNull == null ? EMPTY_CELL : new IntegerTableCell(valueOrNull);
+                    valueOrNull == null ? EMPTY_CELL : new IntegerTableCell(valueOrNull);
             addValue(value);
         }
 
@@ -222,7 +225,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         {
             setDataType(DataTypeCode.REAL);
             ISerializableComparable value =
-                valueOrNull == null ? EMPTY_CELL : new DoubleTableCell(valueOrNull);
+                    valueOrNull == null ? EMPTY_CELL : new DoubleTableCell(valueOrNull);
             addValue(value);
         }
 
@@ -233,7 +236,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
                     valueOrNull == null ? EMPTY_CELL : new DateTableCell(valueOrNull);
             addValue(value);
         }
-        
+
         private void setDataType(DataTypeCode dataType)
         {
             header.setDataType(DataTypeUtils.getCompatibleDataType(header.getDataType(), dataType));
@@ -244,15 +247,15 @@ public class TypedTableModelBuilder<T extends IsSerializable>
             addString(SimplePersonRenderer.createPersonName(personOrNull).toString());
         }
     }
-    
+
     private final Map<String, Column> columns = new HashMap<String, Column>();
-    
+
     private final Map<String, IColumnGroup> columnGroups = new HashMap<String, IColumnGroup>();
-    
+
     private final List<IColumnItem> columnItems = new ArrayList<IColumnItem>();
-    
+
     private final List<T> rowObjects = new ArrayList<T>();
-    
+
     /**
      * Returns the model.
      */
@@ -287,7 +290,8 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         for (int i = 0, n = rowObjects.size(); i < n; i++)
         {
             T object = rowObjects.get(i);
-            List<ISerializableComparable> rowValues = new ArrayList<ISerializableComparable>(headers.size());
+            List<ISerializableComparable> rowValues =
+                    new ArrayList<ISerializableComparable>(headers.size());
             for (Column column : orderedColumns)
             {
                 rowValues.add(column.getValue(i));
@@ -313,7 +317,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         Column column = getOrCreateColumnAsColumnItem(id);
         return new ColumnMetaData(column);
     }
-    
+
     /**
      * Adds a row with optional row object. This method has to be called before adding values to
      * columns.
@@ -335,7 +339,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         }
         return columnGroup;
     }
-    
+
     public IColumn column(String id)
     {
         return getOrCreateColumnAsColumnItem(id);
@@ -351,7 +355,7 @@ public class TypedTableModelBuilder<T extends IsSerializable>
         }
         return column;
     }
-    
+
     private Column getOrCreateColumn(String id)
     {
         Column column = columns.get(id);
@@ -371,4 +375,3 @@ public class TypedTableModelBuilder<T extends IsSerializable>
     }
 
 }
-

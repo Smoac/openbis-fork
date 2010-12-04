@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -78,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -1286,8 +1288,16 @@ public final class CommonClientService extends AbstractClientService implements
             final List<VocabularyTerm> results = new ArrayList<VocabularyTerm>();
             for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
             {
-                final StringReader stringReader =
-                        new StringReader(new String(multipartFile.getBytes()));
+                StringReader stringReader;
+                try
+                {
+                    stringReader =
+                            new StringReader(new String(multipartFile.getBytes(),
+                                    BasicConstant.UTF_ENCODING));
+                } catch (UnsupportedEncodingException ex)
+                {
+                    throw new UserFailureException(ex.getMessage());
+                }
                 final List<VocabularyTerm> loadedTerms =
                         tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
                                 .getOriginalFilename()));

@@ -16,20 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
- * Superclass of {@link ITableModelProvider} which creates the table model
- * lazily by using {@link ICommonServer}.
- *
+ * Superclass of {@link ITableModelProvider} which creates the table model lazily by using
+ * {@link ICommonServer}.
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractCommonTableModelProvider<T extends IsSerializable> extends
+public abstract class AbstractCommonTableModelProvider<T extends ISerializable> extends
         AbstractTableModelProvider<T>
 {
     protected final ICommonServer commonServer;
+
     protected final String sessionToken;
 
     public AbstractCommonTableModelProvider(ICommonServer commonServer, String sessionToken)

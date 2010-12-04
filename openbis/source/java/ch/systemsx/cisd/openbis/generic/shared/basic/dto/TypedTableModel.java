@@ -18,9 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * Table model for {@link TypedTableGrid} classes. It contains column meta-data as a list of
@@ -29,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTa
  * 
  * @author Franz-Josef Elmer
  */
-// TODO 2010-12-03, Piotr Buczek: change to ISerializable
-public class TypedTableModel<T extends IsSerializable>
+public class TypedTableModel<T extends ISerializable>
 {
     private final List<TableModelColumnHeader> header;
 

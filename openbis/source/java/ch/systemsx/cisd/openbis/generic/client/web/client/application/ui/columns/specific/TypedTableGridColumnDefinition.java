@@ -1,10 +1,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DssLinkTableCell;
@@ -14,11 +13,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class TypedTableGridColumnDefinition<T extends IsSerializable> implements
+public class TypedTableGridColumnDefinition<T extends ISerializable> implements
         IColumnDefinition<TableModelRowWithObject<T>>
 {
     protected TableModelColumnHeader header;
@@ -37,7 +34,6 @@ public class TypedTableGridColumnDefinition<T extends IsSerializable> implements
         this.downloadURL = downloadURL;
         this.sessionID = sessionID;
     }
-    
 
     // GWT only
     @SuppressWarnings("unused")

@@ -18,34 +18,30 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public final class DataProviderAdapter<T extends IsSerializable> implements
-       IOriginalDataProvider<TableModelRowWithObject<T>>
+public final class DataProviderAdapter<T extends ISerializable> implements
+        IOriginalDataProvider<TableModelRowWithObject<T>>
 {
-   private final ITableModelProvider<T> provider;
+    private final ITableModelProvider<T> provider;
 
-   public DataProviderAdapter(ITableModelProvider<T> provider)
-   {
-       this.provider = provider;
-   }
+    public DataProviderAdapter(ITableModelProvider<T> provider)
+    {
+        this.provider = provider;
+    }
 
-   public List<TableModelRowWithObject<T>> getOriginalData()
-   {
-       return provider.getTableModel().getRows();
-   }
+    public List<TableModelRowWithObject<T>> getOriginalData()
+    {
+        return provider.getTableModel().getRows();
+    }
 
-   public List<TableModelColumnHeader> getHeaders()
-   {
-       return provider.getTableModel().getHeader();
-   }
+    public List<TableModelColumnHeader> getHeaders()
+    {
+        return provider.getTableModel().getHeader();
+    }
 }
-

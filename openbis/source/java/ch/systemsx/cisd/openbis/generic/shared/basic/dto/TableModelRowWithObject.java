@@ -18,13 +18,12 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
  * @author Franz-Josef Elmer
  */
-// TODO 2010-12-03, Piotr Buczek: change to ISerializable
-public class TableModelRowWithObject<T extends IsSerializable> extends TableModelRow
+public class TableModelRowWithObject<T extends ISerializable> extends TableModelRow
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

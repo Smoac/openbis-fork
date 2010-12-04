@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 
 /**
@@ -30,8 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
  * 
  * @author Tomasz Pylak
  */
-public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSerializable,
-        Serializable
+public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements ISerializable
 {
     private static final long serialVersionUID = 1L;
 
