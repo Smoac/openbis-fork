@@ -16,15 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes channel by code and label.
  * 
  * @author Izabela Adamczyk
  */
-public class ChannelDescription implements IsSerializable
+public class ChannelDescription implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String code;
 
@@ -43,7 +45,7 @@ public class ChannelDescription implements IsSerializable
         this.label = name;
     }
 
-    // TODO 2010-08-25, Tomasz Pylak: merge with {@link CodeAndLabel} 
+    // TODO 2010-08-25, Tomasz Pylak: merge with {@link CodeAndLabel}
     private String normalize(String name)
     {
         if (name == null)

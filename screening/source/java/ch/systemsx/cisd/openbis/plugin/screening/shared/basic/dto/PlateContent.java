@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes the whole plate - metadata of each non-empty well, references to images datasets,
@@ -29,8 +29,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
  * @author Tomasz Pylak
  */
 @DoNotEscape
-public class PlateContent implements IsSerializable
+public class PlateContent implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private PlateMetadata plateMetadata;
 
     private List<DatasetImagesReference> imagesDatasets;

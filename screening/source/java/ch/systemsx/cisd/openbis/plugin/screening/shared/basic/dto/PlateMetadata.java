@@ -18,17 +18,19 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import java.util.List;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * DTO with metadata of a plate and all its wells.
  * 
  * @author Tomasz Pylak
  */
-public class PlateMetadata implements IsSerializable
+public class PlateMetadata implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private Sample plate;
 
     private List<WellMetadata> wellsMetadata;

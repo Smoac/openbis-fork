@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Well's metadata: sample, the connected material and optionally the gene inhibited by this
@@ -26,8 +26,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * 
  * @author Tomasz Pylak
  */
-public class WellMetadata implements IsSerializable
+public class WellMetadata implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private Sample wellSample; // with fetched properties
 
     private WellLocation locationOrNull; // null if invalid code

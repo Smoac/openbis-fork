@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes the well and its location on the plate. Contains pointers to well and plate samples, a
@@ -27,8 +27,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
  * 
  * @author Tomasz Pylak
  */
-public class WellContent implements IsSerializable
+public class WellContent implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     // ------------ Metadata -----------
 
     private WellLocation locationOrNull; // null if well code was incorrect

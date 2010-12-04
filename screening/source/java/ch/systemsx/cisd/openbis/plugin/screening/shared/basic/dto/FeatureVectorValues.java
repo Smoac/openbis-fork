@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Bean for one feature vector of the well. Contains data set code, well position and array of
@@ -27,8 +27,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.annotation.DoNotEscape;
  * @author Tomasz Pylak
  */
 @DoNotEscape
-public class FeatureVectorValues implements IsSerializable
+public class FeatureVectorValues implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private WellFeatureVectorReference featureVectorReference;
 
     private FeatureValue[] featureValues;

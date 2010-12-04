@@ -16,15 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes images in one dataset and the way to access them.
  * 
  * @author Tomasz Pylak
  */
-public class DatasetImagesReference implements IsSerializable
+public class DatasetImagesReference implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     public static final DatasetImagesReference create(DatasetReference dataset,
             PlateImageParameters imageParams)
     {
@@ -60,7 +63,7 @@ public class DatasetImagesReference implements IsSerializable
     {
         return dataset.getCode();
     }
-    
+
     public Long getDatasetId()
     {
         return dataset.getId();

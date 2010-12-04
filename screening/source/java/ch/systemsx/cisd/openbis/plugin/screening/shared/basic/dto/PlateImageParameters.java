@@ -20,15 +20,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes geometry of the plate and well.
  * 
  * @author Tomasz Pylak
  */
-public class PlateImageParameters implements IsSerializable
+public class PlateImageParameters implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     // dataset code for which plate parameters are valid
     private String datasetCode;
 
@@ -44,7 +47,8 @@ public class PlateImageParameters implements IsSerializable
 
     private List<String> channelsLabels;
 
-    private Map<String, String> channelsTransformerFactorySignatures = new HashMap<String, String>();
+    private Map<String, String> channelsTransformerFactorySignatures =
+            new HashMap<String, String>();
 
     // true if any well in the dataset has a time series (or depth stack) of images
     private boolean isMultidimensional;
@@ -138,7 +142,7 @@ public class PlateImageParameters implements IsSerializable
     {
         channelsTransformerFactorySignatures.put(channelCode, signatureOrNull);
     }
-    
+
     public String getTransformerFactorySignatureOrNull(String channelCode)
     {
         return channelsTransformerFactorySignatures.get(channelCode);

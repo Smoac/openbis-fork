@@ -16,15 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes position of the well on the plate.
  * 
  * @author Tomasz Pylak
  */
-public class WellLocation implements IsSerializable
+public class WellLocation implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private static final int MAX_LETTER_NUMBER = getLetterNumber('Z');
 
     private int row;
@@ -63,8 +66,8 @@ public class WellLocation implements IsSerializable
         {
             throw new IllegalArgumentException("Missing row part of the location: " + locationStr);
         }
-        return parseLocationStr(locationStr.substring(0, indexOfFirstDigit), locationStr
-                .substring(indexOfFirstDigit));
+        return parseLocationStr(locationStr.substring(0, indexOfFirstDigit),
+                locationStr.substring(indexOfFirstDigit));
     }
 
     /**

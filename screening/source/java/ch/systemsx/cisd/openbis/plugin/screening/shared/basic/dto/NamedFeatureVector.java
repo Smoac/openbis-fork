@@ -16,15 +16,18 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Feature vector values and metadata (code and label)
  * 
  * @author Tomasz Pylak
  */
-public class NamedFeatureVector implements IsSerializable
+public class NamedFeatureVector implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     // Feature vector values, null if images have not been analyzed.
     // Some features may not be available, then the value is Float.NaN.
     // External data structure should be used to figure out which value corresponds to which

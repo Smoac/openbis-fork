@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes one channel stack which has images for many channels and a specific tile (and
@@ -24,8 +25,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class WellImageChannelStack implements IsSerializable
+public class WellImageChannelStack implements ISerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     // technical id in the imaging db
     private long channelStackTechId;
 

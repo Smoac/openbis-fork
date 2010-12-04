@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -27,9 +24,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Izabela Adamczyk
  */
-public class LibraryRegistrationInfo implements IsSerializable, Serializable
+public class LibraryRegistrationInfo implements ISerializable
 {
-    public enum RegistrationScope implements IsSerializable
+
+    public enum RegistrationScope implements ISerializable
     {
         PLATES, SIRNAS_PLATES, GENES_SIRNAS_PLATES;
 

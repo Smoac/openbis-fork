@@ -16,11 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -30,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-public class ExperimentReference implements Serializable, IsSerializable,
-        IEntityInformationHolderWithPermId
+public class ExperimentReference implements ISerializable, IEntityInformationHolderWithPermId
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

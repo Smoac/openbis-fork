@@ -22,6 +22,7 @@ import java.util.Arrays;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSearchGrid;
@@ -31,13 +32,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  * 
  * @author Tomasz Pylak
  */
-public class WellSearchCriteria implements IsSerializable, Serializable
+public class WellSearchCriteria implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     /** points to one experiment */
-    public static final class SingleExperimentSearchCriteria implements IsSerializable,
-            Serializable
+    public static final class SingleExperimentSearchCriteria implements ISerializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
