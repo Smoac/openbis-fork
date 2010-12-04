@@ -23,6 +23,9 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
  */
 public class BasicConstant
 {
+    /** default encoding used for strings - UTF-8 */
+    public static final String UTF_ENCODING = "UTF-8";
+
     /** Maximum length of a file name for uploading data sets to CIFEX. */
     public static final int MAX_LENGTH_OF_FILE_NAME = 250;
 

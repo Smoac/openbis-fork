@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.parser;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -93,26 +95,33 @@ public class SampleUploadSectionsParser
     {
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
-        final List<BatchRegistrationResult> results =
-                loadSamplesFromFiles(files, sampleType, isAutoGenerateCodes, newSamples,
-                        allowExperiments, operationKind);
-        if (defaultGroupIdentifier != null)
+        try
         {
-            switch (operationKind)
+            final List<BatchRegistrationResult> results =
+                    loadSamplesFromFiles(files, sampleType, isAutoGenerateCodes, newSamples,
+                            allowExperiments, operationKind);
+
+            if (defaultGroupIdentifier != null)
             {
-                case REGISTRATION:
-                    if (isAutoGenerateCodes)
-                    {
-                        generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
-                                isAutoGenerateCodes, newSamples);
-                    }
-                    break;
-                case UPDATE:
-                    fillIdentifiers(defaultGroupIdentifier, newSamples);
-                    break;
+                switch (operationKind)
+                {
+                    case REGISTRATION:
+                        if (isAutoGenerateCodes)
+                        {
+                            generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
+                                    isAutoGenerateCodes, newSamples);
+                        }
+                        break;
+                    case UPDATE:
+                        fillIdentifiers(defaultGroupIdentifier, newSamples);
+                        break;
+                }
             }
+            return new BatchSamplesOperation(newSamples, results, parseCodes(newSamples));
+        } catch (UnsupportedEncodingException ex)
+        {
+            throw new UserFailureException(ex.getMessage());
         }
-        return new BatchSamplesOperation(newSamples, results, parseCodes(newSamples));
     }
 
     private static String[] parseCodes(final List<NewSamplesWithTypes> newSamples)
@@ -245,6 +254,7 @@ public class SampleUploadSectionsParser
             Collection<NamedInputStream> uploadedFiles, SampleType sampleType,
             boolean isAutoGenerateCodes, final List<NewSamplesWithTypes> newSamples,
             boolean allowExperiments, BatchOperationKind operationKind)
+            throws UnsupportedEncodingException
     {
         final List<BatchRegistrationResult> results =
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
@@ -256,8 +266,8 @@ public class SampleUploadSectionsParser
                 sampleSections.addAll(extractSections(multipartFile.getInputStream()));
             } else
             {
-                sampleSections.add(new FileSection(new String(multipartFile.getBytes()), sampleType
-                        .getCode()));
+                sampleSections.add(new FileSection(new String(multipartFile.getBytes(),
+                        BasicConstant.UTF_ENCODING), sampleType.getCode()));
             }
             int sampleCounter = 0;
             for (FileSection fs : sampleSections)
