@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +40,7 @@ import ch.systemsx.cisd.common.parser.ParserException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
@@ -79,7 +79,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -1288,18 +1287,9 @@ public final class CommonClientService extends AbstractClientService implements
             final List<VocabularyTerm> results = new ArrayList<VocabularyTerm>();
             for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
             {
-                StringReader stringReader;
-                try
-                {
-                    stringReader =
-                            new StringReader(new String(multipartFile.getBytes(),
-                                    BasicConstant.UTF_ENCODING));
-                } catch (UnsupportedEncodingException ex)
-                {
-                    throw new UserFailureException(ex.getMessage());
-                }
+                Reader reader = UnicodeUtils.createReader(multipartFile.getInputStream());
                 final List<VocabularyTerm> loadedTerms =
-                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
+                        tabFileLoader.load(new DelegatedReader(reader, multipartFile
                                 .getOriginalFilename()));
                 results.addAll(loadedTerms);
             }
@@ -1311,7 +1301,6 @@ public final class CommonClientService extends AbstractClientService implements
             }
             return results;
         }
-
     }
 
     public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,

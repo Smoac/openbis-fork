@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.parser;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -191,9 +191,10 @@ public class SampleUploadSectionsParser
     private static List<FileSection> extractSections(InputStream stream)
     {
         List<FileSection> sections = new ArrayList<FileSection>();
-        InputStreamReader reader = new InputStreamReader(stream);
+        Reader reader = null;
         try
         {
+            reader = UnicodeUtils.createReader(stream);
             LineIterator it = IOUtils.lineIterator(reader);
             StringBuilder sb = null;
             String sectionName = null;
@@ -267,7 +268,7 @@ public class SampleUploadSectionsParser
             } else
             {
                 sampleSections.add(new FileSection(new String(multipartFile.getBytes(),
-                        BasicConstant.UTF_ENCODING), sampleType.getCode()));
+                        UnicodeUtils.DEFAULT_UNICODE_CHARSET), sampleType.getCode()));
             }
             int sampleCounter = 0;
             for (FileSection fs : sampleSections)

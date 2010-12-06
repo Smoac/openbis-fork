@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,6 +10,7 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
@@ -41,7 +41,7 @@ public class MaterialLoader
         results = new ArrayList<BatchRegistrationResult>(files.size());
         for (final NamedInputStream file : files)
         {
-            final Reader reader = new InputStreamReader(file.getInputStream());
+            final Reader reader = UnicodeUtils.createReader(file.getInputStream());
             final List<NewMaterial> loadedMaterials =
                     tabFileLoader.load(new DelegatedReader(reader, file.getOriginalFilename()));
             newMaterials.addAll(loadedMaterials);

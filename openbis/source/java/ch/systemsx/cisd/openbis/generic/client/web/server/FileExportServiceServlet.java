@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.common.utilities.OSKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -51,7 +52,7 @@ public class FileExportServiceServlet extends AbstractFileDownloadServlet
             OSKind osKind = HttpUtils.figureOperatingSystemKind(request);
             String lineSeparator = osKind.getLineSeparator();
             String fileContent = service.getExportTable(exportDataKey, lineSeparator);
-            byte[] value = fileContent.getBytes();
+            byte[] value = fileContent.getBytes(UnicodeUtils.DEFAULT_UNICODE_CHARSET);
             String fileName = "exportedData.txt";
             return new FileContent(value, fileName);
         } else

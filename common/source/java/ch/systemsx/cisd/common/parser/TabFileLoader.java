@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.parser;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +38,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 
 /**
  * Convenient class to load (or iterate over) a tab file, a reader or a stream. The loader delivers
@@ -143,17 +146,17 @@ public class TabFileLoader<T>
         assert file != null : "Given file must not be null";
         assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
 
-        FileReader reader = null;
+        FileInputStream inputStream = null;
         try
         {
-            reader = new FileReader(file);
-            return load(reader);
+            inputStream = FileUtils.openInputStream(file);
+            return load(inputStream);
         } catch (final IOException ex)
         {
             throw new IOExceptionUnchecked(ex);
         } finally
         {
-            IOUtils.closeQuietly(reader);
+            IOUtils.closeQuietly(inputStream);
         }
     }
 
@@ -476,7 +479,8 @@ public class TabFileLoader<T>
 
     private Iterator<Line> createLineIterator(final InputStream stream) throws IOException
     {
-        final LineIterator lineIterator = IOUtils.lineIterator(stream, "UTF-8");
+        final LineIterator lineIterator =
+                IOUtils.lineIterator(stream, UnicodeUtils.DEFAULT_UNICODE_CHARSET);
         final Iterator<Line> iterator = new TabFileLineIterator(lineIterator);
         return iterator;
     }
