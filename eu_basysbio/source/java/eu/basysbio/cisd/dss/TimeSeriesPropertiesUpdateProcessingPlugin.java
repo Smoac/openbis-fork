@@ -18,11 +18,11 @@ package eu.basysbio.cisd.dss;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
@@ -48,7 +48,7 @@ public class TimeSeriesPropertiesUpdateProcessingPlugin extends AbstractDatastor
     private static final long serialVersionUID = 1L;
 
     public ProcessingStatus process(List<DatasetDescription> datasets,
-            Map<String, String> parameterBindings)
+            DataSetProcessingContext context)
     {
         final ProcessingStatus result = new ProcessingStatus();
         for (DatasetDescription dataset : datasets)
