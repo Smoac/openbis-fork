@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -62,7 +63,9 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private final DatastoreServiceDescription serviceDescription;
 
-    private final IMailClient mailClient;
+    private MailClientParameters mailClientParameters;
+    
+    private transient IMailClient mailClient;
 
     public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
             Map<String, String> parameterBindings, String userEmailOrNull,
@@ -70,6 +73,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
             MailClientParameters mailClientParameters)
     {
         this(task, datasets, parameterBindings, userEmailOrNull, serviceDescription, new MailClient(mailClientParameters));
+        this.mailClientParameters = mailClientParameters;
     }
     
     ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
@@ -145,7 +149,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
     {
         String errorMessageOrNull = null;
         ProcessingStatus processingStatusOrNull = null;
-        ProxyMailClient proxyMailClient = new ProxyMailClient(mailClient);
+        ProxyMailClient proxyMailClient = new ProxyMailClient(getMailClient());
         try
         {
             DataSetProcessingContext context =
@@ -210,7 +214,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private void sendMessage(String subject, String content, String recipient)
     {
-        mailClient.sendMessage(subject, content, null, null, recipient);
+        getMailClient().sendMessage(subject, content, null, null, recipient);
     }
 
     private String getShortDescription(String suffix)
@@ -284,6 +288,15 @@ public class ProcessDatasetsCommand implements IDataSetCommand
             sb.append("\n");
         }
         return sb.toString();
+    }
+    
+    private IMailClient getMailClient()
+    {
+        if (mailClient == null)
+        {
+            mailClient = new MailClient(mailClientParameters);
+        }
+        return mailClient;
     }
 
 }

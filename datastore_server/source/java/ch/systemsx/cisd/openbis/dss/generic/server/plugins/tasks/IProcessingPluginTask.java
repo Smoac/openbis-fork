@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 import java.io.Serializable;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.DataSetProcessingContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**

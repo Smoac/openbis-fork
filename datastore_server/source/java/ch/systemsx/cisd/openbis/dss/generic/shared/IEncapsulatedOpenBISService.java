@@ -60,8 +60,13 @@ public interface IEncapsulatedOpenBISService
     /**
      * Tries to get the data set for the specified data set code.
      */
+    public ExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
+    
+    /**
+     * Tries to get the data set for the specified data set code and specified session.
+     */
     public ExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
-            throws UserFailureException;
+    throws UserFailureException;
     
     /**
      * Checks if the current user has INSTANCE_ADMIN access rights.

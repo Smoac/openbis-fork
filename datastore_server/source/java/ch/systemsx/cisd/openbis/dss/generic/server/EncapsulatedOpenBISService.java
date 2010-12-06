@@ -653,6 +653,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
+    synchronized public ExternalData tryGetDataSet(String dataSetCode) throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return service.tryGetDataSet(sessionToken, dataSetCode);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.tryGetDataSet(sessionToken, dataSetCode);
+        }
+    }
+
     synchronized public ExternalData tryGetDataSet(String sToken, String dataSetCode)
             throws UserFailureException
     {
