@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetWellReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
@@ -28,6 +29,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorV
  */
 public class FeatureTableRow extends FeatureVectorValues
 {
+    private static final long serialVersionUID = IServer.VERSION;
+
     private FeatureVectorDatasetWellReference reference;
 
     private SampleIdentifier plateIdentifier;
