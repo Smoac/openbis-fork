@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.etl.lmc;
 
 import java.util.Properties;
 
+import ch.systemsx.cisd.bds.hcs.Location;
+
 /**
  * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>LMC</i>.
  * 
@@ -28,5 +30,20 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
+    }
+
+    @Override
+    protected Location tryGetWellLocation(final String wellLocation)
+    {
+        int tileNumber;
+        try
+        {
+            tileNumber = Integer.parseInt(wellLocation);
+        } catch (final NumberFormatException ex)
+        {
+            // Nothing to do here. Rest of the code can handle this.
+            return null;
+        }
+        return Location.tryCreateLocationFromColumnwisePosition(tileNumber, wellGeometry);
     }
 }

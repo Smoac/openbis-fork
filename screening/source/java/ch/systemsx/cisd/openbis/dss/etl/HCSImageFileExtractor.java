@@ -26,6 +26,7 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
@@ -62,7 +63,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
     private final List<ColorComponent> channelColorComponentsOrNull;
 
-    private final Geometry wellGeometry;
+    protected final Geometry wellGeometry;
 
     public HCSImageFileExtractor(final Properties properties)
     {
@@ -90,17 +91,11 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     /**
-     * Extracts the well location from given <var>value</var>, following the convention adopted
-     * here.<br>
-     * Here is a numbering example for a 3x3 plate:<br>
-     * 1 4 7<br>
-     * 2 5 8<br>
-     * 3 6 9<br>
-     * <p>
-     * Returns <code>null</code> if the operation fails.
-     * </p>
+     * Extracts the well location from given token. Returns <code>null</code> if the operation
+     * fails.<br>
+     * Can be overwritten in the subclasses if they use
+     * {@link #tryExtractImageInfo(UnparsedImageFileInfo)} internally.
      */
-    @Override
     protected Location tryGetWellLocation(final String wellLocation)
     {
         try
@@ -112,14 +107,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
                 return tileMapperOrNull.tryGetLocation(tileNumber);
             } else
             {
-                Location letterLoc =
-                        Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
-                if (letterLoc == null)
-                {
-                    return null;
-                }
-                // transpose rows with columns
-                return new Location(letterLoc.getY(), letterLoc.getX());
+                return Location.tryCreateLocationFromRowwisePosition(tileNumber, wellGeometry);
             }
         } catch (final NumberFormatException ex)
         {
@@ -129,28 +117,27 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected final List<AcquiredPlateImage> getImages(String channelCode, Location plateLocation,
-            Location wellLocation, Float timepointOrNull, String imageRelativePath)
+    protected List<AcquiredPlateImage> getImages(ImageFileInfo imageInfo)
     {
-        List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
         checkChannelsAndColorComponents();
 
         if (channelColorComponentsOrNull != null)
         {
+            List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
             for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
             {
                 ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
                 ChannelDescription channelDescription = channelDescriptions.get(i);
-                images.add(createImage(plateLocation, wellLocation, imageRelativePath,
-                        channelDescription.getCode(), timepointOrNull, colorComponent));
+                imageInfo.setChannelCode(channelDescription.getCode());
+                images.add(createImage(imageInfo, colorComponent));
             }
+            return images;
         } else
         {
-            ensureChannelExist(channelDescriptions, channelCode);
-            images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelCode,
-                    timepointOrNull, null));
+            ensureChannelExist(channelDescriptions, imageInfo.getChannelCode());
+            return getDefaultImages(imageInfo);
         }
-        return images;
+
     }
 
     @Override
@@ -160,8 +147,59 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected ImageFileInfo tryExtractImageInfo(File imageFile, SampleIdentifier datasetSample)
+    /** Default implementation, can be overwritten in subclasses. */
+    protected ImageFileInfo tryExtractImageInfo(File imageFile, File incomingDataSetDirectory,
+            SampleIdentifier datasetSample)
     {
-        return tryExtractDefaultImageInfo(imageFile, datasetSample, shouldValidatePlateName);
+        UnparsedImageFileInfo unparsedInfo =
+                tryExtractDefaultImageInfo(imageFile, incomingDataSetDirectory, datasetSample,
+                        shouldValidatePlateName);
+        if (unparsedInfo == null)
+        {
+            return null;
+        }
+        return tryExtractImageInfo(unparsedInfo);
+    }
+
+    protected final ImageFileInfo tryExtractImageInfo(UnparsedImageFileInfo unparsedInfo)
+    {
+        assert unparsedInfo != null;
+
+        Location plateLocation = tryGetPlateLocation(unparsedInfo.getPlateLocationToken());
+        if (plateLocation == null)
+        {
+            operationLog.info("Cannot extract plate location from token "
+                    + unparsedInfo.getPlateLocationToken());
+            return null;
+        }
+        Location wellLocation = tryGetWellLocation(unparsedInfo.getWellLocationToken());
+        if (wellLocation == null)
+        {
+            operationLog.info("Cannot extract well location (a.k.a. tile/field/side) from token "
+                    + unparsedInfo.getWellLocationToken());
+            return null;
+        }
+        String channelCode = CodeAndLabelUtil.normalize(unparsedInfo.getChannelToken());
+
+        Float timepointOrNull = tryAsFloat(unparsedInfo.getTimepointToken());
+        Float depthOrNull = tryAsFloat(unparsedInfo.getDepthToken());
+
+        return new ImageFileInfo(plateLocation, channelCode, wellLocation,
+                unparsedInfo.getImageRelativePath(), timepointOrNull, depthOrNull);
+    }
+
+    private static Float tryAsFloat(String valueOrNull)
+    {
+        if (valueOrNull == null)
+        {
+            return null;
+        }
+        try
+        {
+            return Float.parseFloat(valueOrNull);
+        } catch (NumberFormatException e)
+        {
+            return null;
+        }
     }
 }

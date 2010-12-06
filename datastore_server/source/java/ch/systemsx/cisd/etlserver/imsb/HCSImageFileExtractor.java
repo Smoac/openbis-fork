@@ -121,7 +121,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
         try
         {
             int tileNumber = Integer.parseInt(value);
-            Location letterLoc = Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
+            Location letterLoc = Location.tryCreateLocationFromRowwisePosition(tileNumber, wellGeometry);
             int row = letterLoc.getY();
             int col = letterLoc.getX();
             // microscops starts at the last row, so let's make a mirror

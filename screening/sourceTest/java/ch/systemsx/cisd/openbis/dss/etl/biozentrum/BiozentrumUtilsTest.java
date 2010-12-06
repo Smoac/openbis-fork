@@ -20,24 +20,25 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor.UnparsedImageFileInfo;
 
 /**
- * Test cases for {@link Utils}.
+ * Test cases for {@link BiozentrumUtils}.
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = Utils.class)
-public class UtilsTest extends AssertJUnit
+@Friend(toClasses = BiozentrumUtils.class)
+public class BiozentrumUtilsTest extends AssertJUnit
 {
     @Test
     public void testExtractFileInfoCorrectFileName() throws Exception
     {
-        ImageFileInfo info =
-                Utils.extractBZImageFileInfo("SM100719invasomes_plt-1_bc-UNK_wp-A01_s-10_t-1_wl-Cy3_001");
-        assertEquals("plate location token", "A01", info.getPlateLocationToken());
-        assertEquals("channel token", "Cy3", info.getChannelToken());
-        assertEquals("time point token", "1", info.getTimepointToken());
-        assertEquals("well location token", "10", info.getWellLocationToken());
+        UnparsedImageFileInfo info =
+                BiozentrumUtils.extractBZImageFileInfo("bDZ01-1A_wD17_s3_z123_t321_cGFP");
+        assertEquals("plate location token", "D17", info.getPlateLocationToken());
+        assertEquals("channel token", "GFP", info.getChannelToken());
+        assertEquals("well location token", "3", info.getWellLocationToken());
+        assertEquals("time point token", "321", info.getTimepointToken());
+        assertEquals("depth token", "123", info.getDepthToken());
     }
 }

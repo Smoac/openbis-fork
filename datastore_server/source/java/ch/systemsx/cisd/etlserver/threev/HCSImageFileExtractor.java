@@ -110,7 +110,7 @@ public final class HCSImageFileExtractor implements IHCSImageFileExtractor
             final String tileNo = value.substring(startsWith.length());
             try
             {
-                return Location.tryCreateLocationFromPosition(Integer.parseInt(tileNo),
+                return Location.tryCreateLocationFromRowwisePosition(Integer.parseInt(tileNo),
                         wellGeometry);
             } catch (NumberFormatException ex)
             {

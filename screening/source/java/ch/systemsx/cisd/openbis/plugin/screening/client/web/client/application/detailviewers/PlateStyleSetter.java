@@ -26,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 // TODO 2009-12-07, Tomasz Pylak: screening - move to CSS file and remove this class
 public class PlateStyleSetter
 {
-    private static final String WELL_component_SIZE = "20";
+    public static final int WELL_BOX_SIZE_PX = 20;
 
     public static Component setWellStyle(Component component)
     {
@@ -43,8 +43,8 @@ public class PlateStyleSetter
 
     private static void setWellSize(Component component)
     {
-        component.setWidth(WELL_component_SIZE);
-        component.setHeight(WELL_component_SIZE);
+        component.setWidth("" + WELL_BOX_SIZE_PX);
+        component.setHeight("" + WELL_BOX_SIZE_PX);
     }
 
     public static void setPointerCursor(Component component)

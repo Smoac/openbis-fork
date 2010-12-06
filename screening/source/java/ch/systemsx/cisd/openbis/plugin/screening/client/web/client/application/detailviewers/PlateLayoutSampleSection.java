@@ -218,29 +218,26 @@ public class PlateLayoutSampleSection extends TabContent
             boolean manyImageDatasets, Widget featureVectorDatasetDatailsRow,
             boolean manyFeatureVectorDatasets)
     {
-        LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
+        RowData margin = PlateLayouter.createRowLayoutSurroundingData();
         if (manyImageDatasets)
         {
-            container.add(imageDatasetDetailsRow);
+            add(imageDatasetDetailsRow, margin);
         }
         if (manyFeatureVectorDatasets)
         {
-            container.add(featureVectorDatasetDatailsRow);
+            add(featureVectorDatasetDatailsRow, margin);
         }
 
-        container.add(plateLayout);
+        add(plateLayout, margin);
 
-        RowData horizontalMargin = PlateLayouter.createRowLayoutHorizontalMargin();
         if (manyImageDatasets == false)
         {
-            container.add(imageDatasetDetailsRow, horizontalMargin);
+            add(imageDatasetDetailsRow, margin);
         }
         if (manyFeatureVectorDatasets == false)
         {
-            container.add(featureVectorDatasetDatailsRow, horizontalMargin);
+            add(featureVectorDatasetDatailsRow, margin);
         }
-        add(container, PlateLayouter.createRowLayoutSurroundingData());
     }
 
     private Widget createImageDatasetDetailsRow(List<DatasetImagesReference> imageDatasets,

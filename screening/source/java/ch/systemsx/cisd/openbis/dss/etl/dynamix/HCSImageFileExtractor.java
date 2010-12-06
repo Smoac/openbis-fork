@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.etl.dynamix;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,45 +73,19 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     }
 
     @Override
-    protected final List<AcquiredPlateImage> getImages(String channelCode, Location plateLocation,
-            Location wellLocation, Float timepointOrNull, String imageRelativePath)
+    protected final List<AcquiredPlateImage> getImages(ImageFileInfo imageInfo)
     {
-        ensureChannelExist(channelDescriptions, channelCode);
+        ensureChannelExist(channelDescriptions, imageInfo.getChannelCode());
 
-        List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
-        images.add(createImage(plateLocation, wellLocation, imageRelativePath, channelCode,
-                timepointOrNull, null));
-        return images;
+        return getDefaultImages(imageInfo);
     }
 
     @Override
-    protected final Location tryGetWellLocation(String wellLocation)
-    {
-        return new Location(1, 1);
-    }
-
-    @Override
-    /*
-     * @param plateLocation - format row_column
-     */
-    protected final Location tryGetPlateLocation(final String plateLocation)
-    {
-        final String[] tokens = StringUtils.split(plateLocation, DYNAMIX_TOKEN_SEPARATOR);
-        Integer row = new Integer(tokens[0]);
-        Integer column = new Integer(tokens[1]);
-        return Location.tryCreateLocationFromRowAndColumn(row, column);
-    }
-
-    @Override
-    protected final Float tryGetTimepoint(final String timepointToken)
-    {
-        return new Float(timepointToken);
-    }
-
-    @Override
-    protected final ImageFileInfo tryExtractImageInfo(File imageFile, SampleIdentifier datasetSample)
+    protected ImageFileInfo tryExtractImageInfo(File imageFile, File incomingDataSetDirectory,
+            SampleIdentifier datasetSample)
     {
         String baseName = FilenameUtils.getBaseName(imageFile.getPath());
+        // example name: "left_dia_pos100_t20100227_152439.tif"
         String[] tokens = StringUtils.split(baseName, DYNAMIX_TOKEN_SEPARATOR);
         if (tokens == null || tokens.length != 5)
         {
@@ -125,18 +98,13 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
             return null;
         }
         WellLocation wellLocation = getWellLocation(imageFile, tokens);
+        Location tileLocation = new Location(1, 1);
+        String channelCode = tokens[1];
+        Float timepoint = (float) getSecondsFromFirstMeasurement(imageFile, tokens);
+        String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
-        // "left_dia_pos100_t20100227_152439.tif"
-        ImageFileInfo info = new ImageFileInfo();
-        // row_column - will be parsed later. It's unnecessary and should be refactored.
-        info.setPlateLocationToken(wellLocation.getRow() + DYNAMIX_TOKEN_SEPARATOR
-                + wellLocation.getColumn());
-        info.setWellLocationToken(null);
-        info.setChannelToken(tokens[1]);
-
-        long timepoint = getSecondsFromFirstMeasurement(imageFile, tokens);
-        info.setTimepointToken("" + timepoint);
-        return info;
+        return new ImageFileInfo(asLocation(wellLocation), channelCode, tileLocation,
+                imageRelativePath, timepoint, null);
     }
 
     private long getSecondsFromFirstMeasurement(File imageFile, String[] tokens)
@@ -197,6 +165,12 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
         DynamixWellPosition wellPos =
                 WellLocationMappingUtils.parseWellPosition(tokens[0], posToken);
         return map.get(wellPos);
+    }
+
+    private static Location asLocation(WellLocation wellLocation)
+    {
+        return Location.tryCreateLocationFromRowAndColumn(wellLocation.getRow(),
+                wellLocation.getColumn());
     }
 
     private Map<DynamixWellPosition, WellLocation> getWellLocationMapping(File imageFile)

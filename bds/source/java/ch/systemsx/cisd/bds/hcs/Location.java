@@ -61,19 +61,49 @@ public final class Location
      * 
      * @return <code>null</code> if position is out of range.
      */
-    public static final Location tryCreateLocationFromPosition(final int position,
+    public static final Location tryCreateLocationFromRowwisePosition(final int position,
             final Geometry geometry)
     {
+        return tryCreateLocationFromPosition(position, geometry, false);
+    }
+
+    /**
+     * For given <var>position</var> in given <code>geometry</code> returns corresponding
+     * <code>Location</code>. Position should be greater than 0.<br>
+     * Assumes that element index grows as row/column numbers grow, so for a 3x2 geometry elements
+     * would be numbered like:<br>
+     * 1 3 5<br>
+     * 2 4 6<br>
+     * 
+     * @return <code>null</code> if position is out of range.
+     */
+    public static final Location tryCreateLocationFromColumnwisePosition(final int position,
+            final Geometry geometry)
+    {
+        return tryCreateLocationFromPosition(position, geometry, true);
+    }
+
+    private static final Location tryCreateLocationFromPosition(final int position,
+            final Geometry geometry, boolean isColumnwise)
+    {
         assert geometry != null : "Given geometry can not be null.";
-        final int columns = geometry.getColumns();
-        final int max = columns * geometry.getRows();
+        int rows = geometry.getRows();
+        int columns = geometry.getColumns();
+        int divisor = (isColumnwise ? rows : columns);
+        final int max = columns * rows;
         // Given position is within the range.
         if (position > 0 && position <= max)
         {
-            final int modulo = position % columns;
-            final int x = modulo == 0 ? columns : modulo;
-            final int y = (int) Math.ceil(position / (float) columns);
-            return new Location(x, y);
+            final int modulo = position % divisor;
+            final int x = modulo == 0 ? divisor : modulo;
+            final int y = (int) Math.ceil(position / (float) divisor);
+            if (isColumnwise)
+            {
+                return new Location(y, x);
+            } else
+            {
+                return new Location(x, y);
+            }
         }
         return null;
     }

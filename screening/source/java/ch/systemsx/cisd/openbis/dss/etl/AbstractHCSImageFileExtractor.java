@@ -40,7 +40,6 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
@@ -52,48 +51,27 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  */
 abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtractor
 {
-    /**
-     * Extracts the well location from given <var>value</var>. Returns <code>null</code> if the
-     * operation fails.
-     */
-    abstract protected Location tryGetWellLocation(final String wellLocation);
-
-    /**
-     * null if image cannot be recognized
-     */
-    abstract protected ImageFileInfo tryExtractImageInfo(File imageFile,
-            SampleIdentifier datasetSample);
-
-    abstract protected List<AcquiredPlateImage> getImages(String channelToken,
-            Location plateLocation, Location wellLocation, Float timepointOrNull,
-            String imageRelativePath);
+    abstract protected List<AcquiredPlateImage> getImages(ImageFileInfo imageInfo);
 
     abstract protected List<Channel> getAllChannels();
 
+    /** Should log all the syntax problems in image names. */
+    abstract protected ImageFileInfo tryExtractImageInfo(File imageFile,
+            File incomingDataSetDirectory, SampleIdentifier datasetSample);
+
     /**
      * Extracts the plate location from argument. Returns <code>null</code> if the operation fails.
-     * <p>
-     * Subclasses may override this method.
-     * </p>
      */
-    protected Location tryGetPlateLocation(final String plateLocation)
+    protected static Location tryGetPlateLocation(final String plateLocation)
     {
         return Location.tryCreateLocationFromTransposedMatrixCoordinate(plateLocation);
     }
 
     /**
-     * Extracts the image timepoint from given <var>value</var>. Returns <code>null</code> if there
-     * are no timepoints.
-     * <p>
-     * Subclasses may override this method.
-     * </p>
+     * Intermediate structure containing tokens from which image info {@link ImageFileInfo} can be
+     * extracted if one finds it useful.
      */
-    protected Float tryGetTimepoint(final String timepointToken)
-    {
-        return null;
-    }
-
-    public static class ImageFileInfo extends AbstractHashable
+    public static class UnparsedImageFileInfo extends AbstractHashable
     {
         private String plateLocationToken;
 
@@ -102,6 +80,10 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         private String channelToken;
 
         private String timepointToken;
+
+        private String depthToken;
+
+        private String imageRelativePath;
 
         public String getPlateLocationToken()
         {
@@ -142,13 +124,109 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         {
             this.timepointToken = timepointToken;
         }
+
+        public String getDepthToken()
+        {
+            return depthToken;
+        }
+
+        public void setDepthToken(String depthToken)
+        {
+            this.depthToken = depthToken;
+        }
+
+        public String getImageRelativePath()
+        {
+            return imageRelativePath;
+        }
+
+        public void setImageRelativePath(String imageRelativePath)
+        {
+            this.imageRelativePath = imageRelativePath;
+        }
+    }
+
+    /** Information about one image file */
+    public static final class ImageFileInfo
+    {
+        private final Location wellLocation;
+
+        private final Location tileLocation;
+
+        private String channelCode;
+
+        private final String imageRelativePath;
+
+        private final Float timepointOrNull;
+
+        private final Float depthOrNull;
+
+        public ImageFileInfo(Location wellLocation, String channelCode, Location tileLocation,
+                String imageRelativePath, Float timepointOrNull, Float depthOrNull)
+        {
+            assert wellLocation != null;
+            assert channelCode != null;
+            assert tileLocation != null;
+            assert imageRelativePath != null;
+
+            this.wellLocation = wellLocation;
+            this.channelCode = channelCode;
+            this.tileLocation = tileLocation;
+            this.imageRelativePath = imageRelativePath;
+            this.timepointOrNull = timepointOrNull;
+            this.depthOrNull = depthOrNull;
+        }
+
+        public Location getWellLocation()
+        {
+            return wellLocation;
+        }
+
+        public Location getTileLocation()
+        {
+            return tileLocation;
+        }
+
+        public String getChannelCode()
+        {
+            return channelCode;
+        }
+
+        public String getImageRelativePath()
+        {
+            return imageRelativePath;
+        }
+
+        public Float tryGetTimepoint()
+        {
+            return timepointOrNull;
+        }
+
+        public Float tryGetDepth()
+        {
+            return depthOrNull;
+        }
+
+        public void setChannelCode(String channelCode)
+        {
+            this.channelCode = channelCode;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ImageFileInfo [well=" + wellLocation + ", tile=" + tileLocation + ", channel="
+                    + channelCode + ", path=" + imageRelativePath + ", timepoint="
+                    + timepointOrNull + ", depth=" + depthOrNull + "]";
+        }
+
     }
 
     protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractHCSImageFileExtractor.class);
 
     protected static final String IMAGE_FILE_NOT_STANDARDIZABLE =
-            "Image file '%s' could not be standardized given following tokens: %s.";
+            "Information about the image could not be extracted for the file '%s'.";
 
     protected static final String IMAGE_FILE_NOT_ENOUGH_ENTITIES =
             "The name of image file '%s' could not be splitted into enough entities.";
@@ -156,8 +234,7 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
     protected static final String IMAGE_FILE_BELONGS_TO_WRONG_SAMPLE =
             "Image file '%s' belongs to the wrong sample [expected=%s,found=%s].";
 
-    protected static final String IMAGE_FILE_ACCEPTED =
-            "Image file '%s' was accepted for channel %d, plate location %s and well location %s.";
+    protected static final String IMAGE_FILE_ACCEPTED = "Image file '%s' was accepted: %s.";
 
     // optional, list of the color components (RED, GREEN, BLUE), in the same order as channel names
     protected static final String EXTRACT_SINGLE_IMAGE_CHANNELS_PROPERTY =
@@ -174,10 +251,13 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
      * considered. They are sample code, plate location, well location, and channel. Note, that
      * sample code could be <code>null</code>.
      * 
+     * @param shouldValidatePlateName if true it will be checked if the plate code in the file name
+     *            matches the datasetSample plate code.
      * @return <code>null</code> if the argument could not be splitted into tokens.
      */
-    protected final static ImageFileInfo tryExtractDefaultImageInfo(File imageFile,
-            SampleIdentifier datasetSample, boolean shouldValidatePlateName)
+    protected final static UnparsedImageFileInfo tryExtractDefaultImageInfo(File imageFile,
+            File incomingDataSetDirectory, SampleIdentifier datasetSample,
+            boolean shouldValidatePlateName)
     {
         final String baseName = FilenameUtils.getBaseName(imageFile.getPath());
         final String[] tokens = StringUtils.split(baseName, TOKEN_SEPARATOR);
@@ -200,11 +280,22 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
             }
             return null;
         }
-        ImageFileInfo info = new ImageFileInfo();
+        String channelToken = tokens[tokens.length - 1];
+        if (StringUtils.isBlank(channelToken))
+        {
+            operationLog.info("Channel token is empty for image: " + imageFile);
+            return null;
+        }
+
+        UnparsedImageFileInfo info = new UnparsedImageFileInfo();
         info.setPlateLocationToken(tokens[tokens.length - 3]);
         info.setWellLocationToken(tokens[tokens.length - 2]);
-        info.setChannelToken(tokens[tokens.length - 1]);
+        info.setChannelToken(channelToken);
         info.setTimepointToken(null);
+        info.setDepthToken(null);
+
+        String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
+        info.setImageRelativePath(imageRelativePath);
         return info;
     }
 
@@ -222,36 +313,22 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
                 operationLog.debug(String.format("Processing image file '%s'", imageFile));
             }
             ImageFileInfo imageInfo =
-                    tryExtractImageInfo(imageFile, dataSetInformation.getSampleIdentifier());
-            if (imageInfo == null)
-            {
-                invalidFiles.add(imageFile);
-                continue;
-            }
-            Location plateLocation = tryGetPlateLocation(imageInfo.getPlateLocationToken());
-            Location wellLocation = tryGetWellLocation(imageInfo.getWellLocationToken());
-            String channelCode = CodeAndLabelUtil.normalize(imageInfo.getChannelToken());
+                    tryExtractImageInfo(imageFile, incomingDataSetDirectory,
+                            dataSetInformation.getSampleIdentifier());
 
-            if (wellLocation != null && plateLocation != null && channelCode != null)
+            if (imageInfo != null)
             {
-                String imageRelativePath =
-                        getRelativeImagePath(incomingDataSetDirectory, imageFile);
-                Float timepointOrNull = tryGetTimepoint(imageInfo.getTimepointToken());
-                List<AcquiredPlateImage> newImages =
-                        getImages(channelCode, plateLocation, wellLocation, timepointOrNull,
-                                imageRelativePath);
+                List<AcquiredPlateImage> newImages = getImages(imageInfo);
                 acquiredImages.addAll(newImages);
                 if (operationLog.isDebugEnabled())
                 {
-                    operationLog.debug(String.format(IMAGE_FILE_ACCEPTED, imageFile, channelCode,
-                            plateLocation, wellLocation));
+                    operationLog.debug(String.format(IMAGE_FILE_ACCEPTED, imageFile, imageInfo));
                 }
             } else
             {
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info(String.format(IMAGE_FILE_NOT_STANDARDIZABLE, imageFile,
-                            imageInfo));
+                    operationLog.info(String.format(IMAGE_FILE_NOT_STANDARDIZABLE, imageFile));
                 }
                 invalidFiles.add(imageFile);
             }
@@ -261,7 +338,7 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
 
     }
 
-    private String getRelativeImagePath(File incomingDataSetDirectory, final File imageFile)
+    protected static String getRelativeImagePath(File incomingDataSetDirectory, final File imageFile)
     {
         String imageRelativePath =
                 FileUtilities.getRelativeFile(incomingDataSetDirectory,
@@ -337,11 +414,21 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         return geometry;
     }
 
-    protected static final AcquiredPlateImage createImage(Location plateLocation,
-            Location wellLocation, String imageRelativePath, String channelCode,
-            Float timepointOrNull, ColorComponent colorComponent)
+    protected static List<AcquiredPlateImage> getDefaultImages(ImageFileInfo imageInfo)
     {
-        return new AcquiredPlateImage(plateLocation, wellLocation, channelCode, timepointOrNull,
-                null, new RelativeImageReference(imageRelativePath, null, colorComponent));
+        List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
+        images.add(createImage(imageInfo, null));
+        return images;
+    }
+
+    protected static final AcquiredPlateImage createImage(ImageFileInfo imageInfo,
+            ColorComponent colorComponentOrNull)
+    {
+        RelativeImageReference relativeImageRef =
+                new RelativeImageReference(imageInfo.getImageRelativePath(), null,
+                        colorComponentOrNull);
+        return new AcquiredPlateImage(imageInfo.getWellLocation(), imageInfo.getTileLocation(),
+                imageInfo.getChannelCode(), imageInfo.tryGetTimepoint(), imageInfo.tryGetDepth(),
+                relativeImageRef);
     }
 }

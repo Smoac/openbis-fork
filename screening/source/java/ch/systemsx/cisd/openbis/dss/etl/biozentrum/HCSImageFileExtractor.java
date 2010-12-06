@@ -35,9 +35,15 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
     }
 
     @Override
-    protected final ImageFileInfo tryExtractImageInfo(File imageFile, SampleIdentifier datasetSample)
+    protected final ImageFileInfo tryExtractImageInfo(File imageFile,
+            File incomingDataSetDirectory, SampleIdentifier datasetSample)
     {
-        return Utils.extractImageFileInfo(imageFile);
+        UnparsedImageFileInfo unparsedInfo = BiozentrumUtils.extractImageFileInfo(imageFile);
+        if (unparsedInfo == null)
+        {
+            return null;
+        }
+        return tryExtractImageInfo(unparsedInfo);
     }
 
 }

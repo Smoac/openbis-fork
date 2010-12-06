@@ -72,23 +72,49 @@ public final class LocationTest
     }
 
     @Test
-    public final void testCreateLocationFromPosition()
+    public final void testCreateLocationFromRowwisePosition()
     {
         final Geometry geometry = new Geometry(4, 5);
         boolean fail = true;
         try
         {
-            Location.tryCreateLocationFromPosition(1, null);
+            Location.tryCreateLocationFromRowwisePosition(1, null);
         } catch (AssertionError ex)
         {
             fail = false;
         }
         assertEquals(false, fail);
-        assertEquals(new Location(2, 3), Location.tryCreateLocationFromPosition(12, geometry));
-        assertEquals(new Location(5, 3), Location.tryCreateLocationFromPosition(15, geometry));
-        assertEquals(new Location(2, 1), Location.tryCreateLocationFromPosition(2, geometry));
-        assertEquals(new Location(1, 2), Location.tryCreateLocationFromPosition(6, geometry));
-        assertNull(Location.tryCreateLocationFromPosition(100, geometry));
+        assertEquals(new Location(2, 3),
+                Location.tryCreateLocationFromRowwisePosition(12, geometry));
+        assertEquals(new Location(5, 3),
+                Location.tryCreateLocationFromRowwisePosition(15, geometry));
+        assertEquals(new Location(2, 1), Location.tryCreateLocationFromRowwisePosition(2, geometry));
+        assertEquals(new Location(1, 2), Location.tryCreateLocationFromRowwisePosition(6, geometry));
+        assertNull(Location.tryCreateLocationFromRowwisePosition(100, geometry));
+    }
+
+    @Test
+    public final void testCreateLocationFromColumnwisePosition()
+    {
+        final Geometry geometry = new Geometry(2, 3);
+        // 1 3 5
+        // 2 4 6
+        assertEquals(new Location(1, 1),
+                Location.tryCreateLocationFromColumnwisePosition(1, geometry));
+        assertEquals(new Location(1, 2),
+                Location.tryCreateLocationFromColumnwisePosition(2, geometry));
+        assertEquals(new Location(3, 1),
+                Location.tryCreateLocationFromColumnwisePosition(5, geometry));
+        assertEquals(new Location(3, 2),
+                Location.tryCreateLocationFromColumnwisePosition(6, geometry));
+    }
+
+    @Test
+    public final void testCreateLocationFromPositionXXXXXXXXXXX()
+    {
+        final Geometry geometry = new Geometry(2, 1);
+        assertEquals(new Location(1, 1), Location.tryCreateLocationFromRowwisePosition(1, geometry));
+        assertEquals(new Location(1, 2), Location.tryCreateLocationFromRowwisePosition(2, geometry));
     }
 
     @Test
@@ -97,12 +123,12 @@ public final class LocationTest
         assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate(""));
         assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate("8"));
         assertNull(Location.tryCreateLocationFromTransposedMatrixCoordinate("M"));
-        assertEquals(new Location(2, 1), Location
-                .tryCreateLocationFromTransposedMatrixCoordinate("A02"));
-        assertEquals(new Location(7, 26), Location
-                .tryCreateLocationFromTransposedMatrixCoordinate("z7"));
-        assertEquals(new Location(34, 15), Location
-                .tryCreateLocationFromTransposedMatrixCoordinate("O34"));
+        assertEquals(new Location(2, 1),
+                Location.tryCreateLocationFromTransposedMatrixCoordinate("A02"));
+        assertEquals(new Location(7, 26),
+                Location.tryCreateLocationFromTransposedMatrixCoordinate("z7"));
+        assertEquals(new Location(34, 15),
+                Location.tryCreateLocationFromTransposedMatrixCoordinate("O34"));
     }
 
     @Test
