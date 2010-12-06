@@ -105,8 +105,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
             SampleCodeGenerator sampleCodeGeneratorOrNull =
                     tryCreateCodeGenrator(generateCodesAutomatically);
             NamedInputStream stream =
-                    new NamedInputStream(new FileInputStream(file), file.getName(),
-                            FileUtils.readFileToByteArray(file));
+                    new NamedInputStream(new FileInputStream(file), file.getName());
             BatchSamplesOperation info =
                     SampleUploadSectionsParser.prepareSamples(sampleType, Arrays.asList(stream),
                             defaultSpaceIdentifierOrNull, sampleCodeGeneratorOrNull, true,
