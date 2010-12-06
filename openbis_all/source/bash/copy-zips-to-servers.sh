@@ -17,7 +17,7 @@ export LIMB=bs-openbis03.ethz.ch
 
 # Different types of server specific zips we distinguish
 export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip"
-export ZIPS_PHOSPHONETX="*phosphonetx*.zip"
+export ZIPS_PHOSPHONETX="*phosphonetx*.zip datastore_server-S*.zip"
 export ZIPS_DSU="openBIS-server-S*.zip datastore_server-S*.zip *dsu*.zip"
 export ZIPS_BASYSBIO="*basysbio*.zip openBIS-server-S*.zip datastore_server-S*"
 export ZIPS_CINA=" openBIS-server-S*.zip *cina-*.zip datastore_server-S*"
