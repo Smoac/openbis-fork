@@ -86,8 +86,6 @@ public class PlateLayouter
 
     private static final int MARGIN_SIZE_PX = 10;
 
-    private static final int LEGEND_WIDTH_PX = 100;
-
     // ------- internal fixed state
 
     private final PlateLayouterModel model;
@@ -176,8 +174,6 @@ public class PlateLayouter
                 heatmapKindChooser));
 
         LayoutContainer plateContainer = new LayoutContainer();
-        // plateContainer.setLayout(new RowLayout(Orientation.HORIZONTAL));
-        // plateContainer.setScrollMode(Scroll.AUTO);
         plateContainer.setLayout(new ColumnLayout());
         plateContainer.add(renderPlateLayout(renderedWells));
 
@@ -186,28 +182,10 @@ public class PlateLayouter
         separator
                 .setPixelSize(PlateStyleSetter.WELL_BOX_SIZE_PX, PlateStyleSetter.WELL_BOX_SIZE_PX);
         plateContainer.add(separator);
-
         plateContainer.add(legendContainer);
-
-        // set plate widget size
-        // int width = getPlateMatrixPixelWidth(renderedWells);
-        // int height = getPlateMatrixPixelHeight(renderedWells);
-        // plateContainer.setSize(width + LEGEND_WIDTH_PX, height);
-        // plateContainer.setAutoWidth(true);
-
         container.add(plateContainer);
 
         return container;
-    }
-
-    private static int getPlateMatrixPixelHeight(Component[][] renderedWells)
-    {
-        return PlateStyleSetter.WELL_BOX_SIZE_PX * (renderedWells.length + 1);
-    }
-
-    private static int getPlateMatrixPixelWidth(Component[][] renderedWells)
-    {
-        return PlateStyleSetter.WELL_BOX_SIZE_PX * (getColumnsNum(renderedWells) + 1);
     }
 
     private static LayoutContainer renderPlateLayout(Component[][] renderedWells)
@@ -219,11 +197,6 @@ public class PlateLayouter
         plateMatrix.setLayout(layout);
 
         plateMatrix.setScrollMode(Scroll.AUTO);
-
-        // int width = getPlateMatrixPixelWidth(renderedWells);
-        // int height = getPlateMatrixPixelHeight(renderedWells);
-        // plateMatrix.setSize(width, height);
-        // plateMatrix.setAutoWidth(true);
 
         addPlateWidgets(plateMatrix, renderedWells);
         return plateMatrix;
