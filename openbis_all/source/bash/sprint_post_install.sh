@@ -4,7 +4,7 @@
 export BIN=~/bin
 export SERVER=`uname -n`
 
-export SPRINT=bs-openbis07.ethz.ch=
+export SPRINT=bs-openbis07.ethz.ch
 export DEMO=bs-openbis08.ethz.ch
 export YEASTX=obis.ethz.ch
 export PHOSPHONETX=openbis-phosphonetx.ethz.ch
