@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -91,6 +92,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private File ds4Data;
 
+    private DataSetProcessingContext dummyContext;
+
     @BeforeMethod
     public void beforeMethod() throws IOException
     {
@@ -128,6 +131,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         ds4Folder.mkdirs();
         ds4Data = new File(ds4Folder, "existing");
         ds4Data.mkdirs();
+        dummyContext = new DataSetProcessingContext(null, null, null);
     }
 
     private DatasetDescription createDataSetDescription(String dataSetCode, String location)
@@ -213,7 +217,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         try
         {
-            dataSetCopier.process(Arrays.asList(ds1), null);
+            dataSetCopier.process(Arrays.asList(ds1), dummyContext);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -234,7 +238,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         try
         {
-            dataSetCopier.process(Arrays.asList(ds1), null);
+            dataSetCopier.process(Arrays.asList(ds1), dummyContext);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -263,7 +267,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), null);
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds1, ds2);
 
@@ -295,7 +299,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
         ProcessingStatus processingStatus =
-                dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), null);
+                dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), dummyContext);
 
         // processing 1st data set fails but 2nd one is processed successfully
         Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
@@ -328,7 +332,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), null);
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds1);
 
@@ -368,7 +372,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
         ProcessingStatus processingStatus =
-                dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), null);
+                dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), dummyContext);
 
         // processing 1st data set fails but 2nd one is processed successfully
         Status copyingFailedStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
@@ -401,7 +405,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), null);
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds1);
 
@@ -435,7 +439,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), null);
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
 
         // processing first data set fails but second one is processed successfully
         Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
