@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -39,7 +39,7 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
     }
 
     public ProcessingStatus process(List<DatasetDescription> datasets,
-            Map<String, String> parameterBindings)
+            DataSetProcessingContext context)
     {
         System.out.println("Processing of the following datasets has been requested: " + datasets);
         System.out.println("sleeping for 2 sec");

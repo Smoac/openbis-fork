@@ -21,11 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.DataHandler;
+
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
@@ -57,28 +62,96 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private final DatastoreServiceDescription serviceDescription;
 
-    private final MailClientParameters mailClientParameters;
+    private final IMailClient mailClient;
 
     public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
             Map<String, String> parameterBindings, String userEmailOrNull,
             DatastoreServiceDescription serviceDescription,
             MailClientParameters mailClientParameters)
     {
+        this(task, datasets, parameterBindings, userEmailOrNull, serviceDescription, new MailClient(mailClientParameters));
+    }
+    
+    ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
+            Map<String, String> parameterBindings, String userEmailOrNull,
+            DatastoreServiceDescription serviceDescription,
+            IMailClient mailClient)
+    {
         this.task = task;
         this.datasets = datasets;
         this.parameterBindings = parameterBindings;
         this.userEmailOrNull = userEmailOrNull;
         this.serviceDescription = serviceDescription;
-        this.mailClientParameters = mailClientParameters;
+        this.mailClient = mailClient;
+    }
+    
+    private static final class ProxyMailClient implements IMailClient
+    {
+        private final IMailClient mailClient;
+        
+        private boolean mailSent;
+
+        ProxyMailClient(IMailClient mailClient){
+            this.mailClient = mailClient;
+        }
+        
+        boolean hasMailSent()
+        {
+            return mailSent;
+        }
+        
+        public void sendMessage(String subject, String content, String replyToOrNull,
+                From fromOrNull, String... recipients) throws EnvironmentFailureException
+        {
+            mailClient.sendMessage(subject, content, replyToOrNull, fromOrNull, recipients);
+            mailSent = true;
+        }
+
+        public void sendEmailMessage(String subject, String content, EMailAddress replyToOrNull,
+                EMailAddress fromOrNull, EMailAddress... recipients)
+                throws EnvironmentFailureException
+        {
+            mailClient.sendEmailMessage(subject, content, replyToOrNull, fromOrNull, recipients);
+            mailSent = true;
+        }
+
+        @SuppressWarnings("deprecation")
+        public void sendMessageWithAttachment(String subject, String content, String filename,
+                DataHandler attachmentContent, String replyToOrNull, From fromOrNull,
+                String... recipients) throws EnvironmentFailureException
+        {
+            mailClient.sendMessageWithAttachment(subject, content, filename, attachmentContent,
+                    replyToOrNull, fromOrNull, recipients);
+            mailSent = true;
+        }
+
+        public void sendEmailMessageWithAttachment(String subject, String content, String filename,
+                DataHandler attachmentContent, EMailAddress replyToOrNull, EMailAddress fromOrNull,
+                EMailAddress... recipients) throws EnvironmentFailureException
+        {
+            mailClient.sendEmailMessageWithAttachment(subject, content, filename,
+                    attachmentContent, replyToOrNull, fromOrNull, recipients);
+            mailSent = true;
+        }
+
+        public void sendTestEmail()
+        {
+            mailClient.sendTestEmail();
+        }
+
     }
 
     public void execute(File store)
     {
         String errorMessageOrNull = null;
         ProcessingStatus processingStatusOrNull = null;
+        ProxyMailClient proxyMailClient = new ProxyMailClient(mailClient);
         try
         {
-            processingStatusOrNull = task.process(datasets, parameterBindings);
+            DataSetProcessingContext context =
+                    new DataSetProcessingContext(parameterBindings, proxyMailClient,
+                            userEmailOrNull);
+            processingStatusOrNull = task.process(datasets, context);
         } catch (RuntimeException e)
         {
             // exception message should be readable for users
@@ -101,7 +174,10 @@ public class ProcessDatasetsCommand implements IDataSetCommand
                 }
                 return;
             }
-            createContentAndSendMessage(errorMessageOrNull, processingStatusOrNull);
+            if (proxyMailClient.hasMailSent() == false || errorMessageOrNull != null)
+            {
+                createContentAndSendMessage(errorMessageOrNull, processingStatusOrNull);
+            }
         }
     }
 
@@ -134,7 +210,6 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private void sendMessage(String subject, String content, String recipient)
     {
-        final IMailClient mailClient = new MailClient(mailClientParameters);
         mailClient.sendMessage(subject, content, null, null, recipient);
     }
 

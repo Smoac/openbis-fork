@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
@@ -68,12 +69,12 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     }
 
     public ProcessingStatus process(List<DatasetDescription> datasets,
-            Map<String, String> parameterBindings)
+            DataSetProcessingContext context)
     {
         final ProcessingStatus result = new ProcessingStatus();
         for (DatasetDescription dataset : datasets)
         {
-            Status status = processDataset(dataset, parameterBindings);
+            Status status = processDataset(dataset, context.getParameterBindings());
             result.addDatasetStatus(dataset, status);
         }
         return result;

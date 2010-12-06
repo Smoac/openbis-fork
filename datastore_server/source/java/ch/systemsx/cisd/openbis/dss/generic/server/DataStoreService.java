@@ -288,7 +288,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         }
 
         public ProcessingStatus process(List<DatasetDescription> datasets,
-                Map<String, String> parameterBindings)
+                DataSetProcessingContext context)
         {
             if (archive)
             {

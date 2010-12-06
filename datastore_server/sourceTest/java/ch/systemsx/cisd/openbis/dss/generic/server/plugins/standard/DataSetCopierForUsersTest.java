@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.jmock.Expectations;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -74,7 +76,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
 
     private File dsData;
 
-    private HashMap<String, String> parameterBindings;
+    private DataSetProcessingContext dataSetProcessingContext;
 
     @BeforeMethod
     public void beforeMethod() throws IOException
@@ -105,8 +107,9 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         ds1Folder.mkdirs();
         dsData = new File(ds1Folder, "data.txt");
         dsData.createNewFile();
-        parameterBindings = new HashMap<String, String>();
+        Map<String, String> parameterBindings = new HashMap<String, String>();
         parameterBindings.put(Constants.USER_PARAMETER, USER_ID);
+        dataSetProcessingContext = new DataSetProcessingContext(parameterBindings, null, null);
     }
 
     @AfterMethod
@@ -134,7 +137,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
                 new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory);
 
         ProcessingStatus processingStatus =
-                dataSetCopier.process(Arrays.asList(ds), parameterBindings);
+                dataSetCopier.process(Arrays.asList(ds), dataSetProcessingContext);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds);
 
@@ -158,7 +161,7 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
                 new DataSetCopierForUsers(properties, storeRoot, pathFactory, sshFactory);
 
         ProcessingStatus processingStatus =
-                dataSetCopier.process(Arrays.asList(ds), parameterBindings);
+                dataSetCopier.process(Arrays.asList(ds), dataSetProcessingContext);
         assertNoErrors(processingStatus);
         assertSuccessful(processingStatus, ds);
 

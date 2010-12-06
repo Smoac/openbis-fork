@@ -18,9 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
-import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -34,12 +33,12 @@ public interface IProcessingPluginTask extends Serializable
     /**
      * Processes asynchronously the specified datasets with specified parameter bindings.
      * 
-     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER} with
-     *            the ID of the user who initiated processing.
+     * @param context Processing context which contains parameter bindings, mail-client, and user
+     *            e-mail address.
      * @returns {@link ProcessingStatus} of the finished processing with statuses of processing for
      *          all scheduled data sets or null if processing succeeded for all datasets and no
      *          additional information is provided.
      */
-    ProcessingStatus process(List<DatasetDescription> datasets, Map<String, String> parameterBindings);
+    ProcessingStatus process(List<DatasetDescription> datasets, DataSetProcessingContext context);
 
 }
