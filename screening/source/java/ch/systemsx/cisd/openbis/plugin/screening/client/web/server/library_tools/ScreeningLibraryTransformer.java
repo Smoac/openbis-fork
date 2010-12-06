@@ -21,12 +21,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 
 import com.csvreader.CsvReader;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 
 /**
  * Transforms a screening library file and produces files which can be uploaded to openBIS: genes,
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 public class ScreeningLibraryTransformer
 {
-    private final static char SEPARATOR = ',';
+    private final static char SEPARATOR = ','; // TODO parametrize
 
     private static final String GENES_FILE_NAME = "genes.txt";
 
@@ -79,9 +79,10 @@ public class ScreeningLibraryTransformer
             String plateGeometry, String groupCode, String genesFile, String oligosFile,
             String platesFile)
     {
+        CsvReader csvReader = null;
         try
         {
-            CsvReader csvReader = readFile(input);
+            csvReader = readFile(input);
             boolean headerPresent = csvReader.readRecord();
             if (headerPresent == false)
             {
@@ -99,18 +100,23 @@ public class ScreeningLibraryTransformer
                 registrator.register(extractor, row);
             }
             registrator.saveResults();
-            csvReader.close();
             return Status.OK;
         } catch (Exception ex)
         {
             return Status.createError(ex.getMessage());
+        } finally
+        {
+            if (csvReader != null)
+            {
+                csvReader.close();
+            }
         }
     }
 
     static CsvReader readFile(InputStream input) throws FileNotFoundException, IOException,
             UserFailureException
     {
-        CsvReader csvReader = new CsvReader(input, Charset.defaultCharset());
+        CsvReader csvReader = new CsvReader(input, UnicodeUtils.getDefaultUnicodeCharset());
         csvReader.setDelimiter(SEPARATOR);
         csvReader.setSafetySwitch(false);
         return csvReader;

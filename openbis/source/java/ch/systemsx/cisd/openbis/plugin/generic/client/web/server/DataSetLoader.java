@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.parser.IParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactoryFactory;
 import ch.systemsx.cisd.common.parser.IPropertyMapper;
 import ch.systemsx.cisd.common.parser.ParserException;
-import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
@@ -61,7 +60,7 @@ public class DataSetLoader
         results = new ArrayList<BatchRegistrationResult>(files.size());
         for (final NamedInputStream file : files)
         {
-            final Reader reader = UnicodeUtils.createReader(file.getInputStream());
+            final Reader reader = file.getUnicodeReader();
             final List<NewDataSet> loadedMaterials =
                     tabFileLoader.load(new DelegatedReader(reader, file.getOriginalFilename()));
             newObjects.addAll(loadedMaterials);

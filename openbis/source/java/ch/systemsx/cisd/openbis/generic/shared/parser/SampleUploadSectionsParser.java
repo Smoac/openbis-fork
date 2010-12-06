@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.shared.parser;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -95,33 +94,27 @@ public class SampleUploadSectionsParser
     {
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
-        try
-        {
-            final List<BatchRegistrationResult> results =
-                    loadSamplesFromFiles(files, sampleType, isAutoGenerateCodes, newSamples,
-                            allowExperiments, operationKind);
+        final List<BatchRegistrationResult> results =
+                loadSamplesFromFiles(files, sampleType, isAutoGenerateCodes, newSamples,
+                        allowExperiments, operationKind);
 
-            if (defaultGroupIdentifier != null)
-            {
-                switch (operationKind)
-                {
-                    case REGISTRATION:
-                        if (isAutoGenerateCodes)
-                        {
-                            generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
-                                    isAutoGenerateCodes, newSamples);
-                        }
-                        break;
-                    case UPDATE:
-                        fillIdentifiers(defaultGroupIdentifier, newSamples);
-                        break;
-                }
-            }
-            return new BatchSamplesOperation(newSamples, results, parseCodes(newSamples));
-        } catch (UnsupportedEncodingException ex)
+        if (defaultGroupIdentifier != null)
         {
-            throw new UserFailureException(ex.getMessage());
+            switch (operationKind)
+            {
+                case REGISTRATION:
+                    if (isAutoGenerateCodes)
+                    {
+                        generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
+                                isAutoGenerateCodes, newSamples);
+                    }
+                    break;
+                case UPDATE:
+                    fillIdentifiers(defaultGroupIdentifier, newSamples);
+                    break;
+            }
         }
+        return new BatchSamplesOperation(newSamples, results, parseCodes(newSamples));
     }
 
     private static String[] parseCodes(final List<NewSamplesWithTypes> newSamples)
@@ -167,19 +160,43 @@ public class SampleUploadSectionsParser
 
     static class FileSection
     {
-        private final String content;
+        private final String contentOrNull;
+
+        private final InputStream contentStreamOrNull;
 
         private final String sectionName;
 
-        public FileSection(String content, String sectionName)
+        // assumption that the given string is encoded using Unicode
+        public static FileSection createFromString(String content, String sectionName)
         {
-            this.sectionName = sectionName;
-            this.content = content;
+            return new FileSection(content, sectionName, null);
         }
 
-        public String getContent()
+        public static FileSection createFromInputStream(InputStream contentStream,
+                String sectionName)
         {
-            return content;
+            return new FileSection(null, sectionName, contentStream);
+        }
+
+        private FileSection(String contentOrNull, String sectionName,
+                InputStream contentStreamOrNull)
+        {
+            assert (contentOrNull != null && contentStreamOrNull == null)
+                    || (contentOrNull == null && contentStreamOrNull != null);
+            this.sectionName = sectionName;
+            this.contentOrNull = contentOrNull;
+            this.contentStreamOrNull = contentStreamOrNull;
+        }
+
+        public Reader getContentReader()
+        {
+            if (contentOrNull != null)
+            {
+                return new StringReader(contentOrNull);
+            } else
+            {
+                return UnicodeUtils.createReader(contentStreamOrNull);
+            }
         }
 
         public String getSectionName()
@@ -188,13 +205,11 @@ public class SampleUploadSectionsParser
         }
     }
 
-    private static List<FileSection> extractSections(InputStream stream)
+    private static List<FileSection> extractSections(Reader reader)
     {
         List<FileSection> sections = new ArrayList<FileSection>();
-        Reader reader = null;
         try
         {
-            reader = UnicodeUtils.createReader(stream);
             LineIterator it = IOUtils.lineIterator(reader);
             StringBuilder sb = null;
             String sectionName = null;
@@ -206,7 +221,7 @@ public class SampleUploadSectionsParser
                 {
                     if (sectionName != null && sb != null)
                     {
-                        sections.add(new FileSection(sb.toString(), sectionName));
+                        sections.add(FileSection.createFromString(sb.toString(), sectionName));
                     }
                     sectionName = newSectionName;
                     sb = new StringBuilder();
@@ -223,7 +238,7 @@ public class SampleUploadSectionsParser
                 }
                 if (it.hasNext() == false)
                 {
-                    sections.add(new FileSection(sb.toString(), sectionName));
+                    sections.add(FileSection.createFromString(sb.toString(), sectionName));
                 }
             }
         } finally
@@ -255,7 +270,6 @@ public class SampleUploadSectionsParser
             Collection<NamedInputStream> uploadedFiles, SampleType sampleType,
             boolean isAutoGenerateCodes, final List<NewSamplesWithTypes> newSamples,
             boolean allowExperiments, BatchOperationKind operationKind)
-            throws UnsupportedEncodingException
     {
         final List<BatchRegistrationResult> results =
                 new ArrayList<BatchRegistrationResult>(uploadedFiles.size());
@@ -264,16 +278,16 @@ public class SampleUploadSectionsParser
             List<FileSection> sampleSections = new ArrayList<FileSection>();
             if (sampleType.isDefinedInFileEntityTypeCode())
             {
-                sampleSections.addAll(extractSections(multipartFile.getInputStream()));
+                sampleSections.addAll(extractSections(multipartFile.getUnicodeReader()));
             } else
             {
-                sampleSections.add(new FileSection(new String(multipartFile.getBytes(),
-                        UnicodeUtils.DEFAULT_UNICODE_CHARSET), sampleType.getCode()));
+                sampleSections.add(FileSection.createFromInputStream(
+                        multipartFile.getInputStream(), sampleType.getCode()));
             }
             int sampleCounter = 0;
             for (FileSection fs : sampleSections)
             {
-                final StringReader stringReader = new StringReader(fs.getContent());
+                Reader reader = fs.getContentReader();
                 SampleType typeFromSection = new SampleType();
                 typeFromSection.setCode(fs.getSectionName());
                 final BisTabFileLoader<NewSample> tabFileLoader =
@@ -282,7 +296,7 @@ public class SampleUploadSectionsParser
                 String sectionInFile =
                         sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName() + ")";
                 final List<NewSample> loadedSamples =
-                        tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
+                        tabFileLoader.load(new DelegatedReader(reader, multipartFile
                                 .getOriginalFilename() + sectionInFile));
                 if (loadedSamples.size() > 0)
                 {

@@ -259,8 +259,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     new ArrayList<NamedInputStream>(uploadedFiles.size());
             for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
-                        .getBytes()));
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
             return SampleUploadSectionsParser.prepareSamples(sampleType, files,
                     defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
@@ -369,8 +368,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     new ArrayList<NamedInputStream>(uploadedFiles.size());
             for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
-                        .getBytes()));
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
             ExperimentLoader loader = new ExperimentLoader();
             loader.load(files);
@@ -392,8 +390,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     new ArrayList<NamedInputStream>(uploadedFiles.size());
             for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
-                        .getBytes()));
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
             MaterialLoader loader = new MaterialLoader();
             loader.load(files);
@@ -556,8 +553,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     new ArrayList<NamedInputStream>(uploadedFiles.size());
             for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
-                        .getBytes()));
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
             DataSetLoader loader = new DataSetLoader();
             loader.load(files);
@@ -586,8 +582,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                     new ArrayList<NamedInputStream>(uploadedFiles.size());
             for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename(), f
-                        .getBytes()));
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
             }
             UpdatedExperimentLoader loader = new UpdatedExperimentLoader();
             loader.load(files);

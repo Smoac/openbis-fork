@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
@@ -36,6 +37,12 @@ public final class UnicodeUtils
     private UnicodeUtils()
     {
         // Can not be instantiated.
+    }
+
+    /** @returns {@link Charset} for {@link #DEFAULT_UNICODE_CHARSET} */
+    public final static Charset getDefaultUnicodeCharset()
+    {
+        return Charset.forName(UnicodeUtils.DEFAULT_UNICODE_CHARSET);
     }
 
     /**

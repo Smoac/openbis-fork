@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.shared.parser;
 
 import java.io.InputStream;
+import java.io.Reader;
 
-import org.springframework.web.multipart.MultipartFile;
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 
 /**
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
 public class NamedInputStream
 {
@@ -30,15 +32,15 @@ public class NamedInputStream
 
     private final String originalName;
 
-    private final byte[] bytes;
-
-    public NamedInputStream(InputStream stream, String originalName, byte[] bytes)
+    public NamedInputStream(InputStream stream, String originalName)
     {
         this.stream = stream;
         this.originalName = originalName;
-        this.bytes = bytes;
     }
 
+    /**
+     * NOTE: use {@link #getUnicodeReader()} to get Unicode characters.
+     */
     public InputStream getInputStream()
     {
         return stream;
@@ -50,10 +52,12 @@ public class NamedInputStream
     }
 
     /**
-     * @see MultipartFile#getBytes()
+     * @return Reader of unicode characters from this input stream
+     *         <p>
+     *         Use {@link #getInputStream()} instead to get raw input stream.
      */
-    public byte[] getBytes()
+    public Reader getUnicodeReader()
     {
-        return bytes;
+        return UnicodeUtils.createReader(stream);
     }
 }

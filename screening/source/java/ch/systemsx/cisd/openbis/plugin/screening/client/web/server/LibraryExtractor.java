@@ -106,8 +106,7 @@ class LibraryExtractor
         BatchSamplesOperation prepared =
                 SampleUploadSectionsParser.prepareSamples(typeInFile, Arrays
                         .asList(new NamedInputStream(new FileInputStream(platesFile), platesFile
-                                .getName(), null)), null, null, true,
-                        BatchOperationKind.REGISTRATION);
+                                .getName())), null, null, true, BatchOperationKind.REGISTRATION);
         List<NewSamplesWithTypes> samples = prepared.getSamples();
         setUpdatableTypes(samples);
         return samples;
@@ -125,7 +124,7 @@ class LibraryExtractor
     {
         MaterialLoader loader = new MaterialLoader();
         loader.load(Arrays.asList(new NamedInputStream(new FileInputStream(genesFile), genesFile
-                .getName(), null)));
+                .getName())));
         return loader.getNewMaterials();
     }
 

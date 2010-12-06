@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
@@ -114,7 +115,8 @@ public class LibraryEntityRegistrator
 
         private void writeLine(String line) throws IOException
         {
-            IOUtils.writeLines(Arrays.asList(line), "\n", stream);
+            IOUtils.writeLines(Arrays.asList(line), "\n", stream,
+                    UnicodeUtils.DEFAULT_UNICODE_CHARSET);
         }
 
         public void close() throws IOException
