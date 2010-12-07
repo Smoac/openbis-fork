@@ -76,7 +76,7 @@ public abstract class AbstractTabularDataGraphServlet extends AbstractDatasetDow
 
         public RequestParams(HttpServletRequest request)
         {
-            sessionId = getRequiredParameter(request, SESSION_ID_PARAM);
+            sessionId = getRequiredParameter(request, Utils.SESSION_ID_PARAM);
             datasetCode = getRequiredParameter(request, DATASET_CODE_PARAM);
             filePathOrNull = getOptionalParameter(request, FILE_PATH_PARAM);
             graphName = getRequiredParameter(request, GRAPH_TYPE_CODE);

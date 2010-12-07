@@ -75,7 +75,7 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
 
         private RequestParams(HttpServletRequest request)
         {
-            this.sessionId = getParam(request, SESSION_ID_PARAM);
+            this.sessionId = getParam(request, Utils.SESSION_ID_PARAM);
 
             String displayModeText = request.getParameter(DISPLAY_MODE_PARAM);
             String displayMode = displayModeText == null ? "" : displayModeText;
