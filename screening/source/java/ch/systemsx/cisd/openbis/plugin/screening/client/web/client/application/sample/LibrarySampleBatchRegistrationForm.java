@@ -64,6 +64,13 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         {
             return character;
         }
+
+        // toString is used in combo box for String representation
+        @Override
+        public String toString()
+        {
+            return name() + " (" + character + ")";
+        }
     }
 
     private static final String PLATES = "Plates";
@@ -150,7 +157,7 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         options.setForceSelection(true);
         options.setEditable(false);
         options.setAllowBlank(false);
-        options.setSimpleValue(Separator.COMMA); // TODO TAB? display settings?
+        options.setSimpleValue(Separator.COMMA);
         FieldUtil.markAsMandatory(options);
         return options;
     }
