@@ -92,4 +92,11 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
+            boolean areOnlyDirectlyConnectedIncluded)
+    {
+        logAccess(sessionToken, "list-data-sets", "SAMPLE(%s) INCLUDE-CONNECTED(%s)", sample,
+                areOnlyDirectlyConnectedIncluded);
+        return null;
+    }
 }

@@ -116,4 +116,19 @@ public interface IGeneralInformationService extends IRpcService
     public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
             String experimentType);
 
+    /**
+     * Return the data sets attached to the specified sample, optionally including child samples.
+     * Available since minor version 3.
+     * 
+     * @param sample The sample for which we return attached data sets.
+     * @param areOnlyDirectlyConnectedIncluded If true, only data sets that are directly connected
+     *            to the sample are included, otherwise data sets of child samples are included as
+     *            well.
+     * @since 1.3
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
+            boolean areOnlyDirectlyConnectedIncluded);
+
 }

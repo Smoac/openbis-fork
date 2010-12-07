@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -242,6 +243,17 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     returnData.setCode("ds-code");
                     returnData.setDataSetType(returnDataSetType);
                     returnData.setDataSetProperties(new ArrayList<IEntityProperty>());
+
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
+                    experiment.setIdentifier("/space/project/exp");
+                    returnData.setExperiment(experiment);
+
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+                    sample.setIdentifier("/space/code");
+                    returnData.setSample(sample);
+
                     will(returnValue(Collections.singletonList(returnData)));
                 }
             });
@@ -283,6 +295,52 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
         ArrayList<Sample> samples = new ArrayList<Sample>();
         List<DataSet> result = service.listDataSets(SESSION_TOKEN, samples);
         assertEquals(0, result.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListDataSetsForSample()
+    {
+        prepareGetSession();
+        context.checking(new Expectations()
+            {
+                {
+                    one(commonServer).listSampleExternalData(with(SESSION_TOKEN),
+                            with(new TechId(1)), with(true));
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData returnData =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData();
+                    DataSetType returnDataSetType = new DataSetType();
+                    returnDataSetType.setCode("ds-type");
+                    returnData.setCode("ds-code");
+                    returnData.setDataSetType(returnDataSetType);
+                    returnData.setDataSetProperties(new ArrayList<IEntityProperty>());
+
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
+                    experiment.setIdentifier("/space/project/exp");
+                    returnData.setExperiment(experiment);
+
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+                    sample.setIdentifier("/space/code");
+                    returnData.setSample(sample);
+
+                    will(returnValue(Collections.singletonList(returnData)));
+                }
+            });
+
+        SampleInitializer initializer = new SampleInitializer();
+        initializer.setId(new Long(1));
+        initializer.setPermId("permId");
+        initializer.setCode("code");
+        initializer.setIdentifier("/space/code");
+        initializer.setSampleTypeId(new Long(1));
+        initializer.setSampleTypeCode("sample-type");
+        Sample owner = new Sample(initializer);
+        List<DataSet> result = service.listDataSetsForSample(SESSION_TOKEN, owner, true);
+        assertEquals(1, result.size());
+        DataSet resultDataSet = result.get(0);
+        assertEquals("ds-code", resultDataSet.getCode());
         context.assertIsSatisfied();
     }
 

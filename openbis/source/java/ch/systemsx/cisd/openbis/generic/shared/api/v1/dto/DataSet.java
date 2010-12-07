@@ -44,6 +44,10 @@ public final class DataSet implements Serializable
     {
         private String code;
 
+        private String sampleIdentifierOrNull;
+
+        private String experimentIdentifier;
+
         private String dataSetTypeCode;
 
         private Date registrationDate;
@@ -58,6 +62,26 @@ public final class DataSet implements Serializable
         public void setCode(String code)
         {
             this.code = code;
+        }
+
+        public String getSampleIdentifierOrNull()
+        {
+            return sampleIdentifierOrNull;
+        }
+
+        public void setSampleIdentifierOrNull(String sampleIdentifierOrNull)
+        {
+            this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+        }
+
+        public String getExperimentIdentifier()
+        {
+            return experimentIdentifier;
+        }
+
+        public void setExperimentIdentifier(String experimentIdentifier)
+        {
+            this.experimentIdentifier = experimentIdentifier;
         }
 
         public void setDataSetTypeCode(String dataSetTypeCode)
@@ -93,6 +117,10 @@ public final class DataSet implements Serializable
 
     private final String code;
 
+    private final String experimentIdentifier;
+
+    private final String sampleIdentifierOrNull;
+
     private final String dataSetTypeCode;
 
     private final Date registrationDate;
@@ -108,6 +136,14 @@ public final class DataSet implements Serializable
     {
         checkValidString(initializer.getCode(), "Unspecified code.");
         this.code = initializer.getCode();
+
+        checkValidString(initializer.getExperimentIdentifier(), "Unspecified experiment.");
+        this.experimentIdentifier = initializer.getExperimentIdentifier();
+
+        this.sampleIdentifierOrNull = initializer.getSampleIdentifierOrNull();
+
+        // Either the sample identifier or experiment identifier should be non-null
+        assert sampleIdentifierOrNull != null || experimentIdentifier != null;
 
         checkValidString(initializer.getDataSetTypeCode(), "Unspecified data set type code.");
         this.dataSetTypeCode = initializer.getDataSetTypeCode();
@@ -131,6 +167,16 @@ public final class DataSet implements Serializable
     public String getCode()
     {
         return code;
+    }
+
+    public String getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    public String getSampleIdentifierOrNull()
+    {
+        return sampleIdentifierOrNull;
     }
 
     public String getDataSetTypeCode()
@@ -179,6 +225,8 @@ public final class DataSet implements Serializable
     {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         builder.append(getCode());
+        builder.append(getExperimentIdentifier());
+        builder.append(getSampleIdentifierOrNull());
         builder.append(getDataSetTypeCode());
         builder.append(getProperties());
         return builder.toString();

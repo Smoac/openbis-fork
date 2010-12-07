@@ -130,6 +130,18 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testListDataSetsForSample()
+    {
+        // Search for Samples first
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createPropertyMatch("ORGANISM", "HUMAN"));
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, sc);
+        List<DataSet> result =
+                generalInformationService.listDataSetsForSample(sessionToken, samples.get(0), true);
+        assertEquals(true, result.size() > 0);
+    }
+
+    @Test
     public void testListDataSetsForEmptySampleList()
     {
         List<Sample> samples = new ArrayList<Sample>();

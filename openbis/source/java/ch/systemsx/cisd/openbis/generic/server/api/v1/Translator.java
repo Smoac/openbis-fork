@@ -96,6 +96,8 @@ class Translator
     {
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setCode(externalDatum.getCode());
+        initializer.setExperimentIdentifier(externalDatum.getExperiment().getIdentifier());
+        initializer.setSampleIdentifierOrNull(externalDatum.getSampleIdentifier());
         initializer.setDataSetTypeCode(externalDatum.getDataSetType().getCode());
         initializer.setRegistrationDate(externalDatum.getRegistrationDate());
         List<IEntityProperty> properties = externalDatum.getProperties();

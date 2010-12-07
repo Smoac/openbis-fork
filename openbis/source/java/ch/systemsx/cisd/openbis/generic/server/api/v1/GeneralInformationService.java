@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -144,7 +145,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
     public int getMinorVersion()
     {
-        return 2;
+        return 3;
     }
 
     private Map<String, List<RoleAssignmentPE>> getRoleAssignmentsPerSpace()
@@ -285,5 +286,20 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             }
         }
         return experiments;
+    }
+
+    public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
+            boolean areOnlyDirectlyConnectedIncluded)
+    {
+        checkSession(sessionToken);
+        List<ExternalData> externalData =
+                commonServer.listSampleExternalData(sessionToken, new TechId(sample.getId()),
+                        areOnlyDirectlyConnectedIncluded);
+        ArrayList<DataSet> dataSets = new ArrayList<DataSet>(externalData.size());
+        for (ExternalData externalDatum : externalData)
+        {
+            dataSets.add(Translator.translate(externalDatum));
+        }
+        return dataSets;
     }
 }
