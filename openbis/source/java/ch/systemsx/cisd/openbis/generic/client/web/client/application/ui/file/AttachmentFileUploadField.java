@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file;
 
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -35,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
  */
 public class AttachmentFileUploadField extends FileUploadField
 {
-
     private final AttachmentsFileSet fileSet;
 
     public AttachmentFileUploadField(final IMessageProvider messageProvider)
@@ -48,7 +48,16 @@ public class AttachmentFileUploadField extends FileUploadField
     {
         return fileSet;
     }
-
+    
+    public void addFieldsTo(FormPanel form, IMessageProvider messageProvider)
+    {
+        FileUploadField fileUploadField = fileSet.getFileUploadField();
+        fileUploadField.setFieldLabel(messageProvider.getMessage(Dict.FILE));
+        form.add(fileUploadField);
+        form.add(fileSet.getDescriptionField());
+        form.add(fileSet.getTitleField());
+    }
+    
     public NewAttachment tryExtractAttachment()
     {
         if (StringUtils.isBlank(getFilePathValue()))
@@ -78,12 +87,12 @@ public class AttachmentFileUploadField extends FileUploadField
 
     private String getDescriptionValue()
     {
-        return fileSet.getDescriptionValue();
+        return fileSet.getDescriptionField().getValue();
     }
 
     private String getTitleValue()
     {
-        return fileSet.getTitleValue();
+        return fileSet.getTitleField().getValue();
     }
 
     private static final class AttachmentsFileSet extends FieldSet
@@ -114,7 +123,7 @@ public class AttachmentFileUploadField extends FileUploadField
             setHeading(messageProvider.getMessage(Dict.ATTACHMENT));
             setLayout(createFormLayout());
             setWidth(AbstractRegistrationForm.SECTION_WIDTH);
-            add(fileUploadField);
+            add(getFileUploadField());
             add(descriptionField = new DescriptionField(messageProvider, false));
             add(titleField = createTitleField(messageProvider.getMessage(Dict.TITLE)));
         }
@@ -134,14 +143,19 @@ public class AttachmentFileUploadField extends FileUploadField
             return varcharField;
         }
 
-        public String getDescriptionValue()
+        public DescriptionField getDescriptionField()
         {
-            return descriptionField.getValue();
+            return descriptionField;
         }
 
-        public String getTitleValue()
+        public final VarcharField getTitleField()
         {
-            return titleField.getValue();
+            return titleField;
+        }
+
+        public FileUploadField getFileUploadField()
+        {
+            return fileUploadField;
         }
     }
 

@@ -408,6 +408,8 @@ public abstract class Dict
     // Attachments Browser
     //
 
+    public static final String ADD_ATTACHMENT_TITLE = "add_attachment_title";
+    
     public static final String ATTACHMENTS = "attachments";
 
     public static final String FILE_NAME = "file_name";

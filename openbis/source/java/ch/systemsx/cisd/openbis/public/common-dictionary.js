@@ -622,6 +622,7 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  //
  
  attachments: "Attachments",
+ add_attachment_title: "Add a new attachment",
  no_attachments_found: "There are no attachments in this {0}",
  file_name: "File Name",
  title: "Title",

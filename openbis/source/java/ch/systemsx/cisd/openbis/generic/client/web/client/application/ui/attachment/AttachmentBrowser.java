@@ -21,9 +21,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -61,6 +63,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentFileUploadField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnListener;
@@ -71,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -81,8 +84,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 
 /**
  * Grid displaying {@link AttachmentVersions}.
@@ -96,6 +101,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     private static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     public static final String DOWNLOAD_BUTTON_ID_SUFFIX = "_download-button";
+    
+    public static final String ADD_BUTTON_ID_SUFFIX = "_add-button";
 
     private final IDelegatedAction postRegistrationCallback;
 
@@ -109,6 +116,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
 
     private final IAttachmentHolder attachmentHolder;
 
+    private final AttachmentsFileFieldManager attachmentsFileFieldManager;
+
     public AttachmentBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             final IAttachmentHolder attachmentHolder)
     {
@@ -116,6 +125,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
         this.attachmentHolder = attachmentHolder;
         postRegistrationCallback = createRefreshGridAction();
+        attachmentsFileFieldManager = new AttachmentsFileFieldManager(getId(), viewContext);
         extendBottomToolbar();
 
         registerLinkClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
@@ -174,10 +184,48 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     {
         return ID_PREFIX + kind.name() + "-" + id;
     }
+    
+    private static class AddAttachmentDialog extends AbstractRegistrationDialog
+    {
+        private AttachmentFileUploadField attachmentFileUploadField;
+
+        AddAttachmentDialog(IViewContext<?> viewContext, AttachmentsFileFieldManager fieldManager,
+                IDelegatedAction postRegistrationCallback)
+        {
+            super(viewContext, viewContext.getMessage(Dict.ADD_ATTACHMENT_TITLE),
+                    postRegistrationCallback);
+            attachmentFileUploadField = new AttachmentFileUploadField(viewContext);
+            attachmentFileUploadField.addFieldsTo(form, viewContext);
+        }
+
+        @Override
+        protected void register(AsyncCallback<Void> registrationCallback)
+        {
+            NewAttachment attachment = attachmentFileUploadField.tryExtractAttachment();
+            System.out.println("filepath:"+attachment.getFilePath()+" description:"+attachment.getDescription()+" title:"+attachment.getTitle());
+        }
+    }
 
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD,
+                        viewContext.getMessage(Dict.ATTACHMENT)),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    IDelegatedAction refreshGridAction = createRefreshGridAction();
+                                    AddAttachmentDialog dialog =
+                                            new AddAttachmentDialog(viewContext,
+                                                    attachmentsFileFieldManager, refreshGridAction);
+                                    dialog.show();
+                                }
+                            });
+        addButton.setId(createBrowserId(attachmentHolder) + ADD_BUTTON_ID_SUFFIX);
+        addButton(addButton);
 
         String downloadTitle = viewContext.getMessage(Dict.BUTTON_DOWNLOAD);
         Button downloadButton =
