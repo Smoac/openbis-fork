@@ -164,7 +164,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
         translation.put("SMALL_RNA", "other");
         translation.put("TOTAL_RNA", "other");
         translation.put("MRNA", "other");
-        translation.put("PROCESSED_DNA_LIBRARY", "<<<NEED_TO_BE_FILLED>>>");
+        translation.put("PROCESSED_DNA_LIBRARY", EMPTY);
     }
     
     public ProcessingStatus process(List<DatasetDescription> datasets,
