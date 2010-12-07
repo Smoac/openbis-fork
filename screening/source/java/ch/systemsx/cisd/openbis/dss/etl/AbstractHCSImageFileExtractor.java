@@ -73,9 +73,9 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
      */
     public static class UnparsedImageFileInfo extends AbstractHashable
     {
-        private String plateLocationToken;
-
         private String wellLocationToken;
+
+        private String tileLocationToken;
 
         private String channelToken;
 
@@ -85,16 +85,6 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
 
         private String imageRelativePath;
 
-        public String getPlateLocationToken()
-        {
-            return plateLocationToken;
-        }
-
-        public void setPlateLocationToken(String plateLocationToken)
-        {
-            this.plateLocationToken = plateLocationToken;
-        }
-
         public String getWellLocationToken()
         {
             return wellLocationToken;
@@ -103,6 +93,16 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         public void setWellLocationToken(String wellLocationToken)
         {
             this.wellLocationToken = wellLocationToken;
+        }
+
+        public String getTileLocationToken()
+        {
+            return tileLocationToken;
+        }
+
+        public void setTileLocationToken(String tileLocationToken)
+        {
+            this.tileLocationToken = tileLocationToken;
         }
 
         public String getChannelToken()
@@ -288,8 +288,8 @@ abstract public class AbstractHCSImageFileExtractor implements IHCSImageFileExtr
         }
 
         UnparsedImageFileInfo info = new UnparsedImageFileInfo();
-        info.setPlateLocationToken(tokens[tokens.length - 3]);
-        info.setWellLocationToken(tokens[tokens.length - 2]);
+        info.setWellLocationToken(tokens[tokens.length - 3]);
+        info.setTileLocationToken(tokens[tokens.length - 2]);
         info.setChannelToken(channelToken);
         info.setTimepointToken(null);
         info.setDepthToken(null);

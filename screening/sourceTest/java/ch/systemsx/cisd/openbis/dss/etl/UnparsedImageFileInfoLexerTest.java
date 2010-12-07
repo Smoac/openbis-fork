@@ -14,30 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
+package ch.systemsx.cisd.openbis.dss.etl;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.dss.etl.UnparsedImageFileInfoLexer;
 import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor.UnparsedImageFileInfo;
 
 /**
- * Test cases for {@link BiozentrumUtils}.
+ * Test cases for {@link UnparsedImageFileInfoLexer}.
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = BiozentrumUtils.class)
-public class BiozentrumUtilsTest extends AssertJUnit
+@Friend(toClasses = UnparsedImageFileInfoLexer.class)
+public class UnparsedImageFileInfoLexerTest extends AssertJUnit
 {
     @Test
     public void testExtractFileInfoCorrectFileName() throws Exception
     {
         UnparsedImageFileInfo info =
-                BiozentrumUtils.extractBZImageFileInfo("bDZ01-1A_wD17_s3_z123_t321_cGFP");
-        assertEquals("plate location token", "D17", info.getPlateLocationToken());
+                UnparsedImageFileInfoLexer
+                        .extractImageFileInfo("bDZ01-1A_wD17_s3_z123_t321_cGFP");
+        assertEquals("well location token", "D17", info.getWellLocationToken());
         assertEquals("channel token", "GFP", info.getChannelToken());
-        assertEquals("well location token", "3", info.getWellLocationToken());
+        assertEquals("tile location token", "3", info.getTileLocationToken());
         assertEquals("time point token", "321", info.getTimepointToken());
         assertEquals("depth token", "123", info.getDepthToken());
     }

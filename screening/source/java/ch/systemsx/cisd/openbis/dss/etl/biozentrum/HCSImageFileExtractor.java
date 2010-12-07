@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 import java.io.File;
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.etl.UnparsedImageFileInfoLexer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -38,7 +39,7 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
     protected final ImageFileInfo tryExtractImageInfo(File imageFile,
             File incomingDataSetDirectory, SampleIdentifier datasetSample)
     {
-        UnparsedImageFileInfo unparsedInfo = BiozentrumUtils.extractImageFileInfo(imageFile);
+        UnparsedImageFileInfo unparsedInfo = UnparsedImageFileInfoLexer.extractImageFileInfo(imageFile);
         if (unparsedInfo == null)
         {
             return null;

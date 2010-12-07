@@ -165,18 +165,18 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     {
         assert unparsedInfo != null;
 
-        Location plateLocation = tryGetPlateLocation(unparsedInfo.getPlateLocationToken());
+        Location plateLocation = tryGetPlateLocation(unparsedInfo.getWellLocationToken());
         if (plateLocation == null)
         {
-            operationLog.info("Cannot extract plate location from token "
-                    + unparsedInfo.getPlateLocationToken());
+            operationLog.info("Cannot extract well location from token "
+                    + unparsedInfo.getWellLocationToken());
             return null;
         }
-        Location wellLocation = tryGetWellLocation(unparsedInfo.getWellLocationToken());
+        Location wellLocation = tryGetWellLocation(unparsedInfo.getTileLocationToken());
         if (wellLocation == null)
         {
-            operationLog.info("Cannot extract well location (a.k.a. tile/field/side) from token "
-                    + unparsedInfo.getWellLocationToken());
+            operationLog.info("Cannot extract tile location (a.k.a. tile/field/side) from token "
+                    + unparsedInfo.getTileLocationToken());
             return null;
         }
         String channelCode = CodeAndLabelUtil.normalize(unparsedInfo.getChannelToken());
