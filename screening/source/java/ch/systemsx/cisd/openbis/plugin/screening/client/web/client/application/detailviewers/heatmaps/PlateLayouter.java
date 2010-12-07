@@ -86,6 +86,8 @@ public class PlateLayouter
 
     private static final int MARGIN_SIZE_PX = 10;
 
+    private static final int WELL_SPACING_PX = 2;
+
     // ------- internal fixed state
 
     private final PlateLayouterModel model;
@@ -165,7 +167,7 @@ public class PlateLayouter
             SimpleModelComboBox<Integer> heatmapKindChooser, LayoutContainer legendContainer)
     {
         LayoutContainer container = new LayoutContainer();
-        // container.setScrollMode(Scroll.AUTO);
+        container.setScrollMode(Scroll.AUTO);
         container.setLayout(new RowLayout());
         container.add(new Text(
                 "Hold the mouse cursor over a well or click on it to get the details."),
@@ -175,6 +177,14 @@ public class PlateLayouter
 
         LayoutContainer plateContainer = new LayoutContainer();
         plateContainer.setLayout(new ColumnLayout());
+
+        int legendWidth = 200;
+        int topChoosersHeight = 70; // height of things above plate layout in this container
+        int plateWidth = getPlateMatrixPixelWidth(renderedWells);
+        int plateHeight = getPlateMatrixPixelHeight(renderedWells);
+        int totalWidth = plateWidth + legendWidth;
+        plateContainer.setSize(totalWidth, plateHeight);
+
         plateContainer.add(renderPlateLayout(renderedWells));
 
         // space between the well's matrix and the legend
@@ -183,9 +193,22 @@ public class PlateLayouter
                 .setPixelSize(PlateStyleSetter.WELL_BOX_SIZE_PX, PlateStyleSetter.WELL_BOX_SIZE_PX);
         plateContainer.add(separator);
         plateContainer.add(legendContainer);
-        container.add(plateContainer);
 
+        container.add(plateContainer);
+        container.setSize(totalWidth, plateHeight + topChoosersHeight);
         return container;
+    }
+
+    private static int getPlateMatrixPixelHeight(Component[][] renderedWells)
+    {
+        int boxes = renderedWells.length + 1;
+        return WELL_SPACING_PX * (boxes + 1) + PlateStyleSetter.WELL_BOX_SIZE_PX * boxes;
+    }
+
+    private static int getPlateMatrixPixelWidth(Component[][] renderedWells)
+    {
+        int boxes = getColumnsNum(renderedWells) + 1;
+        return WELL_SPACING_PX * (boxes + 1) + PlateStyleSetter.WELL_BOX_SIZE_PX * boxes;
     }
 
     private static LayoutContainer renderPlateLayout(Component[][] renderedWells)
@@ -193,10 +216,13 @@ public class PlateLayouter
         LayoutContainer plateMatrix = new LayoutContainer();
         int columnsNum = getColumnsNum(renderedWells) + 1;
         TableLayout layout = new TableLayout(columnsNum);
-        layout.setCellSpacing(2);
+        layout.setCellSpacing(WELL_SPACING_PX);
         plateMatrix.setLayout(layout);
 
-        plateMatrix.setScrollMode(Scroll.AUTO);
+        plateMatrix.setAutoWidth(true);
+        // NOTE: not sure if this is necessary
+        int height = getPlateMatrixPixelHeight(renderedWells);
+        plateMatrix.setHeight(height);
 
         addPlateWidgets(plateMatrix, renderedWells);
         return plateMatrix;
