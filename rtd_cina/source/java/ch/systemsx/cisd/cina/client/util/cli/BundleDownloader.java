@@ -47,6 +47,9 @@ class BundleDownloader
 
     private final SampleIdentifier gridIdentifier;
 
+    // Restrict the replicas we download to those in the list
+    private final List<String> collectionIdentifierStrings;
+
     private final File outputDir;
 
     private final Sample gridSample;
@@ -56,11 +59,13 @@ class BundleDownloader
     private final HashMap<String /* Sample Identifier */, HashMap<String /* Data Set Type */, DataSet>> sampleDataSetMap =
             new HashMap<String, HashMap<String, DataSet>>();
 
-    BundleDownloader(ICinaUtilities component, String bundleIdentifier, File outputDir)
+    BundleDownloader(ICinaUtilities component, String bundleIdentifier,
+            List<String> collectionIdentifierStrings, File outputDir)
     {
         this.component = component;
         this.gridIdentifier = SampleIdentifierFactory.parse(bundleIdentifier);
         this.outputDir = outputDir;
+        this.collectionIdentifierStrings = collectionIdentifierStrings;
         gridSample = searchForSample(gridIdentifier);
     }
 
@@ -118,7 +123,8 @@ class BundleDownloader
                 continue;
             }
             // See if the dataSet is newer than the one in the map
-            HashMap<String, DataSet> dataSetTypeMap = getOrCreateDataSetTypeMap(sampleIdentifierString);
+            HashMap<String, DataSet> dataSetTypeMap =
+                    getOrCreateDataSetTypeMap(sampleIdentifierString);
             String typeCode = dataSet.getDataSetTypeCode();
             DataSet oldValue = dataSetTypeMap.get(typeCode);
             if (null == oldValue)
@@ -132,21 +138,15 @@ class BundleDownloader
 
     }
 
-    private HashMap<String, DataSet> getOrCreateDataSetTypeMap(String sampleIdentifierString)
-    {
-        HashMap<String, DataSet> dataSetTypeMap = sampleDataSetMap.get(sampleIdentifierString);
-        if (null == dataSetTypeMap)
-        {
-            dataSetTypeMap = new HashMap<String, DataSet>();
-            sampleDataSetMap.put(sampleIdentifierString, dataSetTypeMap);
-        }
-        return dataSetTypeMap;
-    }
-
     private void downloadDataSets()
     {
         for (String sampleIdentifierString : sampleDataSetMap.keySet())
         {
+            // Skip collections that are not meant to be included.
+            if (false == shouldCollectionBeIncluded(sampleIdentifierString))
+            {
+                continue;
+            }
             HashMap<String, DataSet> dataSetTypeMap = sampleDataSetMap.get(sampleIdentifierString);
             for (String dataSetType : dataSetTypeMap.keySet())
             {
@@ -170,6 +170,30 @@ class BundleDownloader
                 }
             }
         }
+    }
+
+    private boolean shouldCollectionBeIncluded(String sampleIdentifierString)
+    {
+        if (collectionIdentifierStrings.isEmpty())
+        {
+            return true;
+        }
+        if (sampleIdentifierString.equals(gridIdentifier.toString()))
+        {
+            return true;
+        }
+        return collectionIdentifierStrings.contains(sampleIdentifierString);
+    }
+
+    private HashMap<String, DataSet> getOrCreateDataSetTypeMap(String sampleIdentifierString)
+    {
+        HashMap<String, DataSet> dataSetTypeMap = sampleDataSetMap.get(sampleIdentifierString);
+        if (null == dataSetTypeMap)
+        {
+            dataSetTypeMap = new HashMap<String, DataSet>();
+            sampleDataSetMap.put(sampleIdentifierString, dataSetTypeMap);
+        }
+        return dataSetTypeMap;
     }
 
     private DataSet compareReturningMoreRecent(DataSet mostRecentReplicaMetadata, DataSet dataSet)

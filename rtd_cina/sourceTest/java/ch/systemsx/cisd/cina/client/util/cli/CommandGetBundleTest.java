@@ -21,7 +21,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -83,8 +85,6 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
 
     private IDssComponent dssComponent;
 
-    private IDataSetDss dataSetDss;
-
     @Override
     @BeforeMethod
     public void setUp() throws IOException
@@ -94,7 +94,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
         service = context.mock(IGeneralInformationService.class);
         openbisService = context.mock(IETLLIMSService.class);
         dssComponent = context.mock(IDssComponent.class);
-        dataSetDss = context.mock(IDataSetDss.class);
+        context.mock(IDataSetDss.class);
     }
 
     @AfterMethod
@@ -123,6 +123,11 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
 
     private void setupListDataSetsExpectations(final String sampleCode)
     {
+        setupListDataSetsExpectations(Collections.singletonList(sampleCode));
+    }
+
+    private void setupListDataSetsExpectations(final List<String> sampleCodes)
+    {
         context.checking(new Expectations()
             {
                 {
@@ -146,31 +151,38 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                     will(returnValue(gridSamples));
 
                     ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
+                    for (String sampleCode : sampleCodes)
+                    {
+                        DataSetInitializer dsInitializer = new DataSetInitializer();
+                        dsInitializer.setCode(sampleCode + "-RAW-IMAGES");
+                        dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
+                        dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
+                        dsInitializer
+                                .setDataSetTypeCode(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
+                        dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1)
+                                .getTime());
+                        dataSets.add(new DataSet(dsInitializer));
+
+                        dsInitializer = new DataSetInitializer();
+                        dsInitializer.setCode(sampleCode + "-METADATA-OLD");
+                        dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
+                        dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
+                        dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                        dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1)
+                                .getTime());
+                        dataSets.add(new DataSet(dsInitializer));
+
+                        dsInitializer = new DataSetInitializer();
+                        dsInitializer.setCode(sampleCode + "-METADATA-NEW");
+                        dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
+                        dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
+                        dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                        dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1)
+                                .getTime());
+                        dataSets.add(new DataSet(dsInitializer));
+                    }
+
                     DataSetInitializer dsInitializer = new DataSetInitializer();
-                    dsInitializer.setCode(sampleCode + "-RAW-IMAGES");
-                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
-                    dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
-                    dsInitializer.setDataSetTypeCode(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
-                    dataSets.add(new DataSet(dsInitializer));
-
-                    dsInitializer = new DataSetInitializer();
-                    dsInitializer.setCode(sampleCode + "-METADATA-OLD");
-                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
-                    dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
-                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
-                    dataSets.add(new DataSet(dsInitializer));
-
-                    dsInitializer = new DataSetInitializer();
-                    dsInitializer.setCode(sampleCode + "-METADATA-NEW");
-                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
-                    dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
-                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1).getTime());
-                    dataSets.add(new DataSet(dsInitializer));
-
-                    dsInitializer = new DataSetInitializer();
                     dsInitializer.setCode("BUNDLE-METADATA");
                     dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                     dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
@@ -187,23 +199,13 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
 
     private void setupDownloadDataSetExpectations(final String sampleCode) throws IOException
     {
+        setupDownloadDataSetExpectations(Collections.singletonList(sampleCode));
+    }
+
+    private void setupDownloadDataSetExpectations(final List<String> sampleCodes)
+            throws IOException
+    {
         final File parent = new File("sourceTest/java/ch/systemsx/cisd/cina/client/util/cli/");
-
-        final String rawImagesFolderName = sampleCode + "RawImages";
-        ArrayList<FileInfoDssDTO> rawImagesInfos =
-                getFileInfosForPath(new File(parent, "RawImages"), new File(parent,
-                        "RawImages/original"), "ReplicaRawImages", rawImagesFolderName);
-        final FileInfoDssDTO[] rawImagesInfosArray =
-                (rawImagesInfos.size() > 0) ? rawImagesInfos
-                        .toArray(new FileInfoDssDTO[rawImagesInfos.size()]) : new FileInfoDssDTO[0];
-
-        final String metadataFolderName = sampleCode + "Metadata";
-        ArrayList<FileInfoDssDTO> metadataInfos =
-                getFileInfosForPath(new File(parent, "Metadata"), new File(parent,
-                        "Metadata/original"), "ReplicaMetadata", metadataFolderName);
-        final FileInfoDssDTO[] metadataInfosArray =
-                (metadataInfos.size() > 0) ? metadataInfos.toArray(new FileInfoDssDTO[metadataInfos
-                        .size()]) : new FileInfoDssDTO[0];
 
         ArrayList<FileInfoDssDTO> bundleMetadataInfos =
                 getFileInfosForPath(new File(parent, "Bundle"),
@@ -218,31 +220,62 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
                 {
                     final String startPath = "/original/";
 
+                    IDataSetDss bundleMetadata = context.mock(IDataSetDss.class, "bundle-metadata");
                     one(dssComponent).getDataSet("BUNDLE-METADATA");
-                    will(returnValue(dataSetDss));
-                    one(dataSetDss).listFiles(startPath, true);
+                    will(returnValue(bundleMetadata));
+                    oneOf(bundleMetadata).listFiles(startPath, true);
                     will(returnValue(bundleMetadataInfosArray));
-                    one(dataSetDss).getFile(startPath + "BundleMetadata.xml");
+                    one(bundleMetadata).getFile(startPath + "BundleMetadata.xml");
                     will(returnValue(new FileInputStream(new File(parent,
                             "Bundle/original/BundleMetadata.xml"))));
 
-                    one(dssComponent).getDataSet(sampleCode + "-METADATA-NEW");
-                    will(returnValue(dataSetDss));
-                    one(dataSetDss).listFiles(startPath, true);
-                    will(returnValue(metadataInfosArray));
-                    one(dataSetDss).getFile(startPath + metadataFolderName + "/Metadata.txt");
-                    will(returnValue(new FileInputStream(new File(parent,
-                            "Metadata/original/ReplicaMetadata/Metadata.txt"))));
+                    for (final String sampleCode : sampleCodes)
+                    {
+                        final String rawImagesFolderName = sampleCode + "RawImages";
+                        ArrayList<FileInfoDssDTO> rawImagesInfos =
+                                getFileInfosForPath(new File(parent, "RawImages"), new File(parent,
+                                        "RawImages/original"), "ReplicaRawImages",
+                                        rawImagesFolderName);
+                        final FileInfoDssDTO[] rawImagesInfosArray =
+                                (rawImagesInfos.size() > 0) ? rawImagesInfos
+                                        .toArray(new FileInfoDssDTO[rawImagesInfos.size()])
+                                        : new FileInfoDssDTO[0];
 
-                    one(dssComponent).getDataSet(sampleCode + "-RAW-IMAGES");
-                    will(returnValue(dataSetDss));
-                    one(dataSetDss).listFiles(startPath, true);
-                    will(returnValue(rawImagesInfosArray));
-                    one(dataSetDss).getFile(startPath + rawImagesFolderName + "/Image.txt");
-                    will(returnValue(new FileInputStream(new File(parent,
-                            "RawImages/original/ReplicaRawImages/Image.txt"))));
+                        final String metadataFolderName = sampleCode + "Metadata";
+                        ArrayList<FileInfoDssDTO> metadataInfos =
+                                getFileInfosForPath(new File(parent, "Metadata"), new File(parent,
+                                        "Metadata/original"), "ReplicaMetadata", metadataFolderName);
+                        final FileInfoDssDTO[] metadataInfosArray =
+                                (metadataInfos.size() > 0) ? metadataInfos
+                                        .toArray(new FileInfoDssDTO[metadataInfos.size()])
+                                        : new FileInfoDssDTO[0];
 
-                    // The command should not ask for the -METADATA-OLD dataset!
+                        IDataSetDss collectionMetadataNew =
+                                context.mock(IDataSetDss.class, "collection-metadata-new-"
+                                        + sampleCode);
+                        one(dssComponent).getDataSet(sampleCode + "-METADATA-NEW");
+                        will(returnValue(collectionMetadataNew));
+                        one(collectionMetadataNew).listFiles(startPath, true);
+                        will(returnValue(metadataInfosArray));
+                        one(collectionMetadataNew).getFile(
+                                startPath + metadataFolderName + "/Metadata.txt");
+                        will(returnValue(new FileInputStream(new File(parent,
+                                "Metadata/original/ReplicaMetadata/Metadata.txt"))));
+
+                        IDataSetDss collectionRawImages =
+                                context.mock(IDataSetDss.class, "collection-raw-images-"
+                                        + sampleCode);
+                        one(dssComponent).getDataSet(sampleCode + "-RAW-IMAGES");
+                        will(returnValue(collectionRawImages));
+                        one(collectionRawImages).listFiles(startPath, true);
+                        will(returnValue(rawImagesInfosArray));
+                        one(collectionRawImages).getFile(
+                                startPath + rawImagesFolderName + "/Image.txt");
+                        will(returnValue(new FileInputStream(new File(parent,
+                                "RawImages/original/ReplicaRawImages/Image.txt"))));
+
+                        // The command should not ask for the -METADATA-OLD dataset!
+                    }
                 }
             });
     }
@@ -338,7 +371,7 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
         ResultCode exitCode =
                 command.execute(new String[]
                     { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "/SPACE/GRID-ID", "REPLICA-ID" });
+                            "/SPACE/GRID-ID" });
 
         assertEquals(ResultCode.OK, exitCode);
 
@@ -350,19 +383,47 @@ public class CommandGetBundleTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    /*
-     * @Test public void testMultipleReplicas() throws IOException {
-     * setupAuthenticationExpectations(); setupListDataSetsExpectations("REPLICA-ID1");
-     * setupListDataSetsExpectations("REPLICA-ID2");
-     * setupDownloadDataSetExpectations("REPLICA-ID1");
-     * setupDownloadDataSetExpectations("REPLICA-ID2"); ICommand command = new
-     * MockCommandGetBundle(); File outputFolder = new File(workingDirectory, "Foo.bundle/");
-     * ResultCode exitCode = command.execute(new String[] { "-s", "url", "-u", USER_ID, "-p",
-     * PASSWORD, "-o", outputFolder.getPath(), "GRID-ID", "REPLICA-ID1", "REPLICA-ID2" });
-     * assertEquals(ResultCode.OK, exitCode); // Check the contents of the bundle
-     * verifyBundleTopLevel(outputFolder); verifyRawDataContents(outputFolder, 2);
-     * verifyMetadataContents(outputFolder, 2); context.assertIsSatisfied(); }
-     */
+    @Test
+    public void testMultipleReplicas() throws IOException
+    {
+        setupAuthenticationExpectations();
+        List<String> sampleCodes = Arrays.asList(new String[]
+            { "REPLICA-ID1", "REPLICA-ID2" });
+        setupListDataSetsExpectations(sampleCodes);
+        setupDownloadDataSetExpectations(sampleCodes);
+        ICommand command = new MockCommandGetBundle();
+        File outputFolder = new File(workingDirectory, "Foo.bundle/");
+        ResultCode exitCode =
+                command.execute(new String[]
+                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                            "/SPACE/GRID-ID" });
+        assertEquals(ResultCode.OK, exitCode); // Check the contents of the bundle
+        verifyBundleTopLevel(outputFolder);
+        verifyRawDataContents(outputFolder, 2);
+        verifyMetadataContents(outputFolder, 2);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSubsetOfMultipleReplicas() throws IOException
+    {
+        setupAuthenticationExpectations();
+        List<String> sampleCodes = Arrays.asList(new String[]
+            { "REPLICA-ID1", "REPLICA-ID2" });
+        setupListDataSetsExpectations(sampleCodes);
+        setupDownloadDataSetExpectations("REPLICA-ID2");
+        ICommand command = new MockCommandGetBundle();
+        File outputFolder = new File(workingDirectory, "Foo.bundle/");
+        ResultCode exitCode =
+                command.execute(new String[]
+                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
+                            "/SPACE/GRID-ID", "/SPACE/REPLICA-ID2" });
+        assertEquals(ResultCode.OK, exitCode); // Check the contents of the bundle
+        verifyBundleTopLevel(outputFolder);
+        verifyRawDataContents(outputFolder, 1);
+        verifyMetadataContents(outputFolder, 1);
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testOldVersion()

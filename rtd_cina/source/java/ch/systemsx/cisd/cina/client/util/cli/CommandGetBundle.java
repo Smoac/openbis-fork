@@ -108,9 +108,10 @@ public class CommandGetBundle extends
 
             // Grid Id must be non-null & non-empty -- otherwise, we wouldn't be here
             String gridIdentifier = arguments.tryBundleMetadataOwnerIdentifier();
+            List<String> replicaIdentifiers = arguments.getReplicaIdentifiers();
 
             BundleDownloader downloader =
-                    new BundleDownloader(component, gridIdentifier, outputDir);
+                    new BundleDownloader(component, gridIdentifier, replicaIdentifiers, outputDir);
             downloader.download();
 
             return ResultCode.OK;
