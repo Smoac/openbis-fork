@@ -14,20 +14,37 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dynamix.tools.feature_converter;
+package ch.ethz.bsse.cisd.dynamix.categoryoracle;
 
-import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
-import ch.systemsx.cisd.common.parser.IPropertyMapper;
+import java.util.List;
 
 /**
  * @author Izabela Adamczyk
  */
-final class InputRowFactory extends AbstractParserObjectFactory<InputRow>
+class InputRowsNamedCollection
 {
+    String name;
 
-    protected InputRowFactory(Class<InputRow> beanClass, IPropertyMapper propertyMapper)
+    List<InputRow> rows;
+
+    public String getName()
     {
-        super(beanClass, propertyMapper);
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public List<InputRow> getRows()
+    {
+        return rows;
+    }
+
+    public void setRows(List<InputRow> rows)
+    {
+        this.rows = rows;
     }
 
 }

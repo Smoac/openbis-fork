@@ -14,37 +14,49 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dynamix.tools.feature_converter;
+package ch.ethz.bsse.cisd.dynamix.categoryoracle;
 
 import java.util.List;
 
 /**
  * @author Izabela Adamczyk
  */
-class InputRowsNamedCollection
+public class TsvBuilder
 {
-    String name;
+    static final String TSV_SEPARATOR = ";";
 
-    List<InputRow> rows;
+    StringBuilder builder = new StringBuilder();
 
-    public String getName()
+    boolean empty = true;
+
+    public TsvBuilder()
     {
-        return name;
     }
 
-    public void setName(String name)
+    public TsvBuilder(List<String> columns)
     {
-        this.name = name;
+        addColumns(columns.toArray(new String[0]));
     }
 
-    public List<InputRow> getRows()
+    public void addColumns(String... columns)
     {
-        return rows;
+        for (String c : columns)
+        {
+            if (empty)
+            {
+                empty = false;
+            } else
+            {
+                builder.append(TsvBuilder.TSV_SEPARATOR);
+            }
+            builder.append(c);
+        }
     }
 
-    public void setRows(List<InputRow> rows)
+    @Override
+    public String toString()
     {
-        this.rows = rows;
+        return builder.toString();
     }
 
 }

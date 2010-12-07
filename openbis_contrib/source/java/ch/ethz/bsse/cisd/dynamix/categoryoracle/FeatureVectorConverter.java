@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dynamix.tools.feature_converter;
+package ch.ethz.bsse.cisd.dynamix.categoryoracle;
 
 import java.io.File;
 import java.io.IOException;

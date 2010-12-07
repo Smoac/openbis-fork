@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dynamix.tools.feature_converter;
+package ch.ethz.bsse.cisd.dynamix.categoryoracle;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 
@@ -69,7 +67,7 @@ class InputRowsHelper
     {
         OutputRow outputRow = new OutputRow();
         BeanUtils.fillBean(OutputRow.class, outputRow, in);
-        outputRow.setWellName(StringUtils.split(in.getIdentifier(), ":")[1]);
+        outputRow.setWellName(in.getIdentifier().split(":")[1]);
         String category = CategoryOracle.calculateCategory(in);
         outputRow.setCategory(category);
         return outputRow;

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.dynamix.tools.feature_converter;
+package ch.ethz.bsse.cisd.dynamix.categoryoracle;
 
-import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Izabela Adamczyk
@@ -76,6 +75,11 @@ class CategoryOracle
 
     private static boolean eq(String property, String value)
     {
-        return StringUtils.equalsIgnoreCase(property, value);
+        return equalsIgnoreCase(property, value);
+    }
+
+    private static boolean equalsIgnoreCase(String str1, String str2)
+    {
+        return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
     }
 }
