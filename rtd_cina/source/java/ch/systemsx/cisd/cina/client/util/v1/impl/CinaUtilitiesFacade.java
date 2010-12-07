@@ -248,6 +248,13 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     {
         return state.getDataSet(dataSetCode);
     }
+
+    public List<DataSet> listDataSetsForSample(Sample sample,
+            boolean areOnlyDirectlyConnectedIncluded) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException
+    {
+        return state.listDataSetsForSample(sample, areOnlyDirectlyConnectedIncluded);
+    }
 }
 
 /**
@@ -297,6 +304,13 @@ abstract class AbstractCinaFacadeState implements ICinaUtilities
     }
 
     public IDataSetDss getDataSet(String dataSetCode) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException
+    {
+        throw new IllegalStateException("Please log in");
+    }
+
+    public List<DataSet> listDataSetsForSample(Sample sample,
+            boolean areOnlyDirectlyConnectedIncluded) throws IllegalStateException,
             EnvironmentFailureException, UserFailureException
     {
         throw new IllegalStateException("Please log in");
@@ -476,6 +490,22 @@ class AuthenticatedState extends AbstractCinaFacadeState
             EnvironmentFailureException, UserFailureException
     {
         return dssComponent.getDataSet(dataSetCode);
+    }
+
+    @Override
+    public List<DataSet> listDataSetsForSample(Sample sample,
+            boolean areOnlyDirectlyConnectedIncluded) throws IllegalStateException,
+            EnvironmentFailureException, UserFailureException
+    {
+        // This functionality has only been supported since version 1.1
+        int minorVersion = generalInformationServiceMinorVersion;
+        if (minorVersion < 3)
+        {
+            throw new EnvironmentFailureException("Server does not support this feature.");
+        }
+
+        return service
+                .listDataSetsForSample(sessionToken, sample, areOnlyDirectlyConnectedIncluded);
     }
 
 }

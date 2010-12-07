@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.client.api.cli.AbstractCommandFactory;
-import ch.systemsx.cisd.openbis.dss.client.api.cli.CommandHelp;
 import ch.systemsx.cisd.openbis.dss.client.api.cli.ICommand;
 
 /**
@@ -32,19 +31,19 @@ public class CinaCommandFactory extends AbstractCommandFactory
 
     private static enum Command
     {
-        LISTSAMPS, GENCODE, LISTEXPS, GETREPLICA, HELP
+        LISTSAMPS, GENCODE, LISTEXPS, GETREPLICA, GETBUNDLE, HELP
     }
 
     public List<String> getKnownCommands()
     {
         String[] commands =
-            { "listsamps", "gencode", "listexps", "getreplica" };
+            { "listsamps", "gencode", "listexps", "getreplica", "getbundle" };
         return Arrays.asList(commands);
     }
 
     public ICommand getHelpCommand()
     {
-        return new CommandHelp(this, PROGRAM_CALL_STRING);
+        return getHelpCommand(PROGRAM_CALL_STRING);
     }
 
     public ICommand tryCommandForName(String name)
@@ -79,8 +78,11 @@ public class CinaCommandFactory extends AbstractCommandFactory
             case GETREPLICA:
                 result = new CommandGetReplica();
                 break;
+            case GETBUNDLE:
+                result = new CommandGetBundle();
+                break;
             case HELP:
-                result = new CommandHelp(this, PROGRAM_CALL_STRING);
+                result = getHelpCommand();
                 break;
             default:
                 result = null;

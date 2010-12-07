@@ -53,9 +53,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CommandGetReplicaTest extends AbstractFileSystemTestCase
+public class CommandGetBundleTest extends AbstractFileSystemTestCase
 {
-    private final class MockCommandGetReplica extends CommandGetReplica
+    private final class MockCommandGetBundle extends CommandGetBundle
     {
         @Override
         protected ICinaUtilities login()
@@ -114,7 +114,7 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     will(returnValue(SESSION_TOKEN));
 
                     one(service).getMinorVersion();
-                    will(returnValue(1));
+                    will(returnValue(3));
 
                     one(service).logout(SESSION_TOKEN);
                 }
@@ -126,58 +126,13 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    // Expectations for the replica samples
-                    SearchCriteria replicaSearchCriteria = new SearchCriteria();
-                    replicaSearchCriteria.addMatchClause(MatchClause.createAttributeMatch(
-                            MatchClauseAttribute.CODE, sampleCode));
-
                     SearchCriteria gridSearchCriteria = new SearchCriteria();
                     gridSearchCriteria.addMatchClause(MatchClause.createAttributeMatch(
                             MatchClauseAttribute.CODE, "GRID-ID"));
 
-                    ArrayList<Sample> replicaSamples = new ArrayList<Sample>();
-                    SampleInitializer sampInitializer = new SampleInitializer();
-                    sampInitializer.setCode(sampleCode);
-                    sampInitializer.setId((long) 1);
-                    sampInitializer.setIdentifier("SPACE/" + sampleCode);
-                    sampInitializer.setPermId("PERM-ID");
-                    sampInitializer.setSampleTypeCode("SAMPLE-TYPE");
-                    sampInitializer.setSampleTypeId((long) 1);
-                    replicaSamples.add(new Sample(sampInitializer));
-
-                    one(service).searchForSamples(SESSION_TOKEN, replicaSearchCriteria);
-                    will(returnValue(replicaSamples));
-
-                    ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
-                    DataSetInitializer dsInitializer = new DataSetInitializer();
-                    dsInitializer.setCode(sampleCode + "-RAW-IMAGES");
-                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
-                    dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
-                    dsInitializer.setDataSetTypeCode(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
-                    dataSets.add(new DataSet(dsInitializer));
-
-                    dsInitializer = new DataSetInitializer();
-                    dsInitializer.setCode(sampleCode + "-METADATA-OLD");
-                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
-                    dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
-                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
-                    dataSets.add(new DataSet(dsInitializer));
-
-                    dsInitializer = new DataSetInitializer();
-                    dsInitializer.setCode(sampleCode + "-METADATA-NEW");
-                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
-                    dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
-                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
-                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1).getTime());
-                    dataSets.add(new DataSet(dsInitializer));
-
-                    one(service).listDataSets(SESSION_TOKEN, replicaSamples);
-                    will(returnValue(dataSets));
-
                     // Expectations for the grid samples
                     ArrayList<Sample> gridSamples = new ArrayList<Sample>();
+                    SampleInitializer sampInitializer = new SampleInitializer();
                     sampInitializer = new SampleInitializer();
                     sampInitializer.setCode("GRID-ID");
                     sampInitializer.setId((long) 2);
@@ -190,16 +145,41 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     one(service).searchForSamples(SESSION_TOKEN, gridSearchCriteria);
                     will(returnValue(gridSamples));
 
-                    ArrayList<DataSet> gridDataSets = new ArrayList<DataSet>();
+                    ArrayList<DataSet> dataSets = new ArrayList<DataSet>();
+                    DataSetInitializer dsInitializer = new DataSetInitializer();
+                    dsInitializer.setCode(sampleCode + "-RAW-IMAGES");
+                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
+                    dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
+                    dsInitializer.setDataSetTypeCode(CinaConstants.RAW_IMAGES_DATA_SET_TYPE_CODE);
+                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    dataSets.add(new DataSet(dsInitializer));
+
+                    dsInitializer = new DataSetInitializer();
+                    dsInitializer.setCode(sampleCode + "-METADATA-OLD");
+                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
+                    dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
+                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
+                    dataSets.add(new DataSet(dsInitializer));
+
+                    dsInitializer = new DataSetInitializer();
+                    dsInitializer.setCode(sampleCode + "-METADATA-NEW");
+                    dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
+                    dsInitializer.setSampleIdentifierOrNull("/SPACE/" + sampleCode);
+                    dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
+                    dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 1, 1).getTime());
+                    dataSets.add(new DataSet(dsInitializer));
+
                     dsInitializer = new DataSetInitializer();
                     dsInitializer.setCode("BUNDLE-METADATA");
                     dsInitializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
                     dsInitializer.setSampleIdentifierOrNull(sampInitializer.getIdentifier());
                     dsInitializer.setDataSetTypeCode(CinaConstants.METADATA_DATA_SET_TYPE_CODE);
                     dsInitializer.setRegistrationDate(new GregorianCalendar(2010, 0, 1).getTime());
-                    gridDataSets.add(new DataSet(dsInitializer));
-                    one(service).listDataSets(SESSION_TOKEN, gridSamples);
-                    will(returnValue(gridDataSets));
+                    dataSets.add(new DataSet(dsInitializer));
+
+                    one(service).listDataSetsForSample(SESSION_TOKEN, gridSamples.get(0), false);
+                    will(returnValue(dataSets));
 
                 }
             });
@@ -236,14 +216,15 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dssComponent).getDataSet(sampleCode + "-RAW-IMAGES");
-                    will(returnValue(dataSetDss));
                     final String startPath = "/original/";
+
+                    one(dssComponent).getDataSet("BUNDLE-METADATA");
+                    will(returnValue(dataSetDss));
                     one(dataSetDss).listFiles(startPath, true);
-                    will(returnValue(rawImagesInfosArray));
-                    one(dataSetDss).getFile(startPath + rawImagesFolderName + "/Image.txt");
+                    will(returnValue(bundleMetadataInfosArray));
+                    one(dataSetDss).getFile(startPath + "BundleMetadata.xml");
                     will(returnValue(new FileInputStream(new File(parent,
-                            "RawImages/original/ReplicaRawImages/Image.txt"))));
+                            "Bundle/original/BundleMetadata.xml"))));
 
                     one(dssComponent).getDataSet(sampleCode + "-METADATA-NEW");
                     will(returnValue(dataSetDss));
@@ -253,15 +234,15 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
                     will(returnValue(new FileInputStream(new File(parent,
                             "Metadata/original/ReplicaMetadata/Metadata.txt"))));
 
-                    // The command should not ask for the -METADATA-OLD dataset!
-
-                    one(dssComponent).getDataSet("BUNDLE-METADATA");
+                    one(dssComponent).getDataSet(sampleCode + "-RAW-IMAGES");
                     will(returnValue(dataSetDss));
                     one(dataSetDss).listFiles(startPath, true);
-                    will(returnValue(bundleMetadataInfosArray));
-                    one(dataSetDss).getFile(startPath + "BundleMetadata.xml");
+                    will(returnValue(rawImagesInfosArray));
+                    one(dataSetDss).getFile(startPath + rawImagesFolderName + "/Image.txt");
                     will(returnValue(new FileInputStream(new File(parent,
-                            "Bundle/original/BundleMetadata.xml"))));
+                            "RawImages/original/ReplicaRawImages/Image.txt"))));
+
+                    // The command should not ask for the -METADATA-OLD dataset!
                 }
             });
     }
@@ -337,10 +318,10 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
     {
         String[] bundleContents = outputFolder.list();
         Arrays.sort(bundleContents);
-        assertEquals(3, bundleContents.length);
         assertEquals(BundleStructureConstants.METADATA_FOLDER_NAME, bundleContents[0]);
         assertEquals(BundleStructureConstants.BUNDLE_METADATA_FILE_NAME, bundleContents[1]);
         assertEquals(BundleStructureConstants.RAW_IMAGES_FOLDER_NAME, bundleContents[2]);
+        assertEquals(3, bundleContents.length);
     }
 
     @Test
@@ -350,14 +331,14 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         setupListDataSetsExpectations("REPLICA-ID");
         setupDownloadDataSetExpectations("REPLICA-ID");
 
-        ICommand command = new MockCommandGetReplica();
+        ICommand command = new MockCommandGetBundle();
 
         File outputFolder = new File(workingDirectory, "Foo.bundle/");
 
         ResultCode exitCode =
                 command.execute(new String[]
                     { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "GRID-ID", "REPLICA-ID" });
+                            "/SPACE/GRID-ID", "REPLICA-ID" });
 
         assertEquals(ResultCode.OK, exitCode);
 
@@ -369,35 +350,19 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testMultipleReplicas() throws IOException
-    {
-        setupAuthenticationExpectations();
-
-        setupListDataSetsExpectations("REPLICA-ID1");
-        setupListDataSetsExpectations("REPLICA-ID2");
-
-        setupDownloadDataSetExpectations("REPLICA-ID1");
-        setupDownloadDataSetExpectations("REPLICA-ID2");
-
-        ICommand command = new MockCommandGetReplica();
-
-        File outputFolder = new File(workingDirectory, "Foo.bundle/");
-
-        ResultCode exitCode =
-                command.execute(new String[]
-                    { "-s", "url", "-u", USER_ID, "-p", PASSWORD, "-o", outputFolder.getPath(),
-                            "GRID-ID", "REPLICA-ID1", "REPLICA-ID2" });
-
-        assertEquals(ResultCode.OK, exitCode);
-
-        // Check the contents of the bundle
-        verifyBundleTopLevel(outputFolder);
-        verifyRawDataContents(outputFolder, 2);
-        verifyMetadataContents(outputFolder, 2);
-
-        context.assertIsSatisfied();
-    }
+    /*
+     * @Test public void testMultipleReplicas() throws IOException {
+     * setupAuthenticationExpectations(); setupListDataSetsExpectations("REPLICA-ID1");
+     * setupListDataSetsExpectations("REPLICA-ID2");
+     * setupDownloadDataSetExpectations("REPLICA-ID1");
+     * setupDownloadDataSetExpectations("REPLICA-ID2"); ICommand command = new
+     * MockCommandGetBundle(); File outputFolder = new File(workingDirectory, "Foo.bundle/");
+     * ResultCode exitCode = command.execute(new String[] { "-s", "url", "-u", USER_ID, "-p",
+     * PASSWORD, "-o", outputFolder.getPath(), "GRID-ID", "REPLICA-ID1", "REPLICA-ID2" });
+     * assertEquals(ResultCode.OK, exitCode); // Check the contents of the bundle
+     * verifyBundleTopLevel(outputFolder); verifyRawDataContents(outputFolder, 2);
+     * verifyMetadataContents(outputFolder, 2); context.assertIsSatisfied(); }
+     */
 
     @Test
     public void testOldVersion()
@@ -410,13 +375,32 @@ public class CommandGetReplicaTest extends AbstractFileSystemTestCase
 
                     // The service used wasn't available in version 0
                     one(service).getMinorVersion();
-                    will(returnValue(0));
+                    will(returnValue(2));
+
+                    SearchCriteria gridSearchCriteria = new SearchCriteria();
+                    gridSearchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+                            MatchClauseAttribute.CODE, "GRID-ID"));
+
+                    // Expectations for the grid samples
+                    ArrayList<Sample> gridSamples = new ArrayList<Sample>();
+                    SampleInitializer sampInitializer = new SampleInitializer();
+                    sampInitializer = new SampleInitializer();
+                    sampInitializer.setCode("GRID-ID");
+                    sampInitializer.setId((long) 2);
+                    sampInitializer.setIdentifier("/SPACE/GRID-ID");
+                    sampInitializer.setPermId("GRID-PERM-ID");
+                    sampInitializer.setSampleTypeCode("GRID-SAMPLE-TYPE");
+                    sampInitializer.setSampleTypeId((long) 2);
+                    gridSamples.add(new Sample(sampInitializer));
+
+                    one(service).searchForSamples(SESSION_TOKEN, gridSearchCriteria);
+                    will(returnValue(gridSamples));
 
                     one(service).logout(SESSION_TOKEN);
                 }
             });
 
-        ICommand command = new MockCommandGetReplica();
+        ICommand command = new MockCommandGetBundle();
 
         try
         {
