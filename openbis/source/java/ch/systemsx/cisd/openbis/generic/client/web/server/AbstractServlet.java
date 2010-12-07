@@ -36,11 +36,16 @@ public abstract class AbstractServlet extends AbstractController
 {
     protected final String getSessionToken(final HttpServletRequest request)
     {
+        return getParameter(request, SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+    }
+
+    private String getParameter(final HttpServletRequest request, String parameterName)
+    {
         // We must have a session reaching this point. See the constructor where we set
         // 'setRequireSession(true)'.
         final HttpSession session = request.getSession(false);
         assert session != null : "Session must be specified.";
-        return ((String) session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY));
+        return ((String) session.getAttribute(parameterName));
     }
 
     protected final void writeResponse(final HttpServletResponse response, final String value)
