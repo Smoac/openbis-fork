@@ -29,6 +29,7 @@ import javax.sql.DataSource;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet;
+import ch.systemsx.cisd.openbis.dss.generic.server.Utils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSourceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
@@ -83,7 +84,7 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
 
         public RequestParams(HttpServletRequest request)
         {
-            sessionId = getParam(request, SESSION_ID_PARAM);
+            sessionId = getParam(request, Utils.SESSION_ID_PARAM);
             datasetCode = getParam(request, DATASET_CODE_PARAM);
             chromatogramId = getLongParam(request, CHROMATOGRAM_CODE_PARAM);
             width = getIntParam(request, IMAGE_WIDTH_PARAM, DEFAULT_WIDTH);
