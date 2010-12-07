@@ -165,7 +165,11 @@
     </antcall>
   </target>
 	
-	<target name="prepare-gwt" depends="openbis.prepare-gwt, jar"/>
+	<!-- 
+		Use this only if you want to use image viewer (screening.jar needs to be created and it slows down the build process).
+		Otherwise use prepare-gwt.
+	-->
+	<target name="prepare-gwt-with-image-viewer" depends="prepare-gwt, jar"/>
 	
 	<target name="jar" depends="openbis.jar">
 	  <property name="dist.file.name"
