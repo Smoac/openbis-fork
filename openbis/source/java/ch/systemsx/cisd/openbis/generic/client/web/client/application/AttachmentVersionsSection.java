@@ -20,8 +20,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentVersions;
 
 /**
  * {@link TabContent} containing a list of {@link AttachmentVersions}.
