@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -465,6 +466,9 @@ public class WellContentDialog extends Dialog
                                             viewContext.getModel().getSessionContext()
                                                     .getSessionID();
                                     urlParams.addParameter("session", sessionToken);
+                                    urlParams.addParameter(ParameterNames.SERVER_URL,
+                                            GWT.getHostPageBaseURL());
+
                                     if (channelSelectionProvider != null)
                                     {
                                         urlParams.addParameter(ParameterNames.CHANNEL,

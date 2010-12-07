@@ -17,13 +17,15 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ParameterNames
 {
     public static final String EXPERIMENT_ID = "experiment-id";
+
     public static final String CHANNEL = "channel";
+
     public static final String DATA_SET_AND_WELLS = "data-set-and-wells";
+
+    public static final String SERVER_URL = "server-url";
 }

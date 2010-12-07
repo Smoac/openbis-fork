@@ -21,20 +21,16 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Screeni
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -43,8 +39,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractServlet;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Controller
@@ -53,45 +47,31 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterName
 public class ImageViewerLaunchServlet extends AbstractServlet
 {
     private static final long serialVersionUID = 1L;
-    public static final Template JNLP_TEMPLATE =
-        new Template(
-                "<?xml version='1.0' encoding='utf-8'?>\n"
-                        + "<jnlp spec='1.0+' codebase='${base-URL}'>\n"
-                        + "  <information>\n"
-                        + "    <title>${title}</title>\n"
-                        + "    <vendor>SyBIT</vendor>\n"
-                        + "    <description>${description}</description>\n"
-                        + "  </information>\n"
-                        + "  <security>\n"
-                        + "    <all-permissions/>\n"
-                        + "  </security>\n"
-                        + "  <resources>\n"
-                        + "    <j2se version='1.5+'/>\n"
-                        + "    <jar href='screening.jar'/>\n"
-                        + "    <jar href='cisd-base.jar'/>\n"
-                        + "    <jar href='image-viewer.jar'/>\n"
-                        + "    <jar href='spring-web.jar'/>\n"
-                        + "    <jar href='spring-context.jar'/>\n"
-                        + "    <jar href='spring-beans.jar'/>\n"
-                        + "    <jar href='spring-aop.jar'/>\n"
-                        + "    <jar href='spring-core.jar'/>\n"
-                        + "    <jar href='aopalliance.jar'/>\n"
-                        + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
-                        + "    <jar href='commons-codec.jar'/>\n"
-                        + "    <jar href='commons-httpclient.jar'/>\n"
-                        + "    <jar href='commons-io.jar'/>\n"
-                        + "    <jar href='commons-lang.jar'/>\n"
-                        + "    <jar href='commons-logging.jar'/>\n"
-                        + "    <jar href='ij.jar'/>\n"
-                        + "  </resources>\n"
-                        + "  <application-desc main-class='${main-class}'>\n"
-                        + "    <argument>${service-URL}</argument>\n"
-                        + "    <argument>${session-id}</argument>\n"
-                        + "    <argument>${channel}</argument>\n"
-                        + "${data-set-and-wells-arguments}\n"
-                        + "  </application-desc>\n" + "</jnlp>\n");
-    
-    private  final Logger operationLog;
+
+    public static final Template JNLP_TEMPLATE = new Template(
+            "<?xml version='1.0' encoding='utf-8'?>\n"
+                    + "<jnlp spec='1.0+' codebase='${base-URL}'>\n" + "  <information>\n"
+                    + "    <title>${title}</title>\n" + "    <vendor>SyBIT</vendor>\n"
+                    + "    <description>${description}</description>\n" + "  </information>\n"
+                    + "  <security>\n" + "    <all-permissions/>\n" + "  </security>\n"
+                    + "  <resources>\n" + "    <j2se version='1.5+'/>\n"
+                    + "    <jar href='screening.jar'/>\n" + "    <jar href='cisd-base.jar'/>\n"
+                    + "    <jar href='image-viewer.jar'/>\n" + "    <jar href='spring-web.jar'/>\n"
+                    + "    <jar href='spring-context.jar'/>\n"
+                    + "    <jar href='spring-beans.jar'/>\n" + "    <jar href='spring-aop.jar'/>\n"
+                    + "    <jar href='spring-core.jar'/>\n" + "    <jar href='aopalliance.jar'/>\n"
+                    + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
+                    + "    <jar href='commons-codec.jar'/>\n"
+                    + "    <jar href='commons-httpclient.jar'/>\n"
+                    + "    <jar href='commons-io.jar'/>\n" + "    <jar href='commons-lang.jar'/>\n"
+                    + "    <jar href='commons-logging.jar'/>\n" + "    <jar href='ij.jar'/>\n"
+                    + "  </resources>\n" + "  <application-desc main-class='${main-class}'>\n"
+                    + "    <argument>${service-URL}</argument>\n"
+                    + "    <argument>${session-id}</argument>\n"
+                    + "    <argument>${channel}</argument>\n" + "${data-set-and-wells-arguments}\n"
+                    + "  </application-desc>\n" + "</jnlp>\n");
+
+    private final Logger operationLog;
 
     public ImageViewerLaunchServlet()
     {
@@ -105,7 +85,8 @@ public class ImageViewerLaunchServlet extends AbstractServlet
         try
         {
             response.setContentType("application/x-java-jnlp-file");
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream()));
+            PrintWriter writer =
+                    new PrintWriter(new OutputStreamWriter(response.getOutputStream()));
             Template template = JNLP_TEMPLATE.createFreshCopy();
             template.bind("title", "Image Viewer");
             template.bind("description", "Image Viewer for color adjustment.");
@@ -135,12 +116,12 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             printError(response, ex.getMessage());
         }
     }
-    
+
     private String getMainClass()
     {
         return "ch.systemsx.sybit.imageviewer.gui.ImageViewer";
     }
-    
+
     private String createBaseURL(HttpServletRequest request)
     {
         String url = getBasicURL(request);
@@ -153,22 +134,12 @@ public class ImageViewerLaunchServlet extends AbstractServlet
         }
         return url;
     }
-    
+
     private String getBasicURL(HttpServletRequest request)
     {
-        final String scheme = request.getScheme();
-        final String serverName = request.getServerName();
-        final int port = request.getServerPort();
-        final String contextPath = StringUtils.defaultString(request.getContextPath());
-        try
-        {
-            return new URL(scheme, serverName, port, contextPath).toString();
-        } catch (final MalformedURLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return getParam(request, ParameterNames.SERVER_URL);
     }
-    
+
     private String getParam(HttpServletRequest request, String paramName)
     {
         String value = request.getParameter(paramName);
@@ -188,7 +159,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
         }
         return Arrays.asList(values);
     }
-    
+
     private void printError(HttpServletResponse response, String errorMessage) throws IOException
     {
         PrintWriter writer = response.getWriter();
