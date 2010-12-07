@@ -38,6 +38,7 @@ public class DataSetTest extends AssertJUnit
     {
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setCode(DATA_SET_CODE);
+        initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
         initializer.putProperty("PROP1", "value1");
         dataSet = new DataSet(initializer);
@@ -57,6 +58,7 @@ public class DataSetTest extends AssertJUnit
     {
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setCode(DATA_SET_CODE);
+        initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
         initializer.putProperty("PROP1", "value1");
         DataSet myDataSet = new DataSet(initializer);
@@ -65,6 +67,7 @@ public class DataSetTest extends AssertJUnit
 
         initializer = new DataSetInitializer();
         initializer.setCode(DATA_SET_CODE);
+        initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode("new-code");
         myDataSet = new DataSet(initializer);
         assertTrue("Data sets with the same code should be equal.", dataSet.equals(myDataSet));
@@ -72,17 +75,19 @@ public class DataSetTest extends AssertJUnit
 
         initializer = new DataSetInitializer();
         initializer.setCode("code-2");
+        initializer.setExperimentIdentifier("/SPACE/PROJECT/EXP");
         initializer.setDataSetTypeCode(DATA_SET_TYPE_CODE);
         initializer.putProperty("PROP1", "value1");
         myDataSet = new DataSet(initializer);
-        assertFalse("Data sets with the different ids should not be equal.", dataSet
-                .equals(myDataSet));
+        assertFalse("Data sets with the different ids should not be equal.",
+                dataSet.equals(myDataSet));
     }
 
     @Test
     public void testToString()
     {
         String stringRepresentation = dataSet.toString();
-        assertEquals("DataSet[dataSet-code,dataSet-type,{PROP1=value1}]", stringRepresentation);
+        assertEquals("DataSet[dataSet-code,/SPACE/PROJECT/EXP,<null>,dataSet-type,{PROP1=value1}]",
+                stringRepresentation);
     }
 }
