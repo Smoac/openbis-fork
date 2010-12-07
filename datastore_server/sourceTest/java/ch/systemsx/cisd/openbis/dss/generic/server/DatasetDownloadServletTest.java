@@ -187,13 +187,31 @@ public class DatasetDownloadServletTest
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
         assertEquals(
-                "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }body { height: 100%; font-family: verdana, tahoma, helvetica; font-size: 11px; text-align:left; }h1 { text-align: center; padding: 1em; color: #1E4E8F;}.td_hd { border: 1px solid #FFFFFF; padding 3px; background-color: #DDDDDD; height: 1.5em; }.div_hd { background-color: #1E4E8F; color: white; font-weight: bold; padding: 3px; }table { border-collapse: collapse; padding: 1em; }tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }.td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }.wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }.footer { height: 4em; text-align: center; }</style></head><body><table> "
+                "<html><head><style type='text/css'> * { margin: 3px; }html { height: 100%;  }"
+                        + "body { height: 100%; font-family: verdana, tahoma, helvetica; "
+                        + "font-size: 11px; text-align:left; }"
+                        + "h1 { text-align: center; padding: 1em; color: #1E4E8F;}"
+                        + ".td_hd { border: 1px solid #FFFFFF; padding 3px; "
+                        + "background-color: #DDDDDD; height: 1.5em; }"
+                        + ".div_hd { background-color: #1E4E8F; color: white; "
+                        + "font-weight: bold; padding: 3px; }"
+                        + "table { border-collapse: collapse; padding: 1em; }"
+                        + "tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }"
+                        + ".td_file { font-family: verdana, tahoma, helvetica; "
+                        + "font-size: 11px; height: 1.5em }"
+                        + ".wrapper { min-height: 100%; height: auto !important; height: 100%;"
+                        + " margin: 0em auto -4em; }"
+                        + ".footer { height: 4em; text-align: center; }</style></head>"
+                        + "<body><table> "
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/%2B+s+%25+%21+%23+%40?mode=simpleHtml'>+ s % ! # @</td><td></td></tr>"
+                        + "<tr><td class='td_file'>"
+                        + "<a href='/datastore_server/1234-1/%2B+s+%25+%21+%23+%40?mode=simpleHtml&sessionID=AV76CF'>"
+                        + "+ s % ! # @</td><td></td></tr>"
                         + OSUtilities.LINE_SEPARATOR
-                        + "<tr><td class='td_file'><a href='/datastore_server/1234-1/read+me+%40home.txt?mode=simpleHtml'>read me @home.txt</td><td>12 bytes</td></tr>"
-                        + OSUtilities.LINE_SEPARATOR
-                        + "</table> </div> </body></html>"
+                        + "<tr><td class='td_file'>"
+                        + "<a href='/datastore_server/1234-1/read+me+%40home.txt?mode=simpleHtml&sessionID=AV76CF'>"
+                        + "read me @home.txt</td><td>12 bytes</td></tr>"
+                        + OSUtilities.LINE_SEPARATOR + "</table> </div> </body></html>"
                         + OSUtilities.LINE_SEPARATOR + "", writer.toString());
         assertEquals(getSessionCreationLogMessage() + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "Data set '1234-1' obtained from openBIS server." + OSUtilities.LINE_SEPARATOR
@@ -208,7 +226,7 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
+                    one(request).getParameter(Utils.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
 
                     one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
@@ -577,7 +595,7 @@ public class DatasetDownloadServletTest
 
     private void prepareParseRequestURLNoSession(Expectations exp)
     {
-        exp.one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
+        exp.one(request).getParameter(Utils.SESSION_ID_PARAM);
         exp.will(Expectations.returnValue(null));
 
         exp.allowing(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
@@ -604,7 +622,7 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
+                    one(request).getParameter(Utils.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
 
                     one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
@@ -646,10 +664,10 @@ public class DatasetDownloadServletTest
 
                     // For the logging of session-creating requests
                     Vector<String> parameterNames = new Vector<String>();
-                    parameterNames.add(DatasetDownloadServlet.SESSION_ID_PARAM);
+                    parameterNames.add(Utils.SESSION_ID_PARAM);
                     one(request).getParameterNames();
                     will(Expectations.returnValue(parameterNames.elements()));
-                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
+                    one(request).getParameter(Utils.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
 
                     DatabaseInstance databaseInstance = new DatabaseInstance();

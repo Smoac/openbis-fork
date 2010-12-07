@@ -34,12 +34,15 @@ final class RenderingContext
 
     private String relativeParentPath;
 
-    RenderingContext(File rootDir, String urlPrefix, String relativePathOrNull)
+    private final String sessionIdOrNull;
+
+    RenderingContext(File rootDir, String urlPrefix, String relativePathOrNull, String sessionIdOrNull)
     {
         this.rootDir = rootDir;
         this.relativePathOrNull = relativePathOrNull;
         this.file = rootDir;
         this.urlPrefix = urlPrefix;
+        this.sessionIdOrNull = sessionIdOrNull;
         if (relativePathOrNull != null && relativePathOrNull.length() > 0)
         {
             file = new File(rootDir, relativePathOrNull);
@@ -74,6 +77,11 @@ final class RenderingContext
     public final String getRelativeParentPath()
     {
         return relativeParentPath;
+    }
+
+    public String getSessionIdOrNull()
+    {
+        return sessionIdOrNull;
     }
 
     @Override

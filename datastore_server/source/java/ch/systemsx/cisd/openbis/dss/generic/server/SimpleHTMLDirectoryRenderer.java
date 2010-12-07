@@ -51,7 +51,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 
     private static final Template ROW_TEMPLATE =
             new Template(
-                    "<tr><td class='td_file'><a href='${path}?mode=simpleHtml'>${name}</td><td>${size}</td></tr>");
+                    "<tr><td class='td_file'><a href='${path}?mode=simpleHtml${sessionId}'>${name}</td><td>${size}</td></tr>");
 
     private static final Template HEADER_TEMPLATE =
             new Template("<html><head>" + CSS + "</head><body>" + "<table> " + "${folder}" + "");
@@ -64,9 +64,12 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
 
     private final String relativePathOrNull;
 
+    private final String sessionIdOrNull;
+
     SimpleHTMLDirectoryRenderer(final RenderingContext context)
     {
         this.relativePathOrNull = context.getRelativePathOrNull();
+        sessionIdOrNull = context.getSessionIdOrNull();
         final String prefix = context.getUrlPrefix();
         this.urlPrefix = prefix.endsWith("/") ? prefix : prefix + "/";
     }
@@ -111,6 +114,7 @@ final class SimpleHTMLDirectoryRenderer implements IDirectoryRenderer
         template.bind("path", urlPrefix + encodeURL(relativePath));
         template.bind("name", name);
         template.bind("size", fileSize);
+        template.bind("sessionId", Utils.createUrlParameterForSessionId("&", sessionIdOrNull));
         writer.println(template.createText());
     }
 

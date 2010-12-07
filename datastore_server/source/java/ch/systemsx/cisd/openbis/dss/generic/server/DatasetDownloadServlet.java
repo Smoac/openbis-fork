@@ -228,9 +228,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         File rootDir = createDataSetRootDirectory(dataSetCode, session);
         RenderingContext context =
                 new RenderingContext(rootDir, requestParams.getURLPrefix(),
-                        requestParams.getPathInfo()
-
-                );
+                        requestParams.getPathInfo(), requestParams.tryGetSessionId());
 
         return context;
     }
@@ -272,7 +270,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         final String urlPrefixWithDataset =
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
-        final String sessionIDOrNull = request.getParameter(SESSION_ID_PARAM);
+        final String sessionIDOrNull = request.getParameter(Utils.SESSION_ID_PARAM);
         String displayMode = getDisplayMode(request);
 
         Boolean autoResolveOrNull = Boolean.valueOf(request.getParameter(AUTO_RESOLVE_KEY));
@@ -387,7 +385,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
                             mainDataSets.get(0).getPath()));
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext.getRootDir(),
-                            renderingContext.getUrlPrefix(), newRelativePath);
+                            renderingContext.getUrlPrefix(), newRelativePath,
+                            renderingContext.getSessionIdOrNull());
             autoResolveRedirect(response, newRenderingContext);
         } else if (AutoResolveUtils.continueAutoResolving(requestParams.tryGetMainDataSetPattern(),
                 dir))
@@ -400,7 +399,8 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
             String newRelativePath = pathPrefix + childName;
             RenderingContext newRenderingContext =
                     new RenderingContext(renderingContext.getRootDir(),
-                            renderingContext.getUrlPrefix(), newRelativePath);
+                            renderingContext.getUrlPrefix(), newRelativePath,
+                            renderingContext.getSessionIdOrNull());
             autoResolveRedirect(response, newRenderingContext);
         } else
         {
@@ -411,8 +411,12 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
     private static void autoResolveRedirect(HttpServletResponse response,
             RenderingContext newContext) throws IOException
     {
+        String urlPrefix = newContext.getUrlPrefix();
+        String relativePathOrNull = newContext.getRelativePathOrNull();
+        String sessionIdOrNull = newContext.getSessionIdOrNull();
         final String newLocation =
-                DOWNLOAD_URL + newContext.getUrlPrefix() + "/" + newContext.getRelativePathOrNull();
+                DOWNLOAD_URL + urlPrefix + "/" + relativePathOrNull
+                        + Utils.createUrlParameterForSessionId("?", sessionIdOrNull);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(String.format("Auto resolve redirect: '%s', context: %s",
