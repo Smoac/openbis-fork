@@ -30,6 +30,7 @@ import javax.mail.util.ByteArrayDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -58,21 +59,23 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class DataSetToSOFT implements IProcessingPluginTask
 {
-    private static final String EXTERNAL_SAMPLE_NAME_PROPERTY = "EXTERNAL_SAMPLE_NAME";
+    @Private static final String EXTERNAL_SAMPLE_NAME_PROPERTY = "EXTERNAL_SAMPLE_NAME";
 
     private static final String EMPTY = "<<<NEED_TO_BE_FILLED>>>";
 
-    private static final Template SOFT_FILE_NAME_TEMPLATE = new Template(
+    @Private
+    static final Template SOFT_FILE_NAME_TEMPLATE = new Template(
             "${flow-lane}_${external-sample-name}_SOFT.txt");
 
-    private static final Template E_MAIL_SUBJECT_TEMPLATE = new Template(
-    "SOFT file for ${external-sample-name}");
-    
-    private static final Template E_MAIL_CONTENT_TEMPLATE =
-            new Template("Dear User\n\n"
-                    + "Enclosed you will find the SOFT file for ${external-sample-name}.\n"
-                    + "Flow lane: ${flow-lane}\nData Set: ${data-set}");
-    
+    @Private
+    static final Template E_MAIL_SUBJECT_TEMPLATE = new Template(
+            "SOFT file for '${external-sample-name}'");
+
+    @Private
+    static final Template E_MAIL_CONTENT_TEMPLATE = new Template("Dear User\n\n"
+            + "Enclosed you will find the SOFT file for '${external-sample-name}'.\n"
+            + "Flow lane: ${flow-lane}\nData Set: ${data-set}");
+
     private static final class SOFTBuilder
     {
         private final StringBuilder builder = new StringBuilder();
@@ -130,18 +133,26 @@ public class DataSetToSOFT implements IProcessingPluginTask
         return null;
     }
         
-        
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, DataSetToSOFT.class);
 
     private static final long serialVersionUID = 1L;
+    
     private final File storeRoot;
 
-    private Map<String, String> translation;
+    private final Map<String, String> translation;
+
+    private IEncapsulatedOpenBISService service;
 
     public DataSetToSOFT(Properties properties, File storeRoot)
     {
+        this(properties, storeRoot, null);
+    }
+    
+    DataSetToSOFT(Properties properties, File storeRoot, IEncapsulatedOpenBISService service)
+    {
         this.storeRoot = storeRoot;
+        this.service = service;
         translation = new HashMap<String, String>();
         translation.put("GENOMIC_DNA", "genomic");
         translation.put("FRAGMENTED_GENOMIC_DNA", "genomic");
@@ -160,7 +171,6 @@ public class DataSetToSOFT implements IProcessingPluginTask
             DataSetProcessingContext context)
     {
         EMailAddress address = new EMailAddress(context.getUserEmailOrNull());
-        IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
         ProcessingStatus status = new ProcessingStatus();
         for (DatasetDescription datasetDescription : datasets)
         {
@@ -171,7 +181,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
                 {
                     operationLog.info("Create SOFT file for data set " + dataSetCode);
                 }
-                ExternalData srfDataSet = service.tryGetDataSet(dataSetCode);
+                ExternalData srfDataSet = getService().tryGetDataSet(dataSetCode);
                 Sample flowLaneSample = getFlowLaneSample(srfDataSet);
                 Sample flowCellSample = getFlowCellSample(flowLaneSample);
                 Sample sequencingSample = getSequencingSample(flowLaneSample);
@@ -194,7 +204,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
                 softBuilder.addSampleProperty("biomaterial_provider", sequencingSample, "CONTACT_PERSON_NAME");
                 softBuilder.addSampleProperty("molecule", sequencingSample, "SEQUENCING_APPLICATION");
                 softBuilder.addSampleProperty("extract_protocol", sequencingSample, "SAMPLE_EXTRACT_PROTOCOL");
-                softBuilder.addSampleProperty("data_processing", sequencingSample, "AMPLE_DATA_PROCESSING");
+                softBuilder.addSampleProperty("data_processing", sequencingSample, "SAMPLE_DATA_PROCESSING");
                 softBuilder.addSampleProperty("library_strategy", sequencingSample, "SEQUENCING_APPLICATION");
                 softBuilder.addSampleProperty("library_source", sequencingSample, "SAMPLE_KIND", translation);
                 softBuilder.addSampleProperty("library_selection", sequencingSample, "SAMPLE_KIND");
@@ -238,7 +248,8 @@ public class DataSetToSOFT implements IProcessingPluginTask
     private String createSoftFileName(Sample sequencingSample, Sample flowLaneSample)
     {
         Template template = SOFT_FILE_NAME_TEMPLATE.createFreshCopy();
-        bindExternalSampleName(template, sequencingSample);
+        String externalSampleName = tryToGetProperty(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY);
+        template.bind("external-sample-name", externalSampleName.replace(' ', '_'));
         template.bind("flow-lane", flowLaneSample.getCode().replace(':', '-'));
         return template.createText();
     }
@@ -291,22 +302,19 @@ public class DataSetToSOFT implements IProcessingPluginTask
     
     private Sample getFlowLaneSample(ExternalData dataSet)
     {
-        IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
         SampleIdentifier identifier = SampleIdentifierFactory.parse(dataSet.getSampleIdentifier());
-        return service.tryGetSampleWithExperiment(identifier);
+        return getService().tryGetSampleWithExperiment(identifier);
     }
     
     private Sample getFlowCellSample(Sample flowLaneSample)
     {
-        IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
         SampleIdentifier identifier = SampleIdentifierFactory.parse(flowLaneSample.getContainer().getIdentifier());
-        return service.tryGetSampleWithExperiment(identifier);
+        return getService().tryGetSampleWithExperiment(identifier);
     }
     
     private Sample getSequencingSample(Sample flowLaneSample)
     {
-        IEncapsulatedOpenBISService service = ServiceProvider.getOpenBISService();
-        List<Sample> parents = service.listSamples(ListSampleCriteria.createForChild(new TechId(flowLaneSample.getId())));
+        List<Sample> parents = getService().listSamples(ListSampleCriteria.createForChild(new TechId(flowLaneSample.getId())));
         return parents.get(0);
     }
 
@@ -321,5 +329,13 @@ public class DataSetToSOFT implements IProcessingPluginTask
         }
     }
     
+    private IEncapsulatedOpenBISService getService()
+    {
+        if (service == null)
+        {
+            service = ServiceProvider.getOpenBISService();
+        }
+        return service;
+    }
 
 }
