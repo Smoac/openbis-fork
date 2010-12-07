@@ -73,7 +73,7 @@ public class DssCommandFactory extends AbstractCommandFactory
 
     public ICommand getHelpCommand()
     {
-        return new CommandHelp(this, PROGRAM_CALL_STRING);
+        return getHelpCommand(PROGRAM_CALL_STRING);
     }
 
     public List<String> getKnownCommands()

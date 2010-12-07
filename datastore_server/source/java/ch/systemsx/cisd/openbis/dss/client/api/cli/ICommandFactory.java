@@ -38,4 +38,11 @@ public interface ICommandFactory
      * Get the help command.
      */
     public ICommand getHelpCommand();
+
+    /**
+     * Set the parent of this command factory.
+     * 
+     * @param parentCommandFactoryOrNull A command factory, or null if this one has no parent.
+     */
+    public void setParentCommandFactory(ICommandFactory parentCommandFactoryOrNull);
 }

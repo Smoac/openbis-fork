@@ -21,6 +21,8 @@ package ch.systemsx.cisd.openbis.dss.client.api.cli;
  */
 abstract public class AbstractCommandFactory implements ICommandFactory
 {
+    // If non-null, this command factory is a "sub-factory" of another factory.
+    private ICommandFactory parentCommandFactoryOrNull;
 
     /**
      *
@@ -40,5 +42,36 @@ abstract public class AbstractCommandFactory implements ICommandFactory
         }
 
         return null;
+    }
+
+    /**
+     * If this command factory has a parent command factory, return it.
+     * 
+     * @return A command factory or null
+     */
+    protected ICommandFactory tryParentCommandFactory()
+    {
+        return parentCommandFactoryOrNull;
+    }
+
+    /**
+     * Set the parent of this command factory
+     * 
+     * @param parentCommandFactoryOrNull A command factory, or null if this one has no parent.
+     */
+    public void setParentCommandFactory(ICommandFactory parentCommandFactoryOrNull)
+    {
+        this.parentCommandFactoryOrNull = parentCommandFactoryOrNull;
+    }
+
+    protected CommandHelp getHelpCommand(String programCallString)
+    {
+        ICommandFactory helpFactory = tryParentCommandFactory();
+        if (null == helpFactory)
+        {
+            helpFactory = this;
+        }
+
+        return new CommandHelp(helpFactory, programCallString);
     }
 }

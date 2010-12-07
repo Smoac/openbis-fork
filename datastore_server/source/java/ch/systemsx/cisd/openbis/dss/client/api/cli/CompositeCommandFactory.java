@@ -41,6 +41,10 @@ public class CompositeCommandFactory extends AbstractCommandFactory
         this.programCallString = programCallString;
         this.factories = factories;
         assert factories.size() > 0 : "CompositeCommandFactory must have a factory to wrap.";
+        for (ICommandFactory factory : factories)
+        {
+            factory.setParentCommandFactory(this);
+        }
     }
 
     public List<String> getKnownCommands()
