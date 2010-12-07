@@ -63,10 +63,12 @@ class BundleDownloader
             List<String> collectionIdentifierStrings, File outputDir)
     {
         this.component = component;
-        this.gridIdentifier = SampleIdentifierFactory.parse(bundleIdentifier);
+
         this.outputDir = outputDir;
         this.collectionIdentifierStrings = collectionIdentifierStrings;
-        gridSample = searchForSample(gridIdentifier);
+        SampleIdentifier userGridIdentifier = SampleIdentifierFactory.parse(bundleIdentifier);
+        gridSample = searchForSample(userGridIdentifier);
+        gridIdentifier = SampleIdentifierFactory.parse(gridSample.getIdentifier());
     }
 
     private static class DownloaderListener implements

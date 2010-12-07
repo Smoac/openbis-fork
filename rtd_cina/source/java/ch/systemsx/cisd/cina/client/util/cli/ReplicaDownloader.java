@@ -47,16 +47,12 @@ class ReplicaDownloader
 
     private final SampleIdentifier replicaIdentifier;
 
-    private final SampleIdentifier gridIdentifier;
-
     private final File outputDir;
 
-    ReplicaDownloader(ICinaUtilities component, String bundleIdentifier, String replicaIdentifier,
-            File outputDir)
+    ReplicaDownloader(ICinaUtilities component, String replicaIdentifier, File outputDir)
     {
         this.component = component;
         this.replicaIdentifier = SampleIdentifierFactory.parse(replicaIdentifier);
-        this.gridIdentifier = SampleIdentifierFactory.parse(bundleIdentifier);
         this.outputDir = outputDir;
     }
 
@@ -100,9 +96,6 @@ class ReplicaDownloader
         // Get the replica and parent grid samples.
         Sample replicaSample = searchForSample(replicaIdentifier);
         downloadReplica(replicaSample);
-
-        Sample gridSample = searchForSample(gridIdentifier);
-        downloadGrid(gridSample);
     }
 
     private void downloadReplica(Sample replicaSample)
@@ -131,30 +124,6 @@ class ReplicaDownloader
         if (null != mostRecentMetadata)
         {
             downloadDataSet(mostRecentMetadata, BundleStructureConstants.METADATA_FOLDER_NAME);
-        }
-    }
-
-    private void downloadGrid(Sample parentGridSample)
-    {
-        // Find all datasets connected to the grid sample
-        List<DataSet> dataSets =
-                component.listDataSets(Collections.singletonList(parentGridSample));
-
-        DataSet mostRecentMetadata = null;
-
-        for (DataSet dataSet : dataSets)
-        {
-            String typeCode = dataSet.getDataSetTypeCode();
-            if (typeCode.equals(CinaConstants.METADATA_DATA_SET_TYPE_CODE))
-            {
-                mostRecentMetadata = compareReturningMoreRecent(mostRecentMetadata, dataSet);
-            }
-        }
-
-        // Download the most recent metadata data set
-        if (null != mostRecentMetadata)
-        {
-            downloadDataSet(mostRecentMetadata, null);
         }
     }
 
