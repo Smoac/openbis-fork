@@ -1,0 +1,33 @@
+-- Migration from 008 to 009
+
+ALTER TABLE channel_stacks ALTER COLUMN spot_id DROP NOT NULL;
+ALTER TABLE data_sets ALTER COLUMN cont_id DROP NOT NULL;
+
+------------------------------------------------------------------------------------
+--  Purpose:  Create trigger CHANNEL_STACKS_CHECK which checks if both spot_id and dataset.cont_id 
+--            are both null or not null.
+------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION CHANNEL_STACKS_CHECK() RETURNS trigger AS $$
+DECLARE
+   v_cont_id  CODE;
+BEGIN
+
+   select cont_id into v_cont_id from data_sets where id = NEW.ds_id;
+
+   -- Check that if there is no spot than there is no dataset container as well
+   if v_cont_id IS NULL then
+      if NEW.spot_id IS NOT NULL then
+         RAISE EXCEPTION 'Insert/Update of CHANNEL_STACKS failed, as the dataset container is not set, but spot is (spot id = %).',NEW.spot_id;
+      end if;
+	 else
+      if NEW.spot_id IS NULL then
+         RAISE EXCEPTION 'Insert/Update of CHANNEL_STACKS failed, as the dataset container is set (id = %), but spot is not set.',v_cont_id;
+      end if; 
+   end if;
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER CHANNEL_STACKS_CHECK BEFORE INSERT OR UPDATE ON CHANNEL_STACKS
+    FOR EACH ROW EXECUTE PROCEDURE CHANNEL_STACKS_CHECK();
