@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.utilities.UnicodeUtils;
  */
 public class ScreeningLibraryTransformer
 {
-    private final static char SEPARATOR = ','; // TODO parametrize
+    private final static char DEFAULT_SEPARATOR = ',';
 
     private static final String GENES_FILE_NAME = "genes.txt";
 
@@ -64,8 +64,9 @@ public class ScreeningLibraryTransformer
             return;
         }
         Status status =
-                readLibrary(new FileInputStream(input), experimentIdentifier, plateGeometry,
-                        groupCode, GENES_FILE_NAME, SIRNAS_FILE_NAME, PLATES_FILE_NAME);
+                readLibrary(new FileInputStream(input), DEFAULT_SEPARATOR, experimentIdentifier,
+                        plateGeometry, groupCode, GENES_FILE_NAME, SIRNAS_FILE_NAME,
+                        PLATES_FILE_NAME);
         if (status.isError())
         {
             System.err.println(status.tryGetErrorMessage());
@@ -75,14 +76,14 @@ public class ScreeningLibraryTransformer
         }
     }
 
-    public static Status readLibrary(InputStream input, String experimentIdentifier,
-            String plateGeometry, String groupCode, String genesFile, String oligosFile,
-            String platesFile)
+    public static Status readLibrary(InputStream input, char separator,
+            String experimentIdentifier, String plateGeometry, String groupCode, String genesFile,
+            String oligosFile, String platesFile)
     {
         CsvReader csvReader = null;
         try
         {
-            csvReader = readFile(input);
+            csvReader = createReader(input, separator);
             boolean headerPresent = csvReader.readRecord();
             if (headerPresent == false)
             {
@@ -113,11 +114,11 @@ public class ScreeningLibraryTransformer
         }
     }
 
-    static CsvReader readFile(InputStream input) throws FileNotFoundException, IOException,
-            UserFailureException
+    static CsvReader createReader(InputStream input, char separator) throws FileNotFoundException,
+            IOException, UserFailureException
     {
         CsvReader csvReader = new CsvReader(input, UnicodeUtils.getDefaultUnicodeCharset());
-        csvReader.setDelimiter(SEPARATOR);
+        csvReader.setDelimiter(separator);
         csvReader.setSafetySwitch(false);
         return csvReader;
     }

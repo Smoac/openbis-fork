@@ -54,6 +54,7 @@ var screening = {
 	//
   import_scheduled: "Import has started successfully. Notification will be sent to '{0}' upon completion.",
 	register: "Register",
+	separator: "Separator",
 	
 	//
 	// Gene Viewer

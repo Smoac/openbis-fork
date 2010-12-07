@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample;
 
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -29,16 +29,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.AbstractSampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo.RegistrationScope;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
  * The {@link ScreeningConstants#LIBRARY_PLUGIN_TYPE_CODE} sample import panel.
@@ -47,6 +48,23 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistr
  */
 public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatchRegistrationForm
 {
+
+    public enum Separator implements ISerializable
+    {
+        TAB('\t'), COMMA(','), SEMICOLON(';');
+
+        final char character;
+
+        Separator(char character)
+        {
+            this.character = character;
+        }
+
+        public char asChar()
+        {
+            return character;
+        }
+    }
 
     private static final String PLATES = "Plates";
 
@@ -66,6 +84,8 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
 
     private final TextField<String> emailField;
 
+    private final SimpleComboBox<Separator> separatorField;
+
     public LibrarySampleBatchRegistrationForm(
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
@@ -75,7 +95,8 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,
                         viewContext.getCommonViewContext());
         plateGeometryField = createPlateGeometryField();
-        scopeField = createScope();
+        scopeField = createScopeField();
+        separatorField = createSeparatorField();
         emailField =
                 createEmailField(viewContext.getModel().getSessionContext().getUser()
                         .getUserEmail());
@@ -94,25 +115,42 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         AbstractImagePrototype infoIcon =
                 AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
         FieldUtil.addInfoIcon(field,
-                "All relevant notifications will be send to this email address", infoIcon
-                        .createImage());
+                "All relevant notifications will be send to this email address",
+                infoIcon.createImage());
         return field;
     }
 
-    private SimpleComboBox<String> createScope()
+    private SimpleComboBox<String> createScopeField()
     {
         SimpleComboBox<String> options = new SimpleComboBox<String>();
         options.add(GENES_SIRNAS_PLATES);
         options.add(SIRNAS_PLATES);
         options.add(PLATES);
-        options
-                .setFieldLabel(viewContext
-                        .getMessage(ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.REGISTER));
+        options.setFieldLabel(viewContext
+                .getMessage(ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.REGISTER));
         options.setTriggerAction(TriggerAction.ALL);
         options.setForceSelection(true);
         options.setEditable(false);
         options.setAllowBlank(false);
         options.setSimpleValue(GENES_SIRNAS_PLATES);
+        FieldUtil.markAsMandatory(options);
+        return options;
+    }
+
+    private SimpleComboBox<Separator> createSeparatorField()
+    {
+        SimpleComboBox<Separator> options = new SimpleComboBox<Separator>();
+        for (Separator separator : Separator.values())
+        {
+            options.add(separator);
+        }
+        options.setFieldLabel(viewContext
+                .getMessage(ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.SEPARATOR));
+        options.setTriggerAction(TriggerAction.ALL);
+        options.setForceSelection(true);
+        options.setEditable(false);
+        options.setAllowBlank(false);
+        options.setSimpleValue(Separator.COMMA); // TODO TAB? display settings?
         FieldUtil.markAsMandatory(options);
         return options;
     }
@@ -124,14 +162,22 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         VocabularyTermModel value = plateGeometryField.getValue();
         String plateGeometry = value == null ? null : value.getTerm().getCode();
         String userEmail = emailField.getValue();
+        char separator = extractSeparatorCharacter();
         RegistrationScope registrationScope = extractRegistrationScope();
         LibraryRegistrationInfo libraryInfo =
-                new LibraryRegistrationInfo().setSessionKey(getSessionKey()).setExperiment(
-                        experiment.getIdentifier()).setPlateGeometry(plateGeometry).setUserEmail(
-                        userEmail).setScope(registrationScope);
+                new LibraryRegistrationInfo().setSessionKey(getSessionKey())
+                        .setExperiment(experiment.getIdentifier()).setPlateGeometry(plateGeometry)
+                        .setUserEmail(userEmail).setScope(registrationScope)
+                        .setSeparator(separator);
         viewContext.getService().registerLibrary(libraryInfo,
                 new RegisterSamplesCallback(viewContext));
         infoBox.displayInfo("Data preprocessing started. Please wait...");
+    }
+
+    private char extractSeparatorCharacter()
+    {
+        Separator separator = separatorField.getValue().getValue();
+        return separator.asChar();
     }
 
     private RegistrationScope extractRegistrationScope()
@@ -157,6 +203,7 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         form.add(plateGeometryField);
         form.add(emailField);
         form.add(scopeField);
+        form.add(separatorField);
     }
 
     private final class RegisterSamplesCallback extends

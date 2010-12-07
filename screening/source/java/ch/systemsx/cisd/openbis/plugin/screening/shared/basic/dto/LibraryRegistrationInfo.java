@@ -45,7 +45,6 @@ public class LibraryRegistrationInfo implements ISerializable
         {
             return this.equals(GENES_SIRNAS_PLATES);
         }
-
     }
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -59,6 +58,8 @@ public class LibraryRegistrationInfo implements ISerializable
     private String userEmail;
 
     private RegistrationScope scope;
+
+    private char separator;
 
     public LibraryRegistrationInfo()
     {
@@ -95,6 +96,11 @@ public class LibraryRegistrationInfo implements ISerializable
         return userEmail;
     }
 
+    public char getSeparator()
+    {
+        return separator;
+    }
+
     public LibraryRegistrationInfo setExperiment(String experiment)
     {
         this.experiment = experiment;
@@ -116,6 +122,12 @@ public class LibraryRegistrationInfo implements ISerializable
     public LibraryRegistrationInfo setUserEmail(String userEmail)
     {
         this.userEmail = userEmail;
+        return this;
+    }
+
+    public LibraryRegistrationInfo setSeparator(char separator)
+    {
+        this.separator = separator;
         return this;
     }
 

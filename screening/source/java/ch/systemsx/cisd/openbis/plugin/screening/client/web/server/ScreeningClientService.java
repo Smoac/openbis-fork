@@ -187,7 +187,8 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     public TypedTableResultSet<WellMetadata> listPlateMetadata(
-            IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> criteria, TechId sampleId)
+            IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> criteria,
+            TechId sampleId)
     {
         PlateMetadataProvider metaDataProvider =
                 new PlateMetadataProvider(server, getSessionToken(), sampleId);
@@ -198,13 +199,13 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return new TypedTableResultSet<WellMetadata>(resultSet);
     }
 
-    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRowWithObject<WellMetadata>> criteria)
+    public String prepareExportPlateMetadata(
+            TableExportCriteria<TableModelRowWithObject<WellMetadata>> criteria)
     {
         return prepareExportEntities(criteria);
     }
 
     public void registerLibrary(LibraryRegistrationInfo details) throws UserFailureException
-
     {
         final String sessionToken = getSessionToken();
         HttpSession session = getHttpSession();
@@ -219,8 +220,8 @@ public final class ScreeningClientService extends AbstractClientService implemen
             for (IUncheckedMultipartFile file : uploadedFiles.iterable())
             {
                 LibraryExtractor extractor =
-                        new LibraryExtractor(file.getInputStream(), experiment, space,
-                                details.getPlateGeometry(), details.getScope());
+                        new LibraryExtractor(file.getInputStream(), details.getSeparator(),
+                                experiment, space, details.getPlateGeometry(), details.getScope());
                 extractor.extract();
                 executor.submit(new LibraryRegistrationTask(sessionToken, details.getUserEmail(),
                         extractor.getNewGenes(), extractor.getNewOligos(), extractor

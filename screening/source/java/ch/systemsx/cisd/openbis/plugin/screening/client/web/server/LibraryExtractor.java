@@ -44,14 +44,17 @@ class LibraryExtractor
 
     private final RegistrationScope registrationScope;
 
-    public LibraryExtractor(InputStream inputStream, String experiment, String space,
-            String plateGeometry, RegistrationScope registrationScope)
+    private final char separator;
+
+    public LibraryExtractor(InputStream inputStream, char separator, String experiment,
+            String space, String plateGeometry, RegistrationScope registrationScope)
     {
         this.inputStream = inputStream;
         this.experiment = experiment;
         this.space = space;
         this.plateGeometry = plateGeometry;
         this.registrationScope = registrationScope;
+        this.separator = separator;
     }
 
     public List<NewMaterial> getNewGenes()
@@ -77,9 +80,9 @@ class LibraryExtractor
         try
         {
             Status status =
-                    ScreeningLibraryTransformer.readLibrary(inputStream, experiment, plateGeometry,
-                            space, genesFile.getAbsolutePath(), oligosFile.getAbsolutePath(),
-                            platesFile.getAbsolutePath());
+                    ScreeningLibraryTransformer.readLibrary(inputStream, separator, experiment,
+                            plateGeometry, space, genesFile.getAbsolutePath(),
+                            oligosFile.getAbsolutePath(), platesFile.getAbsolutePath());
             if (status.isError())
             {
                 throw new UserFailureException(status.tryGetErrorMessage());
