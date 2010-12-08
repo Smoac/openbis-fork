@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.systemtest;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.AssertJUnit;
@@ -26,10 +29,12 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
+import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
  * @author Franz-Josef Elmer
@@ -37,8 +42,12 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
 {
+    protected static final String SESSION_KEY = "session-key";
+
     protected ICommonServerForInternalUse commonServer;
 
+    protected IGenericServer genericServer;
+    
     protected ICommonClientService commonClientService;
 
     protected IGenericClientService genericClientService;
@@ -73,6 +82,18 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
         this.commonServer = commonServer;
     }
 
+    /**
+     * Sets <code>genericServer</code>.
+     * <p>
+     * Will be automatically dependency injected by type.
+     * </p>
+     */
+    @Autowired
+    public final void setGenericServer(final IGenericServer genericServer)
+    {
+        this.genericServer = genericServer;
+    }
+    
     /**
      * Sets <code>commonClientService</code>.
      * <p>
@@ -118,6 +139,14 @@ public abstract class SystemTestCase extends AbstractTestNGSpringContextTests
         {
             ex.printStackTrace();
         }
+    }
+
+    protected void uploadFile(String fileName, String fileContent)
+    {
+        UploadedFilesBean bean = new UploadedFilesBean();
+        bean.addMultipartFile(new MockMultipartFile(fileName, fileName, null, fileContent.getBytes()));
+        HttpSession session = request.getSession();
+        session.setAttribute(SESSION_KEY, bean);
     }
 
 }

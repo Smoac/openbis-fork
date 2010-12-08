@@ -26,9 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpSession;
 
-import org.springframework.mock.web.MockMultipartFile;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
@@ -36,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -54,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
 {
     private static final String MATERIAL_TYPE = "CONTROL";
-    private static final String SESSION_KEY = "session-key";
     private static final Set<String> CODES = new HashSet<String>(Arrays.asList("C1", "C2"));
 
     @Test
@@ -175,7 +171,7 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
 
     private List<BatchRegistrationResult> registerMaterials(String materialBatchData)
     {
-        uploadFile(materialBatchData);
+        uploadFile("my-file", materialBatchData);
         MaterialType materialType = new MaterialType();
         materialType.setCode(MATERIAL_TYPE);
         return genericClientService.registerMaterials(materialType, SESSION_KEY);
@@ -183,17 +179,9 @@ public class BatchMaterialRegistrationAndUpdate extends SystemTestCase
     
     private List<BatchRegistrationResult> updateMaterials(String materialBatchData, boolean ignoreUnregistered)
     {
-        uploadFile(materialBatchData);
+        uploadFile("my-file", materialBatchData);
         MaterialType materialType = new MaterialType();
         materialType.setCode(MATERIAL_TYPE);
         return genericClientService.updateMaterials(materialType, SESSION_KEY, ignoreUnregistered);
-    }
-
-    private void uploadFile(String fileContent)
-    {
-        UploadedFilesBean bean = new UploadedFilesBean();
-        bean.addMultipartFile(new MockMultipartFile("my-file", fileContent.getBytes()));
-        HttpSession session = request.getSession();
-        session.setAttribute(SESSION_KEY, bean);
     }
 }
