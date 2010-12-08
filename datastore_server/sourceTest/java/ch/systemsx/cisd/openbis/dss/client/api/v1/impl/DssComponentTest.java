@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -82,8 +83,11 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private static final String DUMMY_SESSSION_TOKEN = "DummySessionToken";
 
+    private static final String DUMMY_DSS_DOWNLOAD_URL = "http://localhost/"
+            + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
     private static final String DUMMY_DSS_URL = DataStoreApiUrlUtilities
-            .getDataStoreUrlFromServerUrl("http://localhost/");
+            .getDataStoreUrlFromServerUrl(DUMMY_DSS_DOWNLOAD_URL);
 
     private IDssServiceRpcGeneric dssServiceV1_0;
 
@@ -329,7 +333,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         final SessionContextDTO session = getDummySession();
         final ExternalData dataSetExternalData = new ExternalData();
         DataStore dataStore = new DataStore();
-        dataStore.setDownloadUrl(DUMMY_DSS_URL);
+        dataStore.setDownloadUrl(DUMMY_DSS_DOWNLOAD_URL);
+        dataStore.setHostUrl(DUMMY_DSS_URL);
         dataSetExternalData.setDataStore(dataStore);
 
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
@@ -438,8 +443,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         return workingDirectory;
     }
 
-    private static class MockDssServiceRpcV1_0 extends AbstractDssServiceRpc<IDssServiceRpcGeneric> implements
-            IDssServiceRpcGenericInternal
+    private static class MockDssServiceRpcV1_0 extends AbstractDssServiceRpc<IDssServiceRpcGeneric>
+            implements IDssServiceRpcGenericInternal
     {
         private final FileInfoDssDTO[] fileInfos;
 
