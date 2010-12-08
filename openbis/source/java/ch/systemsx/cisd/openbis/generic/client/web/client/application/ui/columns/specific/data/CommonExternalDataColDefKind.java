@@ -280,6 +280,15 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             {
                 return entity.getPermlink();
             }
+        }),
+
+    OVERVIEW(new AbstractColumnDefinitionKind<ExternalData>(Dict.OVERVIEW, true)
+        {
+            @Override
+            public String tryGetValue(ExternalData entity)
+            {
+                return ""; // link doesn't make sense here as session id is needed
+            }
         });
 
     private final AbstractColumnDefinitionKind<ExternalData> columnDefinitionKind;

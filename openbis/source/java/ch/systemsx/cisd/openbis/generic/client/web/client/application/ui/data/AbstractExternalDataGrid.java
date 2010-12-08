@@ -21,8 +21,11 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
@@ -50,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelecte
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
@@ -330,7 +334,35 @@ public abstract class AbstractExternalDataGrid
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.PROJECT.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
+        schema.setGridCellRendererFor(CommonExternalDataColDefKind.OVERVIEW.id(),
+                createOverviewCellRenderer());
         return schema;
+    }
+
+    private GridCellRenderer<BaseEntityModel<?>> createOverviewCellRenderer()
+    {
+        final String sessionID = viewContext.getModel().getSessionContext().getSessionID();
+        return new GridCellRenderer<BaseEntityModel<?>>()
+            {
+
+                public Object render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
+                        Grid<BaseEntityModel<?>> grid)
+                {
+                    ExternalData dataset = (ExternalData) model.getBaseObject();
+                    return createOverviewLink(dataset);
+                }
+
+                private String createOverviewLink(ExternalData dataset)
+                {
+                    final String permId = dataset.getPermId();
+                    final String dssBaseURL = dataset.getDataStore().getHostUrl();
+                    final String typeCode = dataset.getDataSetType().getCode();
+                    return DatasetImageOverviewUtilities.createEmbededImageHtml(dssBaseURL, permId,
+                            typeCode, sessionID);
+                }
+            };
+
     }
 
     private EntityGridModelFactory<ExternalData> getColumnsFactory()

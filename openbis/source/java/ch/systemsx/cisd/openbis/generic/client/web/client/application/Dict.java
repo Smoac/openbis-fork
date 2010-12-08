@@ -615,7 +615,7 @@ public abstract class Dict
     public static final String SAMPLES_LIST = "samples_list";
 
     public static final String EXPERIMENT_IMPORT = "experiment_import";
-    
+
     public static final String EXPERIMENT_BATCH_UPDATE = "experiment_batch_update";
 
     //
@@ -884,6 +884,8 @@ public abstract class Dict
     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
 
     public static final String SHOW_DETAILS_LINK_TEXT_VALUE = "show_details_link_text_value";
+
+    public static final String OVERVIEW = "overview_column_name";
 
     public static final String FILE_TEMPLATE_LABEL = "file_template_label";
 
