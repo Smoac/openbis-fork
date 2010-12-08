@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
@@ -741,6 +742,12 @@ public interface ICommonClientService extends IClientService
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
             Attachment attachment) throws UserFailureException;
 
+    /**
+     * Add attachment.
+     */
+    public void addAttachment(TechId holderId, String sessionKey, AttachmentHolderKind holderKind,
+            NewAttachment attachment) throws UserFailureException;
+    
     /**
      * For given {@link DataStoreServiceKind} returns a list of all corresponding
      * {@link DatastoreServiceDescription}s.

@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
  * 
  * @author Christian Ribeaud
  */
-public final class InfoBox extends Html
+public final class InfoBox extends Html implements IInfoHandler
 {
     private static final String PLACEHOLDER_TEXT = "X";
 

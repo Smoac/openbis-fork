@@ -16,21 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IInfoHandler;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * A {@link ICallbackListener} which outputs the failure message to the specified {@link InfoBox}.
+ * A {@link ICallbackListener} which outputs the failure message to the specified {@link IInfoHandler}.
  * 
  * @author Christian Ribeaud
  */
 public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T>
 {
-    private final InfoBox infoBox;
+    private final IInfoHandler infoHandler;
 
-    public InfoBoxCallbackListener(final InfoBox infoBox)
+    public InfoBoxCallbackListener(final IInfoHandler infoBox)
     {
-        this.infoBox = infoBox;
+        this.infoHandler = infoBox;
     }
 
     //
@@ -42,6 +42,6 @@ public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T>
             final AbstractAsyncCallback<T> callback, final String failureMessage,
             final Throwable throwable)
     {
-        infoBox.displayError(failureMessage.replace("\n", "<br>"));
+        infoHandler.displayError(failureMessage.replace("\n", "<br>"));
     }
 }

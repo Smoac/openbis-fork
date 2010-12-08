@@ -943,6 +943,15 @@ public interface ICommonServer extends IServer
             Attachment attachment);
 
     /**
+     * Adds the experiment attachment.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
+    public void addExperimentAttachment(String sessionToken, TechId experimentId,
+            NewAttachment attachment);
+    
+    /**
      * Updates the sample attachment.
      */
     @Transactional
@@ -951,6 +960,14 @@ public interface ICommonServer extends IServer
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment);
 
     /**
+     * Adds the sample attachment.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment);
+    
+    /**
      * Updates the project attachment.
      */
     @Transactional
@@ -958,7 +975,15 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment);
-
+    
+    /**
+     * Adds the project attachment.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.PROJECT)
+    public void addProjectAttachments(String sessionToken, TechId projectId, NewAttachment attachment);
+    
     /** Lists all available datastore services of the specified kind */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)

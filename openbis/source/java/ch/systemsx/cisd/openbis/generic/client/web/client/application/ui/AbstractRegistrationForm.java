@@ -326,6 +326,12 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     protected final void addUploadFeatures(List<String> sessionKeys)
     {
         assert sessionKeysInitiated == false : "This method should be called only once.";
+        addFileUploadFeature(formPanel, sessionKeys);
+        sessionKeysInitiated = true;
+    }
+
+    public static void addFileUploadFeature(FormPanel formPanel, List<String> sessionKeys)
+    {
         formPanel.setAction(GenericConstants.createServicePath("upload"));
         formPanel.setEncoding(Encoding.MULTIPART);
         formPanel.setMethod(Method.POST);
@@ -334,7 +340,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         {
             formPanel.add(AbstractRegistrationForm.createHiddenSessionField(sessionKeys.get(i), i));
         }
-        sessionKeysInitiated = true;
     }
 
     public static String getEditTitle(final IMessageProvider messageProvider,

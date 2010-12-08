@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
@@ -641,6 +642,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#updateAttachment(TechId, AttachmentHolderKind, Attachment) */
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
             Attachment attachment, AsyncCallback<Void> asyncCallback);
+    
+    /** @see ICommonClientService#addAttachment(TechId, String, AttachmentHolderKind, NewAttachment) */
+    public void addAttachment(TechId holderId, String sessionKey, AttachmentHolderKind holderKind,
+            NewAttachment attachment, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#listDataStoreServices(DataStoreServiceKind) */
     public void listDataStoreServices(DataStoreServiceKind pluginTaskKind,

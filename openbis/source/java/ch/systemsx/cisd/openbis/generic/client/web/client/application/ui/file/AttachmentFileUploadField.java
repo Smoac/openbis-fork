@@ -49,10 +49,11 @@ public class AttachmentFileUploadField extends FileUploadField
         return fileSet;
     }
     
-    public void addFieldsTo(FormPanel form, IMessageProvider messageProvider)
+    public void addFieldsTo(FormPanel form, String sessionKey, IMessageProvider messageProvider)
     {
         FileUploadField fileUploadField = fileSet.getFileUploadField();
         fileUploadField.setFieldLabel(messageProvider.getMessage(Dict.FILE));
+        fileUploadField.setName(sessionKey);
         form.add(fileUploadField);
         form.add(fileSet.getDescriptionField());
         form.add(fileSet.getTitleField());

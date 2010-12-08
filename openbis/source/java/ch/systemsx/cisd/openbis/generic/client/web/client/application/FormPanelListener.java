@@ -23,7 +23,7 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IInfoHandler;
 
 /**
  * @author Christian Ribeaud
@@ -31,9 +31,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 abstract public class FormPanelListener implements Listener<FormEvent>
 {
 
-    private final InfoBox infoBox;
+    private final IInfoHandler infoBox;
 
-    public FormPanelListener(final InfoBox infoBox)
+    public FormPanelListener(final IInfoHandler infoBox)
     {
         this.infoBox = infoBox;
     }

@@ -2061,6 +2061,40 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void addAttachment(final TechId holderId, String sessionKey, final AttachmentHolderKind holderKind,
+            final NewAttachment attachment)
+    {
+        final String sessionToken = getSessionToken();
+
+        AttachmentRegistrationHelper helper = new AttachmentRegistrationHelper()
+            {
+                @Override
+                public void register(Collection<NewAttachment> attachments)
+                {
+                    switch (holderKind)
+                    {
+                        case EXPERIMENT:
+                            commonServer
+                                    .addExperimentAttachment(sessionToken, holderId, attachment);
+                            break;
+                        case SAMPLE:
+                            commonServer.addSampleAttachments(sessionToken, holderId, attachment);
+                            break;
+                        case PROJECT:
+                            commonServer.addProjectAttachments(sessionToken, holderId, attachment);
+                            break;
+                    }
+                }
+            };
+        try
+        {
+            helper.process(sessionKey, getHttpSession(), Collections.singletonList(attachment));
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+    
     public List<DatastoreServiceDescription> listDataStoreServices(
             DataStoreServiceKind dataStoreServiceKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException

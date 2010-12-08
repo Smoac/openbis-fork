@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,6 +46,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
@@ -59,12 +61,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Atta
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentFileUploadField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnListener;
@@ -72,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PopupDialogBasedInfoHandler;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -96,12 +99,69 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
  */
 public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersions>
 {
+    private static class AddAttachmentDialog extends AbstractRegistrationDialog
+    {
+
+        private AttachmentFileUploadField attachmentFileUploadField;
+
+        private final IViewContext<?> viewContext;
+
+        private final IAttachmentHolder attachmentHolder;
+
+        private final String sessionKey;
+
+        private AsyncCallback<Void> registrationCallback;
+
+        AddAttachmentDialog(IViewContext<?> viewContext, String sessionKey,
+                IAttachmentHolder attachmentHolder, IDelegatedAction postRegistrationCallback)
+        {
+            super(viewContext, viewContext.getMessage(Dict.ADD_ATTACHMENT_TITLE),
+                    postRegistrationCallback);
+            this.viewContext = viewContext;
+            this.sessionKey = sessionKey;
+            this.attachmentHolder = attachmentHolder;
+            attachmentFileUploadField = new AttachmentFileUploadField(viewContext);
+            attachmentFileUploadField.addFieldsTo(form, sessionKey, viewContext);
+            AbstractRegistrationForm.addFileUploadFeature(form, Arrays.asList(sessionKey));
+            form.addListener(Events.Submit, new FormPanelListener(PopupDialogBasedInfoHandler.INSTANCE)
+                {
+                    @Override
+                    protected void setUploadEnabled()
+                    {
+                    }
+
+                    @Override
+                    protected void onSuccessfullUpload()
+                    {
+                        registerAfterSubmit();
+                    }
+                });
+        }
+
+        @Override
+        protected void register(AsyncCallback<Void> callBack)
+        {
+            this.registrationCallback = callBack;
+            form.submit();
+        }
+
+        private void registerAfterSubmit()
+        {
+            ICommonClientServiceAsync service = viewContext.getCommonService();
+            TechId holderId = TechId.create(attachmentHolder);
+            AttachmentHolderKind holderKind = attachmentHolder.getAttachmentHolderKind();
+            NewAttachment attachment = attachmentFileUploadField.tryExtractAttachment();
+            service.addAttachment(holderId, sessionKey, holderKind, attachment,
+                    registrationCallback);
+        }
+    }
+
     private static final String PREFIX = "attachment-browser_";
 
     private static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
     public static final String DOWNLOAD_BUTTON_ID_SUFFIX = "_download-button";
-    
+
     public static final String ADD_BUTTON_ID_SUFFIX = "_add-button";
 
     private final IDelegatedAction postRegistrationCallback;
@@ -116,16 +176,16 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
 
     private final IAttachmentHolder attachmentHolder;
 
-    private final AttachmentsFileFieldManager attachmentsFileFieldManager;
+    private final String sessionKey;
 
     public AttachmentBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             final IAttachmentHolder attachmentHolder)
     {
         super(viewContext, createBrowserId(attachmentHolder), createGridId(attachmentHolder),
                 DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
+        sessionKey = createGridId(attachmentHolder);
         this.attachmentHolder = attachmentHolder;
         postRegistrationCallback = createRefreshGridAction();
-        attachmentsFileFieldManager = new AttachmentsFileFieldManager(getId(), viewContext);
         extendBottomToolbar();
 
         registerLinkClickListenerFor(AttachmentColDefKind.FILE_NAME.id(),
@@ -184,27 +244,6 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     {
         return ID_PREFIX + kind.name() + "-" + id;
     }
-    
-    private static class AddAttachmentDialog extends AbstractRegistrationDialog
-    {
-        private AttachmentFileUploadField attachmentFileUploadField;
-
-        AddAttachmentDialog(IViewContext<?> viewContext, AttachmentsFileFieldManager fieldManager,
-                IDelegatedAction postRegistrationCallback)
-        {
-            super(viewContext, viewContext.getMessage(Dict.ADD_ATTACHMENT_TITLE),
-                    postRegistrationCallback);
-            attachmentFileUploadField = new AttachmentFileUploadField(viewContext);
-            attachmentFileUploadField.addFieldsTo(form, viewContext);
-        }
-
-        @Override
-        protected void register(AsyncCallback<Void> registrationCallback)
-        {
-            NewAttachment attachment = attachmentFileUploadField.tryExtractAttachment();
-            System.out.println("filepath:"+attachment.getFilePath()+" description:"+attachment.getDescription()+" title:"+attachment.getTitle());
-        }
-    }
 
     private void extendBottomToolbar()
     {
@@ -219,8 +258,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                                 {
                                     IDelegatedAction refreshGridAction = createRefreshGridAction();
                                     AddAttachmentDialog dialog =
-                                            new AddAttachmentDialog(viewContext,
-                                                    attachmentsFileFieldManager, refreshGridAction);
+                                            new AddAttachmentDialog(viewContext, sessionKey,
+                                                    attachmentHolder, refreshGridAction);
                                     dialog.show();
                                 }
                             });

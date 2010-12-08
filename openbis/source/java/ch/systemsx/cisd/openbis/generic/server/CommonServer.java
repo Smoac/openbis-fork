@@ -1199,6 +1199,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
     }
 
+    public void addExperimentAttachment(String sessionToken, TechId experimentId,
+            NewAttachment attachment)
+    {
+        Session session = getSession(sessionToken);
+        try
+        {
+            IExperimentBO bo = businessObjectFactory.createExperimentBO(session);
+            bo.loadDataByTechId(experimentId);
+            bo.addAttachment(AttachmentTranslator.translate(attachment));
+            bo.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+    
     public void deleteSampleAttachments(String sessionToken, TechId sampleId,
             List<String> fileNames, String reason)
     {
@@ -1708,6 +1724,21 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
+    public void addProjectAttachments(String sessionToken, TechId projectId, NewAttachment attachment)
+    {
+        Session session = getSession(sessionToken);
+        try
+        {
+            IProjectBO bo = businessObjectFactory.createProjectBO(session);
+            bo.loadDataByTechId(projectId);
+            bo.addAttachment(AttachmentTranslator.translate(attachment));
+            bo.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
     {
         Session session = getSession(sessionToken);
@@ -1718,6 +1749,21 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             IAttachmentBO attachmentBO = businessObjectFactory.createAttachmentBO(session);
             attachmentBO.updateAttachment(bo.getSample(), attachment);
             attachmentBO.save();
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment)
+    {
+        Session session = getSession(sessionToken);
+        try
+        {
+            ISampleBO bo = businessObjectFactory.createSampleBO(session);
+            bo.loadDataByTechId(sampleId);
+            bo.addAttachment(AttachmentTranslator.translate(attachment));
+            bo.save();
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

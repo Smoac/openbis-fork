@@ -747,21 +747,39 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 "EXPERIMENT_ID(%s) ATTACHMENT(%s)", experimentId, attachment.getFileName());
     }
 
+    public void addExperimentAttachment(String sessionToken, TechId experimentId,
+            NewAttachment attachment)
+    {
+        logTracking(sessionToken, "add_experiment_attachment",
+                "EXPERIMENT_ID(%s) ATTACHMENT(%s)", experimentId, attachment.getFileName());
+    }
+    
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment)
     {
         logTracking(sessionToken, "update_project_attachment", "PROJECT_ID(%s) ATTACHMENT(%s)",
                 projectId, attachment.getFileName());
-
     }
 
+    public void addProjectAttachments(String sessionToken, TechId projectId,
+            NewAttachment attachment)
+    {
+        logTracking(sessionToken, "add_project_attachment", "PROJECT_ID(%s) ATTACHMENT(%s)",
+                projectId, attachment.getFileName());
+    }
+    
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
     {
-        logTracking(sessionToken, "update_samle_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
+        logTracking(sessionToken, "update_sample_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
                 sampleId, attachment.getFileName());
-
     }
 
+    public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment)
+    {
+        logTracking(sessionToken, "add_sample_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
+                sampleId, attachment.getFileName());
+    }
+    
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {
