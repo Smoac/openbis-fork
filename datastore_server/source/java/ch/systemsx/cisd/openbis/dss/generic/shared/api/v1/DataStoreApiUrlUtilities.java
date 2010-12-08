@@ -32,10 +32,12 @@ public class DataStoreApiUrlUtilities
 
     }
 
-    // kept for backward compatibility
+    /**
+     * Converts the download url to a server url.
+     */
     public static String getDataStoreUrlFromDataStore(DataStore dataStore)
     {
-        return dataStore.getHostUrl();
+        return getDataStoreUrlFromServerUrl(dataStore.getDownloadUrl());
     }
 
     /**
