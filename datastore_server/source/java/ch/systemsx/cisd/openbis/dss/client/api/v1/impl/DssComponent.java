@@ -343,7 +343,7 @@ class AuthenticatedState extends AbstractDssComponentState
         }
         DataStore dataStore = dataSetOpenBis.getDataStore();
 
-        String url = getDataStoreUrlFromDataStore(dataStore);
+        String url = dataStore.getHostUrl();
 
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         // Return a proxy to the data set
@@ -519,14 +519,6 @@ class AuthenticatedState extends AbstractDssComponentState
         }
         throw new IllegalArgumentException("Server does not support the "
                 + IDssServiceRpcGeneric.DSS_SERVICE_NAME + " interface.");
-    }
-
-    /**
-     * The data store only stores the download url, get the data store url
-     */
-    private String getDataStoreUrlFromDataStore(DataStore dataStore)
-    {
-        return DataStoreApiUrlUtilities.getDataStoreUrlFromDataStore(dataStore);
     }
 
     @Override

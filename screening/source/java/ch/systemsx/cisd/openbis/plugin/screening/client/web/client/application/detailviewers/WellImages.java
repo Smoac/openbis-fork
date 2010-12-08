@@ -82,19 +82,19 @@ public class WellImages
         return getDataset().getCode();
     }
 
-    public String getDownloadUrl()
+    public String getDatastoreHostUrl()
     {
-        return getDataset().getDownloadUrl();
+        return getDataset().getDatastoreHostUrl();
     }
 
     public String getDatastoreCode()
     {
         return getDataset().getDatastoreCode();
     }
-    
+
     public String getTransformerFactorySignatureOrNull(String channelCode)
     {
         return getImageParams().getTransformerFactorySignatureOrNull(channelCode);
     }
-    
+
 }

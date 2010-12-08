@@ -54,9 +54,9 @@ public class DatasetImagesReference implements ISerializable
         return dataset.getDatastoreCode();
     }
 
-    public String getDownloadUrl()
+    public String getDatastoreHostUrl()
     {
-        return dataset.getDownloadUrl();
+        return dataset.getDatastoreHostUrl();
     }
 
     public String getDatasetCode()

@@ -121,7 +121,7 @@ public class ImageUrlUtils
             String channel)
     {
         URLMethodWithParameters methodWithParameters =
-                new URLMethodWithParameters(images.getDownloadUrl() + "/"
+                new URLMethodWithParameters(images.getDatastoreHostUrl() + "/"
                         + ScreeningConstants.DATASTORE_SCREENING_SERVLET_URL);
         methodWithParameters.addParameter("sessionID", sessionID);
         methodWithParameters.addParameter("dataset", images.getDatasetCode());

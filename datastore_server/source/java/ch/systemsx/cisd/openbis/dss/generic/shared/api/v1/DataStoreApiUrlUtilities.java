@@ -32,12 +32,10 @@ public class DataStoreApiUrlUtilities
 
     }
 
-    /**
-     * Converts the download url to a server url.
-     */
+    // kept for backward compatibility
     public static String getDataStoreUrlFromDataStore(DataStore dataStore)
     {
-        return getDataStoreUrlFromServerUrl(dataStore.getDownloadUrl());
+        return dataStore.getHostUrl();
     }
 
     /**
@@ -46,7 +44,7 @@ public class DataStoreApiUrlUtilities
     public static String getDataStoreUrlFromServerUrl(String dataStoreServerUrl)
     {
         String datastoreUrl = dataStoreServerUrl;
-        
+
         // The url objained form a DataStore object is the *download* url. Convert this to the
         // datastore URL
         if (datastoreUrl.endsWith("/"))

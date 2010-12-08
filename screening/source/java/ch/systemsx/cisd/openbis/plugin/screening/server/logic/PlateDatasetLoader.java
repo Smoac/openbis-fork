@@ -1,7 +1,5 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -284,15 +282,7 @@ class PlateDatasetLoader
 
     protected static String getDataStoreUrlFromDataStore(DataStore dataStore)
     {
-        String datastoreUrl = dataStore.getDownloadUrl();
-        // The url objained form a DataStore object is the *download* url. Convert this to the
-        // datastore URL
-        if (datastoreUrl.endsWith(DATA_STORE_SERVER_WEB_APPLICATION_NAME))
-        {
-            datastoreUrl =
-                    datastoreUrl.substring(0, datastoreUrl.length()
-                            - DATA_STORE_SERVER_WEB_APPLICATION_NAME.length());
-        }
+        String datastoreUrl = dataStore.getHostUrl();
         if (datastoreUrl.endsWith("/"))
         {
             datastoreUrl = datastoreUrl.substring(0, datastoreUrl.length() - 1);

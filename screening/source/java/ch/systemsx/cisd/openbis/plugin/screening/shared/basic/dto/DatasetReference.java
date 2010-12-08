@@ -43,7 +43,7 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
 
     private String datastoreCode;
 
-    private String downloadUrl;
+    private String datastoreHostUrl;
 
     private Date registrationDate;
 
@@ -54,7 +54,7 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
     }
 
     public DatasetReference(long id, String code, String typeCode, Date registrationDate,
-            String fileTypeCode, String datastoreCode, String downloadUrl)
+            String fileTypeCode, String datastoreCode, String datastoreHostUrl)
     {
         this.id = id;
         this.datasetCode = code;
@@ -62,7 +62,7 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
         this.registrationDate = registrationDate;
         this.fileTypeCode = fileTypeCode;
         this.datastoreCode = datastoreCode;
-        this.downloadUrl = downloadUrl;
+        this.datastoreHostUrl = datastoreHostUrl;
     }
 
     public String getCode()
@@ -75,9 +75,9 @@ public class DatasetReference implements ISerializable, IEntityInformationHolder
         return datastoreCode;
     }
 
-    public String getDownloadUrl()
+    public String getDatastoreHostUrl()
     {
-        return downloadUrl;
+        return datastoreHostUrl;
     }
 
     public EntityKind getEntityKind()
