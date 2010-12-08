@@ -476,6 +476,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
         // assertEquals(code, data.getCode());
+        assertEquals(DATA_STORE_BASE_URL, data.getDataStore().getHostUrl());
         assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data
                 .getDataStore().getDownloadUrl());
         assertEquals("PNG", data.getFileFormatType().getCode());

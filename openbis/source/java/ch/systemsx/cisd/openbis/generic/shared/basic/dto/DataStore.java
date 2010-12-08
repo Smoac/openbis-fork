@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * @author Izabela Adamczyk
  */
@@ -26,6 +25,8 @@ public class DataStore extends Code<DataStore>
 
     private String downloadUrl;
 
+    private String hostUrl;
+
     public String getDownloadUrl()
     {
         return downloadUrl;
@@ -34,6 +35,16 @@ public class DataStore extends Code<DataStore>
     public void setDownloadUrl(String downloadUrl)
     {
         this.downloadUrl = downloadUrl;
+    }
+
+    public String getHostUrl()
+    {
+        return hostUrl;
+    }
+
+    public void setHostUrl(String hostUrl)
+    {
+        this.hostUrl = hostUrl;
     }
 
 }

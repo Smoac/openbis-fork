@@ -35,13 +35,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author Franz-Josef Elmer
@@ -122,6 +122,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         ExternalData externalData =
                 ExternalDataTranslator.translate(externalDataPE, BASE_INDEX_URL);
 
+        assertEquals(DOWNLOAD_URL, externalData.getDataStore().getHostUrl());
         assertEquals(DOWNLOAD_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, externalData
                 .getDataStore().getDownloadUrl());
         assertEquals("code", externalData.getCode());

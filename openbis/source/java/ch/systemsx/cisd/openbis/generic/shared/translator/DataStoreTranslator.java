@@ -30,6 +30,7 @@ public class DataStoreTranslator
     {
         DataStore dataStore = new DataStore();
         String downloadUrl = dataStorePE.getDownloadUrl();
+        dataStore.setHostUrl(downloadUrl);
         downloadUrl = translateDownloadUrl(downloadUrl);
         dataStore.setDownloadUrl(downloadUrl);
         dataStore.setCode(dataStorePE.getCode());

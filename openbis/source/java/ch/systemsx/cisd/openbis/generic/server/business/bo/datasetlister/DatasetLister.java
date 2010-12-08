@@ -604,6 +604,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         DataStore result = new DataStore();
         setCode(result, codeRecord);
+        result.setHostUrl(codeRecord.download_url);
         String downloadUrl = DataStoreTranslator.translateDownloadUrl(codeRecord.download_url);
         result.setDownloadUrl(downloadUrl);
         return result;
