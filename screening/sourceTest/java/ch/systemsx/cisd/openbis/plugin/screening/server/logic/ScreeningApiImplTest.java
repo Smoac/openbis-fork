@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -55,6 +56,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  */
 public class ScreeningApiImplTest extends AbstractServerTestCase
 {
+    private static final String SERVER_DOWNLOAD_URL = "server-url/"
+            + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+
     private static final String SERVER_URL = "server-url";
 
     private IScreeningBusinessObjectFactory screeningBOFactory;
@@ -301,7 +305,8 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         dataSet.setCode(code);
         dataSet.setSample(sample);
         DataStore dataStore = new DataStore();
-        dataStore.setDownloadUrl(SERVER_URL);
+        dataStore.setDownloadUrl(SERVER_DOWNLOAD_URL);
+        dataStore.setHostUrl(SERVER_URL);
         dataSet.setDataStore(dataStore);
         dataSet.setRegistrationDate(new Date(Long.parseLong(code) * 100));
         return dataSet;
