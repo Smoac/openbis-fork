@@ -72,7 +72,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.FeatureTableRow;
@@ -206,7 +206,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
         IImagingDatasetLoader imageAccessor =
                 createImageLoader(dataset.getDatasetCode(), datasetRoot);
         Size imageSize = getImageSize(dataset, imageAccessor);
-        PlateImageParameters params = imageAccessor.getImageParameters();
+        ImageDatasetParameters params = imageAccessor.getImageParameters();
         int tilesNumber = params.getTileColsNum() * params.getTileRowsNum();
         return new ImageDatasetMetadata(dataset, params.getChannelsCodes(),
                 params.getChannelsLabels(), tilesNumber, imageSize.getWidth(),
@@ -227,7 +227,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
     private static IContent getAnyImagePath(IImagingDatasetLoader imageAccessor,
             IImageDatasetIdentifier dataset)
     {
-        PlateImageParameters params = imageAccessor.getImageParameters();
+        ImageDatasetParameters params = imageAccessor.getImageParameters();
         for (int row = 1; row <= params.tryGetRowsNum(); row++)
         {
             for (int col = 1; col <= params.tryGetColsNum(); col++)
@@ -597,7 +597,7 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
             IImagingDatasetLoader imageAccessor, IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel)
     {
-        PlateImageParameters imageParameters = imageAccessor.getImageParameters();
+        ImageDatasetParameters imageParameters = imageAccessor.getImageParameters();
         int rowsNum = imageParameters.tryGetRowsNum();
         int colsNum = imageParameters.tryGetColsNum();
         List<PlateImageReference> imageReferences = new ArrayList<PlateImageReference>();

@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -157,7 +157,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialCriteria);
     }
 
-    public List<WellImageChannelStack> listImageChannelStacks(String sessionToken,
+    public List<ImageChannelStack> listImageChannelStacks(String sessionToken,
             String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);

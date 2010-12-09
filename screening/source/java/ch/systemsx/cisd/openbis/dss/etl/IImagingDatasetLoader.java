@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
 /**
  * Loades the requested image from the file system using the metadata from the database to find the
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoade
  * 
  * @author Tomasz Pylak
  */
-public interface IImagingDatasetLoader extends IHCSDatasetLoader
+public interface IImagingDatasetLoader extends IImageDatasetLoader
 {
     /**
      * @param chosenChannelCode start from 1

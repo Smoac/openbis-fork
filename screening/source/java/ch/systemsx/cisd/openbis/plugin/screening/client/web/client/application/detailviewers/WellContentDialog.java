@@ -69,10 +69,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -189,7 +189,7 @@ public class WellContentDialog extends Dialog
         {
             return new Text(INCORRECT_WELL_CODE_LABEL);
         }
-        PlateImageParameters imageParameters = imageDataset.getImageParameters();
+        ImageDatasetParameters imageParameters = imageDataset.getImageParameters();
         if (imageParameters.getChannelsCodes().contains(channel) == false
                 && channel.equals(ScreeningConstants.MERGED_CHANNELS) == false)
         {
@@ -303,10 +303,10 @@ public class WellContentDialog extends Dialog
         contentDialog.setDataSetCode(imageDataset.getDatasetCode());
         viewContext.getService().listImageChannelStacks(imageDataset.getDatasetCode(),
                 imageDataset.getDatastoreCode(), wellLocation,
-                new AbstractAsyncCallback<List<WellImageChannelStack>>(viewContext)
+                new AbstractAsyncCallback<List<ImageChannelStack>>(viewContext)
                     {
                         @Override
-                        protected void process(final List<WellImageChannelStack> channelStackImages)
+                        protected void process(final List<ImageChannelStack> channelStackImages)
                         {
                             if (channelStackImages.size() == 0)
                             {

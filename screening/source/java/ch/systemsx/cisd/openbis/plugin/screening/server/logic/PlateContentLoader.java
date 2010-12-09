@@ -46,15 +46,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.FeatureVectorLoader.WellFeatureCollection;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 
 /**
@@ -87,7 +87,7 @@ public class PlateContentLoader
     /**
      * Loads information about all channels stacks of a given well in a given dataset.
      */
-    public static List<WellImageChannelStack> loadImageChannelStacks(Session session,
+    public static List<ImageChannelStack> loadImageChannelStacks(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
     {
@@ -276,7 +276,7 @@ public class PlateContentLoader
 
     private DatasetImagesReference loadImages(ExternalData dataset)
     {
-        PlateImageParameters imageParameters =
+        ImageDatasetParameters imageParameters =
                 ScreeningUtils.loadImageParameters(dataset, businessObjectFactory);
         return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset),
                 imageParameters);
@@ -311,12 +311,12 @@ public class PlateContentLoader
                 ListOrSearchSampleCriteria.createForContainer(plateId));
     }
 
-    private List<WellImageChannelStack> loadImageChannelStacks(String datasetCode,
+    private List<ImageChannelStack> loadImageChannelStacks(String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
     {
-        IHCSDatasetLoader datasetLoader =
+        IImageDatasetLoader datasetLoader =
                 businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
-        List<WellImageChannelStack> stacks =
+        List<ImageChannelStack> stacks =
                 datasetLoader.listImageChannelStacks(wellLocationOrNull);
         return stacks;
     }

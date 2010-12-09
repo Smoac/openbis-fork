@@ -29,21 +29,21 @@ public class DatasetImagesReference implements ISerializable
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     public static final DatasetImagesReference create(DatasetReference dataset,
-            PlateImageParameters imageParams)
+            ImageDatasetParameters imageParams)
     {
         return new DatasetImagesReference(dataset, imageParams);
     }
 
     private DatasetReference dataset;
 
-    private PlateImageParameters imageParameters;
+    private ImageDatasetParameters imageParameters;
 
     // GWT only
     private DatasetImagesReference()
     {
     }
 
-    private DatasetImagesReference(DatasetReference dataset, PlateImageParameters imageParameters)
+    private DatasetImagesReference(DatasetReference dataset, ImageDatasetParameters imageParameters)
     {
         this.dataset = dataset;
         this.imageParameters = imageParameters;
@@ -74,7 +74,7 @@ public class DatasetImagesReference implements ISerializable
         return dataset;
     }
 
-    public PlateImageParameters getImageParameters()
+    public ImageDatasetParameters getImageParameters()
     {
         return imageParameters;
     }

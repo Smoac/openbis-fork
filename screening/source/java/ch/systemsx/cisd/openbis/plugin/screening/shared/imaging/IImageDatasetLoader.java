@@ -18,21 +18,20 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * @author Tomasz Pylak
  */
-// TODO 2010-12-09, Tomasz Pylak: rename: IHCSDatasetLoader -> IImageDatasetLoader
-public interface IHCSDatasetLoader
+public interface IImageDatasetLoader
 {
     /** Dataset metadata. */
-    PlateImageParameters getImageParameters();
+    ImageDatasetParameters getImageParameters();
 
     /**
      * Loads information about all dataset channels stacks (restricted to a given well in HCS case).
      */
-    List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull);
+    List<ImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull);
 }

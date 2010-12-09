@@ -29,8 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2010-12-09, Tomasz Pylak: rename: PlateImageParameters -> ImageDatasetParameters
-public class PlateImageParameters implements ISerializable
+public class ImageDatasetParameters implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

@@ -84,7 +84,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -611,7 +611,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                     {
                         return null;
                     }
-                    PlateImageParameters imageParameters = images.getImageParameters();
+                    ImageDatasetParameters imageParameters = images.getImageParameters();
                     final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
                         {
                             public Widget create(String channel)

@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -98,7 +98,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public List<WellImageChannelStack> listImageChannelStacks(String sessionToken,
+    public List<ImageChannelStack> listImageChannelStacks(String sessionToken,
             String datasetCode, String datastoreCode, WellLocation wellLocation)
     {
         logAccess(sessionToken, "listImageChannelStacks", "dataset(%s) well(%s)", datasetCode,

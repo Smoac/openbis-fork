@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IFeatureVecto
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -140,7 +140,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         transformerFactory = new ImageTransformerFactory();
         featureVectorDatasetIdentifier1 = create("ds1");
         featureVectorDatasetIdentifier2 = create("ds2");
-        final PlateImageParameters imageParameters = new PlateImageParameters();
+        final ImageDatasetParameters imageParameters = new ImageDatasetParameters();
         imageParameters.setRowsNum(7);
         imageParameters.setColsNum(4);
         imageParameters.setTileRowsNum(1);

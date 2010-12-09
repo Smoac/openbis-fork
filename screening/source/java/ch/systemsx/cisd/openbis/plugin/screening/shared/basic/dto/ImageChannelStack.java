@@ -21,12 +21,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Describes one channel stack which has images for many channels and a specific tile (and
- * optionally timepoint and/or depth) of one well.
+ * optionally timepoint and/or depth). In HCS case this points to one image of one well. In
+ * microscopy case this points to one image of one dataset.
  * 
  * @author Tomasz Pylak
  */
-// TODO 2010-12-09, Tomasz Pylak: rename WellImageChannelStack -> ImageChannelStack
-public class WellImageChannelStack implements ISerializable
+public class ImageChannelStack implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -39,11 +39,11 @@ public class WellImageChannelStack implements ISerializable
 
     // GWT only
     @SuppressWarnings("unused")
-    private WellImageChannelStack()
+    private ImageChannelStack()
     {
     }
 
-    public WellImageChannelStack(long channelStackTechId, int tileRow, int tileCol, Float tOrNull,
+    public ImageChannelStack(long channelStackTechId, int tileRow, int tileCol, Float tOrNull,
             Float zOrNull)
     {
         this.channelStackTechId = channelStackTechId;

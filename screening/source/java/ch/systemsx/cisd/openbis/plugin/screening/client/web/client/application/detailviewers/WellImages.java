@@ -20,7 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -47,7 +47,7 @@ public class WellImages
         return wellLocation;
     }
 
-    private PlateImageParameters getImageParams()
+    private ImageDatasetParameters getImageParams()
     {
         return imageDataset.getImageParameters();
     }

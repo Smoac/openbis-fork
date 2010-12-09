@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatase
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVectorLoader;
 
 /**
@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
  */
 public interface IScreeningBusinessObjectFactory
 {
-    public IHCSDatasetLoader createHCSDatasetLoader(String datasetCode, String datastoreCode);
+    public IImageDatasetLoader createHCSDatasetLoader(String datasetCode, String datastoreCode);
 
     /**
      * Note that the loader should be used only for the datasets from the specified data store

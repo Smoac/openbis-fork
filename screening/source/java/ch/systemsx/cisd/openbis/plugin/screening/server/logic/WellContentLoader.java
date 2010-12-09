@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NamedFeatureVector;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellFeatureVectorReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -150,7 +150,7 @@ public class WellContentLoader
         FeatureVectorDatasetLoader datasetsRetriever =
                 new FeatureVectorDatasetLoader(session, businessObjectFactory, null, plates);
         Collection<ExternalData> imageDatasets = datasetsRetriever.getImageDatasets();
-        Map<String, PlateImageParameters> imageParams = loadImagesReport(imageDatasets);
+        Map<String, ImageDatasetParameters> imageParams = loadImagesReport(imageDatasets);
 
         Collection<ExternalData> featureVectorDatasets =
                 datasetsRetriever.getFeatureVectorDatasets();
@@ -214,7 +214,7 @@ public class WellContentLoader
     private static List<WellContent> enrichWithDatasets(List<WellContent> wellContents,
             Map<Long/* plate id */, List<ExternalData>> plateToChildlessImageDatasetMap,
             Map<Long/* plate id */, List<ExternalData>> plateToFeatureVectoreDatasetMap,
-            Map<String, PlateImageParameters> imageParams)
+            Map<String, ImageDatasetParameters> imageParams)
     {
         List<WellContent> wellsWithDatasets = new ArrayList<WellContent>();
         for (WellContent wellContent : wellContents)
@@ -401,7 +401,7 @@ public class WellContentLoader
     private static List<WellContent> enrichWithDatasetReferences(WellContent wellContent,
             Map<Long, List<ExternalData>> plateToChildlessImageDatasetMap,
             Map<Long, List<ExternalData>> plateToFeatureVectoreDatasetMap,
-            Map<String, PlateImageParameters> imageParams)
+            Map<String, ImageDatasetParameters> imageParams)
     {
         Long plateId = wellContent.getPlate().getId();
         List<WellContent> clonedWellContents = new ArrayList<WellContent>();
@@ -448,7 +448,7 @@ public class WellContentLoader
     }
 
     private static DatasetImagesReference tryGetSingleImageDataset(
-            List<ExternalData> childlessImageDatasets, Map<String, PlateImageParameters> imageParams)
+            List<ExternalData> childlessImageDatasets, Map<String, ImageDatasetParameters> imageParams)
     {
         if (childlessImageDatasets != null && childlessImageDatasets.size() == 1)
         {
@@ -461,7 +461,7 @@ public class WellContentLoader
     }
 
     private static DatasetImagesReference tryGetImageDatasetReference(
-            ExternalData featureVectoreDataset, Map<String, PlateImageParameters> imageParams)
+            ExternalData featureVectoreDataset, Map<String, ImageDatasetParameters> imageParams)
     {
         Collection<ExternalData> parents = featureVectoreDataset.getParents();
         if (parents != null && parents.size() == 1)
@@ -475,9 +475,9 @@ public class WellContentLoader
     }
 
     private static DatasetImagesReference createDatasetImagesReference(ExternalData imageDataset,
-            Map<String, PlateImageParameters> imageParams)
+            Map<String, ImageDatasetParameters> imageParams)
     {
-        PlateImageParameters imageParameters = imageParams.get(imageDataset.getCode());
+        ImageDatasetParameters imageParameters = imageParams.get(imageDataset.getCode());
         if (imageParameters != null)
         {
             return DatasetImagesReference.create(
@@ -513,10 +513,10 @@ public class WellContentLoader
         return map;
     }
 
-    private Map<String/* dataset code */, PlateImageParameters> loadImagesReport(
+    private Map<String/* dataset code */, ImageDatasetParameters> loadImagesReport(
             Collection<ExternalData> imageDatasets)
     {
-        List<PlateImageParameters> imageParameters = new ArrayList<PlateImageParameters>();
+        List<ImageDatasetParameters> imageParameters = new ArrayList<ImageDatasetParameters>();
         for (ExternalData dataSet : imageDatasets)
         {
             imageParameters.add(ScreeningUtils.loadImageParameters(dataSet, businessObjectFactory));
@@ -524,11 +524,11 @@ public class WellContentLoader
         return asDatasetToParamsMap(imageParameters);
     }
 
-    private static Map<String/* dataset code */, PlateImageParameters> asDatasetToParamsMap(
-            List<PlateImageParameters> imageParameters)
+    private static Map<String/* dataset code */, ImageDatasetParameters> asDatasetToParamsMap(
+            List<ImageDatasetParameters> imageParameters)
     {
-        Map<String, PlateImageParameters> map = new HashMap<String, PlateImageParameters>();
-        for (PlateImageParameters params : imageParameters)
+        Map<String, ImageDatasetParameters> map = new HashMap<String, ImageDatasetParameters>();
+        for (ImageDatasetParameters params : imageParameters)
         {
             map.put(params.getDatasetCode(), params);
         }

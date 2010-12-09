@@ -26,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
 /**
  * Helper methods to operate on screening specific objects.
@@ -131,15 +131,15 @@ public class ScreeningUtils
     }
 
     /** Loads dataset metadata from the imaging database */
-    public static PlateImageParameters loadImageParameters(ExternalData dataset,
+    public static ImageDatasetParameters loadImageParameters(ExternalData dataset,
             IScreeningBusinessObjectFactory businessObjectFactory)
     {
-        IHCSDatasetLoader loader = createHCSDatasetLoader(dataset, businessObjectFactory);
-        PlateImageParameters params = loader.getImageParameters();
+        IImageDatasetLoader loader = createHCSDatasetLoader(dataset, businessObjectFactory);
+        ImageDatasetParameters params = loader.getImageParameters();
         return params;
     }
 
-    private static IHCSDatasetLoader createHCSDatasetLoader(ExternalData dataSet,
+    private static IImageDatasetLoader createHCSDatasetLoader(ExternalData dataSet,
             IScreeningBusinessObjectFactory businessObjectFactory)
     {
         String datastoreCode = dataSet.getDataStore().getCode();

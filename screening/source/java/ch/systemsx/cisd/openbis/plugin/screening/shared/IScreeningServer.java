@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearch
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
@@ -95,7 +95,7 @@ public interface IScreeningServer extends IServer
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<WellImageChannelStack> listImageChannelStacks(String sessionToken,
+    public List<ImageChannelStack> listImageChannelStacks(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull);
 

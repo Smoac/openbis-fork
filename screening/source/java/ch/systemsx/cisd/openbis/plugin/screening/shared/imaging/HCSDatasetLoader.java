@@ -22,9 +22,9 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgEx
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class HCSDatasetLoader implements IHCSDatasetLoader
+public class HCSDatasetLoader implements IImageDatasetLoader
 {
     protected final IImagingReadonlyQueryDAO query;
 
@@ -118,7 +118,7 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return channels.size();
     }
 
-    public List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull)
+    public List<ImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull)
     {
         List<ImgChannelStackDTO> stacks;
         if (wellLocationOrNull != null)
@@ -133,9 +133,9 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return convert(stacks);
     }
 
-    private static List<WellImageChannelStack> convert(List<ImgChannelStackDTO> stacks)
+    private static List<ImageChannelStack> convert(List<ImgChannelStackDTO> stacks)
     {
-        List<WellImageChannelStack> result = new ArrayList<WellImageChannelStack>();
+        List<ImageChannelStack> result = new ArrayList<ImageChannelStack>();
         for (ImgChannelStackDTO stack : stacks)
         {
             result.add(convert(stack));
@@ -143,15 +143,15 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return result;
     }
 
-    private static WellImageChannelStack convert(ImgChannelStackDTO stack)
+    private static ImageChannelStack convert(ImgChannelStackDTO stack)
     {
-        return new WellImageChannelStack(stack.getId(), stack.getRow(), stack.getColumn(),
+        return new ImageChannelStack(stack.getId(), stack.getRow(), stack.getColumn(),
                 stack.getT(), stack.getZ());
     }
 
-    public PlateImageParameters getImageParameters()
+    public ImageDatasetParameters getImageParameters()
     {
-        PlateImageParameters params = new PlateImageParameters();
+        ImageDatasetParameters params = new ImageDatasetParameters();
         params.setDatasetCode(dataset.getPermId());
         if (containerOrNull != null)
         {
