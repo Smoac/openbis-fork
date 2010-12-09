@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -48,13 +49,14 @@ public class GetSampleProperties
     private static final String END_TYPE = "END_TYPE";
 
     private static final String ELAND_CONFIG_FILE = "config.txt";
-    
+
     private static final String BOWTIE_CONFIG_FILE = "bowtie.txt";
 
     private static final String DEFAULT_FLOW_CELL_SPACE = "CISD:/BSSE_FLOWCELLS/";
-//    private static final String DEFAULT_FLOW_CELL_SPACE = "default_flow_cell_space";
 
-    private static final String PROPERTY = "ORGANISM";
+    // private static final String DEFAULT_FLOW_CELL_SPACE = "default_flow_cell_space";
+
+    private static final String PROPERTY = "NCBI_ORGANISM_TAXONOMY";
 
     private static final String USERNAME = "username";
 
@@ -113,8 +115,8 @@ public class GetSampleProperties
         }
 
         List<Sample> flowLaneSample =
-            service.listSamples(sessionToken,
-                    ListSampleCriteria.createForContainer(new TechId(techId)));
+                service.listSamples(sessionToken,
+                        ListSampleCriteria.createForContainer(new TechId(techId)));
 
         Map<Integer, List<Sample>> parentSamples = new TreeMap<Integer, List<Sample>>();
 
@@ -160,7 +162,7 @@ public class GetSampleProperties
                 }
             }
         }
-        writer.write("ELAND_SET_SIZE 10\n" + "EMAIL_LIST manuel.kohler@bsse.ethz.ch");
+        writer.write("ELAND_SET_SIZE 20\n" + "EMAIL_LIST manuel.kohler@bsse.ethz.ch");
         writer.close();
         bowtieWriter.close();
         operationLog.info("Writing " + ELAND_CONFIG_FILE);

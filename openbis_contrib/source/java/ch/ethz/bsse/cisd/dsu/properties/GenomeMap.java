@@ -30,13 +30,13 @@ public class GenomeMap
     private static HashMap<String, String> genomePaths = new HashMap<String, String>();
     static
     {
-        genomePaths.put("PHIX", PATH_TO_GENOMES + "PhiX");
-        genomePaths.put("MUS_MUSCULUS", PATH_TO_GENOMES + "MusMus/Ncbi37_Ensembl49");
-        genomePaths.put("HOMO_SAPIENS", PATH_TO_GENOMES + "HomSap/Release36.50");
-        genomePaths.put("DROSOPHILA_MELANOGASTER", PATH_TO_GENOMES + "DrosMel/Release5");
-        genomePaths.put("CAENORHABDITIS_ELEGANS", PATH_TO_GENOMES + "Celegans/Release112708");
-        genomePaths.put("ESCHERICHIA_COLI", PATH_TO_GENOMES + "EColi");
-        genomePaths.put("RATTUS_NORVEGICUS", PATH_TO_GENOMES + "");
+        genomePaths.put("10847", PATH_TO_GENOMES + "PhiX");
+        genomePaths.put("10090", PATH_TO_GENOMES + "MusMus/Ncbi37_Ensembl49");
+        genomePaths.put("9606", PATH_TO_GENOMES + "HomSap/Release36.50");
+        genomePaths.put("7227", PATH_TO_GENOMES + "DrosMel/Release5");
+        genomePaths.put("6239", PATH_TO_GENOMES + "Celegans/Release112708");
+        genomePaths.put("562", PATH_TO_GENOMES + "EColi");
+        genomePaths.put("10116", PATH_TO_GENOMES + "");
     }
 
     public static String getGenomePath(String genome)
@@ -59,10 +59,10 @@ public class GenomeMap
     private static HashMap<String, String> bowtieIndex = new HashMap<String, String>();
     static
     {
-        bowtieIndex.put("PHIX", "phiX");
-        bowtieIndex.put("MUS_MUSCULUS", "ncbi37_mm9");
-        bowtieIndex.put("HOMO_SAPIENS", "h_sapiens_37_asm");
-        bowtieIndex.put("DROSOPHILA_MELANOGASTER", "d_melanogaster_fb5_22");
+        bowtieIndex.put("10847", "phiX");
+        bowtieIndex.put("10090", "ncbi37_mm9");
+        bowtieIndex.put("9606", "h_sapiens_37_asm");
+        bowtieIndex.put("7227", "d_melanogaster_fb5_22");
     }
 
     public static String getBowtieIndex(String genome)
