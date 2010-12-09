@@ -24,12 +24,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor.UnparsedImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 
 /**
- * Utility to parse information about the image from its name. Assumes that tokens are separated by
- * '_'. The first letter of the token tells which type of information the token contains. <br>
- * The convention is compatible with the one adopted in Biozentrum.
+ * Utility to parse information about the image from its file name. Assumes that tokens are
+ * separated by '_'. The first letter of the token tells which type of information the token
+ * contains. <br>
+ * The convention is compatible with the one adopted in Biozentrum by iBrain2.
  * 
  * <pre>
  * example: bDZ01-1A_wD17_s3_z0_t0_cGFP.tif
@@ -58,9 +59,40 @@ public class UnparsedImageFileInfoLexer
 
     private static final char TIME_MARKER = 't';
 
-    public static UnparsedImageFileInfo extractImageFileInfo(File imageFile)
+    public static UnparsedImageFileInfo tryExtractHCSImageFileInfo(File imageFile,
+            File incomingDataSetPath)
     {
-        return extractImageFileInfo(FilenameUtils.getBaseName(imageFile.getPath()));
+        UnparsedImageFileInfo info = tryExtractImageFileInfo(imageFile, incomingDataSetPath);
+        if (info.getWellLocationToken() == null || info.getTileLocationToken() == null
+                || info.getChannelToken() == null)
+        {
+            return null;
+        }
+        return info;
+    }
+
+    public static UnparsedImageFileInfo tryExtractMicroscopyImageFileInfo(File imageFile,
+            File incomingDataSetPath)
+    {
+        UnparsedImageFileInfo info = tryExtractImageFileInfo(imageFile, incomingDataSetPath);
+        if (info.getTileLocationToken() == null || info.getChannelToken() == null)
+        {
+            return null;
+        }
+        return info;
+    }
+
+    private static UnparsedImageFileInfo tryExtractImageFileInfo(File imageFile,
+            File incomingDataSetPath)
+    {
+        UnparsedImageFileInfo info = extractImageFileInfo(getFileBaseName(imageFile));
+
+        return info;
+    }
+
+    private static String getFileBaseName(File imageFile)
+    {
+        return FilenameUtils.getBaseName(imageFile.getPath());
     }
 
     /**

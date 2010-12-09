@@ -339,7 +339,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     one(dao).tryGetChannelByChannelCodeAndExperimentPermId(EXPERIMENT_PERM_ID,
                             channel);
                     ImgChannelDTO channelDTO =
-                            ImgChannelDTO.createDatasetChannel("dapi", null, null, 42, "dapi");
+                            new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi");
                     channelDTO.setSerializedImageTransformerFactory(SerializationUtils
                             .serialize(transformerFactory));
                     will(returnValue(channelDTO));
@@ -458,7 +458,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         assertEquals(expectedRowNumber, featureVector.getWellPosition().getWellRow());
         assertEquals(expectedColumnNumber, featureVector.getWellPosition().getWellColumn());
 
-        assertEquals(Arrays.asList(expectedValues).toString(), featureVector.getValueObjects().toString());
+        assertEquals(Arrays.asList(expectedValues).toString(), featureVector.getValueObjects()
+                .toString());
     }
 
     private void prepareGetHomeDatabaseInstance()

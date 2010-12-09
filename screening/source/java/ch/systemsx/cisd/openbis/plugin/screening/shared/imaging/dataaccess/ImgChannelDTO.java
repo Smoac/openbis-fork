@@ -46,26 +46,15 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
     // can be null if datasetId is not null
     @ResultColumn("EXP_ID")
     private Long experimentIdOrNull;
-    
-    public static ImgChannelDTO createDatasetChannel(String code, String descriptionOrNull,
-            Integer wavelengthOrNull, long datasetId, String label)
-    {
-        return new ImgChannelDTO(code, descriptionOrNull, wavelengthOrNull, datasetId, null, label);
-    }
 
-    public static ImgChannelDTO createExperimentChannel(String code, String descriptionOrNull,
-            Integer wavelengthOrNull, long experimentId, String label)
-    {
-        return new ImgChannelDTO(code, descriptionOrNull, wavelengthOrNull, null, experimentId,
-                label);
-    }
-
+    // GWT only
+    @SuppressWarnings("unused")
     private ImgChannelDTO()
     {
         // All Data-Object classes must have a default constructor.
     }
 
-    private ImgChannelDTO(String code, String descriptionOrNull, Integer wavelengthOrNull,
+    public ImgChannelDTO(String code, String descriptionOrNull, Integer wavelengthOrNull,
             Long datasetIdOrNull, Long experimentIdOrNull, String label)
     {
         assert (datasetIdOrNull == null && experimentIdOrNull != null)
@@ -148,6 +137,5 @@ public class ImgChannelDTO extends AbstractImageTransformerFactoryHolder
     {
         this.experimentIdOrNull = experimentId;
     }
-
 
 }

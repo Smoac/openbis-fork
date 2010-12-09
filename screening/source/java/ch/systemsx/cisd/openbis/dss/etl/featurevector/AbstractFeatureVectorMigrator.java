@@ -28,7 +28,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.etlserver.plugins.IMigrator;
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -116,16 +116,16 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
     protected abstract AbstractMigrationDecision createMigrationDecision(File dataset);
 
     protected abstract AbstractImageDbImporter createImporter(
-            ScreeningContainerDatasetInfo dataSetInfo, File fileToMigrate);
+            HCSContainerDatasetInfo dataSetInfo, File fileToMigrate);
 
-    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+    private HCSContainerDatasetInfo createScreeningDatasetInfo(
             SimpleDataSetInformationDTO dataSetInfo)
     {
         Sample sample = findSampleCodeForDataSet(dataSetInfo);
         assert sample != null : "no sample connected to a dataset";
 
         Experiment experiment = sample.getExperiment();
-        ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
+        HCSContainerDatasetInfo info = new HCSContainerDatasetInfo();
         info.setExperimentPermId(experiment.getPermId());
         info.setContainerPermId(sample.getPermId());
         info.setDatasetPermId(dataSetInfo.getDataSetCode());
@@ -255,14 +255,14 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
     {
         protected final IImagingQueryDAO dao;
 
-        protected final ScreeningContainerDatasetInfo screeningDataSetInfo;
+        protected final HCSContainerDatasetInfo screeningDataSetInfo;
 
         protected final File fileToMigrate;
 
         protected boolean isSuccessful = false;
 
         protected AbstractImageDbImporter(IImagingQueryDAO dao,
-                ScreeningContainerDatasetInfo screeningDataSetInfo, File fileToMigrate)
+                HCSContainerDatasetInfo screeningDataSetInfo, File fileToMigrate)
         {
             this.dao = dao;
             this.screeningDataSetInfo = screeningDataSetInfo;

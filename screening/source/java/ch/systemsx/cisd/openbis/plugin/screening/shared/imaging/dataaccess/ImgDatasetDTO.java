@@ -39,7 +39,7 @@ public class ImgDatasetDTO extends AbstractHashable
     private Integer fieldNumberOfRowsOrNull;
 
     @ResultColumn("CONT_ID")
-    private long containerId;
+    private Long containerId;
 
     // a redundant information if there are timepoint or depth stack data for any spots in this
     // dataset
@@ -53,7 +53,7 @@ public class ImgDatasetDTO extends AbstractHashable
     }
 
     public ImgDatasetDTO(String permId, Integer fieldNumberOfRowsOrNull,
-            Integer fieldNumberOfColumnsOrNull, long containerId, boolean isMultidimensional)
+            Integer fieldNumberOfColumnsOrNull, Long containerId, boolean isMultidimensional)
     {
         this.permId = permId;
         this.fieldNumberOfColumnsOrNull = fieldNumberOfColumnsOrNull;
@@ -102,12 +102,13 @@ public class ImgDatasetDTO extends AbstractHashable
         this.fieldNumberOfRowsOrNull = numberOfRows;
     }
 
-    public long getContainerId()
+    /** can be null */
+    public Long getContainerId()
     {
         return containerId;
     }
 
-    public void setContainerId(long containerId)
+    public void setContainerId(Long containerId)
     {
         this.containerId = containerId;
     }

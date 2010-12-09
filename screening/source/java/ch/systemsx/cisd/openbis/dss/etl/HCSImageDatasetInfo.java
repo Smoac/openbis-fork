@@ -17,18 +17,18 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 /**
- * Describes one image dataset from imaging database.
+ * Describes one HCS image dataset from imaging database.
  * 
  * @author Tomasz Pylak
  */
-public class ImageDatasetInfo extends ScreeningContainerDatasetInfo
+public class HCSImageDatasetInfo extends HCSContainerDatasetInfo
 {
     private final int tileRows, tileColumns;
 
     // has any well timepoints or depth stack images?
     private final boolean hasImageSeries;
 
-    public ImageDatasetInfo(ScreeningContainerDatasetInfo info, int tileRows, int tileColumns,
+    public HCSImageDatasetInfo(HCSContainerDatasetInfo info, int tileRows, int tileColumns,
             boolean hasImageSeries)
     {
         super.setContainerRows(info.getContainerRows());

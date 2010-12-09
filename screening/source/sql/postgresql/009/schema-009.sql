@@ -113,7 +113,9 @@ CREATE TABLE CHANNEL_STACKS (
 		Z_in_M REAL,
 		-- we use the fixed dimension seconds here
 		T_in_SEC REAL,
-
+		-- not null if and only if t and z are null
+		-- SERIES_NUMBER INTEGER,
+    
     DS_ID TECH_ID	NOT NULL,
 		SPOT_ID TECH_ID,
 

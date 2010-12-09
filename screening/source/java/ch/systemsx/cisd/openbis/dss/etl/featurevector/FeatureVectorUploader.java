@@ -18,9 +18,10 @@ package ch.systemsx.cisd.openbis.dss.etl.featurevector;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfoHelper;
+import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureDefDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureValuesDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgFeatureVocabularyTermDTO;
@@ -34,9 +35,9 @@ public class FeatureVectorUploader
 {
     private final IImagingQueryDAO dao;
 
-    private final ScreeningContainerDatasetInfo info;
+    private final HCSContainerDatasetInfo info;
 
-    public FeatureVectorUploader(IImagingQueryDAO imagingDao, ScreeningContainerDatasetInfo info)
+    public FeatureVectorUploader(IImagingQueryDAO imagingDao, HCSContainerDatasetInfo info)
     {
         this.dao = imagingDao;
         this.info = info;
@@ -48,11 +49,17 @@ public class FeatureVectorUploader
      */
     public void uploadFeatureVectors(List<CanonicalFeatureVector> fvecs)
     {
-        ScreeningContainerDatasetInfoHelper helper = new ScreeningContainerDatasetInfoHelper(dao);
-        long contId = helper.getOrCreateExperimentAndContainer(info).getContainerId();
-        long dataSetId = helper.createFeatureVectorDataset(contId, info);
-
+        long contId = ImagingDatabaseHelper.getOrCreateExperimentAndContainer(dao, info);
+        long dataSetId = createFeatureVectorDataset(contId);
         uploadFeatureVectors(dao, fvecs, dataSetId);
+    }
+
+    private long createFeatureVectorDataset(long contId)
+    {
+        boolean isMultidimensional = false;
+        ImgDatasetDTO dataset =
+                new ImgDatasetDTO(info.getDatasetPermId(), 0, 0, contId, isMultidimensional);
+        return dao.addDataset(dataset);
     }
 
     /** Uploads feature vectors for a given dataset id. Commit on the dao is NOT performed. */

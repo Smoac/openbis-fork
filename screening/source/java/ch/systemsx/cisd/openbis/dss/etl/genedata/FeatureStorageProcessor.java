@@ -36,7 +36,7 @@ import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TableBuilder;
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.FeatureVectorUploader;
@@ -221,7 +221,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
         uploader.uploadFeatureVectors(fvecs);
     }
 
-    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+    private HCSContainerDatasetInfo createScreeningDatasetInfo(
             DataSetInformation dataSetInformation)
     {
         Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
@@ -231,7 +231,7 @@ public class FeatureStorageProcessor extends AbstractDelegatingStorageProcessor
                     "Cannot find a sample to which a plate should be (directly or indirectly) connected: "
                             + dataSetInformation);
         }
-        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(
+        return HCSContainerDatasetInfo.createScreeningDatasetInfoWithSample(
                 dataSetInformation, sampleOrNull);
     }
 

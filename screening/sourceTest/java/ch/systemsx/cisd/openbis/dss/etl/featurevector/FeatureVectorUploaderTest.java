@@ -28,7 +28,7 @@ import net.lemnik.eodsql.QueryTool;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateFeatureValues;
@@ -66,7 +66,7 @@ public class FeatureVectorUploaderTest extends AbstractDBTest
     @Test
     public void testCreateFeatureValues()
     {
-        ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
+        HCSContainerDatasetInfo info = new HCSContainerDatasetInfo();
         info.setExperimentPermId(EXP_PERM_ID);
         info.setContainerPermId(CONTAINER_PERM_ID);
         info.setDatasetPermId(DS_PERM_ID);

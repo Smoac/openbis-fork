@@ -1,12 +1,9 @@
 -- Migration from 008 to 009
 
+--- ADD MICROSCOPY SUPPORT -----------------------------------------------------------------------
+
 ALTER TABLE channel_stacks ALTER COLUMN spot_id DROP NOT NULL;
 ALTER TABLE data_sets ALTER COLUMN cont_id DROP NOT NULL;
-
-------------------------------------------------------------------------------------
---  Purpose:  Create trigger CHANNEL_STACKS_CHECK which checks if both spot_id and dataset.cont_id 
---            are both null or not null.
-------------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION CHANNEL_STACKS_CHECK() RETURNS trigger AS $$
 DECLARE
@@ -31,3 +28,7 @@ $$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER CHANNEL_STACKS_CHECK BEFORE INSERT OR UPDATE ON CHANNEL_STACKS
     FOR EACH ROW EXECUTE PROCEDURE CHANNEL_STACKS_CHECK();
+    
+--- ADD SERIES SEQUENCE NUMBER -----------------------------------------------------------------------
+
+-- ALTER TABLE channel_stacks ADD COLUMN series_number INTEGER;    

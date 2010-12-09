@@ -20,13 +20,16 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
- * Describes properties extracted for one screening image.
+ * Describes properties extracted for one logical screening image (note that one file can contain
+ * many logical images).
  * 
  * @author Tomasz Pylak
  */
+// TODO 2010-12-08, Tomasz Pylak: rename to AcquiredSingleImage
 public class AcquiredPlateImage extends AbstractHashable
 {
-    private final Location wellLocation;
+    // null for non-HCS images
+    private final Location wellLocationOrNull;
 
     private final Location tileLocation;
 
@@ -39,11 +42,12 @@ public class AcquiredPlateImage extends AbstractHashable
                                                         // directory
 
     private RelativeImageReference thumbnailFilePathOrNull;
-    
-    public AcquiredPlateImage(Location wellLocation, Location tileLocation, String channelCode,
-            Float timePointOrNull, Float depthOrNull, RelativeImageReference imageFilePath)
+
+    public AcquiredPlateImage(Location wellLocationOrNull, Location tileLocation,
+            String channelCode, Float timePointOrNull, Float depthOrNull,
+            RelativeImageReference imageFilePath)
     {
-        this.wellLocation = wellLocation;
+        this.wellLocationOrNull = wellLocationOrNull;
         this.tileLocation = tileLocation;
         this.channelCode = channelCode.toUpperCase();
         this.timePointOrNull = timePointOrNull;
@@ -51,14 +55,18 @@ public class AcquiredPlateImage extends AbstractHashable
         this.imageFilePath = imageFilePath;
     }
 
+    /** Valid only in HCS case, do not call this method for microscopy images. */
     public int getWellRow()
     {
-        return wellLocation.getY();
+        assert wellLocationOrNull != null : "wellLocationOrNull is null";
+        return wellLocationOrNull.getY();
     }
 
+    /** Valid only in HCS case, do not call this method for microscopy images. */
     public int getWellColumn()
     {
-        return wellLocation.getX();
+        assert wellLocationOrNull != null : "wellLocationOrNull is null";
+        return wellLocationOrNull.getX();
     }
 
     public int getTileRow()

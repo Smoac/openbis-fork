@@ -17,39 +17,29 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.bds.hcs.Geometry;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.CodeAndLabelUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
- * Generic image extractor implementation. The images names should have an extension present in
- * {@link ImageFileExtractorUtils#IMAGE_EXTENSIONS} constant. Each image name should adhere to the
- * schema:<br>
+ * Each image name should adhere to the schema:<br>
  * 
  * <pre>
  * &lt;any-text&gt;_&lt;plate-code&gt;_&lt;well-code&gt;_&lt;tile-code&gt;_&lt;channel-name&gt;.&lt;allowed-image-extension&gt;
  * </pre>
  * 
- * If 'extract-single-image-channels' property is specified for storage processor then the channels
- * are extracted from the color components and the token &lt;channel-name&gt; from the image file
- * name is ignored.
- * 
  * @author Tomasz Pylak
  */
-public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
+public class HCSImageFileExtractor extends AbstractImageFileExtractor
 {
-    private static final String TILE_MAPPING = "tile_mapping";
-
     // boolean property, if true the names of the plate in file name and directory name have to
     // match.
     // True by default.
@@ -57,93 +47,91 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
     private final boolean shouldValidatePlateName;
 
-    private final TileMapper tileMapperOrNull;
-
-    private final List<ChannelDescription> channelDescriptions;
-
-    private final List<ColorComponent> channelColorComponentsOrNull;
-
-    protected final Geometry wellGeometry;
-
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
-        this.channelDescriptions = tryExtractChannelDescriptions(properties);
-        this.channelColorComponentsOrNull = tryGetChannelComponents(properties);
-        checkChannelsAndColorComponents();
-        this.wellGeometry = getWellGeometry(properties);
-        this.tileMapperOrNull =
-                TileMapper.tryCreate(properties.getProperty(TILE_MAPPING), wellGeometry);
         this.shouldValidatePlateName =
                 PropertyUtils.getBoolean(properties, CHECK_PLATE_NAME_FLAG_PROPERTY_NAME, true);
     }
 
-    private void checkChannelsAndColorComponents()
+    /**
+     * Extracts the plate location from argument. Returns <code>null</code> if the operation fails.
+     */
+    protected static Location tryGetWellLocation(final String plateLocation)
     {
-        if (channelColorComponentsOrNull != null
-                && channelColorComponentsOrNull.size() != channelDescriptions.size())
-        {
-            throw ConfigurationFailureException.fromTemplate(
-                    "There should be exactly one color component for each channel name."
-                            + " Correct the list of values for '%s' property.",
-                    AbstractHCSImageFileExtractor.EXTRACT_SINGLE_IMAGE_CHANNELS_PROPERTY);
-        }
+        return Location.tryCreateLocationFromTransposedMatrixCoordinate(plateLocation);
     }
 
     /**
      * Extracts the well location from given token. Returns <code>null</code> if the operation
      * fails.<br>
      * Can be overwritten in the subclasses if they use
-     * {@link #tryExtractImageInfo(UnparsedImageFileInfo)} internally.
+     * {@link #tryExtractHCSImageInfo(UnparsedImageFileInfo, File, File)} internally.
      */
-    protected Location tryGetWellLocation(final String wellLocation)
+    protected Location tryGetTileLocation(final String wellLocation)
     {
-        try
+        Integer tileNumber = tryAsInt(wellLocation);
+        if (tileNumber == null)
         {
-            int tileNumber = Integer.parseInt(wellLocation);
-
-            if (tileMapperOrNull != null)
-            {
-                return tileMapperOrNull.tryGetLocation(tileNumber);
-            } else
-            {
-                return Location.tryCreateLocationFromRowwisePosition(tileNumber, wellGeometry);
-            }
-        } catch (final NumberFormatException ex)
-        {
-            // Nothing to do here. Rest of the code can handle this.
+            return null;
         }
-        return null;
+        Location tileLoc = tryGetTileLocation(tileNumber);
+        if (tileLoc == null)
+        {
+            tileLoc = Location.tryCreateLocationFromRowwisePosition(tileNumber, wellGeometry);
+        }
+        return tileLoc;
     }
 
-    @Override
-    protected List<AcquiredPlateImage> getImages(ImageFileInfo imageInfo)
+    /**
+     * Splits specified image file name into at least four tokens. Only the last four tokens will be
+     * considered. They are sample code, plate location, well location, and channel. Note, that
+     * sample code could be <code>null</code>.
+     * 
+     * @param shouldValidatePlateName if true it will be checked if the plate code in the file name
+     *            matches the datasetSample plate code.
+     * @return <code>null</code> if the argument could not be splitted into tokens.
+     */
+    private final static UnparsedImageFileInfo tryExtractImageInfo(File imageFile,
+            File incomingDataSetDirectory, SampleIdentifier datasetSample,
+            boolean shouldValidatePlateName)
     {
-        checkChannelsAndColorComponents();
-
-        if (channelColorComponentsOrNull != null)
+        final String baseName = FilenameUtils.getBaseName(imageFile.getPath());
+        final String[] tokens = StringUtils.split(baseName, TOKEN_SEPARATOR);
+        if (tokens == null || tokens.length < 4)
         {
-            List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
-            for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
+            if (operationLog.isInfoEnabled())
             {
-                ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
-                ChannelDescription channelDescription = channelDescriptions.get(i);
-                imageInfo.setChannelCode(channelDescription.getCode());
-                images.add(createImage(imageInfo, colorComponent));
+                operationLog.info(String.format(IMAGE_FILE_NOT_ENOUGH_ENTITIES, imageFile));
             }
-            return images;
-        } else
+            return null;
+        }
+        final String sampleCode = tokens[tokens.length - 4];
+        if (shouldValidatePlateName && sampleCode != null
+                && sampleCode.equalsIgnoreCase(datasetSample.getSampleCode()) == false)
         {
-            ensureChannelExist(channelDescriptions, imageInfo.getChannelCode());
-            return getDefaultImages(imageInfo);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format(IMAGE_FILE_BELONGS_TO_WRONG_SAMPLE, imageFile,
+                        datasetSample, sampleCode));
+            }
+            return null;
+        }
+        String channelToken = tokens[tokens.length - 1];
+        if (StringUtils.isBlank(channelToken))
+        {
+            operationLog.info("Channel token is empty for image: " + imageFile);
+            return null;
         }
 
-    }
+        UnparsedImageFileInfo info = new UnparsedImageFileInfo();
+        info.setWellLocationToken(tokens[tokens.length - 3]);
+        info.setTileLocationToken(tokens[tokens.length - 2]);
+        info.setChannelToken(channelToken);
+        info.setTimepointToken(null);
+        info.setDepthToken(null);
 
-    @Override
-    protected List<Channel> getAllChannels()
-    {
-        return createChannels(channelDescriptions);
+        return info;
     }
 
     @Override
@@ -152,28 +140,29 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
             SampleIdentifier datasetSample)
     {
         UnparsedImageFileInfo unparsedInfo =
-                tryExtractDefaultImageInfo(imageFile, incomingDataSetDirectory, datasetSample,
+                tryExtractImageInfo(imageFile, incomingDataSetDirectory, datasetSample,
                         shouldValidatePlateName);
         if (unparsedInfo == null)
         {
             return null;
         }
-        return tryExtractImageInfo(unparsedInfo);
+        return tryExtractHCSImageInfo(unparsedInfo, imageFile, incomingDataSetDirectory);
     }
 
-    protected final ImageFileInfo tryExtractImageInfo(UnparsedImageFileInfo unparsedInfo)
+    protected final ImageFileInfo tryExtractHCSImageInfo(UnparsedImageFileInfo unparsedInfo,
+            File imageFile, File incomingDataSetDirectory)
     {
         assert unparsedInfo != null;
 
-        Location plateLocation = tryGetPlateLocation(unparsedInfo.getWellLocationToken());
-        if (plateLocation == null)
+        Location wellLocation = tryGetWellLocation(unparsedInfo.getWellLocationToken());
+        if (wellLocation == null)
         {
             operationLog.info("Cannot extract well location from token "
                     + unparsedInfo.getWellLocationToken());
             return null;
         }
-        Location wellLocation = tryGetWellLocation(unparsedInfo.getTileLocationToken());
-        if (wellLocation == null)
+        Location tileLocation = tryGetTileLocation(unparsedInfo.getTileLocationToken());
+        if (tileLocation == null)
         {
             operationLog.info("Cannot extract tile location (a.k.a. tile/field/side) from token "
                     + unparsedInfo.getTileLocationToken());
@@ -183,23 +172,9 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
 
         Float timepointOrNull = tryAsFloat(unparsedInfo.getTimepointToken());
         Float depthOrNull = tryAsFloat(unparsedInfo.getDepthToken());
+        String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
-        return new ImageFileInfo(plateLocation, channelCode, wellLocation,
-                unparsedInfo.getImageRelativePath(), timepointOrNull, depthOrNull);
-    }
-
-    private static Float tryAsFloat(String valueOrNull)
-    {
-        if (valueOrNull == null)
-        {
-            return null;
-        }
-        try
-        {
-            return Float.parseFloat(valueOrNull);
-        } catch (NumberFormatException e)
-        {
-            return null;
-        }
+        return new ImageFileInfo(wellLocation, channelCode, tileLocation, imageRelativePath,
+                timepointOrNull, depthOrNull);
     }
 }

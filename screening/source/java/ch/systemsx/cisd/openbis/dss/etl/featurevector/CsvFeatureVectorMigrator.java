@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
@@ -53,7 +53,7 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
     }
 
     @Override
-    protected AbstractImageDbImporter createImporter(ScreeningContainerDatasetInfo dataSetInfo,
+    protected AbstractImageDbImporter createImporter(HCSContainerDatasetInfo dataSetInfo,
             File fileToMigrate)
     {
         AbstractImageDbImporter importer;
@@ -120,7 +120,7 @@ public class CsvFeatureVectorMigrator extends AbstractFeatureVectorMigrator
         private final CsvToCanonicalFeatureVectorConfiguration convertorConfig;
 
         protected ImporterCsv(IImagingQueryDAO dao,
-                ScreeningContainerDatasetInfo screeningDataSetInfo, File fileToMigrate,
+                HCSContainerDatasetInfo screeningDataSetInfo, File fileToMigrate,
                 FeatureVectorStorageProcessorConfiguration configuration,
                 CsvToCanonicalFeatureVectorConfiguration convertorConfig)
         {

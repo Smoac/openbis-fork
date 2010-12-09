@@ -139,7 +139,7 @@ public class FeatureTableBuilderTest extends AssertJUnit
                 {
                     String dataSetCode = "ds" + dataSetID;
                     one(dao).tryGetDatasetByPermId(dataSetCode);
-                    int containerId = dataSetID + 100;
+                    long containerId = dataSetID + 100;
                     ImgDatasetDTO dataSet =
                             new ImgDatasetDTO(dataSetCode, null, null, containerId, false);
                     dataSet.setId(dataSetID);

@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -92,7 +94,8 @@ public final class HCSImageCheckList
             throw new IllegalArgumentException("Invalid channel/well/tile: " + image);
         }
         Float timepointOrNull = image.tryGetTimePoint();
-        if (check.isCheckedOff(timepointOrNull))
+        Float depthOrNull = image.tryGetDepth();
+        if (check.isCheckedOff(timepointOrNull, depthOrNull))
         {
             throw new IllegalArgumentException("Image already handled: " + image);
         }
@@ -101,7 +104,7 @@ public final class HCSImageCheckList
             operationLog.debug("Checking location " + location
                     + (timepointOrNull == null ? "" : " timepoint " + timepointOrNull));
         }
-        check.checkOff(timepointOrNull);
+        check.checkOff(timepointOrNull, depthOrNull);
     }
 
     private static FullLocation createLocation(AcquiredPlateImage image)
@@ -115,7 +118,7 @@ public final class HCSImageCheckList
         final List<FullLocation> fullLocations = new ArrayList<FullLocation>();
         for (final Map.Entry<FullLocation, Check> entry : imageMap.entrySet())
         {
-            if (entry.getValue().isCheckedOff(null) == false)
+            if (entry.getValue().isCheckedOff(null, null) == false)
             {
                 fullLocations.add(entry.getKey());
             }
@@ -127,21 +130,74 @@ public final class HCSImageCheckList
     // Helper classes
     //
 
+    private static final class CheckDimension
+    {
+        private final Float timeOrNull;
+
+        private final Float depthOrNull;
+
+        public CheckDimension(Float timeOrNull, Float depthOrNull)
+        {
+            this.timeOrNull = timeOrNull;
+            this.depthOrNull = depthOrNull;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((depthOrNull == null) ? 0 : depthOrNull.hashCode());
+            result = prime * result + ((timeOrNull == null) ? 0 : timeOrNull.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            CheckDimension other = (CheckDimension) obj;
+            if (depthOrNull == null)
+            {
+                if (other.depthOrNull != null)
+                    return false;
+            } else if (!depthOrNull.equals(other.depthOrNull))
+                return false;
+            if (timeOrNull == null)
+            {
+                if (other.timeOrNull != null)
+                    return false;
+            } else if (!timeOrNull.equals(other.timeOrNull))
+                return false;
+            return true;
+        }
+    }
+
     private static final class Check
     {
         private boolean checkedOff;
 
-        private final List<Float> timepoints = new ArrayList<Float>();
+        private final Set<CheckDimension> dimensions = new HashSet<CheckDimension>();
 
-        final void checkOff(Float timepointOrNull)
+        final void checkOff(Float timepointOrNull, Float depthOrNull)
         {
-            timepoints.add(timepointOrNull);
+            dimensions.add(new CheckDimension(timepointOrNull, depthOrNull));
             checkedOff = true;
         }
 
-        final boolean isCheckedOff(Float timepointOrNull)
+        final boolean isCheckedOff(Float timepointOrNull, Float depthOrNull)
         {
-            return checkedOff && (timepointOrNull == null || timepoints.contains(timepointOrNull));
+            CheckDimension dim = null;
+            if (timepointOrNull != null || depthOrNull != null)
+            {
+                dim = new CheckDimension(timepointOrNull, depthOrNull);
+            }
+            return checkedOff && (dim == null || dimensions.contains(dim));
         }
     }
 

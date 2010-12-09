@@ -51,7 +51,7 @@ public class ImgChannelStackDTO
     private long datasetId;
 
     @ResultColumn("SPOT_ID")
-    private long spotId;
+    private Long spotId;
 
     @SuppressWarnings("unused")
     private ImgChannelStackDTO()
@@ -59,14 +59,14 @@ public class ImgChannelStackDTO
         // All Data-Object classes must have a default constructor.
     }
 
-    public ImgChannelStackDTO(long id, int row, int column, long datasetId, long spotId,
+    public ImgChannelStackDTO(long id, int row, int column, long datasetId, Long spotIdOrNull,
             Float tOrNull, Float zOrNull)
     {
         this.id = id;
         this.row = row;
         this.column = column;
         this.datasetId = datasetId;
-        this.spotId = spotId;
+        this.spotId = spotIdOrNull;
         this.t = tOrNull;
         this.z = zOrNull;
     }
@@ -121,12 +121,13 @@ public class ImgChannelStackDTO
         this.datasetId = datasetId;
     }
 
-    public long getSpotId()
+    /** can be null */
+    public Long getSpotId()
     {
         return spotId;
     }
 
-    public void setSpotId(long spotId)
+    public void setSpotId(Long spotId)
     {
         this.spotId = spotId;
     }
@@ -140,7 +141,7 @@ public class ImgChannelStackDTO
         result = prime * result + (int) (datasetId ^ (datasetId >>> 32));
         result = prime * result + ((column == null) ? 0 : column.hashCode());
         result = prime * result + ((row == null) ? 0 : row.hashCode());
-        result = prime * result + (int) (spotId ^ (spotId >>> 32));
+        result = prime * result + ((spotId == null) ? 0 : spotId.hashCode());
         result = prime * result + ((t == null) ? 0 : t.hashCode());
         result = prime * result + ((z == null) ? 0 : z.hashCode());
         return result;
@@ -171,8 +172,14 @@ public class ImgChannelStackDTO
                 return false;
         } else if (!row.equals(other.row))
             return false;
-        if (spotId != other.spotId)
+
+        if (spotId == null)
+        {
+            if (other.spotId != null)
+                return false;
+        } else if (!spotId.equals(other.spotId))
             return false;
+
         if (t == null)
         {
             if (other.t != null)

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractorUtils;
 import ch.systemsx.cisd.openbis.dss.etl.UnparsedImageFileInfoLexer;
+import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -229,10 +230,14 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         List<Location> plateLocations = new ArrayList<Location>();
         for (File imageFile : imageFiles)
         {
-            String plateLocationToken =
-                    UnparsedImageFileInfoLexer.extractImageFileInfo(imageFile).getWellLocationToken();
-            plateLocations.add(Location
-                    .tryCreateLocationFromTransposedMatrixCoordinate(plateLocationToken));
+            UnparsedImageFileInfo imageInfo =
+                    UnparsedImageFileInfoLexer.tryExtractHCSImageFileInfo(imageFile, incomingDataSetPath);
+            if (imageInfo != null)
+            {
+                String wellLocationToken = imageInfo.getWellLocationToken();
+                plateLocations.add(Location
+                        .tryCreateLocationFromTransposedMatrixCoordinate(wellLocationToken));
+            }
         }
         return plateLocations;
     }

@@ -40,8 +40,21 @@ public class ImgChannelStackDTOTest
         AssertJUnit.assertEquals(createStackChannel().hashCode(), createStackChannel().hashCode());
     }
 
+    @Test
+    public void testSpotlessHashCode()
+    {
+        AssertJUnit.assertEquals(createStackChannel(null).hashCode(), createStackChannel(null)
+                .hashCode());
+    }
+
     private ImgChannelStackDTO createStackChannel()
     {
-        return new ImgChannelStackDTO(0, 1, 1, 1, 1, 123F, null);
+        return createStackChannel(new Long(1));
     }
+
+    private ImgChannelStackDTO createStackChannel(Long spotId)
+    {
+        return new ImgChannelStackDTO(0, 1, 1, 1, spotId, 123F, null);
+    }
+
 }

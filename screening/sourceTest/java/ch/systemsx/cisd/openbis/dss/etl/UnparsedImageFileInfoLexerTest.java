@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.dss.etl.UnparsedImageFileInfoLexer;
-import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor.UnparsedImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 
 /**
  * Test cases for {@link UnparsedImageFileInfoLexer}.
@@ -35,8 +35,19 @@ public class UnparsedImageFileInfoLexerTest extends AssertJUnit
     public void testExtractFileInfoCorrectFileName() throws Exception
     {
         UnparsedImageFileInfo info =
-                UnparsedImageFileInfoLexer
-                        .extractImageFileInfo("bDZ01-1A_wD17_s3_z123_t321_cGFP");
+                UnparsedImageFileInfoLexer.extractImageFileInfo("bDZ01-1A_wD17_s3_z123_t321_cGFP");
+        assertEquals("well location token", "D17", info.getWellLocationToken());
+        assertEquals("channel token", "GFP", info.getChannelToken());
+        assertEquals("tile location token", "3", info.getTileLocationToken());
+        assertEquals("time point token", "321", info.getTimepointToken());
+        assertEquals("depth token", "123", info.getDepthToken());
+    }
+
+    @Test
+    public void testExtractFileInfoPartialFileName() throws Exception
+    {
+        UnparsedImageFileInfo info =
+                UnparsedImageFileInfoLexer.extractImageFileInfo("bDZ01-1A_wD17_s3_z123_t321_cGFP");
         assertEquals("well location token", "D17", info.getWellLocationToken());
         assertEquals("channel token", "GFP", info.getChannelToken());
         assertEquals("tile location token", "3", info.getTileLocationToken());

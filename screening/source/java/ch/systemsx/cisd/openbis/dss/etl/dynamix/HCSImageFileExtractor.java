@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -32,12 +31,10 @@ import org.apache.commons.lang.StringUtils;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.openbis.dss.etl.AbstractHCSImageFileExtractor;
-import ch.systemsx.cisd.openbis.dss.etl.AcquiredPlateImage;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.AbstractImageFileExtractor;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dynamix.WellLocationMappingUtils.DynamixWellPosition;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ChannelDescription;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -45,13 +42,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * 
  * @author Tomasz Pylak
  */
-public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
+public class HCSImageFileExtractor extends AbstractImageFileExtractor
 {
     private static final String DYNAMIX_TOKEN_SEPARATOR = "_";
 
     private static final String POSITION_MAPPING_FILE_NAME = "pos2loc.tsv";
-
-    private final List<ChannelDescription> channelDescriptions;
 
     private final Map<File/* mapping file */, Map<DynamixWellPosition, WellLocation>> wellLocationMapCache;
 
@@ -61,23 +56,8 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor
     public HCSImageFileExtractor(final Properties properties)
     {
         super(properties);
-        this.channelDescriptions = tryExtractChannelDescriptions(properties);
         this.wellLocationMapCache = new HashMap<File, Map<DynamixWellPosition, WellLocation>>();
         this.firstMeasurementDateCache = new HashMap<File, Date>();
-    }
-
-    @Override
-    protected final List<Channel> getAllChannels()
-    {
-        return createChannels(channelDescriptions);
-    }
-
-    @Override
-    protected final List<AcquiredPlateImage> getImages(ImageFileInfo imageInfo)
-    {
-        ensureChannelExist(channelDescriptions, imageInfo.getChannelCode());
-
-        return getDefaultImages(imageInfo);
     }
 
     @Override

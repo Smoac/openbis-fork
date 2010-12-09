@@ -33,7 +33,7 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
     }
 
     @Override
-    protected Location tryGetWellLocation(final String wellLocation)
+    protected Location tryGetTileLocation(final String wellLocation)
     {
         int tileNumber;
         try

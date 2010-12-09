@@ -23,6 +23,7 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
+// TODO 2010-12-08, Tomasz Pylak: change to ImageFileExtractionResult 
 public final class HCSImageFileExtractionResult
 {
     /** The images files with description. */

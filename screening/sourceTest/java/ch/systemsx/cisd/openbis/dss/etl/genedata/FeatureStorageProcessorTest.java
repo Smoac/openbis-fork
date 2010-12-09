@@ -93,7 +93,7 @@ public class FeatureStorageProcessorTest extends AbstractFileSystemTestCase
                     one(dao).tryGetContainerIdPermId(CONTAINER_PERM_ID);
                     will(returnValue((long) 1));
 
-                    ImgDatasetDTO dataSetDTO = new ImgDatasetDTO(DATA_SET_PERM_ID, 3, 2, 1, false);
+                    ImgDatasetDTO dataSetDTO = new ImgDatasetDTO(DATA_SET_PERM_ID, 3, 2, 1L, false);
                     dataSetDTO.setId(1);
                     one(dao).tryGetDatasetByPermId(DATA_SET_PERM_ID);
                     will(returnValue(dataSetDTO));

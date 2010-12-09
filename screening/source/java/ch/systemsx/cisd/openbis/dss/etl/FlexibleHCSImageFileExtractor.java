@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
+package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.etl.UnparsedImageFileInfoLexer;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.UnparsedImageFileInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * A <code>IHCSImageFileExtractor</code> implementation suitable for <i>iBrain</i>.
+ * A <code>IHCSImageFileExtractor</code> implementation which allows to have optionally time points
+ * and depth-scans.
+ * <p>
+ * Suitable for images processed by <i>iBrain2</i>, but not only.
+ * </p>
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractor
+public class FlexibleHCSImageFileExtractor extends
+        ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractor
 {
 
-    public HCSImageFileExtractor(Properties properties)
+    public FlexibleHCSImageFileExtractor(Properties properties)
     {
         super(properties);
     }
@@ -39,12 +45,14 @@ public class HCSImageFileExtractor extends ch.systemsx.cisd.openbis.dss.etl.HCSI
     protected final ImageFileInfo tryExtractImageInfo(File imageFile,
             File incomingDataSetDirectory, SampleIdentifier datasetSample)
     {
-        UnparsedImageFileInfo unparsedInfo = UnparsedImageFileInfoLexer.extractImageFileInfo(imageFile);
+        UnparsedImageFileInfo unparsedInfo =
+                UnparsedImageFileInfoLexer.tryExtractHCSImageFileInfo(imageFile,
+                        incomingDataSetDirectory);
         if (unparsedInfo == null)
         {
             return null;
         }
-        return tryExtractImageInfo(unparsedInfo);
+        return tryExtractHCSImageInfo(unparsedInfo, imageFile, incomingDataSetDirectory);
     }
 
 }

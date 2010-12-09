@@ -35,7 +35,7 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 {
     public static final int FETCH_SIZE = 1000;
 
-    public static final String SQL_IMAGE =
+    public static final String SQL_HCS_IMAGE =
             "select i.* from CHANNEL_STACKS, SPOTS, ACQUIRED_IMAGES, IMAGES as i "
                     + "where                                                                "
                     + "ACQUIRED_IMAGES.CHANNEL_ID = ?{1} and CHANNEL_STACKS.DS_ID = ?{2} and "
@@ -52,7 +52,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
      * @return an image for the specified chanel, well and tile. If many images for different
      *         timepoints or depths exist, the first one is returned.
      */
-    @Select(SQL_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID " + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
+    @Select(SQL_HCS_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID "
+            + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetImage(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 
@@ -60,12 +61,12 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
      * @return a thumbnail for the specified chanel, well and tile. If many images for different
      *         timepoints or depths exist, the first one is returned.
      */
-    @Select(SQL_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
+    @Select(SQL_HCS_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetThumbnail(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 
-    /** @return an image for the specified chanel and channel stack or null */
+    /** @return an image for the specified channel and channel stack or null */
     @Select("select i.* from IMAGES as i "
             + "join ACQUIRED_IMAGES on ACQUIRED_IMAGES.IMG_ID = i.ID "
             + "join CHANNEL_STACKS on ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID "
@@ -110,6 +111,10 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + "join CONTAINERS c on c.id = s.cont_id          "
             + "where cs.ds_id = ?{1} and s.x = ?{2} and s.y = ?{3}")
     public List<ImgChannelStackDTO> listChannelStacks(long datasetId, int spotX, int spotY);
+
+    @Select("select cs.* from CHANNEL_STACKS cs               "
+            + "where cs.ds_id = ?{1} and cs.spot_id is NULL")
+    public List<ImgChannelStackDTO> listSpotlessChannelStacks(long datasetId);
 
     @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
     public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);

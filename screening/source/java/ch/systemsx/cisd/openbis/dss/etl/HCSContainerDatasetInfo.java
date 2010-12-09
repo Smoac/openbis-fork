@@ -25,11 +25,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimensionParser;
 
 /**
- * Describes one dataset container (e.g. plate) with images.
+ * Describes one HCS dataset container (e.g. plate) with images.
  * 
  * @author Tomasz Pylak
  */
-public class ScreeningContainerDatasetInfo
+public class HCSContainerDatasetInfo
 {
     private String experimentPermId;
 
@@ -89,13 +89,13 @@ public class ScreeningContainerDatasetInfo
         this.containerColumns = containerColumns;
     }
 
-    public static ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+    public static HCSContainerDatasetInfo createScreeningDatasetInfo(
             DataSetInformation dataSetInformation)
     {
         Sample sample = dataSetInformation.tryToGetSample();
         assert sample != null : "no sample connected to a dataset";
         PlateDimension plateGeometry = getPlateGeometry(dataSetInformation);
-        ScreeningContainerDatasetInfo info =
+        HCSContainerDatasetInfo info =
                 createBasicScreeningDataSetInfo(dataSetInformation, sample, plateGeometry);
         return info;
     }
@@ -103,22 +103,22 @@ public class ScreeningContainerDatasetInfo
     /**
      * Create a screening data set info given sample.
      */
-    public static ScreeningContainerDatasetInfo createScreeningDatasetInfoWithSample(
+    public static HCSContainerDatasetInfo createScreeningDatasetInfoWithSample(
             DataSetInformation dataSetInformation, Sample containingSample)
     {
         Sample sample = containingSample;
         assert sample != null : "no sample connected to a dataset";
         PlateDimension plateGeometry = getPlateGeometry(sample);
-        ScreeningContainerDatasetInfo info =
+        HCSContainerDatasetInfo info =
                 createBasicScreeningDataSetInfo(dataSetInformation, sample, plateGeometry);
         return info;
     }
 
-    private static ScreeningContainerDatasetInfo createBasicScreeningDataSetInfo(
+    private static HCSContainerDatasetInfo createBasicScreeningDataSetInfo(
             DataSetInformation dataSetInformation, Sample sample, PlateDimension plateGeometry)
     {
         Experiment experiment = dataSetInformation.tryToGetExperiment();
-        ScreeningContainerDatasetInfo info = new ScreeningContainerDatasetInfo();
+        HCSContainerDatasetInfo info = new HCSContainerDatasetInfo();
         info.setExperimentPermId(experiment.getPermId());
         info.setContainerPermId(sample.getPermId());
         info.setDatasetPermId(dataSetInformation.getDataSetCode());

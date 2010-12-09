@@ -30,7 +30,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CsvToCanonicalFeatureVector.CsvToCanonicalFeatureVectorConfiguration;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
@@ -98,7 +98,7 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
     private void loadDataSetIntoDatabase(File dataSet, DataSetInformation dataSetInformation)
             throws IOException
     {
-        ScreeningContainerDatasetInfo datasetInfo = createScreeningDatasetInfo(dataSetInformation);
+        HCSContainerDatasetInfo datasetInfo = createScreeningDatasetInfo(dataSetInformation);
         DatasetFileLines fileLines = getDatasetFileLines(dataSet);
         CsvToCanonicalFeatureVector convertor =
                 new CsvToCanonicalFeatureVector(fileLines, convertorConfig, datasetInfo
@@ -110,11 +110,11 @@ public class FeatureVectorStorageProcessor extends AbstractDelegatingStorageProc
         uploader.uploadFeatureVectors(fvecs);
     }
 
-    private ScreeningContainerDatasetInfo createScreeningDatasetInfo(
+    private HCSContainerDatasetInfo createScreeningDatasetInfo(
             DataSetInformation dataSetInformation)
     {
         Sample sampleOrNull = tryFindSampleForDataSet(dataSetInformation);
-        return ScreeningContainerDatasetInfo.createScreeningDatasetInfoWithSample(
+        return HCSContainerDatasetInfo.createScreeningDatasetInfoWithSample(
                 dataSetInformation, sampleOrNull);
     }
 

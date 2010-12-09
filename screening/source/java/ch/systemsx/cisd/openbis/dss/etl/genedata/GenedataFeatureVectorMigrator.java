@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessor;
-import ch.systemsx.cisd.openbis.dss.etl.ScreeningContainerDatasetInfo;
+import ch.systemsx.cisd.openbis.dss.etl.HCSContainerDatasetInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.AbstractFeatureVectorMigrator;
 import ch.systemsx.cisd.openbis.dss.etl.featurevector.CanonicalFeatureVector;
@@ -50,7 +50,7 @@ public class GenedataFeatureVectorMigrator extends AbstractFeatureVectorMigrator
     }
 
     @Override
-    protected AbstractImageDbImporter createImporter(ScreeningContainerDatasetInfo dataSetInfo,
+    protected AbstractImageDbImporter createImporter(HCSContainerDatasetInfo dataSetInfo,
             File fileToMigrate)
     {
         AbstractImageDbImporter importer;
@@ -113,7 +113,7 @@ public class GenedataFeatureVectorMigrator extends AbstractFeatureVectorMigrator
          * @param fileToMigrate
          */
         private ImporterGenedata(IImagingQueryDAO dao,
-                ScreeningContainerDatasetInfo screeningDataSetInfo, File fileToMigrate)
+                HCSContainerDatasetInfo screeningDataSetInfo, File fileToMigrate)
         {
             super(dao, screeningDataSetInfo, fileToMigrate);
         }
