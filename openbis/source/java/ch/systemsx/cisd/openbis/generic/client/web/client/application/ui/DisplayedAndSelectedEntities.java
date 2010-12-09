@@ -55,11 +55,6 @@ public class DisplayedAndSelectedEntities<T extends IIdHolder> implements IsSeri
         return displayedItemsCount;
     }
 
-    public TableExportCriteria<T> getDisplayedItemsConfig()
-    {
-        return displayedItemsConfig;
-    }
-
     public DisplayedOrSelectedIdHolderCriteria<T> createCriteria(boolean selected)
     {
         if (selected)
@@ -68,7 +63,7 @@ public class DisplayedAndSelectedEntities<T extends IIdHolder> implements IsSeri
         } else
         {
             return DisplayedOrSelectedIdHolderCriteria
-                    .createDisplayedItems(getDisplayedItemsConfig());
+                    .createDisplayedItems(displayedItemsConfig);
         }
     }
 }

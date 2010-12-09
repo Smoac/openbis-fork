@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -26,29 +27,29 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AsyncCallbackWithProgressBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.DisplayedAndSelectedSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
-public final class SampleListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<Sample>
+public final class SampleListDeletionConfirmationDialog<T extends IIdHolder> extends
+        AbstractDataListDeletionConfirmationDialog<T>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final AsyncCallback<Void> callback;
 
-    private final DisplayedAndSelectedSamples selectedAndDisplayedItemsOrNull;
+    private final DisplayedAndSelectedEntities<T> selectedAndDisplayedItemsOrNull;
 
-    private final Sample singleDataOrNull;
+    private final T singleDataOrNull;
 
     public SampleListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, List<Sample> data,
-            AsyncCallback<Void> callback, DisplayedAndSelectedSamples selectedAndDisplayedItems)
+            IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
+            AsyncCallback<Void> callback, DisplayedAndSelectedEntities<T> selectedAndDisplayedItems)
     {
         super(viewContext, data, true);
         this.viewContext = viewContext;
@@ -58,8 +59,8 @@ public final class SampleListDeletionConfirmationDialog extends
     }
 
     public SampleListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, List<Sample> data,
-            AbstractAsyncCallback<Void> callback, Sample sample)
+            IViewContext<ICommonClientServiceAsync> viewContext, List<T> data,
+            AbstractAsyncCallback<Void> callback, T sample)
     {
         super(viewContext, data, false);
         this.viewContext = viewContext;
@@ -75,7 +76,7 @@ public final class SampleListDeletionConfirmationDialog extends
                 AsyncCallbackWithProgressBar.decorate(callback, "Deleting samples...");
         if (selectedAndDisplayedItemsOrNull != null)
         {
-            final DisplayedOrSelectedIdHolderCriteria<Sample> uploadCriteria =
+            final DisplayedOrSelectedIdHolderCriteria<T> uploadCriteria =
                     selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteSamples(uploadCriteria, reason.getValue(),
                     callbackWithProgressBar);
@@ -95,11 +96,15 @@ public final class SampleListDeletionConfirmationDialog extends
     @Override
     protected final RadioGroup createRadio()
     {
-        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
-                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
-                selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
-                .getMessage(Dict.SAMPLES_RADIO_GROUP_LABEL), data.size(),
+        int dataSize = data.size();
+        Radio one =
+                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, dataSize));
+        onlySelectedRadioOrNull = one;
+        Radio all =
+                WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
+                        selectedAndDisplayedItemsOrNull.getDisplayedItemsCount()));
+        String label = viewContext.getMessage(Dict.SAMPLES_RADIO_GROUP_LABEL);
+        return WidgetUtils.createAllOrSelectedRadioGroup(one, all, label, dataSize,
                 createRefreshMessageAction());
     }
 

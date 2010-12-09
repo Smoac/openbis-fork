@@ -1609,7 +1609,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String reason)
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -2379,7 +2379,22 @@ public final class CommonClientService extends AbstractClientService implements
                     displayedOrSelectedEntitiesCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
             List<T> entities = fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
-            return TechId.createList(entities);
+            
+            List<TechId> ids = new ArrayList<TechId>();
+            for (T entity : entities)
+            {
+                if (entity instanceof TableModelRowWithObject<?>)
+                {
+                    TableModelRowWithObject<?> row = (TableModelRowWithObject<?>) entity;
+                    Object object = row.getObjectOrNull();
+                    if (object instanceof IIdHolder)
+                    {
+                        ids.add(TechId.create((IIdHolder) object));
+                    }
+                }
+            }
+            ids = TechId.createList(entities);
+            return ids;
         }
     }
 

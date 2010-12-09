@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReferenc
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
@@ -508,7 +509,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSamples(DisplayedOrSelectedIdHolderCriteria, String) */
-    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String value,
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria, String value,
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSample(TechId, String) */
