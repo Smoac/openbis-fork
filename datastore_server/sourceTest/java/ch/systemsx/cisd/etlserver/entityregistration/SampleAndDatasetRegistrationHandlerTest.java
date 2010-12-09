@@ -115,7 +115,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                         + "Folder contents:\n" + "\t.svn\n" + "\tnot-a-tsv.txt\n";
 
         // Check the log
-        assertEquals(errorText + "\nDeleting file 'no-control'.", logAppender.getLogContent());
+        checkAppenderContent(errorText, "no-control");
 
         checkEmailContent(attachmentMatcher, addressesMatcher, errorText);
 
@@ -144,8 +144,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 "Folder (empty-folder) for sample/dataset registration contains no control files with the required extension: .tsv.\n"
                         + "Folder contents:\n" + "\t.svn\n";
         // Check the log
-        assertEquals(errorText + "\n" + "Deleting file 'empty-folder'.",
-                logAppender.getLogContent());
+        checkAppenderContent(errorText, "empty-folder");
 
         // Check the email
         checkEmailContent(attachmentMatcher, addressesMatcher, errorText);
@@ -230,6 +229,14 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
             assertEquals("test@test.test", address.tryGetEmailAddress());
         }
         assertEquals(errorText, attachmentMatcher.getRecordedObjects().get(0).getContent());
+    }
+
+    private void checkAppenderContent(String errorText, String folderName)
+    {
+        boolean matches = logAppender.getLogContent().startsWith(errorText);
+        assertTrue("Log does not contain correct text", matches);
+        // assertEquals(errorText + "\nDeleting file '" + folderName + "'.",
+        // logAppender.getLogContent());
     }
 
 }
