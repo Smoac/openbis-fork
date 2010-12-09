@@ -74,6 +74,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     @AfterMethod
     public void tearDown()
     {
+        logAppender.resetLogContent();
         context.assertIsSatisfied();
     }
 
