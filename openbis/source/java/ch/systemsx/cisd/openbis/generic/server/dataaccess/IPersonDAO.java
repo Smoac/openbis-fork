@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * <i>Data Access Object</i> for persons.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IPersonDAO extends IGenericDAO<PersonPE>
 {
@@ -37,6 +37,14 @@ public interface IPersonDAO extends IGenericDAO<PersonPE>
      * @return <code>null</code>, if no person with that id exists.
      */
     public PersonPE tryFindPersonByUserId(String userId) throws DataAccessException;
+
+    /**
+     * Find the person with the specified email address
+     * 
+     * @param email The email address of the user. Cannot be blank.
+     * @return <code>null</code> if no person with the email address exists.
+     */
+    public PersonPE tryFindPersonByEmail(final String email) throws DataAccessException;
 
     /**
      * Inserts given <code>Person</code> into the database.

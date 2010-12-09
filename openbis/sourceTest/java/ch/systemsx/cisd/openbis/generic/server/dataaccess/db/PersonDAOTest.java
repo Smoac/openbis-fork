@@ -150,6 +150,25 @@ public final class PersonDAOTest extends AbstractDAOTest
 
     }
 
+    @Test(dependsOnMethods = "testCreatePerson")
+    public final void testTryFindPersonIdByEmail()
+    {
+        final PersonPE testPerson = createPerson();
+        final IPersonDAO personDAO = daoFactory.getPersonDAO();
+        boolean fail = true;
+        try
+        {
+            personDAO.tryFindPersonByEmail(null);
+        } catch (final AssertionError e)
+        {
+            fail = false;
+        }
+        assertEquals(false, fail);
+        // Get a person given its user Id.
+        final Long id = personDAO.tryFindPersonByEmail(testPerson.getEmail()).getId();
+        assertNotNull(id);
+    }
+
     public final void testListPersons()
     {
         testCreatePersonWithAnotherDatabaseInstance();

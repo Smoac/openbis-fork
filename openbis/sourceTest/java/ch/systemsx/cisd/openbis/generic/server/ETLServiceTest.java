@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 import static ch.systemsx.cisd.openbis.generic.shared.IDataStoreService.VERSION;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -43,6 +45,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
@@ -58,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
@@ -633,6 +638,60 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testListAdministrators()
+    {
+        prepareGetSession();
+
+        context.checking(new Expectations()
+            {
+                {
+                    final PersonPE personPE = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+                    assignRoles(personPE);
+                    one(personDAO).listPersons();
+                    will(returnValue(Arrays.asList(personPE)));
+                }
+            });
+
+        List<Person> admins = createService().listAdministrators(SESSION_TOKEN);
+        assertEquals(1, admins.size());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTryPersonWithUserIdOrEmail()
+    {
+        prepareGetSession();
+
+        context.checking(new Expectations()
+            {
+                {
+                    final PersonPE personPE = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+                    assignRoles(personPE);
+                    // The first search is by userId
+                    oneOf(personDAO).tryFindPersonByUserId(PRINCIPAL.getUserId());
+                    will(returnValue(personPE));
+
+                    // The second by email
+                    one(personDAO).tryFindPersonByUserId(PRINCIPAL.getEmail());
+                    will(returnValue(null));
+                    one(personDAO).tryFindPersonByEmail(PRINCIPAL.getEmail());
+                    will(returnValue(personPE));
+                }
+            });
+
+        Person result;
+
+        result = createService().tryPersonWithUserIdOrEmail(SESSION_TOKEN, PRINCIPAL.getUserId());
+        assertEquals(PRINCIPAL.getEmail(), result.getEmail());
+
+        result = createService().tryPersonWithUserIdOrEmail(SESSION_TOKEN, PRINCIPAL.getEmail());
+        assertEquals(PRINCIPAL.getEmail(), result.getEmail());
+
+        context.assertIsSatisfied();
+    }
+
     private void prepareRegisterDataSet(final SampleIdentifier sampleIdentifier,
             final ExperimentPE experiment, final SourceType sourceType,
             final NewExternalData externalData)
@@ -746,5 +805,17 @@ public class ETLServiceTest extends AbstractServerTestCase
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
             { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key);
+    }
+
+    private void assignRoles(PersonPE person)
+    {
+        final Set<RoleAssignmentPE> list = new HashSet<RoleAssignmentPE>();
+        // Database assignment
+        RoleAssignmentPE assignment = new RoleAssignmentPE();
+        assignment.setRole(RoleCode.ADMIN);
+        assignment.setDatabaseInstance(person.getDatabaseInstance());
+        person.addRoleAssignment(assignment);
+        list.add(assignment);
+        person.setRoleAssignments(list);
     }
 }

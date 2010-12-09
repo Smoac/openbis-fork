@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -341,6 +342,18 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public List<String> generateCodes(String sessionToken, String prefix, int number)
     {
         logAccess(sessionToken, "generateCodes", "PREFIX(%s) NUMBER(%s)", prefix, number);
+        return null;
+    }
+
+    public List<Person> listAdministrators(String sessionToken)
+    {
+        logAccess(sessionToken, "listAdministrators");
+        return null;
+    }
+
+    public Person tryPersonWithUserIdOrEmail(String sessionToken, String useridOrEmail)
+    {
+        logAccess(sessionToken, "tryPersonWithUserIdOrEmail", "USERID_OR_EMAIL(%s)", useridOrEmail);
         return null;
     }
 }

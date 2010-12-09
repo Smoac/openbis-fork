@@ -51,8 +51,8 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
      * This logger does not output any SQL statement. If you want to do so, you had better set an
      * appropriate debugging level for class {@link JdbcAccessor}. </p>
      */
-    public static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, PersonDAO.class);
+    public static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PersonDAO.class);
 
     PersonDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
     {
@@ -120,6 +120,36 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         {
             operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
                     .getName(), userId, person));
+        }
+        return person;
+    }
+
+    public final PersonPE tryFindPersonByEmail(final String emailAddress)
+            throws DataAccessException
+    {
+        assert emailAddress != null : "Unspecified email address";
+
+        // Can't limit the number of results directly in the query because we are using a shared
+        // hibernate template
+        final List<PersonPE> persons =
+                cast(getHibernateTemplate().find(
+                        String.format(
+                                "from %s p where p.email = ? " + "and p.databaseInstance = ?",
+                                TABLE_NAME), toArray(emailAddress, getDatabaseInstance())));
+        int numberOfResults = persons.size();
+        final PersonPE person;
+        // Take the first result
+        if (numberOfResults > 0)
+        {
+            person = persons.get(0);
+        } else
+        {
+            person = null;
+        }
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(%s): %d found, taking '%s'.", MethodUtils
+                    .getCurrentMethod().getName(), emailAddress, numberOfResults, person));
         }
         return person;
     }

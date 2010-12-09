@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -340,7 +341,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      * Tries to return the data set specified by its code.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(value = {RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER})
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public ExternalData tryGetDataSet(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
             throws UserFailureException;
@@ -476,5 +478,20 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<String> generateCodes(String sessionToken, String prefix, int number);
+
+    /**
+     * Returns a list users who could be considered administrators.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<Person> listAdministrators(String sessionToken);
+
+    /**
+     * Search for the person that matches the given userId or email. The search first tries to find
+     * a userId match; if none was found, it searches for an Email match.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public Person tryPersonWithUserIdOrEmail(String sessionToken, String useridOrEmail);
 
 }

@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
@@ -66,8 +67,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
@@ -88,6 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -107,6 +111,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
@@ -778,6 +783,48 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             result.add(prefix + daoFactory.getCodeSequenceDAO().getNextCodeSequenceId());
         }
         return result;
+    }
+
+    public List<Person> listAdministrators(String sessionToken)
+    {
+        checkSession(sessionToken);
+        // Get all Persons in the DB
+        final List<PersonPE> persons = getDAOFactory().getPersonDAO().listPersons();
+
+        // Filter down to the admins
+        ArrayList<PersonPE> admins = new ArrayList<PersonPE>();
+        for (PersonPE person : persons)
+        {
+            for (final RoleAssignmentPE roleAssigment : person.getRoleAssignments())
+            {
+                if (roleAssigment.getDatabaseInstance() != null
+                        && roleAssigment.getRole().equals(RoleCode.ADMIN))
+                {
+                    admins.add(person);
+                }
+            }
+        }
+        Collections.sort(admins);
+        return PersonTranslator.translate(admins);
+    }
+
+    public Person tryPersonWithUserIdOrEmail(String sessionToken, String useridOrEmail)
+    {
+        checkSession(sessionToken);
+        // First search for a userId match
+        IPersonDAO personDao = getDAOFactory().getPersonDAO();
+        PersonPE person = personDao.tryFindPersonByUserId(useridOrEmail);
+        if (null != person)
+        {
+            return PersonTranslator.translate(person);
+        }
+        // Didn't find one -- try email
+        person = personDao.tryFindPersonByEmail(useridOrEmail);
+        if (null != person)
+        {
+            return PersonTranslator.translate(person);
+        }
+        return null;
     }
 
 }
