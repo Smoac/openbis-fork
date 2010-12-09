@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 
 /**
  * @author Franz-Josef Elmer

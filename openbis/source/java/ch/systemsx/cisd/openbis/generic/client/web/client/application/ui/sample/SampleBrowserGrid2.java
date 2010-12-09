@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +29,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -37,29 +43,43 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -309,15 +329,181 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
     {
         super(viewContext, browserId, displayTypeIDGenerator);
         propertyTypesAndCriteriaProvider = criteriaProvider;
+        linkSample();
+        linkExperiment();
+        linkProject();
+        linkParent();
+        linkContainer();
+    }
+
+    private void linkSample()
+    {
+        ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            showEntityViewer(rowItem.getObjectOrNull(), false, specialKeyPressed);
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            return LinkExtractor.tryExtract(entity);
+                        }
+                    };
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.CODE, listenerLinkGenerator);
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.SUBCODE, listenerLinkGenerator);
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.SAMPLE_IDENTIFIER,
+                listenerLinkGenerator);
+    }
+
+    private void linkExperiment()
+    {
+        ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            Experiment experiment = rowItem.getObjectOrNull().getExperiment();
+                            new OpenEntityDetailsTabAction(experiment, viewContext,
+                                    specialKeyPressed).execute();
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            return LinkExtractor.tryExtract(entity.getExperiment());
+                        }
+                    };
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT, listenerLinkGenerator);
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT_IDENTFIER,
+                listenerLinkGenerator);
     }
     
+    private void linkProject()
+    {
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT,
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            final Project project =
+                                    rowItem.getObjectOrNull().getExperiment().getProject();
+                            final String href = LinkExtractor.tryExtract(project);
+                            OpenEntityDetailsTabHelper.open(viewContext, project,
+                                    specialKeyPressed, href);
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            final Experiment exp = entity.getExperiment();
+                            return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
+                        }
+                    });
+    }
+
+    private void linkParent()
+    {
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.PARENTS,
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            showEntityViewer(rowItem.getObjectOrNull().getGeneratedFrom(), false,
+                                    specialKeyPressed);
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            Sample parent = entity.getGeneratedFrom();
+                            if (parent == null)
+                            {
+                                return null;
+                            }
+                            return LinkExtractor.tryExtract(parent);
+                        }
+                    });
+    }
+
+    private void linkContainer()
+    {
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.CONTAINER_SAMPLE,
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            showEntityViewer(rowItem.getObjectOrNull().getContainer(), false,
+                                    specialKeyPressed);
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            Sample container = entity.getContainer();
+                            if (container == null)
+                            {
+                                return null;
+                            }
+                            return LinkExtractor.tryExtract(container);
+                        }
+                    });
+    }
+
+    @Override
+    protected String translateColumnIdToDictionaryKey(String columnID)
+    {
+        return columnID.toLowerCase();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Sample>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<Sample>> definitions =
+                super.createColumnsDefinition();
+        definitions.setGridCellRendererFor(SampleGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
+        definitions.setGridCellRendererFor(SampleGridColumnIDs.SHOW_DETAILS_LINK_COLUMN_NAME,
+                createShowDetailsLinkCellRenderer());
+        return definitions;
+    }
+
+    protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
+    {
+        return LinkRenderer.createExternalLinkRenderer(viewContext
+                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
+
+    }
+
+    @Override
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(SampleGridColumnIDs.CODE, SampleGridColumnIDs.EXPERIMENT, SampleGridColumnIDs.PROJECT);
+    }
+
     @Override
     protected void listTableRows(
             DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
             AsyncCallback<TypedTableResultSet<Sample>> callback)
     {
-        // TODO Auto-generated method stub
-        
+        ListSampleDisplayCriteria c1 = getCriteriaProvider().tryGetCriteria();
+        ListSampleDisplayCriteria2 criteria;
+        if (c1.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
+        {
+            criteria = new ListSampleDisplayCriteria2(c1.getBrowseCriteria());
+        } else
+        {
+            criteria = new ListSampleDisplayCriteria2(c1.getSearchCriteria());
+        }
+        criteria.copyPagingConfig(resultSetConfig);
+        viewContext.getService().listSamples2(criteria, callback);
     }
 
     @Override
@@ -325,8 +511,36 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
             TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        // TODO Auto-generated method stub
-        
+        viewContext.getService().prepareExportSamples2(exportCriteria, callback);
+    }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        List<DatabaseModificationKind> relevantModifications =
+                new ArrayList<DatabaseModificationKind>();
+        SetUtils.addAll(relevantModifications, getCriteriaProvider().getRelevantModifications());
+        relevantModifications.addAll(getGridRelevantModifications());
+        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
+    }
+
+    protected Set<DatabaseModificationKind> getGridRelevantModifications()
+    {
+        Set<DatabaseModificationKind> result = getGridRelevantModifications(ObjectKind.SAMPLE);
+        result.add(edit(ObjectKind.PROJECT));
+        return result;
+    }
+
+    protected final static Set<DatabaseModificationKind> getGridRelevantModifications(
+            ObjectKind entity)
+    {
+        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
+        result.add(createOrDelete(entity));
+        result.add(edit(entity));
+        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
+        result.add(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
+        result.add(edit(ObjectKind.VOCABULARY_TERM));
+        return result;
     }
 
     /**

@@ -217,6 +217,8 @@ public abstract class Dict
     public static final String IS_INVALID = "is_invalid";
 
     public static final String GROUP = "group";
+    
+    public static final String SPACE = "space";
 
     public static final String GROUPS = "groups";
 

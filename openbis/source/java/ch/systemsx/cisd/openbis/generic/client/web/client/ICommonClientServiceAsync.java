@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -191,10 +192,21 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ResultSetWithEntityTypes<Sample>> asyncCallback);
 
     /**
+     * @see ICommonClientService#listSamples2(ListSampleDisplayCriteria2)
+     */
+    public void listSamples2(final ListSampleDisplayCriteria2 criteria,
+            AsyncCallback<TypedTableResultSet<Sample>> asyncCallback);
+    
+    /**
      * @see ICommonClientService#prepareExportSamples(TableExportCriteria)
      */
     public void prepareExportSamples(final TableExportCriteria<Sample> criteria,
             AsyncCallback<String> asyncCallback);
+
+    /** @see ICommonClientService#prepareExportSamples2(TableExportCriteria) */
+    public void prepareExportSamples2(
+            TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria,
+            AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listPropertyTypeAssignments(DefaultResultSetConfig) */
     public void listPropertyTypeAssignments(

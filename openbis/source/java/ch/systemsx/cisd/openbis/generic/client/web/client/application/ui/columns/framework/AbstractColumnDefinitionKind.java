@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 

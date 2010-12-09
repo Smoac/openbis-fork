@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -230,12 +231,26 @@ public interface ICommonClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * Returns a list of samples matching given criteria.
+     */
+    public TypedTableResultSet<Sample> listSamples2(final ListSampleDisplayCriteria2 criteria)
+            throws UserFailureException;
+    
+    /**
      * Returns a key which can be used be the export servlet (and eventually
      * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
      */
     public String prepareExportSamples(final TableExportCriteria<Sample> criteria)
             throws UserFailureException;
 
+    /**
+     * Returns a key which can be used be the export servlet (and eventually
+     * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
+     */
+    public String prepareExportSamples2(
+            final TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
+            throws UserFailureException;
+    
     /**
      * Returns a list of experiments.
      */

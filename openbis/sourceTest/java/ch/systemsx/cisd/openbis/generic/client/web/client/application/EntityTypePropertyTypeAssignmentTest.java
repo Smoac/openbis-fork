@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeAssignmentForm;
@@ -27,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**

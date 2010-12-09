@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListScriptsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -68,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabularyTermsProvider;
@@ -416,6 +418,12 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
+    public String prepareExportSamples2(
+            TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
+    {
+        return prepareExportEntities(criteria);
+    }
+
     public final String prepareExportExperiments(final TableExportCriteria<Experiment> criteria)
     {
         return prepareExportEntities(criteria);
@@ -512,6 +520,14 @@ public final class CommonClientService extends AbstractClientService implements
         final String sessionToken = getSessionToken();
         return listEntitiesWithTypes(listCriteria, new ListSamplesOriginalDataProvider(
                 commonServer, sessionToken, listCriteria));
+    }
+
+    public TypedTableResultSet<Sample> listSamples2(ListSampleDisplayCriteria2 criteria)
+    {
+        SampleProvider provider = new SampleProvider(commonServer, getSessionToken(), criteria);
+        DataProviderAdapter<Sample> dataProvider = new DataProviderAdapter<Sample>(provider);
+        ResultSet<TableModelRowWithObject<Sample>> resultSet = listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<Sample>(resultSet);
     }
 
     public ResultSetWithEntityTypes<ExternalData> searchForDataSets(

@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 
 /**

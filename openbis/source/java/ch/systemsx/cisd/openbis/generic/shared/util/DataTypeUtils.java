@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -133,6 +134,10 @@ public class DataTypeUtils
             if (StringUtils.isBlank(value))
             {
                 return EMPTY_CELL;
+            }
+            if (value.startsWith(BasicConstant.ERROR_PROPERTY_PREFIX))
+            {
+                return new StringTableCell(value.substring(1));
             }
             return doConversion(value);
         }

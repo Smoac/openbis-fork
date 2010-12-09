@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Criteria for listing <i>samples</i> and displaying them in the grid.<br>
@@ -32,39 +33,39 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sample> implements
+public class ListSampleDisplayCriteria2 extends DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> implements
         IsSerializable
 {
-    public static ListSampleDisplayCriteria createForContainer(final TechId containerSampleId)
+    public static ListSampleDisplayCriteria2 createForContainer(final TechId containerSampleId)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria
+        return new ListSampleDisplayCriteria2(ListSampleCriteria
                 .createForContainer(containerSampleId));
     }
 
-    public static ListSampleDisplayCriteria createForParent(final TechId parentSampleId)
+    public static ListSampleDisplayCriteria2 createForParent(final TechId parentSampleId)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria.createForParent(parentSampleId));
+        return new ListSampleDisplayCriteria2(ListSampleCriteria.createForParent(parentSampleId));
     }
 
-    public static ListSampleDisplayCriteria createForChild(final TechId childSampleId)
+    public static ListSampleDisplayCriteria2 createForChild(final TechId childSampleId)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria.createForChild(childSampleId));
+        return new ListSampleDisplayCriteria2(ListSampleCriteria.createForChild(childSampleId));
     }
 
-    public static ListSampleDisplayCriteria createForExperiment(final TechId experimentId)
+    public static ListSampleDisplayCriteria2 createForExperiment(final TechId experimentId)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId));
+        return new ListSampleDisplayCriteria2(ListSampleCriteria.createForExperiment(experimentId));
     }
 
-    public static ListSampleDisplayCriteria createForSearch()
+    public static ListSampleDisplayCriteria2 createForSearch()
     {
         return createForSearch(new DetailedSearchCriteria());
     }
 
-    private static ListSampleDisplayCriteria createForSearch(
+    private static ListSampleDisplayCriteria2 createForSearch(
             final DetailedSearchCriteria searchCriteria)
     {
-        return new ListSampleDisplayCriteria(searchCriteria);
+        return new ListSampleDisplayCriteria2(searchCriteria);
     }
 
     private ListEntityDisplayCriteriaKind criteriaKind;
@@ -77,14 +78,14 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
 
     private ListSampleCriteria listCriteriaOrNull;
 
-     ListSampleDisplayCriteria(final DetailedSearchCriteria searchCriteria)
+    public ListSampleDisplayCriteria2(final DetailedSearchCriteria searchCriteria)
     {
         assert searchCriteria != null : "search criteria not set";
         this.criteriaKind = ListEntityDisplayCriteriaKind.SEARCH;
         this.setSearchCriteriaOrNull(searchCriteria);
     }
 
-    public ListSampleDisplayCriteria(final ListSampleCriteria listCriteria)
+    public ListSampleDisplayCriteria2(final ListSampleCriteria listCriteria)
     {
         assert listCriteria != null : "list criteria not set";
         this.criteriaKind = ListEntityDisplayCriteriaKind.BROWSE;
@@ -155,7 +156,7 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
     // GWT only
     //
     @SuppressWarnings("unused")
-    private ListSampleDisplayCriteria()
+    private ListSampleDisplayCriteria2()
     {
     }
 
