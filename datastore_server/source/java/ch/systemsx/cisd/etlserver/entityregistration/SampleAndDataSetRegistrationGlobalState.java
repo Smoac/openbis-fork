@@ -16,9 +16,15 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -42,16 +48,22 @@ class SampleAndDataSetRegistrationGlobalState
 
     private final SampleRegistrationMode sampleRegistrationMode;
 
+    private final List<String> errorEmailRecipientsOrNull;
+
     private final Logger operationLog;
+
+    private IMailClient mailClient;
 
     SampleAndDataSetRegistrationGlobalState(IEncapsulatedOpenBISService openbisService,
             SpaceIdentifier spaceIdentifierOrNull, SampleType sampleTypeOrNull,
-            SampleRegistrationMode sampleRegistrationMode, Logger operationLog)
+            SampleRegistrationMode sampleRegistrationMode, List<String> errorEmailRecipientsOrNull,
+            Logger operationLog)
     {
         this.openbisService = openbisService;
         this.spaceIdentifierOrNull = spaceIdentifierOrNull;
         this.sampleTypeOrNull = sampleTypeOrNull;
         this.sampleRegistrationMode = sampleRegistrationMode;
+        this.errorEmailRecipientsOrNull = errorEmailRecipientsOrNull;
         this.operationLog = operationLog;
     }
 
@@ -92,5 +104,47 @@ class SampleAndDataSetRegistrationGlobalState
     public Logger getOperationLog()
     {
         return operationLog;
+    }
+
+    public IMailClient getMailClient()
+    {
+        return mailClient;
+    }
+
+    /**
+     * Since the mail client is not known at object initialization time, we need to offer a setter
+     * for it.
+     */
+    public void initializeMailClient(IMailClient aMailClient)
+    {
+        this.mailClient = aMailClient;
+    }
+
+    public EMailAddress[] getErrorEmailRecipients()
+    {
+        ArrayList<EMailAddress> emailAddresses = new ArrayList<EMailAddress>();
+        if (null == errorEmailRecipientsOrNull)
+        {
+            // Get the admin address from the server and use those
+            List<Person> admins = openbisService.listAdministrators();
+            for (Person admin : admins)
+            {
+                emailAddresses.add(new EMailAddress(admin.getEmail()));
+            }
+        } else
+        {
+            for (String useridOrEmail : errorEmailRecipientsOrNull)
+            {
+                Person personOrNull = openbisService.tryPersonWithUserIdOrEmail(useridOrEmail);
+                if (null == personOrNull)
+                {
+                    emailAddresses.add(new EMailAddress(useridOrEmail));
+                } else
+                {
+                    emailAddresses.add(new EMailAddress(personOrNull.getEmail()));
+                }
+            }
+        }
+        return emailAddresses.toArray(new EMailAddress[emailAddresses.size()]);
     }
 }

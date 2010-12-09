@@ -18,10 +18,18 @@ package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.util.ByteArrayDataSource;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -31,13 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.GlobalPropertiesLoader;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class SampleAndDataSetControlFileProcessor
+class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProcessor
 {
-    private final SampleAndDataSetRegistrationGlobalState globalState;
-
-    @SuppressWarnings("unused")
-    private final File folder;
-
     private final File controlFile;
 
     @SuppressWarnings("unused")
@@ -104,6 +107,10 @@ class SampleAndDataSetControlFileProcessor
 
     /**
      * Utility class for accessing the properties defined in a control file.
+     * <p>
+     * After instantiating this object, you should call check validity to ensure that none of the
+     * methods return null. If the object is invalid, you should check for null values, otherwise
+     * all methods will return non-null values unless otherwise noted.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -112,6 +119,8 @@ class SampleAndDataSetControlFileProcessor
         private final ControlFileOverrideProperties overrideProperties;
 
         private final SampleAndDataSetRegistrationGlobalState globalProperties;
+
+        private final Person user;
 
         /**
          * An object that gets the definitive properties for registration. The properties are
@@ -123,8 +132,22 @@ class SampleAndDataSetControlFileProcessor
         {
             this.overrideProperties = overrideProperties;
             this.globalProperties = globalProperties;
+
+            String userIdOrEmail = overrideProperties.tryUserString();
+            if (null == userIdOrEmail)
+            {
+                user = null;
+            } else
+            {
+                user =
+                        globalProperties.getOpenbisService().tryPersonWithUserIdOrEmail(
+                                userIdOrEmail);
+            }
         }
 
+        /**
+         * Returns a space identifier. Call checkValidity first.
+         */
         public SpaceIdentifier getSpaceIdentifier()
         {
             SpaceIdentifier spaceIdentifier = overrideProperties.trySpaceIdentifier();
@@ -145,16 +168,16 @@ class SampleAndDataSetControlFileProcessor
             return sampleType;
         }
 
-        public String getUserString()
+        public Person getUser()
         {
-            return overrideProperties.tryUserString();
+            return user;
         }
 
         public void checkValidity()
         {
             SpaceIdentifier spaceIdentifier = getSpaceIdentifier();
             SampleType sampleType = getSampleType();
-            String user = getUserString();
+            Person theUser = getUser();
 
             StringBuilder sb = new StringBuilder();
             boolean hasError = false;
@@ -168,7 +191,7 @@ class SampleAndDataSetControlFileProcessor
                 hasError = true;
                 sb.append("\tNo default sample type has been specified, and no sample type was specified in the control file");
             }
-            if (null == user)
+            if (null == theUser)
             {
                 hasError = true;
                 sb.append("\tNo user has been specified");
@@ -183,8 +206,7 @@ class SampleAndDataSetControlFileProcessor
     SampleAndDataSetControlFileProcessor(SampleAndDataSetRegistrationGlobalState globalState,
             File folder, File controlFile)
     {
-        this.globalState = globalState;
-        this.folder = folder;
+        super(globalState, folder);
         this.controlFile = controlFile;
     }
 
@@ -210,12 +232,12 @@ class SampleAndDataSetControlFileProcessor
         {
             // If we don't know which user to send the email to, don't handle this error -- leave it
             // to higher levels.
-            if (null == properties.getUserString())
+            if (null == properties.getUser())
             {
                 throw e;
             }
 
-            sendEmailWithErrorMessage(e.getMessage());
+            sendEmailWithErrorMessage(properties, e.getMessage());
             return;
         }
 
@@ -228,14 +250,46 @@ class SampleAndDataSetControlFileProcessor
                         "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DEFAULT_SPACE(%s) USER(%s)",
                         controlFile.getName(), properties.trySampleType(),
                         properties.trySpaceCode(), properties.tryUserString());
-        globalState.getOperationLog().debug(message);
+        logInfo(message);
     }
 
-    private void sendEmailWithErrorMessage(String message)
+    /**
+     * Send an email message to the person who uploaded the file. This method is only called if we
+     * have a valid email address to contact. Otherwise, errors are forwarded to a higher level for
+     * handling.
+     */
+    private void sendEmailWithErrorMessage(ControlFileRegistrationProperties properties,
+            String message)
     {
         // Log it
-        globalState.getOperationLog().error(message);
+        logError(message);
 
         // Create an email and send it.
+        try
+        {
+            String subject = createErrorEmailSubject();
+            String content = createErrorEmailContent();
+            String filename = SampleAndDataSetFolderProcessor.ERRORS_FILENAME;
+            EMailAddress recipient = new EMailAddress(properties.getUser().getEmail());
+            DataSource dataSource = new ByteArrayDataSource(message, "text/plain");
+
+            globalState.getMailClient().sendEmailMessageWithAttachment(subject, content, filename,
+                    new DataHandler(dataSource), null, null, recipient);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    private String createErrorEmailSubject()
+    {
+        return String.format("Sample / Data Set Registration Error -- %s", controlFile);
+    }
+
+    private String createErrorEmailContent()
+    {
+        return String
+                .format("When trying to register the samples and data sets specified in the control file, %s, errors were encountered. These errors are detailed in the attachment.",
+                        controlFile);
     }
 }

@@ -26,9 +26,11 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
+import ch.systemsx.cisd.etlserver.IDataSetHandlerWithMailClient;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationGlobalState.SampleRegistrationMode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -41,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class SampleAndDataSetRegistrationHandler implements IDataSetHandler
+public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithMailClient
 {
     static final String DATA_SPACE_CONTROL_FILE_KEY = "DEFAULT_SPACE";
 
@@ -53,7 +55,9 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandler
 
     static final String SAMPLE_REGISTRATION_MODE_PROPERTIES_KEY = "sample-registration-mode";
 
-    static final String USER_CONTROL_FILE_KEY = "userid";
+    static final String USER_CONTROL_FILE_KEY = "USERID";
+
+    static final String ERROR_EMAIL_RECIPIENTS_PROPERTIES_KEY = "error-mail-recipients";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleAndDataSetRegistrationHandler.class);
@@ -103,8 +107,16 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandler
             registrationMode = SampleRegistrationMode.ACCEPT_ALL;
         }
 
+        List<String> errorEmailRecipients =
+                PropertyUtils.tryGetList(specificProperties, ERROR_EMAIL_RECIPIENTS_PROPERTIES_KEY);
+
         return new SampleAndDataSetRegistrationGlobalState(service, spaceIdentifier,
-                sampleTypeOrNull, registrationMode, operationLog);
+                sampleTypeOrNull, registrationMode, errorEmailRecipients, operationLog);
+    }
+
+    public void initializeMailClient(IMailClient mailClient)
+    {
+        globalState.initializeMailClient(mailClient);
     }
 
     public List<DataSetInformation> handleDataSet(File file)
@@ -116,7 +128,7 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandler
             folderProcessor.register();
         } catch (Throwable ex)
         {
-            // Nothing to do -- errors have already been logged and emails have already been sent.
+            operationLog.error(ex);
         } finally
         {
             FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(file);

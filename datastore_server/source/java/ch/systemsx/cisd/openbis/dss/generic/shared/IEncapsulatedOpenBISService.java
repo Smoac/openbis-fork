@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -61,13 +62,13 @@ public interface IEncapsulatedOpenBISService
      * Tries to get the data set for the specified data set code.
      */
     public ExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
-    
+
     /**
      * Tries to get the data set for the specified data set code and specified session.
      */
     public ExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
-    throws UserFailureException;
-    
+            throws UserFailureException;
+
     /**
      * Checks if the current user has INSTANCE_ADMIN access rights.
      */
@@ -284,4 +285,15 @@ public interface IEncapsulatedOpenBISService
     public ExternalData tryGetDataSetForServer(final String dataSetCode)
             throws UserFailureException;
 
+    /**
+     * Return a list of users who could be considered administrators. See
+     * {@link IETLLIMSService#listAdministrators(String)}
+     */
+    public List<Person> listAdministrators();
+
+    /**
+     * Return the user that matches this username or email. See
+     * {@link IETLLIMSService#tryPersonWithUserIdOrEmail(String, String)}
+     */
+    public Person tryPersonWithUserIdOrEmail(String useridOrEmail);
 }

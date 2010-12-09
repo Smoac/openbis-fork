@@ -141,6 +141,10 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.typeExtractor = plugin.getTypeExtractor();
         this.storageProcessor = plugin.getStorageProcessor();
         dataSetHandler = plugin.getDataSetHandler(this, limsService);
+        if (dataSetHandler instanceof IDataSetHandlerWithMailClient)
+        {
+            ((IDataSetHandlerWithMailClient) dataSetHandler).initializeMailClient(mailClient);
+        }
         this.dataSetValidator = dataSetValidator;
         this.limsService = limsService;
         this.mailClient = mailClient;

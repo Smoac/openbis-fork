@@ -17,24 +17,29 @@
 package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.mail.util.ByteArrayDataSource;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 
 /**
  * Utitlity class for registering all the samples/datasets in a folder
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class SampleAndDataSetFolderProcessor
+class SampleAndDataSetFolderProcessor extends AbstractSampleAndDataSetProcessor
 {
+    static final String ERRORS_FILENAME = "errors.txt";
+
     private static final String CONTROL_FILE_EXTENSION = ".tsv";
-
-    private final SampleAndDataSetRegistrationGlobalState globalState;
-
-    private final File folder;
 
     private final ArrayList<File> controlFiles = new ArrayList<File>();
 
@@ -42,8 +47,7 @@ class SampleAndDataSetFolderProcessor
 
     SampleAndDataSetFolderProcessor(SampleAndDataSetRegistrationGlobalState globalState, File folder)
     {
-        this.globalState = globalState;
-        this.folder = folder;
+        super(globalState, folder);
     }
 
     /**
@@ -144,11 +148,37 @@ class SampleAndDataSetFolderProcessor
         throw new UserFailureException(sb.toString());
     }
 
-    private void sendEmailWithErrorMessage(String message)
+    protected void sendEmailWithErrorMessage(String message)
     {
-        globalState.getOperationLog().error(message);
+        logError(message);
 
-        // Create an email and send it. To the configured people
+        // Create an email and send it.
+        try
+        {
+            String subject = createErrorEmailSubject();
+            String content = createErrorEmailContent();
+            String filename = ERRORS_FILENAME;
+            EMailAddress[] recipients = globalState.getErrorEmailRecipients();
+            DataSource dataSource = new ByteArrayDataSource(message, "text/plain");
+
+            globalState.getMailClient().sendEmailMessageWithAttachment(subject, content, filename,
+                    new DataHandler(dataSource), null, null, recipients);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    private String createErrorEmailSubject()
+    {
+        return String.format("Sample / Data Set Registration Error -- %s", folder);
+    }
+
+    private String createErrorEmailContent()
+    {
+        return String
+                .format("When trying to process the files in the folder, %s, errors were encountered. These errors are detailed in the attachment.",
+                        folder);
     }
 
 }

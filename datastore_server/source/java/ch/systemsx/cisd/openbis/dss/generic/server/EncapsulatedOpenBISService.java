@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -673,7 +674,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.tryGetDataSet(sToken, dataSetCode);
     }
 
-    synchronized public void checkInstanceAdminAuthorization(String sToken) throws UserFailureException
+    synchronized public void checkInstanceAdminAuthorization(String sToken)
+            throws UserFailureException
     {
         checkSessionToken();
         service.checkInstanceAdminAuthorization(sToken);
@@ -812,6 +814,16 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private List<String> primGenerateCodes(String prefix, int size)
     {
         return service.generateCodes(sessionToken, prefix, size);
+    }
+
+    public List<Person> listAdministrators()
+    {
+        return service.listAdministrators(sessionToken);
+    }
+
+    public Person tryPersonWithUserIdOrEmail(String useridOrEmail)
+    {
+        return service.tryPersonWithUserIdOrEmail(sessionToken, useridOrEmail);
     }
 
 }
