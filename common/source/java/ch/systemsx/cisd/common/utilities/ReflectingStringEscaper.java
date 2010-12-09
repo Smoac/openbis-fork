@@ -227,8 +227,6 @@ class ReflectingStringEscaperUnrestricted<T> extends ReflectingStringEscaperImpl
         private Visitor()
         {
             unescapedProperties = new HashSet<String>();
-            // Don't escape these properties
-            unescapedProperties.add("permlink");
         }
 
         public String tryVisit(String value, Object object, Field fieldOrNull)

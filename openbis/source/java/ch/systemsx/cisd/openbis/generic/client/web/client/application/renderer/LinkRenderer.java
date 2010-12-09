@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonView
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -111,7 +112,7 @@ public class LinkRenderer
                         int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
                         Grid<BaseEntityModel<?>> grid)
                 {
-                    String originalValue = String.valueOf(model.get(property));
+                    String originalValue = StringEscapeUtils.unescapeHtml(String.valueOf(model.get(property)));
                     String linkText =
                             overridenLinkTextOrNull != null ? overridenLinkTextOrNull
                                     : originalValue;
