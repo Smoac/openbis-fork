@@ -26,13 +26,19 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  */
 public class ImageChannelStackReference extends AbstractHashable
 {
-    public static final class LocationImageChannelStackReference extends AbstractHashable
+    /**
+     * Addresses exactly one channel stack of HCS images for a given well and tile, when there are
+     * no image series.<br>
+     * Note that if image series are present for a given well and tile then this object addresses
+     * nothing.
+     */
+    public static final class HCSChannelStackByLocationReference extends AbstractHashable
     {
         protected Location wellLocation;
 
         protected Location tileLocation;
 
-        public LocationImageChannelStackReference(Location wellLocation, Location tileLocation)
+        public HCSChannelStackByLocationReference(Location wellLocation, Location tileLocation)
         {
             this.wellLocation = wellLocation;
             this.tileLocation = tileLocation;
@@ -49,28 +55,62 @@ public class ImageChannelStackReference extends AbstractHashable
         }
     }
 
-    public static final ImageChannelStackReference createFromLocations(Location wellLocation,
+    /**
+     * Addresses exactly one channel stack of microscopy images for a given tile, when there are no
+     * image series.<br>
+     * Note that if image series are present for a given well and tile then this object addresses
+     * nothing.
+     */
+    public static final class MicroscopyChannelStackByLocationReference extends AbstractHashable
+    {
+        protected Location tileLocation;
+
+        public MicroscopyChannelStackByLocationReference(Location tileLocation)
+        {
+            this.tileLocation = tileLocation;
+        }
+
+        public Location getTileLocation()
+        {
+            return tileLocation;
+        }
+    }
+
+    public static final ImageChannelStackReference createHCSFromLocations(Location wellLocation,
             Location tileLocation)
     {
-        return new ImageChannelStackReference(new LocationImageChannelStackReference(wellLocation,
+        return new ImageChannelStackReference(new HCSChannelStackByLocationReference(wellLocation,
+                tileLocation), null, null);
+    }
+
+    public static final ImageChannelStackReference createMicroscopyFromLocations(
+            Location tileLocation)
+    {
+        return new ImageChannelStackReference(null, new MicroscopyChannelStackByLocationReference(
                 tileLocation), null);
     }
 
     public static final ImageChannelStackReference createFromId(long channelStackId)
     {
-        return new ImageChannelStackReference(null, channelStackId);
+        return new ImageChannelStackReference(null, null, channelStackId);
     }
 
-    private final LocationImageChannelStackReference locationRefOrNull;
+    private final HCSChannelStackByLocationReference hcsRefOrNull;
+
+    private final MicroscopyChannelStackByLocationReference microscopyRefOrNull;
 
     private final Long idRefOrNull;
 
-    private ImageChannelStackReference(LocationImageChannelStackReference locationRefOrNull,
-            Long idRefOrNull)
+    private ImageChannelStackReference(HCSChannelStackByLocationReference hcsRefOrNull,
+            MicroscopyChannelStackByLocationReference microscopyRefOrNull, Long idRefOrNull)
     {
-        assert locationRefOrNull == null || idRefOrNull == null;
-        assert locationRefOrNull != null || idRefOrNull != null;
-        this.locationRefOrNull = locationRefOrNull;
+        int notNulls =
+                (hcsRefOrNull == null ? 0 : 1) + (microscopyRefOrNull == null ? 0 : 1)
+                        + (idRefOrNull == null ? 0 : 1);
+        assert notNulls == 1 : "exactly one channel stack reference should be not null: "
+                + hcsRefOrNull + ", " + microscopyRefOrNull + ", " + idRefOrNull;
+        this.hcsRefOrNull = hcsRefOrNull;
+        this.microscopyRefOrNull = microscopyRefOrNull;
         this.idRefOrNull = idRefOrNull;
     }
 
@@ -79,9 +119,14 @@ public class ImageChannelStackReference extends AbstractHashable
         return idRefOrNull;
     }
 
-    public LocationImageChannelStackReference tryGetChannelStackLocations()
+    public HCSChannelStackByLocationReference tryGetHCSChannelStack()
     {
-        return locationRefOrNull;
+        return hcsRefOrNull;
+    }
+
+    public MicroscopyChannelStackByLocationReference tryGetMicroscopyChannelStack()
+    {
+        return microscopyRefOrNull;
     }
 
 }

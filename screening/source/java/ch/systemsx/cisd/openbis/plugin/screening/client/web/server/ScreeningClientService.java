@@ -244,11 +244,11 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     public List<WellImageChannelStack> listImageChannelStacks(String datasetCode,
-            String datastoreCode, WellLocation wellLocation)
+            String datastoreCode, WellLocation wellLocationOrNull)
     {
         final String sessionToken = getSessionToken();
-        return server
-                .listImageChannelStacks(sessionToken, datasetCode, datastoreCode, wellLocation);
+        return server.listImageChannelStacks(sessionToken, datasetCode, datastoreCode,
+                wellLocationOrNull);
     }
 
     public ResultSet<Material> listExperimentMaterials(final TechId experimentId,

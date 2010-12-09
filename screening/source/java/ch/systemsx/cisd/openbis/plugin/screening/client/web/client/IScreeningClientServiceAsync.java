@@ -66,39 +66,43 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     /**
      * @see IScreeningClientService#listPlateWells(IResultSetConfig, WellSearchCriteria)
      */
-    public void listPlateWells(IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
+    public void listPlateWells(
+            IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
             WellSearchCriteria materialCriteria,
             AsyncCallback<TypedTableResultSet<WellContent>> callback);
-    
+
     /**
      * @see IScreeningClientService#prepareExportPlateLocations(TableExportCriteria)
      */
     public void prepareExportPlateLocations(TableExportCriteria<WellContent> criteria,
             AsyncCallback<String> callback);
-    
+
     /**
      * @see IScreeningClientService#prepareExportPlateLocations2(TableExportCriteria)
      */
-    public void prepareExportPlateLocations2(TableExportCriteria<TableModelRowWithObject<WellContent>> criteria,
+    public void prepareExportPlateLocations2(
+            TableExportCriteria<TableModelRowWithObject<WellContent>> criteria,
             AsyncCallback<String> callback);
 
     /**
      * @see IScreeningClientService#listPlateMetadata(IResultSetConfig, TechId)
      */
-    public void listPlateMetadata(IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> resultSetConfig,
+    public void listPlateMetadata(
+            IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> resultSetConfig,
             TechId sampleId, AsyncCallback<TypedTableResultSet<WellMetadata>> callback);
 
     /**
      * @see IScreeningClientService#prepareExportPlateMetadata(TableExportCriteria)
      */
-    public void prepareExportPlateMetadata(TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria,
+    public void prepareExportPlateMetadata(
+            TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
      * @see IScreeningClientService#listImageChannelStacks(String, String, WellLocation)
      */
     public void listImageChannelStacks(String datasetCode, String datastoreCode,
-            WellLocation wellLocation,
+            WellLocation wellLocationOrNull,
             AsyncCallback<List<WellImageChannelStack>> abstractAsyncCallback);
 
     /**

@@ -117,7 +117,7 @@ public interface IScreeningClientService extends IClientService
 
     /** Lists all images for a given well in the given dataset */
     public List<WellImageChannelStack> listImageChannelStacks(String datasetCode,
-            String datastoreCode, WellLocation wellLocation) throws UserFailureException;
+            String datastoreCode, WellLocation wellLocationOrNull) throws UserFailureException;
 
     /**
      * Registers a new library.

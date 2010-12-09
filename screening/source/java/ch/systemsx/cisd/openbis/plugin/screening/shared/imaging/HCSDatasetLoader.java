@@ -46,36 +46,66 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
 
     protected final ImgDatasetDTO dataset;
 
-    private final String mergedChannelTransformerFactorySignature;
-    
-    protected ImgContainerDTO container;
+    private final String mergedChannelTransformerFactorySignatureOrNull;
+
+    protected ImgContainerDTO containerOrNull;
+
+    protected ImgExperimentDTO experimentOrNull;
 
     protected Integer channelCount;
 
     protected List<ImgChannelDTO> channels;
-    
+
     public HCSDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId)
     {
         this.query = query;
+
         this.dataset = query.tryGetDatasetByPermId(datasetPermId);
         if (dataset == null)
         {
             throw new IllegalStateException(String.format("Dataset '%s' not found", datasetPermId));
         }
-        long experimentId = getContainer().getExperimentId();
-        ImgExperimentDTO experiment = query.tryGetExperimentById(experimentId);
-        mergedChannelTransformerFactorySignature = getSignature(experiment.getSerializedImageTransformerFactory());
-        this.channels =
-                query.getChannelsByDatasetIdOrExperimentId(getDataset().getId(), experimentId);
+
+        Long containerId = dataset.getContainerId();
+        if (containerId != null)
+        {
+            this.containerOrNull = query.getContainerById(containerId);
+            this.experimentOrNull = query.tryGetExperimentById(containerOrNull.getExperimentId());
+        } else
+        {
+            this.containerOrNull = null;
+            this.experimentOrNull = null;
+        }
+
+        this.mergedChannelTransformerFactorySignatureOrNull =
+                tryGetImageTransformerFactorySignatureForMergedChannels();
+        this.channels = loadChannels();
     }
 
-    protected final ImgContainerDTO getContainer()
+    private List<ImgChannelDTO> loadChannels()
     {
-        if (container == null)
+        if (containerOrNull != null)
         {
-            container = query.getContainerById(dataset.getContainerId());
+            return query.getChannelsByExperimentId(containerOrNull.getExperimentId());
+        } else
+        {
+            return query.getChannelsByDatasetId(dataset.getId());
         }
-        return container;
+    }
+
+    private String tryGetImageTransformerFactorySignatureForMergedChannels()
+    {
+        byte[] imageTransformerFactory = dataset.getSerializedImageTransformerFactory();
+        if (imageTransformerFactory == null && experimentOrNull != null)
+        {
+            imageTransformerFactory = experimentOrNull.getSerializedImageTransformerFactory();
+        }
+        return tryGetSignature(imageTransformerFactory);
+    }
+
+    protected final ImgContainerDTO tryGetContainer()
+    {
+        return containerOrNull;
     }
 
     protected final ImgDatasetDTO getDataset()
@@ -88,12 +118,18 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
         return channels.size();
     }
 
-    public List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocation)
+    public List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull)
     {
-        int spotYRow = wellLocation.getRow();
-        int spotXColumn = wellLocation.getColumn();
-        List<ImgChannelStackDTO> stacks =
-                query.listChannelStacks(dataset.getId(), spotXColumn, spotYRow);
+        List<ImgChannelStackDTO> stacks;
+        if (wellLocationOrNull != null)
+        {
+            int spotYRow = wellLocationOrNull.getRow();
+            int spotXColumn = wellLocationOrNull.getColumn();
+            stacks = query.listChannelStacks(dataset.getId(), spotXColumn, spotYRow);
+        } else
+        {
+            stacks = query.listSpotlessChannelStacks(dataset.getId());
+        }
         return convert(stacks);
     }
 
@@ -117,13 +153,16 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
     {
         PlateImageParameters params = new PlateImageParameters();
         params.setDatasetCode(dataset.getPermId());
-        params.setRowsNum(getContainer().getNumberOfRows());
-        params.setColsNum(getContainer().getNumberOfColumns());
+        if (containerOrNull != null)
+        {
+            params.setRowsNum(containerOrNull.getNumberOfRows());
+            params.setColsNum(containerOrNull.getNumberOfColumns());
+        }
         params.setTileRowsNum(getDataset().getFieldNumberOfRows());
         params.setTileColsNum(getDataset().getFieldNumberOfColumns());
         params.setIsMultidimensional(dataset.getIsMultidimensional());
         params.addTransformerFactorySignatureFor(ScreeningConstants.MERGED_CHANNELS,
-                mergedChannelTransformerFactorySignature);
+                mergedChannelTransformerFactorySignatureOrNull);
         List<String> channelsCodes = new ArrayList<String>();
         List<String> channelsLabels = new ArrayList<String>();
         for (ImgChannelDTO channel : channels)
@@ -132,15 +171,15 @@ public class HCSDatasetLoader implements IHCSDatasetLoader
             String channelCode = StringEscapeUtils.escapeCsv(channel.getCode());
             channelsCodes.add(channelCode);
             channelsLabels.add(StringEscapeUtils.escapeCsv(channel.getLabel()));
-            params.addTransformerFactorySignatureFor(channelCode, getSignature(channel
-                    .getSerializedImageTransformerFactory()));
+            params.addTransformerFactorySignatureFor(channelCode,
+                    tryGetSignature(channel.getSerializedImageTransformerFactory()));
         }
         params.setChannelsCodes(channelsCodes);
         params.setChannelsLabels(channelsLabels);
         return params;
     }
-    
-    private String getSignature(byte[] bytesOrNull)
+
+    private String tryGetSignature(byte[] bytesOrNull)
     {
         if (bytesOrNull == null)
         {

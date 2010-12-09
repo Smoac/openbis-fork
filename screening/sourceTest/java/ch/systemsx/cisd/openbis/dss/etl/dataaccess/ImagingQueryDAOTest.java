@@ -26,12 +26,10 @@ import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.AbstractDBTest;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
@@ -70,6 +68,10 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
     private static final String PATH2 = "path2";
 
+    private static final String MICROSCOPY_IMAGE_PATH1 = "path_MICROSCOPY_IMAGE_PATH1";
+
+    private static final String MICROSCOPY_IMAGE_PATH2 = "path_MICROSCOPY_IMAGE_PATH2";
+
     private static final String EXP_PERM_ID = "expId";
 
     private static final String CONTAINER_PERM_ID = "cId";
@@ -106,15 +108,61 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     public void testCreateMicroscopyDataset()
     {
         long datasetId = addDataset(DS_PERM_ID + "2", null);
-        long channelId1 = addDatasetChannel(datasetId);
-        long channelStackId = addChannelStack(datasetId, null);
-        long imageId1 = addImage("pathXXX", ColorComponent.BLUE);
-        addAcquiredImage(imageId1, channelStackId, channelId1);
+        long channelId = addDatasetChannel(datasetId);
+        long channelStackId = addChannelStack(datasetId, null, null, null);
+        long imageId1 = addImage(MICROSCOPY_IMAGE_PATH1, ColorComponent.BLUE);
+        addAcquiredImage(imageId1, channelStackId, channelId);
 
         List<ImgChannelStackDTO> stack = dao.listSpotlessChannelStacks(datasetId);
         assertEquals(1, stack.size());
         ImgChannelStackDTO stackDTO = stack.get(0);
         assertEquals(channelStackId, stackDTO.getId());
+
+        testGetMicroscopyImage(datasetId, channelStackId, channelId);
+    }
+
+    private void testGetMicroscopyImage(final long datasetId, final long channelStackId,
+            final long channelId)
+    {
+        Location tileLocation = new Location(X_TILE_COLUMN, Y_TILE_ROW);
+        ImgImageDTO image1 = dao.tryGetMicroscopyImage(channelId, datasetId, tileLocation);
+        assertEquals(MICROSCOPY_IMAGE_PATH1, image1.getFilePath());
+        assertEquals(ColorComponent.BLUE, image1.getColorComponent());
+
+        ImgImageDTO image1bis = dao.tryGetImage(channelId, channelStackId, datasetId);
+        assertEquals(image1, image1bis);
+
+        ImgImageDTO thumbnail1 = dao.tryGetMicroscopyThumbnail(channelId, datasetId, tileLocation);
+        assertEquals(image1, thumbnail1);
+
+        ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId, channelStackId, datasetId);
+        assertEquals(thumbnail1, thumbnail1bis);
+    }
+
+    @Test
+    public void testCreateMicroscopyDatasetWithSeries()
+    {
+        long datasetId = addDataset(DS_PERM_ID + "3", null);
+        long channelId = addDatasetChannel(datasetId);
+        long channelStackId = addChannelStack(datasetId, null, TIMEPOINT, DEPTH);
+        long imageId1 = addImage(MICROSCOPY_IMAGE_PATH2, ColorComponent.BLUE);
+        addAcquiredImage(imageId1, channelStackId, channelId);
+
+        Location tileLocation = new Location(X_TILE_COLUMN, Y_TILE_ROW);
+        // if there are any time/depth series, this method should return null
+        ImgImageDTO image1 = dao.tryGetMicroscopyImage(channelId, datasetId, tileLocation);
+        assertNull(image1);
+
+        // but this one should not!
+        ImgImageDTO image1bis = dao.tryGetImage(channelId, channelStackId, datasetId);
+        assertEquals(MICROSCOPY_IMAGE_PATH2, image1bis.getFilePath());
+
+        // the same applies for thumbnails
+        ImgImageDTO thumbnail1 = dao.tryGetMicroscopyThumbnail(channelId, datasetId, tileLocation);
+        assertNull(thumbnail1);
+
+        ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId, channelStackId, datasetId);
+        assertEquals(image1bis, thumbnail1bis);
     }
 
     @Test
@@ -125,19 +173,19 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         final long containerId = addContainer(experimentId);
         final long datasetId = addDataset(DS_PERM_ID, containerId);
         final long spotId = addSpot(containerId);
-        final long channelId1 = addDatasetChannel(datasetId);
-        final long channelId2 = addExperimentChannel(experimentId);
+        final long datasetChannelId1 = addDatasetChannel(datasetId);
+        final long experimentChannelId2 = addExperimentChannel(experimentId);
 
-        testChannelMethods(experimentId, datasetId, channelId1, channelId2);
+        testChannelMethods(experimentId, datasetId, datasetChannelId1, experimentChannelId2);
 
         // create channel stack, images and acquired images
-        final long channelStackId = addChannelStack(datasetId, spotId);
+        final long channelStackId = addChannelStack(datasetId, spotId, null, null);
         final long imageId1 = addImage(PATH1, ColorComponent.BLUE);
         final long imageId2 = addImage(PATH2, ColorComponent.RED);
-        addAcquiredImage(imageId1, channelStackId, channelId1);
-        addAcquiredImage(imageId2, channelStackId, channelId2);
+        addAcquiredImage(imageId1, channelStackId, datasetChannelId1);
+        addAcquiredImage(imageId2, channelStackId, experimentChannelId2);
 
-        testGetImage(datasetId, channelStackId, channelId1, channelId2);
+        testGetHCSImage(datasetId, channelStackId, datasetChannelId1, experimentChannelId2);
         testListChannelStacksAndSpots(datasetId, channelStackId, spotId);
     }
 
@@ -147,7 +195,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
 
         assertEquals(spotId, stackDTO.getSpotId().longValue());
         assertEquals(datasetId, stackDTO.getDatasetId());
-        assertEquals(TIMEPOINT, stackDTO.getT());
+        assertNull(stackDTO.getT());
         assertNull(stackDTO.getZ());
         assertEquals(Y_WELL_ROW, stackDTO.getRow().intValue());
         assertEquals(X_WELL_COLUMN, stackDTO.getColumn().intValue());
@@ -163,12 +211,12 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         return stackDTO;
     }
 
-    private void testGetImage(final long datasetId, final long channelStackId,
+    private void testGetHCSImage(final long datasetId, final long channelStackId,
             final long channelId1, final long channelId2)
     {
         Location tileLocation = new Location(X_TILE_COLUMN, Y_TILE_ROW);
         Location wellLocation = new Location(X_WELL_COLUMN, Y_WELL_ROW);
-        ImgImageDTO image1 = dao.tryGetImage(channelId1, datasetId, tileLocation, wellLocation);
+        ImgImageDTO image1 = dao.tryGetHCSImage(channelId1, datasetId, tileLocation, wellLocation);
         assertEquals(PATH1, image1.getFilePath());
         assertEquals(ColorComponent.BLUE, image1.getColorComponent());
 
@@ -176,13 +224,13 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(image1, image1bis);
 
         ImgImageDTO thumbnail1 =
-                dao.tryGetThumbnail(channelId1, datasetId, tileLocation, wellLocation);
+                dao.tryGetHCSThumbnail(channelId1, datasetId, tileLocation, wellLocation);
         assertEquals(image1, thumbnail1);
 
         ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId1, channelStackId, datasetId);
         assertEquals(thumbnail1, thumbnail1bis);
 
-        ImgImageDTO image2 = dao.tryGetImage(channelId2, datasetId, wellLocation, tileLocation);
+        ImgImageDTO image2 = dao.tryGetHCSImage(channelId2, datasetId, wellLocation, tileLocation);
         assertEquals(PATH2, image2.getFilePath());
         assertEquals(ColorComponent.RED, image2.getColorComponent());
 
@@ -191,33 +239,26 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     }
 
     private void testChannelMethods(final long experimentId, final long datasetId,
-            final long channelId1, final long channelId2)
+            final long datasetChannelId, final long experimentChannelId)
     {
-        // test countChannelByDatasetIdOrExperimentId
-        assertEquals(2, dao.countChannelByDatasetIdOrExperimentId(datasetId, experimentId));
-        List<ImgChannelDTO> channelDTOS =
-                dao.getChannelsByDatasetIdOrExperimentId(datasetId, experimentId);
-        assertEquals("DSCHANNEL", channelDTOS.get(0).getCode());
-        assertEquals(CHANNEL_LABEL, channelDTOS.get(0).getLabel());
-        assertEquals("EXPCHANNEL", channelDTOS.get(1).getCode());
-        assertEquals(CHANNEL_LABEL, channelDTOS.get(1).getLabel());
+        List<ImgChannelDTO> datasetChannels = dao.getChannelsByDatasetId(datasetId);
+        assertEquals(1, datasetChannels.size());
+        ImgChannelDTO datasetChannel = datasetChannels.get(0);
 
-        // test getChannelIdsByDatasetIdOrExperimentId
-        List<ImgChannelDTO> channels =
-                dao.getChannelsByDatasetIdOrExperimentId(datasetId, experimentId);
-        assertEquals(2, channels.size());
-        AssertJUnit.assertTrue(channels.get(0).getId() == channelId1
-                && channels.get(1).getId() == channelId2 || channels.get(1).getId() == channelId1
-                && channels.get(0).getId() == channelId2);
+        assertEquals("DSCHANNEL", datasetChannel.getCode());
+        assertEquals(CHANNEL_LABEL, datasetChannel.getLabel());
+        assertEquals(datasetChannelId, datasetChannel.getId());
 
-        // test get id of first channel
-        assertEquals(
-                channels.get(0).getId(),
-                dao.tryGetChannelByChannelCodeDatasetIdOrExperimentId(datasetId, experimentId,
-                        "dsChannel").getId());
+        assertEquals(datasetChannel, dao.tryGetChannelForDataset(datasetId, "dsChannel"));
 
         List<ImgChannelDTO> experimentChannels = dao.getChannelsByExperimentId(experimentId);
         assertEquals(1, experimentChannels.size());
+        ImgChannelDTO experimentChannel = experimentChannels.get(0);
+        assertEquals("EXPCHANNEL", experimentChannel.getCode());
+        assertEquals(CHANNEL_LABEL, experimentChannel.getLabel());
+        assertEquals(experimentChannelId, experimentChannel.getId());
+
+        assertEquals(experimentChannel, dao.tryGetChannelForExperiment(experimentId, "expChannel"));
 
         // test update
         ImgChannelDTO channel = experimentChannels.get(0);
@@ -304,11 +345,12 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         return dao.addChannel(channel);
     }
 
-    private long addChannelStack(long datasetId, Long spotIdOrNull)
+    private long addChannelStack(long datasetId, Long spotIdOrNull, Float timeOrNull,
+            Float depthOrNull)
     {
         final ImgChannelStackDTO channelStack =
                 new ImgChannelStackDTO(dao.createChannelStackId(), Y_TILE_ROW, X_TILE_COLUMN,
-                        datasetId, spotIdOrNull, TIMEPOINT, DEPTH);
+                        datasetId, spotIdOrNull, timeOrNull, depthOrNull);
         dao.addChannelStacks(Arrays.asList(channelStack));
         return channelStack.getId();
     }

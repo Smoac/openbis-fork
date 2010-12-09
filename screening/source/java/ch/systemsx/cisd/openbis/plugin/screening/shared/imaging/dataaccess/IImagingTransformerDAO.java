@@ -23,20 +23,29 @@ import net.lemnik.eodsql.Update;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IImagingTransformerDAO extends TransactionQuery
 {
-    @Update(sql = "update experiments set image_transformer_factory = ?{2} where perm_id = ?{1}", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class/* default */  })
-    public void saveTransformerFactoryForExperiment(String experimentPermID,
+    @Update(sql = "update experiments set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
+        { TransformerFactoryMapper.class, TypeMapper.class /* default */})
+    public void saveTransformerFactoryForExperiment(long experimentId,
             IImageTransformerFactory factory);
-    
+
+    @Update(sql = "update data_sets set image_transformer_factory = ?{2} where id = ?{1}", parameterBindings =
+        { TransformerFactoryMapper.class, TypeMapper.class /* default */})
+    public void saveTransformerFactoryForDataset(long datasetId, IImageTransformerFactory factory);
+
     @Update(sql = "update channels set image_transformer_factory = ?{3} "
-            + "where code = ?{2} and exp_id in (select id from experiments where perm_id = ?{1})", parameterBindings =
-        { TransformerFactoryMapper.class, TypeMapper.class/* default */, TypeMapper.class /* default */ })
-    public void saveTransformerFactoryForChannel(String experimentPermID, String channel,
+            + "where code = ?{2} and exp_id = ?{1}", parameterBindings =
+        { TransformerFactoryMapper.class, TypeMapper.class/* default */, TypeMapper.class /* default */})
+    public void saveTransformerFactoryForExperimentChannel(long experimentId, String channel,
             IImageTransformerFactory factory);
+
+    @Update(sql = "update channels set image_transformer_factory = ?{3} "
+            + "where code = ?{2} and ds_id = ?{1}", parameterBindings =
+        { TransformerFactoryMapper.class, TypeMapper.class/* default */, TypeMapper.class /* default */})
+    public void saveTransformerFactoryForDatasetChannel(long datasetId, String channel,
+            IImageTransformerFactory factory);
+
 }

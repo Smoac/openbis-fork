@@ -45,26 +45,53 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID and "
                     + "CHANNEL_STACKS.SPOT_ID = SPOTS.ID ";
 
+    public static final String SQL_MICROSCOPY_IMAGE =
+            "select i.* from CHANNEL_STACKS, ACQUIRED_IMAGES, IMAGES as i "
+                    + "where                                                                "
+                    + "ACQUIRED_IMAGES.CHANNEL_ID = ?{1} and CHANNEL_STACKS.DS_ID = ?{2} and "
+                    + "CHANNEL_STACKS.x = ?{3.x} and CHANNEL_STACKS.y = ?{3.y} and "
+                    + "CHANNEL_STACKS.spot_id IS NULL and "
+                    // joins
+                    + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID ";
+
     public static final String SQL_NO_MULTIDIMENTIONAL_DATA_COND =
-            " order by CHANNEL_STACKS.T_in_SEC, CHANNEL_STACKS.Z_in_M limit 1";
+            " and CHANNEL_STACKS.T_in_SEC IS NULL                        "
+                    + " and CHANNEL_STACKS.Z_in_M IS NULL                ";
 
     /**
-     * @return an image for the specified chanel, well and tile. If many images for different
-     *         timepoints or depths exist, the first one is returned.
+     * @return an HCS image for the specified chanel, well and tile. If many images (e.g. for
+     *         different timepoints or depths) exist, null is returned.
      */
     @Select(SQL_HCS_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
-    public ImgImageDTO tryGetImage(long channelId, long datasetId, Location tileLocation,
+    public ImgImageDTO tryGetHCSImage(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
 
     /**
-     * @return a thumbnail for the specified chanel, well and tile. If many images for different
-     *         timepoints or depths exist, the first one is returned.
+     * @return a HCS thumbnail for the specified chanel, well and tile. If many images (e.g. for
+     *         different timepoints or depths) exist, null is returned.
      */
     @Select(SQL_HCS_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
-    public ImgImageDTO tryGetThumbnail(long channelId, long datasetId, Location tileLocation,
+    public ImgImageDTO tryGetHCSThumbnail(long channelId, long datasetId, Location tileLocation,
             Location wellLocation);
+
+    /**
+     * @return an microscopy image for the specified channel and tile. If many images (e.g. for
+     *         different timepoints or depths) exist, null is returned.
+     */
+    @Select(SQL_MICROSCOPY_IMAGE + " and ACQUIRED_IMAGES.IMG_ID = i.ID "
+            + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
+    public ImgImageDTO tryGetMicroscopyImage(long channelId, long datasetId, Location tileLocation);
+
+    /**
+     * @return a microscopy thumbnail for the specified channel and tile. If many images (e.g. for
+     *         different timepoints or depths) exist, null is returned.
+     */
+    @Select(SQL_MICROSCOPY_IMAGE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID "
+            + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
+    public ImgImageDTO tryGetMicroscopyThumbnail(long channelId, long datasetId,
+            Location tileLocation);
 
     /** @return an image for the specified channel and channel stack or null */
     @Select("select i.* from IMAGES as i "
@@ -116,12 +143,8 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + "where cs.ds_id = ?{1} and cs.spot_id is NULL")
     public List<ImgChannelStackDTO> listSpotlessChannelStacks(long datasetId);
 
-    @Select("select count(*) from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2}")
-    public int countChannelByDatasetIdOrExperimentId(long datasetId, long experimentId);
-
-    @Select("select * from CHANNELS where DS_ID = ?{1} or EXP_ID = ?{2} order by ID")
-    public List<ImgChannelDTO> getChannelsByDatasetIdOrExperimentId(long datasetId,
-            long experimentId);
+    @Select("select * from CHANNELS where DS_ID = ?{1} order by ID")
+    public List<ImgChannelDTO> getChannelsByDatasetId(long datasetId);
 
     @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by ID", fetchSize = FETCH_SIZE)
     public List<ImgChannelDTO> getChannelsByExperimentId(long experimentId);
@@ -140,13 +163,15 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
     @Select(sql = "select * from FEATURE_VALUES where FD_ID = ?{1.id} order by T_in_SEC, Z_in_M", resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
 
-    @Select("select * from CHANNELS where (DS_ID = ?{1} or EXP_ID = ?{2}) and CODE = upper(?{3})")
-    public ImgChannelDTO tryGetChannelByChannelCodeDatasetIdOrExperimentId(long id,
-            long experimentId, String chosenChannelCode);
+    @Select("select * from CHANNELS where (EXP_ID = ?{1}) and CODE = upper(?{2})")
+    public ImgChannelDTO tryGetChannelForExperiment(long experimentId, String chosenChannelCode);
+
+    @Select("select * from CHANNELS where (DS_ID = ?{1}) and CODE = upper(?{2})")
+    public ImgChannelDTO tryGetChannelForDataset(long datasetId, String chosenChannelCode);
 
     @Select("select * from channels where code = ?{2} and "
             + "exp_id in (select id from experiments where perm_id = ?{1})")
-    public ImgChannelDTO tryGetChannelByChannelCodeAndExperimentPermId(String experimentPermId,
+    public ImgChannelDTO tryGetChannelForExperimentPermId(String experimentPermId,
             String chosenChannelCode);
 
 }

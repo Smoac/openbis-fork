@@ -25,13 +25,14 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 /**
  * @author Tomasz Pylak
  */
+// TODO 2010-12-09, Tomasz Pylak: rename: IHCSDatasetLoader -> IImageDatasetLoader
 public interface IHCSDatasetLoader
 {
     /** Dataset metadata. */
     PlateImageParameters getImageParameters();
 
     /**
-     * Loads information about all channels stacks of a given well.
+     * Loads information about all dataset channels stacks (restricted to a given well in HCS case).
      */
-    List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocation);
+    List<WellImageChannelStack> listImageChannelStacks(WellLocation wellLocationOrNull);
 }

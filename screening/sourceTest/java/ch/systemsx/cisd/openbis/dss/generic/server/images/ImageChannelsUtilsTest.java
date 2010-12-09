@@ -36,13 +36,11 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ImageChannelsUtilsTest extends AssertJUnit
@@ -51,6 +49,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             + ImageChannelsUtilsTest.class.getPackage().getName().replace('.', '/'));
 
     private static final String SESSION_ID = "session-42";
+
     private static final String DATASET_CODE = "dataset-123";
 
     private static final String CHANNEL = "GFP";
@@ -75,17 +74,19 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         };
 
     private Mockery context;
-    private IHCSImageDatasetLoader loader;
+
+    private IImagingDatasetLoader loader;
+
     private IImageTransformerFactory transformerFactory;
 
     @BeforeMethod
     public void setUp()
     {
         context = new Mockery();
-        loader = context.mock(IHCSImageDatasetLoader.class);
+        loader = context.mock(IImagingDatasetLoader.class);
         transformerFactory = context.mock(IImageTransformerFactory.class);
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -93,7 +94,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetUnkownImage()
     {
@@ -117,14 +118,15 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             fail("EnvironmentFailureException expected");
         } catch (EnvironmentFailureException ex)
         {
-            assertEquals("No image found for channel stack "
-                    + "ImageChannelStackReference{locationRefOrNull=<null>,idRefOrNull=4711} "
-                    + "and channel GFP", ex.getMessage());
+            assertEquals(
+                    "No image found for channel stack "
+                            + "ImageChannelStackReference{hcsRefOrNull=<null>,microscopyRefOrNull=<null>,idRefOrNull=4711} "
+                            + "and channel GFP", ex.getMessage());
         }
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetTiffImage()
     {
@@ -138,17 +140,18 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 {
                     one(loader)
                             .tryGetImage(imageRef.getChannel(), imageRef.getChannelStack(), null);
-                    will(returnValue(new AbsoluteImageReference(
-                            image("img1.tiff"), "id42", null, null, null)));
+                    will(returnValue(new AbsoluteImageReference(image("img1.tiff"), "id42", null,
+                            null, null)));
                 }
             });
-        
+
         IContent image = ImageChannelsUtils.getImage(loader, imageRef);
-        assertEquals(getImageContentDescription(image("img1.png")), getImageContentDescription(image));
-        
+        assertEquals(getImageContentDescription(image("img1.png")),
+                getImageContentDescription(image));
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetJpgImageAsPngThumbnail()
     {
@@ -170,10 +173,10 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         IContent image = ImageChannelsUtils.getImage(loader, imageRef);
         assertPNG(image);
         assertEquals("cde cde\ncde cde\n", getImageContentDescription(image));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetTransformedImage()
     {
@@ -188,22 +191,20 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                     one(loader)
                             .tryGetImage(imageRef.getChannel(), imageRef.getChannelStack(), null);
                     AbsoluteImageReference imgRef =
-                            new AbsoluteImageReference(image("img1.gif"), "id42", null, null,
-                                    null);
+                            new AbsoluteImageReference(image("img1.gif"), "id42", null, null, null);
                     imgRef.setTransformerFactory(transformerFactory);
                     will(returnValue(imgRef));
-                    
+
                     one(transformerFactory).createTransformer();
                     will(returnValue(TRANSFORMER));
                 }
             });
-        
+
         IContent image = ImageChannelsUtils.getImage(loader, imageRef);
         assertPNG(image);
-        assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n"
-                + "f00 c00 c00 f00\n" + "e00 f00 f00 e00\n",
-                getImageContentDescription(image));
-        
+        assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n" + "f00 c00 c00 f00\n"
+                + "e00 f00 f00 e00\n", getImageContentDescription(image));
+
         context.assertIsSatisfied();
     }
 
@@ -225,12 +226,12 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             IOUtils.closeQuietly(inputStream);
         }
     }
-    
+
     private IContent image(String fileName)
     {
         return new FileBasedContent(new File(TEST_IMAGE_FOLDER, fileName));
     }
-    
+
     private String getImageContentDescription(IContent image)
     {
         BufferedImage bufferedImage = ImageUtil.loadImage(image.getInputStream());

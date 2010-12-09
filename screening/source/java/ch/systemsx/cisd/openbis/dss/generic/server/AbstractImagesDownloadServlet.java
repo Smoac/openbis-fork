@@ -95,13 +95,25 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
             Integer channelStackId = tryGetIntParam(request, CHANNEL_STACK_ID_PARAM);
             if (channelStackId == null)
             {
-                int wellRow = getIntParam(request, WELL_ROW_PARAM);
-                int wellCol = getIntParam(request, WELL_COLUMN_PARAM);
                 int tileRow = getIntParam(request, TILE_ROW_PARAM);
                 int tileCol = getIntParam(request, TILE_COL_PARAM);
-                Location wellLocation = new Location(wellCol, wellRow);
                 Location tileLocation = new Location(tileCol, tileRow);
-                return ImageChannelStackReference.createFromLocations(wellLocation, tileLocation);
+
+                Integer wellRow = tryGetIntParam(request, WELL_ROW_PARAM);
+                Integer wellCol = tryGetIntParam(request, WELL_COLUMN_PARAM);
+                if (wellRow != null && wellCol != null)
+                {
+                    Location wellLocation = new Location(wellCol, wellRow);
+                    return ImageChannelStackReference.createHCSFromLocations(wellLocation,
+                            tileLocation);
+                } else if (wellRow == null && wellCol == null)
+                {
+                    return ImageChannelStackReference.createMicroscopyFromLocations(tileLocation);
+                } else
+                {
+                    throw new UserFailureException(
+                            "well reference is not complete, row and column must be specified!");
+                }
             } else
             {
                 return ImageChannelStackReference.createFromId(channelStackId);

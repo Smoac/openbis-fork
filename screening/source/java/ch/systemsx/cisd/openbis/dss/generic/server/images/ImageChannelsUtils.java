@@ -36,7 +36,7 @@ import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -61,12 +61,12 @@ public class ImageChannelsUtils
      * Returns content of image for the specified tile in the specified size and for the requested
      * channel or with all channels merged.
      */
-    public static IContent getImage(IHCSImageDatasetLoader imageAccessor, TileImageReference params)
+    public static IContent getImage(IImagingDatasetLoader imageAccessor, TileImageReference params)
     {
         return getImage(imageAccessor, params, true, true);
     }
     
-    private static IContent getImage(IHCSImageDatasetLoader imageAccessor,
+    private static IContent getImage(IImagingDatasetLoader imageAccessor,
             TileImageReference params, boolean transform, boolean convertToPng)
     {
         List<AbsoluteImageReference> images = getImageReferences(imageAccessor, params);
@@ -85,7 +85,7 @@ public class ImageChannelsUtils
     /**
      * @return an image for the specified tile in the specified size and for the requested channel.
      */
-    public static IContent getImage(IHCSImageDatasetLoader imageAccessor,
+    public static IContent getImage(IImagingDatasetLoader imageAccessor,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
             Size thumbnailSizeOrNull, boolean convertToPng)
     {
@@ -98,7 +98,7 @@ public class ImageChannelsUtils
     }
 
     private static List<AbsoluteImageReference> getImageReferences(
-            IHCSImageDatasetLoader imageAccessor, TileImageReference params)
+            IImagingDatasetLoader imageAccessor, TileImageReference params)
     {
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
@@ -319,10 +319,9 @@ public class ImageChannelsUtils
     // --------- common
 
     /**
-     * @param chosenChannelCode starts from 1
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    private static AbsoluteImageReference getImageReference(IHCSImageDatasetLoader imageAccessor,
+    private static AbsoluteImageReference getImageReference(IImagingDatasetLoader imageAccessor,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
             Size thumbnailSizeOrNull)
     {

@@ -89,10 +89,10 @@ public class PlateContentLoader
      */
     public static List<WellImageChannelStack> loadImageChannelStacks(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, String datasetCode,
-            String datastoreCode, WellLocation wellLocation)
+            String datastoreCode, WellLocation wellLocationOrNull)
     {
         return new PlateContentLoader(session, businessObjectFactory).loadImageChannelStacks(
-                datasetCode, datastoreCode, wellLocation);
+                datasetCode, datastoreCode, wellLocationOrNull);
     }
 
     private final Session session;
@@ -312,11 +312,12 @@ public class PlateContentLoader
     }
 
     private List<WellImageChannelStack> loadImageChannelStacks(String datasetCode,
-            String datastoreCode, WellLocation wellLocation)
+            String datastoreCode, WellLocation wellLocationOrNull)
     {
         IHCSDatasetLoader datasetLoader =
                 businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
-        List<WellImageChannelStack> stacks = datasetLoader.listImageChannelStacks(wellLocation);
+        List<WellImageChannelStack> stacks =
+                datasetLoader.listImageChannelStacks(wellLocationOrNull);
         return stacks;
     }
 }

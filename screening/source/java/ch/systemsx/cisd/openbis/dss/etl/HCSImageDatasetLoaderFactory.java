@@ -20,7 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.dss.etl.dataaccess.HCSImageDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.dataaccess.ImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
@@ -40,15 +40,15 @@ public class HCSImageDatasetLoaderFactory
     }
 
     /** the loader has to be closed when it is not used any more to free database resources! */
-    public static final IHCSImageDatasetLoader create(File datasetRootDir, String datasetCode)
+    public static final IImagingDatasetLoader create(File datasetRootDir, String datasetCode)
     {
         return createImageDBLoader(datasetRootDir, datasetCode);
     }
 
-    private static HCSImageDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
+    private static ImagingDatasetLoader createImageDBLoader(File datasetRootDir, String datasetCode)
     {
         IContentRepository repository = new ContentRepository(datasetRootDir, repositoryFactories);
-        return new HCSImageDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, repository);
+        return new ImagingDatasetLoader(DssScreeningUtils.getQuery(), datasetCode, repository);
     }
 
 }

@@ -46,7 +46,7 @@ import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
 import ch.systemsx.cisd.common.io.FileBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
@@ -105,6 +105,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private static final String EXPERIMENT_PERM_ID = "exp-123";
 
+    private static final long EXPERIMENT_ID = 333;
+
     private static final String URL1 = "url1";
 
     private static final String SESSION_TOKEN = "session";
@@ -125,7 +127,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
 
     private IImagingTransformerDAO transformerDAO;
 
-    private IHCSImageDatasetLoader imageLoader;
+    private IImagingDatasetLoader imageLoader;
 
     @BeforeMethod
     public void beforeMethod()
@@ -134,7 +136,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         service = context.mock(IEncapsulatedOpenBISService.class);
         dao = context.mock(IImagingReadonlyQueryDAO.class);
         transformerDAO = context.mock(IImagingTransformerDAO.class);
-        imageLoader = context.mock(IHCSImageDatasetLoader.class);
+        imageLoader = context.mock(IImagingDatasetLoader.class);
         transformerFactory = new ImageTransformerFactory();
         featureVectorDatasetIdentifier1 = create("ds1");
         featureVectorDatasetIdentifier2 = create("ds2");
@@ -155,8 +157,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                 new DssServiceRpcScreening("targets", dao, transformerDAO, service, false)
                     {
                         @Override
-                        IHCSImageDatasetLoader createImageLoader(String datasetCode,
-                                File datasetRoot)
+                        IImagingDatasetLoader createImageLoader(String datasetCode, File datasetRoot)
                         {
                             return imageLoader;
                         }
@@ -289,13 +290,13 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     Size thumbnailSize = new Size(2, 1);
                     one(imageLoader).tryGetImage(
                             channel,
-                            ImageChannelStackReference.createFromLocations(new Location(3, 1),
+                            ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(1, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
                             null, thumbnailSize)));
                     one(imageLoader).tryGetImage(
                             channel,
-                            ImageChannelStackReference.createFromLocations(new Location(3, 1),
+                            ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(2, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
                             null, thumbnailSize)));
@@ -336,8 +337,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).tryGetChannelByChannelCodeAndExperimentPermId(EXPERIMENT_PERM_ID,
-                            channel);
+                    one(dao).tryGetChannelForExperimentPermId(EXPERIMENT_PERM_ID, channel);
                     ImgChannelDTO channelDTO =
                             new ImgChannelDTO("dapi", null, null, new Long(42), null, "dapi");
                     channelDTO.setSerializedImageTransformerFactory(SerializationUtils
@@ -381,19 +381,27 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     }
 
     @Test
-    public void testSaveImageTransformerFactoryForChannel()
+    public void testSaveImageTransformerFactoryForDatasetChannel()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         final String channel = "dapi";
-        prepareGetExperimentPermIDs(ds1, ds2);
         context.checking(new Expectations()
             {
                 {
                     one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
 
-                    one(transformerDAO).saveTransformerFactoryForChannel(EXPERIMENT_PERM_ID,
-                            channel, transformerFactory);
+                    long datasetId = 123;
+                    ImgDatasetDTO dataset = createDataset(datasetId);
+
+                    one(dao).tryGetDatasetByPermId("ds1");
+                    will(returnValue(dataset));
+                    one(dao).tryGetDatasetByPermId("ds2");
+                    will(returnValue(dataset));
+
+                    exactly(2).of(transformerDAO).saveTransformerFactoryForDatasetChannel(
+                            datasetId, channel, transformerFactory);
+
                     one(transformerDAO).commit();
                 }
             });
@@ -404,25 +412,46 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    private ImgDatasetDTO createDataset(long datasetId)
+    {
+        ImgDatasetDTO dataset = new ImgDatasetDTO(null, null, null, null, false);
+        dataset.setId(datasetId);
+        return dataset;
+    }
+
     @Test
     public void testSaveImageTransformerFactoryForExperiment()
     {
         final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
-        final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
-        prepareGetExperimentPermIDs(ds1, ds2);
         context.checking(new Expectations()
             {
                 {
                     one(service).checkInstanceAdminAuthorization(SESSION_TOKEN);
 
-                    one(transformerDAO).saveTransformerFactoryForExperiment(EXPERIMENT_PERM_ID,
+                    Long containerId = 312L;
+
+                    long datasetId = 123;
+                    ImgDatasetDTO dataset = createDataset(datasetId);
+                    dataset.setContainerId(containerId);
+
+                    long experimentId = 888;
+                    ImgContainerDTO container = new ImgContainerDTO(null, null, null, experimentId);
+                    container.setId(containerId);
+
+                    one(dao).tryGetDatasetByPermId("ds1");
+                    will(returnValue(dataset));
+
+                    one(dao).getContainerById(containerId);
+                    will(returnValue(container));
+
+                    one(transformerDAO).saveTransformerFactoryForExperiment(experimentId,
                             transformerFactory);
                     one(transformerDAO).commit();
                 }
             });
 
         screeningService.saveImageTransformerFactory(SESSION_TOKEN,
-                Arrays.<IDatasetIdentifier> asList(ds1, ds2), ScreeningConstants.MERGED_CHANNELS,
+                Arrays.<IDatasetIdentifier> asList(ds1), ScreeningConstants.MERGED_CHANNELS,
                 transformerFactory);
 
         context.assertIsSatisfied();
@@ -436,6 +465,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     ExternalData externalData = new ExternalData();
                     Experiment experiment = new Experiment();
                     experiment.setPermId(EXPERIMENT_PERM_ID);
+                    experiment.setId(EXPERIMENT_ID);
                     externalData.setExperiment(experiment);
                     for (DatasetIdentifier datasetIdentifier : dataSetIdentifiers)
                     {

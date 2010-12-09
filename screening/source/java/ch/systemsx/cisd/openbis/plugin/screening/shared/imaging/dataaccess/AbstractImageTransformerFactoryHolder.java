@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess;
 
-import org.apache.commons.lang.SerializationUtils;
-
 import net.lemnik.eodsql.ResultColumn;
+
+import org.apache.commons.lang.SerializationUtils;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;

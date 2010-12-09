@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Tomasz Pylak
  */
+// TODO 2010-12-09, Tomasz Pylak: rename WellImageChannelStack -> ImageChannelStack
 public class WellImageChannelStack implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

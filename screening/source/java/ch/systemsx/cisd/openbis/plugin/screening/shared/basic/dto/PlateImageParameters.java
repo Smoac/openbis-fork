@@ -24,10 +24,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Describes geometry of the plate and well.
+ * Describes the images in the dataset: tiles geometry, channels, dataset code and plate geometry if
+ * it is HCS image.
  * 
  * @author Tomasz Pylak
  */
+// TODO 2010-12-09, Tomasz Pylak: rename: PlateImageParameters -> ImageDatasetParameters
 public class PlateImageParameters implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
@@ -35,9 +37,9 @@ public class PlateImageParameters implements ISerializable
     // dataset code for which plate parameters are valid
     private String datasetCode;
 
-    private int rowsNum;
+    private Integer rowsNumOrNull;
 
-    private int colsNum;
+    private Integer colsNumOrNull;
 
     private int tileRowsNum;
 
@@ -47,30 +49,30 @@ public class PlateImageParameters implements ISerializable
 
     private List<String> channelsLabels;
 
-    private Map<String, String> channelsTransformerFactorySignatures =
+    private Map<String/* channel code */, String/* signature */> channelsTransformerFactorySignatures =
             new HashMap<String, String>();
 
     // true if any well in the dataset has a time series (or depth stack) of images
     private boolean isMultidimensional;
 
-    public int getRowsNum()
+    public Integer tryGetRowsNum()
     {
-        return rowsNum;
+        return rowsNumOrNull;
     }
 
     public void setRowsNum(int rowsNum)
     {
-        this.rowsNum = rowsNum;
+        this.rowsNumOrNull = rowsNum;
     }
 
-    public int getColsNum()
+    public Integer tryGetColsNum()
     {
-        return colsNum;
+        return colsNumOrNull;
     }
 
     public void setColsNum(int colsNum)
     {
-        this.colsNum = colsNum;
+        this.colsNumOrNull = colsNum;
     }
 
     public int getTileRowsNum()

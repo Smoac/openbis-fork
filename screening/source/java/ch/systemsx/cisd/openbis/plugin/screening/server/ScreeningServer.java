@@ -150,8 +150,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 datasetId);
     }
 
-    public List<WellContent> listPlateWells(String sessionToken,
-            WellSearchCriteria materialCriteria)
+    public List<WellContent> listPlateWells(String sessionToken, WellSearchCriteria materialCriteria)
     {
         Session session = getSession(sessionToken);
         return WellContentLoader.load(session, businessObjectFactory, getDAOFactory(),
@@ -159,11 +158,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     }
 
     public List<WellImageChannelStack> listImageChannelStacks(String sessionToken,
-            String datasetCode, String datastoreCode, WellLocation wellLocation)
+            String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.loadImageChannelStacks(session, businessObjectFactory,
-                datasetCode, datastoreCode, wellLocation);
+                datasetCode, datastoreCode, wellLocationOrNull);
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)

@@ -22,7 +22,7 @@ import java.io.IOException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
 
@@ -45,7 +45,7 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
     protected final ResponseContentStream createImageResponse(TileImageReference params,
             File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
     {
-        IHCSImageDatasetLoader imageAccessor =
+        IImagingDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
         IContent image = ImageChannelsUtils.getImage(imageAccessor, params);
         return createResponseContentStream(image.getInputStream(), image.getSize(),

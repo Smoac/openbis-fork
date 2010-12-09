@@ -21,9 +21,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSDatasetLoader;
 
 /**
+ * Loades the requested image from the file system using the metadata from the database to find the
+ * image.
+ * 
  * @author Tomasz Pylak
  */
-public interface IHCSImageDatasetLoader extends IHCSDatasetLoader
+public interface IImagingDatasetLoader extends IHCSDatasetLoader
 {
     /**
      * @param chosenChannelCode start from 1

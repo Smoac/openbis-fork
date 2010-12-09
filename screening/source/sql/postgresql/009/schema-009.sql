@@ -72,6 +72,8 @@ CREATE TABLE DATA_SETS (
   CONT_ID TECH_ID,
   -- a redundant information if there are timepoint or depth stack data for any spots in this dataset
   IS_MULTIDIMENSIONAL BOOLEAN_CHAR NOT NULL,
+  -- transformation for merged channels on the dataset level, overrides experiment level transformation
+  IMAGE_TRANSFORMER_FACTORY BYTEA,
   
   PRIMARY KEY (ID),
   UNIQUE (PERM_ID),

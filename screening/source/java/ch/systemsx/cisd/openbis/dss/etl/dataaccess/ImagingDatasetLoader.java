@@ -18,19 +18,22 @@ package ch.systemsx.cisd.openbis.dss.etl.dataaccess;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IContentRepository;
-import ch.systemsx.cisd.openbis.dss.etl.IHCSImageDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference.LocationImageChannelStackReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference.HCSChannelStackByLocationReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgExperimentDTO;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgContainerDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgImageDTO;
 
 /**
@@ -39,11 +42,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgIm
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImageDatasetLoader
+public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDatasetLoader
 {
     private final IContentRepository contentRepository;
 
-    public HCSImageDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId,
+    public ImagingDatasetLoader(IImagingReadonlyQueryDAO query, String datasetPermId,
             IContentRepository contentRepository)
     {
         super(query, datasetPermId);
@@ -61,20 +64,9 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         {
             throw new UserFailureException("Unspecified channel.");
         }
-        LocationImageChannelStackReference stackLocations =
-                channelStackReference.tryGetChannelStackLocations();
-        if (stackLocations != null)
-        {
-            assert stackLocations.getTileLocation().getX() <= getDataset()
-                    .getFieldNumberOfColumns();
-            assert stackLocations.getTileLocation().getY() <= getDataset().getFieldNumberOfRows();
-            assert stackLocations.getWellLocation().getX() <= getContainer().getNumberOfColumns();
-            assert stackLocations.getWellLocation().getY() <= getContainer().getNumberOfRows();
-        }
+        validateChannelStackReference(channelStackReference);
 
-        ImgChannelDTO channel =
-                query.tryGetChannelByChannelCodeDatasetIdOrExperimentId(getDataset().getId(),
-                        getContainer().getExperimentId(), chosenChannelCode);
+        ImgChannelDTO channel = tryLoadChannel(chosenChannelCode);
         if (channel == null)
         {
             return null;
@@ -94,10 +86,59 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
         AbsoluteImageReference imgRef =
                 new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
                         thumbnailSizeOrNull);
+
         imgRef.setTransformerFactory(channel.getImageTransformerFactory());
-        ImgExperimentDTO experiment = query.tryGetExperimentById(getContainer().getExperimentId());
-        imgRef.setTransformerFactoryForMergedChannels(experiment.getImageTransformerFactory());
+        imgRef.setTransformerFactoryForMergedChannels(tryGetImageTransformerFactoryForMergedChannels());
+
         return imgRef;
+    }
+
+    private IImageTransformerFactory tryGetImageTransformerFactoryForMergedChannels()
+    {
+        IImageTransformerFactory imageTransformerFactory = dataset.getImageTransformerFactory();
+        if (imageTransformerFactory == null && experimentOrNull != null)
+        {
+            imageTransformerFactory = experimentOrNull.getImageTransformerFactory();
+        }
+        return imageTransformerFactory;
+    }
+
+    private ImgChannelDTO tryLoadChannel(String chosenChannelCode)
+    {
+        if (containerOrNull != null)
+        {
+            return query.tryGetChannelForExperiment(containerOrNull.getExperimentId(),
+                    chosenChannelCode);
+        } else
+        {
+            return query.tryGetChannelForDataset(dataset.getId(), chosenChannelCode);
+        }
+    }
+
+    private void validateChannelStackReference(ImageChannelStackReference channelStackReference)
+    {
+        HCSChannelStackByLocationReference hcsRef = channelStackReference.tryGetHCSChannelStack();
+        MicroscopyChannelStackByLocationReference micRef =
+                channelStackReference.tryGetMicroscopyChannelStack();
+        if (hcsRef != null)
+        {
+            validateTileReference(hcsRef.getTileLocation());
+            ImgContainerDTO container = tryGetContainer();
+            if (container != null)
+            {
+                assert hcsRef.getWellLocation().getX() <= container.getNumberOfColumns();
+                assert hcsRef.getWellLocation().getY() <= container.getNumberOfRows();
+            }
+        } else if (micRef != null)
+        {
+            validateTileReference(micRef.getTileLocation());
+        }
+    }
+
+    private void validateTileReference(Location tileLocation)
+    {
+        assert tileLocation.getX() <= getDataset().getFieldNumberOfColumns();
+        assert tileLocation.getY() <= getDataset().getFieldNumberOfRows();
     }
 
     private ImgImageDTO tryGetImageDTO(ImageChannelStackReference channelStackReference,
@@ -124,12 +165,16 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
     private ImgImageDTO tryGetImage(long channelId,
             ImageChannelStackReference channelStackReference, long datasetId)
     {
-        LocationImageChannelStackReference locations =
-                channelStackReference.tryGetChannelStackLocations();
-        if (locations != null)
+        HCSChannelStackByLocationReference hcsRef = channelStackReference.tryGetHCSChannelStack();
+        MicroscopyChannelStackByLocationReference micRef =
+                channelStackReference.tryGetMicroscopyChannelStack();
+        if (hcsRef != null)
         {
-            return query.tryGetImage(channelId, datasetId, locations.getTileLocation(), locations
-                    .getWellLocation());
+            return query.tryGetHCSImage(channelId, datasetId, hcsRef.getTileLocation(),
+                    hcsRef.getWellLocation());
+        } else if (micRef != null)
+        {
+            return query.tryGetMicroscopyImage(channelId, datasetId, micRef.getTileLocation());
         } else
         {
             Long channelStackId = channelStackReference.tryGetChannelStackId();
@@ -142,12 +187,16 @@ public class HCSImageDatasetLoader extends HCSDatasetLoader implements IHCSImage
     private ImgImageDTO tryGetThumbnail(long channelId,
             ImageChannelStackReference channelStackReference, long datasetId)
     {
-        LocationImageChannelStackReference locations =
-                channelStackReference.tryGetChannelStackLocations();
-        if (locations != null)
+        HCSChannelStackByLocationReference hcsRef = channelStackReference.tryGetHCSChannelStack();
+        MicroscopyChannelStackByLocationReference micRef =
+                channelStackReference.tryGetMicroscopyChannelStack();
+        if (hcsRef != null)
         {
-            return query.tryGetThumbnail(channelId, datasetId, locations.getTileLocation(),
-                    locations.getWellLocation());
+            return query.tryGetHCSThumbnail(channelId, datasetId, hcsRef.getTileLocation(),
+                    hcsRef.getWellLocation());
+        } else if (micRef != null)
+        {
+            return query.tryGetMicroscopyThumbnail(channelId, datasetId, micRef.getTileLocation());
         } else
         {
             Long channelStackId = channelStackReference.tryGetChannelStackId();
