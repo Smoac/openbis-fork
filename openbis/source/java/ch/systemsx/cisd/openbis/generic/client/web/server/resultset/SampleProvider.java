@@ -35,6 +35,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.SUBCODE;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
 {
+    private static final int MAX_PARENTS = 4;
     private final ListSampleDisplayCriteria2 criteria;
 
     public SampleProvider(ICommonServer commonServer, String sessionToken, ListSampleDisplayCriteria2 criteria)
@@ -109,8 +111,21 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
 
     private String getParents(Sample sample)
     {
-        Sample generatedFrom = sample.getGeneratedFrom();
-        return generatedFrom == null ? "" : generatedFrom.getIdentifier();
+        Set<Sample> parents = sample.getParents();
+        int parentsSize = parents.size();
+        StringBuilder builder = new StringBuilder();
+        int counter = 0;
+        for (Sample parent : parents)
+        {
+            if (counter == MAX_PARENTS)
+            {
+                builder.append("... (").append(parentsSize - MAX_PARENTS).append(" more)");
+                break;
+            }
+            builder.append(parent.getIdentifier()).append("\n");
+            counter++;
+        }
+        return builder.toString();
     }
 
     private String getContainer(Sample sample)

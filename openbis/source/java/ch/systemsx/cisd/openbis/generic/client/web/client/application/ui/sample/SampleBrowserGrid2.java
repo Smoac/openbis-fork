@@ -422,12 +422,12 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                         public String tryGetLink(Sample entity,
                                 ISerializableComparable comparableValue)
                         {
-                            Sample parent = entity.getGeneratedFrom();
-                            if (parent == null)
+                            if (entity.getParents().size() == 1)
                             {
-                                return null;
+                                Sample parent = entity.getGeneratedFrom();
+                                return LinkExtractor.tryExtract(parent);
                             }
-                            return LinkExtractor.tryExtract(parent);
+                            return null;
                         }
                     });
     }

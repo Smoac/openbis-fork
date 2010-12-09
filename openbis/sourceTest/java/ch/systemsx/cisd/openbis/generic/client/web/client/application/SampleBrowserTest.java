@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ChangeTableColumnSettingsCommand;
@@ -48,7 +48,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         ChangeTableColumnSettingsCommand settingsCommand =
-                new ChangeTableColumnSettingsCommand(SampleBrowserGrid.MAIN_GRID_ID);
+                new ChangeTableColumnSettingsCommand(SampleBrowserGrid2.MAIN_GRID_ID);
         settingsCommand.hiddenChangeEvent(CommonSampleColDefKind.CODE.name(), true);
         settingsCommand.widthChangeEvent(CommonSampleColDefKind.REGISTRATOR.name(),
                 2 * DEFAULT_COLUMN_WIDTH);
