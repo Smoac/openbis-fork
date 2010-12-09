@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -146,11 +146,11 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         }
     }
 
-    public ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult extract(
+    public ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult extract(
             File incomingDataSetDirectory, DataSetInformation dataSetInformation)
     {
         List<File> invalidFiles = new LinkedList<File>();
-        List<AcquiredPlateImage> acquiredImages = new ArrayList<AcquiredPlateImage>();
+        List<AcquiredSingleImage> acquiredImages = new ArrayList<AcquiredSingleImage>();
         List<File> imageFiles = ImageFileExtractorUtils.listImageFiles(incomingDataSetDirectory);
         for (final File imageFile : imageFiles)
         {
@@ -165,7 +165,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
             if (imageInfo != null)
             {
-                List<AcquiredPlateImage> newImages = getImages(imageInfo);
+                List<AcquiredSingleImage> newImages = getImages(imageInfo);
                 acquiredImages.addAll(newImages);
                 if (operationLog.isDebugEnabled())
                 {
@@ -180,18 +180,18 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
                 invalidFiles.add(imageFile);
             }
         }
-        return new HCSImageFileExtractionResult(acquiredImages,
+        return new ImageFileExtractionResult(acquiredImages,
                 Collections.unmodifiableList(invalidFiles), getAllChannels());
 
     }
 
-    private List<AcquiredPlateImage> getImages(ImageFileInfo imageInfo)
+    private List<AcquiredSingleImage> getImages(ImageFileInfo imageInfo)
     {
         checkChannelsAndColorComponents();
 
         if (channelColorComponentsOrNull != null)
         {
-            List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
+            List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
             for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
             {
                 ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
@@ -273,21 +273,21 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
                 channelDescriptions);
     }
 
-    protected final static List<AcquiredPlateImage> createImagesWithNoColorComponent(
+    protected final static List<AcquiredSingleImage> createImagesWithNoColorComponent(
             ImageFileInfo imageInfo)
     {
-        List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
+        List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
         images.add(createImage(imageInfo, null));
         return images;
     }
 
-    protected final static AcquiredPlateImage createImage(ImageFileInfo imageInfo,
+    protected final static AcquiredSingleImage createImage(ImageFileInfo imageInfo,
             ColorComponent colorComponentOrNull)
     {
         RelativeImageReference relativeImageRef =
                 new RelativeImageReference(imageInfo.getImageRelativePath(), null,
                         colorComponentOrNull);
-        return new AcquiredPlateImage(imageInfo.tryGetWellLocation(), imageInfo.getTileLocation(),
+        return new AcquiredSingleImage(imageInfo.tryGetWellLocation(), imageInfo.getTileLocation(),
                 imageInfo.getChannelCode(), imageInfo.tryGetTimepoint(), imageInfo.tryGetDepth(),
                 relativeImageRef);
     }

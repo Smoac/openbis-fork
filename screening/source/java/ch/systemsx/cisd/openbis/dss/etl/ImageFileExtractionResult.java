@@ -23,18 +23,17 @@ import java.util.List;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2010-12-08, Tomasz Pylak: change to ImageFileExtractionResult 
-public final class HCSImageFileExtractionResult
+public final class ImageFileExtractionResult
 {
     /** The images files with description. */
-    private final List<AcquiredPlateImage> images;
+    private final List<AcquiredSingleImage> images;
 
     /** The invalid files found. */
     private final List<File> invalidFiles;
 
     private final List<Channel> channels;
 
-    public HCSImageFileExtractionResult(List<AcquiredPlateImage> images, List<File> invalidFiles,
+    public ImageFileExtractionResult(List<AcquiredSingleImage> images, List<File> invalidFiles,
             List<Channel> channels)
     {
         this.images = images;
@@ -42,7 +41,7 @@ public final class HCSImageFileExtractionResult
         this.channels = channels;
     }
 
-    public List<AcquiredPlateImage> getImages()
+    public List<AcquiredSingleImage> getImages()
     {
         return images;
     }

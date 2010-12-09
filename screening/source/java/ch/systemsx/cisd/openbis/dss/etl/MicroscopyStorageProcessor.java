@@ -48,9 +48,9 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
 
     @Override
     protected void storeInDatabase(IImagingQueryDAO dao, DataSetInformation dataSetInformation,
-            HCSImageFileExtractionResult extractedImages)
+            ImageFileExtractionResult extractedImages)
     {
-        List<AcquiredPlateImage> images = extractedImages.getImages();
+        List<AcquiredSingleImage> images = extractedImages.getImages();
         MicroscopyImageDatasetInfo dataset =
                 createMicroscopyImageDatasetInfo(dataSetInformation, images);
 
@@ -58,7 +58,7 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
     }
 
     private MicroscopyImageDatasetInfo createMicroscopyImageDatasetInfo(
-            DataSetInformation dataSetInformation, List<AcquiredPlateImage> images)
+            DataSetInformation dataSetInformation, List<AcquiredSingleImage> images)
     {
         boolean hasImageSeries = hasImageSeries(images);
         return new MicroscopyImageDatasetInfo(dataSetInformation.getDataSetCode(),
@@ -67,7 +67,7 @@ public class MicroscopyStorageProcessor extends AbstractImageStorageProcessor
 
     @Override
     protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
-            File incomingDataSetDirectory, HCSImageFileExtractionResult extractionResult)
+            File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
     {
         // do nothing - for now we do not have good examples of real data
     }

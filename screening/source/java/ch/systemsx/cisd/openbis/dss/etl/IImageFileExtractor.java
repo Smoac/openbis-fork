@@ -37,6 +37,6 @@ public interface IImageFileExtractor
      * 
      * @return the extraction result.
      */
-    public HCSImageFileExtractionResult extract(final File incomingDataSetDirectory,
+    public ImageFileExtractionResult extract(final File incomingDataSetDirectory,
             DataSetInformation dataSetInformation);
 }

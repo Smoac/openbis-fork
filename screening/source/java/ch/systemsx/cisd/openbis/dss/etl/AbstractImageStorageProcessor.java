@@ -92,7 +92,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
      * @param dao should not be commited or rollbacked, it's done outside of this method.
      */
     abstract protected void storeInDatabase(IImagingQueryDAO dao,
-            DataSetInformation dataSetInformation, HCSImageFileExtractionResult extractedImages);
+            DataSetInformation dataSetInformation, ImageFileExtractionResult extractedImages);
 
     /**
      * Additional imgae validation (e.g. are there all images that were expected?). Prints warnings
@@ -100,7 +100,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
      */
     abstract protected void validateImages(DataSetInformation dataSetInformation,
             IMailClient mailClient, File incomingDataSetDirectory,
-            HCSImageFileExtractionResult extractionResult);
+            ImageFileExtractionResult extractionResult);
 
     // --------------------------------------------
 
@@ -319,11 +319,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
         assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";
 
-        HCSImageFileExtractionResult extractionResult =
+        ImageFileExtractionResult extractionResult =
                 extractImages(dataSetInformation, incomingDataSetDirectory);
 
         validateImages(dataSetInformation, mailClient, incomingDataSetDirectory, extractionResult);
-        List<AcquiredPlateImage> plateImages = extractionResult.getImages();
+        List<AcquiredSingleImage> plateImages = extractionResult.getImages();
 
         File imagesInStoreFolder = moveToStore(incomingDataSetDirectory, rootDirectory);
 
@@ -334,7 +334,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return rootDirectory;
     }
 
-    private void processImages(final File rootDirectory, List<AcquiredPlateImage> plateImages,
+    private void processImages(final File rootDirectory, List<AcquiredSingleImage> plateImages,
             File imagesInStoreFolder)
     {
         generateThumbnails(plateImages, rootDirectory, imagesInStoreFolder);
@@ -346,7 +346,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
     // returns the prefix which should be added before each image path to create a path relative to
     // the dataset folder
     private String packageImagesIfNecessary(final File rootDirectory,
-            List<AcquiredPlateImage> plateImages, File imagesInStoreFolder)
+            List<AcquiredSingleImage> plateImages, File imagesInStoreFolder)
     {
         if (originalDataStorageFormat.isHdf5())
         {
@@ -388,7 +388,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
     }
 
     // modifies plateImages by setting the path to thumbnails
-    private void generateThumbnails(final List<AcquiredPlateImage> plateImages,
+    private void generateThumbnails(final List<AcquiredSingleImage> plateImages,
             final File rootDirectory, final File imagesInStoreFolder)
     {
         final File thumbnailsFile =
@@ -406,9 +406,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
     }
 
     private void updateImagesRelativePath(String folderPathPrefix,
-            final List<AcquiredPlateImage> plateImages)
+            final List<AcquiredSingleImage> plateImages)
     {
-        for (AcquiredPlateImage plateImage : plateImages)
+        for (AcquiredSingleImage plateImage : plateImages)
         {
             RelativeImageReference imageReference = plateImage.getImageReference();
             imageReference.setRelativeImageFolder(folderPathPrefix);
@@ -427,11 +427,11 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return imgDir.substring(root.length());
     }
 
-    private HCSImageFileExtractionResult extractImages(final DataSetInformation dataSetInformation,
+    private ImageFileExtractionResult extractImages(final DataSetInformation dataSetInformation,
             final File incomingDataSetDirectory)
     {
         long extractionStart = System.currentTimeMillis();
-        final HCSImageFileExtractionResult result =
+        final ImageFileExtractionResult result =
                 getImageFileExtractor(incomingDataSetDirectory).extract(incomingDataSetDirectory,
                         dataSetInformation);
 
@@ -554,7 +554,7 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
     }
 
     private void storeInDatabase(DataSetInformation dataSetInformation,
-            HCSImageFileExtractionResult extractionResult)
+            ImageFileExtractionResult extractionResult)
     {
         if (currentTransaction != null)
         {
@@ -716,9 +716,9 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return channelCodes.get(channelId - 1);
     }
 
-    protected static boolean hasImageSeries(List<AcquiredPlateImage> images)
+    protected static boolean hasImageSeries(List<AcquiredSingleImage> images)
     {
-        for (AcquiredPlateImage image : images)
+        for (AcquiredSingleImage image : images)
         {
             if (image.tryGetTimePoint() != null || image.tryGetDepth() != null)
             {

@@ -77,10 +77,10 @@ abstract class AbstractImageDatasetUploader
 
     protected static interface ISpotProvider
     {
-        Long tryGetSpotId(AcquiredPlateImage image);
+        Long tryGetSpotId(AcquiredSingleImage image);
     }
 
-    protected final void createImages(List<AcquiredPlateImage> images, ISpotProvider spotProvider,
+    protected final void createImages(List<AcquiredSingleImage> images, ISpotProvider spotProvider,
             ImagingChannelsMap channelsMap, long datasetId)
     {
         Map<ImgChannelStackDTO, List<AcquiredImageInStack>> stackImagesMap =
@@ -90,11 +90,11 @@ abstract class AbstractImageDatasetUploader
     }
 
     private Map<ImgChannelStackDTO, List<AcquiredImageInStack>> makeStackImagesMap(
-            List<AcquiredPlateImage> images, ISpotProvider spotProvider, long datasetId)
+            List<AcquiredSingleImage> images, ISpotProvider spotProvider, long datasetId)
     {
         Map<ImgChannelStackDTO, List<AcquiredImageInStack>> map =
                 new HashMap<ImgChannelStackDTO, List<AcquiredImageInStack>>();
-        for (AcquiredPlateImage image : images)
+        for (AcquiredSingleImage image : images)
         {
             ImgChannelStackDTO stackDTO = makeStackDtoWithouId(image, spotProvider, datasetId);
             List<AcquiredImageInStack> stackImages = map.get(stackDTO);
@@ -117,13 +117,13 @@ abstract class AbstractImageDatasetUploader
         }
     }
 
-    private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredPlateImage image)
+    private static AcquiredImageInStack makeAcquiredImageInStack(AcquiredSingleImage image)
     {
         return new AcquiredImageInStack(image.getChannelCode(), image.getImageReference(),
                 image.getThumbnailFilePathOrNull());
     }
 
-    private ImgChannelStackDTO makeStackDtoWithouId(AcquiredPlateImage image,
+    private ImgChannelStackDTO makeStackDtoWithouId(AcquiredSingleImage image,
             ISpotProvider spotProvider, long datasetId)
     {
         Long spotId = spotProvider.tryGetSpotId(image);

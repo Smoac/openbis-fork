@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  */
 class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 {
-    private final List<AcquiredPlateImage> plateImages;
+    private final List<AcquiredSingleImage> plateImages;
 
     private final File imagesInStoreFolder;
 
@@ -50,7 +50,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
 
     private final Logger operationLog;
 
-    Hdf5ThumbnailGenerator(List<AcquiredPlateImage> plateImages, File imagesInStoreFolder,
+    Hdf5ThumbnailGenerator(List<AcquiredSingleImage> plateImages, File imagesInStoreFolder,
             int thumbnailMaxWidth, int thumbnailMaxHeight, String relativeThumbnailFilePath,
             Logger operationLog)
     {
@@ -65,7 +65,7 @@ class Hdf5ThumbnailGenerator implements IHdf5WriterClient
     public void runWithSimpleWriter(IHDF5SimpleWriter writer)
     {
 
-        for (AcquiredPlateImage plateImage : plateImages)
+        for (AcquiredSingleImage plateImage : plateImages)
         {
             RelativeImageReference imageReference = plateImage.getImageReference();
             String imagePath = imageReference.getRelativeImagePath();

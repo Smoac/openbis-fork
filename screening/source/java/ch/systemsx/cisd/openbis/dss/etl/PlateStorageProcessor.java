@@ -75,7 +75,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
     private static final class HCSImageFileAccepter implements IHCSImageFileAccepter
     {
-        private final List<AcquiredPlateImage> images = new ArrayList<AcquiredPlateImage>();
+        private final List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
 
         private final File imageFileRootDirectory;
 
@@ -95,13 +95,13 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                             new File(imageFile.getPath()));
             assert imageRelativePath != null : "Image relative path should not be null.";
             String channelCode = getChannelCodeOrLabel(channelCodes, channel);
-            AcquiredPlateImage imageDesc =
-                    new AcquiredPlateImage(wellLocation, tileLocation, channelCode, null, null,
+            AcquiredSingleImage imageDesc =
+                    new AcquiredSingleImage(wellLocation, tileLocation, channelCode, null, null,
                             new RelativeImageReference(imageRelativePath, null, null));
             images.add(imageDesc);
         }
 
-        public List<AcquiredPlateImage> getImages()
+        public List<AcquiredSingleImage> getImages()
         {
             return images;
         }
@@ -114,7 +114,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
     {
         return new IImageFileExtractor()
             {
-                public HCSImageFileExtractionResult extract(File incomingDataSetDirectory,
+                public ImageFileExtractionResult extract(File incomingDataSetDirectory,
                         DataSetInformation dataSetInformation)
                 {
                     HCSImageFileAccepter accepter =
@@ -124,19 +124,19 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                             extractor.process(
                                     NodeFactory.createDirectoryNode(incomingDataSetDirectory),
                                     dataSetInformation, accepter);
-                    List<HCSImageFileExtractionResult.Channel> channels =
+                    List<ImageFileExtractionResult.Channel> channels =
                             convert(originalResult.getChannels());
-                    return new HCSImageFileExtractionResult(accepter.getImages(),
+                    return new ImageFileExtractionResult(accepter.getImages(),
                             asRelativePaths(originalResult.getInvalidFiles()), channels);
                 }
 
-                private List<HCSImageFileExtractionResult.Channel> convert(Set<Channel> channels)
+                private List<ImageFileExtractionResult.Channel> convert(Set<Channel> channels)
                 {
-                    List<HCSImageFileExtractionResult.Channel> result =
-                            new ArrayList<HCSImageFileExtractionResult.Channel>();
+                    List<ImageFileExtractionResult.Channel> result =
+                            new ArrayList<ImageFileExtractionResult.Channel>();
                     for (Channel channel : channels)
                     {
-                        result.add(new HCSImageFileExtractionResult.Channel(getChannelCodeOrLabel(
+                        result.add(new ImageFileExtractionResult.Channel(getChannelCodeOrLabel(
                                 extractChannelCodes(descriptions), channel.getCounter()), null,
                                 channel.getWavelength(), getChannelCodeOrLabel(
                                         extractChannelLabels(descriptions), channel.getCounter())));
@@ -158,7 +158,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
     @Override
     protected void validateImages(DataSetInformation dataSetInformation, IMailClient mailClient,
-            File incomingDataSetDirectory, HCSImageFileExtractionResult extractionResult)
+            File incomingDataSetDirectory, ImageFileExtractionResult extractionResult)
     {
         HCSImageCheckList imageCheckList = createImageCheckList(dataSetInformation);
         checkImagesForDuplicates(extractionResult, imageCheckList);
@@ -178,11 +178,11 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
                 mailClient);
     }
 
-    private static void checkImagesForDuplicates(HCSImageFileExtractionResult extractionResult,
+    private static void checkImagesForDuplicates(ImageFileExtractionResult extractionResult,
             HCSImageCheckList imageCheckList)
     {
-        List<AcquiredPlateImage> images = extractionResult.getImages();
-        for (AcquiredPlateImage image : images)
+        List<AcquiredSingleImage> images = extractionResult.getImages();
+        for (AcquiredSingleImage image : images)
         {
             imageCheckList.checkOff(image);
         }
@@ -259,18 +259,18 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
 
     @Override
     protected void storeInDatabase(IImagingQueryDAO dao, DataSetInformation dataSetInformation,
-            HCSImageFileExtractionResult extractedImages)
+            ImageFileExtractionResult extractedImages)
     {
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         assert experiment != null : "experiment is null";
-        List<AcquiredPlateImage> images = extractedImages.getImages();
+        List<AcquiredSingleImage> images = extractedImages.getImages();
         HCSImageDatasetInfo info = createImageDatasetInfo(experiment, dataSetInformation, images);
 
         HCSImageDatasetUploader.upload(dao, info, images, extractedImages.getChannels());
     }
 
     private HCSImageDatasetInfo createImageDatasetInfo(Experiment experiment,
-            DataSetInformation dataSetInformation, List<AcquiredPlateImage> acquiredImages)
+            DataSetInformation dataSetInformation, List<AcquiredSingleImage> acquiredImages)
     {
         HCSContainerDatasetInfo info =
                 HCSContainerDatasetInfo.createScreeningDatasetInfo(dataSetInformation);

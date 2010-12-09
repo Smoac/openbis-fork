@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgSp
 public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
 {
     public static void upload(IImagingQueryDAO dao, HCSImageDatasetInfo info,
-            List<AcquiredPlateImage> images, List<HCSImageFileExtractionResult.Channel> channels)
+            List<AcquiredSingleImage> images, List<ImageFileExtractionResult.Channel> channels)
     {
         new HCSImageDatasetUploader(dao).upload(info, images, channels);
     }
@@ -43,8 +43,8 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
         super(dao);
     }
 
-    private void upload(HCSImageDatasetInfo info, List<AcquiredPlateImage> images,
-            List<HCSImageFileExtractionResult.Channel> channels)
+    private void upload(HCSImageDatasetInfo info, List<AcquiredSingleImage> images,
+            List<ImageFileExtractionResult.Channel> channels)
     {
         ExperimentWithChannelsAndContainer basicStruct =
                 ImagingDatabaseHelper.getOrCreateExperimentWithChannelsAndContainer(
@@ -63,14 +63,14 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
     {
         return new ISpotProvider()
             {
-                public Long tryGetSpotId(AcquiredPlateImage image)
+                public Long tryGetSpotId(AcquiredSingleImage image)
                 {
                     return findSpotId(image, spotIds);
                 }
             };
     }
 
-    private static long findSpotId(AcquiredPlateImage image, Long[][] spotIds)
+    private static long findSpotId(AcquiredSingleImage image, Long[][] spotIds)
     {
         int wellRow = image.getWellRow();
         int wellColumn = image.getWellColumn();
@@ -83,7 +83,7 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
     // spot at (row,col)
     // does not exist. Spot coordinates are 0-based in the matrix.
     private Long[][] getOrCreateSpots(long contId, HCSContainerDatasetInfo info,
-            List<AcquiredPlateImage> images)
+            List<AcquiredSingleImage> images)
     {
         List<ImgSpotDTO> oldSpots = dao.listSpots(contId);
         List<ImgSpotDTO> newSpots =
@@ -93,7 +93,7 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
         return makeTechIdMatrix(newSpots, info.getContainerRows(), info.getContainerColumns());
     }
 
-    private List<ImgSpotDTO> createNewSpots(long contId, List<AcquiredPlateImage> images,
+    private List<ImgSpotDTO> createNewSpots(long contId, List<AcquiredSingleImage> images,
             List<ImgSpotDTO> existingSpots, int rows, int columns, String containerPermId)
     {
         Boolean[][] newSpotMatrix = extractNewSpots(rows, columns, images, existingSpots);
@@ -107,7 +107,7 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
     }
 
     private static Boolean[][] extractNewSpots(int rows, int columns,
-            List<AcquiredPlateImage> images, List<ImgSpotDTO> existingSpots)
+            List<AcquiredSingleImage> images, List<ImgSpotDTO> existingSpots)
     {
         Boolean[][] spots = extractExistingSpots(rows, columns, images);
         unmarkSpots(existingSpots, spots);
@@ -115,10 +115,10 @@ public class HCSImageDatasetUploader extends AbstractImageDatasetUploader
     }
 
     private static Boolean[][] extractExistingSpots(int rows, int columns,
-            List<AcquiredPlateImage> images)
+            List<AcquiredSingleImage> images)
     {
         Boolean[][] spots = new Boolean[rows][columns];
-        for (AcquiredPlateImage image : images)
+        for (AcquiredSingleImage image : images)
         {
             spots[image.getWellRow() - 1][image.getWellColumn() - 1] = true;
         }

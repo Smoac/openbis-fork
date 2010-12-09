@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageFileExtractionResult.Channel;
+import ch.systemsx.cisd.openbis.dss.etl.ImageFileExtractionResult.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDatasetDTO;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgDa
 public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
 {
     public static void upload(IImagingQueryDAO dao, MicroscopyImageDatasetInfo dataset,
-            List<AcquiredPlateImage> images, List<HCSImageFileExtractionResult.Channel> channels)
+            List<AcquiredSingleImage> images, List<ImageFileExtractionResult.Channel> channels)
     {
         new MicroscopyImageDatasetUploader(dao).upload(dataset, images, channels);
     }
@@ -41,7 +41,7 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
         super(dao);
     }
 
-    private void upload(MicroscopyImageDatasetInfo dataset, List<AcquiredPlateImage> images,
+    private void upload(MicroscopyImageDatasetInfo dataset, List<AcquiredSingleImage> images,
             List<Channel> channels)
     {
         long datasetId = createMicroscopyDataset(dataset);
@@ -54,7 +54,7 @@ public class MicroscopyImageDatasetUploader extends AbstractImageDatasetUploader
     {
         return new ISpotProvider()
             {
-                public Long tryGetSpotId(AcquiredPlateImage image)
+                public Long tryGetSpotId(AcquiredSingleImage image)
                 {
                     return null;
                 }

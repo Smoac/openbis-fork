@@ -84,7 +84,7 @@ public final class HCSImageCheckList
                 * plateGeometry.getRowsNum() * wellGeometry.getColumns() * wellGeometry.getRows() : "Wrong map size";
     }
 
-    public final void checkOff(AcquiredPlateImage image)
+    public final void checkOff(AcquiredSingleImage image)
     {
         assert image != null : "Unspecified image.";
         FullLocation location = createLocation(image);
@@ -107,7 +107,7 @@ public final class HCSImageCheckList
         check.checkOff(timepointOrNull, depthOrNull);
     }
 
-    private static FullLocation createLocation(AcquiredPlateImage image)
+    private static FullLocation createLocation(AcquiredSingleImage image)
     {
         return new FullLocation(image.getWellRow(), image.getWellColumn(), image.getTileRow(),
                 image.getTileColumn(), image.getChannelCode());

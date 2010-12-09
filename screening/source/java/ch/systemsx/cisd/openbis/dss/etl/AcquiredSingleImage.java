@@ -25,8 +25,7 @@ import ch.systemsx.cisd.common.utilities.AbstractHashable;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2010-12-08, Tomasz Pylak: rename to AcquiredSingleImage
-public class AcquiredPlateImage extends AbstractHashable
+public class AcquiredSingleImage extends AbstractHashable
 {
     // null for non-HCS images
     private final Location wellLocationOrNull;
@@ -43,7 +42,7 @@ public class AcquiredPlateImage extends AbstractHashable
 
     private RelativeImageReference thumbnailFilePathOrNull;
 
-    public AcquiredPlateImage(Location wellLocationOrNull, Location tileLocation,
+    public AcquiredSingleImage(Location wellLocationOrNull, Location tileLocation,
             String channelCode, Float timePointOrNull, Float depthOrNull,
             RelativeImageReference imageFilePath)
     {
