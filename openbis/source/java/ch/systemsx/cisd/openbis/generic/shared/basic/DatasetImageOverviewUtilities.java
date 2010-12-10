@@ -31,13 +31,13 @@ public class DatasetImageOverviewUtilities
     /** The HTTP URL parameter used to specify the data set type code. */
     public static final String TYPE_PARAMETER_KEY = "type";
 
-    /** The HTTP URL parameter used to specify the resolution of image. */
+    /** The HTTP URL parameter used to specify the resolution of a requested image. */
     public static final String RESOLUTION_PARAMETER_KEY = "resolution";
 
     /** The HTTP URL parameter used to specify the DSS session id. */
     public static final String SESSION_ID_PARAM = "session_id";
 
-    public final static String createLink(final String dssBaseURL, final String permId,
+    private final static String createLink(final String dssBaseURL, final String permId,
             final String typeCode, final ImageResolutionKind resolution, final String sessionId)
     {
         URLMethodWithParameters ulrWithParameters =

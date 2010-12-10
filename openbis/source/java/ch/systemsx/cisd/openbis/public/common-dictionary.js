@@ -32,7 +32,7 @@ var common = {
   tab_link: "Link",
   tab_link_message: "Copy this {0} and use it to access openBIS with current tab opened.",
   permlink_column_name: "Permlink",
-  show_details_link_column_name: "Overview",
+  overview_column_name: "Overview",
   show_details_link_column_name: "Show Details Link",
   show_details_link_text_value: "Permlink",
   table_operations: "Table:",

@@ -54,7 +54,10 @@ public class WebClientConfigurationProvider
     private static final String HIDE_FILE_VIEW = "hide-file-view";
 
     private static final String DEFAULT_VIEW_MODE = "default-view-mode";
-    
+
+    private static final String DATA_SET_TYPES_WITH_IMAGE_OVERVIEW =
+            "data-set-types-with-image-overview";
+
     static final String TECHNOLOGIES = "technologies";
 
     private WebClientConfiguration webClientConfiguration = new WebClientConfiguration();
@@ -68,7 +71,7 @@ public class WebClientConfigurationProvider
         Properties properties = PropertyUtils.loadProperties(configurationFile);
         init(properties);
     }
-    
+
     WebClientConfigurationProvider(Properties properties)
     {
         init(properties);
@@ -77,6 +80,8 @@ public class WebClientConfigurationProvider
     private void init(Properties properties)
     {
         webClientConfiguration.setDefaultViewMode(extractDefaultViewMode(properties));
+        webClientConfiguration
+                .setDataSetTypesWithImageOverview(extractDataSetTypesWithImageOverview(properties));
         webClientConfiguration.setViews(extractHiddenSections(properties));
         SectionProperties[] props =
                 PropertyParametersUtil.extractSectionProperties(properties, TECHNOLOGIES, false);
@@ -135,6 +140,18 @@ public class WebClientConfigurationProvider
     private List<String> extractEntityTypes(Properties viewProperties)
     {
         return PropertyUtils.getMandatoryList(viewProperties, TYPES);
+    }
+
+    private Set<String> extractDataSetTypesWithImageOverview(Properties properties)
+    {
+        List<String> list =
+                PropertyUtils.tryGetList(properties, DATA_SET_TYPES_WITH_IMAGE_OVERVIEW);
+        Set<String> result = new HashSet<String>();
+        if (list != null)
+        {
+            result.addAll(list);
+        }
+        return result;
     }
 
     private String extractViewId(Properties viewProperties)

@@ -32,6 +32,8 @@ public class DetailViewConfiguration implements ISerializable
 
     private Set<String> disabledTabs = new HashSet<String>();
 
+    private Set<String> dataSetTypesWithImageOverview = new HashSet<String>();
+
     private boolean hideSmartView = false;
 
     private boolean hideFileView = false;
@@ -48,6 +50,16 @@ public class DetailViewConfiguration implements ISerializable
     public void setDisabledTabs(Set<String> disabledTabs)
     {
         this.disabledTabs = disabledTabs;
+    }
+
+    public Set<String> getDataSetTypesWithImageOverview()
+    {
+        return dataSetTypesWithImageOverview;
+    }
+
+    public void setDataSetTypesWithImageOverview(Set<String> dataSetTypesWithImageOverview)
+    {
+        this.dataSetTypesWithImageOverview = dataSetTypesWithImageOverview;
     }
 
     public void setHideSmartView(boolean hideSmartView)

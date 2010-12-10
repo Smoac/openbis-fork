@@ -350,16 +350,25 @@ public abstract class AbstractExternalDataGrid
                         Grid<BaseEntityModel<?>> grid)
                 {
                     ExternalData dataset = (ExternalData) model.getBaseObject();
-                    return createOverviewLink(dataset);
+                    return tryCreateOverviewLink(dataset);
                 }
 
-                private String createOverviewLink(ExternalData dataset)
+                private String tryCreateOverviewLink(ExternalData dataset)
                 {
                     final String permId = dataset.getPermId();
                     final String dssBaseURL = dataset.getDataStore().getHostUrl();
                     final String typeCode = dataset.getDataSetType().getCode();
-                    return DatasetImageOverviewUtilities.createEmbededImageHtml(dssBaseURL, permId,
-                            typeCode, sessionID);
+                    final Set<String> typesWithImageOverview =
+                            viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
+                                    .getDataSetTypesWithImageOverview();
+                    if (typesWithImageOverview.contains(typeCode))
+                    {
+                        return DatasetImageOverviewUtilities.createEmbededImageHtml(dssBaseURL,
+                                permId, typeCode, sessionID);
+                    } else
+                    {
+                        return null;
+                    }
                 }
             };
 

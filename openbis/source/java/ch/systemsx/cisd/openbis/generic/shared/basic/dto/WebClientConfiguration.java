@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ViewMode;
@@ -36,6 +38,8 @@ public class WebClientConfiguration implements ISerializable
 
     private Map<String, Map<String, String>> technologyProperties =
             new HashMap<String, Map<String, String>>();
+
+    private Set<String> dataSetTypesWithImageOverview = new HashSet<String>();
 
     private ViewMode defaultViewMode;
 
@@ -68,6 +72,16 @@ public class WebClientConfiguration implements ISerializable
     public void setDefaultViewMode(ViewMode defaultViewMode)
     {
         this.defaultViewMode = defaultViewMode;
+    }
+
+    public Set<String> getDataSetTypesWithImageOverview()
+    {
+        return dataSetTypesWithImageOverview;
+    }
+
+    public void setDataSetTypesWithImageOverview(Set<String> dataSetTypesWithImageOverview)
+    {
+        this.dataSetTypesWithImageOverview = dataSetTypesWithImageOverview;
     }
 
     public WebClientConfiguration()
