@@ -76,7 +76,7 @@ public class LogicalImageViewer
                     String sessionId = getSessionId(viewContext);
                     int imageWidth = getImageWidth(logicalImageReference);
                     int imageHeight = getImageHeight(logicalImageReference);
-                    return WellContentTimepointsViewer.createTilesGrid(sessionId,
+                    return LogicalImageSeriesViewer.create(sessionId,
                             channelStackImages, logicalImageReference, channel, imageWidth,
                             imageHeight);
                 }
