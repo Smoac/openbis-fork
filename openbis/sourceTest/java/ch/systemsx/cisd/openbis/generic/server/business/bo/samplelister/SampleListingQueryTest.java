@@ -47,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for {@link ISampleListingQuery}.
@@ -300,7 +300,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         final long experimentId = experiment.getId();
 
         int sampleCount = 0;
-        for (SampleRecord sample : query.getSamplesForExperiment(experimentId))
+        for (SampleRecord sample : query.getListableSamplesForExperiment(experimentId))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);

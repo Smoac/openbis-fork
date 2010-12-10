@@ -146,7 +146,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var>
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
+    @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id  "
             + " where g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3}       "
             + " order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getGroupSamplesForSampleType(long dbInstanceId,
@@ -204,8 +204,9 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the samples for the given <var>experimentId</var>.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " where s.expe_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSamplesForExperiment(long experimentId);
+    @Select(sql = SELECT_FROM_SAMPLES_S + " JOIN sample_types st ON s.saty_id=st.id"
+            + " WHERE st.is_listable AND s.expe_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getListableSamplesForExperiment(long experimentId);
 
     //
     // Samples for container
