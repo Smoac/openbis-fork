@@ -139,6 +139,34 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(thumbnail1, thumbnail1bis);
     }
 
+    // FIXME 2010-12-10, Tomasz Pylak: uncomment when representative image functionality will be
+    // implemented
+    // @Test
+    // public void testCreateMicroscopyDatasetWithSeries()
+    // {
+    // long datasetId = addDataset(DS_PERM_ID + "3", null);
+    // long channelId = addDatasetChannel(datasetId);
+    // long channelStackId = addChannelStack(datasetId, null, TIMEPOINT, DEPTH);
+    // long imageId1 = addImage(MICROSCOPY_IMAGE_PATH2, ColorComponent.BLUE);
+    // addAcquiredImage(imageId1, channelStackId, channelId);
+    //
+    // Location tileLocation = new Location(X_TILE_COLUMN, Y_TILE_ROW);
+    // // if there are any time/depth series, this method should return null
+    // ImgImageDTO image1 = dao.tryGetMicroscopyImage(channelId, datasetId, tileLocation);
+    // assertNull(image1);
+    //
+    // // but this one should not!
+    // ImgImageDTO image1bis = dao.tryGetImage(channelId, channelStackId, datasetId);
+    // assertEquals(MICROSCOPY_IMAGE_PATH2, image1bis.getFilePath());
+    //
+    // // the same applies for thumbnails
+    // ImgImageDTO thumbnail1 = dao.tryGetMicroscopyThumbnail(channelId, datasetId, tileLocation);
+    // assertNull(thumbnail1);
+    //
+    // ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId, channelStackId, datasetId);
+    // assertEquals(image1bis, thumbnail1bis);
+    // }
+
     @Test
     public void testCreateMicroscopyDatasetWithSeries()
     {
@@ -151,18 +179,19 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         Location tileLocation = new Location(X_TILE_COLUMN, Y_TILE_ROW);
         // if there are any time/depth series, this method should return null
         ImgImageDTO image1 = dao.tryGetMicroscopyImage(channelId, datasetId, tileLocation);
-        assertNull(image1);
 
         // but this one should not!
         ImgImageDTO image1bis = dao.tryGetImage(channelId, channelStackId, datasetId);
         assertEquals(MICROSCOPY_IMAGE_PATH2, image1bis.getFilePath());
+        assertEquals(image1, image1bis);
 
         // the same applies for thumbnails
         ImgImageDTO thumbnail1 = dao.tryGetMicroscopyThumbnail(channelId, datasetId, tileLocation);
-        assertNull(thumbnail1);
 
         ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId, channelStackId, datasetId);
         assertEquals(image1bis, thumbnail1bis);
+        assertEquals(thumbnail1, thumbnail1bis);
+
     }
 
     @Test
