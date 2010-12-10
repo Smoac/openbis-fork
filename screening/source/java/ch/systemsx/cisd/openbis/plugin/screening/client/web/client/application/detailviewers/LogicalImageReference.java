@@ -24,27 +24,28 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetPa
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Stores image dataset reference and well location.
+ * Points to one logical image in the image dataset. For HCS it will be all images of the well. For
+ * microscopy the whole dataset contains one logical image.
  * 
  * @author Tomasz Pylak
  */
-public class WellImages
+public class LogicalImageReference
 {
     private final DatasetImagesReference imageDataset;
 
-    private final WellLocation wellLocation;
+    private final WellLocation wellLocationOrNull;
 
-    public WellImages(DatasetImagesReference imageDataset, WellLocation location)
+    public LogicalImageReference(DatasetImagesReference imageDataset,
+            WellLocation wellLocationOrNull)
     {
         assert imageDataset != null : "image dataset is null";
-        assert location != null : "location is null";
         this.imageDataset = imageDataset;
-        this.wellLocation = location;
+        this.wellLocationOrNull = wellLocationOrNull;
     }
 
-    public WellLocation getWellLocation()
+    public WellLocation tryGetWellLocation()
     {
-        return wellLocation;
+        return wellLocationOrNull;
     }
 
     private ImageDatasetParameters getImageParams()

@@ -41,7 +41,7 @@ class WellContentTimepointsViewer
 {
 
     public static LayoutContainer createTilesGrid(String sessionId,
-            List<ImageChannelStack> channelStackImages, WellImages images, String channel,
+            List<ImageChannelStack> channelStackImages, LogicalImageReference images, String channel,
             int imageWidth, int imageHeight)
     {
         Map<Float, List<ImageChannelStack>> channelStackImagesByTimepoint =
@@ -86,7 +86,7 @@ class WellContentTimepointsViewer
 
     private static List<LayoutContainer> createTimepointFrames(
             Map<Float, List<ImageChannelStack>> channelStackImagesByTimepoint,
-            WellImages images, String channel, String sessionId, int imageWidth, int imageHeight)
+            LogicalImageReference images, String channel, String sessionId, int imageWidth, int imageHeight)
     {
         final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
         int counter = 0;
@@ -116,7 +116,7 @@ class WellContentTimepointsViewer
     }
 
     private static LayoutContainer createTilesGridForTimepoint(
-            List<ImageChannelStack> channelStackReferences, WellImages images, String channel,
+            List<ImageChannelStack> channelStackReferences, LogicalImageReference images, String channel,
             String sessionId, int imageWidth, int imageHeight)
     {
         final LayoutContainer container =
@@ -143,7 +143,7 @@ class WellContentTimepointsViewer
     }
 
     private static ImageChannelStack[][] createTilesMap(
-            List<ImageChannelStack> stackReferences, WellImages images)
+            List<ImageChannelStack> stackReferences, LogicalImageReference images)
     {
         int rows = images.getTileRowsNum();
         int cols = images.getTileColsNum();

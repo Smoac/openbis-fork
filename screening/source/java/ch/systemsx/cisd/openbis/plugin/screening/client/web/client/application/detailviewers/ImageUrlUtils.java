@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Generates URLs pointing to the images on Data Store server.
@@ -38,8 +39,8 @@ public class ImageUrlUtils
      * @param createImageLinks if true, each thumbnail will link to the original image
      */
     public static void addImageUrlWidget(LayoutContainer container, String sessionId,
-            WellImages images, String channel, int row, int col, int imageWidth, int imageHeight,
-            boolean createImageLinks)
+            LogicalImageReference images, String channel, int row, int col, int imageWidth,
+            int imageHeight, boolean createImageLinks)
     {
         String imageURL =
                 createDatastoreImageUrl(sessionId, images, channel, row, col, imageWidth,
@@ -52,7 +53,7 @@ public class ImageUrlUtils
      * container.
      */
     public static void addImageUrlWidget(LayoutContainer container, String sessionId,
-            WellImages images, String channel, ImageChannelStack channelStackRef,
+            LogicalImageReference images, String channel, ImageChannelStack channelStackRef,
             int imageWidth, int imageHeight)
     {
         String imageURL =
@@ -62,7 +63,7 @@ public class ImageUrlUtils
     }
 
     /** generates URL of an image on Data Store server */
-    private static String createDatastoreImageUrl(String sessionID, WellImages images,
+    private static String createDatastoreImageUrl(String sessionID, LogicalImageReference images,
             String channel, ImageChannelStack channelStackRef, int width, int height)
     {
         URLMethodWithParameters methodWithParameters =
@@ -70,8 +71,9 @@ public class ImageUrlUtils
 
         methodWithParameters
                 .addParameter("channelStackId", channelStackRef.getChannelStackTechId());
+        addImageTransformerSignature(methodWithParameters, images, channel);
         String linkURL = methodWithParameters.toString();
-        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
+        addThumbnailSize(methodWithParameters, width, height);
 
         String imageURL = methodWithParameters.toString();
         // do not specify width to get correct aspect ratio of the original image
@@ -89,36 +91,52 @@ public class ImageUrlUtils
     }
 
     /**
-     * generates URL of an image on Data Store server
+     * Generates an HTML image tag with a thumbnail which links to the big image on Data Store
+     * server.
      * 
      * @param createImageLinks
      */
-    private static String createDatastoreImageUrl(String sessionID, WellImages images,
+    private static String createDatastoreImageUrl(String sessionID, LogicalImageReference images,
             String channel, int tileRow, int tileCol, int width, int height,
             boolean createImageLinks)
     {
         URLMethodWithParameters methodWithParameters =
                 createBasicImageURL(sessionID, images, channel);
 
-        methodWithParameters.addParameter("wellRow", images.getWellLocation().getRow());
-        methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());
+        WellLocation wellLocation = images.tryGetWellLocation();
+        if (wellLocation != null)
+        {
+            methodWithParameters.addParameter("wellRow", wellLocation.getRow());
+            methodWithParameters.addParameter("wellCol", wellLocation.getColumn());
+        }
         methodWithParameters.addParameter("tileRow", tileRow);
         methodWithParameters.addParameter("tileCol", tileCol);
-        String signature = images.getTransformerFactorySignatureOrNull(channel);
-        if (signature != null)
-        {
-            methodWithParameters.addParameter("transformerFactorySignature", signature);
-        }
-        String linkURL = createImageLinks ? methodWithParameters.toString() : null;
-        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
+        addImageTransformerSignature(methodWithParameters, images, channel);
+        String linkURLOrNull = createImageLinks ? methodWithParameters.toString() : null;
+        addThumbnailSize(methodWithParameters, width, height);
 
         String imageURL = methodWithParameters.toString();
         // do not specify width to get correct aspect ratio of the original image
-        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURL, -1, height);
+        return URLMethodWithParameters.createEmbededImageHtml(imageURL, linkURLOrNull, -1, height);
     }
 
-    private static URLMethodWithParameters createBasicImageURL(String sessionID, WellImages images,
-            String channel)
+    private static void addThumbnailSize(URLMethodWithParameters url, int width, int height)
+    {
+        url.addParameter("mode", "thumbnail" + width + "x" + height);
+    }
+
+    private static void addImageTransformerSignature(URLMethodWithParameters url,
+            LogicalImageReference images, String channel)
+    {
+        String signature = images.getTransformerFactorySignatureOrNull(channel);
+        if (signature != null)
+        {
+            url.addParameter("transformerFactorySignature", signature);
+        }
+    }
+
+    private static URLMethodWithParameters createBasicImageURL(String sessionID,
+            LogicalImageReference images, String channel)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(images.getDatastoreHostUrl() + "/"

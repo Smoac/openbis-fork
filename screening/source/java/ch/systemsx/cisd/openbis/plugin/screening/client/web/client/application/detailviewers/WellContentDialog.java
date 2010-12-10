@@ -27,7 +27,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.SelectionProvider;
 import com.extjs.gxt.ui.client.util.Rectangle;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -35,15 +34,12 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -53,26 +49,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -97,10 +86,6 @@ public class WellContentDialog extends Dialog
 
     // ---
 
-    private static final int ONE_IMAGE_WIDTH_PX = 200;
-
-    private static final int ONE_IMAGE_HEIGHT_PX = 120;
-
     /**
      * A dialog which shows the content of the well (static or a timepoints movie).
      */
@@ -109,53 +94,25 @@ public class WellContentDialog extends Dialog
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         final WellContentDialog contentDialog =
-                createContentDialog(wellData, viewContext, imageDatasetOrNull != null);
-
-        final IDefaultChannelState defaultChannelState =
-                createDefaultChannelState(viewContext, wellData.getExperiment().getPermId());
-
-        showContentDialog(contentDialog, imageDatasetOrNull, defaultChannelState, viewContext);
-    }
-
-    private static IDefaultChannelState createDefaultChannelState(
-            final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final String experimentPermId)
-    {
-        final ScreeningDisplaySettingsManager screeningDisplaySettingManager =
-                ScreeningViewContext.getTechnologySpecificDisplaySettingsManager(viewContext);
-        final ScreeningDisplayTypeIDGenerator wellSearchChannelIdGenerator =
-                ScreeningDisplayTypeIDGenerator.EXPERIMENT_CHANNEL;
-        final String displayTypeID = wellSearchChannelIdGenerator.createID(experimentPermId);
-
-        return new IDefaultChannelState()
-            {
-                public void setDefaultChannel(String channel)
-                {
-                    screeningDisplaySettingManager.setDefaultChannel(displayTypeID, channel);
-                }
-
-                public String tryGetDefaultChannel()
-                {
-                    return screeningDisplaySettingManager.tryGetDefaultChannel(displayTypeID);
-                }
-            };
+                createContentDialog(wellData, viewContext);
+        showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
     }
 
     private static void showContentDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imagesOrNull, IDefaultChannelState channelState,
+            final DatasetImagesReference imagesOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         if (imagesOrNull != null && imagesOrNull.getImageParameters().isMultidimensional())
         {
-            showTimepointImageDialog(contentDialog, imagesOrNull, channelState, viewContext);
+            showTimepointImageDialog(contentDialog, imagesOrNull, viewContext);
         } else
         {
-            showStaticImageDialog(contentDialog, imagesOrNull, channelState, viewContext);
+            showStaticImageDialog(contentDialog, imagesOrNull, viewContext);
         }
     }
 
     private static WellContentDialog createContentDialog(final WellData wellData,
-            final IViewContext<IScreeningClientServiceAsync> viewContext, boolean hasDataSet)
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         WellLocation wellLocation = wellData.getWellLocation();
         WellMetadata wellMetadata = wellData.tryGetMetadata();
@@ -166,8 +123,8 @@ public class WellContentDialog extends Dialog
             wellOrNull = wellMetadata.getWellSample();
             wellPropertiesOrNull = wellMetadata.getWellSample().getProperties();
         }
-        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation, hasDataSet,
-                getExperiment(wellData), viewContext);
+        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation, getExperiment(wellData),
+                viewContext);
     }
 
     /**
@@ -198,10 +155,11 @@ public class WellContentDialog extends Dialog
 
         boolean createImageLinks = (imageParameters.isMultidimensional() == false);
         String sessionId = getSessionId(viewContext);
-        final WellImages wellImages = new WellImages(imageDataset, locationOrNull);
+        final LogicalImageReference wellImages =
+                new LogicalImageReference(imageDataset, locationOrNull);
         LayoutContainer staticTilesGrid =
-                createTilesGrid(wellImages, channel, sessionId, imageWidthPx, imageHeightPx,
-                        createImageLinks);
+                LogicalImageViewer.createRepresentativeImage(wellImages, channel, sessionId, imageWidthPx,
+                        imageHeightPx, createImageLinks);
 
         if (imageParameters.isMultidimensional())
         {
@@ -211,7 +169,7 @@ public class WellContentDialog extends Dialog
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        showContentDialog(viewContext, wellContent, imageDataset, false);
+                        showContentDialog(viewContext, wellContent, imageDataset);
                     }
                 });
         }
@@ -220,143 +178,76 @@ public class WellContentDialog extends Dialog
     }
 
     private static void showContentDialog(IViewContext<IScreeningClientServiceAsync> viewContext,
-            WellContent wellContent, DatasetImagesReference imageDatasetOrNull, boolean hasDataSet)
+            WellContent wellContent, DatasetImagesReference imageDatasetOrNull)
     {
         WellContentDialog contentDialog =
                 new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(),
-                        hasDataSet, getExperiment(wellContent.getExperiment()), viewContext);
+                        getExperiment(wellContent.getExperiment()), viewContext);
 
-        final IDefaultChannelState defaultChannelState =
-                createDefaultChannelState(viewContext, wellContent.getExperiment().getPermId());
-        showContentDialog(contentDialog, imageDatasetOrNull, defaultChannelState, viewContext);
+        showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
     }
 
     // --------------- STATIC IMAGES VIEWER
 
     private static void showStaticImageDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imageDatasetOrNull, IDefaultChannelState channelState,
-            final IViewContext<?> viewContext)
+            final DatasetImagesReference imageDatasetOrNull, final IViewContext<?> viewContext)
     {
-        WellLocation wellLocation = contentDialog.wellLocationOrNull;
-        if (imageDatasetOrNull != null && wellLocation != null)
+        if (imageDatasetOrNull != null)
         {
-            contentDialog.setDataSetCode(imageDatasetOrNull.getDatasetCode());
-            final WellImages imagesOrNull = new WellImages(imageDatasetOrNull, wellLocation);
-            final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
-                {
-                    public LayoutContainer create(String channel)
-                    {
-                        String sessionId = getSessionId(viewContext);
-                        return createTilesGrid(imagesOrNull, channel, sessionId);
-                    }
-
-                    public void setChannelChooser(
-                            SelectionProvider<SimpleComboValue<String>> selectionProvider)
-                    {
-                        contentDialog.setChannelChooser(selectionProvider);
-                    }
-                };
-            LayoutContainer imageViewer =
-                    ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                            imagesOrNull.getChannelsCodes());
-            contentDialog.addImageView(imageViewer);
+            contentDialog.addImageStaticViewer(imageDatasetOrNull);
         }
         contentDialog.show();
-    }
-
-    private static LayoutContainer createTilesGrid(final WellImages images, String channel,
-            String sessionId)
-    {
-        return createTilesGrid(images, channel, sessionId, getImageWidth(images),
-                getImageHeight(images), true);
-    }
-
-    private static LayoutContainer createTilesGrid(WellImages images, String channel,
-            String sessionId, int imageWidth, int imageHeight, boolean createImageLinks)
-    {
-        LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
-        for (int row = 1; row <= images.getTileRowsNum(); row++)
-        {
-            for (int col = 1; col <= images.getTileColsNum(); col++)
-            {
-                ImageUrlUtils.addImageUrlWidget(container, sessionId, images, channel, row, col,
-                        imageWidth, imageHeight, createImageLinks);
-            }
-        }
-        return container;
     }
 
     // --------------- TIMEPOINT IMAGES PLAYER
 
     private static void showTimepointImageDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imageDataset, final IDefaultChannelState channelState,
+            final DatasetImagesReference imageDataset,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         assert imageDataset != null;
 
-        final WellLocation wellLocation = contentDialog.wellLocationOrNull;
-        if (wellLocation == null)
-        {
-            // images stacks cannot be obtained
-            contentDialog.show();
-        }
-        contentDialog.setDataSetCode(imageDataset.getDatasetCode());
         viewContext.getService().listImageChannelStacks(imageDataset.getDatasetCode(),
-                imageDataset.getDatastoreCode(), wellLocation,
+                imageDataset.getDatastoreCode(), contentDialog.wellLocationOrNull,
                 new AbstractAsyncCallback<List<ImageChannelStack>>(viewContext)
                     {
                         @Override
                         protected void process(final List<ImageChannelStack> channelStackImages)
                         {
-                            if (channelStackImages.size() == 0)
+                            if (channelStackImages.size() > 0)
                             {
-                                contentDialog.show();
-                            } else
-                            {
-                                final WellImages wellImages =
-                                        new WellImages(imageDataset, wellLocation);
-                                final String sessionId = getSessionId(viewContext);
-                                final IChanneledViewerFactory viewerFactory =
-                                        new IChanneledViewerFactory()
-                                            {
-                                                public LayoutContainer create(String channel)
-                                                {
-                                                    return WellContentTimepointsViewer
-                                                            .createTilesGrid(sessionId,
-                                                                    channelStackImages, wellImages,
-                                                                    channel,
-                                                                    getImageWidth(wellImages),
-                                                                    getImageHeight(wellImages));
-                                                }
-
-                                                public void setChannelChooser(
-                                                        SelectionProvider<SimpleComboValue<String>> selectionProvider)
-                                                {
-                                                    contentDialog
-                                                            .setChannelChooser(selectionProvider);
-                                                }
-                                            };
-                                LayoutContainer imageViewer =
-                                        ChannelChooser.createViewerWithChannelChooser(
-                                                viewerFactory, channelState,
-                                                wellImages.getChannelsCodes());
-                                contentDialog.addImageView(imageViewer);
-                                contentDialog.show();
+                                contentDialog
+                                        .addImageSeriesViewer(imageDataset, channelStackImages);
                             }
+                            contentDialog.show();
                         }
+
                     });
     }
 
-    private static int getImageHeight(WellImages images)
+    protected void addImageSeriesViewer(DatasetImagesReference imageDataset,
+            List<ImageChannelStack> channelStackImages)
     {
-        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return (int) (ONE_IMAGE_HEIGHT_PX * imageSizeMultiplyFactor);
+        LogicalImageViewer viewer = createImageViewer(imageDataset);
+        Widget viewerWidget = viewer.getSeriesImageWidget(channelStackImages);
+        add(viewerWidget);
+        addImageEditorLaunchButton(viewer);
     }
 
-    private static int getImageWidth(WellImages images)
+    protected void addImageStaticViewer(DatasetImagesReference imageDataset)
     {
-        float imageSizeMultiplyFactor = getImageSizeMultiplyFactor(images);
-        return (int) (ONE_IMAGE_WIDTH_PX * imageSizeMultiplyFactor);
+        LogicalImageViewer viewer = createImageViewer(imageDataset);
+        Widget viewerWidget = viewer.getStaticImageWidget();
+        add(viewerWidget);
+        addImageEditorLaunchButton(viewer);
+    }
+
+    private LogicalImageViewer createImageViewer(DatasetImagesReference imageDatasetOrNull)
+    {
+        final LogicalImageReference imagesOrNull =
+                new LogicalImageReference(imageDatasetOrNull, wellLocationOrNull);
+        return new LogicalImageViewer(imagesOrNull, viewContext,
+                experimentCriteria.getExperimentPermId());
     }
 
     private static SingleExperimentSearchCriteria getExperiment(WellData wellData)
@@ -371,13 +262,6 @@ public class WellContentDialog extends Dialog
     {
         return new SingleExperimentSearchCriteria(experimentReference.getId(),
                 experimentReference.getPermId(), experimentReference.getExperimentIdentifier());
-    }
-
-    private static float getImageSizeMultiplyFactor(WellImages images)
-    {
-        float dim = Math.max(images.getTileRowsNum(), images.getTileColsNum());
-        // if there are more than 3 tiles, make them smaller, if there are less, make them bigger
-        return 4.0F / dim;
     }
 
     private static String getSessionId(IViewContext<?> viewContext)
@@ -397,14 +281,9 @@ public class WellContentDialog extends Dialog
 
     private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
-    private SelectionProvider<SimpleComboValue<String>> channelSelectionProvider;
-
-    private String datasetCode;
-
     private WellContentDialog(IEntityInformationHolderWithPermId wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, final WellLocation wellLocationOrNull,
-            boolean hasDataSet, final SingleExperimentSearchCriteria experimentCriteria,
-            final IViewContext<IScreeningClientServiceAsync> viewContext)
+            final SingleExperimentSearchCriteria experimentCriteria, final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         this.wellOrNull = wellOrNull;
         this.wellLocationOrNull = wellLocationOrNull;
@@ -440,69 +319,29 @@ public class WellContentDialog extends Dialog
                     center();
                 }
             });
-        if (wellLocationOrNull != null && hasDataSet
-                && "true".equals(viewContext.getPropertyOrNull("image-viewer-enabled")))
-        {
-            addImageViewerLaunchButton();
-        }
     }
 
-    private void addImageViewerLaunchButton()
+    private void addImageEditorLaunchButton(final LogicalImageViewer viewer)
     {
+        if ("true".equals(viewContext.getPropertyOrNull("image-viewer-enabled")) == false)
+        {
+            return;
+        }
         ButtonBar buttonBar = getButtonBar();
         buttonBar.setAlignment(HorizontalAlignment.LEFT);
         Button launchButton =
                 new Button(viewContext.getMessage(Dict.IMAGE_VIEWER_BUTTON),
                         new SelectionListener<ButtonEvent>()
                             {
-
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    final URLMethodWithParameters urlParams =
-                                            new URLMethodWithParameters(
-                                                    Constants.IMAGE_VIEWER_LAUNCH_SERVLET_NAME);
-                                    String sessionToken =
-                                            viewContext.getModel().getSessionContext()
-                                                    .getSessionID();
-                                    urlParams.addParameter("session", sessionToken);
-                                    urlParams.addParameter(ParameterNames.SERVER_URL,
-                                            GWT.getHostPageBaseURL());
-
-                                    if (channelSelectionProvider != null)
-                                    {
-                                        urlParams.addParameter(ParameterNames.CHANNEL,
-                                                channelSelectionProvider.getSelection().get(0)
-                                                        .getValue());
-                                    }
-                                    urlParams.addParameter(ParameterNames.DATA_SET_AND_WELLS,
-                                            datasetCode + ":" + wellLocationOrNull.getRow() + "."
-                                                    + wellLocationOrNull.getColumn());
-
-                                    Window.open(urlParams.toString(), "_blank",
-                                            "resizable=yes,scrollbars=yes,dependent=yes");
+                                    viewer.launchImageEditor();
                                     hide();
-
                                 }
                             });
         buttonBar.insert(new FillToolItem(), 0);
         buttonBar.insert(launchButton, 0);
-    }
-
-    private void setChannelChooser(
-            final SelectionProvider<SimpleComboValue<String>> selectionProvider)
-    {
-        this.channelSelectionProvider = selectionProvider;
-    }
-
-    private void setDataSetCode(String datasetCode)
-    {
-        this.datasetCode = datasetCode;
-    }
-
-    private void addImageView(LayoutContainer component)
-    {
-        add(component);
     }
 
     private String getWellDescription()

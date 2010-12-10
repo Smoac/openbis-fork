@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningDisplaySettings;
 
 /**
@@ -29,7 +28,7 @@ public class ScreeningDisplaySettingsManager
     private final ScreeningDisplaySettings screeningSettings;
 
     @SuppressWarnings("deprecation")
-    public ScreeningDisplaySettingsManager(IViewContext<IScreeningClientServiceAsync> viewContext)
+    public ScreeningDisplaySettingsManager(IViewContext<?> viewContext)
     {
         DisplaySettingsManager displaySettingsManager = viewContext.getDisplaySettingsManager();
         ScreeningDisplaySettings settingsOrNull =

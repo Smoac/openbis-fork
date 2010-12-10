@@ -147,6 +147,12 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             String channel = getParam(request, ParameterNames.CHANNEL);
             template.bind("channel", channel);
             StringBuilder builder = new StringBuilder();
+            // TODO 2010-12-09, Tomasz Pylak: add support for microscopy images in Image Viewer
+            // where there are no wells. Extend API to load images in such cases.
+            for (String dataSet : getParams(request, ParameterNames.DATA_SETS))
+            {
+                builder.append("    <argument>").append(dataSet + ":0.0").append("</argument>\n");
+            }
             for (String dataSetAndWells : getParams(request, ParameterNames.DATA_SET_AND_WELLS))
             {
                 builder.append("    <argument>").append(dataSetAndWells).append("</argument>\n");

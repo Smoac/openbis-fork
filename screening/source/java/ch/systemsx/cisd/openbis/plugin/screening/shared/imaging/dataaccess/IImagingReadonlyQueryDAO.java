@@ -54,9 +54,12 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     // joins
                     + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID ";
 
+    // FIXME 2010-12-10, Tomasz Pylak: uncomment when we are able to show a representative image
     public static final String SQL_NO_MULTIDIMENTIONAL_DATA_COND =
-            " and CHANNEL_STACKS.T_in_SEC IS NULL                        "
-                    + " and CHANNEL_STACKS.Z_in_M IS NULL                ";
+            " order by CHANNEL_STACKS.T_in_SEC, CHANNEL_STACKS.Z_in_M limit 1";
+
+    // " and CHANNEL_STACKS.T_in_SEC IS NULL                        "
+    // + " and CHANNEL_STACKS.Z_in_M IS NULL                ";
 
     /**
      * @return an HCS image for the specified chanel, well and tile. If many images (e.g. for

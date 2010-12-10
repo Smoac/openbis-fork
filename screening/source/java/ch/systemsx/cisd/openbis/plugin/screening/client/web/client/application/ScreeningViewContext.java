@@ -49,7 +49,7 @@ public final class ScreeningViewContext extends
     }
 
     public static ScreeningDisplaySettingsManager getTechnologySpecificDisplaySettingsManager(
-            IViewContext<IScreeningClientServiceAsync> viewContext)
+            IViewContext<?> viewContext)
     {
         return new ScreeningDisplaySettingsManager(viewContext);
     }
