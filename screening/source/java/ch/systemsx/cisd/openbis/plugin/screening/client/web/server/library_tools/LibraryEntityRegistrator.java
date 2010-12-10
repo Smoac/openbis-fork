@@ -131,7 +131,7 @@ public class LibraryEntityRegistrator
                 + join("identifier", "experiment", "$PLATE_GEOMETRY");
 
         private static final String HEADER_SIRNAS = "[" + ScreeningConstants.SIRNA_WELL_TYPE_CODE
-                + "]\n" + join("identifier", "container", "SIRNA", "GENE");
+                + "]\n" + join("identifier", "experiment", "container", "SIRNA", "GENE");
 
         private final Set<String/* plate code */> registeredPlates;
 
@@ -183,7 +183,8 @@ public class LibraryEntityRegistrator
                     oligoId + " (" + ScreeningConstants.SIRNA_PLUGIN_TYPE_NAME + ")";
             String geneMaterialProperty =
                     geneId + " (" + ScreeningConstants.GENE_PLUGIN_TYPE_CODE + ")";
-            saveWell(wellIdentifier, plateId, oligoMaterialProperty, geneMaterialProperty);
+            saveWell(wellIdentifier, experimentIdentifier, plateId, oligoMaterialProperty,
+                    geneMaterialProperty);
         }
 
         private void saveWell(String... tokens)
