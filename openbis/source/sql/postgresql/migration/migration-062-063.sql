@@ -4,7 +4,8 @@
 UPDATE samples 
 	SET expe_id = sc.expe_id
 	FROM samples sc, sample_types sct
-	WHERE sc.id = samples.samp_id_part_of
+	WHERE samples.expe_id IS NULL
+	AND sc.id = samples.samp_id_part_of
 	AND sct.id = sc.saty_id AND sct.code = 'PLATE';
 
 -- for testing:
