@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
-import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -61,11 +58,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 {
-    protected static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, AbstractDatasetDownloadServlet.class);
+    protected static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            AbstractDatasetDownloadServlet.class);
 
-    protected static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractDatasetDownloadServlet.class);
+    protected static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            AbstractDatasetDownloadServlet.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -148,8 +145,8 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             // openbis.
             // CR, 2010-08-30, LMS-1706, Logging
             StringBuilder sb = new StringBuilder();
-            sb
-                    .append("Could not create a servlet session since no existing servlet session is available, and the openBIS session ID was not provided as a parameter:");
+            sb.append("Could not create a servlet session since no existing servlet session is available, " 
+                    + "and the openBIS session ID was not provided as a parameter:");
             appendRequestParameters(request, sb);
             appendServletSessionTimeout(sb);
             operationLog.error(sb.toString());
@@ -271,75 +268,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         int width = thumbnailSize.getWidth();
         int height = thumbnailSize.getHeight();
         return ImageUtil.createThumbnail(image, width, height);
-    }
-
-    protected static final class ResponseContentStream
-    {
-        private final InputStream inputStream;
-
-        private final long size;
-
-        private final String contentType;
-
-        private final String headerContentDisposition;
-
-        public ResponseContentStream(InputStream inputStream, long size, String contentType,
-                String headerContentDisposition)
-        {
-            this.inputStream = inputStream;
-            this.size = size;
-            this.contentType = contentType;
-            this.headerContentDisposition = headerContentDisposition;
-        }
-
-        public InputStream getInputStream()
-        {
-            return inputStream;
-        }
-
-        public long getSize()
-        {
-            return size;
-        }
-
-        public String getContentType()
-        {
-            return contentType;
-        }
-
-        public String getHeaderContentDisposition()
-        {
-            return headerContentDisposition;
-        }
-    }
-
-    /**
-     * @param image is the content of the response
-     * @param fileNameOrNull specified if image was generated from one file
-     */
-    protected final static ResponseContentStream createResponseContentStream(BufferedImage image,
-            String fileNameOrNull) throws IOException
-    {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", output);
-        InputStream inputStream = new ByteArrayInputStream(output.toByteArray());
-
-        long responseSize = output.size();
-        String contentType = CONTENT_TYPE_PNG;
-
-        return createResponseContentStream(inputStream, responseSize, contentType, fileNameOrNull);
-    }
-
-    protected static ResponseContentStream createResponseContentStream(InputStream inputStream,
-            long responseSize, String contentType, String fileNameOrNull)
-    {
-        String headerContentDisposition = "inline;";
-        if (fileNameOrNull != null)
-        {
-            headerContentDisposition += " filename=" + fileNameOrNull;
-        }
-        return new ResponseContentStream(inputStream, responseSize, contentType,
-                headerContentDisposition);
     }
 
     // if display mode describes a thumbnail return its expected size

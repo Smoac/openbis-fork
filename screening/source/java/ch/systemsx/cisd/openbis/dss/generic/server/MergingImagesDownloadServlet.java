@@ -48,7 +48,7 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
         IImagingDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
         IContent image = ImageChannelsUtils.getImage(imageAccessor, params);
-        return createResponseContentStream(image.getInputStream(), image.getSize(),
+        return ResponseContentStream.create(image.getInputStream(), image.getSize(),
                 ImageChannelsUtils.IMAGES_CONTENT_TYPE, image.tryGetName());
     }
 }

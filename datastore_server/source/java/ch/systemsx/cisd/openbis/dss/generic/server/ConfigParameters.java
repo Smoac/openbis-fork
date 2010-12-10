@@ -27,8 +27,8 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * Configuration parameters for the Data Set Download Server.
@@ -38,8 +38,8 @@ import ch.systemsx.cisd.common.utilities.PropertyParametersUtil.SectionPropertie
 final class ConfigParameters
 {
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ConfigParameters.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            ConfigParameters.class);
 
     static final String SERVER_URL_KEY = "server-url";
 
@@ -93,6 +93,8 @@ final class ConfigParameters
 
     private final List<PluginServlet> pluginServlets;
 
+    private final Properties properties;
+
     public static final class PluginServlet
     {
         private final String servletClass;
@@ -140,6 +142,7 @@ final class ConfigParameters
      */
     public ConfigParameters(final Properties properties)
     {
+        this.properties = properties;
         storePath = new File(PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY));
         rpcIncomingDirectory = getRpcIncomingDirectory(properties);
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
@@ -260,6 +263,11 @@ final class ConfigParameters
         return useSSL;
     }
 
+    public Properties getProperties()
+    {
+        return properties;
+    }
+
     public final void log()
     {
         if (operationLog.isInfoEnabled())
@@ -277,4 +285,5 @@ final class ConfigParameters
             }
         }
     }
+
 }

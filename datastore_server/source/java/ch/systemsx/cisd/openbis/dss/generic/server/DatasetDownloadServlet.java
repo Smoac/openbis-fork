@@ -496,14 +496,24 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         }
         writeResponseContent(responseStream, response);
     }
+    
+    /**
+     * @param image is the content of the response
+     * @param fileNameOrNull specified if image was generated from one file
+     */
+    private final static ResponseContentStream createResponseContentStream(BufferedImage image,
+            String fileNameOrNull) throws IOException
+    {
+        return ResponseContentStream.createPNG(image, fileNameOrNull);
+    }
 
     private static ResponseContentStream createResponseContentStream(File file, String displayMode)
             throws FileNotFoundException
     {
         String contentType = getMimeType(file, displayMode.equals(TEXT_MODE_DISPLAY));
-        String headerContentDisposition = "inline; filename=" + file.getName();
-        return new ResponseContentStream(new FileInputStream(file), file.length(), contentType,
-                headerContentDisposition);
+
+        return ResponseContentStream.create(new FileInputStream(file), file.length(), contentType,
+                file.getName());
     }
 
     private ExternalData getDataSet(String dataSetCode, String sessionIdOrNull, HttpSession session)

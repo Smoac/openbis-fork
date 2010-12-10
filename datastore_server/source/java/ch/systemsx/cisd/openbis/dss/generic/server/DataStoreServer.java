@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.authorization.IDssService
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.DatasetImageOverviewUtilities;
 
 /**
  * Main class of the service. Starts up jetty with {@link DatasetDownloadServlet}.
@@ -98,8 +99,8 @@ public class DataStoreServer
                 String[] supportedMethods = ex.getSupportedMethods();
                 if (supportedMethods != null)
                 {
-                    response.setHeader("Allow", StringUtils.arrayToDelimitedString(
-                            supportedMethods, ", "));
+                    response.setHeader("Allow",
+                            StringUtils.arrayToDelimitedString(supportedMethods, ", "));
                 }
                 response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
             } finally
@@ -115,8 +116,8 @@ public class DataStoreServer
 
     private static final int PREFIX_LENGTH = PREFIX.length();
 
-    static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DataStoreServer.class);
+    static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataStoreServer.class);
 
     private static Server server;
 
@@ -199,8 +200,8 @@ public class DataStoreServer
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
 
         initializeRpcServices(context, applicationContext, configParameters);
-
         registerPluginServlets(context, configParameters.getPluginServlets());
+        registerImageOverviewServlet(context, configParameters);
     }
 
     /**
@@ -265,20 +266,28 @@ public class DataStoreServer
             } catch (ClassNotFoundException ex)
             {
                 throw EnvironmentFailureException.fromTemplate(
-                        "Error while loading servlet plugin class '%s': %s", pluginServlet
-                                .getClass(), ex.getMessage());
+                        "Error while loading servlet plugin class '%s': %s",
+                        pluginServlet.getClass(), ex.getMessage());
             } catch (ClassCastException ex)
             {
                 throw EnvironmentFailureException.fromTemplate(
                         "Error while loading servlet plugin class '%s': %s. "
-                                + "Servlet implementation expected.", pluginServlet.getClass(), ex
-                                .getMessage());
+                                + "Servlet implementation expected.", pluginServlet.getClass(),
+                        ex.getMessage());
             }
             ServletHolder holder =
                     context.addServlet(classInstance, pluginServlet.getServletPath());
             // Add any additional parameters to the init parameters
             holder.setInitParameters(pluginServlet.getServletProperties());
         }
+    }
+
+    private static void registerImageOverviewServlet(ServletContextHandler context,
+            ConfigParameters configParameters)
+    {
+        DatasetImageOverviewServlet.initConfiguration(configParameters.getProperties());
+        context.addServlet(DatasetImageOverviewServlet.class, "/"
+                + DatasetImageOverviewUtilities.SERVLET_NAME + "/*");
     }
 
     private static Connector createSocketConnector(ConfigParameters configParameters)
