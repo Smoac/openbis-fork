@@ -126,7 +126,13 @@ public class PlateLayouter
                 {
                     Component wellComponent = renderedWells[rowIx][colIx];
                     PlateStyleSetter.setBackgroudColor(wellComponent, color.getHexColor());
-                    GWTUtils.setToolTip(wellComponent, tooltipOrNull);
+                    if (tooltipOrNull != null)
+                    {
+                        GWTUtils.setToolTip(wellComponent, tooltipOrNull);
+                    } else
+                    {
+                        wellComponent.removeToolTip();
+                    }
                 }
 
                 public void updateLegend(Widget legend)
