@@ -35,11 +35,11 @@ public class DatasetImageOverviewConfiguration
 {
     private static String PLUGINS_SERVICES_LIST_KEY = "overview-plugins";
 
-    static final String PLUGIN_SERVICE_CLASS_KEY = "class";
+    private static final String PLUGIN_SERVICE_CLASS_KEY = "class";
 
-    static final String PLUGIN_SERVICE_DATASET_TYPES_KEY = "dataset-types";
+    private static final String PLUGIN_SERVICE_DEFAULT_KEY = "default";
 
-    static final String DEFAULT = "(DEFAULT)";
+    private static final String PLUGIN_SERVICE_DATASET_TYPES_KEY = "dataset-types";
 
     public static DatasetImageOverviewConfiguration createConfiguration(Properties properties)
     {
@@ -53,9 +53,16 @@ public class DatasetImageOverviewConfiguration
             Properties props = sectionProperties.getProperties();
             String pluginClassName =
                     PropertyUtils.getMandatoryProperty(props, PLUGIN_SERVICE_CLASS_KEY);
-            List<String> dataSetTypes =
-                    PropertyUtils.getMandatoryList(props, PLUGIN_SERVICE_DATASET_TYPES_KEY);
-            configuration.addPluginServiceConfiguration(pluginClassName, dataSetTypes, props);
+            boolean isDefault = PropertyUtils.getBoolean(props, PLUGIN_SERVICE_DEFAULT_KEY, false);
+            if (isDefault)
+            {
+                configuration.setDefaultPluginService(pluginClassName, props);
+            } else
+            {
+                List<String> dataSetTypes =
+                        PropertyUtils.getMandatoryList(props, PLUGIN_SERVICE_DATASET_TYPES_KEY);
+                configuration.addPluginService(pluginClassName, dataSetTypes, props);
+            }
         }
 
         return configuration;
@@ -85,18 +92,12 @@ public class DatasetImageOverviewConfiguration
         return plugin;
     }
 
-    private void addPluginServiceConfiguration(String pluginClass, List<String> dataSetTypes,
+    private void addPluginService(String pluginClass, List<String> dataSetTypes,
             Properties pluginProperties)
     {
-        if (dataSetTypes.size() == 1 && dataSetTypes.get(0).equalsIgnoreCase(DEFAULT))
+        for (String dataSetType : dataSetTypes)
         {
-            setDefaultPluginService(pluginClass, pluginProperties);
-        } else
-        {
-            for (String dataSetType : dataSetTypes)
-            {
-                addPluginService(dataSetType, pluginClass, pluginProperties);
-            }
+            addPluginService(dataSetType, pluginClass, pluginProperties);
         }
     }
 

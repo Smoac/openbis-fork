@@ -58,9 +58,9 @@ public class DemoOverviewPlugin implements IDatasetImageOverviewPlugin
     public ResponseContentStream createImageResponse(String datasetCode, String datasetTypeCode,
             ImageResolutionKind resolution)
     {
-        System.out.println(String.format("%s: create image for\n"
+        System.out.println(String.format("%s (%s): create image for\n"
                 + "\tdataset code: %s\n\tdataset type: %s\n\tresolution: %s", this.getClass()
-                .getSimpleName(), datasetCode, datasetTypeCode, resolution));
+                .getSimpleName(), label, datasetCode, datasetTypeCode, resolution));
         String imageFilePath;
         switch (resolution)
         {
@@ -77,8 +77,7 @@ public class DemoOverviewPlugin implements IDatasetImageOverviewPlugin
         {
             BufferedImage image =
                     createImage(imageFilePath, datasetCode, datasetTypeCode, resolution);
-            return ResponseContentStream.createPNG(image, // ImageIO.read(new File(imageFilePath)),
-                    imageFilePath);
+            return ResponseContentStream.createPNG(image, imageFilePath);
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
