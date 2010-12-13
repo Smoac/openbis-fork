@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IHCSFeatureVecto
  */
 public interface IScreeningBusinessObjectFactory
 {
-    public IImageDatasetLoader createHCSDatasetLoader(String datasetCode, String datastoreCode);
+    public IImageDatasetLoader createImageDatasetLoader(String datasetCode, String datastoreCode);
 
     /**
      * Note that the loader should be used only for the datasets from the specified data store

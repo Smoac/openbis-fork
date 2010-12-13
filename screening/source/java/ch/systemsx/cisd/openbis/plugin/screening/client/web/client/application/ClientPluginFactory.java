@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IMo
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
@@ -47,10 +48,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.MicroscopyDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateLocationsMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -93,6 +97,17 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         {
             types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
             types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
+            // TODO 2010-12-13, Tomasz Pylak: to be exchanged by one *_WELL pattern
+            types.add(ScreeningConstants.CONTROL_WELL_CODE_MARKER);
+            types.add("POSITIVE_CONTROL");
+            types.add("NEGATIVE_CONTROL");
+            types.add(ScreeningConstants.SIRNA_WELL_TYPE_CODE);
+            types.add("CHAMBER");
+            types.add("WELL");
+            types.add("OLIGO_WELL");
+            types.add("GENE_WELL");
+            types.add("OLIGO");
+            types.add("GENE");
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
@@ -106,7 +121,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
         } else if (entityKind == EntityKind.DATA_SET)
         {
-            types.add(ScreeningConstants.IMAGE_DATASET_PLUGIN_TYPE_CODE);
+            types.add(ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE);
+            types.add(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE);
         }
         return types;
     }
@@ -222,6 +238,62 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         public final AbstractTabItemFactory createEntityViewer(
                 final IEntityInformationHolderWithPermId entity)
         {
+            String datasetTypeCode = entity.getEntityType().getCode();
+            if (datasetTypeCode.equals(ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE))
+            {
+                return createHCSImageDatasetTabItemFactory(entity);
+            } else if (datasetTypeCode.equals(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE))
+            {
+                return createMicroscopyImageDatasetTabItemFactory(entity);
+            } else
+            {
+                throw new IllegalStateException("Unknown dataset type " + datasetTypeCode);
+            }
+        }
+
+        private AbstractTabItemFactory createMicroscopyImageDatasetTabItemFactory(
+                final IEntityInformationHolderWithPermId entity)
+        {
+            return new AbstractTabItemFactory()
+                {
+                    @Override
+                    public ITabItem create()
+                    {
+                        final DatabaseModificationAwareComponent viewer =
+                                MicroscopyDatasetViewer.create(screeningViewContext, entity);
+                        return createViewerTab(viewer, getTabTitle(), screeningViewContext);
+                    }
+
+                    @Override
+                    public String getId()
+                    {
+                        final TechId id = TechId.create(entity);
+                        return MicroscopyDatasetViewer.createId(id);
+                    }
+
+                    @Override
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("Microscopy Dataset Viewer");
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.DATA_SET, entity, screeningViewContext);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return LinkExtractor.tryExtract(entity);
+                    }
+                };
+        }
+
+        private AbstractTabItemFactory createHCSImageDatasetTabItemFactory(
+                final IEntityInformationHolderWithPermId entity)
+        {
             return new AbstractTabItemFactory()
                 {
                     @Override
@@ -274,6 +346,63 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         public final AbstractTabItemFactory createEntityViewer(
                 final IEntityInformationHolderWithPermId entity)
         {
+            String sampleTypeCode = entity.getEntityType().getCode();
+            if (sampleTypeCode.equals(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE))
+            {
+                return createPlateViewer(entity);
+            } else if (sampleTypeCode.equals(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE))
+            {
+                throw new UserFailureException("Cannot browse objects of the "
+                        + ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE + " type.");
+            } else
+            {
+                return createWellViewer(entity);
+            }
+        }
+
+        private AbstractTabItemFactory createWellViewer(
+                final IEntityInformationHolderWithPermId entity)
+        {
+            return new AbstractTabItemFactory()
+                {
+                    @Override
+                    public ITabItem create()
+                    {
+                        final DatabaseModificationAwareComponent viewer =
+                                WellSampleViewer.create(screeningViewContext, entity);
+                        return createViewerTab(viewer, getTabTitle(), screeningViewContext);
+                    }
+
+                    @Override
+                    public String getId()
+                    {
+                        final TechId sampleId = TechId.create(entity);
+                        return GenericSampleViewer.createId(sampleId);
+                    }
+
+                    @Override
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("Plate Well Viewer");
+                    }
+
+                    @Override
+                    public String getTabTitle()
+                    {
+                        return getViewerTitle(Dict.WELL, entity, screeningViewContext);
+                    }
+
+                    @Override
+                    public String tryGetLink()
+                    {
+                        return LinkExtractor.tryExtract(entity);
+                    }
+                };
+        }
+
+        private final AbstractTabItemFactory createPlateViewer(
+                final IEntityInformationHolderWithPermId entity)
+        {
             return new AbstractTabItemFactory()
                 {
                     @Override
@@ -288,7 +417,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public String getId()
                     {
                         final TechId sampleId = TechId.create(entity);
-                        return PlateSampleViewer.createId(sampleId);
+                        return GenericSampleViewer.createId(sampleId);
                     }
 
                     @Override

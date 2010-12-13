@@ -35,13 +35,14 @@ public class ScreeningConstants
 
     // ---- required entity types
 
-    // type of the dataset which stores plate images, there should be at most one
-    public static final String IMAGE_DATASET_TYPE = "HCS_IMAGE";
+    // type of the dataset which stores plate images
+    public static final String HCS_IMAGE_DATASET_TYPE = "HCS_IMAGE";
+
+    // type of the dataset which stores microscopy images
+    public static final String MICROSCOPY_IMAGE_DATASET_TYPE = "MICROSCOPY_IMAGE";
 
     // type of the dataset which stores image analysis data, there should be at most one
-    public static final String IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
-
-    public static final String SIRNA_WELL_TYPE_CODE = "SIRNA_WELL";
+    public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
 
     // the well is considered to be a control well if its type code contains this string
     public static final String CONTROL_WELL_CODE_MARKER = "CONTROL";
@@ -49,6 +50,8 @@ public class ScreeningConstants
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 
     public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
+
+    public static final String SIRNA_WELL_TYPE_CODE = "SIRNA_WELL";
 
     // code of the gene material type
     public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
@@ -61,7 +64,7 @@ public class ScreeningConstants
 
     public static final String DESCRIPTION = "DESCRIPTION";
 
-    public static final String IMAGE_DATASET_PLUGIN_TYPE_CODE = IMAGE_DATASET_TYPE;
+    public static final String HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE = HCS_IMAGE_DATASET_TYPE;
 
     // ---- required DSS servlets
 
@@ -74,6 +77,6 @@ public class ScreeningConstants
 
     public static final String GENE_SYMBOLS = "GENE_SYMBOLS";
 
-    public static final String SIRNA_HCS = "SIRNA_HCS";
+    public static final String HCS_SIRNA_EXPERIMENT_TYPE = "SIRNA_HCS";
 
 }

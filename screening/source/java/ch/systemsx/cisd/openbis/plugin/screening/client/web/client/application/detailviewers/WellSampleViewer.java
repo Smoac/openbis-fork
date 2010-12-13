@@ -25,45 +25,64 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * The <i>screening</i> plate dataset viewer.
+ * The <i>screening</i> well sample detail viewer.
  * 
  * @author Tomasz Pylak
  */
-public final class PlateDatasetViewer extends GenericDataSetViewer
+public final class WellSampleViewer extends GenericSampleViewer
 {
     public static DatabaseModificationAwareComponent create(final ScreeningViewContext viewContext,
             final IIdAndCodeHolder identifiable)
     {
-        PlateDatasetViewer viewer = new PlateDatasetViewer(viewContext, identifiable);
+        WellSampleViewer viewer = new WellSampleViewer(viewContext, identifiable);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private final ScreeningViewContext screeningViewContext;
 
-    public PlateDatasetViewer(final ScreeningViewContext viewContext,
+    private final WellLocation wellLocationOrNull;
+
+    public WellSampleViewer(final ScreeningViewContext viewContext,
             final IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable);
         this.screeningViewContext = viewContext;
+        this.wellLocationOrNull = WellLocation.tryParseLocationStr(getWellCode(identifiable));
     }
 
-    @Override
-    protected void loadDatasetInfo(TechId datasetTechId, AsyncCallback<ExternalData> asyncCallback)
+    private static String getWellCode(final IIdAndCodeHolder identifiable)
     {
-        screeningViewContext.getService().getDataSetInfo(datasetTechId, asyncCallback);
+        String code = identifiable.getCode();
+        int colon = code.indexOf(":");
+        if (colon != -1)
+        {
+            return code.substring(colon + 1);
+        } else
+        {
+            return code;
+        }
     }
 
     @Override
-    protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
+    protected void loadSampleGenerationInfo(TechId sampleTechId,
+            AsyncCallback<SampleParentWithDerived> asyncCallback)
+    {
+        screeningViewContext.getService().getSampleGenerationInfo(sampleTechId, asyncCallback);
+    }
+
+    @Override
+    protected List<TabContent> createAdditionalSectionPanels()
     {
         List<TabContent> sections = new ArrayList<TabContent>();
-        sections.add(new PlateLayoutDatasetSection(screeningViewContext, datasetId));
+
+        sections.add(new WellImageSampleSection(screeningViewContext, sampleId, wellLocationOrNull));
         return sections;
     }
 }

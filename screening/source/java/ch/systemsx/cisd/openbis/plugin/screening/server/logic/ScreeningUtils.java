@@ -57,17 +57,25 @@ public class ScreeningUtils
         String fileTypeCode = dataset.getFileFormatType().getCode();
         return new DatasetReference(dataset.getId(), dataset.getCode(), dataTypeCode,
                 dataset.getRegistrationDate(), fileTypeCode, dataStore.getCode(),
-                dataStore.getHostUrl());
+                dataStore.getHostUrl(), dataset.getExperiment().getPermId());
     }
 
     public static List<ExternalDataPE> filterImageAnalysisDatasets(List<ExternalDataPE> datasets)
     {
-        return filterDatasetsByType(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+        return filterDatasetsByType(datasets, ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE);
     }
 
     public static List<ExternalDataPE> filterImageDatasets(List<ExternalDataPE> datasets)
     {
-        return filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+        List<ExternalDataPE> allDatasets = new ArrayList<ExternalDataPE>();
+        List<ExternalDataPE> hcsDatasets =
+                filterDatasetsByType(datasets, ScreeningConstants.HCS_IMAGE_DATASET_TYPE);
+        List<ExternalDataPE> micDatasets =
+                filterDatasetsByType(datasets, ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE);
+
+        allDatasets.addAll(hcsDatasets);
+        allDatasets.addAll(micDatasets);
+        return allDatasets;
     }
 
     /** chooses datasets of unknown types */
@@ -76,8 +84,8 @@ public class ScreeningUtils
         List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();
         for (ExternalDataPE dataset : datasets)
         {
-            if (isTypeEqual(dataset, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE) == false
-                    && isTypeEqual(dataset, ScreeningConstants.IMAGE_DATASET_TYPE) == false)
+            if (isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE) == false
+                    && isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_DATASET_TYPE) == false)
             {
                 chosenDatasets.add(dataset);
             }
@@ -144,7 +152,7 @@ public class ScreeningUtils
     {
         String datastoreCode = dataSet.getDataStore().getCode();
         String datasetCode = dataSet.getCode();
-        return businessObjectFactory.createHCSDatasetLoader(datasetCode, datastoreCode);
+        return businessObjectFactory.createImageDatasetLoader(datasetCode, datastoreCode);
     }
 
 }

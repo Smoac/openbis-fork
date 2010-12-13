@@ -19,20 +19,26 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ParameterNames;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Constants;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -43,6 +49,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 public class LogicalImageViewer
 {
 
+    private static final String NO_IMAGES_AVAILABLE_MSG = "No images available";
+
     private static final int ONE_IMAGE_WIDTH_PX = 200;
 
     private static final int ONE_IMAGE_HEIGHT_PX = 120;
@@ -51,14 +59,14 @@ public class LogicalImageViewer
 
     private final LogicalImageReference logicalImageReference;
 
-    private final IViewContext<?> viewContext;
+    private final IViewContext<IScreeningClientServiceAsync> viewContext;
 
     private final IDefaultChannelState channelState;
 
     private String currentlySelectedChannelCode;
 
     public LogicalImageViewer(LogicalImageReference logicalImageReference,
-            IViewContext<?> viewContext, String experimentPermId)
+            IViewContext<IScreeningClientServiceAsync> viewContext, String experimentPermId)
     {
         this.logicalImageReference = logicalImageReference;
         this.viewContext = viewContext;
@@ -66,7 +74,65 @@ public class LogicalImageViewer
     }
 
     /** Creates a widget which displays a series of images. */
-    public Widget getSeriesImageWidget(final List<ImageChannelStack> channelStackImages)
+    public Widget getViewerWidget(List<ImageChannelStack> channelStackImages)
+    {
+        if (logicalImageReference.isMultidimensional())
+        {
+            return createSeriesImageWidget(channelStackImages);
+        } else
+        {
+            return getStaticImageWidget();
+        }
+    }
+
+    /**
+     * Creates a widget which displays a series of images. If there are image series fetches
+     * information about them from the server.
+     */
+    public Widget getViewerWidget()
+    {
+        if (logicalImageReference.isMultidimensional())
+        {
+            return getSeriesImageWidget();
+        } else
+        {
+            return getStaticImageWidget();
+        }
+    }
+
+    /** Creates a widget which displays a series of images. */
+    private Widget getSeriesImageWidget()
+    {
+        final LayoutContainer container = new LayoutContainer();
+        container.add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
+        container.setLayout(new RowLayout());
+
+        // loads the channel stacks asynchroniously, when done replaces the "Loading..." message
+        // with the viewer.
+        viewContext.getService().getImageDatasetInfo(logicalImageReference.getDatasetCode(),
+                logicalImageReference.getDatastoreCode(),
+                logicalImageReference.tryGetWellLocation(),
+                new AbstractAsyncCallback<LogicalImageInfo>(viewContext)
+                    {
+                        @Override
+                        protected void process(final LogicalImageInfo imageInfo)
+                        {
+                            container.removeAll();
+                            List<ImageChannelStack> channelStackImages =
+                                    imageInfo.getChannelStacks();
+                            if (channelStackImages.size() > 0)
+                            {
+                                container.add(createSeriesImageWidget(channelStackImages));
+                            } else
+                            {
+                                container.add(new Text(NO_IMAGES_AVAILABLE_MSG));
+                            }
+                        }
+                    });
+        return container;
+    }
+
+    private Widget createSeriesImageWidget(final List<ImageChannelStack> channelStackImages)
     {
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
@@ -76,9 +142,8 @@ public class LogicalImageViewer
                     String sessionId = getSessionId(viewContext);
                     int imageWidth = getImageWidth(logicalImageReference);
                     int imageHeight = getImageHeight(logicalImageReference);
-                    return LogicalImageSeriesViewer.create(sessionId,
-                            channelStackImages, logicalImageReference, channel, imageWidth,
-                            imageHeight);
+                    return LogicalImageSeriesViewer.create(sessionId, channelStackImages,
+                            logicalImageReference, channel, imageWidth, imageHeight);
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
@@ -86,7 +151,7 @@ public class LogicalImageViewer
     }
 
     /** Creates a widget which displays images which has no series. */
-    public Widget getStaticImageWidget()
+    private Widget getStaticImageWidget()
     {
 
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
-import java.util.List;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -32,11 +30,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
@@ -84,14 +83,7 @@ public interface IScreeningClientService extends IClientService
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
             WellSearchCriteria materialCriteria) throws UserFailureException;
 
-    /**
-     * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
-     * WellContent.
-     */
-    public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)
-            throws UserFailureException;
-
-    public String prepareExportPlateLocations2(
+    public String prepareExportPlateLocations(
             TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
             throws UserFailureException;
 
@@ -99,8 +91,8 @@ public interface IScreeningClientService extends IClientService
      * Returns {@link TypedTableResultSet} containing plate metadata.
      */
     public TypedTableResultSet<WellMetadata> listPlateMetadata(
-            IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> resultSetConfig, TechId sampleId)
-            throws UserFailureException;
+            IResultSetConfig<String, TableModelRowWithObject<WellMetadata>> resultSetConfig,
+            TechId sampleId) throws UserFailureException;
 
     /**
      * Lists {@link Material}s of specified type in experiment with specified id.
@@ -112,12 +104,24 @@ public interface IScreeningClientService extends IClientService
      * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
      * TypedTableResultSet.
      */
-    public String prepareExportPlateMetadata(TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria)
+    public String prepareExportPlateMetadata(
+            TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria)
             throws UserFailureException;
 
-    /** Lists all images for a given well in the given dataset */
-    public List<ImageChannelStack> listImageChannelStacks(String datasetCode,
-            String datastoreCode, WellLocation wellLocationOrNull) throws UserFailureException;
+    /**
+     * Returns information about logical image in the given dataset. In HCS case the well location
+     * should be specified.
+     */
+    public LogicalImageInfo getImageDatasetInfo(String datasetCode, String datastoreCode,
+            WellLocation wellLocationOrNull) throws UserFailureException;
+
+    /**
+     * Loads information about datasets connected to specified sample (microscopy) or a container
+     * sample (HCS). In particular loads the logical images in datasets belonging to the specified
+     * sample (restricted to one well in HCS case).
+     */
+    public ImageSampleContent getImageDatasetInfosForSample(TechId sampleId,
+            WellLocation wellLocationOrNull);
 
     /**
      * Registers a new library.

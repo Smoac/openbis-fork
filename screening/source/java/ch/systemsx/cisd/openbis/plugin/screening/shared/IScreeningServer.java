@@ -25,10 +25,10 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -39,10 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
@@ -95,9 +96,15 @@ public interface IScreeningServer extends IServer
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<ImageChannelStack> listImageChannelStacks(String sessionToken,
+    public LogicalImageInfo getImageDatasetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull);
+
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public ImageSampleContent getImageDatasetInfosForSample(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
+            WellLocation wellLocationOrNull);
 
     /**
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.

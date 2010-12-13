@@ -51,9 +51,9 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             Collection<? extends PlateIdentifier> plates)
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
-                ScreeningConstants.IMAGE_DATASET_TYPE,
-                ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
-        featureVectorDatasetTypeCode = ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE;
+                ScreeningConstants.HCS_IMAGE_DATASET_TYPE,
+                ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE);
+        featureVectorDatasetTypeCode = ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE;
     }
 
     public static class FeatureVectorExternalData
@@ -108,10 +108,10 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
         List<ExternalData> imageDatasets = new ArrayList<ExternalData>();
         for (ExternalData dataset : getDatasets())
         {
-            if (ScreeningUtils.isTypeEqual(dataset, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE))
+            if (ScreeningUtils.isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE))
             {
                 featureVectorDatasetSet.put(dataset.getId(), dataset);
-            } else if (ScreeningUtils.isTypeEqual(dataset, ScreeningConstants.IMAGE_DATASET_TYPE))
+            } else if (ScreeningUtils.isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_DATASET_TYPE))
             {
                 imageDatasets.add(dataset);
             }

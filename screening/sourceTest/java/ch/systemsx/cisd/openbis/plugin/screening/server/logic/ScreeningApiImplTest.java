@@ -281,7 +281,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     private ExternalData imageDataSet(Sample sample, String code, long id)
     {
         ExternalData dataSet = createDataSet(sample, code, id);
-        dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_DATASET_TYPE));
+        dataSet.setDataSetType(dataSetType(ScreeningConstants.HCS_IMAGE_DATASET_TYPE));
         dataSet.setExperiment(new Experiment());
         dataSet.getExperiment().setProject(new Project());
         dataSet.getExperiment().getProject().setSpace(new Space());
@@ -291,7 +291,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     private ExternalData imageAnalysisDataSet(Sample sample, String code, long id)
     {
         ExternalData dataSet = createDataSet(sample, code, id);
-        dataSet.setDataSetType(dataSetType(ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE));
+        dataSet.setDataSetType(dataSetType(ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE));
         dataSet.setExperiment(new Experiment());
         dataSet.getExperiment().setProject(new Project());
         dataSet.getExperiment().getProject().setSpace(new Space());

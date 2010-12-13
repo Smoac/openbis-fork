@@ -55,8 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -69,12 +69,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
  * The concrete {@link IScreeningServer} implementation.
@@ -157,12 +158,20 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
                 materialCriteria);
     }
 
-    public List<ImageChannelStack> listImageChannelStacks(String sessionToken,
-            String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
+    public LogicalImageInfo getImageDatasetInfo(String sessionToken, String datasetCode,
+            String datastoreCode, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImageChannelStacks(session, businessObjectFactory,
-                datasetCode, datastoreCode, wellLocationOrNull);
+        return PlateContentLoader.getImageDatasetInfo(session, businessObjectFactory, datasetCode,
+                datastoreCode, wellLocationOrNull);
+    }
+
+    public ImageSampleContent getImageDatasetInfosForSample(String sessionToken, TechId sampleId,
+            WellLocation wellLocationOrNull)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader.getImageDatasetInfosForSample(session, businessObjectFactory,
+                sampleId, wellLocationOrNull);
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)

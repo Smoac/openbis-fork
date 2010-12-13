@@ -245,7 +245,7 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
     private static NewExperiment createExperimentSIRNAHCS(ExperimentIdentifier experimentIdentifier)
     {
         NewExperiment experiment = new NewExperiment();
-        experiment.setExperimentTypeCode(ScreeningConstants.SIRNA_HCS);
+        experiment.setExperimentTypeCode(ScreeningConstants.HCS_SIRNA_EXPERIMENT_TYPE);
         experiment.setIdentifier(experimentIdentifier.toString());
         experiment.setProperties(createVarcharProperty(ScreeningConstants.DESCRIPTION, "-"));
         return experiment;

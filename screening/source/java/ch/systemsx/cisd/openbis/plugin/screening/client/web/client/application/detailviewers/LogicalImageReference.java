@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -31,7 +30,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class LogicalImageReference
 {
-    private final DatasetImagesReference imageDataset;
+    private final String datasetCode;
+
+    private final String datastoreCode;
+
+    private final String datastoreHostUrl;
+
+    private final ImageDatasetParameters imageParameters;
 
     private final WellLocation wellLocationOrNull;
 
@@ -39,8 +44,21 @@ public class LogicalImageReference
             WellLocation wellLocationOrNull)
     {
         assert imageDataset != null : "image dataset is null";
-        this.imageDataset = imageDataset;
+        this.datasetCode = imageDataset.getDatasetCode();
+        this.datastoreCode = imageDataset.getDatastoreCode();
+        this.datastoreHostUrl = imageDataset.getDatastoreHostUrl();
+        this.imageParameters = imageDataset.getImageParameters();
         this.wellLocationOrNull = wellLocationOrNull;
+    }
+
+    public LogicalImageReference(String datasetCode, String datastoreCode, String datastoreHostUrl,
+            ImageDatasetParameters imageParameters)
+    {
+        this.datasetCode = datasetCode;
+        this.datastoreCode = datastoreCode;
+        this.datastoreHostUrl = datastoreHostUrl;
+        this.imageParameters = imageParameters;
+        this.wellLocationOrNull = null;
     }
 
     public WellLocation tryGetWellLocation()
@@ -48,54 +66,44 @@ public class LogicalImageReference
         return wellLocationOrNull;
     }
 
-    private ImageDatasetParameters getImageParams()
-    {
-        return imageDataset.getImageParameters();
-    }
-
-    private DatasetReference getDataset()
-    {
-        return imageDataset.getDatasetReference();
-    }
-
     public int getTileRowsNum()
     {
-        return getImageParams().getTileRowsNum();
+        return imageParameters.getTileRowsNum();
     }
 
     public int getTileColsNum()
     {
-        return getImageParams().getTileColsNum();
+        return imageParameters.getTileColsNum();
     }
 
     public List<String> getChannelsCodes()
     {
-        return getImageParams().getChannelsCodes();
+        return imageParameters.getChannelsCodes();
     }
 
     public boolean isMultidimensional()
     {
-        return getImageParams().isMultidimensional();
+        return imageParameters.isMultidimensional();
     }
 
     public String getDatasetCode()
     {
-        return getDataset().getCode();
+        return datasetCode;
     }
 
     public String getDatastoreHostUrl()
     {
-        return getDataset().getDatastoreHostUrl();
+        return datastoreHostUrl;
     }
 
     public String getDatastoreCode()
     {
-        return getDataset().getDatastoreCode();
+        return datastoreCode;
     }
 
     public String getTransformerFactorySignatureOrNull(String channelCode)
     {
-        return getImageParams().getTransformerFactorySignatureOrNull(channelCode);
+        return imageParameters.getTransformerFactorySignatureOrNull(channelCode);
     }
 
 }

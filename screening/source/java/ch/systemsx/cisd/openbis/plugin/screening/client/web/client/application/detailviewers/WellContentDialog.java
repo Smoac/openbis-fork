@@ -44,7 +44,6 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
@@ -58,7 +57,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.u
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -93,8 +91,7 @@ public class WellContentDialog extends Dialog
             DatasetImagesReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        final WellContentDialog contentDialog =
-                createContentDialog(wellData, viewContext);
+        final WellContentDialog contentDialog = createContentDialog(wellData, viewContext);
         showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
     }
 
@@ -102,13 +99,13 @@ public class WellContentDialog extends Dialog
             final DatasetImagesReference imagesOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        if (imagesOrNull != null && imagesOrNull.getImageParameters().isMultidimensional())
+        if (imagesOrNull != null)
         {
-            showTimepointImageDialog(contentDialog, imagesOrNull, viewContext);
-        } else
-        {
-            showStaticImageDialog(contentDialog, imagesOrNull, viewContext);
+            LogicalImageViewer viewer = contentDialog.createImageViewer(imagesOrNull);
+            contentDialog.add(viewer.getViewerWidget());
+            contentDialog.addImageEditorLaunchButton(viewer);
         }
+        contentDialog.show();
     }
 
     private static WellContentDialog createContentDialog(final WellData wellData,
@@ -123,8 +120,8 @@ public class WellContentDialog extends Dialog
             wellOrNull = wellMetadata.getWellSample();
             wellPropertiesOrNull = wellMetadata.getWellSample().getProperties();
         }
-        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation, getExperiment(wellData),
-                viewContext);
+        return new WellContentDialog(wellOrNull, wellPropertiesOrNull, wellLocation,
+                getExperiment(wellData), viewContext);
     }
 
     /**
@@ -158,8 +155,8 @@ public class WellContentDialog extends Dialog
         final LogicalImageReference wellImages =
                 new LogicalImageReference(imageDataset, locationOrNull);
         LayoutContainer staticTilesGrid =
-                LogicalImageViewer.createRepresentativeImage(wellImages, channel, sessionId, imageWidthPx,
-                        imageHeightPx, createImageLinks);
+                LogicalImageViewer.createRepresentativeImage(wellImages, channel, sessionId,
+                        imageWidthPx, imageHeightPx, createImageLinks);
 
         if (imageParameters.isMultidimensional())
         {
@@ -185,61 +182,6 @@ public class WellContentDialog extends Dialog
                         getExperiment(wellContent.getExperiment()), viewContext);
 
         showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
-    }
-
-    // --------------- STATIC IMAGES VIEWER
-
-    private static void showStaticImageDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imageDatasetOrNull, final IViewContext<?> viewContext)
-    {
-        if (imageDatasetOrNull != null)
-        {
-            contentDialog.addImageStaticViewer(imageDatasetOrNull);
-        }
-        contentDialog.show();
-    }
-
-    // --------------- TIMEPOINT IMAGES PLAYER
-
-    private static void showTimepointImageDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imageDataset,
-            final IViewContext<IScreeningClientServiceAsync> viewContext)
-    {
-        assert imageDataset != null;
-
-        viewContext.getService().listImageChannelStacks(imageDataset.getDatasetCode(),
-                imageDataset.getDatastoreCode(), contentDialog.wellLocationOrNull,
-                new AbstractAsyncCallback<List<ImageChannelStack>>(viewContext)
-                    {
-                        @Override
-                        protected void process(final List<ImageChannelStack> channelStackImages)
-                        {
-                            if (channelStackImages.size() > 0)
-                            {
-                                contentDialog
-                                        .addImageSeriesViewer(imageDataset, channelStackImages);
-                            }
-                            contentDialog.show();
-                        }
-
-                    });
-    }
-
-    protected void addImageSeriesViewer(DatasetImagesReference imageDataset,
-            List<ImageChannelStack> channelStackImages)
-    {
-        LogicalImageViewer viewer = createImageViewer(imageDataset);
-        Widget viewerWidget = viewer.getSeriesImageWidget(channelStackImages);
-        add(viewerWidget);
-        addImageEditorLaunchButton(viewer);
-    }
-
-    protected void addImageStaticViewer(DatasetImagesReference imageDataset)
-    {
-        LogicalImageViewer viewer = createImageViewer(imageDataset);
-        Widget viewerWidget = viewer.getStaticImageWidget();
-        add(viewerWidget);
-        addImageEditorLaunchButton(viewer);
     }
 
     private LogicalImageViewer createImageViewer(DatasetImagesReference imageDatasetOrNull)
@@ -283,7 +225,8 @@ public class WellContentDialog extends Dialog
 
     private WellContentDialog(IEntityInformationHolderWithPermId wellOrNull,
             List<IEntityProperty> wellPropertiesOrNull, final WellLocation wellLocationOrNull,
-            final SingleExperimentSearchCriteria experimentCriteria, final IViewContext<IScreeningClientServiceAsync> viewContext)
+            final SingleExperimentSearchCriteria experimentCriteria,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         this.wellOrNull = wellOrNull;
         this.wellLocationOrNull = wellLocationOrNull;

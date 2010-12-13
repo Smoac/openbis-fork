@@ -108,7 +108,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
      * To be subclassed. Creates additional panels of the viewer in the right side section besides
      * components, datasets and attachments
      */
-    protected List<TabContent> createAdditionalSectionPanels()
+    protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
     {
         return new ArrayList<TabContent>();
     }
@@ -169,7 +169,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
                 new SectionsPanel(viewContext.getCommonViewContext(), ID_PREFIX + dataset.getId());
         container.setDisplayID(DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER, displayIdSuffix);
 
-        List<TabContent> additionalPanels = createAdditionalSectionPanels();
+        List<TabContent> additionalPanels = createAdditionalSectionPanels(dataset);
         for (TabContent panel : additionalPanels)
         {
             container.addSection(panel);

@@ -27,7 +27,11 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     PLATE_LAYOUT_SAMPLE_SECTION("plate-layout-sample-section"),
 
+    LOGICAL_IMAGE_WELL_SECTION("logical-image-well-section"),
+    
     PLATE_LAYOUT_DATASET_SECTION("plate-layout-dataset-section"),
+
+    LOGICAL_IMAGE_DATASET_SECTION("logical-image-dataset-section"),
 
     PLATE_LOCATIONS_MATERIAL_SECTION("plate-locations-material-section"),
 

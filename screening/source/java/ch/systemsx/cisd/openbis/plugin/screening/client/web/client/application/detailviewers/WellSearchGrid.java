@@ -653,7 +653,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
             TableExportCriteria<TableModelRowWithObject<WellContent>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportPlateLocations2(exportCriteria, callback);
+        viewContext.getService().prepareExportPlateLocations(exportCriteria, callback);
     }
 
     @Override

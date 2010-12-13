@@ -216,7 +216,7 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
             }
 
             // Only import this data set if it is of an analysis type
-            if (false == ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE.equals(getDataSetInfo()
+            if (false == ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE.equals(getDataSetInfo()
                     .getDataSetType()))
             {
                 shouldMigrate = false;

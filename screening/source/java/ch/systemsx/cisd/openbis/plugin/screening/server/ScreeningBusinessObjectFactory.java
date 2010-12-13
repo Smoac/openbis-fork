@@ -60,7 +60,7 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     {
     }
 
-    public IImageDatasetLoader createHCSDatasetLoader(String datasetCode, String datastoreCode)
+    public IImageDatasetLoader createImageDatasetLoader(String datasetCode, String datastoreCode)
     {
         return new HCSDatasetLoader(specificDAOFactory.getImagingQueryDAO(datastoreCode),
                 datasetCode);

@@ -55,12 +55,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
@@ -175,12 +176,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return new TypedTableResultSet<WellContent>(resultSet);
     }
 
-    public String prepareExportPlateLocations(TableExportCriteria<WellContent> criteria)
-    {
-        return prepareExportEntities(criteria);
-    }
-
-    public String prepareExportPlateLocations2(
+    public String prepareExportPlateLocations(
             TableExportCriteria<TableModelRowWithObject<WellContent>> criteria)
     {
         return prepareExportEntities(criteria);
@@ -243,12 +239,19 @@ public final class ScreeningClientService extends AbstractClientService implemen
         return server.getVocabulary(sessionToken, ScreeningConstants.PLATE_GEOMETRY);
     }
 
-    public List<ImageChannelStack> listImageChannelStacks(String datasetCode,
-            String datastoreCode, WellLocation wellLocationOrNull)
+    public LogicalImageInfo getImageDatasetInfo(String datasetCode, String datastoreCode,
+            WellLocation wellLocationOrNull)
     {
         final String sessionToken = getSessionToken();
-        return server.listImageChannelStacks(sessionToken, datasetCode, datastoreCode,
+        return server.getImageDatasetInfo(sessionToken, datasetCode, datastoreCode,
                 wellLocationOrNull);
+    }
+
+    public ImageSampleContent getImageDatasetInfosForSample(TechId sampleId,
+            WellLocation wellLocationOrNull)
+    {
+        final String sessionToken = getSessionToken();
+        return server.getImageDatasetInfosForSample(sessionToken, sampleId, wellLocationOrNull);
     }
 
     public ResultSet<Material> listExperimentMaterials(final TechId experimentId,

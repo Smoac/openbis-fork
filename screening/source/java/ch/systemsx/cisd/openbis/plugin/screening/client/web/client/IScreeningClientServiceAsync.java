@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
@@ -32,11 +30,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
@@ -74,13 +73,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     /**
      * @see IScreeningClientService#prepareExportPlateLocations(TableExportCriteria)
      */
-    public void prepareExportPlateLocations(TableExportCriteria<WellContent> criteria,
-            AsyncCallback<String> callback);
-
-    /**
-     * @see IScreeningClientService#prepareExportPlateLocations2(TableExportCriteria)
-     */
-    public void prepareExportPlateLocations2(
+    public void prepareExportPlateLocations(
             TableExportCriteria<TableModelRowWithObject<WellContent>> criteria,
             AsyncCallback<String> callback);
 
@@ -99,11 +92,16 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listImageChannelStacks(String, String, WellLocation)
+     * @see IScreeningClientService#getImageDatasetInfo(String, String, WellLocation)
      */
-    public void listImageChannelStacks(String datasetCode, String datastoreCode,
-            WellLocation wellLocationOrNull,
-            AsyncCallback<List<ImageChannelStack>> abstractAsyncCallback);
+    public void getImageDatasetInfo(String datasetCode, String datastoreCode,
+            WellLocation wellLocationOrNull, AsyncCallback<LogicalImageInfo> abstractAsyncCallback);
+
+    /**
+     * @see IScreeningClientService#getImageDatasetInfosForSample(TechId, WellLocation)
+     */
+    public void getImageDatasetInfosForSample(TechId sampleId,
+            WellLocation wellLocationOrNull, AsyncCallback<ImageSampleContent> abstractAsyncCallback);
 
     /**
      * @see IScreeningClientService#registerLibrary(LibraryRegistrationInfo)

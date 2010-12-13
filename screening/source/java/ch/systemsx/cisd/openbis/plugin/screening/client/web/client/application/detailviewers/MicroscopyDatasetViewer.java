@@ -30,23 +30,23 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dat
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 
 /**
- * The <i>screening</i> plate dataset viewer.
+ * The <i>microscopy</i> image dataset detail viewer.
  * 
  * @author Tomasz Pylak
  */
-public final class PlateDatasetViewer extends GenericDataSetViewer
+public final class MicroscopyDatasetViewer extends GenericDataSetViewer
 {
     public static DatabaseModificationAwareComponent create(final ScreeningViewContext viewContext,
             final IIdAndCodeHolder identifiable)
     {
-        PlateDatasetViewer viewer = new PlateDatasetViewer(viewContext, identifiable);
+        MicroscopyDatasetViewer viewer = new MicroscopyDatasetViewer(viewContext, identifiable);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private final ScreeningViewContext screeningViewContext;
 
-    public PlateDatasetViewer(final ScreeningViewContext viewContext,
+    public MicroscopyDatasetViewer(final ScreeningViewContext viewContext,
             final IIdAndCodeHolder identifiable)
     {
         super(viewContext, identifiable);
@@ -63,7 +63,7 @@ public final class PlateDatasetViewer extends GenericDataSetViewer
     protected List<TabContent> createAdditionalSectionPanels(ExternalData dataset)
     {
         List<TabContent> sections = new ArrayList<TabContent>();
-        sections.add(new PlateLayoutDatasetSection(screeningViewContext, datasetId));
+        sections.add(new LogicalImageDatasetSection(screeningViewContext, dataset));
         return sections;
     }
 }

@@ -44,12 +44,13 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria;
 
 /**
  * The <i>screening</i> specific {@link AbstractServerLogger} extension.
@@ -91,18 +92,25 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public List<WellContent> listPlateWells(String sessionToken,
-            WellSearchCriteria materialCriteria)
+    public List<WellContent> listPlateWells(String sessionToken, WellSearchCriteria materialCriteria)
     {
         logAccess(sessionToken, "getPlateLocations", "criteria(%s)", materialCriteria);
         return null;
     }
 
-    public List<ImageChannelStack> listImageChannelStacks(String sessionToken,
-            String datasetCode, String datastoreCode, WellLocation wellLocation)
+    public LogicalImageInfo getImageDatasetInfo(String sessionToken, String datasetCode,
+            String datastoreCode, WellLocation wellLocationOrNull)
     {
-        logAccess(sessionToken, "listImageChannelStacks", "dataset(%s) well(%s)", datasetCode,
-                wellLocation);
+        logAccess(sessionToken, "getImageDatasetInfo", "dataset(%s) well(%s)", datasetCode,
+                wellLocationOrNull);
+        return null;
+    }
+
+    public ImageSampleContent getImageDatasetInfosForSample(String sessionToken, TechId sampleId,
+            WellLocation wellLocationOrNull)
+    {
+        logAccess(sessionToken, "getImageDatasetInfosForSample", "sample(%s) well(%s)", sampleId,
+                wellLocationOrNull);
         return null;
     }
 
@@ -114,8 +122,8 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
 
     public TableModel loadImageAnalysisForExperiment(String sessionToken, TechId experimentId)
     {
-        logAccess(sessionToken, "loadImageAnalysisForExperiment", "EXPERIMENT(%s)", experimentId
-                .getId());
+        logAccess(sessionToken, "loadImageAnalysisForExperiment", "EXPERIMENT(%s)",
+                experimentId.getId());
         return null;
     }
 
@@ -227,5 +235,4 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         return ScreeningServer.MINOR_VERSION;
     }
-
 }
