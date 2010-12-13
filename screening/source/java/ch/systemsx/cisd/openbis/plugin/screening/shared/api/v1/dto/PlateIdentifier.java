@@ -113,6 +113,55 @@ public class PlateIdentifier extends PermanentIdentifier
     }
 
     @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((plateCode == null) ? 0 : plateCode.hashCode());
+        result = prime * result + ((spaceCodeOrNull == null) ? 0 : spaceCodeOrNull.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (!super.equals(obj))
+        {
+            return false;
+        }
+        if (!(obj instanceof PlateIdentifier))
+        {
+            return false;
+        }
+        PlateIdentifier other = (PlateIdentifier) obj;
+        if (plateCode == null)
+        {
+            if (other.plateCode != null)
+            {
+                return false;
+            }
+        } else if (!plateCode.equals(other.plateCode))
+        {
+            return false;
+        }
+        if (spaceCodeOrNull == null)
+        {
+            if (other.spaceCodeOrNull != null)
+            {
+                return false;
+            }
+        } else if (!spaceCodeOrNull.equals(other.spaceCodeOrNull))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public String toString()
     {
         if (getPermId() == null)

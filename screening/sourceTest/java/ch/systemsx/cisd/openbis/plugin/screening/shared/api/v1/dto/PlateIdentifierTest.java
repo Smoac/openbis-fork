@@ -35,6 +35,24 @@ public class PlateIdentifierTest extends AssertJUnit
     }
 
     @Test
+    public void testEqualityWithDifferentCode()
+    {
+        PlateIdentifier plateId1 = new PlateIdentifier("abcd", "MySpace");
+        PlateIdentifier plateId2 = new PlateIdentifier("abcde", "MySpace");
+        assertFalse(plateId1.equals(plateId2));
+        assertFalse(plateId1.hashCode() == plateId2.hashCode());
+    }
+
+    @Test
+    public void testEqualityWithDifferentSpaceCode()
+    {
+        PlateIdentifier plateId1 = new PlateIdentifier("abcd", "MySpace");
+        PlateIdentifier plateId2 = new PlateIdentifier("abcd", "OtherSpace");
+        assertFalse(plateId1.equals(plateId2));
+        assertFalse(plateId1.hashCode() == plateId2.hashCode());
+    }
+
+    @Test
     public void testEqualityWithNullSpaceCode()
     {
         PlateIdentifier plateId1 = new PlateIdentifier("28948045-348", null);
