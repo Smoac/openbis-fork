@@ -111,12 +111,19 @@ CREATE TABLE CHANNEL_STACKS (
 		-- x and y are kind of a two dimensional sequence number, some use case may only use x and leave y alone
 		X INTEGER,
 		Y INTEGER,
-		-- we use the fixed dimension meters here
+		-- We use the fixed dimension meters here.
+		-- Not null only if SERIES_NUMBER is null.
 		Z_in_M REAL,
-		-- we use the fixed dimension seconds here
+		-- We use the fixed dimension seconds here.
+		-- Not null only if SERIES_NUMBER is null.
 		T_in_SEC REAL,
 		-- not null if and only if t and z are null
-		-- SERIES_NUMBER INTEGER,
+		-- TODO: write constraint which checks this
+		SERIES_NUMBER INTEGER,
+		
+		-- For all channel stacks of a well (HCS) or image dataset (microscopy) there should be exactly 
+		-- one record with is_representative = true
+		is_representative BOOLEAN_CHAR NOT NULL DEFAULT 'F',
     
     DS_ID TECH_ID	NOT NULL,
 		SPOT_ID TECH_ID,

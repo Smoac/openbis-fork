@@ -1,5 +1,8 @@
 -- Migration from 008 to 009
 
+ALTER TABLE channel_stacks ADD COLUMN is_representative BOOLEAN_CHAR NOT NULL DEFAULT 'F';
+ALTER TABLE channel_stacks ADD COLUMN series_number INTEGER;    
+
 --- ADD MICROSCOPY SUPPORT -----------------------------------------------------------------------
 
 ALTER TABLE channel_stacks ALTER COLUMN spot_id DROP NOT NULL;
@@ -30,6 +33,3 @@ $$ LANGUAGE 'plpgsql';
 CREATE TRIGGER CHANNEL_STACKS_CHECK BEFORE INSERT OR UPDATE ON CHANNEL_STACKS
     FOR EACH ROW EXECUTE PROCEDURE CHANNEL_STACKS_CHECK();
     
---- ADD SERIES SEQUENCE NUMBER -----------------------------------------------------------------------
-
--- ALTER TABLE channel_stacks ADD COLUMN series_number INTEGER;    
