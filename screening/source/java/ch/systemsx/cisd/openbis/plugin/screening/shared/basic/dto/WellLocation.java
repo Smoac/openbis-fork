@@ -71,6 +71,21 @@ public class WellLocation implements ISerializable
     }
 
     /**
+     * See {@link #parseLocationStr}. Returns null instead of throwing IllegalArgumentException when
+     * an error occurs.
+     */
+    public static WellLocation tryParseLocationStr(String locationStr)
+    {
+        try
+        {
+            return parseLocationStr(locationStr);
+        } catch (IllegalArgumentException ex)
+        {
+            return null;
+        }
+    }
+
+    /**
      * Parses a location given as two strings for row and column and returns a {@link WellLocation}.
      * The location has to start with one or more letters ignoring case. This
      * <var>rowLocationStr</var> has 'A'=1, 'B'=2, ..., 'Z'=26, 'AA'=27, ..., 'AZ'=52, 'BA'=53,
