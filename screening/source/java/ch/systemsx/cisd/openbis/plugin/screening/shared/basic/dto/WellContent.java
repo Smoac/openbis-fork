@@ -33,7 +33,7 @@ public class WellContent implements ISerializable
 
     // ------------ Metadata -----------
 
-    private WellLocation locationOrNull; // null if well code was incorrect
+    private WellLocation locationOrNull; // null only if well code was incorrect
 
     private EntityReference well;
 
