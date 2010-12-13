@@ -47,6 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -82,15 +84,31 @@ public abstract class TypedTableGrid<T extends ISerializable>
 
         public String tryGetLink(T entity, final ISerializableComparable value)
         {
-            return (value == null) ? null : LinkExtractor.createPermlink(entityKind,
-                    value.toString());
+            if (value == null)
+            {
+                return null;
+            }
+            if (value instanceof MaterialTableCell)
+            {
+                MaterialTableCell materialTableCell = (MaterialTableCell) value;
+                return LinkExtractor.tryExtract(materialTableCell.getMaterialIdentifier());
+            }
+            return LinkExtractor.createPermlink(entityKind, value.toString());
         }
 
         public void handle(TableModelRowWithObject<T> rowItem, boolean specialKeyPressed)
         {
             ISerializableComparable cellValue = rowItem.getValues().get(header.getIndex());
-            OpenEntityDetailsTabHelper.open(viewContext, entityKind, cellValue.toString(),
-                    specialKeyPressed);
+            if (cellValue instanceof MaterialTableCell)
+            {
+                MaterialTableCell materialTableCell = (MaterialTableCell) cellValue;
+                MaterialIdentifier materialIdentifier = materialTableCell.getMaterialIdentifier();
+                OpenEntityDetailsTabHelper.open(viewContext, materialIdentifier, specialKeyPressed);
+            } else
+            {
+                OpenEntityDetailsTabHelper.open(viewContext, entityKind, cellValue.toString(),
+                        specialKeyPressed);
+            }
         }
     }
 
@@ -200,8 +218,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
                         listenerLinkGenerators.get(header.getId());
                 final EntityKind entityKind = header.tryGetEntityKind();
-                if (linkGeneratorOrNull == null && entityKind != null
-                        && entityKind != EntityKind.MATERIAL)
+                if (linkGeneratorOrNull == null && entityKind != null)
                 {
                     linkGeneratorOrNull = new CellListenerAndLinkGenerator(entityKind, header);
                     registerListenerAndLinkGenerator(header.getId(), linkGeneratorOrNull);

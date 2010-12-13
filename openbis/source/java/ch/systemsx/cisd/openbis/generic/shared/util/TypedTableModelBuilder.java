@@ -35,9 +35,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
@@ -135,8 +137,15 @@ public class TypedTableModelBuilder<T extends ISerializable>
                 String code = idPrefix + propertyType.getCode();
                 IColumn column = column(code).withTitle(label);
                 DataTypeCode dataType = propertyType.getDataType().getCode();
-                ISerializableComparable value =
-                        DataTypeUtils.convertTo(dataType, property.tryGetAsString());
+                ISerializableComparable value;
+                if (DataTypeCode.MATERIAL == dataType)
+                {
+                    value = new MaterialTableCell(property.getMaterial());
+                    column.withEntityKind(EntityKind.MATERIAL);
+                } else
+                {
+                    value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
+                }
                 column.withDataType(dataType).addValue(value);
             }
         }
@@ -187,6 +196,12 @@ public class TypedTableModelBuilder<T extends ISerializable>
         public IColumn withDataType(DataTypeCode dataType)
         {
             header.setDataType(dataType);
+            return this;
+        }
+
+        public IColumn withEntityKind(EntityKind entityKind)
+        {
+            header.setEntityKind(entityKind);
             return this;
         }
 

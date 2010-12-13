@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -44,6 +45,11 @@ public interface IColumn
      * Sets the data type.
      */
     public IColumn withDataType(DataTypeCode dataType);
+    
+    /**
+     * Sets the entity kind.
+     */
+    public IColumn withEntityKind(EntityKind entityKind);
     
     /**
      * Adds a value.
