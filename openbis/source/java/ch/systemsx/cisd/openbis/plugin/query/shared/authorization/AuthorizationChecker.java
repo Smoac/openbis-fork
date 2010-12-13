@@ -66,7 +66,7 @@ public class AuthorizationChecker implements IAuthorizationChecker
         for (final RoleWithIdentifier role : userRoles)
         {
             final RoleLevel roleGroup = role.getRoleLevel();
-            if (roleGroup.equals(RoleLevel.SPACE) && role.getAssignedGroup().equals(requiredSpace))
+            if (roleGroup.equals(RoleLevel.SPACE) && role.getAssignedSpace().equals(requiredSpace))
             {
                 return true;
             } else if (roleGroup.equals(RoleLevel.INSTANCE)

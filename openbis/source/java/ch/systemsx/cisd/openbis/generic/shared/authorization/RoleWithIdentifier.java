@@ -21,13 +21,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
- * Stores the {@link RoleWithHierarchy} and the "owner" to which this role is connected: database instance or a
- * group.
+ * Stores the {@link RoleWithHierarchy} and the "owner" to which this role is connected: database
+ * instance or a space.
  * <p>
  * Note that {@link #equals(Object)} resp. {@link #hashCode()} are not overridden and so do not
  * consider the <code>owner</code>.
@@ -42,24 +42,24 @@ public final class RoleWithIdentifier
 
     private final DatabaseInstancePE databaseInstanceOrNull;
 
-    private final SpacePE groupOrNull;
+    private final SpacePE spaceOrNull;
 
     @Private
-    RoleWithIdentifier(final RoleLevel roleGroup, final RoleCode roleName,
-            final DatabaseInstancePE databaseInstanceOrNull, final SpacePE groupOrNull)
+    RoleWithIdentifier(final RoleLevel roleLevel, final RoleCode roleName,
+            final DatabaseInstancePE databaseInstanceOrNull, final SpacePE spaceOrNull)
     {
-        role = RoleWithHierarchy.valueOf(roleGroup, roleName);
-        if (RoleLevel.SPACE.equals(roleGroup))
+        role = RoleWithHierarchy.valueOf(roleLevel, roleName);
+        if (RoleLevel.SPACE.equals(roleLevel))
         {
-            assert groupOrNull != null : "Unspecified identifier";
+            assert spaceOrNull != null : "Unspecified identifier";
             assert databaseInstanceOrNull == null;
         } else
         {
-            assert groupOrNull == null;
+            assert spaceOrNull == null;
             assert databaseInstanceOrNull != null : "Unspecified identifier";
         }
         this.databaseInstanceOrNull = databaseInstanceOrNull;
-        this.groupOrNull = groupOrNull;
+        this.spaceOrNull = spaceOrNull;
     }
 
     /**
@@ -74,14 +74,14 @@ public final class RoleWithIdentifier
     }
 
     /**
-     * This method can be called only if role is defined on the group level.
+     * This method can be called only if role is defined on the space level.
      * 
-     * @return group to which the role is assigned
+     * @return space to which the role is assigned
      */
-    public final SpacePE getAssignedGroup()
+    public final SpacePE getAssignedSpace()
     {
-        assert groupOrNull != null;
-        return groupOrNull;
+        assert spaceOrNull != null;
+        return spaceOrNull;
     }
 
     /**
@@ -90,21 +90,21 @@ public final class RoleWithIdentifier
     public final static RoleWithIdentifier createRole(final RoleAssignmentPE roleAssignment)
     {
         assert roleAssignment != null : "Unspecified role assignment";
-        final RoleLevel roleGroup = figureRoleLevel(roleAssignment);
+        final RoleLevel roleLevel = figureRoleLevel(roleAssignment);
         final RoleCode roleName = roleAssignment.getRole();
         final DatabaseInstancePE databaseInstance = roleAssignment.getDatabaseInstance();
-        final SpacePE group = roleAssignment.getSpace();
-        return new RoleWithIdentifier(roleGroup, roleName, databaseInstance, group);
+        final SpacePE space = roleAssignment.getSpace();
+        return new RoleWithIdentifier(roleLevel, roleName, databaseInstance, space);
     }
 
     private static RoleLevel figureRoleLevel(final RoleAssignmentPE roleAssignment)
     {
         assert roleAssignment.getDatabaseInstance() == null || roleAssignment.getSpace() == null : "Either the space or the database instance must be null";
-        final RoleLevel roleGroup =
+        final RoleLevel roleLevel =
                 roleAssignment.getDatabaseInstance() != null ? RoleLevel.INSTANCE : roleAssignment
                         .getSpace() != null ? RoleLevel.SPACE : null;
-        assert roleGroup != null : "Either the space or the database instance must not be null";
-        return roleGroup;
+        assert roleLevel != null : "Either the space or the database instance must not be null";
+        return roleLevel;
     }
 
     //
@@ -127,7 +127,7 @@ public final class RoleWithIdentifier
                     .toString();
         } else
         {
-            return IdentifierHelper.createGroupIdentifier(groupOrNull).toString();
+            return IdentifierHelper.createGroupIdentifier(spaceOrNull).toString();
         }
     }
 

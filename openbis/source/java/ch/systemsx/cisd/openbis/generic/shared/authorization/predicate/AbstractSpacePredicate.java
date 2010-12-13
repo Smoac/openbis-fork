@@ -23,8 +23,8 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Abstract super class of predicates based on data spaces.
@@ -44,23 +44,23 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
     }
 
     protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final DatabaseInstancePE databaseInstance, final String groupCodeOrNull)
+            final DatabaseInstancePE databaseInstance, final String spaceCodeOrNull)
     {
         final String databaseInstanceUUID = databaseInstance.getUuid();
         return evaluate(person, allowedRoles, databaseInstanceUUID, databaseInstance.getCode(),
-                groupCodeOrNull);
+                spaceCodeOrNull);
     }
 
     protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final String databaseInstanceUUID, final String databaseInstanceCode,
-            final String groupCodeOrNull)
+            final String spaceCodeOrNull)
     {
-        if (tryFindSpace(databaseInstanceUUID, groupCodeOrNull) == null)
+        if (tryFindSpace(databaseInstanceUUID, spaceCodeOrNull) == null)
         {
             return Status.createError(String.format("User '%s' does not have enough privileges.",
                     person.getUserId()));
         }
-        final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, groupCodeOrNull);
+        final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, spaceCodeOrNull);
         if (matching)
         {
             return Status.OK;
@@ -69,11 +69,11 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
                 person.getUserId()));
     }
 
-    private SpacePE tryFindSpace(final String databaseInstanceUUID, final String groupCode)
+    private SpacePE tryFindSpace(final String databaseInstanceUUID, final String spaceCode)
     {
         for (final SpacePE space : spaces)
         {
-            if (equalIdentifier(space, databaseInstanceUUID, groupCode))
+            if (equalIdentifier(space, databaseInstanceUUID, spaceCode))
             {
                 return space;
             }
@@ -82,20 +82,20 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
     }
 
     private boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
-            final String databaseInstanceUUID, final String groupCodeOrNull)
+            final String databaseInstanceUUID, final String spaceCodeOrNull)
     {
         for (final RoleWithIdentifier role : allowedRoles)
         {
-            final RoleLevel roleGroup = role.getRoleLevel();
-            if (roleGroup.equals(RoleLevel.SPACE)
-                    && equalIdentifier(role.getAssignedGroup(), databaseInstanceUUID,
-                            groupCodeOrNull))
+            final RoleLevel roleLevel = role.getRoleLevel();
+            if (roleLevel.equals(RoleLevel.SPACE)
+                    && equalIdentifier(role.getAssignedSpace(), databaseInstanceUUID,
+                            spaceCodeOrNull))
             {
                 return true;
-            } else if (roleGroup.equals(RoleLevel.INSTANCE)
+            } else if (roleLevel.equals(RoleLevel.INSTANCE)
                     && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
             {
-                // permissions on the database instance level allow to access all groups in this
+                // permissions on the database instance level allow to access all spaces in this
                 // instance
                 return true;
             }
@@ -103,11 +103,11 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         return false;
     }
 
-    private boolean equalIdentifier(final SpacePE group, final String databaseInstanceUUID,
-            final String groupCodeOrNull)
+    private boolean equalIdentifier(final SpacePE space, final String databaseInstanceUUID,
+            final String spaceCodeOrNull)
     {
-        return (groupCodeOrNull == null || group.getCode().equals(groupCodeOrNull))
-                && group.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
+        return (spaceCodeOrNull == null || space.getCode().equals(spaceCodeOrNull))
+                && space.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
     }
 
 }

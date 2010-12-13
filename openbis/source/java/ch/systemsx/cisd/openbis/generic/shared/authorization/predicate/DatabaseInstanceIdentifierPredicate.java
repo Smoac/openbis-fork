@@ -56,7 +56,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
             // TODO 2008-08-07, Tomasz Pylak: is this really necessary to belong to a group to have
             // access to instance samples?
             if (roleGroup.equals(RoleLevel.SPACE)
-                    && role.getAssignedGroup().getDatabaseInstance().getUuid().equals(
+                    && role.getAssignedSpace().getDatabaseInstance().getUuid().equals(
                             databaseInstanceUUID) && isReadAccess)
             {
                 return true;
