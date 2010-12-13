@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+
 /**
  * Contains data which uniquely define a plate.
  * 
@@ -13,12 +15,12 @@ public class WellIdentifier extends PermanentIdentifier
 
     private final int row, col;
 
-    public WellIdentifier(PlateIdentifier plateIdentifier, String permId, int row, int col)
+    public WellIdentifier(PlateIdentifier plateIdentifier, String permId, WellLocation wellLocation)
     {
         super(permId);
         this.plateIdentifier = plateIdentifier;
-        this.row = row;
-        this.col = col;
+        this.row = wellLocation.getRow();
+        this.col = wellLocation.getColumn();
     }
 
     public PlateIdentifier getPlateIdentifier()

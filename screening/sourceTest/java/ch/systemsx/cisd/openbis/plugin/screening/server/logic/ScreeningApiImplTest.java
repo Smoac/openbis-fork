@@ -44,12 +44,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * @author Franz-Josef Elmer
@@ -70,6 +74,83 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     {
         screeningBOFactory = context.mock(IScreeningBusinessObjectFactory.class);
         screeningApi = new ScreeningApiImpl(SESSION, screeningBOFactory, daoFactory);
+    }
+
+    @Test
+    public void testListPlateWellsFromAugmentedCode()
+    {
+        final String identifier = "/SPACE/PLATE";
+        final PlateIdentifier pi = PlateIdentifier.createFromAugmentedCode(identifier);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningBOFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+                    one(sampleBO).loadBySampleIdentifier(SampleIdentifierFactory.parse(identifier));
+                    one(sampleBO).getSample();
+                    SamplePE sample = new SamplePE();
+                    sample.setId(1L);
+                    will(returnValue(sample));
+
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample w1 = createWellSample("w1", "A01");
+                    Sample w2 = createWellSample("w2", "A02");
+                    will(returnValue(Arrays.asList(w1, w2)));
+                }
+            });
+
+        List<WellIdentifier> wells = screeningApi.listPlateWells(pi);
+        assertEquals(2, wells.size());
+        assertEquals(wellIdentifier(pi, "w1", 1, 1), wells.get(0));
+        assertEquals(wellIdentifier(pi, "w2", 1, 2), wells.get(1));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testListPlateWellsFromPermId()
+    {
+        final String permId = "PLATE_PERM_ID";
+        final PlateIdentifier pi = PlateIdentifier.createFromPermId(permId);
+        context.checking(new Expectations()
+            {
+                {
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample plate = new Sample();
+                    plate.setId(1L);
+                    will(returnValue(Arrays.asList(plate)));
+
+                    one(screeningBOFactory).createSampleLister(SESSION);
+                    will(returnValue(sampleLister));
+                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    Sample w1 = createWellSample("w1", "A01");
+                    Sample w2 = createWellSample("w2", "A02");
+                    will(returnValue(Arrays.asList(w1, w2)));
+                }
+            });
+
+        List<WellIdentifier> wells = screeningApi.listPlateWells(pi);
+        assertEquals(2, wells.size());
+        assertEquals(wellIdentifier(pi, "w1", 1, 1), wells.get(0));
+        assertEquals(wellIdentifier(pi, "w2", 1, 2), wells.get(1));
+        context.assertIsSatisfied();
+    }
+
+    private static Sample createWellSample(String permId, String code)
+    {
+        Sample result = new Sample();
+        result.setPermId(permId);
+        result.setCode(code);
+        return result;
+    }
+
+    private static WellIdentifier wellIdentifier(PlateIdentifier plate, String wellPermId, int row,
+            int col)
+    {
+        return new WellIdentifier(plate, wellPermId, new WellLocation(row, col));
     }
 
     @Test

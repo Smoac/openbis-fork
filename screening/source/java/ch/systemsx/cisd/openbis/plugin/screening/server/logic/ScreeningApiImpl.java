@@ -381,7 +381,7 @@ public class ScreeningApiImpl
         {
             owner = new SampleOwnerIdentifier(DatabaseInstanceIdentifier.createHome());
         }
-        return SampleIdentifier.createOwnedBy(owner, plate.getPermId());
+        return SampleIdentifier.createOwnedBy(owner, plate.getPlateCode());
     }
 
     private List<WellIdentifier> asWellIdentifiers(List<Sample> samples,
@@ -406,8 +406,7 @@ public class ScreeningApiImpl
     {
         WellLocation location =
                 ScreeningUtils.tryCreateLocationFromMatrixCoordinate(sample.getCode());
-        return new WellIdentifier(plateIdentifier, sample.getPermId(), location.getRow(),
-                location.getColumn());
+        return new WellIdentifier(plateIdentifier, sample.getPermId(), location);
     }
 
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(
