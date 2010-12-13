@@ -6,10 +6,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnHeader;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -154,25 +151,6 @@ class ExtendedGridView extends GridView
             }
         }
         return headerCellIndex;
-    }
-
-    @Override
-    protected void initData(@SuppressWarnings("rawtypes") ListStore store, ColumnModel fullModel)
-    {
-        // WORKAROUND: don't render hidden columns - pass a new column model without hidden columns.
-        // NOTE: This solution is a bit dangerous because we depend on internal GXT implementation.
-        // A cleaner solution would be to store full column model in AbstractBrowserGrid and pass
-        // stripped column model to the grid view.
-        List<ColumnConfig> newColumns = new ArrayList<ColumnConfig>();
-        for (int i = 0; i < fullModel.getColumnCount(); i++)
-        {
-            ColumnConfig column = fullModel.getColumn(i);
-            if (column.isHidden() == false)
-            {
-                newColumns.add(column);
-            }
-        }
-        super.initData(store, new ColumnModel(newColumns));
     }
 
 }
