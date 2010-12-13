@@ -19,12 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.imaging;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgChannelDTO;
@@ -167,10 +165,9 @@ public class HCSDatasetLoader implements IImageDatasetLoader
         List<String> channelsLabels = new ArrayList<String>();
         for (ImgChannelDTO channel : channels)
         {
-            // TODO 2010-11-19, IA: is this escaping needed?
-            String channelCode = StringEscapeUtils.escapeCsv(channel.getCode());
+            String channelCode = channel.getCode();
             channelsCodes.add(channelCode);
-            channelsLabels.add(StringEscapeUtils.escapeCsv(channel.getLabel()));
+            channelsLabels.add(channel.getLabel());
             params.addTransformerFactorySignatureFor(channelCode,
                     tryGetSignature(channel.getSerializedImageTransformerFactory()));
         }
