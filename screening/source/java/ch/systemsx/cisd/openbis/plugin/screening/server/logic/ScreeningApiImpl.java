@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -52,6 +53,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
@@ -69,6 +74,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -302,8 +308,8 @@ public class ScreeningApiImpl
                     materialIdentifier.getAugmentedCode());
         }
         final List<WellContent> wellContent =
-                WellContentLoader.loadOnlyMetadata(session, businessObjectFactory,
-                        daoFactory, new TechId(materialOrNull.getId()));
+                WellContentLoader.loadOnlyMetadata(session, businessObjectFactory, daoFactory,
+                        new TechId(materialOrNull.getId()));
 
         if (findDatasets)
         {
@@ -327,6 +333,81 @@ public class ScreeningApiImpl
             return asPlateWellReferences(wellContent,
                     Collections.<String, DatasetReferenceHolder> emptyMap());
         }
+    }
+
+    public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier)
+    {
+        TechId plateSampleId = getSampleTechId(plateIdentifier);
+        ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        ListSampleCriteria criteria = ListSampleCriteria.createForContainer(plateSampleId);
+        List<Sample> samples = sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+        return asWellIdentifiers(samples, plateIdentifier);
+    }
+
+    private TechId getSampleTechId(PlateIdentifier plateIdentifier)
+    {
+        if (plateIdentifier.getPermId() != null)
+        {
+            ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+            ListOrSearchSampleCriteria criteria =
+                    new ListOrSearchSampleCriteria(new String[0], new String[]
+                        { plateIdentifier.getPermId() });
+            List<Sample> samples = sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+            return TechId.create(samples.get(0));
+        } else
+        {
+            SampleIdentifier sampleIdentifier = createSampleIdentifier(plateIdentifier);
+            ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+            sampleBO.loadBySampleIdentifier(sampleIdentifier);
+            return TechId.create(sampleBO.getSample());
+        }
+    }
+
+    private static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)
+    {
+        if (plate.getPlateCode() == null)
+        {
+            return null;
+        }
+
+        SampleOwnerIdentifier owner;
+        String spaceCodeOrNull = plate.tryGetSpaceCode();
+        if (spaceCodeOrNull != null)
+        {
+            SpaceIdentifier space =
+                    new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, spaceCodeOrNull);
+            owner = new SampleOwnerIdentifier(space);
+        } else
+        {
+            owner = new SampleOwnerIdentifier(DatabaseInstanceIdentifier.createHome());
+        }
+        return SampleIdentifier.createOwnedBy(owner, plate.getPermId());
+    }
+
+    private List<WellIdentifier> asWellIdentifiers(List<Sample> samples,
+            PlateIdentifier plateIdentifier)
+    {
+        final List<WellIdentifier> wells = new ArrayList<WellIdentifier>();
+        for (Sample sample : samples)
+        {
+            wells.add(asWellIdentifier(sample, plateIdentifier));
+        }
+        Collections.sort(wells, new Comparator<WellIdentifier>()
+            {
+                public int compare(WellIdentifier o1, WellIdentifier o2)
+                {
+                    return o1.getPermId().compareTo(o2.getPermId());
+                }
+            });
+        return wells;
+    }
+
+    private static WellIdentifier asWellIdentifier(Sample sample, PlateIdentifier plateIdentifier)
+    {
+        WellLocation location =
+                ScreeningUtils.tryCreateLocationFromMatrixCoordinate(sample.getCode());
+        return new WellIdentifier(plateIdentifier, sample.getPermId(), location.getRow(),
+                location.getColumn());
     }
 
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(

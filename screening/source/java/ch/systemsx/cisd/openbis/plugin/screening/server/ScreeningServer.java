@@ -69,9 +69,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -220,7 +220,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier)
     {
-        return null; // TODO
+        return createScreeningApiImpl(sessionToken).listPlateWells(plateIdentifier);
     }
 
     public List<Plate> listPlates(String sessionToken)
