@@ -81,7 +81,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     @Test
     public void testRegisteringBasicControlFile()
     {
-        // setupOpenBisExpectations();
+        setupOpenBisExpectations();
         // setupSessionContextExpectations();
         // setupCallerDataSetInfoExpectations();
 
@@ -89,6 +89,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
         initializeDefaultDataSetHandler();
         handler.handleDataSet(workingCopy);
+
+        String logText =
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DEFAULT_SPACE(MYSPACE) USER(test@test.test)";
+        checkAppenderContent(logText, "basic-example");
 
         context.assertIsSatisfied();
     }
@@ -220,6 +224,21 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
             });
     }
 
+    private void setupOpenBisExpectations()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    Person admin = new Person();
+                    admin.setEmail("test@test.test");
+                    admin.setUserId("test");
+                    oneOf(openbisService).tryPersonWithUserIdOrEmail(admin.getEmail());
+                    will(returnValue(admin));
+                }
+            });
+
+    }
+
     private void checkEmailContent(final RecordingMatcher<DataHandler> attachmentMatcher,
             final RecordingMatcher<EMailAddress[]> addressesMatcher, String errorText)
             throws IOException
@@ -231,16 +250,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         assertEquals(errorText, attachmentMatcher.getRecordedObjects().get(0).getContent());
     }
 
-    private void checkAppenderContent(String errorText, String folderName)
+    private void checkAppenderContent(String logText, String folderName)
     {
-        // commented out for the moment
-        // boolean matches = logAppender.getLogContent().startsWith(errorText);
-        // assertTrue("Log does not contain correct text", matches);
-
-        // Debugging on the server
-        System.out.println(logAppender.getLogContent());
-//        assertEquals(errorText + "\nDeleting file '" + folderName + "'.",
-//                logAppender.getLogContent());
+        // Check the text
+        assertEquals(logText + "\nDeleting file '" + folderName + "'.", logAppender.getLogContent());
     }
 
 }

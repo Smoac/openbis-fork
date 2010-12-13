@@ -82,6 +82,7 @@ class SampleAndDataSetFolderProcessor extends AbstractSampleAndDataSetProcessor
         } catch (Exception e)
         {
             sendEmailWithErrorMessage(e.getMessage());
+            throw new CheckedExceptionTunnel(e);
         }
     }
 

@@ -299,9 +299,10 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     {
         String message =
                 String.format(
-                        "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DEFAULT_SPACE(%s) USER(%s)",
+                        "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DATA_SET_TYPE(%s) DEFAULT_SPACE(%s) USER(%s)",
                         controlFile.getName(), properties.trySampleType(),
-                        properties.trySpaceCode(), properties.tryUserString());
+                        properties.tryDataSetType(), properties.trySpaceCode(),
+                        properties.tryUserString());
         logInfo(message);
     }
 

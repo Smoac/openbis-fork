@@ -23,6 +23,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -53,7 +54,7 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
     static final String SAMPLE_TYPE_CONTROL_FILE_KEY = "SAMPLE_TYPE";
 
     static final String SAMPLE_TYPE_PROPERTIES_KEY = "sample-type";
-    
+
     static final String DATA_SET_TYPE_CONTROL_FILE_KEY = "DATA_SET_TYPE";
 
     static final String DATA_SET_TYPE_PROPERTIES_KEY = "data-set-type";
@@ -141,9 +142,10 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
             SampleAndDataSetFolderProcessor folderProcessor =
                     new SampleAndDataSetFolderProcessor(globalState, file);
             folderProcessor.register();
-        } catch (Throwable ex)
+        } catch (Exception ex)
         {
             operationLog.error(ex);
+            throw new CheckedExceptionTunnel(ex);
         } finally
         {
             FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(file);
@@ -160,6 +162,6 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
     private void logFileDeletion(File file)
     {
         String message = String.format("Deleting file '%s'.", file.getName());
-        operationLog.debug(message);
+        operationLog.info(message);
     }
 }
