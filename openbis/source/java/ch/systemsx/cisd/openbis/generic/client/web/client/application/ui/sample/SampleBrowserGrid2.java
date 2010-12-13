@@ -124,7 +124,7 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                         DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
-                        protected void showEntityViewer(Sample sample, boolean editMode,
+                        protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode,
                                 boolean active)
                         {
                             // do nothing - avoid showing the details after double click
@@ -344,7 +344,7 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            showEntityViewer(rowItem.getObjectOrNull(), false, specialKeyPressed);
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull(), false, specialKeyPressed);
                         }
 
                         public String tryGetLink(Sample entity,
@@ -415,7 +415,7 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            showEntityViewer(rowItem.getObjectOrNull().getGeneratedFrom(), false,
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull().getGeneratedFrom(), false,
                                     specialKeyPressed);
                         }
 
@@ -440,7 +440,7 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            showEntityViewer(rowItem.getObjectOrNull().getContainer(), false,
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull().getContainer(), false,
                                     specialKeyPressed);
                         }
 
@@ -703,9 +703,10 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
         previousPropertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
     }
 
-    protected void showEntityViewer(Sample sample, boolean editMode, boolean inBackground)
+    @Override
+    protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode, boolean inBackground)
     {
-        showEntityInformationHolderViewer(sample, editMode, inBackground);
+        showEntityInformationHolderViewer(row.getObjectOrNull(), editMode, inBackground);
     }
     
     protected final IDelegatedAction createGridRefreshDelegatedAction()
