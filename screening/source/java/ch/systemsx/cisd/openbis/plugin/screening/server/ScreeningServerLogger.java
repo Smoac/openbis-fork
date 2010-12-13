@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -180,6 +181,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             MaterialIdentifier materialIdentifier, boolean findDatasets)
     {
         logAccess(sessionToken, "listPlateWells", "material: %s", materialIdentifier);
+        return null;
+    }
+
+    public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier)
+    {
+        logAccess(sessionToken, "listPlateWells", "plate: %s", plateIdentifier);
         return null;
     }
 

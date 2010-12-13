@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -236,6 +237,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer
                 .listPlateWells(sessionToken, materialIdentifier, findDatasets);
     }
+
+    /**
+     * For the given <var>plateIdentifier</var> find all wells that are connected to it.
+     */
+    public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier)
+    {
+        checkASMinimalMinorVersion("listPlateWells", PlateIdentifier.class);
+        return openbisScreeningServer.listPlateWells(sessionToken, plateIdentifier);
+    }
+
+    // IDataSetDss getDataSet(WellIdentifier well)
+    // IDataSetDss putDataSet(WellIdentifier well, File dataSetFile)
 
     /**
      * Converts a given list of dataset codes to dataset identifiers which can be used in other API
@@ -499,8 +512,8 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                                 {
                                     // Only available since v1.3
                                     stream =
-                                        dssService.getService().loadImages(sessionToken,
-                                                references, convertToPNG);
+                                            dssService.getService().loadImages(sessionToken,
+                                                    references, convertToPNG);
                                 } else
                                 {
                                     checkDSSMinimalMinorVersion(dssService, "loadImages",
@@ -540,7 +553,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             throw ex.getIoException();
         }
     }
-    
+
     public List<byte[]> loadImages(IDatasetIdentifier dataSetIdentifier,
             List<WellPosition> wellPositions, String channel, ImageSize thumbnailSizeOrNull)
             throws IOException
@@ -595,16 +608,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         } while (size >= 0);
     }
 
-    public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers, String channel,
-            IImageTransformerFactory transformerFactoryOrNull)
+    public void saveImageTransformerFactory(List<IDatasetIdentifier> dataSetIdentifiers,
+            String channel, IImageTransformerFactory transformerFactoryOrNull)
     {
         Map<String, List<IDatasetIdentifier>> map = getReferencesPerDss(dataSetIdentifiers);
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         for (Entry<String, List<IDatasetIdentifier>> entry : entrySet)
         {
             String serverUrl = entry.getKey();
-            IDssServiceRpcScreening service = dssServiceCache.createDssService(serverUrl).getService();
-            service.saveImageTransformerFactory(sessionToken, entry.getValue(), channel, transformerFactoryOrNull);
+            IDssServiceRpcScreening service =
+                    dssServiceCache.createDssService(serverUrl).getService();
+            service.saveImageTransformerFactory(sessionToken, entry.getValue(), channel,
+                    transformerFactoryOrNull);
         }
     }
 
@@ -615,10 +630,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         Set<Entry<String, List<IDatasetIdentifier>>> entrySet = map.entrySet();
         if (entrySet.size() != 1)
         {
-            throw new IllegalArgumentException("Only one data store expected instead of " + map.keySet());
+            throw new IllegalArgumentException("Only one data store expected instead of "
+                    + map.keySet());
         }
         Entry<String, List<IDatasetIdentifier>> entry = entrySet.iterator().next();
-        IDssServiceRpcScreening service = dssServiceCache.createDssService(entry.getKey()).getService();
+        IDssServiceRpcScreening service =
+                dssServiceCache.createDssService(entry.getKey()).getService();
         return service.getImageTransformerFactoryOrNull(sessionToken, dataSetIdentifiers, channel);
     }
 

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodeCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ExperimentIdentifierPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.PlateIdentifierPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.PlateWellReferenceWithDatasetsValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningExperimentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateListReadOnlyPredicate;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 
 /**
  * This interface is a part of the official public screening API. It is forbidden to change it in a
@@ -69,7 +71,7 @@ public interface IScreeningApiServer extends IRpcService
     /**
      * Authenticates the user with a given password.
      * 
-     *@return sessionToken if authentication succeeded, <code>null</code> otherwise.
+     * @return sessionToken if authentication succeeded, <code>null</code> otherwise.
      */
     @Transactional
     // this is not a readOnly transaction - it can create new users
@@ -161,6 +163,18 @@ public interface IScreeningApiServer extends IRpcService
     @MinimalMinorVersion(2)
     List<PlateWellReferenceWithDatasets> listPlateWells(String sessionToken,
             MaterialIdentifier materialIdentifier, boolean findDatasets);
+
+    /**
+     * For the given <var>plateIdentifier</var> find all wells that are connected to it.
+     * 
+     * @since 1.3
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @MinimalMinorVersion(3)
+    public List<WellIdentifier> listPlateWells(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier);
 
     /**
      * For a given list of <var>plates</var>, return the mapping of plate wells to materials
