@@ -34,6 +34,7 @@ import ch.systemsx.cisd.etlserver.IDataSetHandlerWithMailClient;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationGlobalState.SampleRegistrationMode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -52,6 +53,10 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
     static final String SAMPLE_TYPE_CONTROL_FILE_KEY = "SAMPLE_TYPE";
 
     static final String SAMPLE_TYPE_PROPERTIES_KEY = "sample-type";
+    
+    static final String DATA_SET_TYPE_CONTROL_FILE_KEY = "DATA_SET_TYPE";
+
+    static final String DATA_SET_TYPE_PROPERTIES_KEY = "data-set-type";
 
     static final String SAMPLE_REGISTRATION_MODE_PROPERTIES_KEY = "sample-registration-mode";
 
@@ -91,6 +96,15 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
             sampleTypeOrNull.setCode(sampleTypeCodeOrNull);
         }
 
+        String dataSetTypeCodeOrNull =
+                PropertyUtils.getProperty(specificProperties, DATA_SET_TYPE_PROPERTIES_KEY);
+        DataSetType dataSetTypeOrNull = null;
+        if (null != dataSetTypeCodeOrNull)
+        {
+            dataSetTypeOrNull = new DataSetType();
+            dataSetTypeOrNull.setCode(dataSetTypeCodeOrNull);
+        }
+
         String sampleRegistrationModeStringOrNull =
                 PropertyUtils.getProperty(specificProperties,
                         SAMPLE_REGISTRATION_MODE_PROPERTIES_KEY);
@@ -111,7 +125,8 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
                 PropertyUtils.tryGetList(specificProperties, ERROR_EMAIL_RECIPIENTS_PROPERTIES_KEY);
 
         return new SampleAndDataSetRegistrationGlobalState(service, spaceIdentifier,
-                sampleTypeOrNull, registrationMode, errorEmailRecipients, operationLog);
+                sampleTypeOrNull, dataSetTypeOrNull, registrationMode, errorEmailRecipients,
+                operationLog);
     }
 
     public void initializeMailClient(IMailClient mailClient)

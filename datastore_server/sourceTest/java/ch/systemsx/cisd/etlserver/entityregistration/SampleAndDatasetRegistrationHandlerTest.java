@@ -237,8 +237,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         // boolean matches = logAppender.getLogContent().startsWith(errorText);
         // assertTrue("Log does not contain correct text", matches);
 
-        // assertEquals(errorText + "\nDeleting file '" + folderName + "'.",
-        // logAppender.getLogContent());
+        // Debugging on the server
+        System.out.println(logAppender.getLogContent());
+//        assertEquals(errorText + "\nDeleting file '" + folderName + "'.",
+//                logAppender.getLogContent());
     }
 
 }

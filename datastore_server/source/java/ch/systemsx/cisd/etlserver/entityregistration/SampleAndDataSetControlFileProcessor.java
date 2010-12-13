@@ -17,9 +17,12 @@
 package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -28,11 +31,15 @@ import javax.mail.util.ByteArrayDataSource;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
 import ch.systemsx.cisd.openbis.generic.shared.parser.GlobalProperties;
 import ch.systemsx.cisd.openbis.generic.shared.parser.GlobalPropertiesLoader;
 
@@ -82,14 +89,11 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             return new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(), spaceCode);
         }
 
-        public String trySampleTypeCode()
-        {
-            return properties.get(SampleAndDataSetRegistrationHandler.SAMPLE_TYPE_CONTROL_FILE_KEY);
-        }
-
         public SampleType trySampleType()
         {
-            String sampleTypeCode = trySampleTypeCode();
+            String sampleTypeCode =
+                    properties
+                            .get(SampleAndDataSetRegistrationHandler.SAMPLE_TYPE_CONTROL_FILE_KEY);
             if (null == sampleTypeCode)
             {
                 return null;
@@ -97,6 +101,20 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             SampleType sampleType = new SampleType();
             sampleType.setCode(sampleTypeCode);
             return sampleType;
+        }
+
+        public DataSetType tryDataSetType()
+        {
+            String dataSetTypeCode =
+                    properties
+                            .get(SampleAndDataSetRegistrationHandler.DATA_SET_TYPE_CONTROL_FILE_KEY);
+            if (null == dataSetTypeCode)
+            {
+                return null;
+            }
+            DataSetType dataSetType = new DataSetType();
+            dataSetType.setCode(dataSetTypeCode);
+            return dataSetType;
         }
 
         public String tryUserString()
@@ -168,6 +186,16 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             return sampleType;
         }
 
+        public DataSetType getDataSetType()
+        {
+            DataSetType dataSetType = overrideProperties.tryDataSetType();
+            if (null == dataSetType)
+            {
+                dataSetType = globalProperties.tryDataSetType();
+            }
+            return dataSetType;
+        }
+
         public Person getUser()
         {
             return user;
@@ -177,6 +205,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         {
             SpaceIdentifier spaceIdentifier = getSpaceIdentifier();
             SampleType sampleType = getSampleType();
+            DataSetType dataSetType = getDataSetType();
             Person theUser = getUser();
 
             StringBuilder sb = new StringBuilder();
@@ -190,6 +219,11 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             {
                 hasError = true;
                 sb.append("\tNo default sample type has been specified, and no sample type was specified in the control file");
+            }
+            if (null == dataSetType)
+            {
+                hasError = true;
+                sb.append("\tNo default data set type has been specified, and no data set type was specified in the control file");
             }
             if (null == theUser)
             {
@@ -217,17 +251,27 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     public void register() throws UserFailureException, EnvironmentFailureException,
             FileNotFoundException
     {
-        ControlFileOverrideProperties overrideProperties;
-        overrideProperties = new ControlFileOverrideProperties(controlFile);
+        ControlFileOverrideProperties overrideProperties =
+                new ControlFileOverrideProperties(controlFile);
 
         logControlFileOverridePropertiesExtracted(overrideProperties);
 
         ControlFileRegistrationProperties properties =
                 new ControlFileRegistrationProperties(overrideProperties, globalState);
 
+        BisTabFileLoader<SampleDataSetPair> controlFileLoader =
+                new BisTabFileLoader<SampleDataSetPair>(
+                        SampleDataSetPairParserObjectFactory.createFactoryFactory(
+                                properties.getSampleType(), properties.getDataSetType()), false);
+
+        List<SampleDataSetPair> loadedSampleDataSetPairs = null;
+
         try
         {
             properties.checkValidity();
+            Reader reader = UnicodeUtils.createReader(new FileInputStream(controlFile));
+            loadedSampleDataSetPairs =
+                    controlFileLoader.load(new DelegatedReader(reader, controlFile.getName()));
         } catch (UserFailureException e)
         {
             // If we don't know which user to send the email to, don't handle this error -- leave it
@@ -239,6 +283,14 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
             sendEmailWithErrorMessage(properties, e.getMessage());
             return;
+        }
+
+        // If we are here, we have sucessfuly parsed the file
+        for (SampleDataSetPair sampleDataSet : loadedSampleDataSetPairs)
+        {
+            SampleAndDataSetRegistrator registrator =
+                    new SampleAndDataSetRegistrator(globalState, sampleDataSet);
+            registrator.register();
         }
 
     }

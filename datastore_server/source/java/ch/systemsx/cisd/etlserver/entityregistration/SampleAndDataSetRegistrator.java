@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
-import java.io.File;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser.BatchSamplesOperation;
 import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser.SampleCodeGenerator;
 
 /**
@@ -31,9 +29,13 @@ class SampleAndDataSetRegistrator
 {
     private final SampleAndDataSetRegistrationGlobalState globalState;
 
-    SampleAndDataSetRegistrator(SampleAndDataSetRegistrationGlobalState globalState)
+    private final SampleDataSetPair sampleDataSetPair;
+
+    SampleAndDataSetRegistrator(SampleAndDataSetRegistrationGlobalState globalState,
+            SampleDataSetPair sampleDataSetPair)
     {
         this.globalState = globalState;
+        this.sampleDataSetPair = sampleDataSetPair;
     }
 
     public void register()
@@ -53,11 +55,9 @@ class SampleAndDataSetRegistrator
     }
 
     @SuppressWarnings("unused")
-    private void logSamplesRegistered(File file, BatchSamplesOperation info)
+    private void logRegistered()
     {
-        String message =
-                String.format("%s samples extracted from file '%s' and registered",
-                        info.getCodes().length, file.getName());
+        String message = String.format("Registered sample/data set pair %s", sampleDataSetPair);
         globalState.getOperationLog().info(message);
     }
 

@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -46,6 +47,8 @@ class SampleAndDataSetRegistrationGlobalState
 
     private final SampleType sampleTypeOrNull;
 
+    private final DataSetType dataSetTypeOrNull;
+
     private final SampleRegistrationMode sampleRegistrationMode;
 
     private final List<String> errorEmailRecipientsOrNull;
@@ -56,12 +59,13 @@ class SampleAndDataSetRegistrationGlobalState
 
     SampleAndDataSetRegistrationGlobalState(IEncapsulatedOpenBISService openbisService,
             SpaceIdentifier spaceIdentifierOrNull, SampleType sampleTypeOrNull,
-            SampleRegistrationMode sampleRegistrationMode, List<String> errorEmailRecipientsOrNull,
-            Logger operationLog)
+            DataSetType dataSetTypeOrNull, SampleRegistrationMode sampleRegistrationMode,
+            List<String> errorEmailRecipientsOrNull, Logger operationLog)
     {
         this.openbisService = openbisService;
         this.spaceIdentifierOrNull = spaceIdentifierOrNull;
         this.sampleTypeOrNull = sampleTypeOrNull;
+        this.dataSetTypeOrNull = dataSetTypeOrNull;
         this.sampleRegistrationMode = sampleRegistrationMode;
         this.errorEmailRecipientsOrNull = errorEmailRecipientsOrNull;
         this.operationLog = operationLog;
@@ -94,6 +98,11 @@ class SampleAndDataSetRegistrationGlobalState
     public SampleType trySampleType()
     {
         return sampleTypeOrNull;
+    }
+
+    public DataSetType tryDataSetType()
+    {
+        return dataSetTypeOrNull;
     }
 
     public SampleRegistrationMode getSampleRegistrationMode()
