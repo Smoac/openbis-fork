@@ -314,9 +314,6 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
 
     }
 
-    // property types used in the previous refresh operation or null if it has not occurred yet
-    private List<PropertyType> previousPropertyTypes;
-
     // provides property types which will be used to build property columns in the grid and
     // criteria to filter samples
     private final ISampleCriteriaProvider propertyTypesAndCriteriaProvider;
@@ -415,17 +412,25 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                         public void handle(TableModelRowWithObject<Sample> rowItem,
                                 boolean specialKeyPressed)
                         {
-                            showEntityInformationHolderViewer(rowItem.getObjectOrNull().getGeneratedFrom(), false,
-                                    specialKeyPressed);
+                            Sample parent = getParentOrNull(rowItem.getObjectOrNull());
+                            if (parent != null)
+                            {
+                                showEntityInformationHolderViewer(parent, false, specialKeyPressed);
+                            }
                         }
 
                         public String tryGetLink(Sample entity,
                                 ISerializableComparable comparableValue)
                         {
+                            Sample parent = getParentOrNull(entity);
+                            return LinkExtractor.tryExtract(parent);
+                        }
+
+                        private Sample getParentOrNull(Sample entity)
+                        {
                             if (entity.getParents().size() == 1)
                             {
-                                Sample parent = entity.getGeneratedFrom();
-                                return LinkExtractor.tryExtract(parent);
+                                return entity.getGeneratedFrom();
                             }
                             return null;
                         }
@@ -448,13 +453,17 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                                 ISerializableComparable comparableValue)
                         {
                             Sample container = entity.getContainer();
-                            if (container == null)
-                            {
-                                return null;
-                            }
                             return LinkExtractor.tryExtract(container);
                         }
                     });
+    }
+
+    
+
+    @Override
+    protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
+    {
+        return LinkRenderer.createLinkRenderer(true);
     }
 
     @Override
@@ -695,12 +704,6 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
             DispatcherHelper.dispatchNaviEvent(new ComponentProvider(viewContext
                     .getCommonViewContext()).getSampleRegistration(experimentContext));
         }
-    }
-    @Override
-    protected void refresh()
-    {
-        super.refresh();
-        previousPropertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
     }
 
     @Override

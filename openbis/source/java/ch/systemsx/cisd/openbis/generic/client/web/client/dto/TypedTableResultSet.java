@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * @author Franz-Josef Elmer
  */
 @DoNotEscape
-public class TypedTableResultSet<T extends ISerializable> implements IsSerializable
+public class TypedTableResultSet<T extends ISerializable> implements IsSerializable, IResultSetHolder<TableModelRowWithObject<T>>
 {
     private ResultSet<TableModelRowWithObject<T>> resultSet;
 

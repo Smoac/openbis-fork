@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.PropertiesEditor;
@@ -299,13 +300,13 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                                 .withSuffix(getSampleTypeCode()));
         parentsArea = new ParentSamplesArea(viewContext, getId());
         SampleChooserButton parentChooserButton = parentButton.getChooserButton();
-        parentChooserButton.addChosenEntityListener(new IChosenEntityListener<Sample>()
+        parentChooserButton.addChosenEntityListener(new IChosenEntityListener<TableModelRowWithObject<Sample>>()
             {
-                public void entityChosen(Sample entity)
+                public void entityChosen(TableModelRowWithObject<Sample> entity)
                 {
                     if (entity != null)
                     {
-                        String sampleIdentifier = entity.getIdentifier();
+                        String sampleIdentifier = entity.getObjectOrNull().getIdentifier();
                         parentsArea.appendItem(sampleIdentifier);
                     }
                 }

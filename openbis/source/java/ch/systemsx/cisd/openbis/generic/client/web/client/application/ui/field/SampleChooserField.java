@@ -24,16 +24,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid2;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A field for selecting a sample from a list or by specifying sample identifier.
  * 
  * @author Piotr Buczek
  */
-public class SampleChooserField extends ChosenEntitySetter<Sample>
+public class SampleChooserField extends ChosenEntitySetter<TableModelRowWithObject<Sample>>
 {
     public interface SampleChooserFieldAdaptor
     {
@@ -124,23 +125,23 @@ public class SampleChooserField extends ChosenEntitySetter<Sample>
     }
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final ChosenEntitySetter<Sample> chosenSampleField, final boolean addShared,
+            final ChosenEntitySetter<TableModelRowWithObject<Sample>> chosenSampleField, final boolean addShared,
             boolean addAll, final boolean excludeWithoutExperiment,
             SampleTypeDisplayID sampleTypeDisplayID)
     {
-        DisposableEntityChooser<Sample> browser =
-                SampleBrowserGrid.createChooser(viewContext, addShared, addAll,
+        DisposableEntityChooser<TableModelRowWithObject<Sample>> browser =
+                SampleBrowserGrid2.createChooser(viewContext, addShared, addAll,
                         excludeWithoutExperiment, sampleTypeDisplayID);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SAMPLE);
-        new EntityChooserDialog<Sample>(browser, chosenSampleField, title, viewContext).show();
+        new EntityChooserDialog<TableModelRowWithObject<Sample>>(browser, chosenSampleField, title, viewContext).show();
     }
 
     // ------------------
 
     @Override
-    public String renderEntity(Sample entityOrNull)
+    public String renderEntity(TableModelRowWithObject<Sample> entityOrNull)
     {
-        return entityOrNull.getIdentifier();
+        return entityOrNull.getObjectOrNull().getIdentifier();
     }
 
     private SampleChooserField(boolean mandatory, String initialValueOrNull,

@@ -1405,7 +1405,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return new MultilineStringCellRenderer();
     }
 
-    protected final GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
+    protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
     {
         return LinkRenderer.createLinkRenderer();
     }

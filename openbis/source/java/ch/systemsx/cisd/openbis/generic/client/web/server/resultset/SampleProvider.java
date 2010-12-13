@@ -113,6 +113,10 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
     {
         Set<Sample> parents = sample.getParents();
         int parentsSize = parents.size();
+        if (parentsSize == 1)
+        {
+            return sample.getGeneratedFrom().getIdentifier();
+        }
         StringBuilder builder = new StringBuilder();
         int counter = 0;
         for (Sample parent : parents)

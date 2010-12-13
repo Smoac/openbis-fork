@@ -30,15 +30,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid2;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * ` A button for selecting a sample from a list.
  * 
  * @author Piotr Buczek
  */
-public class SampleChooserButton extends Button implements IChosenEntitySetter<Sample>
+public class SampleChooserButton extends Button implements IChosenEntitySetter<TableModelRowWithObject<Sample>>
 {
     public interface SampleChooserButtonAdaptor
     {
@@ -50,8 +51,8 @@ public class SampleChooserButton extends Button implements IChosenEntitySetter<S
         String getValue();
     }
 
-    private final Set<IChosenEntityListener<Sample>> listeners =
-            new LinkedHashSet<IChosenEntityListener<Sample>>();
+    private final Set<IChosenEntityListener<TableModelRowWithObject<Sample>>> listeners =
+            new LinkedHashSet<IChosenEntityListener<TableModelRowWithObject<Sample>>>();
 
     /**
      * Creates a text field with the additional browse button which allow to choose a sample from
@@ -121,23 +122,23 @@ public class SampleChooserButton extends Button implements IChosenEntitySetter<S
     }
 
     private static void browse(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final IChosenEntitySetter<Sample> chooserSampleSetter, final boolean addShared,
+            final IChosenEntitySetter<TableModelRowWithObject<Sample>> chooserSampleSetter, final boolean addShared,
             boolean addAll, final boolean excludeWithoutExperiment,
             SampleTypeDisplayID sampleTypeDisplayID)
     {
-        DisposableEntityChooser<Sample> browser =
-                SampleBrowserGrid.createChooser(viewContext, addShared, addAll,
+        DisposableEntityChooser<TableModelRowWithObject<Sample>> browser =
+                SampleBrowserGrid2.createChooser(viewContext, addShared, addAll,
                         excludeWithoutExperiment, sampleTypeDisplayID);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SAMPLE);
-        new EntityChooserDialog<Sample>(browser, chooserSampleSetter, title, viewContext).show();
+        new EntityChooserDialog<TableModelRowWithObject<Sample>>(browser, chooserSampleSetter, title, viewContext).show();
     }
 
     // ------------------
 
     // @Override
-    public String renderEntity(Sample entityOrNull)
+    public String renderEntity(TableModelRowWithObject<Sample> entityOrNull)
     {
-        return entityOrNull.getIdentifier();
+        return entityOrNull.getObjectOrNull().getIdentifier();
     }
 
     private SampleChooserButton(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -146,13 +147,13 @@ public class SampleChooserButton extends Button implements IChosenEntitySetter<S
         super(buttonText);
     }
 
-    public void setChosenEntity(Sample entityOrNull)
+    public void setChosenEntity(TableModelRowWithObject<Sample> entityOrNull)
     {
         if (entityOrNull != null)
         {
             setValue(renderEntity(entityOrNull));
         }
-        for (IChosenEntityListener<Sample> listener : listeners)
+        for (IChosenEntityListener<TableModelRowWithObject<Sample>> listener : listeners)
         {
             listener.entityChosen(entityOrNull);
         }
@@ -170,7 +171,7 @@ public class SampleChooserButton extends Button implements IChosenEntitySetter<S
         this.value = value;
     }
 
-    public void addChosenEntityListener(IChosenEntityListener<Sample> listener)
+    public void addChosenEntityListener(IChosenEntityListener<TableModelRowWithObject<Sample>> listener)
     {
         listeners.add(listener);
     }

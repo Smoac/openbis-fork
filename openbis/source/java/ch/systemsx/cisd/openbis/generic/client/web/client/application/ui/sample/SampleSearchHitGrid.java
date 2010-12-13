@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -36,19 +37,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid with detailed sample search results.
  * 
  * @author Piotr Buczek
  */
-public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedSearchHitGrid
+public class SampleSearchHitGrid extends SampleBrowserGrid2 implements IDetailedSearchHitGrid
 {
     // browser consists of the grid and the paging toolbar
     public static final String SEARCH_BROWSER_ID = GenericConstants.ID_PREFIX
@@ -114,7 +115,11 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
                         @Override
                         public void componentSelected(ButtonEvent ce)
                         {
-                            showRelatedDataSets(viewContext, SampleSearchHitGrid.this);
+                            // TODO, 2010-12-13, FJE, show related data sets isn't easy because
+                            // TableModelRowWithObject doesn't implement IEntityInformationHolder.
+                            // Changing the code is relatively easy but the method showRelatedDataSets()
+                            // is also used by MatchingEntitiesPanel.
+//                            showRelatedDataSets(viewContext, SampleSearchHitGrid.this);
                         }
                     });
         addButton(showRelatedDatasetsButton);
@@ -151,16 +156,16 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     }
 
     @Override
-    protected EntityType tryToGetEntityType()
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Sample>> callback)
     {
-        return null;
+        if (callback instanceof AbstractAsyncCallback)
+        {
+            AbstractAsyncCallback<TypedTableResultSet<Sample>> asc = (AbstractAsyncCallback<TypedTableResultSet<Sample>>) callback;
+            asc.addOnSuccessAction(new ShowResultSetCutInfo<TypedTableResultSet<Sample>>(viewContext));
+        }
+        super.listTableRows(resultSetConfig, callback);
     }
 
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Sample>> callback)
-    {
-        callback.addOnSuccessAction(new ShowResultSetCutInfo<ResultSet<Sample>>(viewContext));
-        super.listEntities(resultSetConfig, callback);
-    }
 }
