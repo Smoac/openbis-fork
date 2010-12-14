@@ -58,24 +58,31 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=DataSetToSOFT.class)
+@Friend(toClasses = DataSetToSOFT.class)
 public class DataSetToSOFTTest extends AbstractFileSystemTestCase
 {
     private static final String USER_EMAIL = "user@ho.me";
+
     private static final String SRF_FILE_NAME = "sample.srf";
+
     private static final String SRF_FILE_CONTENT = "hello world!";
+
     private static final String DATASET_CODE = "ds-1";
+
     private static final String FLOW_LANE_SAMPLE_CODE = "flow-lane:1";
-    
+
     private BufferedAppender logRecorder;
+
     private Mockery context;
+
     private IEncapsulatedOpenBISService service;
+
     private IMailClient mailClient;
+
     private DataSetProcessingContext dataSetProcessingContext;
+
     private IProcessingPluginTask processingPlugin;
 
     @BeforeMethod
@@ -120,65 +127,68 @@ public class DataSetToSOFTTest extends AbstractFileSystemTestCase
         addProperty(sequencingSample, "SAMPLE_SOURCE_NAME", "source");
         addProperty(sequencingSample, "NCBI_ORGANISM_TAXONOMY", "organism");
         addProperty(sequencingSample, "CONTACT_PERSON_NAME", "person");
+        addProperty(sequencingSample, "SAMPLE_MOLECULE", "total_rna");
         addProperty(sequencingSample, "SEQUENCING_APPLICATION", "application");
         addProperty(sequencingSample, "SAMPLE_EXTRACT_PROTOCOL", "protocol");
         addProperty(sequencingSample, "SAMPLE_DATA_PROCESSING", "processing");
+        addProperty(sequencingSample, "SAMPLE_LIBRARY_SELECTION", "cDNA");
+        addProperty(sequencingSample, "SAMPLE_LIBRARY_STRATEGY", "RNA-Seq");
         addProperty(sequencingSample, "SAMPLE_KIND", "CHIP");
         flowLaneSample.setContainer(flowCellSample);
         prepareGetSample(flowLaneSample);
         prepareGetSample(flowCellSample);
-        final RecordingMatcher<ListSampleCriteria> listSampleCriteriaMatcher = new RecordingMatcher<ListSampleCriteria>();
+        final RecordingMatcher<ListSampleCriteria> listSampleCriteriaMatcher =
+                new RecordingMatcher<ListSampleCriteria>();
         final RecordingMatcher<String> subjectMatcher = new RecordingMatcher<String>();
         final RecordingMatcher<String> contentMatcher = new RecordingMatcher<String>();
         final RecordingMatcher<String> fileNameMatcher = new RecordingMatcher<String>();
         final RecordingMatcher<DataHandler> attachmentMatcher = new RecordingMatcher<DataHandler>();
-        final RecordingMatcher<EMailAddress[]> addressesMatcher = new RecordingMatcher<EMailAddress[]>();
+        final RecordingMatcher<EMailAddress[]> addressesMatcher =
+                new RecordingMatcher<EMailAddress[]>();
         context.checking(new Expectations()
             {
                 {
                     one(service).listSamples(with(listSampleCriteriaMatcher));
                     will(returnValue(Arrays.asList(sequencingSample)));
-                    
+
                     one(mailClient).sendEmailMessageWithAttachment(with(subjectMatcher),
                             with(contentMatcher), with(fileNameMatcher), with(attachmentMatcher),
                             with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
                             with(addressesMatcher));
                 }
             });
-        
+
         ProcessingStatus status = processingPlugin.process(dataSets, dataSetProcessingContext);
 
         assertEquals(0, status.getErrorStatuses().size());
-        assertEquals(flowLaneSample.getId(), listSampleCriteriaMatcher.getRecordedObjects().get(0).getChildSampleId().getId());
+        assertEquals(flowLaneSample.getId(), listSampleCriteriaMatcher.getRecordedObjects().get(0)
+                .getChildSampleId().getId());
         Template template = initTemplate(DataSetToSOFT.E_MAIL_SUBJECT_TEMPLATE);
-        assertEquals("[" + template.createText() + "]", subjectMatcher.getRecordedObjects().toString());
+        assertEquals("[" + template.createText() + "]", subjectMatcher.getRecordedObjects()
+                .toString());
         Template content = initTemplate(DataSetToSOFT.E_MAIL_CONTENT_TEMPLATE);
         content.bind("flow-lane", flowLaneSample.getCode());
         content.bind("data-set", DATASET_CODE);
-        assertEquals("[" + content.createText() + "]", contentMatcher.getRecordedObjects().toString());
+        assertEquals("[" + content.createText() + "]", contentMatcher.getRecordedObjects()
+                .toString());
         Template fileNameTemplate = DataSetToSOFT.SOFT_FILE_NAME_TEMPLATE.createFreshCopy();
         fileNameTemplate.bind("external-sample-name", "my_sample");
         fileNameTemplate.bind("flow-lane", flowLaneSample.getCode().replace(':', '-'));
-        assertEquals("[" + fileNameTemplate.createText() + "]", fileNameMatcher.getRecordedObjects().toString());
+        assertEquals("[" + fileNameTemplate.createText() + "]", fileNameMatcher
+                .getRecordedObjects().toString());
         List<EMailAddress[]> emailAddresses = addressesMatcher.getRecordedObjects();
         assertEquals(USER_EMAIL, emailAddresses.get(0)[0].tryGetEmailAddress());
         DataSource dataSource = attachmentMatcher.getRecordedObjects().get(0).getDataSource();
         String attachmentContent = getContent(dataSource);
-        assertEquals("^SAMPLE = my sample\n" 
-                + "!Sample_type = SRA\n"
-                + "!Sample_title = my sample\n" 
-                + "!Sample_source_name = source\n"
+        assertEquals("^SAMPLE = my sample\n" + "!Sample_type = SRA\n"
+                + "!Sample_title = my sample\n" + "!Sample_source_name = source\n"
                 + "!Sample_organism = organism\n"
                 + "!Sample_characteristics = <<<NEED_TO_BE_FILLED>>>\n"
-                + "!Sample_biomaterial_provider = person\n" 
-                + "!Sample_molecule = application\n"
+                + "!Sample_biomaterial_provider = person\n" + "!Sample_molecule = total_rna\n"
                 + "!Sample_extract_protocol = protocol\n"
-                + "!Sample_data_processing = processing\n"
-                + "!Sample_library_strategy = application\n" 
-                + "!Sample_library_source = genomic\n"
-                + "!Sample_library_selection = CHIP\n" 
-                + "!Sample_instrument_model = my-analyzer\n"
-                + "!Sample_raw_file_1 = sample.srf\n" 
+                + "!Sample_data_processing = processing\n" + "!Sample_library_strategy = RNA-Seq\n"
+                + "!Sample_library_source = genomic\n" + "!Sample_library_selection = cDNA\n"
+                + "!Sample_instrument_model = my-analyzer\n" + "!Sample_raw_file_1 = sample.srf\n"
                 + "!Sample_raw_file_type_1 = srf\n"
                 + "!Sample_file_checksum_1 = fc3ff98e8c6a0d3087d515c0473f8677\n", attachmentContent);
         context.assertIsSatisfied();
@@ -202,7 +212,7 @@ public class DataSetToSOFTTest extends AbstractFileSystemTestCase
         template.bind("external-sample-name", "my sample");
         return template;
     }
-    
+
     private void prepareGetDataSet(final String dataSetCode, final Sample flowLaneSample)
     {
         context.checking(new Expectations()
@@ -216,18 +226,19 @@ public class DataSetToSOFTTest extends AbstractFileSystemTestCase
                 }
             });
     }
-    
+
     private void prepareGetSample(final Sample sample)
     {
         context.checking(new Expectations()
-        {
             {
-                one(service).tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sample.getIdentifier()));
-                will(returnValue(sample));
-            }
-        });
+                {
+                    one(service).tryGetSampleWithExperiment(
+                            SampleIdentifierFactory.parse(sample.getIdentifier()));
+                    will(returnValue(sample));
+                }
+            });
     }
-    
+
     private void addProperty(Sample sample, String propertyTypeCode, String value)
     {
         List<IEntityProperty> properties = sample.getProperties();
@@ -243,7 +254,7 @@ public class DataSetToSOFTTest extends AbstractFileSystemTestCase
         property.setValue(value);
         properties.add(property);
     }
-    
+
     private Sample sample(long id, String identifier)
     {
         Sample sample = new Sample();
@@ -252,4 +263,3 @@ public class DataSetToSOFTTest extends AbstractFileSystemTestCase
         return sample;
     }
 }
-

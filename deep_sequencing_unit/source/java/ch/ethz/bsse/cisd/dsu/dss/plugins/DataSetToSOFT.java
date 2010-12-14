@@ -54,12 +54,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 
 /**
  * Processing plugin for exporting meta data of a flow lane as a SOFT file.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetToSOFT implements IProcessingPluginTask
 {
-    @Private static final String EXTERNAL_SAMPLE_NAME_PROPERTY = "EXTERNAL_SAMPLE_NAME";
+    @Private
+    static final String EXTERNAL_SAMPLE_NAME_PROPERTY = "EXTERNAL_SAMPLE_NAME";
 
     private static final String EMPTY = "<<<NEED_TO_BE_FILLED>>>";
 
@@ -79,34 +80,35 @@ public class DataSetToSOFT implements IProcessingPluginTask
     private static final class SOFTBuilder
     {
         private final StringBuilder builder = new StringBuilder();
-        
+
         void addSample(Sample sample, String propertyTypeCode)
         {
             addLine('^', "SAMPLE", getProperty(sample, propertyTypeCode));
         }
-        
-        void addSampleProperty(String key, Sample sample, String propertyTypeCode, Map<String, String> translation)
+
+        void addSampleProperty(String key, Sample sample, String propertyTypeCode,
+                Map<String, String> translation)
         {
             String property = getProperty(sample, propertyTypeCode);
             String translatedProperty = translation.get(property);
             addProperty(key, translatedProperty == null ? property : translatedProperty);
         }
-        
+
         void addSampleProperty(String key, Sample sample, String propertyTypeCode)
         {
             addProperty(key, getProperty(sample, propertyTypeCode));
         }
-        
+
         void addProperty(String key, String property)
         {
             addLine('!', "Sample_" + key, property);
         }
-        
+
         private void addLine(char prefix, String key, String value)
         {
             builder.append(prefix).append(key).append(" = ").append(value).append('\n');
         }
-        
+
         private String getProperty(Sample sample, String propertyTypeCode)
         {
             String property = tryToGetProperty(sample, propertyTypeCode);
@@ -119,7 +121,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
             return builder.toString();
         }
     }
-    
+
     private static final String tryToGetProperty(Sample sample, String propertyTypeCode)
     {
         List<IEntityProperty> properties = sample.getProperties();
@@ -132,12 +134,12 @@ public class DataSetToSOFT implements IProcessingPluginTask
         }
         return null;
     }
-        
-    private static final Logger operationLog =
-        LogFactory.getLogger(LogCategory.OPERATION, DataSetToSOFT.class);
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataSetToSOFT.class);
 
     private static final long serialVersionUID = 1L;
-    
+
     private final File storeRoot;
 
     private final Map<String, String> translation;
@@ -148,7 +150,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
     {
         this(properties, storeRoot, null);
     }
-    
+
     DataSetToSOFT(Properties properties, File storeRoot, IEncapsulatedOpenBISService service)
     {
         this.storeRoot = storeRoot;
@@ -166,7 +168,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
         translation.put("MRNA", "other");
         translation.put("PROCESSED_DNA_LIBRARY", EMPTY);
     }
-    
+
     public ProcessingStatus process(List<DatasetDescription> datasets,
             DataSetProcessingContext context)
     {
@@ -193,26 +195,37 @@ public class DataSetToSOFT implements IProcessingPluginTask
                     continue;
                 }
                 String checkSum = calculateCheckSum(srfFile);
-                
+
                 SOFTBuilder softBuilder = new SOFTBuilder();
                 softBuilder.addSample(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY);
                 softBuilder.addProperty("type", "SRA");
-                softBuilder.addSampleProperty("title", sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY);
-                softBuilder.addSampleProperty("source_name", sequencingSample, "SAMPLE_SOURCE_NAME");
-                softBuilder.addSampleProperty("organism", sequencingSample, "NCBI_ORGANISM_TAXONOMY");
-                softBuilder.addSampleProperty("characteristics", sequencingSample, "SAMPLE_CHARACTERISTICS");
-                softBuilder.addSampleProperty("biomaterial_provider", sequencingSample, "CONTACT_PERSON_NAME");
-                softBuilder.addSampleProperty("molecule", sequencingSample, "SEQUENCING_APPLICATION");
-                softBuilder.addSampleProperty("extract_protocol", sequencingSample, "SAMPLE_EXTRACT_PROTOCOL");
-                softBuilder.addSampleProperty("data_processing", sequencingSample, "SAMPLE_DATA_PROCESSING");
-                softBuilder.addSampleProperty("library_strategy", sequencingSample, "SEQUENCING_APPLICATION");
-                softBuilder.addSampleProperty("library_source", sequencingSample, "SAMPLE_KIND", translation);
-                softBuilder.addSampleProperty("library_selection", sequencingSample, "SAMPLE_KIND");
-                softBuilder.addSampleProperty("instrument_model", flowCellSample, "GENOME_ANALYZER");
+                softBuilder.addSampleProperty("title", sequencingSample,
+                        EXTERNAL_SAMPLE_NAME_PROPERTY);
+                softBuilder
+                        .addSampleProperty("source_name", sequencingSample, "SAMPLE_SOURCE_NAME");
+                softBuilder.addSampleProperty("organism", sequencingSample,
+                        "NCBI_ORGANISM_TAXONOMY");
+                softBuilder.addSampleProperty("characteristics", sequencingSample,
+                        "SAMPLE_CHARACTERISTICS");
+                softBuilder.addSampleProperty("biomaterial_provider", sequencingSample,
+                        "CONTACT_PERSON_NAME");
+                softBuilder.addSampleProperty("molecule", sequencingSample, "SAMPLE_MOLECULE");
+                softBuilder.addSampleProperty("extract_protocol", sequencingSample,
+                        "SAMPLE_EXTRACT_PROTOCOL");
+                softBuilder.addSampleProperty("data_processing", sequencingSample,
+                        "SAMPLE_DATA_PROCESSING");
+                softBuilder.addSampleProperty("library_strategy", sequencingSample,
+                        "SAMPLE_LIBRARY_STRATEGY");
+                softBuilder.addSampleProperty("library_source", sequencingSample, "SAMPLE_KIND",
+                        translation);
+                softBuilder.addSampleProperty("library_selection", sequencingSample,
+                        "SAMPLE_LIBRARY_SELECTION");
+                softBuilder
+                        .addSampleProperty("instrument_model", flowCellSample, "GENOME_ANALYZER");
                 softBuilder.addProperty("raw_file_1", srfFile.getName());
                 softBuilder.addProperty("raw_file_type_1", "srf");
                 softBuilder.addProperty("file_checksum_1", checkSum);
-                
+
                 String subject = createSubject(sequencingSample);
                 String content = createContent(sequencingSample, flowLaneSample, srfDataSet);
                 String fileName = createSoftFileName(sequencingSample, flowLaneSample);
@@ -222,13 +235,14 @@ public class DataSetToSOFT implements IProcessingPluginTask
                 status.addDatasetStatus(datasetDescription, Status.OK);
             } catch (Exception ex)
             {
-                status.addDatasetStatus(datasetDescription, Status.createError("Exception occured: " + ex));
+                status.addDatasetStatus(datasetDescription,
+                        Status.createError("Exception occured: " + ex));
                 operationLog.error("Exception occured while processing " + datasetDescription, ex);
             }
         }
         return status;
     }
-    
+
     private String createSubject(Sample sequencingSample)
     {
         Template template = E_MAIL_SUBJECT_TEMPLATE.createFreshCopy();
@@ -236,7 +250,8 @@ public class DataSetToSOFT implements IProcessingPluginTask
         return template.createText();
     }
 
-    private String createContent(Sample sequencingSample, Sample flowLaneSample, ExternalData dataSet)
+    private String createContent(Sample sequencingSample, Sample flowLaneSample,
+            ExternalData dataSet)
     {
         Template template = E_MAIL_CONTENT_TEMPLATE.createFreshCopy();
         bindExternalSampleName(template, sequencingSample);
@@ -244,22 +259,24 @@ public class DataSetToSOFT implements IProcessingPluginTask
         template.bind("data-set", dataSet.getCode());
         return template.createText();
     }
-    
+
     private String createSoftFileName(Sample sequencingSample, Sample flowLaneSample)
     {
         Template template = SOFT_FILE_NAME_TEMPLATE.createFreshCopy();
-        String externalSampleName = tryToGetProperty(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY);
+        String externalSampleName =
+                tryToGetProperty(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY);
         template.bind("external-sample-name", externalSampleName.replace(' ', '_'));
         template.bind("flow-lane", flowLaneSample.getCode().replace(':', '-'));
         return template.createText();
     }
-    
+
     private void bindExternalSampleName(Template template, Sample sequencingSample)
     {
-        String externalSampleName = tryToGetProperty(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY);
+        String externalSampleName =
+                tryToGetProperty(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY);
         template.bind("external-sample-name", externalSampleName);
     }
-    
+
     private String calculateCheckSum(File srfFile)
     {
         String checkSum;
@@ -272,13 +289,13 @@ public class DataSetToSOFT implements IProcessingPluginTask
         }
         return checkSum;
     }
-    
+
     private File tryToFindSrfFile(DatasetDescription datasetDescription)
     {
         File root = new File(storeRoot, datasetDescription.getDataSetLocation());
         return tryToFindSrfFile(root);
     }
-    
+
     private File tryToFindSrfFile(File file)
     {
         if (file.isFile() && file.getName().endsWith(".srf"))
@@ -299,22 +316,25 @@ public class DataSetToSOFT implements IProcessingPluginTask
         }
         return null;
     }
-    
+
     private Sample getFlowLaneSample(ExternalData dataSet)
     {
         SampleIdentifier identifier = SampleIdentifierFactory.parse(dataSet.getSampleIdentifier());
         return getService().tryGetSampleWithExperiment(identifier);
     }
-    
+
     private Sample getFlowCellSample(Sample flowLaneSample)
     {
-        SampleIdentifier identifier = SampleIdentifierFactory.parse(flowLaneSample.getContainer().getIdentifier());
+        SampleIdentifier identifier =
+                SampleIdentifierFactory.parse(flowLaneSample.getContainer().getIdentifier());
         return getService().tryGetSampleWithExperiment(identifier);
     }
-    
+
     private Sample getSequencingSample(Sample flowLaneSample)
     {
-        List<Sample> parents = getService().listSamples(ListSampleCriteria.createForChild(new TechId(flowLaneSample.getId())));
+        List<Sample> parents =
+                getService().listSamples(
+                        ListSampleCriteria.createForChild(new TechId(flowLaneSample.getId())));
         return parents.get(0);
     }
 
@@ -328,7 +348,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
-    
+
     private IEncapsulatedOpenBISService getService()
     {
         if (service == null)
