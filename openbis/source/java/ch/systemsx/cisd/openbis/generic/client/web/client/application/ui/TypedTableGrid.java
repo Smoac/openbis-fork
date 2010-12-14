@@ -116,6 +116,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
             new HashMap<String, ICellListenerAndLinkGenerator<T>>();
 
     private List<TableModelColumnHeader> headers;
+    
+    private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> columnUIDefinitions;
 
     private String downloadURL;
 
@@ -200,38 +202,42 @@ public abstract class TypedTableGrid<T extends ISerializable>
 
     private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> createColDefinitions()
     {
-        List<IColumnDefinitionUI<TableModelRowWithObject<T>>> list =
-                new ArrayList<IColumnDefinitionUI<TableModelRowWithObject<T>>>();
-        if (headers != null)
+        if (columnUIDefinitions == null)
         {
-            String sessionID = viewContext.getModel().getSessionContext().getSessionID();
-            for (final TableModelColumnHeader header : headers)
+            List<IColumnDefinitionUI<TableModelRowWithObject<T>>> list =
+                new ArrayList<IColumnDefinitionUI<TableModelRowWithObject<T>>>();
+            if (headers != null)
             {
-                String title = header.getTitle();
-                if (title == null)
+                String sessionID = viewContext.getModel().getSessionContext().getSessionID();
+                for (final TableModelColumnHeader header : headers)
                 {
-                    title =
+                    String title = header.getTitle();
+                    if (title == null)
+                    {
+                        title =
                             viewContext
-                                    .getMessage(translateColumnIdToDictionaryKey(header.getId()));
-                }
-                // support for links in queries
-                ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
+                            .getMessage(translateColumnIdToDictionaryKey(header.getId()));
+                    }
+                    // support for links in queries
+                    ICellListenerAndLinkGenerator<T> linkGeneratorOrNull =
                         listenerLinkGenerators.get(header.getId());
-                final EntityKind entityKind = header.tryGetEntityKind();
-                if (linkGeneratorOrNull == null && entityKind != null)
-                {
-                    linkGeneratorOrNull = new CellListenerAndLinkGenerator(entityKind, header);
-                    registerListenerAndLinkGenerator(header.getId(), linkGeneratorOrNull);
-                }
-                //
-                TypedTableGridColumnDefinitionUI<T> definition =
+                    final EntityKind entityKind = header.tryGetEntityKind();
+                    if (linkGeneratorOrNull == null && entityKind != null)
+                    {
+                        linkGeneratorOrNull = new CellListenerAndLinkGenerator(entityKind, header);
+                        registerListenerAndLinkGenerator(header.getId(), linkGeneratorOrNull);
+                    }
+                    //
+                    TypedTableGridColumnDefinitionUI<T> definition =
                         new TypedTableGridColumnDefinitionUI<T>(header, title, downloadURL,
                                 sessionID, linkGeneratorOrNull);
-                definition.setHidden(list.size() > MAX_SHOWN_COLUMNS);
-                list.add(definition);
+                    definition.setHidden(list.size() > MAX_SHOWN_COLUMNS);
+                    list.add(definition);
+                }
             }
+            columnUIDefinitions = list;
         }
-        return list;
+        return columnUIDefinitions;
     }
 
     /**
@@ -257,6 +263,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                         protected void process(TypedTableResultSet<T> result)
                         {
                             headers = result.getResultSet().getList().getColumnHeaders();
+                            columnUIDefinitions = null;
                             recreateColumnModelAndRefreshColumnsWithFilters();
                             callback.onSuccess(result.getResultSet());
                         }
