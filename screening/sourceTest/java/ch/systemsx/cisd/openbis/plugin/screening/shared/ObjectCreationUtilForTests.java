@@ -32,6 +32,7 @@ public class ObjectCreationUtilForTests
         PropertyType propertyType = new PropertyType();
         propertyType.setLabel(label);
         propertyType.setCode(label.toUpperCase());
+        propertyType.setSimpleCode(propertyType.getCode());
         propertyType.setDataType(new DataType(DataTypeCode.INTEGER));
         property.setPropertyType(propertyType);
         property.setValue("" + value);

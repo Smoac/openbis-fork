@@ -98,7 +98,7 @@ public class PlateMetadataProviderTest extends AbstractServerTestCase
         assertEquals(1, headers.get(1).getIndex());
         assertEquals(DataTypeCode.VARCHAR, headers.get(1).getDataType());
         assertEquals("answer", headers.get(2).getTitle());
-        assertEquals(CONTENT_PROPERTY_PREFIX + "ANSWER", headers.get(2).getId());
+        assertEquals(CONTENT_PROPERTY_PREFIX + "USER-ANSWER", headers.get(2).getId());
         assertEquals(2, headers.get(2).getIndex());
         assertEquals(DataTypeCode.INTEGER, headers.get(2).getDataType());
         assertEquals(3, headers.size());
