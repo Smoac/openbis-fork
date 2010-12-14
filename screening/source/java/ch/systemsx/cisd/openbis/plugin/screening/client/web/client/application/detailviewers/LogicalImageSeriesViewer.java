@@ -40,6 +40,169 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelSt
  */
 class LogicalImageSeriesViewer
 {
+    public static LayoutContainer create(String sessionId,
+            List<ImageChannelStack> channelStackImages, LogicalImageReference images,
+            String channel, int imageWidth, int imageHeight)
+    {
+        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(channelStackImages);
+        List<LayoutContainer> frames =
+                createTimepointFrames(model.getSortedChannelStackSeriesPoints(), images, channel,
+                        sessionId, imageWidth, imageHeight);
+
+        return createMoviePlayer(frames, model.getSortedPoints());
+    }
+
+    private static List<List<ImageChannelStack>> getSortedSeries(
+            Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries,
+            List<ImageSeriesPoint> sortedPoints)
+    {
+        List<List<ImageChannelStack>> sortedSeries = new ArrayList<List<ImageChannelStack>>();
+        for (ImageSeriesPoint point : sortedPoints)
+        {
+            List<ImageChannelStack> series = channelStackImagesBySeries.get(point);
+            sortedSeries.add(series);
+        }
+        return sortedSeries;
+    }
+
+    private static List<ImageSeriesPoint> sortPoints(Set<ImageSeriesPoint> points)
+    {
+        ArrayList<ImageSeriesPoint> pointsList = new ArrayList<ImageSeriesPoint>(points);
+        Collections.sort(pointsList);
+        return pointsList;
+    }
+
+    private static LayoutContainer createMoviePlayer(final List<LayoutContainer> frames,
+            final List<ImageSeriesPoint> sortedPoints)
+    {
+        final LayoutContainer mainContainer = new LayoutContainer();
+        addAll(mainContainer, frames);
+
+        final Slider slider = createTimepointsSlider(frames.size(), new Listener<SliderEvent>()
+            {
+                public void handleEvent(SliderEvent e)
+                {
+                    int oldValue = e.getOldValue();
+                    int newValue = e.getNewValue();
+                    if (oldValue > 0)
+                    {
+                        frames.get(oldValue - 1).hide();
+                    }
+                    frames.get(newValue - 1).show();
+                    mainContainer.remove(mainContainer.getItem(0));
+                    mainContainer
+                            .insert(new Label(createTimepointLabel(sortedPoints, newValue)), 0);
+                    mainContainer.layout();
+                }
+            });
+        mainContainer.insert(slider, 0);
+        mainContainer.insert(new Label(createTimepointLabel(sortedPoints, 1)), 0);
+        slider.setValue(1);
+
+        return mainContainer;
+    }
+
+    /**
+     * @param sortedChannelStackSeriesPoints - one element on the list are all tiles for a fixed
+     *            series point
+     */
+    private static List<LayoutContainer> createTimepointFrames(
+            List<List<ImageChannelStack>> sortedChannelStackSeriesPoints,
+            LogicalImageReference images, String channel, String sessionId, int imageWidth,
+            int imageHeight)
+    {
+        final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
+        int counter = 0;
+        for (List<ImageChannelStack> seriesPointStacks : sortedChannelStackSeriesPoints)
+        {
+            final LayoutContainer container =
+                    createTilesGridForTimepoint(seriesPointStacks, images, channel, sessionId,
+                            imageWidth, imageHeight);
+            frames.add(container);
+            if (counter > 0)
+            {
+                container.setVisible(false);
+            }
+            counter++;
+        }
+        return frames;
+    }
+
+    private static void addAll(LayoutContainer container, List<LayoutContainer> frames)
+    {
+        for (LayoutContainer frame : frames)
+        {
+            container.add(frame);
+        }
+    }
+
+    private static LayoutContainer createTilesGridForTimepoint(
+            List<ImageChannelStack> seriesPointStacks, LogicalImageReference images,
+            String channel, String sessionId, int imageWidth, int imageHeight)
+    {
+        final LayoutContainer container =
+                new LayoutContainer(new TableLayout(images.getTileColsNum()));
+
+        ImageChannelStack[/* tileRow */][/* tileCol */] tilesMap =
+                createTilesMap(seriesPointStacks, images);
+        for (int row = 1; row <= images.getTileRowsNum(); row++)
+        {
+            for (int col = 1; col <= images.getTileColsNum(); col++)
+            {
+                ImageChannelStack stackRef = tilesMap[row - 1][col - 1];
+                if (stackRef != null)
+                {
+                    ImageUrlUtils.addImageUrlWidget(container, sessionId, images, channel,
+                            stackRef, imageWidth, imageHeight);
+                } else
+                {
+                    addDummyImage(container, imageWidth, imageHeight);
+                }
+            }
+        }
+        return container;
+    }
+
+    private static ImageChannelStack[][] createTilesMap(List<ImageChannelStack> stackReferences,
+            LogicalImageReference images)
+    {
+        int rows = images.getTileRowsNum();
+        int cols = images.getTileColsNum();
+        ImageChannelStack[][] map = new ImageChannelStack[rows][cols];
+        for (ImageChannelStack stackRef : stackReferences)
+        {
+            map[stackRef.getTileRow() - 1][stackRef.getTileCol() - 1] = stackRef;
+        }
+        return map;
+    }
+
+    private static void addDummyImage(LayoutContainer container, int imageWidth, int imageHeight)
+    {
+        Label dummy = new Label();
+        dummy.setWidth(imageWidth);
+        dummy.setHeight(imageHeight);
+        container.add(dummy);
+    }
+
+    private static String createTimepointLabel(List<ImageSeriesPoint> sortedPoints,
+            int sequenceNumber)
+    {
+        ImageSeriesPoint point = sortedPoints.get(sequenceNumber - 1);
+        int numberOfSequences = sortedPoints.size();
+        return point.getLabel() + " (" + sequenceNumber + "/" + numberOfSequences + ")";
+    }
+
+    private static final Slider createTimepointsSlider(int maxValue, Listener<SliderEvent> listener)
+    {
+        final Slider slider = new Slider();
+        slider.setWidth(230);
+        slider.setIncrement(1);
+        slider.setMinValue(1);
+        slider.setMaxValue(maxValue);
+        slider.setClickToChange(true);
+        slider.addListener(Events.Change, listener);
+        return slider;
+    }
 
     static class ImageSeriesPoint implements Comparable<ImageSeriesPoint>
     {
@@ -204,167 +367,4 @@ class LogicalImageSeriesViewer
         }
     }
 
-    public static LayoutContainer create(String sessionId,
-            List<ImageChannelStack> channelStackImages, LogicalImageReference images,
-            String channel, int imageWidth, int imageHeight)
-    {
-        LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(channelStackImages);
-        List<LayoutContainer> frames =
-                createTimepointFrames(model.getSortedChannelStackSeriesPoints(), images, channel,
-                        sessionId, imageWidth, imageHeight);
-
-        return createMoviePlayer(frames, model.getSortedPoints());
-    }
-
-    private static List<List<ImageChannelStack>> getSortedSeries(
-            Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries,
-            List<ImageSeriesPoint> sortedPoints)
-    {
-        List<List<ImageChannelStack>> sortedSeries = new ArrayList<List<ImageChannelStack>>();
-        for (ImageSeriesPoint point : sortedPoints)
-        {
-            List<ImageChannelStack> series = channelStackImagesBySeries.get(point);
-            sortedSeries.add(series);
-        }
-        return sortedSeries;
-    }
-
-    private static List<ImageSeriesPoint> sortPoints(Set<ImageSeriesPoint> points)
-    {
-        ArrayList<ImageSeriesPoint> pointsList = new ArrayList<ImageSeriesPoint>(points);
-        Collections.sort(pointsList);
-        return pointsList;
-    }
-
-    private static LayoutContainer createMoviePlayer(final List<LayoutContainer> frames,
-            final List<ImageSeriesPoint> sortedPoints)
-    {
-        final LayoutContainer mainContainer = new LayoutContainer();
-        addAll(mainContainer, frames);
-
-        final Slider slider = createTimepointsSlider(frames.size(), new Listener<SliderEvent>()
-            {
-                public void handleEvent(SliderEvent e)
-                {
-                    int oldValue = e.getOldValue();
-                    int newValue = e.getNewValue();
-                    if (oldValue > 0)
-                    {
-                        frames.get(oldValue - 1).hide();
-                    }
-                    frames.get(newValue - 1).show();
-                    mainContainer.remove(mainContainer.getItem(0));
-                    mainContainer
-                            .insert(new Label(createTimepointLabel(sortedPoints, newValue)), 0);
-                    mainContainer.layout();
-                }
-            });
-        mainContainer.insert(slider, 0);
-        mainContainer.insert(new Label(createTimepointLabel(sortedPoints, 1)), 0);
-        slider.setValue(1);
-
-        return mainContainer;
-    }
-
-    /**
-     * @param sortedChannelStackSeriesPoints - one element on the list are all tiles for a fixed
-     *            series point
-     */
-    private static List<LayoutContainer> createTimepointFrames(
-            List<List<ImageChannelStack>> sortedChannelStackSeriesPoints,
-            LogicalImageReference images, String channel, String sessionId, int imageWidth,
-            int imageHeight)
-    {
-        final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
-        int counter = 0;
-        for (List<ImageChannelStack> seriesPointStacks : sortedChannelStackSeriesPoints)
-        {
-            final LayoutContainer container =
-                    createTilesGridForTimepoint(seriesPointStacks, images, channel, sessionId,
-                            imageWidth, imageHeight);
-            frames.add(container);
-            if (counter > 0)
-            {
-                container.setVisible(false);
-            }
-            counter++;
-        }
-        return frames;
-    }
-
-    private static void addAll(LayoutContainer container, List<LayoutContainer> frames)
-    {
-        for (LayoutContainer frame : frames)
-        {
-            container.add(frame);
-        }
-    }
-
-    private static LayoutContainer createTilesGridForTimepoint(
-            List<ImageChannelStack> seriesPointStacks, LogicalImageReference images,
-            String channel, String sessionId, int imageWidth, int imageHeight)
-    {
-        final LayoutContainer container =
-                new LayoutContainer(new TableLayout(images.getTileColsNum()));
-
-        ImageChannelStack[/* tileRow */][/* tileCol */] tilesMap =
-                createTilesMap(seriesPointStacks, images);
-        for (int row = 1; row <= images.getTileRowsNum(); row++)
-        {
-            for (int col = 1; col <= images.getTileColsNum(); col++)
-            {
-                ImageChannelStack stackRef = tilesMap[row - 1][col - 1];
-                if (stackRef != null)
-                {
-                    ImageUrlUtils.addImageUrlWidget(container, sessionId, images, channel,
-                            stackRef, imageWidth, imageHeight);
-                } else
-                {
-                    addDummyImage(container, imageWidth, imageHeight);
-                }
-            }
-        }
-        return container;
-    }
-
-    private static ImageChannelStack[][] createTilesMap(List<ImageChannelStack> stackReferences,
-            LogicalImageReference images)
-    {
-        int rows = images.getTileRowsNum();
-        int cols = images.getTileColsNum();
-        ImageChannelStack[][] map = new ImageChannelStack[rows][cols];
-        for (ImageChannelStack stackRef : stackReferences)
-        {
-            map[stackRef.getTileRow() - 1][stackRef.getTileCol() - 1] = stackRef;
-        }
-        return map;
-    }
-
-    private static void addDummyImage(LayoutContainer container, int imageWidth, int imageHeight)
-    {
-        Label dummy = new Label();
-        dummy.setWidth(imageWidth);
-        dummy.setHeight(imageHeight);
-        container.add(dummy);
-    }
-
-    private static String createTimepointLabel(List<ImageSeriesPoint> sortedPoints,
-            int sequenceNumber)
-    {
-        ImageSeriesPoint point = sortedPoints.get(sequenceNumber - 1);
-        int numberOfSequences = sortedPoints.size();
-        return point.getLabel() + " (" + sequenceNumber + "/" + numberOfSequences + ")";
-    }
-
-    private static final Slider createTimepointsSlider(int maxValue, Listener<SliderEvent> listener)
-    {
-        final Slider slider = new Slider();
-        slider.setWidth(230);
-        slider.setIncrement(1);
-        slider.setMinValue(1);
-        slider.setMaxValue(maxValue);
-        slider.setClickToChange(true);
-        slider.addListener(Events.Change, listener);
-        return slider;
-    }
 }
