@@ -6,7 +6,10 @@
 # -------- check that screening openbis is indendent of the DSS code
 
 [screening_openbis] = ${screening}.*
-[dss] = ${root}.dss.* ch.systemsx.cisd.etlserver.* excluding ${root}.dss.screening.shared.api.* ${root}.dss.generic.shared.api.authorization.*
+
+[dss_authorization] = ${root}.dss.generic.shared.api.authorization.*
+[dss_api] = ${root}.dss.screening.shared.api.v1.** ${root}.dss.client.api.v1.** ${root}.dss.generic.shared.api.v1.**
+[dss] = ${root}.dss.* ch.systemsx.cisd.etlserver.* excluding [dss_api] [dss_authorization]
 check sets [screening_openbis] [dss]
 
 check [screening_openbis] independentOf [dss]
@@ -48,20 +51,18 @@ check [screening_web_client] independentOf [screening_server]
 # -------- check screening public API dependencies
 
 [openbis_authorization] = ${screening}.shared.api.authorization.* ${root}.generic.shared.basic.dto.RoleWithHierarchy* ${root}.generic.shared.authorization.** ${root}.generic.shared.dto.** ${root}.generic.shared.util.SpaceCodeHelper
-[dss_authorization] = ${root}.dss.generic.shared.api.authorization.*
 [authorization] = [openbis_authorization] [dss_authorization]
-[api_openbis] = ${screening}.shared.api.** 
-[api_dss] = ${root}.dss.screening.shared.api.v1.**
+[api_openbis] = ${screening}.shared.api.**
 [api_client_facade] =	${screening}.client.api.v1.**
-[api] = [api_dss] [api_openbis] [api_client_facade] [authorization]
+[api] = [dss_api] [api_openbis] [api_client_facade] [authorization]
 [openbis_rest] = ${root}.** excluding [api]
-check sets [api_dss] [api_openbis] [api_client_facade] [api] [openbis_rest] [openbis_authorization]
+check sets [dss_api] [api_openbis] [api_client_facade] [api] [openbis_rest] [openbis_authorization]
 
 # TODO: how to check that the api does not depend on external libraries?
 check [api] independentOf [openbis_rest]
 check [api_client_facade] directlyIndependentOf [authorization]
 
 layer s_api_openbis = [api_openbis]
-layer s_api_dss_and_utils = [api_dss]
+layer s_api_dss_and_utils = [dss_api]
 layer s_api_client = [api_client_facade]
 check layeringOf s_api_openbis s_api_dss_and_utils s_api_client
