@@ -84,7 +84,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
 
         public String tryGetLink(T entity, final ISerializableComparable value)
         {
-            if (value == null)
+            if (value == null || value.toString().length() == 0)
             {
                 return null;
             }
