@@ -63,13 +63,17 @@ public class SamplePermIdPredicate extends AbstractDatabaseInstancePredicate<Per
     }
 
     @Override
-    protected
-    final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final PermId id)
+    protected final Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final PermId id)
     {
-        SamplePE sample = authorizationDataProvider.getSample(id);
-        return sampleOwnerIdentifierPredicate.doEvaluation(person, allowedRoles, sample
-                .getSampleIdentifier());
+        SamplePE sample = authorizationDataProvider.tryGetSample(id);
+        if (sample == null)
+        {
+            return Status.createError(String.format("User '%s' does not have enough privileges.",
+                    person.getUserId()));
+        }
+        return sampleOwnerIdentifierPredicate.doEvaluation(person, allowedRoles,
+                sample.getSampleIdentifier());
     }
 
 }

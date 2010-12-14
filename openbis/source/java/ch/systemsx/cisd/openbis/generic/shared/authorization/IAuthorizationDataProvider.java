@@ -27,11 +27,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Interface of providers of data needed for authorization.
@@ -98,9 +98,9 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public SamplePE getSample(TechId techId);
 
     /**
-     * Returns the sample with given <var>permId</var>.
+     * Returns the sample with given <var>permId</var> or null if such sample doesn't exist.
      */
-    public SamplePE getSample(PermId id);
+    public SamplePE tryGetSample(PermId id);
 
     /**
      * Returns the filter with given <var>techId</var>

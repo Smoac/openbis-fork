@@ -19,9 +19,14 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractSpacePredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 
 /**
@@ -32,25 +37,62 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 public class PlateIdentifierPredicate extends AbstractSpacePredicate<PlateIdentifier>
 {
 
+    private final SampleOwnerIdentifierPredicate sampleOwnerIdentifierPredicate;
+
+    public PlateIdentifierPredicate()
+    {
+        this(true);
+    }
+
+    public PlateIdentifierPredicate(boolean isReadAccess)
+    {
+        sampleOwnerIdentifierPredicate = new SampleOwnerIdentifierPredicate(isReadAccess);
+    }
+
+    //
+    // AbstractPredicate
+    //
+
+    @Override
+    public final void init(IAuthorizationDataProvider provider)
+    {
+        super.init(provider);
+        sampleOwnerIdentifierPredicate.init(provider);
+    }
+
     @Override
     public String getCandidateDescription()
     {
-        return "experiment";
+        return "plate identifier";
     }
 
     @Override
     protected Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles,
             PlateIdentifier value)
     {
-        // TODO 2010-12-13, Piotr Buczek: implement dealing with shared plates and permIds
+        final SampleOwnerIdentifier plateOwner;
+
         if (value.getPermId() != null)
         {
-            return null;
+            final SamplePE sample =
+                    authorizationDataProvider.tryGetSampleByPermId(value.getPermId());
+            if (sample == null)
+            {
+                return Status.createError(String.format(
+                        "User '%s' does not have enough privileges.", person.getUserId()));
+            }
+            plateOwner = sample.getSampleIdentifier();
+        } else
+        {
+            plateOwner = SampleIdentifierFactory.parse(value.getAugmentedCode());
         }
-
-        final String spaceCode = value.tryGetSpaceCode();
-        return evaluate(person, allowedRoles, authorizationDataProvider.getHomeDatabaseInstance(),
-                spaceCode);
+        return performSampleOwnerPredicateEvaluation(person, allowedRoles, plateOwner);
     }
 
+    @SuppressWarnings("deprecation")
+    private Status performSampleOwnerPredicateEvaluation(PersonPE person,
+            List<RoleWithIdentifier> allowedRoles, SampleOwnerIdentifier sampleOwner)
+    {
+        return sampleOwnerIdentifierPredicate.performEvaluation(person, allowedRoles, sampleOwner);
+    }
 }

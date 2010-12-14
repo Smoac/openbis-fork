@@ -63,18 +63,27 @@ public final class SampleOwnerIdentifierPredicate extends AbstractPredicate<Samp
     }
 
     @Override
-    protected
-    final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final SampleOwnerIdentifier value)
+    protected final Status doEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final SampleOwnerIdentifier value)
+    {
+        return performEvaluation(person, allowedRoles, value);
+    }
+
+    /**
+     * @deprecated exposed only for usage in screening api authorization - use 'doEvaluation()' in
+     *             other places
+     */
+    @Deprecated
+    public Status performEvaluation(final PersonPE person,
+            final List<RoleWithIdentifier> allowedRoles, final SampleOwnerIdentifier value)
     {
         if (value.isDatabaseInstanceLevel())
         {
-            return databaseInstanceIdentifierPredicate.doEvaluation(person, allowedRoles, value
-                    .getDatabaseInstanceLevel());
+            return databaseInstanceIdentifierPredicate.doEvaluation(person, allowedRoles,
+                    value.getDatabaseInstanceLevel());
         } else
         {
-            return spacePredicate.doEvaluation(person, allowedRoles, value
-                    .getSpaceLevel());
+            return spacePredicate.doEvaluation(person, allowedRoles, value.getSpaceLevel());
         }
     }
 
