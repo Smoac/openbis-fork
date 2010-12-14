@@ -89,11 +89,11 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
         List<TableModelColumnHeader> headers = provider.getTableModel().getHeader();
         
         assertFixedColumns(headers);
-        assertPropertyHeader("one", "ONE", 4, headers);
-        assertPropertyHeader("two", "TWO", 5, headers);
-        assertPropertyHeader("alpha", "BIO_ALPHA", 6, headers);
-        assertPropertyHeader("beta", "BIO_BETA", 7, headers);
-        assertPropertyHeader("gamma", "BIO_GAMMA", 8, headers);
+        assertPropertyHeader("one", "USER-ONE", 4, headers);
+        assertPropertyHeader("two", "USER-TWO", 5, headers);
+        assertPropertyHeader("alpha", "BIO_USER-ALPHA", 6, headers);
+        assertPropertyHeader("beta", "BIO_USER-BETA", 7, headers);
+        assertPropertyHeader("gamma", "BIO_USER-GAMMA", 8, headers);
         assertEquals(9, headers.size());
         context.assertIsSatisfied();
     }
@@ -203,6 +203,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
             PropertyType propertyType = new PropertyType();
             propertyType.setLabel(label);
             propertyType.setCode(propertyType.getLabel().toUpperCase());
+            propertyType.setSimpleCode(propertyType.getCode());
             DataType dataType = new DataType();
             dataType.setCode(DataTypeCode.values()[label.length()]);
             propertyType.setDataType(dataType);
