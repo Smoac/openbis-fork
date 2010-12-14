@@ -404,9 +404,11 @@ public class ScreeningApiImpl
 
     private static WellIdentifier asWellIdentifier(Sample sample, PlateIdentifier plateIdentifier)
     {
+        // need to translate location to position to use it in API
         WellLocation location =
                 ScreeningUtils.tryCreateLocationFromMatrixCoordinate(sample.getCode());
-        return new WellIdentifier(plateIdentifier, sample.getPermId(), location);
+        WellPosition position = new WellPosition(location.getRow(), location.getColumn());
+        return new WellIdentifier(plateIdentifier, position, sample.getPermId());
     }
 
     public List<PlateWellMaterialMapping> listPlateMaterialMapping(

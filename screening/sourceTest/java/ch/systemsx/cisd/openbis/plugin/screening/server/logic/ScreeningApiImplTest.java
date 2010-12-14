@@ -52,8 +52,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * @author Franz-Josef Elmer
@@ -150,7 +150,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     private static WellIdentifier wellIdentifier(PlateIdentifier plate, String wellPermId, int row,
             int col)
     {
-        return new WellIdentifier(plate, wellPermId, new WellLocation(row, col));
+        return new WellIdentifier(plate, new WellPosition(row, col), wellPermId);
     }
 
     @Test
