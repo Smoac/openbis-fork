@@ -248,7 +248,7 @@ public class LogicalImageViewer
     }
 
     /** Creates a widget with a representative image of the specified logical image. */
-    // TODO 2010-12-10, Tomasz Pylak: implement me!
+    // TODO 2010-12-10, Tomasz Pylak: change the implementation to use representative images
     public static LayoutContainer createRepresentativeImage(LogicalImageReference images,
             String channel, String sessionId, int imageWidth, int imageHeight,
             boolean createImageLinks)
