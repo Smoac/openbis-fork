@@ -205,6 +205,7 @@ class LogicalImageSeriesViewer
         return slider;
     }
 
+    //private
     static class ImageSeriesPoint implements Comparable<ImageSeriesPoint>
     {
         private final Float tOrNull, zOrNull;
@@ -323,6 +324,7 @@ class LogicalImageSeriesViewer
         }
     }
 
+    //private
     static class LogicalImageSeriesViewerModel
     {
         private final List<ImageSeriesPoint> sortedPoints;
