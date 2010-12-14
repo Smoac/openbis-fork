@@ -55,8 +55,8 @@ public class DemoOverviewPlugin implements IDatasetImageOverviewPlugin
         label = PropertyUtils.getProperty(properties, LABEL_PROPERTY_KEY, "(no label)");
     }
 
-    public ResponseContentStream createImageResponse(String datasetCode, String datasetTypeCode,
-            ImageResolutionKind resolution)
+    public ResponseContentStream createImageOverview(String datasetCode, String datasetTypeCode,
+            File datasetRoot, ImageResolutionKind resolution)
     {
         System.out.println(String.format("%s (%s): create image for\n"
                 + "\tdataset code: %s\n\tdataset type: %s\n\tresolution: %s", this.getClass()

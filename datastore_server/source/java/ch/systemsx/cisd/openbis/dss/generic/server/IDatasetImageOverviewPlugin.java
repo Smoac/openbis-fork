@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
 /**
@@ -27,9 +29,10 @@ public interface IDatasetImageOverviewPlugin
 {
 
     /**
+     * @param datasetRoot directory in the store where dataset can be found.
      * @return {@link ResponseContentStream} with an image in given resolution for specified dataset
      */
-    ResponseContentStream createImageResponse(String datasetCode, String datasetTypeCode,
-            ImageResolutionKind resolution);
+    ResponseContentStream createImageOverview(String datasetCode, String datasetTypeCode,
+            File datasetRoot, ImageResolutionKind resolution);
 
 }

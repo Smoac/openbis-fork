@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -111,7 +112,7 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
             ensureDatasetAccessible(datasetCode, session, sessionId);
 
             ResponseContentStream responseStream =
-                    createImageResponse(datasetCode, datasetTypeCode, resolution);
+                    createImageResponse(session, datasetCode, datasetTypeCode, resolution);
 
             if (responseStream != null && operationLog.isDebugEnabled())
             {
@@ -127,12 +128,13 @@ public class DatasetImageOverviewServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private ResponseContentStream createImageResponse(String datasetCode, String datasetTypeCode,
-            ImageResolutionKind resolution)
+    private ResponseContentStream createImageResponse(HttpSession session, String datasetCode,
+            String datasetTypeCode, ImageResolutionKind resolution)
     {
-        final IDatasetImageOverviewPlugin plugin =
+        File datasetRoot = createDataSetRootDirectory(datasetCode, session);
+        IDatasetImageOverviewPlugin plugin =
                 configuration.getDatasetImageOverviewPlugin(datasetTypeCode);
-        return plugin.createImageResponse(datasetCode, datasetTypeCode, resolution);
+        return plugin.createImageOverview(datasetCode, datasetTypeCode, datasetRoot, resolution);
     }
 
     // static initialization is used to simplify usage of properties
