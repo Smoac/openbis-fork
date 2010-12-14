@@ -55,6 +55,8 @@ public class LogicalImageViewer
 
     private static final int ONE_IMAGE_HEIGHT_PX = 120;
 
+    private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 70;
+
     // ----------------
 
     private final LogicalImageReference logicalImageReference;
@@ -64,7 +66,7 @@ public class LogicalImageViewer
     private final IDefaultChannelState channelState;
 
     private final String experimentIdentifier;
-    
+
     private String currentlySelectedChannelCode;
 
     public LogicalImageViewer(LogicalImageReference logicalImageReference,
@@ -110,6 +112,7 @@ public class LogicalImageViewer
         final LayoutContainer container = new LayoutContainer();
         container.add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
         container.setLayout(new RowLayout());
+        container.setHeight(getSeriesImageWidgetHeight());
 
         // loads the channel stacks asynchroniously, when done replaces the "Loading..." message
         // with the viewer.
@@ -131,9 +134,16 @@ public class LogicalImageViewer
                             {
                                 container.add(new Text(NO_IMAGES_AVAILABLE_MSG));
                             }
+                            container.layout();
                         }
                     });
         return container;
+    }
+
+    private int getSeriesImageWidgetHeight()
+    {
+        return CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX + getImageHeight(logicalImageReference)
+                * logicalImageReference.getTileRowsNum();
     }
 
     private Widget createSeriesImageWidget(final List<ImageChannelStack> channelStackImages)
@@ -208,7 +218,7 @@ public class LogicalImageViewer
         urlParams.addParameter("session", sessionToken);
         urlParams.addParameter(ParameterNames.SERVER_URL, GWT.getHostPageBaseURL());
         urlParams.addParameter(ParameterNames.EXPERIMENT_ID, experimentIdentifier);
-        
+
         if (currentlySelectedChannelCode != null)
         {
             urlParams.addParameter(ParameterNames.CHANNEL, currentlySelectedChannelCode);
@@ -274,7 +284,7 @@ public class LogicalImageViewer
     private static float getImageSizeMultiplyFactor(LogicalImageReference images)
     {
         float dim = Math.max(images.getTileRowsNum(), images.getTileColsNum());
-        // if there are more than 3 tiles, make them smaller, if there are less, make them bigger
+        // if there are more than 4 tiles, make them smaller, if there are less, make them bigger
         return 4.0F / dim;
     }
 }
