@@ -337,7 +337,7 @@ public class PlateLayouter
                         // Reload meta data because they might be out dated especially when
                         // image transformer factory has changed. For the image URL the
                         // signature of the factory is needed to distinguish them. This is important
-                        // because Web browser cache images.
+                        // because Web browser caches images.
                         service.getPlateContentForDataset(new TechId(dataset.getDatasetId()),
                                 new AbstractAsyncCallback<PlateImages>(screeningViewContext)
                                     {
