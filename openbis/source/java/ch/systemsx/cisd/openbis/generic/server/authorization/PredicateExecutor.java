@@ -47,12 +47,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * A static class to execute {@link IPredicate}.
@@ -244,7 +244,7 @@ public final class PredicateExecutor
         {
             return daoFactory.getExperimentDAO().tryGetByPermID(permId);
         }
-        
+
         public SamplePE tryGetSampleByPermId(String permId)
         {
             return daoFactory.getSampleDAO().tryToFindByPermID(permId);
@@ -399,7 +399,7 @@ public final class PredicateExecutor
             return daoFactory.getSampleDAO().getByTechId(techId);
         }
 
-        public SamplePE getSample(PermId id)
+        public SamplePE tryGetSample(PermId id)
         {
             return daoFactory.getSampleDAO().tryToFindByPermID(id.getId());
         }
