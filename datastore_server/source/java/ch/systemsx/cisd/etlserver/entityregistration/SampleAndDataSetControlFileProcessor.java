@@ -37,8 +37,6 @@ import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
 import ch.systemsx.cisd.openbis.generic.shared.parser.GlobalProperties;
 import ch.systemsx.cisd.openbis.generic.shared.parser.GlobalPropertiesLoader;
@@ -72,21 +70,6 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         ControlFileOverrideProperties(File controlFile) throws FileNotFoundException
         {
             properties = GlobalPropertiesLoader.load(controlFile);
-        }
-
-        public String trySpaceCode()
-        {
-            return properties.get(SampleAndDataSetRegistrationHandler.DATA_SPACE_CONTROL_FILE_KEY);
-        }
-
-        public SpaceIdentifier trySpaceIdentifier()
-        {
-            String spaceCode = trySpaceCode();
-            if (null == spaceCode)
-            {
-                return null;
-            }
-            return new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(), spaceCode);
         }
 
         public SampleType trySampleType()
@@ -168,19 +151,6 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             return globalProperties;
         }
 
-        /**
-         * Returns a space identifier. Call checkValidity first.
-         */
-        public SpaceIdentifier getSpaceIdentifier()
-        {
-            SpaceIdentifier spaceIdentifier = overrideProperties.trySpaceIdentifier();
-            if (null == spaceIdentifier)
-            {
-                spaceIdentifier = globalProperties.trySpaceIdentifier();
-            }
-            return spaceIdentifier;
-        }
-
         public SampleType getSampleType()
         {
             SampleType sampleType = overrideProperties.trySampleType();
@@ -208,18 +178,12 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
         public void checkValidity()
         {
-            SpaceIdentifier spaceIdentifier = getSpaceIdentifier();
             SampleType sampleType = getSampleType();
             DataSetType dataSetType = getDataSetType();
             Person theUser = getUser();
 
             StringBuilder sb = new StringBuilder();
             boolean hasError = false;
-            if (null == spaceIdentifier)
-            {
-                hasError = true;
-                sb.append("\tNo default space identifier has been specified, and no space identifier was specified in the control file.");
-            }
             if (null == sampleType)
             {
                 hasError = true;
@@ -340,10 +304,9 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     {
         String message =
                 String.format(
-                        "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DATA_SET_TYPE(%s) DEFAULT_SPACE(%s) USER(%s)",
+                        "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DATA_SET_TYPE(%s) USER(%s)",
                         controlFile.getName(), properties.trySampleType(),
-                        properties.tryDataSetType(), properties.trySpaceCode(),
-                        properties.tryUserString());
+                        properties.tryDataSetType(), properties.tryUserString());
         logInfo(message);
     }
 

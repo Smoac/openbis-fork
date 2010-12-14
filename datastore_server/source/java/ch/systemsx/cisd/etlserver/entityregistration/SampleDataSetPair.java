@@ -44,8 +44,6 @@ public class SampleDataSetPair
 
     private final static String DATA_SET_CODE = "D_code";
 
-    private final static String DATA_SET_TYPE = "D_data_set_type";
-
     private final static String DATA_SET_FILE_TYPE = "D_file_type";
 
     private final static String FOLDER = "FOLDER";
@@ -57,6 +55,8 @@ public class SampleDataSetPair
     private String[] tokens;
 
     private String folderName;
+
+    private String fileFormatTypeCode;
 
     public SampleDataSetPair()
     {
@@ -84,7 +84,7 @@ public class SampleDataSetPair
         return dataSetInformation;
     }
 
-    @BeanProperty(label = SAMPLE_IDENTIFIER, optional = true)
+    @BeanProperty(label = SAMPLE_IDENTIFIER, optional = false)
     public void setSampleIdentifier(String sampleIdentifier)
     {
         this.newSample.setIdentifier(sampleIdentifier);
@@ -114,14 +114,15 @@ public class SampleDataSetPair
         dataSetInformation.setDataSetCode(code);
     }
 
-    @BeanProperty(label = DATA_SET_TYPE, optional = true)
-    public void setDataSetType(String parent)
+    public String getFileFormatTypeCode()
     {
+        return fileFormatTypeCode;
     }
 
     @BeanProperty(label = DATA_SET_FILE_TYPE, optional = true)
-    public void setDataSetFileType(String experimentIdentifier)
+    public void setFileFormatTypeCode(String fileFormatType)
     {
+        this.fileFormatTypeCode = fileFormatType;
     }
 
     public String getFolderName()
@@ -129,7 +130,7 @@ public class SampleDataSetPair
         return folderName;
     }
 
-    @BeanProperty(label = FOLDER, optional = true)
+    @BeanProperty(label = FOLDER, optional = false)
     public void setFolderName(String folderName)
     {
         this.folderName = folderName;

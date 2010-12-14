@@ -18,10 +18,12 @@ package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.io.File;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileRegistrationProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
@@ -58,6 +60,12 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
     public Exception register()
     {
         File dataSetFile = new File(folder, sampleDataSetPair.getFolderName());
+        Exception isEmptyException = checkDataSetFileNotEmpty(dataSetFile);
+        if (null != isEmptyException)
+        {
+            return isEmptyException;
+        }
+
         if (globalState.getDelegator() instanceof IExtensibleDataSetHandler)
         {
             IExtensibleDataSetHandler handler =
@@ -71,6 +79,15 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         return failureException;
     }
 
+    private Exception checkDataSetFileNotEmpty(File dataSetFile)
+    {
+        if (0 == dataSetFile.list().length)
+        {
+            return new UserFailureException("The data set folder cannot be empty");
+        }
+        return null;
+    }
+
     private void logDataRegistered()
     {
         String message = String.format("Registered sample/data set pair %s", sampleDataSetPair);
@@ -79,6 +96,14 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
 
     public void registerDataSetInApplicationServer(NewExternalData data)
     {
+        data.setDataSetType(properties.getDataSetType());
+        if (null != sampleDataSetPair.getFileFormatTypeCode())
+        {
+            FileFormatType fileFormatType =
+                    new FileFormatType(sampleDataSetPair.getFileFormatTypeCode());
+
+            data.setFileFormatType(fileFormatType);
+        }
         try
         {
             Sample sample =
@@ -93,6 +118,11 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             didSucceed = false;
             failureException = e;
             throw e;
+        } catch (Exception e)
+        {
+            didSucceed = false;
+            failureException = e;
+            throw new CheckedExceptionTunnel(e);
         }
     }
 
