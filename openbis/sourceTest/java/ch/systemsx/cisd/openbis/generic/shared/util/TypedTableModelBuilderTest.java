@@ -109,18 +109,19 @@ public class TypedTableModelBuilderTest extends AssertJUnit
     {
         TypedTableModelBuilder<ISerializable> builder = new TypedTableModelBuilder<ISerializable>();
         builder.addRow(new MockSerializable());
-        IEntityProperty p1 = property("beta", "3.25", DataTypeCode.REAL);
-        IEntityProperty p2 = property("alpha", "hello\nworld", DataTypeCode.MULTILINE_VARCHAR);
-        IEntityProperty p3 = property("gamma", "hello", DataTypeCode.VARCHAR);
+        IEntityProperty p1 = property("beta", "3.25", true, DataTypeCode.REAL);
+        IEntityProperty p2 = property("alpha", "hello\nworld", false, DataTypeCode.MULTILINE_VARCHAR);
+        IEntityProperty p3 = property("gamma", "hello", false, DataTypeCode.VARCHAR);
         builder.columnGroup("g").addProperties("MY-", Arrays.asList(p1, p2, p3));
         builder.addRow(new MockSerializable());
-        IEntityProperty p4 = property("gamma", "hi", DataTypeCode.VARCHAR);
-        IEntityProperty p5 = property("kappa", "42", DataTypeCode.INTEGER);
+        IEntityProperty p4 = property("gamma", "hi", false, DataTypeCode.VARCHAR);
+        IEntityProperty p5 = property("kappa", "42", false, DataTypeCode.INTEGER);
         builder.columnGroup("g").addProperties("MY-", Arrays.asList(p4, p5));
 
         TypedTableModel<ISerializable> model = builder.getModel();
         List<TableModelColumnHeader> headers = model.getHeader();
-        assertHeadersOrder(headers, "MY-ALPHA", "MY-BETA", "MY-GAMMA", "MY-KAPPA");
+        System.out.println("HEADERS:"+headers);
+        assertHeadersOrder(headers, "MY-USER-ALPHA", "MY-INTERN-BETA", "MY-USER-GAMMA", "MY-USER-KAPPA");
         assertEquals("alpha", headers.get(0).getTitle());
         assertEquals(DataTypeCode.MULTILINE_VARCHAR, headers.get(0).getDataType());
         assertEquals("beta", headers.get(1).getTitle());
@@ -142,11 +143,14 @@ public class TypedTableModelBuilderTest extends AssertJUnit
         assertEquals(2, rows.size());
     }
 
-    private IEntityProperty property(String key, String value, DataTypeCode type)
+    private IEntityProperty property(String key, String value, boolean internalNamespace, DataTypeCode type)
     {
         EntityProperty property = new EntityProperty();
         PropertyType propertyType = new PropertyType();
-        propertyType.setCode(key.toUpperCase());
+        String normalizedKey = key.toUpperCase();
+        propertyType.setSimpleCode(normalizedKey);
+        propertyType.setInternalNamespace(internalNamespace);
+        propertyType.setCode((internalNamespace ? "$" : "") + normalizedKey);
         propertyType.setLabel(key);
         propertyType.setDataType(new DataType(type));
         property.setPropertyType(propertyType);

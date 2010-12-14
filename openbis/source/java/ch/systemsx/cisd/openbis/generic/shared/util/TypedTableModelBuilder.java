@@ -134,7 +134,10 @@ public class TypedTableModelBuilder<T extends ISerializable>
             {
                 PropertyType propertyType = property.getPropertyType();
                 String label = propertyType.getLabel();
-                String code = idPrefix + propertyType.getCode();
+                boolean internalNamespace = propertyType.isInternalNamespace();
+                String code =
+                        idPrefix + (internalNamespace ? "INTERN" : "USER") + "-"
+                                + propertyType.getSimpleCode();
                 IColumn column = column(code).withTitle(label);
                 DataTypeCode dataType = propertyType.getDataType().getCode();
                 ISerializableComparable value;
