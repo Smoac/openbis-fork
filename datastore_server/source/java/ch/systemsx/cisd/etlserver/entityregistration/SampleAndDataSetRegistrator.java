@@ -18,9 +18,11 @@ package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileRegistrationProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
@@ -35,6 +37,11 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
 
     private final SampleDataSetPair sampleDataSetPair;
 
+    // State that is updated during the registration
+    private boolean didSucceed = false;
+
+    private Exception failureException = null;
+
     SampleAndDataSetRegistrator(File folder, ControlFileRegistrationProperties properties,
             SampleDataSetPair sampleDataSetPair)
     {
@@ -43,7 +50,12 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         this.sampleDataSetPair = sampleDataSetPair;
     }
 
-    public void register()
+    /**
+     * Commit this line. If there was a failure return the exception, otherwise return null.
+     * 
+     * @return An exception if one was encountered, otherwise null.
+     */
+    public Exception register()
     {
         File dataSetFile = new File(folder, sampleDataSetPair.getFolderName());
         if (globalState.getDelegator() instanceof IExtensibleDataSetHandler)
@@ -51,8 +63,12 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             IExtensibleDataSetHandler handler =
                     (IExtensibleDataSetHandler) globalState.getDelegator();
             handler.handleDataSet(dataSetFile, sampleDataSetPair.getDataSetInformation(), this);
-            logDataRegistered();
+            if (didSucceed)
+            {
+                logDataRegistered();
+            }
         }
+        return failureException;
     }
 
     private void logDataRegistered()
@@ -63,8 +79,21 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
 
     public void registerDataSetInApplicationServer(NewExternalData data)
     {
-        globalState.getOpenbisService().registerSampleAndDataSet(sampleDataSetPair.getNewSample(),
-                data, properties.getUser().getUserId());
+        try
+        {
+            Sample sample =
+                    globalState.getOpenbisService().registerSampleAndDataSet(
+                            sampleDataSetPair.getNewSample(), data,
+                            properties.getUser().getUserId());
+            // Update the data set information -- it will be needed later in the data set processing
+            sampleDataSetPair.getDataSetInformation().setSample(sample);
+            didSucceed = true;
+        } catch (UserFailureException e)
+        {
+            didSucceed = false;
+            failureException = e;
+            throw e;
+        }
     }
 
 }

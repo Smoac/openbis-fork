@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
+import java.util.List;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -23,6 +25,7 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * An object that represents a sample/data set pair defined in a file
@@ -137,9 +140,9 @@ public class SampleDataSetPair
         newSample.setProperties(properties);
     }
 
-    public void setDataSetProperties(IEntityProperty[] properties)
+    public void setDataSetProperties(List<NewProperty> properties)
     {
-        dataSetInformation.setProperties(properties);
+        dataSetInformation.setDataSetProperties(properties);
     }
 
     @Override

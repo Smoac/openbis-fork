@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
 /**
  * Utility class for creating SampleDataSetPair objects from a text file.
@@ -96,10 +97,11 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
         return propertyType;
     }
 
-    private final void setProperties(final SampleDataSetPair newSample, final String[] lineTokens)
+    private final void setProperties(final SampleDataSetPair newSampleDataSet,
+            final String[] lineTokens)
     {
         final List<IEntityProperty> sampleProperties = new ArrayList<IEntityProperty>();
-        final List<IEntityProperty> dataSetProperties = new ArrayList<IEntityProperty>();
+        final List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
         for (final String unmatchedProperty : getUnmatchedProperties())
         {
             IPropertyModel propertyModel = tryGetPropertyModel(unmatchedProperty);
@@ -111,23 +113,33 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
 
             if (unmatchedProperty.startsWith(SAMPLE_PREFIX))
             {
-                addPropertyToList(SAMPLE_PREFIX, sampleProperties, unmatchedProperty, propertyValue);
+                addEntityPropertyToList(SAMPLE_PREFIX, sampleProperties, unmatchedProperty,
+                        propertyValue);
             } else if (unmatchedProperty.startsWith(DATASET_PREFIX))
             {
-                addPropertyToList(DATASET_PREFIX, dataSetProperties, unmatchedProperty,
+                addNewPropertyToList(DATASET_PREFIX, dataSetProperties, unmatchedProperty,
                         propertyValue);
             }
 
         }
-        newSample.setSampleProperties(sampleProperties.toArray(IEntityProperty.EMPTY_ARRAY));
-        newSample.setDataSetProperties(dataSetProperties.toArray(IEntityProperty.EMPTY_ARRAY));
+        newSampleDataSet.setSampleProperties(sampleProperties.toArray(IEntityProperty.EMPTY_ARRAY));
+        newSampleDataSet.setDataSetProperties(dataSetProperties);
     }
 
-    private void addPropertyToList(String prefix, final List<IEntityProperty> list,
+    private void addEntityPropertyToList(String prefix, final List<IEntityProperty> list,
             final String unmatchedProperty, String propertyValue)
     {
         IEntityProperty property = new EntityProperty();
         property.setPropertyType(createPropertyType(unmatchedProperty.substring(prefix.length())));
+        property.setValue(propertyValue);
+        list.add(property);
+    }
+
+    private void addNewPropertyToList(String prefix, final List<NewProperty> list,
+            final String unmatchedProperty, String propertyValue)
+    {
+        NewProperty property = new NewProperty();
+        property.setPropertyCode(unmatchedProperty.substring(prefix.length()));
         property.setValue(propertyValue);
         list.add(property);
     }

@@ -49,11 +49,11 @@ public final class DataStrategyStore implements IDataStrategyStore
 {
     static final String SUBJECT_FORMAT = "ATTENTION: experiment '%s'";
 
-    private static final Logger notificationLog =
-            LogFactory.getLogger(LogCategory.NOTIFY, DataStrategyStore.class);
+    private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            DataStrategyStore.class);
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DataStrategyStore.class);
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            DataStrategyStore.class);
 
     private final IEncapsulatedOpenBISService limsService;
 
@@ -105,7 +105,7 @@ public final class DataStrategyStore implements IDataStrategyStore
     // IDataStrategyStore
     //
 
-    public final IDataStoreStrategy getDataStoreStrategy(final DataSetInformation dataSetInfo,
+    public IDataStoreStrategy getDataStoreStrategy(final DataSetInformation dataSetInfo,
             final File incomingDataSetPath)
     {
 
@@ -177,12 +177,11 @@ public final class DataStrategyStore implements IDataStrategyStore
                 }
                 operationLog
                         .error(String
-                                .format(
-                                        "Incoming data set '%s' claims to "
-                                                + "belong to experiment '%s' and sample"
-                                                + " identifier '%s', but according to the openBIS server "
-                                                + "there is no such sample for this "
-                                                + "experiment (it has maybe been invalidated?). We thus consider it invalid.",
+                                .format("Incoming data set '%s' claims to "
+                                        + "belong to experiment '%s' and sample"
+                                        + " identifier '%s', but according to the openBIS server "
+                                        + "there is no such sample for this "
+                                        + "experiment (it has maybe been invalidated?). We thus consider it invalid.",
                                         incomingDataSetPath, experimentIdentifier, sampleIdentifier));
                 return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
             }

@@ -196,6 +196,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     public List<DataSetInformation> handleDataSet(final File dataSet,
             DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
     {
+        dataSetInformation.setInstanceCode(getHomeDatabaseInstance().getCode());
+        dataSetInformation.setInstanceUUID(getHomeDatabaseInstance().getUuid());
         final DataSetRegistrationAlgorithm registrationHelper =
                 createRegistrationHelper(dataSet, dataSetInformation, registrator);
         registrationHelper.prepare();
@@ -610,6 +612,12 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         protected void registerDataSetInApplicationServer(NewExternalData data)
         {
             registrator.registerDataSetInApplicationServer(data);
+        }
+
+        @Override
+        protected IDataStrategyStore getDataStrategyStore()
+        {
+            return new AlwaysIdentifiedDataStrategyStore();
         }
 
     }

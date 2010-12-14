@@ -50,8 +50,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 {
     private final File controlFile;
 
-    @SuppressWarnings("unused")
-    private final HashMap<File, Exception> errorMap = new HashMap<File, Exception>();
+    private final HashMap<SampleDataSetPair, Exception> errorMap =
+            new HashMap<SampleDataSetPair, Exception>();
 
     /**
      * Utility class for accessing the properties defined in a control file.
@@ -290,14 +290,50 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             return;
         }
 
+        String userId = properties.getUser().getUserId();
         // If we are here, we have sucessfuly parsed the file
         for (SampleDataSetPair sampleDataSet : loadedSampleDataSetPairs)
         {
+            sampleDataSet.getDataSetInformation().setUploadingUserId(userId);
             SampleAndDataSetRegistrator registrator =
                     new SampleAndDataSetRegistrator(folder, properties, sampleDataSet);
-            registrator.register();
+            Exception resultOrNull = registrator.register();
+            if (null != resultOrNull)
+            {
+                errorMap.put(sampleDataSet, resultOrNull);
+            }
+        }
+        if (false == errorMap.isEmpty())
+        {
+            sendEmailWithErrorMessage(properties, createErrorMessageFromErrorMap());
         }
 
+    }
+
+    private String createErrorMessageFromErrorMap()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Encountered errors in the following lines:\n");
+        for (SampleDataSetPair pair : errorMap.keySet())
+        {
+            Exception error = errorMap.get(pair);
+            sb.append("# ");
+            sb.append(error.getMessage());
+            sb.append("\n");
+
+            String[] tokens = pair.getTokens();
+            int i = 0;
+            for (String token : tokens)
+            {
+                sb.append(token);
+                if (++i < tokens.length)
+                {
+                    sb.append("\t");
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
     private void logControlFileOverridePropertiesExtracted(ControlFileOverrideProperties properties)

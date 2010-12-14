@@ -31,6 +31,7 @@ import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFile
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
 
 /**
@@ -83,16 +84,16 @@ public class SampleDataSetPairParserObjectFactoryTest extends AssertJUnit
     private void validateDataSetInformation(DataSetInformation dataSetInformation, int index)
     {
         assertEquals("MY_DATA_SET_TYPE", dataSetInformation.getDataSetType().getCode());
-        IEntityProperty[] properties = dataSetInformation.getProperties();
+        List<NewProperty> properties = dataSetInformation.getDataSetProperties();
         int i = 1;
-        for (IEntityProperty prop : properties)
+        for (NewProperty prop : properties)
         {
-            assertEquals("prop" + i, prop.getPropertyType().getCode());
+            assertEquals("prop" + i, prop.getPropertyCode());
             String value = "VAL" + (3 + i) + index;
             assertEquals(value, prop.getValue());
             ++i;
         }
-        assertEquals(2, properties.length);
+        assertEquals(2, properties.size());
     }
 
     private File getTestDataFile(String folderName, String fileName)
