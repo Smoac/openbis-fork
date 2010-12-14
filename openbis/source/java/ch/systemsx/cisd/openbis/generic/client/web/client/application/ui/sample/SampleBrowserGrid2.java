@@ -99,15 +99,13 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
 
     public static final String MAIN_GRID_ID = createGridId(MAIN_BROWSER_ID);
 
-    public static final String GRID_ID_SUFFIX = "_grid";
-
     public static final String EDIT_BUTTON_ID_SUFFIX = "_edit-button";
 
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
     public static final String createGridId(final String browserId)
     {
-        return browserId + GRID_ID_SUFFIX;
+        return browserId + GRID_POSTFIX;
     }
 
     /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
