@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -138,4 +141,15 @@ public class SampleDataSetPair
     {
         dataSetInformation.setProperties(properties);
     }
+
+    @Override
+    public String toString()
+    {
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        builder.append("sampleIdentifier", newSample.getIdentifier());
+        builder.append("sampleProperties", newSample.getProperties());
+        builder.append("dataSetInformation", getDataSetInformation());
+        return builder.toString();
+    }
+
 }

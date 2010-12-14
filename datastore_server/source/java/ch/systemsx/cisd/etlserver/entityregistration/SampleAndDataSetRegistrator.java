@@ -16,69 +16,55 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
-import java.util.List;
+import java.io.File;
 
-import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser.SampleCodeGenerator;
+import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
+import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
+import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileRegistrationProperties;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
  * Utitlity class for registering one sample/dataset combination
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class SampleAndDataSetRegistrator
+class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor implements
+        TransferredDataSetHandler.IDataSetRegistrator
 {
-    private final SampleAndDataSetRegistrationGlobalState globalState;
+    private final ControlFileRegistrationProperties properties;
 
     private final SampleDataSetPair sampleDataSetPair;
 
-    SampleAndDataSetRegistrator(SampleAndDataSetRegistrationGlobalState globalState,
+    SampleAndDataSetRegistrator(File folder, ControlFileRegistrationProperties properties,
             SampleDataSetPair sampleDataSetPair)
     {
-        this.globalState = globalState;
+        super(properties.getGlobalProperties(), folder);
+        this.properties = properties;
         this.sampleDataSetPair = sampleDataSetPair;
     }
 
     public void register()
     {
-        // boolean generateCodesAutomatically = overrideSpaceIdentifierOrNull != null;
-        // SampleCodeGenerator sampleCodeGeneratorOrNull =
-        // tryCreateCodeGenrator(generateCodesAutomatically);
-        // NamedInputStream stream = new NamedInputStream(new FileInputStream(file),
-        // file.getName());
-        // BatchSamplesOperation info =
-        // SampleUploadSectionsParser.prepareSamples(sampleType, Arrays.asList(stream),
-        // overrideSpaceIdentifierOrNull, sampleCodeGeneratorOrNull, true,
-        // BatchOperationKind.REGISTRATION);
-        // logSamplesExtracted(file, info);
-        // service.registerSamples(info.getSamples(), userOrNull);
-        // logSamplesRegistered(file, info);
+        File dataSetFile = new File(folder, sampleDataSetPair.getFolderName());
+        if (globalState.getDelegator() instanceof IExtensibleDataSetHandler)
+        {
+            IExtensibleDataSetHandler handler =
+                    (IExtensibleDataSetHandler) globalState.getDelegator();
+            handler.handleDataSet(dataSetFile, sampleDataSetPair.getDataSetInformation(), this);
+            logDataRegistered();
+        }
     }
 
-    @SuppressWarnings("unused")
-    private void logRegistered()
+    private void logDataRegistered()
     {
         String message = String.format("Registered sample/data set pair %s", sampleDataSetPair);
         globalState.getOperationLog().info(message);
     }
 
-    @SuppressWarnings("unused")
-    private SampleCodeGenerator tryCreateCodeGenrator(boolean generateCodesAutomatically,
-            final String samplePrefix)
+    public void registerDataSetInApplicationServer(NewExternalData data)
     {
-        if (generateCodesAutomatically)
-        {
-            return new SampleCodeGenerator()
-                {
-
-                    public List<String> generateCodes(int size)
-                    {
-                        return globalState.getOpenbisService().generateCodes(samplePrefix, size);
-                    }
-                };
-        } else
-        {
-            return null;
-        }
+        globalState.getOpenbisService().registerSampleAndDataSet(sampleDataSetPair.getNewSample(),
+                data, properties.getUser().getUserId());
     }
 
 }

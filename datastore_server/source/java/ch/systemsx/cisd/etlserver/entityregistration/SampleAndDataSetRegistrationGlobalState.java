@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.etlserver.IDataSetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -41,6 +42,8 @@ class SampleAndDataSetRegistrationGlobalState
         ACCEPT_ALL, REJECT_EXISTING, REJECT_NONEXISTING
     }
 
+    private final IDataSetHandler delegator;
+
     private final IEncapsulatedOpenBISService openbisService;
 
     private final SpaceIdentifier spaceIdentifierOrNull;
@@ -57,11 +60,13 @@ class SampleAndDataSetRegistrationGlobalState
 
     private IMailClient mailClient;
 
-    SampleAndDataSetRegistrationGlobalState(IEncapsulatedOpenBISService openbisService,
-            SpaceIdentifier spaceIdentifierOrNull, SampleType sampleTypeOrNull,
-            DataSetType dataSetTypeOrNull, SampleRegistrationMode sampleRegistrationMode,
-            List<String> errorEmailRecipientsOrNull, Logger operationLog)
+    SampleAndDataSetRegistrationGlobalState(IDataSetHandler delegator,
+            IEncapsulatedOpenBISService openbisService, SpaceIdentifier spaceIdentifierOrNull,
+            SampleType sampleTypeOrNull, DataSetType dataSetTypeOrNull,
+            SampleRegistrationMode sampleRegistrationMode, List<String> errorEmailRecipientsOrNull,
+            Logger operationLog)
     {
+        this.delegator = delegator;
         this.openbisService = openbisService;
         this.spaceIdentifierOrNull = spaceIdentifierOrNull;
         this.sampleTypeOrNull = sampleTypeOrNull;
@@ -69,6 +74,11 @@ class SampleAndDataSetRegistrationGlobalState
         this.sampleRegistrationMode = sampleRegistrationMode;
         this.errorEmailRecipientsOrNull = errorEmailRecipientsOrNull;
         this.operationLog = operationLog;
+    }
+
+    public IDataSetHandler getDelegator()
+    {
+        return delegator;
     }
 
     /**

@@ -296,4 +296,11 @@ public interface IEncapsulatedOpenBISService
      * {@link IETLLIMSService#tryPersonWithUserIdOrEmail(String, String)}
      */
     public Person tryPersonWithUserIdOrEmail(String useridOrEmail);
+
+    /**
+     * Register a new sample and data set in one transaction. Return the sample.
+     * {@link IETLLIMSService#registerSampleAndDataSet(String, NewSample, NewExternalData, String)}
+     */
+    public Sample registerSampleAndDataSet(NewSample newSample, NewExternalData externalData,
+            String userIdOrNull);
 }

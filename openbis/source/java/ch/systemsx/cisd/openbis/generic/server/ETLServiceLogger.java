@@ -356,4 +356,21 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         logAccess(sessionToken, "tryPersonWithUserIdOrEmail", "USERID_OR_EMAIL(%s)", useridOrEmail);
         return null;
     }
+
+    public Sample registerSampleAndDataSet(String sessionToken, NewSample newSample,
+            NewExternalData externalData, String userIdOrNull) throws UserFailureException
+    {
+        logAccess(sessionToken, "registerSampleAndDataSet",
+                "SAMPLE_TYPE(%s) SAMPLE(%S) DATA_SET(%s) USER(%s)", newSample.getSampleType(),
+                newSample.getIdentifier(), externalData, userIdOrNull);
+        return null;
+    }
+
+    public Sample updateSampleAndRegisterDataSet(String sessionToken, SampleUpdatesDTO updates,
+            NewExternalData externalData)
+    {
+        logAccess(sessionToken, "updateSampleAndRegisterDataSet", "SAMPLE(%S) DATA_SET(%s)",
+                updates.getSampleIdentifier(), externalData);
+        return null;
+    }
 }

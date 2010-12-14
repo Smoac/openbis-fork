@@ -315,6 +315,14 @@ public abstract class DataSetRegistrationAlgorithm
     {
         updateExternalData(data, relativePath, storageFormat, isCompleteFlag);
         // Finally: register the data set in the database.
+        registerDataSetInApplicationServer(data);
+    }
+
+    /**
+     * Contact openBis and register the data set there. Subclasses may override.
+     */
+    protected void registerDataSetInApplicationServer(NewExternalData data)
+    {
         getOpenBisService().registerDataSet(dataSetInformation, data);
     }
 

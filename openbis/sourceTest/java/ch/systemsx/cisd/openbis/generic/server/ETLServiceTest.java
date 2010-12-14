@@ -19,6 +19,9 @@ package ch.systemsx.cisd.openbis.generic.server;
 import static ch.systemsx.cisd.openbis.generic.shared.IDataStoreService.VERSION;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -44,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
@@ -68,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -688,6 +693,110 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         result = createService().tryPersonWithUserIdOrEmail(SESSION_TOKEN, PRINCIPAL.getEmail());
         assertEquals(PRINCIPAL.getEmail(), result.getEmail());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRegisterSampleAndDataSet()
+    {
+        prepareGetSession();
+
+        final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
+        final SamplePE samplePE = createSampleWithExperiment(experiment);
+        final SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
+
+        final NewSample sample = new NewSample();
+        sample.setIdentifier(sampleIdentifier.toString());
+
+        final NewExternalData externalData = new NewExternalData();
+        externalData.setCode("dc");
+        externalData.setMeasured(true);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).define(sample);
+                    one(sampleBO).save();
+                    exactly(2).of(sampleBO).getSample();
+                    will(returnValue(samplePE));
+
+                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
+                    will(returnValue(new PersonPE()));
+
+                    one(boFactory).createExternalDataBO(SESSION);
+                    will(returnValue(externalDataBO));
+
+                    one(externalDataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
+                    one(externalDataBO).save();
+                    one(externalDataBO).getExternalData();
+                    ExternalDataPE externalDataPE = new ExternalDataPE();
+                    externalDataPE.setCode(externalData.getCode());
+                    will(returnValue(externalDataPE));
+                }
+            });
+
+        Sample result =
+                createService().registerSampleAndDataSet(SESSION_TOKEN, sample, externalData,
+                        CommonTestUtils.USER_ID);
+        assertNotNull(result);
+        assertEquals(sample.getIdentifier(), result.getIdentifier());
+        assertEquals(experiment.getIdentifier(), result.getExperiment().getIdentifier());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testUpdateSampleAndRegisterDataSet()
+    {
+        prepareGetSession();
+
+        final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
+        final SamplePE samplePE = createSampleWithExperiment(experiment);
+        final SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
+
+        final Date version = new Date();
+        final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
+
+        final SampleUpdatesDTO sample =
+                new SampleUpdatesDTO(CommonTestUtils.TECH_ID, null, null, attachments, version,
+                        sampleIdentifier, null, null);
+
+        final NewExternalData externalData = new NewExternalData();
+        externalData.setCode("dc");
+        externalData.setMeasured(true);
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).update(sample);
+                    one(sampleBO).save();
+                    exactly(1).of(sampleBO).getSample();
+                    will(returnValue(samplePE));
+
+                    one(boFactory).createExternalDataBO(SESSION);
+                    will(returnValue(externalDataBO));
+
+                    one(externalDataBO).define(externalData, samplePE, SourceType.MEASUREMENT);
+                    one(externalDataBO).save();
+                    one(externalDataBO).getExternalData();
+                    ExternalDataPE externalDataPE = new ExternalDataPE();
+                    externalDataPE.setCode(externalData.getCode());
+                    will(returnValue(externalDataPE));
+                }
+            });
+
+        Sample result =
+                createService().updateSampleAndRegisterDataSet(SESSION_TOKEN, sample, externalData);
+        assertNotNull(result);
+        assertEquals(sample.getSampleIdentifier().toString(), result.getIdentifier());
+        assertEquals(experiment.getIdentifier(), result.getExperiment().getIdentifier());
 
         context.assertIsSatisfied();
     }

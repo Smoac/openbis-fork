@@ -826,4 +826,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.tryPersonWithUserIdOrEmail(sessionToken, useridOrEmail);
     }
 
+    public Sample registerSampleAndDataSet(NewSample newSample, NewExternalData externalData,
+            String userIdOrNull) throws UserFailureException
+    {
+        return service
+                .registerSampleAndDataSet(sessionToken, newSample, externalData, userIdOrNull);
+    }
+
 }

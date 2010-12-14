@@ -827,4 +827,81 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return null;
     }
 
+    public Sample registerSampleAndDataSet(String sessionToken, NewSample newSample,
+            NewExternalData externalData, String userIdOrNull) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert newSample != null : "Unspecified new sample.";
+
+        // Register the Sample
+        SamplePE samplePE = registerSampleInternal(sessionToken, newSample, userIdOrNull);
+
+        // Register the data set
+        registerDataSetInternal(sessionToken, externalData, samplePE);
+
+        Sample result = SampleTranslator.translate(Collections.singletonList(samplePE), "").get(0);
+        return result;
+    }
+
+    public Sample updateSampleAndRegisterDataSet(String sessionToken, SampleUpdatesDTO updates,
+            NewExternalData externalData)
+    {
+        final Session session = getSession(sessionToken);
+        
+        // Update the sample
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.update(updates);
+        sampleBO.save();
+        
+        // Register the data set
+        final SamplePE samplePE = sampleBO.getSample();
+        registerDataSetInternal(sessionToken, externalData, samplePE);
+
+        Sample result = SampleTranslator.translate(Collections.singletonList(samplePE), "").get(0);
+        return result;
+    }
+
+    private void registerDataSetInternal(String sessionToken, NewExternalData externalData,
+            SamplePE samplePE)
+    {
+        final Session session = getSession(sessionToken);
+        SampleIdentifier sampleIdentifier = samplePE.getSampleIdentifier();
+        assert sampleIdentifier != null : "Unspecified sample identifier.";
+
+        ExperimentPE experiment = samplePE.getExperiment();
+        if (experiment == null)
+        {
+            throw new UserFailureException("No experiment found for sample " + sampleIdentifier);
+        }
+        if (experiment.getInvalidation() != null)
+        {
+            throw new UserFailureException("Data set can not be registered because experiment '"
+                    + experiment.getIdentifier() + "' is invalid.");
+        }
+
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        SourceType sourceType =
+                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        externalDataBO.define(externalData, samplePE, sourceType);
+        externalDataBO.save();
+        final String dataSetCode = externalDataBO.getExternalData().getCode();
+        assert dataSetCode != null : "Data set code not specified.";
+    }
+
+    private SamplePE registerSampleInternal(String sessionToken, NewSample newSample,
+            String userIdOrNull)
+    {
+        final Session session = getSession(sessionToken);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.define(newSample);
+        if (userIdOrNull != null)
+        {
+            sampleBO.getSample().setRegistrator(getOrCreatePerson(sessionToken, userIdOrNull));
+        }
+        sampleBO.save();
+
+        SamplePE samplePE = sampleBO.getSample();
+        return samplePE;
+    }
+
 }

@@ -494,4 +494,44 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public Person tryPersonWithUserIdOrEmail(String sessionToken, String useridOrEmail);
 
+    /**
+     * Registers a sample and data set connected to that sample in one transaction.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param newSample The new sample to register.
+     * @param externalData Data set to be registered. It is assumed that the attributes
+     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
+     *            <code>locatorType</code> are not-<code>null</code>.
+     * @param userIdOrNull The user id on whose behalf we are registering the sample
+     * @throws UserFailureException if given data set code could not be found in the persistence
+     *             layer.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseCreateOrDeleteModification(value =
+        { ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    public Sample registerSampleAndDataSet(final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
+            final NewExternalData externalData, String userIdOrNull) throws UserFailureException;
+
+    /**
+     * Updates a sample and registers a data set connected to that sample in one transaction.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param updates The sample updates to apply
+     * @param externalData Data set to be registered. It is assumed that the attributes
+     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
+     *            <code>locatorType</code> are not-<code>null</code>.
+     * @throws UserFailureException if given data set code could not be found in the persistence
+     *             layer.
+     */
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DATA_SET)
+    public Sample updateSampleAndRegisterDataSet(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = SampleUpdatesPredicate.class) SampleUpdatesDTO updates,
+            NewExternalData externalData);
+
 }

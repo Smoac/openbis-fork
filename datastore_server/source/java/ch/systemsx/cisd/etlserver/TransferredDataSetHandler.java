@@ -45,6 +45,7 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
  * The class that handles the incoming data set.
@@ -52,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
  * @author Bernd Rinn
  */
 public final class TransferredDataSetHandler implements IPathHandler, ISelfTestable,
-        IDataSetHandler
+        IDataSetHandler, IExtensibleDataSetHandler
 {
 
     static final String TARGET_NOT_RELATIVE_TO_STORE_ROOT =
@@ -192,6 +193,22 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         }
     }
 
+    public List<DataSetInformation> handleDataSet(final File dataSet,
+            DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
+    {
+        final DataSetRegistrationAlgorithm registrationHelper =
+                createRegistrationHelper(dataSet, dataSetInformation, registrator);
+        registrationHelper.prepare();
+        if (registrationHelper.hasDataSetBeenIdentified())
+        {
+            return registrationHelper.registerDataSet();
+        } else
+        {
+            registrationHelper.dealWithUnidentifiedDataSet();
+            return Collections.emptyList();
+        }
+    }
+
     public boolean isStopped()
     {
         return stopped;
@@ -248,15 +265,30 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     {
         if (useIsFinishedMarkerFile)
         {
-            return createRegistrationHelperWithIsFinishedFile(file);
+            return createRegistrationHelperWithIsFinishedFile(file, null, null);
         } else
         {
-            return createRegistrationHelperWithQuietPeriodFilter(file);
+            return createRegistrationHelperWithQuietPeriodFilter(file, null, null);
+        }
+    }
+
+    private DataSetRegistrationAlgorithm createRegistrationHelper(File dataSet,
+            DataSetInformation dataSetInformation, IDataSetRegistrator registrator)
+    {
+        if (useIsFinishedMarkerFile)
+        {
+            return createRegistrationHelperWithIsFinishedFile(dataSet, dataSetInformation,
+                    registrator);
+        } else
+        {
+            return createRegistrationHelperWithQuietPeriodFilter(dataSet, dataSetInformation,
+                    registrator);
         }
     }
 
     private DataSetRegistrationAlgorithm createRegistrationHelperWithIsFinishedFile(
-            final File isFinishedFile)
+            final File isFinishedFile, final DataSetInformation dsInfo,
+            IDataSetRegistrator registrator)
     {
         assert isFinishedFile != null : "Unspecified is-finished file.";
         final String name = isFinishedFile.getName();
@@ -272,8 +304,23 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                             return deleteAndLogIsFinishedMarkerFile(isFinishedFile);
                         }
                     };
-        return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
-                createPostRegistrationAction());
+        if (null != registrator)
+        {
+            return new OverridingRegistrationHelper(this, incomingDataSetFile,
+                    cleanAftrewardsAction, createPostRegistrationAction(), registrator)
+                {
+                    @Override
+                    protected DataSetInformation extractDataSetInformation(File incomingDataSetPath)
+                    {
+                        return dsInfo;
+                    }
+
+                };
+        } else
+        {
+            return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
+                    createPostRegistrationAction());
+        }
     }
 
     private IPostRegistrationAction createPostRegistrationAction()
@@ -282,7 +329,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     }
 
     private DataSetRegistrationAlgorithm createRegistrationHelperWithQuietPeriodFilter(
-            File incomingDataSetFile)
+            File incomingDataSetFile, final DataSetInformation dsInfo,
+            IDataSetRegistrator registrator)
     {
         IDelegatedActionWithResult<Boolean> cleanAftrewardsAction =
                 new IDelegatedActionWithResult<Boolean>()
@@ -292,8 +340,23 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                             return true; // do nothing
                         }
                     };
-        return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
-                createPostRegistrationAction());
+        if (registrator != null)
+        {
+            return new OverridingRegistrationHelper(this, incomingDataSetFile,
+                    cleanAftrewardsAction, createPostRegistrationAction(), registrator)
+                {
+                    @Override
+                    protected DataSetInformation extractDataSetInformation(File incomingDataSetPath)
+                    {
+                        return dsInfo;
+                    }
+
+                };
+        } else
+        {
+            return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
+                    createPostRegistrationAction());
+        }
     }
 
     /**
@@ -346,7 +409,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         return ok;
     }
 
-    private final class RegistrationHelper extends DataSetRegistrationAlgorithm
+    private class RegistrationHelper extends DataSetRegistrationAlgorithm
     {
 
         /**
@@ -508,7 +571,46 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 }
             }
         }
-
     }
 
+    private class OverridingRegistrationHelper extends RegistrationHelper
+    {
+
+        private final IDataSetRegistrator registrator;
+
+        /**
+         * @param transferredDataSetHandler
+         * @param incomingDataSetFile
+         * @param cleanAftrewardsAction
+         * @param postRegistrationAction
+         */
+        OverridingRegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
+                File incomingDataSetFile,
+                IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+                IPostRegistrationAction postRegistrationAction, IDataSetRegistrator registrator)
+        {
+            super(transferredDataSetHandler, incomingDataSetFile, cleanAftrewardsAction,
+                    postRegistrationAction);
+            this.registrator = registrator;
+        }
+
+        @Override
+        protected boolean shouldDeleteUnidentified()
+        {
+            return true;
+        }
+
+        @Override
+        protected boolean shouldNotifySuccessfulRegistration()
+        {
+            return false;
+        }
+
+        @Override
+        protected void registerDataSetInApplicationServer(NewExternalData data)
+        {
+            registrator.registerDataSetInApplicationServer(data);
+        }
+
+    }
 }

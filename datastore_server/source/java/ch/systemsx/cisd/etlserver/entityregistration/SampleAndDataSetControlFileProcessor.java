@@ -163,6 +163,11 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             }
         }
 
+        public SampleAndDataSetRegistrationGlobalState getGlobalProperties()
+        {
+            return globalProperties;
+        }
+
         /**
          * Returns a space identifier. Call checkValidity first.
          */
@@ -289,7 +294,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         for (SampleDataSetPair sampleDataSet : loadedSampleDataSetPairs)
         {
             SampleAndDataSetRegistrator registrator =
-                    new SampleAndDataSetRegistrator(globalState, sampleDataSet);
+                    new SampleAndDataSetRegistrator(folder, properties, sampleDataSet);
             registrator.register();
         }
 

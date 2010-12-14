@@ -142,7 +142,7 @@ class SampleAndDataSetFolderProcessor extends AbstractSampleAndDataSetProcessor
             sb.append("Encountered error processing ");
             sb.append(file.getName());
             sb.append(" :\n\t");
-            sb.append(errorMap.get(file).getMessage());
+            sb.append(errorMap.get(file));
             sb.append("\n");
         }
 

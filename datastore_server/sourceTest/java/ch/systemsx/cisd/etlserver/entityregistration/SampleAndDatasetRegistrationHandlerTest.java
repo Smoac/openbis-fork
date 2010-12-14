@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.entityregistration;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -26,6 +27,8 @@ import javax.activation.DataHandler;
 import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -36,9 +39,14 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
-import ch.systemsx.cisd.etlserver.IDataSetHandler;
+import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
+import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler.IDataSetRegistrator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -49,7 +57,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
     protected IEncapsulatedOpenBISService openbisService;
 
-    protected IDataSetHandler delegator;
+    protected IExtensibleDataSetHandler delegator;
 
     protected IMailClient mailClient;
 
@@ -67,7 +75,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
         context = new Mockery();
         openbisService = context.mock(IEncapsulatedOpenBISService.class);
-        delegator = context.mock(IDataSetHandler.class);
+        delegator = context.mock(IExtensibleDataSetHandler.class);
         mailClient = context.mock(IMailClient.class);
     }
 
@@ -81,7 +89,12 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     @Test
     public void testRegisteringBasicControlFile()
     {
+        final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
+                new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<NewSample> newSampleMatcher = new RecordingMatcher<NewSample>();
+
         setupOpenBisExpectations();
+        setupDataSetHandlerExpectations(dataSetInfoMatcher, newSampleMatcher);
         // setupSessionContextExpectations();
         // setupCallerDataSetInfoExpectations();
 
@@ -91,7 +104,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(workingCopy);
 
         String logText =
-                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DEFAULT_SPACE(MYSPACE) USER(test@test.test)";
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) DEFAULT_SPACE(MYSPACE) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=<null>,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={prop1: VAL40,prop2: VAL50},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=<null>,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=<null>}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=<null>,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={prop1: VAL41,prop2: VAL51},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=<null>,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=<null>}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=<null>,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={prop1: VAL42,prop2: VAL52},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=<null>,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=<null>}]";
         checkAppenderContent(logText, "basic-example");
 
         context.assertIsSatisfied();
@@ -100,9 +116,6 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     @Test
     public void testRegisteringFolderWithoutControlFiles() throws IOException
     {
-        // setupOpenBisExpectations();
-        // setupSessionContextExpectations();
-        // setupCallerDataSetInfoExpectations();
         final RecordingMatcher<DataHandler> attachmentMatcher = new RecordingMatcher<DataHandler>();
         final RecordingMatcher<EMailAddress[]> addressesMatcher =
                 new RecordingMatcher<EMailAddress[]>();
@@ -129,10 +142,6 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     @Test
     public void testRegisteringEmptyFolder() throws IOException
     {
-        // setupOpenBisExpectations();
-        // setupSessionContextExpectations();
-        // setupCallerDataSetInfoExpectations();
-
         final RecordingMatcher<DataHandler> attachmentMatcher = new RecordingMatcher<DataHandler>();
         final RecordingMatcher<EMailAddress[]> addressesMatcher =
                 new RecordingMatcher<EMailAddress[]>();
@@ -159,10 +168,6 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     @Test
     public void testUndefinedSampleRegistrationMode()
     {
-        // setupOpenBisExpectations();
-        // setupSessionContextExpectations();
-        // setupCallerDataSetInfoExpectations();
-
         final Properties props = new Properties();
         props.setProperty("dataset-handler.sample-registration-mode", "UNKNOWN");
         initializeDataSetHandler(props);
@@ -236,7 +241,51 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                     will(returnValue(admin));
                 }
             });
+    }
 
+    private void setupDataSetHandlerExpectations(
+            final RecordingMatcher<DataSetInformation> dataSetInfoMatcher,
+            final RecordingMatcher<NewSample> newSampleMatcher)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    final RecordingMatcher<File> fileMatcher = new RecordingMatcher<File>();
+                    final RecordingMatcher<IExtensibleDataSetHandler.IDataSetRegistrator> registratorMatcher =
+                            new RecordingMatcher<IExtensibleDataSetHandler.IDataSetRegistrator>();
+
+                    final NewExternalData externalData = new NewExternalData();
+
+                    exactly(3).of(delegator).handleDataSet(with(fileMatcher),
+                            with(dataSetInfoMatcher), with(registratorMatcher));
+                    will(new CustomAction("Call registrator")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                List<IDataSetRegistrator> recordedObjects =
+                                        registratorMatcher.getRecordedObjects();
+                                IDataSetRegistrator registrator =
+                                        recordedObjects.get(recordedObjects.size() - 1);
+                                fillExternalDataFromInformation(externalData, dataSetInfoMatcher
+                                        .getRecordedObjects().get(recordedObjects.size() - 1));
+                                registrator.registerDataSetInApplicationServer(externalData);
+
+                                return null;
+                            }
+                        });
+                    exactly(3).of(openbisService).registerSampleAndDataSet(with(newSampleMatcher),
+                            with(externalData), with("test"));
+                    will(returnValue(new Sample()));
+                }
+            });
+    }
+
+    private void fillExternalDataFromInformation(NewExternalData externalData,
+            DataSetInformation dataSetInformation)
+    {
+        externalData.setUserId(dataSetInformation.getUploadingUserIdOrNull());
+        externalData.setUserEMail(dataSetInformation.tryGetUploadingUserEmail());
+        externalData.setExtractableData(dataSetInformation.getExtractableData());
     }
 
     private void checkEmailContent(final RecordingMatcher<DataHandler> attachmentMatcher,

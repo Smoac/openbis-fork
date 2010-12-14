@@ -76,11 +76,12 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
         Properties specificProperties =
                 ExtendedProperties.getSubset(parentProperties,
                         IDataSetHandler.DATASET_HANDLER_KEY + '.', true);
-        globalState = createGlobalState(specificProperties, service);
+        globalState = createGlobalState(specificProperties, delegator, service);
     }
 
     private static SampleAndDataSetRegistrationGlobalState createGlobalState(
-            Properties specificProperties, IEncapsulatedOpenBISService service)
+            Properties specificProperties, IDataSetHandler delegator,
+            IEncapsulatedOpenBISService service)
     {
         String spaceIdentifierStringOrNull =
                 PropertyUtils.getProperty(specificProperties, DATA_SPACE_PROPERTIES_KEY);
@@ -125,7 +126,7 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
         List<String> errorEmailRecipients =
                 PropertyUtils.tryGetList(specificProperties, ERROR_EMAIL_RECIPIENTS_PROPERTIES_KEY);
 
-        return new SampleAndDataSetRegistrationGlobalState(service, spaceIdentifier,
+        return new SampleAndDataSetRegistrationGlobalState(delegator, service, spaceIdentifier,
                 sampleTypeOrNull, dataSetTypeOrNull, registrationMode, errorEmailRecipients,
                 operationLog);
     }
