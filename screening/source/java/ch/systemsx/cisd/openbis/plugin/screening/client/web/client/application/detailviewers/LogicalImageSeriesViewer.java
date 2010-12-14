@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 /**

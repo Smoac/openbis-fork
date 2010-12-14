@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateStyleSetter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellContentDialog;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellData;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.SimpleModelComboBox;

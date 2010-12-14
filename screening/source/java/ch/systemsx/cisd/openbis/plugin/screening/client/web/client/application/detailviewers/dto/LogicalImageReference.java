@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto;
 
 import java.util.List;
 

@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.Component;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2009-12-07, Tomasz Pylak: screening - move to CSS file and remove this class
 public class PlateStyleSetter
 {
     public static final int WELL_BOX_SIZE_PX = 20;

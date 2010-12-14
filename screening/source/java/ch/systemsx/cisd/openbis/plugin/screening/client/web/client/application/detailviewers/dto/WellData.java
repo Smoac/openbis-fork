@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;

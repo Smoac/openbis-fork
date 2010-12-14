@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.S
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;

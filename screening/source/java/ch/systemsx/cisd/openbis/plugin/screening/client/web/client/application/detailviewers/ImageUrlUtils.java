@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
