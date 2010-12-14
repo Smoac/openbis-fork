@@ -58,7 +58,7 @@ class ChannelChooser
             return container;
         }
         String initialChannel = defaultChannelState.tryGetDefaultChannel();
-        if (initialChannel == null)
+        if (initialChannel == null || channelCodes.indexOf(initialChannel) == -1)
         {
             initialChannel =
                     channelCodes.size() > 1 ? ScreeningConstants.MERGED_CHANNELS : channelCodes
