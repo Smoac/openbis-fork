@@ -157,7 +157,7 @@ public class LogicalImageViewer
                     String sessionId = getSessionId(viewContext);
                     int imageWidth = getImageWidth(logicalImageReference);
                     int imageHeight = getImageHeight(logicalImageReference);
-                    return LogicalImageSeriesViewer.create(sessionId, channelStackImages,
+                    return LogicalImageSeriesGrid.create(sessionId, channelStackImages,
                             logicalImageReference, channel, imageWidth, imageHeight);
                 }
             };

@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelSt
  * 
  * @author Tomasz Pylak
  */
-class LogicalImageSeriesViewer
+class LogicalImageSeriesGrid
 {
     public static LayoutContainer create(String sessionId,
             List<ImageChannelStack> channelStackImages, LogicalImageReference images,
