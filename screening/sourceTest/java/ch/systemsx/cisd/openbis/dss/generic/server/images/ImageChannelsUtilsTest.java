@@ -29,6 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = ImageChannelsUtils.class)
 public class ImageChannelsUtilsTest extends AssertJUnit
 {
     public static final File TEST_IMAGE_FOLDER = new File("../screening/sourceTest/java/"

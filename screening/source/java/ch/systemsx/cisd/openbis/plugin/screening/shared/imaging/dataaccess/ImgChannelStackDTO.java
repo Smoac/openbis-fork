@@ -47,11 +47,17 @@ public class ImgChannelStackDTO
     @ResultColumn("T_in_SEC")
     private Float t;
 
+    @ResultColumn("SERIES_NUMBER")
+    private Integer seriesNumber;
+
     @ResultColumn("DS_ID")
     private long datasetId;
 
     @ResultColumn("SPOT_ID")
     private Long spotId;
+
+    @ResultColumn("IS_REPRESENTATIVE")
+    private boolean isRepresentative;
 
     @SuppressWarnings("unused")
     private ImgChannelStackDTO()
@@ -60,7 +66,7 @@ public class ImgChannelStackDTO
     }
 
     public ImgChannelStackDTO(long id, int row, int column, long datasetId, Long spotIdOrNull,
-            Float tOrNull, Float zOrNull)
+            Float tOrNull, Float zOrNull, Integer seriesNumber, boolean isRepresentative)
     {
         this.id = id;
         this.row = row;
@@ -69,6 +75,8 @@ public class ImgChannelStackDTO
         this.spotId = spotIdOrNull;
         this.t = tOrNull;
         this.z = zOrNull;
+        this.seriesNumber = seriesNumber;
+        this.isRepresentative = isRepresentative;
     }
 
     public long getId()
@@ -111,6 +119,16 @@ public class ImgChannelStackDTO
         this.t = t;
     }
 
+    public Integer getSeriesNumber()
+    {
+        return seriesNumber;
+    }
+
+    public void setSeriesNumber(Integer seriesNumber)
+    {
+        this.seriesNumber = seriesNumber;
+    }
+
     public long getDatasetId()
     {
         return datasetId;
@@ -132,10 +150,21 @@ public class ImgChannelStackDTO
         this.spotId = spotId;
     }
 
+    public boolean getIsRepresentative()
+    {
+        return isRepresentative;
+    }
+
+    public void setRepresentative(boolean isRepresentative)
+    {
+        this.isRepresentative = isRepresentative;
+    }
+
     @Override
     // use all fields besides id
     public int hashCode()
     {
+        // NOTE: isRepresentative field is derived and can be skipped
         final int prime = 31;
         int result = 1;
         result = prime * result + (int) (datasetId ^ (datasetId >>> 32));
@@ -144,6 +173,7 @@ public class ImgChannelStackDTO
         result = prime * result + ((spotId == null) ? 0 : spotId.hashCode());
         result = prime * result + ((t == null) ? 0 : t.hashCode());
         result = prime * result + ((z == null) ? 0 : z.hashCode());
+        result = prime * result + ((seriesNumber == null) ? 0 : seriesNumber.hashCode());
         return result;
     }
 
@@ -151,6 +181,7 @@ public class ImgChannelStackDTO
     // use all fields besides id
     public boolean equals(Object obj)
     {
+        // NOTE: isRepresentative field is derived and can be skipped
         if (obj == null)
             return false;
         if (this == obj)
@@ -191,6 +222,12 @@ public class ImgChannelStackDTO
             if (other.z != null)
                 return false;
         } else if (!z.equals(other.z))
+            return false;
+        if (seriesNumber == null)
+        {
+            if (other.seriesNumber != null)
+                return false;
+        } else if (!seriesNumber.equals(other.seriesNumber))
             return false;
         return true;
     }

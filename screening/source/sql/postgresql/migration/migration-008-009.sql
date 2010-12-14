@@ -33,3 +33,11 @@ $$ LANGUAGE 'plpgsql';
 CREATE TRIGGER CHANNEL_STACKS_CHECK BEFORE INSERT OR UPDATE ON CHANNEL_STACKS
     FOR EACH ROW EXECUTE PROCEDURE CHANNEL_STACKS_CHECK();
     
+--- for each spot set exactly one representative channel_stacks record (with minimal id) ---------
+
+update channel_stacks as cs
+   set cs.is_representative = 'T'
+ where cs.id in (select min(cs.id) 
+		 from channel_stacks cs
+		 join spots on spots.id = cs.spot_id
+		 group by spots.id)

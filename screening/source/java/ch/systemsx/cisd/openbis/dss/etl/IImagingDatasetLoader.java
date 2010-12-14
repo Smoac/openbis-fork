@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.etl;
 
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
@@ -34,4 +35,16 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      */
     AbsoluteImageReference tryGetImage(String chosenChannelCode,
             ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull);
+
+    /**
+     * Finds representative image of this dataset in a given channel.
+     * 
+     * @param channelCode channel code for which representative image is requested
+     * @param wellLocationOrNull if not null the returned images are restricted to one well.
+     *            Otherwise the dataset is assumed to have no container and spots.
+     * @param thumbnailSizeOrNull if not null the thumbnail in th especified size will be returned.
+     */
+    AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
+            Location wellLocationOrNull, Size thumbnailSizeOrNull);
+
 }

@@ -112,13 +112,9 @@ CREATE TABLE CHANNEL_STACKS (
 		X INTEGER,
 		Y INTEGER,
 		-- We use the fixed dimension meters here.
-		-- Not null only if SERIES_NUMBER is null.
 		Z_in_M REAL,
 		-- We use the fixed dimension seconds here.
-		-- Not null only if SERIES_NUMBER is null.
 		T_in_SEC REAL,
-		-- not null if and only if t and z are null
-		-- TODO: write constraint which checks this
 		SERIES_NUMBER INTEGER,
 		
 		-- For all channel stacks of a well (HCS) or image dataset (microscopy) there should be exactly 

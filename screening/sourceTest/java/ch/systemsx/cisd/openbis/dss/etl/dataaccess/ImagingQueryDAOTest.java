@@ -129,11 +129,19 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(MICROSCOPY_IMAGE_PATH1, image1.getFilePath());
         assertEquals(ColorComponent.BLUE, image1.getColorComponent());
 
+        ImgImageDTO representativeImage =
+                dao.tryGetMicroscopyRepresentativeImage(datasetId, channelId);
+        assertEquals(image1, representativeImage);
+
         ImgImageDTO image1bis = dao.tryGetImage(channelId, channelStackId, datasetId);
         assertEquals(image1, image1bis);
 
         ImgImageDTO thumbnail1 = dao.tryGetMicroscopyThumbnail(channelId, datasetId, tileLocation);
         assertEquals(image1, thumbnail1);
+
+        ImgImageDTO representativeThumbnail =
+                dao.tryGetMicroscopyRepresentativeThumbnail(datasetId, channelId);
+        assertEquals(image1, representativeThumbnail);
 
         ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId, channelStackId, datasetId);
         assertEquals(thumbnail1, thumbnail1bis);
@@ -249,12 +257,20 @@ public class ImagingQueryDAOTest extends AbstractDBTest
         assertEquals(PATH1, image1.getFilePath());
         assertEquals(ColorComponent.BLUE, image1.getColorComponent());
 
+        ImgImageDTO representativeImage =
+                dao.tryGetHCSRepresentativeImage(datasetId, wellLocation, channelId1);
+        assertEquals(image1, representativeImage);
+
         ImgImageDTO image1bis = dao.tryGetImage(channelId1, channelStackId, datasetId);
         assertEquals(image1, image1bis);
 
         ImgImageDTO thumbnail1 =
                 dao.tryGetHCSThumbnail(channelId1, datasetId, tileLocation, wellLocation);
         assertEquals(image1, thumbnail1);
+
+        ImgImageDTO representativeThumbnail =
+                dao.tryGetHCSRepresentativeThumbnail(datasetId, wellLocation, channelId1);
+        assertEquals(thumbnail1, representativeThumbnail);
 
         ImgImageDTO thumbnail1bis = dao.tryGetThumbnail(channelId1, channelStackId, datasetId);
         assertEquals(thumbnail1, thumbnail1bis);
@@ -379,7 +395,7 @@ public class ImagingQueryDAOTest extends AbstractDBTest
     {
         final ImgChannelStackDTO channelStack =
                 new ImgChannelStackDTO(dao.createChannelStackId(), Y_TILE_ROW, X_TILE_COLUMN,
-                        datasetId, spotIdOrNull, timeOrNull, depthOrNull);
+                        datasetId, spotIdOrNull, timeOrNull, depthOrNull, null, true);
         dao.addChannelStacks(Arrays.asList(channelStack));
         return channelStack.getId();
     }

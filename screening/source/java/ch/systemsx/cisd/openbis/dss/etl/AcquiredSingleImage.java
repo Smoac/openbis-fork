@@ -37,13 +37,16 @@ public class AcquiredSingleImage extends AbstractHashable
     // can be null
     private final Float timePointOrNull, depthOrNull;
 
+    // can be null
+    private Integer seriesNumberOrNull;
+
     private final RelativeImageReference imageFilePath; // relative to the original dataset
                                                         // directory
 
     private RelativeImageReference thumbnailFilePathOrNull;
 
     public AcquiredSingleImage(Location wellLocationOrNull, Location tileLocation,
-            String channelCode, Float timePointOrNull, Float depthOrNull,
+            String channelCode, Float timePointOrNull, Float depthOrNull, Integer seriesNumberOrNull,
             RelativeImageReference imageFilePath)
     {
         this.wellLocationOrNull = wellLocationOrNull;
@@ -51,7 +54,13 @@ public class AcquiredSingleImage extends AbstractHashable
         this.channelCode = channelCode.toUpperCase();
         this.timePointOrNull = timePointOrNull;
         this.depthOrNull = depthOrNull;
+        this.seriesNumberOrNull = seriesNumberOrNull;
         this.imageFilePath = imageFilePath;
+    }
+
+    public Location tryGetWellLocation()
+    {
+        return wellLocationOrNull;
     }
 
     /** Valid only in HCS case, do not call this method for microscopy images. */
@@ -103,9 +112,20 @@ public class AcquiredSingleImage extends AbstractHashable
         return thumbnailFilePathOrNull;
     }
 
+    public Integer tryGetSeriesNumber()
+    {
+        return seriesNumberOrNull;
+    }
+
+    // ---- setters
+
     public final void setThumbnailFilePathOrNull(RelativeImageReference thumbnailFilePathOrNull)
     {
         this.thumbnailFilePathOrNull = thumbnailFilePathOrNull;
     }
 
+    public void setSeriesNumber(int seriesNumber)
+    {
+        this.seriesNumberOrNull = seriesNumber;
+    }
 }

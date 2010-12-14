@@ -37,6 +37,8 @@ public class ImageChannelStack implements ISerializable
 
     private Float tOrNull, zOrNull;
 
+    private Integer seriesNumberOrNull;
+
     // GWT only
     @SuppressWarnings("unused")
     private ImageChannelStack()
@@ -44,13 +46,14 @@ public class ImageChannelStack implements ISerializable
     }
 
     public ImageChannelStack(long channelStackTechId, int tileRow, int tileCol, Float tOrNull,
-            Float zOrNull)
+            Float zOrNull, Integer seriesNumberOrNull)
     {
         this.channelStackTechId = channelStackTechId;
         this.tileRow = tileRow;
         this.tileCol = tileCol;
         this.tOrNull = tOrNull;
         this.zOrNull = zOrNull;
+        this.seriesNumberOrNull = seriesNumberOrNull;
     }
 
     public long getChannelStackTechId()
@@ -78,6 +81,11 @@ public class ImageChannelStack implements ISerializable
         return zOrNull;
     }
 
+    public Integer tryGetSeriesNumber()
+    {
+        return seriesNumberOrNull;
+    }
+
     @Override
     public String toString()
     {
@@ -90,7 +98,10 @@ public class ImageChannelStack implements ISerializable
         {
             desc += ", z=" + zOrNull;
         }
-
+        if (seriesNumberOrNull != null)
+        {
+            desc += ", series=" + seriesNumberOrNull;
+        }
         return "channelStack=" + channelStackTechId + ", tile[" + tileRow + "," + tileCol + "]"
                 + desc;
     }

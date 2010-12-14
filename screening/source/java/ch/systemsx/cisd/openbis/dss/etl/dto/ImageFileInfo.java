@@ -21,8 +21,10 @@ public final class ImageFileInfo
 
     private final Float depthOrNull;
 
+    private final Integer seriesNumber;
+
     public ImageFileInfo(Location wellLocationOrNull, String channelCode, Location tileLocation,
-            String imageRelativePath, Float timepointOrNull, Float depthOrNull)
+            String imageRelativePath, Float timepointOrNull, Float depthOrNull, Integer seriesNumber)
     {
         assert channelCode != null;
         assert tileLocation != null;
@@ -34,6 +36,7 @@ public final class ImageFileInfo
         this.imageRelativePath = imageRelativePath;
         this.timepointOrNull = timepointOrNull;
         this.depthOrNull = depthOrNull;
+        this.seriesNumber = seriesNumber;
     }
 
     public Location tryGetWellLocation()
@@ -66,6 +69,11 @@ public final class ImageFileInfo
         return depthOrNull;
     }
 
+    public Integer tryGetSeriesNumber()
+    {
+        return seriesNumber;
+    }
+
     public void setChannelCode(String channelCode)
     {
         this.channelCode = channelCode;
@@ -76,7 +84,8 @@ public final class ImageFileInfo
     {
         return "ImageFileInfo [well=" + wellLocationOrNull + ", tile=" + tileLocation
                 + ", channel=" + channelCode + ", path=" + imageRelativePath + ", timepoint="
-                + timepointOrNull + ", depth=" + depthOrNull + "]";
+                + timepointOrNull + ", depth=" + depthOrNull + ", seriesNumber=" + seriesNumber
+                + "]";
     }
 
 }

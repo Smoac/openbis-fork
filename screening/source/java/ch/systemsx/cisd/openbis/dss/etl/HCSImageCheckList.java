@@ -23,11 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 
@@ -42,9 +38,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
  */
 public final class HCSImageCheckList
 {
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            HCSImageCheckList.class);
-
     private final Map<FullLocation, Check> imageMap;
 
     public HCSImageCheckList(final List<String> channelCodes, final PlateDimension plateGeometry,
@@ -95,16 +88,12 @@ public final class HCSImageCheckList
         }
         Float timepointOrNull = image.tryGetTimePoint();
         Float depthOrNull = image.tryGetDepth();
-        if (check.isCheckedOff(timepointOrNull, depthOrNull))
+        Integer seriesNumberOrNull = image.tryGetSeriesNumber();
+        if (check.isCheckedOff(timepointOrNull, depthOrNull, seriesNumberOrNull))
         {
             throw new IllegalArgumentException("Image already handled: " + image);
         }
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Checking location " + location
-                    + (timepointOrNull == null ? "" : " timepoint " + timepointOrNull));
-        }
-        check.checkOff(timepointOrNull, depthOrNull);
+        check.checkOff(timepointOrNull, depthOrNull, seriesNumberOrNull);
     }
 
     private static FullLocation createLocation(AcquiredSingleImage image)
@@ -118,7 +107,7 @@ public final class HCSImageCheckList
         final List<FullLocation> fullLocations = new ArrayList<FullLocation>();
         for (final Map.Entry<FullLocation, Check> entry : imageMap.entrySet())
         {
-            if (entry.getValue().isCheckedOff(null, null) == false)
+            if (entry.getValue().isCheckedOff(null, null, null) == false)
             {
                 fullLocations.add(entry.getKey());
             }
@@ -136,10 +125,13 @@ public final class HCSImageCheckList
 
         private final Float depthOrNull;
 
-        public CheckDimension(Float timeOrNull, Float depthOrNull)
+        private final Integer seriesNumberOrNull;
+
+        public CheckDimension(Float timeOrNull, Float depthOrNull, Integer seriesNumberOrNull)
         {
             this.timeOrNull = timeOrNull;
             this.depthOrNull = depthOrNull;
+            this.seriesNumberOrNull = seriesNumberOrNull;
         }
 
         @Override
@@ -149,6 +141,9 @@ public final class HCSImageCheckList
             int result = 1;
             result = prime * result + ((depthOrNull == null) ? 0 : depthOrNull.hashCode());
             result = prime * result + ((timeOrNull == null) ? 0 : timeOrNull.hashCode());
+            result =
+                    prime * result
+                            + ((seriesNumberOrNull == null) ? 0 : seriesNumberOrNull.hashCode());
             return result;
         }
 
@@ -174,6 +169,12 @@ public final class HCSImageCheckList
                     return false;
             } else if (!timeOrNull.equals(other.timeOrNull))
                 return false;
+            if (seriesNumberOrNull == null)
+            {
+                if (other.seriesNumberOrNull != null)
+                    return false;
+            } else if (!seriesNumberOrNull.equals(other.seriesNumberOrNull))
+                return false;
             return true;
         }
     }
@@ -184,18 +185,19 @@ public final class HCSImageCheckList
 
         private final Set<CheckDimension> dimensions = new HashSet<CheckDimension>();
 
-        final void checkOff(Float timepointOrNull, Float depthOrNull)
+        final void checkOff(Float timepointOrNull, Float depthOrNull, Integer seriesNumberOrNull)
         {
-            dimensions.add(new CheckDimension(timepointOrNull, depthOrNull));
+            dimensions.add(new CheckDimension(timepointOrNull, depthOrNull, seriesNumberOrNull));
             checkedOff = true;
         }
 
-        final boolean isCheckedOff(Float timepointOrNull, Float depthOrNull)
+        final boolean isCheckedOff(Float timepointOrNull, Float depthOrNull,
+                Integer seriesNumberOrNull)
         {
             CheckDimension dim = null;
-            if (timepointOrNull != null || depthOrNull != null)
+            if (timepointOrNull != null || depthOrNull != null || seriesNumberOrNull != null)
             {
-                dim = new CheckDimension(timepointOrNull, depthOrNull);
+                dim = new CheckDimension(timepointOrNull, depthOrNull, seriesNumberOrNull);
             }
             return checkedOff && (dim == null || dimensions.contains(dim));
         }

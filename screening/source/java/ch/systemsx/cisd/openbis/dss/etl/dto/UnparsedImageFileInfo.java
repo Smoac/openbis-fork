@@ -23,6 +23,9 @@ public class UnparsedImageFileInfo extends AbstractHashable
     // can be null
     private String depthToken;
 
+    // can be null
+    private String seriesNumberToken;
+
     /** can be null */
     public String getWellLocationToken()
     {
@@ -74,5 +77,15 @@ public class UnparsedImageFileInfo extends AbstractHashable
     public void setDepthToken(String depthToken)
     {
         this.depthToken = depthToken;
+    }
+
+    public String getSeriesNumberToken()
+    {
+        return seriesNumberToken;
+    }
+
+    public void setSeriesNumberToken(String seriesNumberToken)
+    {
+        this.seriesNumberToken = seriesNumberToken;
     }
 }

@@ -80,16 +80,23 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         {
             return null;
         }
+        AbsoluteImageReference imgRef =
+                createAbsoluteImageReference(imageDTO, channel, thumbnailSizeOrNull);
+
+        return imgRef;
+    }
+
+    private AbsoluteImageReference createAbsoluteImageReference(ImgImageDTO imageDTO,
+            ImgChannelDTO channel, Size thumbnailSizeOrNull)
+    {
         String path = imageDTO.getFilePath();
         IContent content = contentRepository.getContent(path);
         ColorComponent colorComponent = imageDTO.getColorComponent();
         AbsoluteImageReference imgRef =
                 new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
                         thumbnailSizeOrNull);
-
-        imgRef.setTransformerFactory(channel.getImageTransformerFactory());
         imgRef.setTransformerFactoryForMergedChannels(tryGetImageTransformerFactoryForMergedChannels());
-
+        imgRef.setTransformerFactory(channel.getImageTransformerFactory());
         return imgRef;
     }
 
@@ -204,5 +211,55 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
                     + channelStackReference;
             return query.tryGetThumbnail(channelId, channelStackId, datasetId);
         }
+    }
+
+    private ImgImageDTO tryGetRepresentativeImageDTO(long channelId, Location wellLocationOrNull,
+            boolean thumbnailWanted)
+    {
+        long datasetId = dataset.getId();
+        ImgImageDTO image = null;
+        if (wellLocationOrNull == null)
+        {
+            if (thumbnailWanted)
+            {
+                image = query.tryGetMicroscopyRepresentativeThumbnail(datasetId, channelId);
+            }
+            if (image == null)
+            {
+                image = query.tryGetMicroscopyRepresentativeImage(datasetId, channelId);
+            }
+        } else
+        {
+            if (thumbnailWanted)
+            {
+                image =
+                        query.tryGetHCSRepresentativeThumbnail(datasetId, wellLocationOrNull,
+                                channelId);
+            }
+            if (image == null)
+            {
+                image =
+                        query.tryGetHCSRepresentativeImage(datasetId, wellLocationOrNull, channelId);
+            }
+        }
+        return image;
+    }
+
+    public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
+            Location wellLocationOrNull, Size thumbnailSizeOrNull)
+    {
+        ImgChannelDTO channel = tryLoadChannel(channelCode);
+        if (channel == null)
+        {
+            return null;
+        }
+        ImgImageDTO imageDTO =
+                tryGetRepresentativeImageDTO(channel.getId(), wellLocationOrNull,
+                        thumbnailSizeOrNull != null);
+        if (imageDTO == null)
+        {
+            return null;
+        }
+        return createAbsoluteImageReference(imageDTO, channel, thumbnailSizeOrNull);
     }
 }

@@ -52,8 +52,8 @@ public interface IImagingQueryDAO extends TransactionQuery, IImagingReadonlyQuer
 
     // batch updates
 
-    @Update(sql = "insert into CHANNEL_STACKS (ID, X, Y, Z_in_M, T_in_SEC, DS_ID, SPOT_ID) values "
-            + "(?{1.id}, ?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.datasetId}, ?{1.spotId})", batchUpdate = true)
+    @Update(sql = "insert into CHANNEL_STACKS (ID, X, Y, Z_in_M, T_in_SEC, SERIES_NUMBER, IS_REPRESENTATIVE, DS_ID, SPOT_ID) values "
+            + "(?{1.id}, ?{1.column}, ?{1.row}, ?{1.z}, ?{1.t}, ?{1.seriesNumber}, ?{1.isRepresentative}, ?{1.datasetId}, ?{1.spotId})", batchUpdate = true)
     public void addChannelStacks(List<ImgChannelStackDTO> channelStacks);
 
     @Update(sql = "insert into IMAGES (ID, PATH, PAGE, COLOR) values "

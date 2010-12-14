@@ -59,6 +59,8 @@ public class UnparsedImageFileInfoLexer
 
     private static final char TIME_MARKER = 't';
 
+    private static final char SERIES_NUMBER_MARKER = 'n';
+
     public static UnparsedImageFileInfo tryExtractHCSImageFileInfo(File imageFile,
             File incomingDataSetPath)
     {
@@ -107,6 +109,7 @@ public class UnparsedImageFileInfoLexer
         final String channelToken = tokensMap.get(CHANNEL_MARKER);
         final String timepointToken = tokensMap.get(TIME_MARKER);
         final String depthToken = tokensMap.get(DEPTH_MARKER);
+        final String seriesNumberToken = tokensMap.get(SERIES_NUMBER_MARKER);
 
         UnparsedImageFileInfo info = new UnparsedImageFileInfo();
         info.setWellLocationToken(wellLocationToken);
@@ -114,6 +117,7 @@ public class UnparsedImageFileInfoLexer
         info.setChannelToken(channelToken);
         info.setTimepointToken(timepointToken);
         info.setDepthToken(depthToken);
+        info.setSeriesNumberToken(seriesNumberToken);
         return info;
     }
 

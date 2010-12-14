@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,14 +30,18 @@ import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.IContent;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
+import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
+import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -56,16 +61,46 @@ public class ImageChannelsUtils
     // MIME type of the images which are produced by this class
     public static final String IMAGES_CONTENT_TYPE = "image/png";
 
-    
     /**
      * Returns content of image for the specified tile in the specified size and for the requested
      * channel or with all channels merged.
      */
-    public static IContent getImage(IImagingDatasetLoader imageAccessor, TileImageReference params)
+    public static ResponseContentStream getImageStream(File datasetRoot, String datasetCode,
+            TileImageReference params)
+    {
+        IImagingDatasetLoader imageAccessor =
+                HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
+        IContent image = getImage(imageAccessor, params);
+        return asResponseContentStream(image);
+    }
+
+    /**
+     * Returns content of the image which is representative for the given dataset.
+     */
+    public static ResponseContentStream getRepresentativeImageStream(File datasetRoot,
+            String datasetCode, Location wellLocationOrNull, Size thumbnailSizeOrNull)
+    {
+        IImagingDatasetLoader imageAccessor =
+                HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
+        List<AbsoluteImageReference> imageReferences =
+                getRepresentativeImageReferences(imageAccessor, wellLocationOrNull,
+                        thumbnailSizeOrNull);
+        IContent imageContent = mergeAllChannels(imageReferences, true, true);
+        return asResponseContentStream(imageContent);
+    }
+
+    private static ResponseContentStream asResponseContentStream(IContent image)
+    {
+        return ResponseContentStream.create(image.getInputStream(), image.getSize(),
+                ImageChannelsUtils.IMAGES_CONTENT_TYPE, image.tryGetName());
+    }
+
+    @Private
+    static IContent getImage(IImagingDatasetLoader imageAccessor, TileImageReference params)
     {
         return getImage(imageAccessor, params, true, true);
     }
-    
+
     private static IContent getImage(IImagingDatasetLoader imageAccessor,
             TileImageReference params, boolean transform, boolean convertToPng)
     {
@@ -93,8 +128,46 @@ public class ImageChannelsUtils
         tileImageReference.setChannelStack(channelStackReference);
         tileImageReference.setChannel(chosenChannelCode);
         tileImageReference.setThumbnailSizeOrNull(thumbnailSizeOrNull);
-        tileImageReference.setMergeAllChannels(ScreeningConstants.MERGED_CHANNELS.equalsIgnoreCase(chosenChannelCode));
+        tileImageReference.setMergeAllChannels(ScreeningConstants.MERGED_CHANNELS
+                .equalsIgnoreCase(chosenChannelCode));
         return getImage(imageAccessor, tileImageReference, false, convertToPng);
+    }
+
+    private static List<AbsoluteImageReference> getRepresentativeImageReferences(
+            IImagingDatasetLoader imageAccessor, Location wellLocationOrNull,
+            Size thumbnailSizeOrNull)
+    {
+        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
+
+        for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
+        {
+            AbsoluteImageReference image =
+                    getRepresentativeImageReference(imageAccessor, chosenChannel,
+                            wellLocationOrNull, thumbnailSizeOrNull);
+            images.add(image);
+        }
+        return images;
+    }
+
+    /**
+     * @throw {@link EnvironmentFailureException} when image does not exist
+     */
+    private static AbsoluteImageReference getRepresentativeImageReference(
+            IImagingDatasetLoader imageAccessor, String channelCode, Location wellLocationOrNull,
+            Size thumbnailSizeOrNull)
+    {
+        AbsoluteImageReference image =
+                imageAccessor.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
+                        thumbnailSizeOrNull);
+        if (image != null)
+        {
+            return image;
+        } else
+        {
+            throw EnvironmentFailureException.fromTemplate("No representative "
+                    + (thumbnailSizeOrNull != null ? "thumbnail" : "image")
+                    + " found for well %s and channel %s", wellLocationOrNull, channelCode);
+        }
     }
 
     private static List<AbsoluteImageReference> getImageReferences(
@@ -128,7 +201,8 @@ public class ImageChannelsUtils
         final IContent content;
         if (convertToPng || imageReference.tryGetColorComponent() != null)
         {
-            final BufferedImage image = transform(calculateSingleImage(imageReference), transformerFactoryOrNull);
+            final BufferedImage image =
+                    transform(calculateSingleImage(imageReference), transformerFactoryOrNull);
 
             long start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
             content = createPngContent(image, imageReference.getContent().tryGetName());
@@ -181,7 +255,8 @@ public class ImageChannelsUtils
             image = transformToChannel(image, colorComponentOrNull);
             if (operationLog.isDebugEnabled())
             {
-                operationLog.debug("Select single channel: " + (System.currentTimeMillis() - start));
+                operationLog
+                        .debug("Select single channel: " + (System.currentTimeMillis() - start));
             }
         }
         return image;
@@ -199,7 +274,8 @@ public class ImageChannelsUtils
         return image;
     }
 
-    private static IContent mergeAllChannels(List<AbsoluteImageReference> imageReferences, boolean transform, boolean convertToPng)
+    private static IContent mergeAllChannels(List<AbsoluteImageReference> imageReferences,
+            boolean transform, boolean convertToPng)
     {
         AbsoluteImageReference allChannelsImageReference =
                 tryCreateAllChannelsImageReference(imageReferences);
@@ -215,13 +291,15 @@ public class ImageChannelsUtils
         {
             List<BufferedImage> images = calculateSingleImages(imageReferences);
             BufferedImage mergedImage = mergeChannels(images);
-            IImageTransformerFactory transformerFactory = transform ? 
-                    imageReferences.get(0).getTransformerFactoryForMergedChannels() : null;
+            IImageTransformerFactory transformerFactory =
+                    transform ? imageReferences.get(0).getTransformerFactoryForMergedChannels()
+                            : null;
             return createPngContent(transform(mergedImage, transformerFactory), null);
         }
     }
-    
-    private static BufferedImage transform(BufferedImage input, IImageTransformerFactory factoryOrNull)
+
+    private static BufferedImage transform(BufferedImage input,
+            IImageTransformerFactory factoryOrNull)
     {
         if (factoryOrNull == null)
         {

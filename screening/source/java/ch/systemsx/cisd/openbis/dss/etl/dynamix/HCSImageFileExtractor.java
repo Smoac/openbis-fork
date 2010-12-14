@@ -84,7 +84,7 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
         String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
         return new ImageFileInfo(asLocation(wellLocation), channelCode, tileLocation,
-                imageRelativePath, timepoint, null);
+                imageRelativePath, timepoint, null, null);
     }
 
     private long getSecondsFromFirstMeasurement(File imageFile, String[] tokens)

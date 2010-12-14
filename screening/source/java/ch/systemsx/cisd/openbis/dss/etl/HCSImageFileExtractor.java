@@ -172,9 +172,10 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
 
         Float timepointOrNull = tryAsFloat(unparsedInfo.getTimepointToken());
         Float depthOrNull = tryAsFloat(unparsedInfo.getDepthToken());
+        Integer seriesNumberOrNull = tryAsInt(unparsedInfo.getSeriesNumberToken());
         String imageRelativePath = getRelativeImagePath(incomingDataSetDirectory, imageFile);
 
         return new ImageFileInfo(wellLocation, channelCode, tileLocation, imageRelativePath,
-                timepointOrNull, depthOrNull);
+                timepointOrNull, depthOrNull, seriesNumberOrNull);
     }
 }

@@ -96,12 +96,21 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     protected final Geometry wellGeometry;
 
-    protected AbstractImageFileExtractor(final Properties properties)
+    protected AbstractImageFileExtractor(Properties properties)
     {
-        this.channelDescriptions = tryExtractChannelDescriptions(properties);
+        this(extractChannelDescriptions(properties), getWellGeometry(properties), properties);
+    }
+
+    protected AbstractImageFileExtractor(List<ChannelDescription> channelDescriptions,
+            Geometry wellGeometry, Properties properties)
+    {
+        assert wellGeometry != null : "wel geometry is null";
+        assert channelDescriptions != null : "channelDescriptions is null";
+
+        this.channelDescriptions = channelDescriptions;
+        this.wellGeometry = wellGeometry;
         this.channelColorComponentsOrNull = tryGetChannelComponents(properties);
         checkChannelsAndColorComponents();
-        this.wellGeometry = getWellGeometry(properties);
         this.tileMapperOrNull =
                 TileMapper.tryCreate(properties.getProperty(TILE_MAPPING_PROPERTY), wellGeometry);
     }
@@ -252,7 +261,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         return channels;
     }
 
-    protected final static List<ChannelDescription> tryExtractChannelDescriptions(
+    protected final static List<ChannelDescription> extractChannelDescriptions(
             final Properties properties)
     {
         return PlateStorageProcessor.extractChannelDescriptions(properties);
@@ -289,7 +298,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
                         colorComponentOrNull);
         return new AcquiredSingleImage(imageInfo.tryGetWellLocation(), imageInfo.getTileLocation(),
                 imageInfo.getChannelCode(), imageInfo.tryGetTimepoint(), imageInfo.tryGetDepth(),
-                relativeImageRef);
+                imageInfo.tryGetSeriesNumber(), relativeImageRef);
     }
 
     protected static Integer tryAsInt(String valueOrNull)

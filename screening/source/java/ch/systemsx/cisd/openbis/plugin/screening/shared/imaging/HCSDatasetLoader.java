@@ -144,7 +144,7 @@ public class HCSDatasetLoader implements IImageDatasetLoader
     private static ImageChannelStack convert(ImgChannelStackDTO stack)
     {
         return new ImageChannelStack(stack.getId(), stack.getRow(), stack.getColumn(),
-                stack.getT(), stack.getZ());
+                stack.getT(), stack.getZ(), stack.getSeriesNumber());
     }
 
     public ImageDatasetParameters getImageParameters()

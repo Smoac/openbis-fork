@@ -97,7 +97,7 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
             String channelCode = getChannelCodeOrLabel(channelCodes, channel);
             AcquiredSingleImage imageDesc =
                     new AcquiredSingleImage(wellLocation, tileLocation, channelCode, null, null,
-                            new RelativeImageReference(imageRelativePath, null, null));
+                            null, new RelativeImageReference(imageRelativePath, null, null));
             images.add(imageDesc);
         }
 

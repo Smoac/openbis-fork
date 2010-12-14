@@ -185,25 +185,39 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     public AbstractImageStorageProcessor(final Properties properties)
     {
+        this(getMandatorySpotGeometry(properties), extractChannelDescriptions(properties),
+                tryCreateImageExtractor(properties), properties);
+    }
+
+    protected AbstractImageStorageProcessor(Geometry spotGeometry,
+            List<ChannelDescription> channelDescriptions, IImageFileExtractor imageFileExtractor,
+            Properties properties)
+    {
         super(properties);
-        String spotGeometryText = getMandatoryProperty(SPOT_GEOMETRY_PROPERTY);
-        this.spotGeometry = Geometry.createFromString(spotGeometryText);
-        channelDescriptions = extractChannelDescriptions(properties);
-        thumbnailMaxWidth =
+        this.spotGeometry = spotGeometry;
+        this.channelDescriptions = channelDescriptions;
+        this.imageFileExtractor = imageFileExtractor;
+        this.thumbnailMaxWidth =
                 PropertyUtils.getInt(properties, THUMBNAIL_MAX_WIDTH_PROPERTY,
                         DEFAULT_THUMBNAIL_MAX_WIDTH);
-        thumbnailMaxHeight =
+        this.thumbnailMaxHeight =
                 PropertyUtils.getInt(properties, THUMBNAIL_MAX_HEIGHT_PROPERTY,
                         DEFAULT_THUMBNAIL_MAX_HEIGHT);
-        generateThumbnails =
+        this.generateThumbnails =
                 PropertyUtils.getBoolean(properties, GENERATE_THUMBNAILS_PROPERTY, false);
-        areThumbnailsCompressed =
+        this.areThumbnailsCompressed =
                 PropertyUtils.getBoolean(properties, COMPRESS_THUMBNAILS_PROPERTY, false);
-        originalDataStorageFormat = getOriginalDataStorageFormat(properties);
+        this.originalDataStorageFormat = getOriginalDataStorageFormat(properties);
 
-        this.imageFileExtractor = tryCreateImageExtractor(properties);
         this.dataSource = ServiceProvider.getDataSourceProvider().getDataSource(properties);
         this.currentTransaction = null;
+    }
+
+    private static Geometry getMandatorySpotGeometry(Properties properties)
+    {
+        String spotGeometryText =
+                PropertyUtils.getMandatoryProperty(properties, SPOT_GEOMETRY_PROPERTY);
+        return Geometry.createFromString(spotGeometryText);
     }
 
     private static IImageFileExtractor tryCreateImageExtractor(final Properties properties)
@@ -720,7 +734,8 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
     {
         for (AcquiredSingleImage image : images)
         {
-            if (image.tryGetTimePoint() != null || image.tryGetDepth() != null)
+            if (image.tryGetTimePoint() != null || image.tryGetDepth() != null
+                    || image.tryGetSeriesNumber() != null)
             {
                 return true;
             }

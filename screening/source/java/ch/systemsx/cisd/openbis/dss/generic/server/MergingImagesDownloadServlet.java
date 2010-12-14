@@ -18,25 +18,35 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
-import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
 /**
- * Allows to download screening images in a chosen size for a specified channels or with all
+ * Allows to:<br>
+ * - download screening and microscopy images in a chosen size for a specified channels or with all
  * channels merged.<br>
- * Assumes that originally there is one image for each channel and no image with all the channels
- * merged exist.
+ * - fetch representative microscopy dataset image
  * 
  * @author Tomasz Pylak
  */
-public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
+public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet implements
+        IDatasetImageOverviewPlugin
 {
     private static final long serialVersionUID = 1L;
+
+    /** Used to construct {@link IDatasetImageOverviewPlugin}. */
+    public MergingImagesDownloadServlet(Properties pluginProperties)
+    {
+    }
+
+    public MergingImagesDownloadServlet()
+    {
+    }
 
     /**
      * @throws EnvironmentFailureException if image does not exist
@@ -45,10 +55,28 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet
     protected final ResponseContentStream createImageResponse(TileImageReference params,
             File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
     {
-        IImagingDatasetLoader imageAccessor =
-                HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
-        IContent image = ImageChannelsUtils.getImage(imageAccessor, params);
-        return ResponseContentStream.create(image.getInputStream(), image.getSize(),
-                ImageChannelsUtils.IMAGES_CONTENT_TYPE, image.tryGetName());
+        return ImageChannelsUtils.getImageStream(datasetRoot, datasetCode, params);
+    }
+
+    private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(200, 120);
+
+    /** Provides overview of microscopy datasets. */
+    public ResponseContentStream createImageOverview(String datasetCode, String datasetTypeCode,
+            File datasetRoot, ImageResolutionKind resolution)
+    {
+        Size thumbnailSize = tryGetThumbnailSize(resolution);
+        return ImageChannelsUtils.getRepresentativeImageStream(datasetRoot, datasetCode, null,
+                thumbnailSize);
+    }
+
+    private static Size tryGetThumbnailSize(ImageResolutionKind resolution)
+    {
+        if (resolution == ImageResolutionKind.NORMAL)
+        {
+            return null;
+        } else
+        {
+            return DEFAULT_THUMBNAIL_SIZE;
+        }
     }
 }

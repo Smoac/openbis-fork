@@ -54,12 +54,34 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
                     // joins
                     + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID ";
 
-    // FIXME 2010-12-10, Tomasz Pylak: uncomment when we are able to show a representative image
+    public static final String SQL_HCS_IMAGE_REPRESENTATIVE =
+            "select i.* from CHANNEL_STACKS, SPOTS, ACQUIRED_IMAGES, IMAGES as i "
+                    + "where                                        "
+                    + "CHANNEL_STACKS.is_representative = 'T' and   "
+                    + "CHANNEL_STACKS.DS_ID = ?{1} and              "
+                    + "ACQUIRED_IMAGES.channel_id = ?{3} and        "
+                    + "SPOTS.x = ?{2.x} and SPOTS.y = ?{2.y} and    "
+                    // joins
+                    + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID and "
+                    + "CHANNEL_STACKS.SPOT_ID = SPOTS.ID ";
+
+    public static final String SQL_MICROSCOPY_IMAGE_REPRESENTATIVE =
+            "select i.* from CHANNEL_STACKS, ACQUIRED_IMAGES, IMAGES as i "
+                    + "where                                         "
+                    + "CHANNEL_STACKS.is_representative = 'T' and    "
+                    + "CHANNEL_STACKS.DS_ID = ?{1} and               "
+                    + "ACQUIRED_IMAGES.channel_id = ?{2} and         "
+                    // joins
+                    + "ACQUIRED_IMAGES.CHANNEL_STACK_ID = CHANNEL_STACKS.ID ";
+
+    // TODO 2010-12-10, Tomasz Pylak: uncomment when we are able to show a representative image
     public static final String SQL_NO_MULTIDIMENTIONAL_DATA_COND =
             " order by CHANNEL_STACKS.T_in_SEC, CHANNEL_STACKS.Z_in_M limit 1";
 
     // " and CHANNEL_STACKS.T_in_SEC IS NULL                        "
     // + " and CHANNEL_STACKS.Z_in_M IS NULL                ";
+
+    // ---------------- HCS ---------------------------------
 
     /**
      * @return an HCS image for the specified chanel, well and tile. If many images (e.g. for
@@ -80,6 +102,24 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             Location wellLocation);
 
     /**
+     * @return an representative HCS image for the specified dataset and well. Returns null if there
+     *         are no images at all for the specified well.
+     */
+    @Select(SQL_HCS_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.IMG_ID = i.ID ")
+    public ImgImageDTO tryGetHCSRepresentativeImage(long datasetId, Location wellLocation,
+            long channelId);
+
+    /**
+     * @return an representative HCS thumbnail for the specified dataset and well. Returns null if
+     *         there are no images at all for the specified well.
+     */
+    @Select(SQL_HCS_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID ")
+    public ImgImageDTO tryGetHCSRepresentativeThumbnail(long datasetId, Location wellLocation,
+            long channelId);
+
+    // ---------------- Microscopy ---------------------------------
+
+    /**
      * @return an microscopy image for the specified channel and tile. If many images (e.g. for
      *         different timepoints or depths) exist, null is returned.
      */
@@ -95,6 +135,33 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + SQL_NO_MULTIDIMENTIONAL_DATA_COND)
     public ImgImageDTO tryGetMicroscopyThumbnail(long channelId, long datasetId,
             Location tileLocation);
+
+    /**
+     * @return an representative microscopy image for the specified dataset.
+     */
+    @Select(SQL_MICROSCOPY_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.IMG_ID = i.ID ")
+    public ImgImageDTO tryGetMicroscopyRepresentativeImage(long datasetId, long channelId);
+
+    /**
+     * @return an representative microscopy thumbnail for the specified dataset. Can be null if
+     *         thumbnail has not been generated.
+     */
+    @Select(SQL_MICROSCOPY_IMAGE_REPRESENTATIVE + " and ACQUIRED_IMAGES.THUMBNAIL_ID = i.ID ")
+    public ImgImageDTO tryGetMicroscopyRepresentativeThumbnail(long datasetId, long channelId);
+
+    // ---------------- Microscopy - channels ---------------------------------
+
+    @Select("select cs.* from CHANNEL_STACKS cs               "
+            + "where cs.ds_id = ?{1} and cs.spot_id is NULL")
+    public List<ImgChannelStackDTO> listSpotlessChannelStacks(long datasetId);
+
+    @Select("select * from CHANNELS where DS_ID = ?{1} order by ID")
+    public List<ImgChannelDTO> getChannelsByDatasetId(long datasetId);
+
+    @Select("select * from CHANNELS where (DS_ID = ?{1}) and CODE = upper(?{2})")
+    public ImgChannelDTO tryGetChannelForDataset(long datasetId, String chosenChannelCode);
+
+    // ---------------- Generic ---------------------------------
 
     /** @return an image for the specified channel and channel stack or null */
     @Select("select i.* from IMAGES as i "
@@ -120,6 +187,11 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     // simple getters
 
+    @Select("select * from DATA_SETS where PERM_ID = ?{1}")
+    public ImgDatasetDTO tryGetDatasetByPermId(String datasetPermId);
+
+    // ---------------- HCS - experiments, containers, channels ---------------------------------
+
     @Select("select * from EXPERIMENTS where PERM_ID = ?{1}")
     public ImgExperimentDTO tryGetExperimentByPermId(String experimentPermId);
 
@@ -128,9 +200,6 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     @Select("select ID from CONTAINERS where PERM_ID = ?{1}")
     public Long tryGetContainerIdPermId(String containerPermId);
-
-    @Select("select * from DATA_SETS where PERM_ID = ?{1}")
-    public ImgDatasetDTO tryGetDatasetByPermId(String datasetPermId);
 
     @Select("select * from CONTAINERS where ID = ?{1}")
     public ImgContainerDTO getContainerById(long containerId);
@@ -142,18 +211,21 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
             + "where cs.ds_id = ?{1} and s.x = ?{2} and s.y = ?{3}")
     public List<ImgChannelStackDTO> listChannelStacks(long datasetId, int spotX, int spotY);
 
-    @Select("select cs.* from CHANNEL_STACKS cs               "
-            + "where cs.ds_id = ?{1} and cs.spot_id is NULL")
-    public List<ImgChannelStackDTO> listSpotlessChannelStacks(long datasetId);
-
-    @Select("select * from CHANNELS where DS_ID = ?{1} order by ID")
-    public List<ImgChannelDTO> getChannelsByDatasetId(long datasetId);
-
     @Select(sql = "select * from CHANNELS where EXP_ID = ?{1} order by ID", fetchSize = FETCH_SIZE)
     public List<ImgChannelDTO> getChannelsByExperimentId(long experimentId);
 
     @Select("select * from SPOTS where cont_id = ?{1}")
     public List<ImgSpotDTO> listSpots(long contId);
+
+    @Select("select * from CHANNELS where (EXP_ID = ?{1}) and CODE = upper(?{2})")
+    public ImgChannelDTO tryGetChannelForExperiment(long experimentId, String chosenChannelCode);
+
+    @Select("select * from channels where code = ?{2} and "
+            + "exp_id in (select id from experiments where perm_id = ?{1})")
+    public ImgChannelDTO tryGetChannelForExperimentPermId(String experimentPermId,
+            String chosenChannelCode);
+
+    // ---------------- HCS - feature vectors ---------------------------------
 
     @Select("select * from FEATURE_DEFS where DS_ID = ?{1}")
     public List<ImgFeatureDefDTO> listFeatureDefsByDataSetId(long dataSetId);
@@ -165,16 +237,5 @@ public interface IImagingReadonlyQueryDAO extends BaseQuery
 
     @Select(sql = "select * from FEATURE_VALUES where FD_ID = ?{1.id} order by T_in_SEC, Z_in_M", resultSetBinding = FeatureVectorDataObjectBinding.class)
     public List<ImgFeatureValuesDTO> getFeatureValues(ImgFeatureDefDTO featureDef);
-
-    @Select("select * from CHANNELS where (EXP_ID = ?{1}) and CODE = upper(?{2})")
-    public ImgChannelDTO tryGetChannelForExperiment(long experimentId, String chosenChannelCode);
-
-    @Select("select * from CHANNELS where (DS_ID = ?{1}) and CODE = upper(?{2})")
-    public ImgChannelDTO tryGetChannelForDataset(long datasetId, String chosenChannelCode);
-
-    @Select("select * from channels where code = ?{2} and "
-            + "exp_id in (select id from experiments where perm_id = ?{1})")
-    public ImgChannelDTO tryGetChannelForExperimentPermId(String experimentPermId,
-            String chosenChannelCode);
 
 }

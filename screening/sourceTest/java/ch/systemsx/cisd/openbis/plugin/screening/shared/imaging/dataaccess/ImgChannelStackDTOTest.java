@@ -54,7 +54,7 @@ public class ImgChannelStackDTOTest
 
     private ImgChannelStackDTO createStackChannel(Long spotId)
     {
-        return new ImgChannelStackDTO(0, 1, 1, 1, spotId, 123F, null);
+        return new ImgChannelStackDTO(0, 1, 1, 1, spotId, 123F, null, null, false);
     }
 
 }

@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.dss.etl.ImagingDatabaseHelper.ImagingChannelsMap;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
@@ -105,8 +109,21 @@ abstract class AbstractImageDatasetUploader
             stackImages.add(makeAcquiredImageInStack(image));
             map.put(stackDTO, stackImages);
         }
-        setChannelStackIds(map.keySet());
+        Set<ImgChannelStackDTO> channelStacks = map.keySet();
+        setChannelStackIds(channelStacks);
+        setChannelStackRepresentatives(channelStacks);
         return map;
+    }
+
+    private void setChannelStackRepresentatives(Set<ImgChannelStackDTO> channelStacks)
+    {
+        Set<ImgChannelStackDTO> representatives =
+                ChannelStackRepresentativesOracle.calculateRepresentatives(channelStacks);
+        for (ImgChannelStackDTO channelStack : channelStacks)
+        {
+            boolean isRepresentative = representatives.contains(channelStack);
+            channelStack.setRepresentative(isRepresentative);
+        }
     }
 
     private void setChannelStackIds(Set<ImgChannelStackDTO> channelStacks)
@@ -129,7 +146,8 @@ abstract class AbstractImageDatasetUploader
         Long spotId = spotProvider.tryGetSpotId(image);
         int dummyId = 0;
         return new ImgChannelStackDTO(dummyId, image.getTileRow(), image.getTileColumn(),
-                datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth());
+                datasetId, spotId, image.tryGetTimePoint(), image.tryGetDepth(),
+                image.tryGetSeriesNumber(), false);
     }
 
     private void createImages(Map<ImgChannelStackDTO, List<AcquiredImageInStack>> stackImagesMap,
@@ -228,5 +246,87 @@ abstract class AbstractImageDatasetUploader
                         imageReferenceOrNull.tryGetPage(),
                         imageReferenceOrNull.tryGetColorComponent());
         return dto;
+    }
+
+    @Private
+    static final class ChannelStackRepresentativesOracle
+    {
+        /**
+         * For all images of one spot chooses the 'smallest' element as an representative. If there
+         * are no spots than the smallest element of all specified images is chosen.
+         */
+        public static Set<ImgChannelStackDTO> calculateRepresentatives(
+                Set<ImgChannelStackDTO> images)
+        {
+            Map<Long/* spot or null */, List<ImgChannelStackDTO>> mapBySpot =
+                    createMapBySpot(images);
+            Comparator<? super ImgChannelStackDTO> spotChannelStacksComparator =
+                    createChannelStacksComparator();
+            for (List<ImgChannelStackDTO> spotChannelStacks : mapBySpot.values())
+            {
+                Collections.sort(spotChannelStacks, spotChannelStacksComparator);
+            }
+
+            Set<ImgChannelStackDTO> representatives = new HashSet<ImgChannelStackDTO>();
+            for (List<ImgChannelStackDTO> spotChannelStacks : mapBySpot.values())
+            {
+                representatives.add(spotChannelStacks.get(0));
+            }
+            return representatives;
+        }
+
+        private static Comparator<? super ImgChannelStackDTO> createChannelStacksComparator()
+        {
+            return new Comparator<ImgChannelStackDTO>()
+                {
+                    public int compare(ImgChannelStackDTO o1, ImgChannelStackDTO o2)
+                    {
+                        int cmp = compareNullable(o1.getRow(), o2.getRow());
+                        if (cmp != 0)
+                            return cmp;
+                        cmp = compareNullable(o1.getColumn(), o2.getColumn());
+                        if (cmp != 0)
+                            return cmp;
+                        cmp = compareNullable(o1.getT(), o2.getT());
+                        if (cmp != 0)
+                            return cmp;
+                        cmp = compareNullable(o1.getZ(), o2.getZ());
+                        if (cmp != 0)
+                            return cmp;
+                        cmp = compareNullable(o1.getSeriesNumber(), o2.getSeriesNumber());
+                        return cmp;
+                    }
+
+                    private <T extends Comparable<T>> int compareNullable(T v1OrNull, T v2OrNull)
+                    {
+                        if (v1OrNull == null)
+                        {
+                            return v2OrNull == null ? 0 : -1;
+                        } else
+                        {
+                            return v2OrNull == null ? 1 : v1OrNull.compareTo(v2OrNull);
+                        }
+                    }
+                };
+        }
+
+        private static Map<Long/* spot or null */, List<ImgChannelStackDTO>> createMapBySpot(
+                Set<ImgChannelStackDTO> channelStacks)
+        {
+            Map<Long, List<ImgChannelStackDTO>> mapBySpot =
+                    new HashMap<Long, List<ImgChannelStackDTO>>();
+            for (ImgChannelStackDTO channelStack : channelStacks)
+            {
+                Long spotId = channelStack.getSpotId();
+                List<ImgChannelStackDTO> spotChannelStacks = mapBySpot.get(spotId);
+                if (spotChannelStacks == null)
+                {
+                    spotChannelStacks = new ArrayList<ImgChannelStackDTO>();
+                }
+                spotChannelStacks.add(channelStack);
+                mapBySpot.put(spotId, spotChannelStacks);
+            }
+            return mapBySpot;
+        }
     }
 }
