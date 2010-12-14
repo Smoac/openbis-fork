@@ -22,8 +22,8 @@ import java.util.List;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageSeriesViewer.ImageSeriesPoint;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageSeriesViewer.LogicalImageSeriesViewerModel;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageSeriesGrid.ImageSeriesPoint;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LogicalImageSeriesGrid.LogicalImageSeriesViewerModel;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
 /**
