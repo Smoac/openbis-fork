@@ -115,7 +115,7 @@ public class WellImageSampleSection extends TabContent
                             wellLocationOrNull);
             LogicalImageViewer viewer =
                     new LogicalImageViewer(logicalImageReference,
-                            WellImageSampleSection.this.viewContext, experimentPermId);
+                            WellImageSampleSection.this.viewContext, "", experimentPermId);
             Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
             add(viewerWidget, PlateLayouter.createRowLayoutSurroundingData());
         }

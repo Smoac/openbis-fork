@@ -63,13 +63,17 @@ public class LogicalImageViewer
 
     private final IDefaultChannelState channelState;
 
+    private final String experimentIdentifier;
+    
     private String currentlySelectedChannelCode;
 
     public LogicalImageViewer(LogicalImageReference logicalImageReference,
-            IViewContext<IScreeningClientServiceAsync> viewContext, String experimentPermId)
+            IViewContext<IScreeningClientServiceAsync> viewContext, String experimentIdentifier,
+            String experimentPermId)
     {
         this.logicalImageReference = logicalImageReference;
         this.viewContext = viewContext;
+        this.experimentIdentifier = experimentIdentifier;
         this.channelState = createDefaultChannelState(viewContext, experimentPermId);
     }
 
@@ -203,7 +207,8 @@ public class LogicalImageViewer
         String sessionToken = viewContext.getModel().getSessionContext().getSessionID();
         urlParams.addParameter("session", sessionToken);
         urlParams.addParameter(ParameterNames.SERVER_URL, GWT.getHostPageBaseURL());
-
+        urlParams.addParameter(ParameterNames.EXPERIMENT_ID, experimentIdentifier);
+        
         if (currentlySelectedChannelCode != null)
         {
             urlParams.addParameter(ParameterNames.CHANNEL, currentlySelectedChannelCode);

@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
@@ -72,14 +73,17 @@ public class LogicalImageDatasetSection extends TabContent
                     setLayout(new RowLayout());
                     setScrollMode(Scroll.AUTO);
 
-                    String experimentPermId = dataset.getExperiment().getPermId();
+                    Experiment experiment = dataset.getExperiment();
+                    String experimentPermId = experiment.getPermId();
+                    String identifier = experiment.getIdentifier();
                     LogicalImageReference logicalImageReference =
                             new LogicalImageReference(dataset.getCode(), dataset.getDataStore()
                                     .getCode(), dataset.getDataStore().getHostUrl(),
                                     imageInfo.getImageParameters());
                     LogicalImageViewer viewer =
                             new LogicalImageViewer(logicalImageReference,
-                                    LogicalImageDatasetSection.this.viewContext, experimentPermId);
+                                    LogicalImageDatasetSection.this.viewContext, identifier,
+                                    experimentPermId);
                     Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
                     add(viewerWidget, PlateLayouter.createRowLayoutSurroundingData());
 

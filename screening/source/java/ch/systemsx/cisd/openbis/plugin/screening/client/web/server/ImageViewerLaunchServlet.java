@@ -21,6 +21,8 @@ import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.Screeni
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -50,73 +53,40 @@ public class ImageViewerLaunchServlet extends AbstractServlet
 
     public static final Template JNLP_TEMPLATE = new Template(
             "<?xml version='1.0' encoding='utf-8'?>\n"
-
             + "<jnlp spec='1.0+' codebase='${base-URL}'>\n"
-
             + "  <information>\n"
-
             + "    <title>${title}</title>\n"
-
             + "    <vendor>SyBIT</vendor>\n"
-
             + "    <description>${description}</description>\n"
-
             + "  </information>\n"
-
             + "  <security>\n"
-
             + "    <all-permissions/>\n"
-
             + "  </security>\n"
-
             + "  <resources>\n"
-
             + "    <j2se version='1.5+'/>\n"
-
             + "    <jar href='screening.jar'/>\n"
-
             + "    <jar href='cisd-base.jar'/>\n"
-
             + "    <jar href='image-viewer.jar'/>\n"
-
             + "    <jar href='spring-web.jar'/>\n"
-
             + "    <jar href='spring-context.jar'/>\n"
-
             + "    <jar href='spring-beans.jar'/>\n"
-
             + "    <jar href='spring-aop.jar'/>\n"
-
             + "    <jar href='spring-core.jar'/>\n"
-
             + "    <jar href='aopalliance.jar'/>\n"
-
             + "    <jar href='stream-supporting-httpinvoker.jar'/>\n"
-
             + "    <jar href='commons-codec.jar'/>\n"
-
             + "    <jar href='commons-httpclient.jar'/>\n"
-
             + "    <jar href='commons-io.jar'/>\n"
-
             + "    <jar href='commons-lang.jar'/>\n"
-
             + "    <jar href='commons-logging.jar'/>\n"
-
             + "    <jar href='ij.jar'/>\n"
-
             + "  </resources>\n"
-
             + "  <application-desc main-class='${main-class}'>\n"
-
             + "    <argument>${service-URL}</argument>\n"
-
             + "    <argument>${session-id}</argument>\n"
-
+            + "    <argument>${experiment}</argument>\n"
             + "    <argument>${channel}</argument>\n"
-
             + "${data-set-and-wells-arguments}\n"
-
             + "  </application-desc>\n" + "</jnlp>\n");
 
     private final Logger operationLog;
@@ -139,9 +109,10 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             template.bind("title", "Image Viewer");
             template.bind("description", "Image Viewer for color adjustment.");
             String basicURL = getBasicURL(request);
-            template.bind("base-URL", createBaseURL(request));
+            template.bind("base-URL", basicURL);
             template.bind("main-class", getMainClass());
-            template.bind("service-URL", basicURL);
+            template.bind("service-URL", getServiceURL(request));
+            template.bind("experiment", getParam(request, ParameterNames.EXPERIMENT_ID));
             String sessionToken = getSessionToken(request);
             template.bind("session-id", sessionToken);
             String channel = getParam(request, ParameterNames.CHANNEL);
@@ -149,10 +120,10 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             StringBuilder builder = new StringBuilder();
             // TODO 2010-12-09, Tomasz Pylak: add support for microscopy images in Image Viewer
             // where there are no wells. Extend API to load images in such cases.
-            for (String dataSet : getParams(request, ParameterNames.DATA_SETS))
-            {
-                builder.append("    <argument>").append(dataSet + ":0.0").append("</argument>\n");
-            }
+//            for (String dataSet : getParams(request, ParameterNames.DATA_SETS))
+//            {
+//                builder.append("    <argument>").append(dataSet + ":0.0").append("</argument>\n");
+//            }
             for (String dataSetAndWells : getParams(request, ParameterNames.DATA_SET_AND_WELLS))
             {
                 builder.append("    <argument>").append(dataSetAndWells).append("</argument>\n");
@@ -167,6 +138,7 @@ public class ImageViewerLaunchServlet extends AbstractServlet
             }
         } catch (UserFailureException ex)
         {
+            operationLog.error("Couldn't create JNLP file", ex);
             printError(response, ex.getMessage());
         }
     }
@@ -176,17 +148,20 @@ public class ImageViewerLaunchServlet extends AbstractServlet
         return "ch.systemsx.sybit.imageviewer.gui.ImageViewer";
     }
 
-    private String createBaseURL(HttpServletRequest request)
+    private String getServiceURL(HttpServletRequest request)
     {
         String url = getBasicURL(request);
-        if (url.indexOf("localhost:8888") > 0 || url.indexOf("127.0.0.1:888") > 0)
+        try
         {
-            url = url + "/ch.systemsx.cisd.openbis.plugin.screening.OpenBIS/";
-        } else
+            URL baseURL = new URL(url);
+            String protocol = baseURL.getProtocol();
+            String host = baseURL.getHost();
+            int port = baseURL.getPort();
+            return new URL(protocol, host, port, "/openbis/openbis/").toString();
+        } catch (MalformedURLException ex)
         {
-            url = url + "/";
+            throw new EnvironmentFailureException("Invalid URL", ex);
         }
-        return url;
     }
 
     private String getBasicURL(HttpServletRequest request)

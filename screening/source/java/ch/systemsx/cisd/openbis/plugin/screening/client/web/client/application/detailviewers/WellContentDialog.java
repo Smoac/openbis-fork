@@ -189,6 +189,7 @@ public class WellContentDialog extends Dialog
         final LogicalImageReference imagesOrNull =
                 new LogicalImageReference(imageDatasetOrNull, wellLocationOrNull);
         return new LogicalImageViewer(imagesOrNull, viewContext,
+                experimentCriteria.getExperimentIdentifier(),
                 experimentCriteria.getExperimentPermId());
     }
 
