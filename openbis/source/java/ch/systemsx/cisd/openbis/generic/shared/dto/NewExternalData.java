@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -45,9 +47,9 @@ public final class NewExternalData implements Serializable
     private StorageFormat storageFormat;
 
     private Date registrationDate;
-    
+
     private String userId;
-    
+
     private String userEMail;
 
     private FileFormatType fileFormatType;
@@ -299,4 +301,16 @@ public final class NewExternalData implements Serializable
         builder.append(location);
         return builder.toHashCode();
     }
+
+    @Override
+    public String toString()
+    {
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        builder.append("code", getCode());
+        builder.append("type", getDataSetType());
+        builder.append("fileFormat", getFileFormatType());
+        builder.append("properties", getDataSetProperties());
+        return builder.toString();
+    }
+
 }
