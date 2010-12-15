@@ -86,7 +86,8 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups =
+        { "broken" })
     public void testRegisteringBasicControlFile()
     {
         final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
