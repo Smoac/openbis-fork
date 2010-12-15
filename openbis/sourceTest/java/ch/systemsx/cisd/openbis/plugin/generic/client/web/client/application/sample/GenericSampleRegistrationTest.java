@@ -138,6 +138,6 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD").withUserPropertyCell("DESCRIPTION", description)));
-        launchTest();
+        launchTest(DEFAULT_TIMEOUT * 2);
     }
 }
