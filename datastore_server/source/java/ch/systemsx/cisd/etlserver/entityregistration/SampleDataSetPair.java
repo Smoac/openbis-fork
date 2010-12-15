@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * An object that represents a sample/data set pair defined in a file
@@ -106,6 +107,8 @@ public class SampleDataSetPair
     public void setSampleExperimentIdentifier(String experimentIdentifier)
     {
         this.newSample.setExperimentIdentifier(experimentIdentifier);
+        this.dataSetInformation.setExperimentIdentifier(new ExperimentIdentifierFactory(
+                experimentIdentifier).createIdentifier());
     }
 
     @BeanProperty(label = DATA_SET_CODE, optional = true)

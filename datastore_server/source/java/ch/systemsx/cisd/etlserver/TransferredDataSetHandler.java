@@ -609,16 +609,9 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         }
 
         @Override
-        protected void registerDataSetInApplicationServer(NewExternalData data)
+        protected void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
         {
             registrator.registerDataSetInApplicationServer(data);
         }
-
-        @Override
-        protected IDataStrategyStore getDataStrategyStore()
-        {
-            return new AlwaysIdentifiedDataStrategyStore();
-        }
-
     }
 }

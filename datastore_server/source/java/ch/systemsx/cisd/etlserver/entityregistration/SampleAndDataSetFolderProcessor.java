@@ -69,7 +69,7 @@ class SampleAndDataSetFolderProcessor extends AbstractSampleAndDataSetProcessor
                             new SampleAndDataSetControlFileProcessor(globalState, folder,
                                     controlFile);
                     controlFileProcessor.register();
-                } catch (Exception e)
+                } catch (UserFailureException e)
                 {
                     errorMap.put(controlFile, e);
                 }

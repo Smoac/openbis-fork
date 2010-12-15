@@ -205,6 +205,7 @@ public abstract class DataSetRegistrationAlgorithm
      * Registers the data set.
      */
     private void registerDataSetAndInitiateProcessing(final String procedureTypeCode)
+            throws Throwable
     {
         final File markerFile = createProcessingMarkerFile();
         try
@@ -312,6 +313,7 @@ public abstract class DataSetRegistrationAlgorithm
 
     private final void plainRegisterDataSet(NewExternalData data, final String relativePath,
             final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
+            throws Throwable
     {
         updateExternalData(data, relativePath, storageFormat, isCompleteFlag);
         // Finally: register the data set in the database.
@@ -320,8 +322,10 @@ public abstract class DataSetRegistrationAlgorithm
 
     /**
      * Contact openBis and register the data set there. Subclasses may override.
+     * 
+     * @throws Throwable
      */
-    protected void registerDataSetInApplicationServer(NewExternalData data)
+    protected void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
     {
         getOpenBisService().registerDataSet(dataSetInformation, data);
     }

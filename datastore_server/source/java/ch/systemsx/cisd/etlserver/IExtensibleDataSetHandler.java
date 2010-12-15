@@ -29,7 +29,7 @@ public interface IExtensibleDataSetHandler extends IDataSetHandler
 {
     public static interface IDataSetRegistrator
     {
-        public void registerDataSetInApplicationServer(NewExternalData data);
+        public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable;
     }
 
     public List<DataSetInformation> handleDataSet(final File dataSet,

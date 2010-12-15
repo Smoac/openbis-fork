@@ -18,14 +18,15 @@ package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.io.File;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileRegistrationProperties;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * Utitlity class for registering one sample/dataset combination
@@ -35,6 +36,47 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor implements
         TransferredDataSetHandler.IDataSetRegistrator
 {
+
+    /**
+     * A wrapper around errors encountered during registration.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    static class RegistrationErrorWrapper
+    {
+        private final boolean isError;
+
+        private final Throwable errorOrNull;
+
+        RegistrationErrorWrapper(Throwable errorOrNull)
+        {
+            this.errorOrNull = errorOrNull;
+            isError = errorOrNull != null;
+        }
+
+        public boolean isError()
+        {
+            return isError;
+        }
+
+        public Throwable getErrorOrNull()
+        {
+            return errorOrNull;
+        }
+
+        public String getMessage()
+        {
+            if (isError)
+            {
+                return errorOrNull.getMessage();
+            } else
+            {
+                return "Success";
+            }
+        }
+
+    }
+
     private final ControlFileRegistrationProperties properties;
 
     private final SampleDataSetPair sampleDataSetPair;
@@ -42,7 +84,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
     // State that is updated during the registration
     private boolean didSucceed = false;
 
-    private Exception failureException = null;
+    private RegistrationErrorWrapper failureException = null;
 
     SampleAndDataSetRegistrator(File folder, ControlFileRegistrationProperties properties,
             SampleDataSetPair sampleDataSetPair)
@@ -57,13 +99,16 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
      * 
      * @return An exception if one was encountered, otherwise null.
      */
-    public Exception register()
+    public RegistrationErrorWrapper register()
     {
         File dataSetFile = new File(folder, sampleDataSetPair.getFolderName());
-        Exception isEmptyException = checkDataSetFileNotEmpty(dataSetFile);
-        if (null != isEmptyException)
+        try
         {
-            return isEmptyException;
+            checkDataSetFileNotEmpty(dataSetFile);
+            checkExperimentExists();
+        } catch (UserFailureException ex)
+        {
+            return new RegistrationErrorWrapper(ex);
         }
 
         if (globalState.getDelegator() instanceof IExtensibleDataSetHandler)
@@ -79,13 +124,30 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         return failureException;
     }
 
-    private Exception checkDataSetFileNotEmpty(File dataSetFile)
+    private void checkDataSetFileNotEmpty(File dataSetFile)
     {
         if (0 == dataSetFile.list().length)
         {
-            return new UserFailureException("The data set folder cannot be empty");
+            throw new UserFailureException("The data set folder cannot be empty");
         }
-        return null;
+    }
+
+    private void checkExperimentExists()
+    {
+        ExperimentIdentifier experimentId =
+                sampleDataSetPair.getDataSetInformation().getExperimentIdentifier();
+        if (null == experimentId)
+        {
+            throw new UserFailureException("An experiment identifier must be specified");
+        }
+
+        Experiment experiment = globalState.getOpenbisService().tryToGetExperiment(experimentId);
+        if (null == experiment)
+        {
+            throw new UserFailureException("The experiment with identifier " + experimentId
+                    + " does not exist");
+        }
+        sampleDataSetPair.getDataSetInformation().setExperiment(experiment);
     }
 
     private void logDataRegistered()
@@ -94,7 +156,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         globalState.getOperationLog().info(message);
     }
 
-    public void registerDataSetInApplicationServer(NewExternalData data)
+    public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
     {
         data.setDataSetType(properties.getDataSetType());
         if (null != sampleDataSetPair.getFileFormatTypeCode())
@@ -116,13 +178,15 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         } catch (UserFailureException e)
         {
             didSucceed = false;
-            failureException = e;
+            failureException = new RegistrationErrorWrapper(e);
             throw e;
-        } catch (Exception e)
+        } catch (Throwable e)
         {
+            globalState.getOperationLog().error(
+                    "Could not register " + sampleDataSetPair + " in openBIS", e);
             didSucceed = false;
-            failureException = e;
-            throw new CheckedExceptionTunnel(e);
+            failureException = new RegistrationErrorWrapper(e);
+            throw e;
         }
     }
 

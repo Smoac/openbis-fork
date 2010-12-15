@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrator.RegistrationErrorWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -48,8 +49,8 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 {
     private final File controlFile;
 
-    private final HashMap<SampleDataSetPair, Exception> errorMap =
-            new HashMap<SampleDataSetPair, Exception>();
+    private final HashMap<SampleDataSetPair, RegistrationErrorWrapper> errorMap =
+            new HashMap<SampleDataSetPair, RegistrationErrorWrapper>();
 
     /**
      * Utility class for accessing the properties defined in a control file.
@@ -235,12 +236,13 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
         List<SampleDataSetPair> loadedSampleDataSetPairs = null;
 
+        Reader reader = UnicodeUtils.createReader(new FileInputStream(controlFile));
+        DelegatedReader delegatedReader = new DelegatedReader(reader, controlFile.getName());
+
         try
         {
             properties.checkValidity();
-            Reader reader = UnicodeUtils.createReader(new FileInputStream(controlFile));
-            loadedSampleDataSetPairs =
-                    controlFileLoader.load(new DelegatedReader(reader, controlFile.getName()));
+            loadedSampleDataSetPairs = controlFileLoader.load(delegatedReader);
         } catch (UserFailureException e)
         {
             // If we don't know which user to send the email to, don't handle this error -- leave it
@@ -252,6 +254,15 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
             sendEmailWithErrorMessage(properties, e.getMessage());
             return;
+        } finally
+        {
+            try
+            {
+                delegatedReader.close();
+            } catch (IOException ex)
+            {
+                // Ignore this failure
+            }
         }
 
         String userId = properties.getUser().getUserId();
@@ -261,7 +272,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             sampleDataSet.getDataSetInformation().setUploadingUserId(userId);
             SampleAndDataSetRegistrator registrator =
                     new SampleAndDataSetRegistrator(folder, properties, sampleDataSet);
-            Exception resultOrNull = registrator.register();
+            RegistrationErrorWrapper resultOrNull = registrator.register();
             if (null != resultOrNull)
             {
                 errorMap.put(sampleDataSet, resultOrNull);
@@ -280,7 +291,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         sb.append("Encountered errors in the following lines:\n");
         for (SampleDataSetPair pair : errorMap.keySet())
         {
-            Exception error = errorMap.get(pair);
+            RegistrationErrorWrapper error = errorMap.get(pair);
             sb.append("# ");
             sb.append(error.getMessage());
             sb.append("\n");
