@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ShouldFl
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ArrayPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.CollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.IPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
@@ -47,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;

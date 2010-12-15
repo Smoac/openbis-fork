@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic;
+package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.Serializable;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -27,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * 
  * @author Izabela Adamczyk
  */
-public class PermId implements IsSerializable, Serializable
+public class PermId implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

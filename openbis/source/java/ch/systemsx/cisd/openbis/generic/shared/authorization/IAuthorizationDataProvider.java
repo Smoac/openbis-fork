@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PermId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
