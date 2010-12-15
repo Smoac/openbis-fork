@@ -357,6 +357,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert sessionToken != null : "Unspecified session token.";
         assert samplePermID != null : "Unspecified sample perm ID.";
         return daoFactory.getSampleDAO().tryToFindByPermID(samplePermID).getSampleIdentifier();
+        // FIXME null pointer exception
     }
 
     private ExperimentPE tryLoadExperimentBySampleIdentifier(final Session session,

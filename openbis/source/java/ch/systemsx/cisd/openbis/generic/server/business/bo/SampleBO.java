@@ -85,6 +85,13 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         sample = tryToGetSampleByIdentifier(identifier);
     }
 
+    public void tryToLoadBySamplePermId(String permId)
+    {
+        assert permId != null : "Unspecified perm id.";
+
+        sample = getSampleDAO().tryToFindByPermID(permId);
+    }
+
     public void tryToLoadBySampleTechId(final TechId sampleId)
     {
         assert sampleId != null : "Unspecified id.";
@@ -121,6 +128,16 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             throw UserFailureException.fromTemplate(
                     "No sample could be found with given identifier '%s'.", identifier);
+        }
+    }
+
+    public final void loadBySamplePermId(final String permId) throws UserFailureException
+    {
+        tryToLoadBySamplePermId(permId);
+        if (sample == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No sample could be found with given permId '%s'.", permId);
         }
     }
 

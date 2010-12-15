@@ -20,10 +20,10 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment.ExperimentInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample.SampleInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleL
 /**
  * @author Franz-Josef Elmer
  */
-class Translator
+public class Translator
 {
     static Role translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy role)
     {
@@ -45,7 +45,8 @@ class Translator
         return new Role(roleCode.name(), spaceLevel);
     }
 
-    static Sample translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample)
+    public static Sample translate(
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample privateSample)
     {
         SampleInitializer initializer = new SampleInitializer();
         initializer.setId(privateSample.getId());

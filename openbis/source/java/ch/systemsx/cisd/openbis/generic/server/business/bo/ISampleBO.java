@@ -42,6 +42,13 @@ public interface ISampleBO extends IEntityBusinessObject
     void loadBySampleIdentifier(final SampleIdentifier identifier) throws UserFailureException;
 
     /**
+     * Loads a sample given by its permanent identifier.
+     * 
+     * @throws UserFailureException if no sample found.
+     */
+    void loadBySamplePermId(final String permId) throws UserFailureException;
+
+    /**
      * Tries to load the sample with specified identifier. Use {@link #loadDataByTechId(TechId)}
      * instead if possible.
      */
