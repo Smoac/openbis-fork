@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 
@@ -36,13 +34,13 @@ public class SampleRow extends RowWithProperties
     {
         super();
         this.code = code;
-        withCell(CommonSampleColDefKind.CODE, code);
+        withCell(SampleGridColumnIDs.CODE, code);
     }
 
     public SampleRow(final String code, final String typeCode)
     {
         this(code);
-        withCell(CommonSampleColDefKind.SAMPLE_TYPE.id(), typeCode);
+        withCell(SampleGridColumnIDs.SAMPLE_TYPE, typeCode);
     }
 
     public SampleRow identifier(final String instanceCode)
@@ -52,27 +50,27 @@ public class SampleRow extends RowWithProperties
 
     public SampleRow identifier(final String instanceCode, final String groupCodeOrNull)
     {
-        withCell(CommonSampleColDefKind.DATABASE_INSTANCE, instanceCode);
+        withCell(SampleGridColumnIDs.DATABASE_INSTANCE, instanceCode);
         if (groupCodeOrNull == null)
         {
-            withCell(CommonSampleColDefKind.GROUP, "");
+            withCell(SampleGridColumnIDs.SPACE, "");
         } else
         {
-            withCell(CommonSampleColDefKind.GROUP, groupCodeOrNull);
+            withCell(SampleGridColumnIDs.SPACE, groupCodeOrNull);
         }
         groupIdentifier = createGroupIdentifier(instanceCode, groupCodeOrNull);
-        withCell(CommonSampleColDefKind.SAMPLE_IDENTIFIER, groupIdentifier + code);
+        withCell(SampleGridColumnIDs.SAMPLE_IDENTIFIER, groupIdentifier + code);
         return this;
     }
 
     public SampleRow experiment(final String groupCode, final String projectCode,
             final String experimentCode)
     {
-        withCell(CommonSampleColDefKind.PROJECT, projectCode);
-        withCell(CommonSampleColDefKind.EXPERIMENT, createLinkString(experimentCode));
+        withCell(SampleGridColumnIDs.PROJECT, projectCode);
+        withCell(SampleGridColumnIDs.EXPERIMENT, createLinkString(experimentCode));
         final String experimentIdentifier =
                 "/" + groupCode + "/" + projectCode + "/" + experimentCode;
-        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER, experimentIdentifier);
+        withCell(SampleGridColumnIDs.EXPERIMENT_IDENTIFIER, experimentIdentifier);
         return this;
     }
 
@@ -91,9 +89,9 @@ public class SampleRow extends RowWithProperties
 
     public SampleRow noExperiment()
     {
-        withCell(CommonSampleColDefKind.PROJECT, null);
-        withCell(CommonSampleColDefKind.EXPERIMENT, null);
-        withCell(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER, null);
+        withCell(SampleGridColumnIDs.PROJECT, null);
+        withCell(SampleGridColumnIDs.EXPERIMENT, null);
+        withCell(SampleGridColumnIDs.EXPERIMENT_IDENTIFIER, null);
         return this;
     }
 
@@ -121,7 +119,7 @@ public class SampleRow extends RowWithProperties
 
     private void withInvalidation(boolean isInvalid)
     {
-        withCell(CommonSampleColDefKind.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
+        withCell(SampleGridColumnIDs.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
     }
 
     public SampleRow derivedFromAncestors(final String... ancestorCodes)
@@ -135,20 +133,14 @@ public class SampleRow extends RowWithProperties
 
     private SampleRow derivedFromAncestor(final String ancestorCode)
     {
-        final String identifier = new ParentGeneratedFromSampleColDef("dummy").getIdentifier();
-        withCell(identifier, ancestorCode);
+        withCell(SampleGridColumnIDs.PARENTS, ancestorCode);
         return this;
     }
 
     public SampleRow partOfContainer(final String containerCode)
     {
-        final String identifier = new ParentContainerSampleColDef("dummy").getIdentifier();
-        withCell(identifier, containerCode);
+        withCell(SampleGridColumnIDs.CONTAINER_SAMPLE, containerCode);
         return this;
     }
 
-    private final void withCell(final CommonSampleColDefKind columnKind, final String value)
-    {
-        withCell(columnKind.id(), value);
-    }
 }

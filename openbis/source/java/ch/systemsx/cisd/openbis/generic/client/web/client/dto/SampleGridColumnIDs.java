@@ -46,7 +46,7 @@ public class SampleGridColumnIDs
     
     public static final String EXPERIMENT = "EXPERIMENT";
     
-    public static final String EXPERIMENT_IDENTFIER = "EXPERIMENT_IDENTIFIER";
+    public static final String EXPERIMENT_IDENTIFIER = "EXPERIMENT_IDENTIFIER";
     
     public static final String PROJECT = "PROJECT";
     

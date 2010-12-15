@@ -374,7 +374,7 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
                         }
                     };
         registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT, listenerLinkGenerator);
-        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT_IDENTFIER,
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT_IDENTIFIER,
                 listenerLinkGenerator);
     }
     

@@ -20,7 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.CONTAINER_SAMPLE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT_IDENTFIER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INSTANCE_SAMPLE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INVALID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PARENTS;
@@ -78,7 +78,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         builder.addColumn(REGISTRATOR).withDefaultWidth(200);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(EXPERIMENT);
-        builder.addColumn(EXPERIMENT_IDENTFIER).withDefaultWidth(200).hideByDefault();
+        builder.addColumn(EXPERIMENT_IDENTIFIER).withDefaultWidth(200).hideByDefault();
         builder.addColumn(PROJECT);
         builder.addColumn(PERM_ID).hideByDefault();
         builder.addColumn(SHOW_DETAILS_LINK_COLUMN_NAME).hideByDefault();
@@ -98,7 +98,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
             builder.column(EXPERIMENT).addString(getExperimentCode(sample));
-            builder.column(EXPERIMENT_IDENTFIER).addString(getExperimentIdentifier(sample));
+            builder.column(EXPERIMENT_IDENTIFIER).addString(getExperimentIdentifier(sample));
             builder.column(PROJECT).addString(getProjectCode(sample));
             builder.column(PERM_ID).addString(sample.getPermId());
             builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
