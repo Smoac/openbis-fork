@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,9 +41,11 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
@@ -86,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -533,15 +537,8 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
 
-        final Session session = getSession(sessionToken);
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.define(newSample);
-        if (userIDOrNull != null)
-        {
-            sampleBO.getSample().setRegistrator(getOrCreatePerson(sessionToken, userIDOrNull));
-        }
-        sampleBO.save();
-        return sampleBO.getSample().getId();
+        SamplePE samplePE = registerSampleInternal(sessionToken, newSample, userIDOrNull);
+        return samplePE.getId();
     }
 
     private PersonPE getOrCreatePerson(String sessionToken, String userID)
@@ -558,9 +555,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     public void updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.update(updates);
-        sampleBO.save();
+        updateSampleInternal(updates, session);
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
@@ -847,18 +842,29 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             NewExternalData externalData)
     {
         final Session session = getSession(sessionToken);
-        
+
         // Update the sample
-        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
-        sampleBO.update(updates);
-        sampleBO.save();
-        
+        final ISampleBO sampleBO = updateSampleInternal(updates, session);
+
         // Register the data set
         final SamplePE samplePE = sampleBO.getSample();
         registerDataSetInternal(sessionToken, externalData, samplePE);
 
         Sample result = SampleTranslator.translate(Collections.singletonList(samplePE), "").get(0);
         return result;
+    }
+
+    private ISampleBO updateSampleInternal(SampleUpdatesDTO updates, final Session session)
+    {
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.update(updates);
+        sampleBO.save();
+
+        scheduleDynamicPropertiesEvaluation(
+                getDAOFactory().getDynamicPropertyEvaluationScheduler(), SamplePE.class,
+                Arrays.asList(sampleBO.getSample()));
+
+        return sampleBO;
     }
 
     private void registerDataSetInternal(String sessionToken, NewExternalData externalData,
@@ -899,9 +905,27 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             sampleBO.getSample().setRegistrator(getOrCreatePerson(sessionToken, userIdOrNull));
         }
         sampleBO.save();
+        scheduleDynamicPropertiesEvaluation(
+                getDAOFactory().getDynamicPropertyEvaluationScheduler(), SamplePE.class,
+                Arrays.asList(sampleBO.getSample()));
 
         SamplePE samplePE = sampleBO.getSample();
         return samplePE;
+    }
+
+    /**
+     * Schedules evaluation of dynamic properties on specified entities. After evaluation is done
+     * the entities will be indexed.
+     */
+    private static <T extends IEntityInformationWithPropertiesHolder> void scheduleDynamicPropertiesEvaluation(
+            IDynamicPropertyEvaluationScheduler scheduler, Class<T> entityClass, List<T> entities)
+    {
+        List<Long> ids = new ArrayList<Long>();
+        for (IEntityInformationWithPropertiesHolder entity : entities)
+        {
+            ids.add(entity.getId());
+        }
+        scheduler.scheduleUpdate(DynamicPropertyEvaluationOperation.evaluate(entityClass, ids));
     }
 
 }
