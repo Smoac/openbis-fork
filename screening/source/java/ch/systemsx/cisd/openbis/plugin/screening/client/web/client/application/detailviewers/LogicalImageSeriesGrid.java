@@ -196,16 +196,18 @@ class LogicalImageSeriesGrid
     private static final Slider createTimepointsSlider(int maxValue, Listener<SliderEvent> listener)
     {
         final Slider slider = new Slider();
-        slider.setWidth(230);
+        // we do not want the slider to be long when there are just few points
+        slider.setWidth(Math.min(230, maxValue * 10));
         slider.setIncrement(1);
         slider.setMinValue(1);
         slider.setMaxValue(maxValue);
         slider.setClickToChange(true);
+        slider.setUseTip(false);
         slider.addListener(Events.Change, listener);
         return slider;
     }
 
-    //private
+    // private
     static class ImageSeriesPoint implements Comparable<ImageSeriesPoint>
     {
         private final Float tOrNull, zOrNull;
@@ -324,7 +326,7 @@ class LogicalImageSeriesGrid
         }
     }
 
-    //private
+    // private
     static class LogicalImageSeriesViewerModel
     {
         private final List<ImageSeriesPoint> sortedPoints;
