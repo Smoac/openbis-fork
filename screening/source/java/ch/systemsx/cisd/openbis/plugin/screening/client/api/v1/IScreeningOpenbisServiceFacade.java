@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -110,6 +114,33 @@ public interface IScreeningOpenbisServiceFacade
      * For the given <var>plateIdentifier</var> find all wells that are connected to it.
      */
     public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier);
+
+    /**
+     * Get proxies to the data sets owned by specified well.
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier)
+            throws IllegalStateException, EnvironmentFailureException;
+
+    /**
+     * Upload a new data set to the DSS.
+     * 
+     * @param wellIdentifier Identifier of a well that should become owner of the new data set
+     * @param dataSetFile A file or folder containing the data
+     * @param dataSetMetadataOrNull The optional metadata overriding server defaults for the new
+     *            data set
+     * @return A proxy to the newly added data set
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     * @throws IOException when accessing the data set file or folder fails
+     */
+    public IDataSetDss putDataSet(WellIdentifier wellIdentifier, File dataSetFile,
+            NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
+            EnvironmentFailureException, IOException;
 
     /**
      * Converts the given list of {@link PlateWellReferenceWithDatasets} into a list of

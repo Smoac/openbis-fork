@@ -23,6 +23,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -190,6 +191,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
+    public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
+    {
+        logAccess(sessionToken, "getWellSample", "%s", wellIdentifier);
+        return null;
+    }
+
     public List<Plate> listPlates(String sessionToken)
     {
         logAccess(sessionToken, "listPlates");
@@ -242,4 +249,5 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         return ScreeningServer.MINOR_VERSION;
     }
+
 }

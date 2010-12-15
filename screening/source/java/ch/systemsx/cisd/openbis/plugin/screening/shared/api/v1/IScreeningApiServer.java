@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.PlateW
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningExperimentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateListReadOnlyPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.ScreeningPlateValidator;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.authorization.WellIdentifierPredicate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
@@ -175,6 +177,15 @@ public interface IScreeningApiServer extends IRpcService
     public List<WellIdentifier> listPlateWells(
             String sessionToken,
             @AuthorizationGuard(guardClass = PlateIdentifierPredicate.class) PlateIdentifier plateIdentifier);
+
+    /**
+     * For a given <var>wellIdentifier</var>, return the corresponding {@link Sample}.
+     * 
+     * @since 1.3
+     */
+    public Sample getWellSample(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = WellIdentifierPredicate.class) WellIdentifier wellIdentifier);
 
     /**
      * For a given list of <var>plates</var>, return the mapping of plate wells to materials

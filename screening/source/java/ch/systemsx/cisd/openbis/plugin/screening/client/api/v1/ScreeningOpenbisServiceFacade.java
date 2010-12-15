@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.api.v1;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,8 +18,21 @@ import java.util.Set;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.api.MinimalMinorVersion;
 import ch.systemsx.cisd.common.api.client.ServiceFinder;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.io.ConcatenatedFileOutputStreamWriter;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwner;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -69,6 +83,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
     private final IScreeningApiServer openbisScreeningServer;
 
+    private final IGeneralInformationService generalInformationService;
+
+    private final IDssComponent dssComponent;
+
     private final DataStoreMultiplexer<PlateImageReference> plateImageReferencesMultiplexer;
 
     private final DataStoreMultiplexer<IFeatureVectorDatasetIdentifier> featureVectorDataSetIdentifierMultiplexer;
@@ -95,14 +113,17 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
             String serverUrl)
     {
         final IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
+        final IGeneralInformationService generalInformationService =
+                createGeneralInformationService(serverUrl);
         final int minorVersion = openbisServer.getMinorVersion();
         final String sessionToken = openbisServer.tryLoginScreening(userId, userPassword);
         if (sessionToken == null)
         {
             return null;
         }
+        final IDssComponent dssComponent = DssComponentFactory.tryCreate(sessionToken, serverUrl);
         return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
-                DSS_SERVICE_FACTORY);
+                DSS_SERVICE_FACTORY, dssComponent, generalInformationService);
     }
 
     /**
@@ -115,9 +136,12 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl)
     {
         final IScreeningApiServer openbisServer = createScreeningOpenbisServer(serverUrl);
+        final IGeneralInformationService generalInformationService =
+                createGeneralInformationService(serverUrl);
         final int minorVersion = openbisServer.getMinorVersion();
+        final IDssComponent dssComponent = DssComponentFactory.tryCreate(sessionToken, serverUrl);
         return new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
-                DSS_SERVICE_FACTORY);
+                DSS_SERVICE_FACTORY, dssComponent, generalInformationService);
     }
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
@@ -126,10 +150,23 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return serviceFinder.createService(IScreeningApiServer.class, serverUrl);
     }
 
+    private static IGeneralInformationService createGeneralInformationService(String serverUrl)
+    {
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        IGeneralInformationService service =
+                generalInformationServiceFinder.createService(IGeneralInformationService.class,
+                        serverUrl);
+        return service;
+    }
+
     ScreeningOpenbisServiceFacade(String sessionToken, IScreeningApiServer screeningServer,
-            int minorVersion, final IDssServiceFactory dssServiceFactory)
+            int minorVersion, final IDssServiceFactory dssServiceFactory,
+            IDssComponent dssComponent, IGeneralInformationService generalInformationService)
     {
         this.openbisScreeningServer = screeningServer;
+        this.generalInformationService = generalInformationService;
+        this.dssComponent = dssComponent;
         this.sessionToken = sessionToken;
         this.minorVersionApplicationServer = minorVersion;
         dssServiceCache = new IDssServiceFactory()
@@ -247,8 +284,86 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return openbisScreeningServer.listPlateWells(sessionToken, plateIdentifier);
     }
 
-    // IDataSetDss getDataSet(WellIdentifier well)
-    // IDataSetDss putDataSet(WellIdentifier well, File dataSetFile)
+    /**
+     * Get proxies to the data sets owned by specified well.
+     * 
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     */
+    public List<IDataSetDss> getDataSets(WellIdentifier wellIdentifier)
+            throws IllegalStateException, EnvironmentFailureException
+    {
+        checkASMinimalMinorVersion("listPlateWells", PlateIdentifier.class);
+        final Sample wellSample = getWellSample(wellIdentifier);
+        final List<DataSet> dataSets =
+                generalInformationService.listDataSetsForSample(sessionToken, wellSample, true);
+        final List<IDataSetDss> result = new ArrayList<IDataSetDss>();
+        for (DataSet dataSet : dataSets)
+        {
+            result.add(dssComponent.getDataSet(dataSet.getCode()));
+        }
+        return result;
+    }
+
+    /**
+     * Upload a new data set to the DSS.
+     * 
+     * @param wellIdentifier Identifier of a well that should become owner of the new data set
+     * @param dataSetFile A file or folder containing the data
+     * @param dataSetMetadataOrNull The optional metadata overriding server defaults for the new
+     *            data set
+     * @return A proxy to the newly added data set
+     * @throws IllegalStateException Thrown if the user has not yet been authenticated.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
+     *             the server.
+     * @throws IOException when accessing the data set file or folder fails
+     */
+    public IDataSetDss putDataSet(WellIdentifier wellIdentifier, File dataSetFile,
+            NewDataSetMetadataDTO dataSetMetadataOrNull) throws IllegalStateException,
+            EnvironmentFailureException, IOException
+    {
+        final Sample wellSample = getWellSample(wellIdentifier);
+        final NewDataSetDTO newDataSet =
+                createNewDataSet(wellSample.getIdentifier(), dataSetFile, dataSetMetadataOrNull);
+        return dssComponent.putDataSet(newDataSet, dataSetFile);
+    }
+
+    private Sample getWellSample(WellIdentifier wellIdentifier)
+    {
+        return openbisScreeningServer.getWellSample(sessionToken, wellIdentifier);
+    }
+
+    private NewDataSetDTO createNewDataSet(String wellSampleIdentifier, File dataSetFile,
+            NewDataSetMetadataDTO dataSetMetadataOrNull) throws IOException
+    {
+        final NewDataSetMetadataDTO dataSetMetadata =
+                (dataSetMetadataOrNull == null) ? new NewDataSetMetadataDTO() : null;
+        final DataSetOwner dataSetOwner =
+                new DataSetOwner(DataSetOwnerType.SAMPLE, wellSampleIdentifier);
+        final String dataSetFolderNameOrNull = null;
+        final List<FileInfoDssDTO> fileInfos = getFileInfosForPath(dataSetFile);
+        return new NewDataSetDTO(dataSetMetadata, dataSetOwner, dataSetFolderNameOrNull, fileInfos);
+    }
+
+    private List<FileInfoDssDTO> getFileInfosForPath(File file) throws IOException
+    {
+        ArrayList<FileInfoDssDTO> fileInfos = new ArrayList<FileInfoDssDTO>();
+        if (false == file.exists())
+        {
+            return fileInfos;
+        }
+
+        String path = file.getCanonicalPath();
+        if (false == file.isDirectory())
+        {
+            path = file.getParentFile().getCanonicalPath();
+        }
+
+        FileInfoDssBuilder builder = new FileInfoDssBuilder(path, path);
+        builder.appendFileInfosForFile(file, fileInfos, true);
+        return fileInfos;
+    }
 
     /**
      * Converts a given list of dataset codes to dataset identifiers which can be used in other API

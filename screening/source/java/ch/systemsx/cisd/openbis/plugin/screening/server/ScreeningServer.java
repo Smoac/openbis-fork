@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -221,6 +222,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier)
     {
         return createScreeningApiImpl(sessionToken).listPlateWells(plateIdentifier);
+    }
+
+    public Sample getWellSample(String sessionToken, WellIdentifier wellIdentifier)
+    {
+        return createScreeningApiImpl(sessionToken).getWellSample(wellIdentifier);
     }
 
     public List<Plate> listPlates(String sessionToken)

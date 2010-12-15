@@ -34,8 +34,10 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.io.ByteArrayBasedContent;
 import ch.systemsx.cisd.common.io.ConcatenatedContentInputStream;
 import ch.systemsx.cisd.common.io.IContent;
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.server.ScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -77,7 +79,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
             return recorder.toString();
         }
     }
-    
+
     private static final String DATA_SET1 = "ds1";
 
     private static final String DATA_SET2 = "ds2";
@@ -91,6 +93,10 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
     private Mockery context;
 
     private IScreeningApiServer screeningService;
+
+    private IGeneralInformationService generalInformationService;
+
+    private IDssComponent dssComponent;
 
     private IDssServiceFactory dssServiceFactory;
 
@@ -117,6 +123,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
     {
         context = new Mockery();
         screeningService = context.mock(IScreeningApiServer.class);
+        generalInformationService = context.mock(IGeneralInformationService.class);
+        dssComponent = context.mock(IDssComponent.class);
         dssServiceFactory = context.mock(IDssServiceFactory.class);
         i1id = new ImageDatasetReference(DATA_SET1, URL1, null, null, null, null);
         i2id = new ImageDatasetReference(DATA_SET2, URL2, null, null, null, null);
@@ -161,7 +169,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
             });
         facade =
                 new ScreeningOpenbisServiceFacade(SESSION_TOKEN, screeningService,
-                        ScreeningServer.MINOR_VERSION, dssServiceFactory);
+                        ScreeningServer.MINOR_VERSION, dssServiceFactory, dssComponent,
+                        generalInformationService);
     }
 
     @AfterMethod
@@ -231,8 +240,8 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         final MaterialIdentifier materialIdentifier =
                 new MaterialIdentifier(MaterialTypeIdentifier.GENE, geneCode);
         final PlateWellReferenceWithDatasets pwRef =
-                new PlateWellReferenceWithDatasets(new Plate(null, null, null, ExperimentIdentifier
-                        .createFromPermId(null)), new WellPosition(1, 2));
+                new PlateWellReferenceWithDatasets(new Plate(null, null, null,
+                        ExperimentIdentifier.createFromPermId(null)), new WellPosition(1, 2));
         context.checking(new Expectations()
             {
                 {
@@ -318,7 +327,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         assertEquals(3, metaData.size());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testLoadImagesAsByteArrays() throws IOException
     {
@@ -329,14 +338,15 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dssService1).loadImages(SESSION_TOKEN, ds, wellPositions, channel, thumbnailSize);
+                    one(dssService1).loadImages(SESSION_TOKEN, ds, wellPositions, channel,
+                            thumbnailSize);
                     ByteArrayBasedContent content1 =
                             new ByteArrayBasedContent("hello 1".getBytes(), "h1");
                     ByteArrayBasedContent content2 =
-                        new ByteArrayBasedContent("hello 2".getBytes(), "h2");
+                            new ByteArrayBasedContent("hello 2".getBytes(), "h2");
                     ConcatenatedContentInputStream stream =
-                        new ConcatenatedContentInputStream(true, Arrays
-                                .<IContent> asList(content1, content2));
+                            new ConcatenatedContentInputStream(true, Arrays.<IContent> asList(
+                                    content1, content2));
                     will(returnValue(stream));
                 }
             });
@@ -387,12 +397,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetImageTransformerFactoryOrNull()
     {
         final String channel = "DAPI";
-        final List<IDatasetIdentifier> ids = Arrays.<IDatasetIdentifier>asList(new DatasetIdentifier("ds1", URL1));
+        final List<IDatasetIdentifier> ids =
+                Arrays.<IDatasetIdentifier> asList(new DatasetIdentifier("ds1", URL1));
         context.checking(new Expectations()
             {
                 {
@@ -400,13 +411,13 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
                     will(returnValue(transformerFactory));
                 }
             });
-        
+
         IImageTransformerFactory factory = facade.getImageTransformerFactoryOrNull(ids, channel);
-        
+
         assertSame(transformerFactory, factory);
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testSaveImageTransformerFactoryOrNull()
     {
@@ -425,7 +436,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AssertJUnit
 
         facade.saveImageTransformerFactory(Arrays.<IDatasetIdentifier> asList(ds1, ds2), channel,
                 transformerFactory);
-        
+
         context.assertIsSatisfied();
     }
 }

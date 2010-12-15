@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
@@ -51,12 +52,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
@@ -348,12 +351,7 @@ public class ScreeningApiImpl
     {
         if (plateIdentifier.getPermId() != null)
         {
-            ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-            ListOrSearchSampleCriteria criteria =
-                    new ListOrSearchSampleCriteria(new String[0], new String[]
-                        { plateIdentifier.getPermId() });
-            List<Sample> samples = sampleLister.list(new ListOrSearchSampleCriteria(criteria));
-            return TechId.create(samples.get(0));
+            return TechId.create(loadSampleByPermId(plateIdentifier.getPermId()));
         } else
         {
             SampleIdentifier sampleIdentifier = createSampleIdentifier(plateIdentifier);
@@ -361,6 +359,26 @@ public class ScreeningApiImpl
             sampleBO.loadBySampleIdentifier(sampleIdentifier);
             return TechId.create(sampleBO.getSample());
         }
+    }
+
+    public ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample getWellSample(
+            WellIdentifier wellIdentifier)
+    {
+        Sample sample = loadSampleByPermId(wellIdentifier.getPermId());
+        return Translator.translate(sample);
+    }
+
+    private Sample loadSampleByPermId(String permId)
+    {
+        ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadBySamplePermId(permId);
+        SamplePE samplePE = sampleBO.getSample();
+        return translate(samplePE);
+    }
+
+    private Sample translate(SamplePE sample)
+    {
+        return SampleTranslator.translate(sample, session.getBaseIndexURL());
     }
 
     private static SampleIdentifier createSampleIdentifier(PlateIdentifier plate)
@@ -396,7 +414,18 @@ public class ScreeningApiImpl
             {
                 public int compare(WellIdentifier o1, WellIdentifier o2)
                 {
-                    return o1.getPermId().compareTo(o2.getPermId());
+                    WellPosition p1 = o1.getWellPosition();
+                    WellPosition p2 = o2.getWellPosition();
+                    int result =
+                            Integer.valueOf(p1.getWellRow()).compareTo(
+                                    Integer.valueOf(p2.getWellRow()));
+                    if (result == 0)
+                    {
+                        result =
+                                Integer.valueOf(p1.getWellColumn()).compareTo(
+                                        Integer.valueOf(p2.getWellColumn()));
+                    }
+                    return result;
                 }
             });
         return wells;
@@ -406,7 +435,13 @@ public class ScreeningApiImpl
     {
         // need to translate location to position to use it in API
         WellLocation location =
-                ScreeningUtils.tryCreateLocationFromMatrixCoordinate(sample.getCode());
+                ScreeningUtils.tryCreateLocationFromMatrixCoordinate(sample.getSubCode());
+        if (location == null)
+        {
+            new IllegalArgumentException(String.format(
+                    "Failed to retrieve location of sample '%s'.", sample.getCode()));
+            return null;
+        }
         WellPosition position = new WellPosition(location.getRow(), location.getColumn());
         return new WellIdentifier(plateIdentifier, position, sample.getPermId());
     }

@@ -33,7 +33,7 @@ public class WellIdentifier extends PermanentIdentifier
     @Override
     public String toString()
     {
-        return plateIdentifier + "/" + getPermId();
+        return getPermId() + " " + getWellPosition() + ", plate: " + plateIdentifier;
     }
 
     @Override
