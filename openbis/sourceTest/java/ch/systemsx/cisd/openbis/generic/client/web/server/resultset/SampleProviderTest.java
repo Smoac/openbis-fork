@@ -94,7 +94,7 @@ public class SampleProviderTest extends AssertJUnit
         assertEquals("[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
                 + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
                 + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
-                + "PERM_ID, SHOW_DETAILS_LINK_COLUMN_NAME, PARENTS, CONTAINER_SAMPLE, "
+                + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
                 + "property-USER-NAME, property-USER-MY-MATERIAL, property-USER-NUMBER]",
                 getHeaderIDs(tableModel).toString());
         assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
@@ -143,7 +143,7 @@ public class SampleProviderTest extends AssertJUnit
         assertEquals("[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
                 + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
                 + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
-                + "PERM_ID, SHOW_DETAILS_LINK_COLUMN_NAME, PARENTS, CONTAINER_SAMPLE, "
+                + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
                 + "property-USER-NAME]", getHeaderIDs(tableModel).toString());
         assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
                 + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "

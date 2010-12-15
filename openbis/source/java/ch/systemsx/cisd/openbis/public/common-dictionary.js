@@ -33,7 +33,7 @@ var common = {
   tab_link_message: "Copy this {0} and use it to access openBIS with current tab opened.",
   permlink_column_name: "Permlink",
   overview_column_name: "Overview",
-  show_details_link_column_name: "Show Details Link",
+  show_details_link: "Show Details Link",
   show_details_link_text_value: "Permlink",
   table_operations: "Table:",
   entity_operations: "Entity:",
@@ -176,7 +176,8 @@ var common = {
   experiment_identifier: "Experiment Identifier",
   generated_from: "Parent {0}",
   part_of: "Container",
-  container_sample: "Container",
+  generatedfromparent: "Parents",
+  containerparent: "Container",
   invalidation: "Invalidation",
   invalidation_template: "Invalidated by: {0}<br>Invalidation Date: {1}<br>Invalidation Reason: {2}",
   

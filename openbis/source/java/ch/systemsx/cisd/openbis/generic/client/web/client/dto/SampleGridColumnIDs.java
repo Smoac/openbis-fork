@@ -52,10 +52,10 @@ public class SampleGridColumnIDs
     
     public static final String PERM_ID = "PERM_ID";
     
-    public static final String SHOW_DETAILS_LINK_COLUMN_NAME = "SHOW_DETAILS_LINK_COLUMN_NAME";
+    public static final String SHOW_DETAILS_LINK_COLUMN_NAME = "SHOW_DETAILS_LINK";
     
-    public static final String PARENTS = "PARENTS";
+    public static final String PARENTS = "generatedFromParent";
     
-    public static final String CONTAINER_SAMPLE = "CONTAINER_SAMPLE";
+    public static final String CONTAINER_SAMPLE = "containerParent";
 }
 
