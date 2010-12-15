@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -331,6 +332,29 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
         linkContainer();
     }
 
+    @Override
+    public String getGridDisplayTypeID()
+    {
+        ListSampleDisplayCriteria criteria = getCriteriaProvider().tryGetCriteria();
+        String suffix = createDisplayIdSuffix(EntityKind.SAMPLE, criteria == null ? null : criteria.tryGetSampleType());
+        return createGridDisplayTypeID(suffix);
+    }
+    
+    private static String createDisplayIdSuffix(EntityKind entityKindOrNull,
+            EntityType entityTypeOrNull)
+    {
+        String suffix = "";
+        if (entityKindOrNull != null)
+        {
+            suffix += "-" + entityKindOrNull.toString();
+        }
+        if (entityTypeOrNull != null)
+        {
+            suffix += "-" + entityTypeOrNull.getCode();
+        }
+        return suffix;
+    }
+    
     private void linkSample()
     {
         ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
