@@ -302,33 +302,12 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
         return QueryTool.getQuery(dataSource, IImagingQueryDAO.class);
     }
 
-    private void checkDataSetInformation(final DataSetInformation dataSetInformation)
-    {
-        assert dataSetInformation != null : "Unspecified data set information";
-        assert dataSetInformation.getSampleIdentifier() != null : "Unspecified sample identifier";
-
-        final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentIdentifier =
-                dataSetInformation.getExperimentIdentifier();
-        assert experimentIdentifier != null : "Unspecified experiment identifier";
-        assert dataSetInformation.tryToGetExperiment() != null : "experiment not set";
-        checkExperimentIdentifier(experimentIdentifier);
-    }
-
-    private final static void checkExperimentIdentifier(
-            final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentIdentifier)
-    {
-        assert experimentIdentifier.getSpaceCode() != null : "Space code is null";
-        assert experimentIdentifier.getExperimentCode() != null : "Experiment code is null";
-        assert experimentIdentifier.getProjectCode() != null : "Project code is null";
-    }
-
     // ---------------------------------
 
     public final File storeData(final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDirectory)
     {
-        checkDataSetInformation(dataSetInformation);
         assert rootDirectory != null : "Root directory can not be null.";
         assert incomingDataSetDirectory != null : "Incoming data set directory can not be null.";
         assert typeExtractor != null : "Unspecified IProcedureAndDataTypeExtractor implementation.";

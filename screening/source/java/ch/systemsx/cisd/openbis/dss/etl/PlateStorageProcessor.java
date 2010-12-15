@@ -257,10 +257,32 @@ public final class PlateStorageProcessor extends AbstractImageStorageProcessor
         return extractor;
     }
 
+    private void checkDataSetInformation(final DataSetInformation dataSetInformation)
+    {
+        assert dataSetInformation != null : "Unspecified data set information";
+        assert dataSetInformation.getSampleIdentifier() != null : "Unspecified sample identifier";
+
+        final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentIdentifier =
+                dataSetInformation.getExperimentIdentifier();
+        assert experimentIdentifier != null : "Unspecified experiment identifier";
+        assert dataSetInformation.tryToGetExperiment() != null : "experiment not set";
+        checkExperimentIdentifier(experimentIdentifier);
+    }
+
+    private final static void checkExperimentIdentifier(
+            final ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier experimentIdentifier)
+    {
+        assert experimentIdentifier.getSpaceCode() != null : "Space code is null";
+        assert experimentIdentifier.getExperimentCode() != null : "Experiment code is null";
+        assert experimentIdentifier.getProjectCode() != null : "Project code is null";
+    }
+
     @Override
     protected void storeInDatabase(IImagingQueryDAO dao, DataSetInformation dataSetInformation,
             ImageFileExtractionResult extractedImages)
     {
+        checkDataSetInformation(dataSetInformation);
+
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         assert experiment != null : "experiment is null";
         List<AcquiredSingleImage> images = extractedImages.getImages();
