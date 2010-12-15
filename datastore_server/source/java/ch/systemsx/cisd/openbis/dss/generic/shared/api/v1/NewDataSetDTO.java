@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,9 +97,7 @@ public class NewDataSetDTO implements Serializable
 
     private final List<FileInfoDssDTO> fileInfos;
 
-    private final HashMap<String, String> properties;
-
-    private String dataSetTypeOrNull;
+    private final NewDataSetMetadataDTO dataSetMetadata;
 
     /**
      * Constructor
@@ -113,12 +110,7 @@ public class NewDataSetDTO implements Serializable
     public NewDataSetDTO(DataSetOwner dataSetOwner, String dataSetFolderNameOrNull,
             List<FileInfoDssDTO> fileInfos)
     {
-        this.dataSetOwner = dataSetOwner;
-        this.dataSetFolderName =
-                (null == dataSetFolderNameOrNull) ? DEFAULT_DATA_SET_FOLDER_NAME
-                        : dataSetFolderNameOrNull;
-        this.fileInfos = fileInfos;
-        properties = new HashMap<String, String>();
+        this(new NewDataSetMetadataDTO(), dataSetOwner, dataSetFolderNameOrNull, fileInfos);
     }
 
     /**
@@ -134,7 +126,28 @@ public class NewDataSetDTO implements Serializable
             String dataSetFolderNameOrNull, List<FileInfoDssDTO> fileInfos)
     {
         this(dataSetOwner, dataSetFolderNameOrNull, fileInfos);
-        this.dataSetTypeOrNull = dataSetType;
+        setDataSetTypeOrNull(dataSetType);
+    }
+
+    /**
+     * Constructor
+     * 
+     * @param dataSetMetadata The metadata (type and properties) that will override those inferred
+     *            by the server.
+     * @param dataSetOwner The owner of the new data set
+     * @param dataSetFolderNameOrNull The name of the folder the data is stored in. If the data set
+     *            is just a single file and the folder name is null, a folder will be created.
+     * @param fileInfos FileInfoDssDTO objects for each of the files in the data set.
+     */
+    public NewDataSetDTO(NewDataSetMetadataDTO dataSetMetadata, DataSetOwner dataSetOwner,
+            String dataSetFolderNameOrNull, List<FileInfoDssDTO> fileInfos)
+    {
+        this.dataSetMetadata = dataSetMetadata;
+        this.dataSetOwner = dataSetOwner;
+        this.dataSetFolderName =
+                (null == dataSetFolderNameOrNull) ? DEFAULT_DATA_SET_FOLDER_NAME
+                        : dataSetFolderNameOrNull;
+        this.fileInfos = fileInfos;
     }
 
     /**
@@ -161,47 +174,37 @@ public class NewDataSetDTO implements Serializable
         return fileInfos;
     }
 
-    /**
-     * The code for the type of the new data set. May be null.
-     */
-    public String tryDataSetType()
-    {
-        return dataSetTypeOrNull;
-    }
-
-    public void setDataSetTypeOrNull(String dataSetTypeOrNull)
-    {
-        // Capitalize the data set type
-        this.dataSetTypeOrNull =
-                (null != dataSetTypeOrNull) ? dataSetTypeOrNull.toUpperCase() : dataSetTypeOrNull;
-    }
-
-    /**
-     * The properties for the new data set. Key is the property code, value is the value (as a
-     * string).
-     */
-    public Map<String, String> getProperties()
-    {
-        return properties;
-    }
-
-    public void setProperties(Map<String, String> props)
-    {
-        properties.clear();
-        properties.putAll(props);
-    }
-
     @Override
     public String toString()
     {
         ToStringBuilder sb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        String myDataSetTypeOrNull = tryDataSetType();
-        if (null != myDataSetTypeOrNull)
-        {
-            sb.append(myDataSetTypeOrNull);
-        }
+        sb.append(dataSetMetadata);
         sb.append(getDataSetOwner());
         sb.append(getFileInfos());
         return sb.toString();
+    }
+
+    //
+    // metadata delegation
+    //
+
+    public String tryDataSetType()
+    {
+        return dataSetMetadata.tryDataSetType();
+    }
+
+    public void setDataSetTypeOrNull(String dataSetTypeOrNull)
+    {
+        dataSetMetadata.setDataSetTypeOrNull(dataSetTypeOrNull);
+    }
+
+    public Map<String, String> getProperties()
+    {
+        return dataSetMetadata.getProperties();
+    }
+
+    public void setProperties(Map<String, String> props)
+    {
+        dataSetMetadata.setProperties(props);
     }
 }
