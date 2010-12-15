@@ -1,6 +1,13 @@
 -- Migration from 062 to 063
 
--- connect wells to experiments of their plates (screening specific)  
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+-- Screening specific migration. Nothing will be performed on openBIS databases 
+-- which are not screening specific.
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+
+-- connect wells to experiments of their plates
 UPDATE samples 
 	SET expe_id = sc.expe_id
 	FROM samples sc, sample_types sct
