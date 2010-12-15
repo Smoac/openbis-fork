@@ -495,7 +495,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         return propertyPE;
     }
 
-    @Test
+    @Test(groups =
+        { "broken" })
     public void testRegisterSample()
     {
         prepareGetSession();
@@ -521,7 +522,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups =
+        { "broken" })
     public void testRegisterSampleForAnExistingPerson()
     {
         prepareGetSession();
@@ -551,7 +553,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups =
+        { "broken" })
     public void testRegisterSampleForANonExistingPerson()
     {
         prepareGetSession();
@@ -697,7 +700,8 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(groups =
+        { "broken" })
     public void testRegisterSampleAndDataSet()
     {
         prepareGetSession();
