@@ -43,10 +43,13 @@ import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler.IDataSetRegistrator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -86,8 +89,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         context.assertIsSatisfied();
     }
 
-    @Test(groups =
-        { "broken" })
+    @Test
     public void testRegisteringBasicControlFile()
     {
         final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
@@ -104,9 +106,9 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
 
         String logText =
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=<null>,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=<null>,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL41}, NewProperty{property=prop2,value=VAL51}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
-                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=<null>,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL42}, NewProperty{property=prop2,value=VAL52}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]";
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP1,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP2,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL41}, NewProperty{property=prop2,value=VAL51}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP3,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL42}, NewProperty{property=prop2,value=VAL52}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]";
         checkAppenderContent(logText, "basic-example");
 
         context.assertIsSatisfied();
@@ -254,6 +256,17 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                             new RecordingMatcher<IExtensibleDataSetHandler.IDataSetRegistrator>();
 
                     final NewExternalData externalData = new NewExternalData();
+
+                    for (int i = 1; i < 4; ++i)
+                    {
+                        ExperimentIdentifier experimentId =
+                                new ExperimentIdentifier(DatabaseInstanceIdentifier.HOME,
+                                        "MYSPACE", "MYPROJ", "EXP" + i);
+                        oneOf(openbisService).tryToGetExperiment(experimentId);
+                        Experiment exp = new Experiment();
+                        exp.setIdentifier(experimentId.toString());
+                        will(returnValue(exp));
+                    }
 
                     exactly(3).of(delegator).handleDataSet(with(fileMatcher),
                             with(dataSetInfoMatcher), with(registratorMatcher));

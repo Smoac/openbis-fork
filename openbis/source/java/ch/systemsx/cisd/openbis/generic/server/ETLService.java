@@ -905,11 +905,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             sampleBO.getSample().setRegistrator(getOrCreatePerson(sessionToken, userIdOrNull));
         }
         sampleBO.save();
+        SamplePE samplePE = sampleBO.getSample();
         scheduleDynamicPropertiesEvaluation(
                 getDAOFactory().getDynamicPropertyEvaluationScheduler(), SamplePE.class,
-                Arrays.asList(sampleBO.getSample()));
+                Arrays.asList(samplePE));
 
-        SamplePE samplePE = sampleBO.getSample();
         return samplePE;
     }
 
