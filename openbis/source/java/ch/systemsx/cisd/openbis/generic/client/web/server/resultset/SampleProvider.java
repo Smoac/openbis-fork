@@ -22,7 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT_IDENTFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INSTANCE_SAMPLE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_IVALID;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_INVALID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PARENTS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.PROJECT;
@@ -74,7 +74,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         builder.addColumn(SAMPLE_IDENTIFIER).withDefaultWidth(150).hideByDefault();
         builder.addColumn(SAMPLE_TYPE).withDefaultWidth(150).hideByDefault();
         builder.addColumn(IS_INSTANCE_SAMPLE).hideByDefault();
-        builder.addColumn(IS_IVALID).hideByDefault();
+        builder.addColumn(IS_INVALID).hideByDefault();
         builder.addColumn(REGISTRATOR).withDefaultWidth(200);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(EXPERIMENT);
@@ -94,7 +94,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(SAMPLE_IDENTIFIER).addString(sample.getIdentifier());
             builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
             builder.column(IS_INSTANCE_SAMPLE).addString(SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
-            builder.column(IS_IVALID).addString(SimpleYesNoRenderer.render(sample.getInvalidation() != null));
+            builder.column(IS_INVALID).addString(SimpleYesNoRenderer.render(sample.getInvalidation() != null));
             builder.column(REGISTRATOR).addPerson(sample.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(sample.getRegistrationDate());
             builder.column(EXPERIMENT).addString(getExperimentCode(sample));

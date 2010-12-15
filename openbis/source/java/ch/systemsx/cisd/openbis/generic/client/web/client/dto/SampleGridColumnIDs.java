@@ -42,7 +42,7 @@ public class SampleGridColumnIDs
     
     public static final String IS_INSTANCE_SAMPLE = "IS_INSTANCE_SAMPLE";
     
-    public static final String IS_IVALID = "IS_INVALID";
+    public static final String IS_INVALID = "IS_INVALID";
     
     public static final String EXPERIMENT = "EXPERIMENT";
     
