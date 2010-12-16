@@ -19,7 +19,10 @@ package ch.systemsx.cisd.common.utilities;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
+
+import org.apache.commons.io.IOUtils;
 
 import com.twmacinta.util.MD5;
 import com.twmacinta.util.MD5InputStream;
@@ -62,6 +65,21 @@ public final class MD5ChecksumCalculator implements IChecksumCalculator
     {
         assert bytes != null : "Unspecified byte array.";
         return calculate(new ByteArrayInputStream(bytes), bytes.length);
+    }
+    
+    /** Calculates a checksum for specified stream. */
+    public static String calculate(InputStream stream) throws IOException
+    {
+        MD5InputStream md5InputStream = new MD5InputStream(stream);
+        IOUtils.copyLarge(md5InputStream, new OutputStream()
+            {
+                @Override
+                public void write(int b) throws IOException
+                {
+                    // ignore
+                }
+            });
+        return MD5.asHex(md5InputStream.hash());
     }
 
     /** Calculates a checksum for a given String */

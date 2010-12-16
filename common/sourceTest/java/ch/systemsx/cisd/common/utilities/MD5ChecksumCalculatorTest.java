@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -36,6 +39,21 @@ public class MD5ChecksumCalculatorTest
         AssertJUnit.assertEquals("9dd4e461268c8034f5c8564e155c67a6", md5);
     }
 
+    @Test
+    public void testCalculateForStream() throws IOException
+    {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 100000; i++)
+        {
+            builder.append(i);
+        }
+        String string = builder.toString();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(string.getBytes());
+        String streamChecksum = MD5ChecksumCalculator.calculate(inputStream);
+        String stringChecksum = MD5ChecksumCalculator.calculate(string);
+        AssertJUnit.assertEquals(stringChecksum, streamChecksum);
+    }
+    
     @Test(expectedExceptions = AssertionError.class)
     public void testCalculateForEmptyString()
     {
