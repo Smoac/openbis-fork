@@ -161,24 +161,20 @@ public class DataSetToSOFTTest extends AbstractFileSystemTestCase
         ProcessingStatus status = processingPlugin.process(dataSets, dataSetProcessingContext);
 
         assertEquals(0, status.getErrorStatuses().size());
-        assertEquals(flowLaneSample.getId(), listSampleCriteriaMatcher.getRecordedObjects().get(0)
+        assertEquals(flowLaneSample.getId(), listSampleCriteriaMatcher.recordedObject()
                 .getChildSampleId().getId());
         Template template = initTemplate(DataSetToSOFT.E_MAIL_SUBJECT_TEMPLATE);
-        assertEquals("[" + template.createText() + "]", subjectMatcher.getRecordedObjects()
-                .toString());
+        assertEquals(template.createText(), subjectMatcher.recordedObject());
         Template content = initTemplate(DataSetToSOFT.E_MAIL_CONTENT_TEMPLATE);
         content.bind("flow-lane", flowLaneSample.getCode());
         content.bind("data-set", DATASET_CODE);
-        assertEquals("[" + content.createText() + "]", contentMatcher.getRecordedObjects()
-                .toString());
+        assertEquals(content.createText(), contentMatcher.recordedObject());
         Template fileNameTemplate = DataSetToSOFT.SOFT_FILE_NAME_TEMPLATE.createFreshCopy();
         fileNameTemplate.bind("external-sample-name", "my_sample");
         fileNameTemplate.bind("flow-lane", flowLaneSample.getCode().replace(':', '-'));
-        assertEquals("[" + fileNameTemplate.createText() + "]", fileNameMatcher
-                .getRecordedObjects().toString());
-        List<EMailAddress[]> emailAddresses = addressesMatcher.getRecordedObjects();
-        assertEquals(USER_EMAIL, emailAddresses.get(0)[0].tryGetEmailAddress());
-        DataSource dataSource = attachmentMatcher.getRecordedObjects().get(0).getDataSource();
+        assertEquals(fileNameTemplate.createText(), fileNameMatcher.recordedObject());
+        assertEquals(USER_EMAIL, addressesMatcher.recordedObject()[0].tryGetEmailAddress());
+        DataSource dataSource = attachmentMatcher.recordedObject().getDataSource();
         String attachmentContent = getContent(dataSource);
         assertEquals("^SAMPLE = my sample\n" + "!Sample_type = SRA\n"
                 + "!Sample_title = my sample\n" + "!Sample_source_name = source\n"

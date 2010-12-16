@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -81,6 +83,10 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     {
         final String identifier = "/SPACE/PLATE";
         final PlateIdentifier pi = PlateIdentifier.createFromAugmentedCode(identifier);
+        final SamplePE plate = createSamplePE();
+
+        final RecordingMatcher<ListOrSearchSampleCriteria> listerCriteria =
+                new RecordingMatcher<ListOrSearchSampleCriteria>();
         context.checking(new Expectations()
             {
                 {
@@ -88,13 +94,11 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
                     will(returnValue(sampleBO));
                     one(sampleBO).loadBySampleIdentifier(SampleIdentifierFactory.parse(identifier));
                     one(sampleBO).getSample();
-                    SamplePE sample = new SamplePE();
-                    sample.setId(1L);
-                    will(returnValue(sample));
+                    will(returnValue(plate));
 
                     one(screeningBOFactory).createSampleLister(SESSION);
                     will(returnValue(sampleLister));
-                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    one(sampleLister).list(with(listerCriteria));
                     Sample w1 = createWellSample("w1", "A01");
                     Sample w2 = createWellSample("w2", "A02");
                     will(returnValue(Arrays.asList(w1, w2)));
@@ -102,6 +106,7 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             });
 
         List<WellIdentifier> wells = screeningApi.listPlateWells(pi);
+        assertEquals(plate.getId(), listerCriteria.recordedObject().getContainerSampleId().getId());
         assertEquals(2, wells.size());
         assertEquals(wellIdentifier(pi, "w1", 1, 1), wells.get(0));
         assertEquals(wellIdentifier(pi, "w2", 1, 2), wells.get(1));
@@ -113,19 +118,22 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
     {
         final String permId = "PLATE_PERM_ID";
         final PlateIdentifier pi = PlateIdentifier.createFromPermId(permId);
+        final SamplePE plate = createSamplePE();
+
+        final RecordingMatcher<ListOrSearchSampleCriteria> listerCriteria =
+                new RecordingMatcher<ListOrSearchSampleCriteria>();
         context.checking(new Expectations()
             {
                 {
-                    one(screeningBOFactory).createSampleLister(SESSION);
-                    will(returnValue(sampleLister));
-                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
-                    Sample plate = new Sample();
-                    plate.setId(1L);
-                    will(returnValue(Arrays.asList(plate)));
+                    one(screeningBOFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+                    one(sampleBO).loadBySamplePermId(permId);
+                    one(sampleBO).getSample();
+                    will(returnValue(plate));
 
                     one(screeningBOFactory).createSampleLister(SESSION);
                     will(returnValue(sampleLister));
-                    one(sampleLister).list(with(any(ListOrSearchSampleCriteria.class)));
+                    one(sampleLister).list(with(listerCriteria));
                     Sample w1 = createWellSample("w1", "A01");
                     Sample w2 = createWellSample("w2", "A02");
                     will(returnValue(Arrays.asList(w1, w2)));
@@ -133,24 +141,12 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
             });
 
         List<WellIdentifier> wells = screeningApi.listPlateWells(pi);
+
+        assertEquals(plate.getId(), listerCriteria.recordedObject().getContainerSampleId().getId());
         assertEquals(2, wells.size());
         assertEquals(wellIdentifier(pi, "w1", 1, 1), wells.get(0));
         assertEquals(wellIdentifier(pi, "w2", 1, 2), wells.get(1));
         context.assertIsSatisfied();
-    }
-
-    private static Sample createWellSample(String permId, String code)
-    {
-        Sample result = new Sample();
-        result.setPermId(permId);
-        result.setCode(code);
-        return result;
-    }
-
-    private static WellIdentifier wellIdentifier(PlateIdentifier plate, String wellPermId, int row,
-            int col)
-    {
-        return new WellIdentifier(plate, new WellPosition(row, col), wellPermId);
     }
 
     @Test
@@ -401,6 +397,28 @@ public class ScreeningApiImplTest extends AbstractServerTestCase
         DataSetType type = new DataSetType();
         type.setCode(code);
         return type;
+    }
+
+    private static SamplePE createSamplePE()
+    {
+        SamplePE sample = new SamplePE();
+        sample.setId(1L);
+        sample.setSampleType(new SampleTypePE());
+        return sample;
+    }
+
+    private static Sample createWellSample(String permId, String subCode)
+    {
+        Sample result = new Sample();
+        result.setPermId(permId);
+        result.setSubCode(subCode);
+        return result;
+    }
+
+    private static WellIdentifier wellIdentifier(PlateIdentifier plate, String wellPermId, int row,
+            int col)
+    {
+        return new WellIdentifier(plate, new WellPosition(row, col), wellPermId);
     }
 
 }

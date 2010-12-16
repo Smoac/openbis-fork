@@ -304,11 +304,11 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
             final RecordingMatcher<EMailAddress[]> addressesMatcher, String errorText)
             throws IOException
     {
-        for (EMailAddress address : addressesMatcher.getRecordedObjects().get(0))
+        for (EMailAddress address : addressesMatcher.recordedObject())
         {
             assertEquals("test@test.test", address.tryGetEmailAddress());
         }
-        assertEquals(errorText, attachmentMatcher.getRecordedObjects().get(0).getContent());
+        assertEquals(errorText, attachmentMatcher.recordedObject().getContent());
     }
 
     private void checkAppenderContent(String logText, String folderName)
