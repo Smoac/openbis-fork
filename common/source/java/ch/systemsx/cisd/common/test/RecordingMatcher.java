@@ -25,14 +25,14 @@ import org.hamcrest.Matcher;
 
 /**
  * A {@link Matcher} which always matches the objects to be matched and make them available.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class RecordingMatcher<T> extends BaseMatcher<T>
 {
 
     private List<T> objects = new ArrayList<T>();
-    
+
     /**
      * Removes all recored objects.
      */
@@ -40,7 +40,16 @@ public class RecordingMatcher<T> extends BaseMatcher<T>
     {
         objects.clear();
     }
-    
+
+    /**
+     * Returns the one recorded object. Fails if not exactly one object was recorded.
+     */
+    public T recordedObject()
+    {
+        assert objects.size() == 1 : "expected one recorded object, found " + objects.size();
+        return objects.get(0);
+    }
+
     /**
      * Returns the objects in the order they have been recorded.
      */
