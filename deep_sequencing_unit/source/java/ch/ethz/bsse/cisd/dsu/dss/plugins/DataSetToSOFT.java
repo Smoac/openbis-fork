@@ -17,6 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.dss.plugins;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,6 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -282,7 +282,7 @@ public class DataSetToSOFT implements IProcessingPluginTask
         String checkSum;
         try
         {
-            checkSum = MD5ChecksumCalculator.calculate(FileUtils.readFileToByteArray(srfFile));
+            checkSum = MD5ChecksumCalculator.calculate(new FileInputStream(srfFile));
         } catch (IOException ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
