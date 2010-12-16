@@ -144,17 +144,11 @@ public class DataSetToSOFT implements IProcessingPluginTask
 
     private final Map<String, String> translation;
 
-    private IEncapsulatedOpenBISService service;
+    private transient IEncapsulatedOpenBISService service;
 
     public DataSetToSOFT(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, null);
-    }
-
-    DataSetToSOFT(Properties properties, File storeRoot, IEncapsulatedOpenBISService service)
-    {
         this.storeRoot = storeRoot;
-        this.service = service;
         translation = new HashMap<String, String>();
         translation.put("GENOMIC_DNA", "genomic");
         translation.put("FRAGMENTED_GENOMIC_DNA", "genomic");
@@ -356,6 +350,12 @@ public class DataSetToSOFT implements IProcessingPluginTask
             service = ServiceProvider.getOpenBISService();
         }
         return service;
+    }
+
+    // for tests
+    void setService(IEncapsulatedOpenBISService service)
+    {
+        this.service = service;
     }
 
 }

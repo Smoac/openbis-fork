@@ -59,9 +59,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 
 /**
  * @author Franz-Josef Elmer
+ * @param <workingDirectory>
  */
 @Friend(toClasses = DataSetToSOFT.class)
-public class DataSetToSOFTTest extends AbstractFileSystemTestCase
+public class DataSetToSOFTTest<workingDirectory> extends AbstractFileSystemTestCase
 {
     private static final String USER_EMAIL = "user@ho.me";
 
@@ -98,7 +99,15 @@ public class DataSetToSOFTTest extends AbstractFileSystemTestCase
         testFolder.mkdirs();
         File sampleSrfFile = new File(testFolder, SRF_FILE_NAME);
         FileUtilities.writeToFile(sampleSrfFile, SRF_FILE_CONTENT);
-        processingPlugin = new DataSetToSOFT(new Properties(), workingDirectory, service);
+        processingPlugin = createProcessingPlugin(workingDirectory, service);
+    }
+
+    private static IProcessingPluginTask createProcessingPlugin(File workingDirectory,
+            IEncapsulatedOpenBISService service)
+    {
+        DataSetToSOFT plugin = new DataSetToSOFT(new Properties(), workingDirectory);
+        plugin.setService(service);
+        return plugin;
     }
 
     @AfterMethod
