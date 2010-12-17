@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermTableCell;
 
 /**
  * Builder class for creating an instance of {@link TypedTableModel}.
@@ -141,13 +142,17 @@ public class TypedTableModelBuilder<T extends ISerializable>
                 IColumn column = column(code).withTitle(label);
                 DataTypeCode dataType = propertyType.getDataType().getCode();
                 ISerializableComparable value;
-                if (DataTypeCode.MATERIAL == dataType)
+                switch (dataType)
                 {
-                    value = new MaterialTableCell(property.getMaterial());
-                    column.withEntityKind(EntityKind.MATERIAL);
-                } else
-                {
-                    value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
+                    case MATERIAL:
+                        value = new MaterialTableCell(property.getMaterial());
+                        column.withEntityKind(EntityKind.MATERIAL);
+                        break;
+                    case CONTROLLEDVOCABULARY:
+                        value = new VocabularyTermTableCell(property.getVocabularyTerm());
+                        break;
+                    default:
+                        value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
                 }
                 column.withDataType(dataType).addValue(value);
             }

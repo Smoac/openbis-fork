@@ -49,6 +49,7 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
             final IViewContext<?> viewContext, EntityPropertyColDef<S> colDef,
             RealNumberFormatingParameters realNumberFormatingParameters)
     {
+        // NOTE: keep in sync with TypedTableGrid.tryGetSpecificRenderer
         switch (colDef.getDataTypeCode())
         {
             case REAL:

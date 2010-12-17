@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -30,7 +31,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.TimestampStringCellRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.VocabularyTermStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
@@ -164,23 +169,47 @@ public abstract class TypedTableGrid<T extends ISerializable>
         }
         if (headers != null)
         {
-            RealNumberRenderer realNumberRenderer =
-                    new RealNumberRenderer(viewContext.getDisplaySettingsManager()
-                            .getRealNumberFormatingParameters());
             for (TableModelColumnHeader header : headers)
             {
                 String id = header.getId();
                 if (listenerLinkGenerators.containsKey(id))
                 {
                     definitions.setGridCellRendererFor(id, createInternalLinkCellRenderer());
-                }
-                if (header.getDataType() == DataTypeCode.REAL)
+                } else
                 {
-                    definitions.setGridCellRendererFor(id, realNumberRenderer);
+                    final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
+                            tryGetSpecificRenderer(header.getDataType());
+                    if (specificRendererOrNull != null)
+                    {
+                        definitions.setGridCellRendererFor(id, specificRendererOrNull);
+                    }
                 }
             }
         }
         return definitions;
+    }
+
+    private GridCellRenderer<BaseEntityModel<?>> tryGetSpecificRenderer(DataTypeCode dataType)
+    {
+        // NOTE: keep in sync with AbstractPropertyColRenderer.getPropertyColRenderer
+        switch (dataType)
+        {
+            case CONTROLLEDVOCABULARY:
+                return new VocabularyTermStringCellRenderer(); 
+            case HYPERLINK:
+                return LinkRenderer.createExternalLinkRenderer();
+            case REAL:
+                return new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                        .getRealNumberFormatingParameters());
+            case MULTILINE_VARCHAR:
+                return new MultilineStringCellRenderer();
+            case TIMESTAMP:
+                return new TimestampStringCellRenderer();
+            case XML:
+                return new MultilineStringCellRenderer();
+            default:
+                return null;
+        }
     }
 
     @Override
