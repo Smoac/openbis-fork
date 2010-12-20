@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  * 
  * @author Piotr Buczek
  */
-public interface IEntityInformationHolder extends IIdAndCodeHolder
+public interface IEntityInformationHolder extends ISerializable, IIdAndCodeHolder
 {
     /**
      * Returns the entity type of this matching entity.

@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -279,16 +280,16 @@ public interface ICommonClientService extends IClientService
     /**
      * Lists the entities matching the search.
      */
-    public ResultSet<MatchingEntity> listMatchingEntities(
+    public TypedTableResultSet<MatchingEntity> listMatchingEntities(
             final SearchableEntity searchableEntityOrNull, final String queryText,
             final boolean useWildcardSearchMode,
-            final IResultSetConfig<String, MatchingEntity> resultSetConfig)
+            final IResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for matching entites.
      */
-    public String prepareExportMatchingEntities(final TableExportCriteria<MatchingEntity> criteria)
+    public String prepareExportMatchingEntities(final TableExportCriteria<TableModelRowWithObject<MatchingEntity>> criteria)
             throws UserFailureException;
 
     /**
@@ -561,7 +562,7 @@ public interface ICommonClientService extends IClientService
      * Returns {@link ExternalData} fulfilling given {@link RelatedDataSetCriteria}.
      */
     public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
-            RelatedDataSetCriteria criteria,
+            RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 

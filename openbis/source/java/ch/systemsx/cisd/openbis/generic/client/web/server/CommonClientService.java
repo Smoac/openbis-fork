@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
@@ -430,7 +431,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public final String prepareExportMatchingEntities(
-            final TableExportCriteria<MatchingEntity> criteria)
+            final TableExportCriteria<TableModelRowWithObject<MatchingEntity>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -540,7 +541,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
-            RelatedDataSetCriteria criteria,
+            RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
     {
         final String sessionToken = getSessionToken();
@@ -549,15 +550,21 @@ public final class CommonClientService extends AbstractClientService implements
                 commonServer, sessionToken, entities));
     }
 
-    private DataSetRelatedEntities extractRelatedEntities(RelatedDataSetCriteria criteria)
+    private <E extends IEntityInformationHolder> DataSetRelatedEntities extractRelatedEntities(
+            RelatedDataSetCriteria<E> criteria)
     {
-        List<? extends IEntityInformationHolder> entities = criteria.tryGetSelectedEntities();
-        if (entities == null)
+        List<TableModelRowWithObject<E>> rows = criteria.tryGetSelectedEntities();
+        if (rows == null)
         {
-            TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesCriteria =
+            TableExportCriteria<TableModelRowWithObject<E>> displayedEntitiesCriteria =
                     criteria.tryGetDisplayedEntities();
             assert displayedEntitiesCriteria != null : "displayedEntitiesCriteria is null";
-            entities = fetchCachedEntities(displayedEntitiesCriteria).extractOriginalObjects();
+            rows = fetchCachedEntities(displayedEntitiesCriteria).extractOriginalObjects();
+        }
+        List<E> entities = new ArrayList<E>();
+        for (TableModelRowWithObject<E> row : rows)
+        {
+            entities.add(row.getObjectOrNull());
         }
         return new DataSetRelatedEntities(entities);
     }
@@ -582,16 +589,21 @@ public final class CommonClientService extends AbstractClientService implements
                     });
     }
 
-    public final ResultSet<MatchingEntity> listMatchingEntities(
+    public final TypedTableResultSet<MatchingEntity> listMatchingEntities(
             final SearchableEntity searchableEntityOrNull, final String queryText,
             final boolean useWildcardSearchMode,
-            final IResultSetConfig<String, MatchingEntity> resultSetConfig)
+            final IResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig)
     {
-        final String sessionToken = getSessionToken();
-        final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
+        ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
                 SearchableEntityTranslator.translate(searchableEntityOrNull);
-        return listEntities(resultSetConfig, new ListMatchingEntitiesOriginalDataProvider(
-                commonServer, sessionToken, matchingEntities, queryText, useWildcardSearchMode));
+        MatchingEntitiesProvider provider =
+                new MatchingEntitiesProvider(commonServer, getSessionToken(), matchingEntities,
+                        queryText, useWildcardSearchMode);
+        DataProviderAdapter<MatchingEntity> dataProvider =
+                new DataProviderAdapter<MatchingEntity>(provider);
+        ResultSet<TableModelRowWithObject<MatchingEntity>> resultSet =
+                listEntities(resultSetConfig, dataProvider);
+        return new TypedTableResultSet<MatchingEntity>(resultSet);
     }
 
     public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(

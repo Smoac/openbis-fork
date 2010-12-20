@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -48,16 +49,16 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final RelatedDataSetCriteria relatedCriteria)
+            final RelatedDataSetCriteria<? extends IEntityInformationHolder> relatedCriteria)
     {
         RelatedDataSetGrid grid = new RelatedDataSetGrid(viewContext, relatedCriteria);
         return grid.asDisposableWithoutToolbar();
     }
 
-    private RelatedDataSetCriteria relatedCriteria;
+    private RelatedDataSetCriteria<? extends IEntityInformationHolder> relatedCriteria;
 
     private RelatedDataSetGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final RelatedDataSetCriteria relatedCriteria)
+            final RelatedDataSetCriteria<? extends IEntityInformationHolder> relatedCriteria)
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.RELATED_DATA_SET_GRID);
         this.relatedCriteria = relatedCriteria;

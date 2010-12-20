@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.IndistinguishableProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Peptide;
@@ -356,6 +357,7 @@ public class ProteinViewer extends AbstractViewerWithVerticalSplit<IEntityInform
 
     public static class DatasetInformationHolder implements IEntityInformationHolderWithIdentifier
     {
+        private static final long serialVersionUID = ServiceVersionHolder.VERSION;
         private final ProteinDetails proteinDetails;
 
         public DatasetInformationHolder(ProteinDetails proteinDetails)

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Christian Ribeaud
  */
-public final class MatchingEntity implements ISerializable, IEntityInformationHolderWithPermId
+public final class MatchingEntity implements ISerializable, IEntityInformationHolderWithPermId, IRegistratorHolder
 {
     private static final long serialVersionUID = 1L;
 
@@ -154,6 +155,7 @@ public final class MatchingEntity implements ISerializable, IEntityInformationHo
         final MatchingEntity entity = this;
         return new IEntityInformationHolderWithPermId()
             {
+                private static final long serialVersionUID = ServiceVersionHolder.VERSION;
                 public Long getId()
                 {
                     return entity.getId();

@@ -27,8 +27,8 @@ import ch.systemsx.cisd.common.shared.basic.utils.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DOMUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimplePersonRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -50,7 +50,7 @@ public final class PersonRenderer
     
     /**
      * Registrator renderer. Works only with {@link TableModelRowWithObject} wrapping a
-     * subclass of {@link AbstractRegistrationHolder}.
+     * DTO implementing {@link IRegistratorHolder}.
      */
     public static final GridCellRenderer<BaseEntityModel<?>> REGISTRATOR_RENDERER =
             new GridCellRenderer<BaseEntityModel<?>>()
@@ -61,7 +61,7 @@ public final class PersonRenderer
                             ListStore<BaseEntityModel<?>> store, Grid<BaseEntityModel<?>> grid)
                     {
                         Person registrator =
-                                ((TableModelRowWithObject<AbstractRegistrationHolder>) model
+                                ((TableModelRowWithObject<IRegistratorHolder>) model
                                         .getBaseObject()).getObjectOrNull().getRegistrator();
                         return PersonRenderer.createPersonAnchor(registrator);
                     }

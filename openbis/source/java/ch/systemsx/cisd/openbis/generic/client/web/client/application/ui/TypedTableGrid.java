@@ -29,6 +29,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -43,11 +44,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig.ResultSetFetchMode;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -76,6 +80,36 @@ public abstract class TypedTableGrid<T extends ISerializable>
      */
     private static final int MAX_SHOWN_COLUMNS = 200;
 
+    /**
+     * If user selected some entities in given browser first a dialog is shown where he can select
+     * between showing data sets related to selected/displayed entities. Then a tab is displayed
+     * where these related data sets are listed.<br>
+     * <br>
+     * If no entities were selected in given browser the tab is displayed where data sets related to
+     * all entities displayed in the grid are listed.
+     */
+    protected static final <E extends IEntityInformationHolder> void showRelatedDataSets(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final TypedTableGrid<E> browser)
+    {
+        final List<TableModelRowWithObject<E>> selectedEntities =
+                browser.getSelectedBaseObjects();
+        final TableExportCriteria<TableModelRowWithObject<E>> displayedEntities =
+                browser.createTableExportCriteria();
+        if (selectedEntities.isEmpty())
+        {
+            // no entity selected - show datasets related to all displayed
+            RelatedDataSetCriteria<E> relatedCriteria =
+                    RelatedDataSetCriteria.<E>createDisplayedEntities(displayedEntities);
+            ShowRelatedDatasetsDialog.showRelatedDatasetsTab(viewContext, relatedCriteria);
+        } else
+        {
+            // > 0 entity selected - show dialog with all/selected radio
+            new ShowRelatedDatasetsDialog<E>(viewContext, selectedEntities, displayedEntities,
+                    browser.getTotalCount()).show();
+        }
+    }
+    
     private final class CellListenerAndLinkGenerator implements ICellListenerAndLinkGenerator<T>
     {
         private final EntityKind entityKind;
@@ -191,6 +225,10 @@ public abstract class TypedTableGrid<T extends ISerializable>
 
     private GridCellRenderer<BaseEntityModel<?>> tryGetSpecificRenderer(DataTypeCode dataType)
     {
+        if (dataType == null)
+        {
+            return null;
+        }
         // NOTE: keep in sync with AbstractPropertyColRenderer.getPropertyColRenderer
         switch (dataType)
         {

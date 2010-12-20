@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.ENTITY_TYPE;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.IDENTIFIER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.MATCHING_FIELD;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MatchingEntitiesPanelColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -27,40 +32,39 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * A {@link LayoutContainer} extension which displays the matching entities.
  * 
  * @author Christian Ribeaud
  */
-final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, MatchingEntityModel>
+public final class MatchingEntitiesPanel extends TypedTableGrid<MatchingEntity>
 {
     static final String PREFIX = GenericConstants.ID_PREFIX + "matching-entities-panel_";
 
@@ -93,9 +97,9 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         updateDefaultRefreshButton();
 
         registerLinkClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
-                new ICellListener<MatchingEntity>()
+                new ICellListener<TableModelRowWithObject<MatchingEntity>>()
                     {
-                        public void handle(MatchingEntity rowItem, boolean keyPressed)
+                        public void handle(TableModelRowWithObject<MatchingEntity> rowItem, boolean keyPressed)
                         {
                             showEntityViewer(rowItem, false, keyPressed);
                         }
@@ -149,9 +153,10 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     }
 
     @Override
-    protected void showEntityViewer(MatchingEntity matchingEntity, boolean editMode,
+    protected void showEntityViewer(TableModelRowWithObject<MatchingEntity> object, boolean editMode,
             boolean inBackground)
     {
+        MatchingEntity matchingEntity = object.getObjectOrNull();
         final EntityKind entityKind = matchingEntity.getEntityKind();
         BasicEntityType entityType = matchingEntity.getEntityType();
         final IClientPluginFactory clientPluginFactory =
@@ -167,46 +172,51 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     }
 
     @Override
-    protected ColumnDefsAndConfigs<MatchingEntity> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<MatchingEntity>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<MatchingEntity> schema =
-                BaseEntityModel.createColumnConfigs(
-                        MatchingEntityModel.getStaticColumnsDefinition(), viewContext);
-        schema.setGridCellRendererFor(MatchingEntityColumnKind.IDENTIFIER.id(),
-                createInternalLinkCellRenderer());
+        ColumnDefsAndConfigs<TableModelRowWithObject<MatchingEntity>> schema =
+                super.createColumnsDefinition();
+        schema.setGridCellRendererFor(REGISTRATOR, PersonRenderer.REGISTRATOR_RENDERER);
+        schema.setGridCellRendererFor(IDENTIFIER, createInternalLinkCellRenderer());
         return schema;
     }
 
     @Override
-    protected MatchingEntityModel createModel(GridRowModel<MatchingEntity> entity)
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return new MatchingEntityModel(entity);
+        return columnID.toLowerCase();
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, MatchingEntity> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<MatchingEntity>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<MatchingEntity>> callback)
     {
-        callback.addOnSuccessAction(new ShowResultSetCutInfo<ResultSet<MatchingEntity>>(viewContext));
+        ShowResultSetCutInfo<TypedTableResultSet<MatchingEntity>> info =
+                new ShowResultSetCutInfo<TypedTableResultSet<MatchingEntity>>(viewContext);
+        if (callback instanceof AbstractAsyncCallback)
+        {
+            ((AbstractAsyncCallback<TypedTableResultSet<MatchingEntity>>) callback)
+                    .addOnSuccessAction(info);
+        }
         viewContext.getService().listMatchingEntities(searchableEntity, queryText,
                 useWildcardSearchMode, resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<MatchingEntity> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<MatchingEntity>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportMatchingEntities(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<MatchingEntity>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new MatchingEntityColumnKind[]
-            { MatchingEntityColumnKind.ENTITY_TYPE, MatchingEntityColumnKind.IDENTIFIER,
-                    MatchingEntityColumnKind.MATCHING_FIELD });
+        return Arrays.asList(ENTITY_TYPE, IDENTIFIER, MATCHING_FIELD);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
@@ -218,6 +228,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                     createOrDelete(ObjectKind.VOCABULARY_TERM), edit(ObjectKind.VOCABULARY_TERM) };
     }
 
+    @Override
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
         refreshGridSilently();

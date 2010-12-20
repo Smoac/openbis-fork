@@ -119,7 +119,7 @@ public class SampleSearchHitGrid extends SampleBrowserGrid2 implements IDetailed
                             // TableModelRowWithObject doesn't implement IEntityInformationHolder.
                             // Changing the code is relatively easy but the method showRelatedDataSets()
                             // is also used by MatchingEntitiesPanel.
-//                            showRelatedDataSets(viewContext, SampleSearchHitGrid.this);
+                            showRelatedDataSets(viewContext, SampleSearchHitGrid.this);
                         }
                     });
         addButton(showRelatedDatasetsButton);

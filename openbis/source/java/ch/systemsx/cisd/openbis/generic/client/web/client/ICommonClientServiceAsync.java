@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -265,11 +266,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listMatchingEntities(final SearchableEntity searchableEntity,
             final String queryText, final boolean useWildcardSearchMode,
-            final IResultSetConfig<String, MatchingEntity> resultSetConfig,
-            final AsyncCallback<ResultSet<MatchingEntity>> asyncCallback);
+            final IResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig,
+            final AsyncCallback<TypedTableResultSet<MatchingEntity>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportMatchingEntities(TableExportCriteria) */
-    public void prepareExportMatchingEntities(TableExportCriteria<MatchingEntity> exportCriteria,
+    public void prepareExportMatchingEntities(TableExportCriteria<TableModelRowWithObject<MatchingEntity>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listProjects(DefaultResultSetConfig) */
@@ -468,7 +469,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#searchForDataSets(RelatedDataSetCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(RelatedDataSetCriteria criteria,
+    public void searchForDataSets(RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
             final AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
 

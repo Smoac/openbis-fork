@@ -36,19 +36,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Dialog used to show a tab with Data Sets related to entities like samples and experiments.
  * 
  * @author Piotr Buczek
  */
-public final class ShowRelatedDatasetsDialog extends
-        AbstractDataConfirmationDialog<List<? extends IEntityInformationHolderWithPermId>>
+public final class ShowRelatedDatasetsDialog<E extends IEntityInformationHolder> extends
+        AbstractDataConfirmationDialog<List<TableModelRowWithObject<E>>>
 {
-    public static void showRelatedDatasetsTab(
+    public static <E extends IEntityInformationHolder> void showRelatedDatasetsTab(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final RelatedDataSetCriteria criteria)
+            final RelatedDataSetCriteria<E> criteria)
     {
         final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
@@ -94,15 +95,15 @@ public final class ShowRelatedDatasetsDialog extends
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final TableExportCriteria<? extends IEntityInformationHolderWithPermId> displayedEntities;
+    private final TableExportCriteria<TableModelRowWithObject<E>> displayedEntities;
 
     private final int displayedEntitiesCount;
 
     private Radio allOrSelectedRadio;
 
     public ShowRelatedDatasetsDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<? extends IEntityInformationHolderWithPermId> selectedEntities,
-            TableExportCriteria<? extends IEntityInformationHolderWithPermId> displayedEntities,
+            List<TableModelRowWithObject<E>> selectedEntities,
+            TableExportCriteria<TableModelRowWithObject<E>> displayedEntities,
             int displayedEntitiesCount)
     {
         super(viewContext, selectedEntities, viewContext
@@ -151,11 +152,11 @@ public final class ShowRelatedDatasetsDialog extends
     protected void executeConfirmedAction()
     {
         final boolean selected = getSelected();
-        RelatedDataSetCriteria criteria = createCriteria(selected);
+        RelatedDataSetCriteria<E> criteria = createCriteria(selected);
         showRelatedDatasetsTab(viewContext, criteria);
     }
 
-    private RelatedDataSetCriteria createCriteria(boolean selected)
+    private RelatedDataSetCriteria<E> createCriteria(boolean selected)
     {
         if (getSelected())
         {

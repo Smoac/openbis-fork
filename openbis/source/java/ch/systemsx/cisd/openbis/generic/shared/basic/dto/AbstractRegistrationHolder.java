@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IRegistratorHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 
 /**
@@ -25,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractRegistrationHolder implements ISerializable
+public abstract class AbstractRegistrationHolder implements ISerializable, IRegistratorHolder
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

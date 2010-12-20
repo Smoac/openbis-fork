@@ -22,6 +22,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Criteria for listing <i>data sets</i> related to {@link MatchingEntity}s like samples and
@@ -29,40 +30,40 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
  * 
  * @author Piotr Buczek
  */
-public class RelatedDataSetCriteria implements IsSerializable
+public class RelatedDataSetCriteria<E extends IEntityInformationHolder> implements IsSerializable
 {
 
-    private TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesOrNull;
+    private TableExportCriteria<TableModelRowWithObject<E>> displayedEntitiesOrNull;
 
-    private List<? extends IEntityInformationHolder> selectedEntitiesOrNull;
+    private List<TableModelRowWithObject<E>> selectedEntitiesOrNull;
 
-    public static RelatedDataSetCriteria createDisplayedEntities(
-            TableExportCriteria<? extends IEntityInformationHolder> displayedEntities)
+    public static <E extends IEntityInformationHolder> RelatedDataSetCriteria<E> createDisplayedEntities(
+            TableExportCriteria<TableModelRowWithObject<E>> displayedEntities)
     {
-        return new RelatedDataSetCriteria(displayedEntities, null);
+        return new RelatedDataSetCriteria<E>(displayedEntities, null);
     }
 
-    public static RelatedDataSetCriteria createSelectedEntities(
-            List<? extends IEntityInformationHolder> selectedEntities)
+    public static <E extends IEntityInformationHolder> RelatedDataSetCriteria<E> createSelectedEntities(
+            List<TableModelRowWithObject<E>> selectedEntities)
     {
-        return new RelatedDataSetCriteria(null, selectedEntities);
+        return new RelatedDataSetCriteria<E>(null, selectedEntities);
     }
 
     private RelatedDataSetCriteria(
-            TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesOrNull,
-            List<? extends IEntityInformationHolder> selectedEntitiesOrNull)
+            TableExportCriteria<TableModelRowWithObject<E>> displayedEntitiesOrNull,
+            List<TableModelRowWithObject<E>> selectedEntitiesOrNull)
     {
         assert (displayedEntitiesOrNull == null) != (selectedEntitiesOrNull == null) : "Exactly one arg must be null and one non-null";
         this.displayedEntitiesOrNull = displayedEntitiesOrNull;
         this.selectedEntitiesOrNull = selectedEntitiesOrNull;
     }
 
-    public TableExportCriteria<? extends IEntityInformationHolder> tryGetDisplayedEntities()
+    public TableExportCriteria<TableModelRowWithObject<E>> tryGetDisplayedEntities()
     {
         return displayedEntitiesOrNull;
     }
 
-    public List<? extends IEntityInformationHolder> tryGetSelectedEntities()
+    public List<TableModelRowWithObject<E>> tryGetSelectedEntities()
     {
         return selectedEntitiesOrNull;
     }
@@ -73,27 +74,27 @@ public class RelatedDataSetCriteria implements IsSerializable
     }
 
     @SuppressWarnings("unused")
-    private TableExportCriteria<? extends IEntityInformationHolder> getDisplayedEntitiesOrNull()
+    private TableExportCriteria<TableModelRowWithObject<E>> getDisplayedEntitiesOrNull()
     {
         return displayedEntitiesOrNull;
     }
 
     @SuppressWarnings("unused")
     private void setDisplayedEntitiesOrNull(
-            TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesOrNull)
+            TableExportCriteria<TableModelRowWithObject<E>> displayedEntitiesOrNull)
     {
         this.displayedEntitiesOrNull = displayedEntitiesOrNull;
     }
 
     @SuppressWarnings("unused")
-    private List<? extends IEntityInformationHolder> getSelectedEntitiesOrNull()
+    private List<TableModelRowWithObject<E>> getSelectedEntitiesOrNull()
     {
         return selectedEntitiesOrNull;
     }
 
     @SuppressWarnings("unused")
     private void setSelectedEntitiesOrNull(
-            List<? extends IEntityInformationHolder> selectedEntitiesOrNull)
+            List<TableModelRowWithObject<E>> selectedEntitiesOrNull)
     {
         this.selectedEntitiesOrNull = selectedEntitiesOrNull;
     }
