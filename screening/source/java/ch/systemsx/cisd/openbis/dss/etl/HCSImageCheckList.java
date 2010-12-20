@@ -25,6 +25,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.dto.PlateDimension;
 
 /**
@@ -119,85 +120,25 @@ public final class HCSImageCheckList
     // Helper classes
     //
 
-    private static final class CheckDimension
-    {
-        private final Float timeOrNull;
-
-        private final Float depthOrNull;
-
-        private final Integer seriesNumberOrNull;
-
-        public CheckDimension(Float timeOrNull, Float depthOrNull, Integer seriesNumberOrNull)
-        {
-            this.timeOrNull = timeOrNull;
-            this.depthOrNull = depthOrNull;
-            this.seriesNumberOrNull = seriesNumberOrNull;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((depthOrNull == null) ? 0 : depthOrNull.hashCode());
-            result = prime * result + ((timeOrNull == null) ? 0 : timeOrNull.hashCode());
-            result =
-                    prime * result
-                            + ((seriesNumberOrNull == null) ? 0 : seriesNumberOrNull.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            CheckDimension other = (CheckDimension) obj;
-            if (depthOrNull == null)
-            {
-                if (other.depthOrNull != null)
-                    return false;
-            } else if (!depthOrNull.equals(other.depthOrNull))
-                return false;
-            if (timeOrNull == null)
-            {
-                if (other.timeOrNull != null)
-                    return false;
-            } else if (!timeOrNull.equals(other.timeOrNull))
-                return false;
-            if (seriesNumberOrNull == null)
-            {
-                if (other.seriesNumberOrNull != null)
-                    return false;
-            } else if (!seriesNumberOrNull.equals(other.seriesNumberOrNull))
-                return false;
-            return true;
-        }
-    }
-
     private static final class Check
     {
         private boolean checkedOff;
 
-        private final Set<CheckDimension> dimensions = new HashSet<CheckDimension>();
+        private final Set<ImageSeriesPoint> dimensions = new HashSet<ImageSeriesPoint>();
 
         final void checkOff(Float timepointOrNull, Float depthOrNull, Integer seriesNumberOrNull)
         {
-            dimensions.add(new CheckDimension(timepointOrNull, depthOrNull, seriesNumberOrNull));
+            dimensions.add(new ImageSeriesPoint(timepointOrNull, depthOrNull, seriesNumberOrNull));
             checkedOff = true;
         }
 
         final boolean isCheckedOff(Float timepointOrNull, Float depthOrNull,
                 Integer seriesNumberOrNull)
         {
-            CheckDimension dim = null;
+            ImageSeriesPoint dim = null;
             if (timepointOrNull != null || depthOrNull != null || seriesNumberOrNull != null)
             {
-                dim = new CheckDimension(timepointOrNull, depthOrNull, seriesNumberOrNull);
+                dim = new ImageSeriesPoint(timepointOrNull, depthOrNull, seriesNumberOrNull);
             }
             return checkedOff && (dim == null || dimensions.contains(dim));
         }

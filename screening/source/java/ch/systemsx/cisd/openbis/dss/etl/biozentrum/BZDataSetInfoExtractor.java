@@ -66,17 +66,22 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
 
     static final String PLATE_GEOMETRY = "plate-geometry";
 
+    static final String SEPARATOR = "separator";
+
     private final String spaceCode;
 
     private final String projectCode;
 
     private final String defaultPlateGeometryOrNull;
 
+    private final String separatorOrNull;
+
     public BZDataSetInfoExtractor(final Properties properties)
     {
         spaceCode = PropertyUtils.getMandatoryProperty(properties, SPACE_CODE);
         projectCode = PropertyUtils.getMandatoryProperty(properties, PROJECT_CODE);
         defaultPlateGeometryOrNull = properties.getProperty(PLATE_GEOMETRY);
+        separatorOrNull = properties.getProperty(SEPARATOR);
     }
 
     public DataSetInformation getDataSetInformation(File incomingDataSetPath,
@@ -84,9 +89,16 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
             EnvironmentFailureException
     {
 
-        BZDatasetDirectoryNameTokenizer tokens =
-                new BZDatasetDirectoryNameTokenizer(FilenameUtils.getBaseName(incomingDataSetPath
-                        .getPath()));
+        String fileBaseName = FilenameUtils.getBaseName(incomingDataSetPath.getPath());
+        if (separatorOrNull != null)
+        {
+            int separatorIndex = fileBaseName.indexOf(separatorOrNull);
+            if (separatorIndex != -1)
+            {
+                fileBaseName = fileBaseName.substring(0, separatorIndex);
+            }
+        }
+        BZDatasetDirectoryNameTokenizer tokens = new BZDatasetDirectoryNameTokenizer(fileBaseName);
         String sampleCode = getSampleCode(tokens);
         String experimentCode = getExperiment(tokens);
         ExperimentIdentifier experimentIdentifier =
@@ -155,12 +167,6 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         if (experimentOrNull == null)
         {
             openbisService.registerExperiment(createExperimentSIRNAHCS(experimentIdentifier));
-            experimentOrNull = openbisService.tryToGetExperiment(experimentIdentifier);
-            if (experimentOrNull == null)
-            {
-                throw new UserFailureException(String.format("Experiment '%s' could not be found",
-                        experimentIdentifier));
-            }
         }
         openbisService.registerSample(
                 createPlate(sampleIdentifier, experimentIdentifier, plateGeometry), null);
@@ -173,7 +179,7 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
 
     private static String getSampleCode(BZDatasetDirectoryNameTokenizer tokens)
     {
-        return "P_" + tokens.getExperimentToken() + "_" + tokens.getTimestampToken();
+        return "PLATE_" + tokens.getPlateBarcodeToken();
     }
 
     private static IEntityProperty[] createVocabularyProperty(String propertyTypeCode,
@@ -231,7 +237,8 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
         for (File imageFile : imageFiles)
         {
             UnparsedImageFileInfo imageInfo =
-                    UnparsedImageFileInfoLexer.tryExtractHCSImageFileInfo(imageFile, incomingDataSetPath);
+                    UnparsedImageFileInfoLexer.tryExtractHCSImageFileInfo(imageFile,
+                            incomingDataSetPath);
             if (imageInfo != null)
             {
                 String wellLocationToken = imageInfo.getWellLocationToken();

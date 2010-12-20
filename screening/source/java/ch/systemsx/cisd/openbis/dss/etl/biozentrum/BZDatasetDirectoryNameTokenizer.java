@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.etl.biozentrum;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.Map;
+
+import ch.systemsx.cisd.openbis.dss.etl.UnparsedImageFileInfoLexer;
 
 /**
  * Extracts useful information from dataset directory name specific to iBrain2.
@@ -25,9 +27,17 @@ import org.apache.commons.lang.StringUtils;
  */
 public class BZDatasetDirectoryNameTokenizer
 {
+    private static final char EXPERIMENT_MARKER = 'i';
+
+    private static final char MICROSCOPE_MARKER = 'm';
+
+    private static final char PLATE_BARCODE_MARKER = 'b';
+
+    private static final char UNIQUE_ID_MARKER = 'u';
+
     private final String experimentToken;
 
-    private final String plateToken;
+    private final String microscopeToken;
 
     private final String barcodeToken;
 
@@ -35,11 +45,11 @@ public class BZDatasetDirectoryNameTokenizer
 
     BZDatasetDirectoryNameTokenizer(String identifier)
     {
-        String[] namedParts = StringUtils.split(identifier, "_");
-        experimentToken = StringUtils.split(namedParts[0], "-")[1];
-        plateToken = StringUtils.split(namedParts[1], "-")[1];
-        barcodeToken = StringUtils.split(namedParts[2], "-")[1];
-        timestampToken = StringUtils.split(namedParts[3], "-")[1];
+        Map<Character, String> tokensMap = UnparsedImageFileInfoLexer.extractTokensMap(identifier);
+        experimentToken = tokensMap.get(EXPERIMENT_MARKER);
+        microscopeToken = tokensMap.get(MICROSCOPE_MARKER);
+        barcodeToken = tokensMap.get(PLATE_BARCODE_MARKER);
+        timestampToken = tokensMap.get(UNIQUE_ID_MARKER);
     }
 
     public String getExperimentToken()
@@ -47,17 +57,17 @@ public class BZDatasetDirectoryNameTokenizer
         return experimentToken;
     }
 
-    public String getPlateToken()
+    public String getMicroscopeToken()
     {
-        return plateToken;
+        return microscopeToken;
     }
 
-    public String getBarcodeToken()
+    public String getPlateBarcodeToken()
     {
         return barcodeToken;
     }
 
-    public String getTimestampToken()
+    public String getUniqueIdToken()
     {
         return timestampToken;
     }

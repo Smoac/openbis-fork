@@ -121,7 +121,7 @@ public class UnparsedImageFileInfoLexer
         return info;
     }
 
-    private static Map<Character, String> extractTokensMap(String text)
+    public static Map<Character, String> extractTokensMap(String text)
     {
         Map<Character, String> tokensMap = new HashMap<Character, String>();
         String[] tokens = StringUtils.split(text, TOKENS_SEPARATOR);

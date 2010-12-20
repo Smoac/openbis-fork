@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -50,6 +52,7 @@ import ch.systemsx.cisd.etlserver.hdf5.Hdf5Container;
 import ch.systemsx.cisd.etlserver.hdf5.HierarchicalStructureDuplicatorFileToHdf5;
 import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.dataaccess.IImagingQueryDAO;
+import ch.systemsx.cisd.openbis.dss.etl.dto.ImageSeriesPoint;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -711,15 +714,17 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor
 
     protected static boolean hasImageSeries(List<AcquiredSingleImage> images)
     {
+        Set<ImageSeriesPoint> points = new HashSet<ImageSeriesPoint>();
         for (AcquiredSingleImage image : images)
         {
             if (image.tryGetTimePoint() != null || image.tryGetDepth() != null
                     || image.tryGetSeriesNumber() != null)
             {
-                return true;
+                points.add(new ImageSeriesPoint(image.tryGetTimePoint(), image.tryGetDepth(), image
+                        .tryGetSeriesNumber()));
             }
         }
-        return false;
+        return points.size() > 1;
     }
 
 }
