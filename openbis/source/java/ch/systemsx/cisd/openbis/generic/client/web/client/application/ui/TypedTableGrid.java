@@ -46,8 +46,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig.ResultSetFetchMode;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -133,6 +133,12 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 MaterialTableCell materialTableCell = (MaterialTableCell) value;
                 return LinkExtractor.tryExtract(materialTableCell.getMaterialIdentifier());
             }
+//            if (value instanceof VocabularyTermTableCell)
+//            {
+//                VocabularyTermTableCell vocabularyTermTableCell = (VocabularyTermTableCell) value;
+//                VocabularyTerm vocabularyTerm = vocabularyTermTableCell.getVocabularyTerm();
+//                return VocabularyPropertyColRenderer.renderTerm(vocabularyTerm);
+//            }
             return LinkExtractor.createPermlink(entityKind, value.toString());
         }
 
@@ -212,7 +218,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 } else
                 {
                     final GridCellRenderer<BaseEntityModel<?>> specificRendererOrNull =
-                            tryGetSpecificRenderer(header.getDataType());
+                            tryGetSpecificRenderer(header.getDataType(), header.getIndex());
                     if (specificRendererOrNull != null)
                     {
                         definitions.setGridCellRendererFor(id, specificRendererOrNull);
@@ -223,7 +229,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
         return definitions;
     }
 
-    private GridCellRenderer<BaseEntityModel<?>> tryGetSpecificRenderer(DataTypeCode dataType)
+    private GridCellRenderer<BaseEntityModel<?>> tryGetSpecificRenderer(DataTypeCode dataType,
+            int columnIndex)
     {
         if (dataType == null)
         {
@@ -233,7 +240,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
         switch (dataType)
         {
             case CONTROLLEDVOCABULARY:
-                return new VocabularyTermStringCellRenderer(); 
+                return new VocabularyTermStringCellRenderer(columnIndex); 
             case HYPERLINK:
                 return LinkRenderer.createExternalLinkRenderer();
             case REAL:

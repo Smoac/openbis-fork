@@ -574,6 +574,18 @@ public class SampleBrowserGrid2 extends TypedTableGrid<Sample>
         return result;
     }
 
+    @Override
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        getCriteriaProvider().update(observedModifications, new IDataRefreshCallback()
+            {
+                public void postRefresh(boolean wasSuccessful)
+                {
+                }
+            });
+        super.update(observedModifications);
+    }
+
     /**
      * Initializes criteria and refreshes the grid when criteria are fetched. <br>
      * Note that in this way we do not refresh the grid automatically, but we wait until all the

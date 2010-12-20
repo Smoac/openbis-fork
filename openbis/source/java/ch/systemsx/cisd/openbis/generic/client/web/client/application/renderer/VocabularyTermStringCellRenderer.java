@@ -1,5 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -16,6 +18,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermTableCell
 public class VocabularyTermStringCellRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
 
+    private final int columnIndex;
+
+    public VocabularyTermStringCellRenderer(int columnIndex)
+    {
+        this.columnIndex = columnIndex;
+    }
+
     public Object render(BaseEntityModel<?> model, String property, ColumnData config,
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
             Grid<BaseEntityModel<?>> grid)
@@ -26,8 +35,19 @@ public class VocabularyTermStringCellRenderer implements GridCellRenderer<BaseEn
             return originalValue;
         } else
         {
-            ISerializableComparable cell =
-                    ((TableModelRowWithObject<?>) model.getBaseObject()).getValues().get(colIndex);
+            // We can not use colIndex because order of visible columns is often different from the
+            // order in the model.
+            List<ISerializableComparable> values =
+                    ((TableModelRowWithObject<?>) model.getBaseObject()).getValues();
+            if (columnIndex >= values.size())
+            {
+                return "";
+            }
+            ISerializableComparable cell = values.get(columnIndex);
+            if (cell instanceof VocabularyTermTableCell == false)
+            {
+                return cell.toString();
+            }
             VocabularyTermTableCell vocabularyTermTableCell = (VocabularyTermTableCell) cell;
             VocabularyTerm vocabularyTerm = vocabularyTermTableCell.getVocabularyTerm();
             return VocabularyPropertyColRenderer.renderTerm(vocabularyTerm);
