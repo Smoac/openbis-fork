@@ -145,6 +145,7 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
             folderProcessor.register();
         } catch (Exception ex)
         {
+            ex.printStackTrace();
             operationLog.error("Could not register samples / data sets in ", ex);
             throw new CheckedExceptionTunnel(ex);
         } finally
