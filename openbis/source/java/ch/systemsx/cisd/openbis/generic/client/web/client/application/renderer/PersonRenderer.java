@@ -89,10 +89,13 @@ public final class PersonRenderer
     /**
      * Creates an <i>HTML</i> A element for given <var>person</var> with a specified name.
      */
-    public final static String createPersonAnchor(final Person person, String personName)
+    public final static String createPersonAnchor(final Person personOrNull, String personName)
     {
-        assert person != null : "Unspecified person.";
-        final String email = person.getEmail();
+        if (personOrNull == null)
+        {
+            return personName;
+        }
+        final String email = personOrNull.getEmail();
         if (StringUtils.isBlank(email) == false)
         {
             final Element anchor = DOMUtils.createAnchorElement(null, "mailto:" + email, email);
