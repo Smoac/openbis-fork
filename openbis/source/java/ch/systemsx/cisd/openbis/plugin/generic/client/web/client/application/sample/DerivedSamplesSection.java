@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -50,7 +50,7 @@ public class DerivedSamplesSection extends DisposableTabContent
     // @Private
     static String createGridId(TechId parentId)
     {
-        return SampleBrowserGrid2.createGridId(createBrowserId(parentId));
+        return SampleBrowserGrid.createGridId(createBrowserId(parentId));
     }
 
     private static String createBrowserId(TechId parentId)
@@ -62,7 +62,7 @@ public class DerivedSamplesSection extends DisposableTabContent
     protected IDisposableComponent createDisposableContent()
     {
         TechId parentId = TechId.create(parent);
-        return SampleBrowserGrid2.createGridForDerivedSamples(viewContext.getCommonViewContext(),
+        return SampleBrowserGrid.createGridForDerivedSamples(viewContext.getCommonViewContext(),
                 parentId, createBrowserId(parentId), parent.getSampleType());
     }
 

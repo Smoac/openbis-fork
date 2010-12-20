@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
  * 
  * @author Piotr Buczek
  */
-public class SampleSearchHitGrid extends SampleBrowserGrid2 implements IDetailedSearchHitGrid
+public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedSearchHitGrid
 {
     // browser consists of the grid and the paging toolbar
     public static final String SEARCH_BROWSER_ID = GenericConstants.ID_PREFIX

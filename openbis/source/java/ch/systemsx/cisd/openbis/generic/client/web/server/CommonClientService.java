@@ -414,12 +414,7 @@ public final class CommonClientService extends AbstractClientService implements
     // --------- methods preparing exported content. Note: GWT does not support
     // generic methods :(
 
-    public final String prepareExportSamples(final TableExportCriteria<Sample> criteria)
-    {
-        return prepareExportEntities(criteria);
-    }
-
-    public String prepareExportSamples2(
+    public String prepareExportSamples(
             TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
     {
         return prepareExportEntities(criteria);

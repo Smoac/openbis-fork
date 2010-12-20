@@ -198,14 +198,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listSamples2(final ListSampleDisplayCriteria2 criteria,
             AsyncCallback<TypedTableResultSet<Sample>> asyncCallback);
     
-    /**
-     * @see ICommonClientService#prepareExportSamples(TableExportCriteria)
-     */
-    public void prepareExportSamples(final TableExportCriteria<Sample> criteria,
-            AsyncCallback<String> asyncCallback);
-
-    /** @see ICommonClientService#prepareExportSamples2(TableExportCriteria) */
-    public void prepareExportSamples2(
+    /** @see ICommonClientService#prepareExportSamples(TableExportCriteria) */
+    public void prepareExportSamples(
             TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria,
             AsyncCallback<String> callback);
 

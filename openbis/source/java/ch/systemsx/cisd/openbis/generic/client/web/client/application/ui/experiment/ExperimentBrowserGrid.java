@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Display
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
@@ -145,9 +144,9 @@ public class ExperimentBrowserGrid extends
     {
         super(viewContext, GRID_ID, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
-        registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
+        registerLinkClickListenerFor(CommonExperimentColDefKind.EXPERIMENT_IDENTIFIER.id(),
                 showEntityViewerLinkClickListener);
-        registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
+        registerLinkClickListenerFor(CommonExperimentColDefKind.PROJECT.id(),
                 new ICellListener<Experiment>()
                     {
                         public void handle(Experiment rowItem, boolean keyPressed)
@@ -265,12 +264,12 @@ public class ExperimentBrowserGrid extends
     {
         ColumnDefsAndConfigs<Experiment> schema =
                 getColumnsFactory().createColumnsSchema(viewContext, criteria.getExperimentType());
-        schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
+        schema.setGridCellRendererFor(CommonExperimentColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
-        schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
+        schema.setGridCellRendererFor(CommonExperimentColDefKind.EXPERIMENT_IDENTIFIER.id(),
                 linkCellRenderer);
-        schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
+        schema.setGridCellRendererFor(CommonExperimentColDefKind.PROJECT.id(), linkCellRenderer);
         return schema;
     }
 

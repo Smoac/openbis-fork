@@ -20,8 +20,8 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -44,13 +44,13 @@ public final class ShowSample extends AbstractDefaultTestCommand
     @SuppressWarnings("unchecked")
     public void execute()
     {
-        final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid2.MAIN_GRID_ID);
+        final Widget widget = GWTTestUtil.getWidgetWithID(SampleBrowserGrid.MAIN_GRID_ID);
         assertTrue(widget instanceof Grid);
         final Grid<BaseEntityModel<Sample>> table = (Grid<BaseEntityModel<Sample>>) widget;
-        GridTestUtils.fireSelectRow(table, CommonSampleColDefKind.CODE.id(), code);
+        GridTestUtils.fireSelectRow(table, SampleGridColumnIDs.CODE, code);
         GWTTestUtil
-                .clickButtonWithID(SampleBrowserGrid2.createChildComponentId(
-                        SampleBrowserGrid2.MAIN_BROWSER_ID,
-                        SampleBrowserGrid2.SHOW_DETAILS_BUTTON_ID_SUFFIX));
+                .clickButtonWithID(SampleBrowserGrid.createChildComponentId(
+                        SampleBrowserGrid.MAIN_BROWSER_ID,
+                        SampleBrowserGrid.SHOW_DETAILS_BUTTON_ID_SUFFIX));
     }
 }

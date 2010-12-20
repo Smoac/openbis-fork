@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegisterUpdatePanel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
@@ -116,7 +116,7 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     IDisposableComponent browser =
-                            SampleBrowserGrid2.create(viewContext, initialGroupOrNull,
+                            SampleBrowserGrid.create(viewContext, initialGroupOrNull,
                                     initialSampleTypeOrNull);
                     return createTab(getTabTitle(), browser);
                 }
@@ -124,7 +124,7 @@ public final class ComponentProvider
                 @Override
                 public String getId()
                 {
-                    return SampleBrowserGrid2.MAIN_BROWSER_ID;
+                    return SampleBrowserGrid.MAIN_BROWSER_ID;
                 }
 
                 @Override

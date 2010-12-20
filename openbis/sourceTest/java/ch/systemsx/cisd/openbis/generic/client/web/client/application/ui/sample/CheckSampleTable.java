@@ -28,7 +28,7 @@ public class CheckSampleTable extends CheckTableCommand
 {
     public CheckSampleTable()
     {
-        super(SampleBrowserGrid2.MAIN_GRID_ID);
+        super(SampleBrowserGrid.MAIN_GRID_ID);
     }
 
 }

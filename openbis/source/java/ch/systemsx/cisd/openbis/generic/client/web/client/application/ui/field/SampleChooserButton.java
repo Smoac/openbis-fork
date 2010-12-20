@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
@@ -127,7 +127,7 @@ public class SampleChooserButton extends Button implements IChosenEntitySetter<T
             SampleTypeDisplayID sampleTypeDisplayID)
     {
         DisposableEntityChooser<TableModelRowWithObject<Sample>> browser =
-                SampleBrowserGrid2.createChooser(viewContext, addShared, addAll,
+                SampleBrowserGrid.createChooser(viewContext, addShared, addAll,
                         excludeWithoutExperiment, sampleTypeDisplayID);
         String title = viewContext.getMessage(Dict.TITLE_CHOOSE_SAMPLE);
         new EntityChooserDialog<TableModelRowWithObject<Sample>>(browser, chooserSampleSetter, title, viewContext).show();

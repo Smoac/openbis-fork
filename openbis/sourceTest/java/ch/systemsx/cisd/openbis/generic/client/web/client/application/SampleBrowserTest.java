@@ -23,12 +23,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ExportSamplesTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.ChangeTableColumnSettingsCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
@@ -48,9 +48,9 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         ChangeTableColumnSettingsCommand settingsCommand =
-                new ChangeTableColumnSettingsCommand(SampleBrowserGrid2.MAIN_GRID_ID);
-        settingsCommand.hiddenChangeEvent(CommonSampleColDefKind.CODE.name(), true);
-        settingsCommand.widthChangeEvent(CommonSampleColDefKind.REGISTRATOR.name(),
+                new ChangeTableColumnSettingsCommand(SampleBrowserGrid.MAIN_GRID_ID);
+        settingsCommand.hiddenChangeEvent(SampleGridColumnIDs.CODE, true);
+        settingsCommand.widthChangeEvent(SampleGridColumnIDs.REGISTRATOR,
                 2 * DEFAULT_COLUMN_WIDTH);
         remoteConsole.prepare(settingsCommand);
         remoteConsole.prepare(new Logout());
@@ -59,8 +59,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         CheckSampleTable checkCommand = new CheckSampleTable();
-        checkCommand.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), true);
-        checkCommand.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(),
+        checkCommand.expectedColumnHidden(SampleGridColumnIDs.CODE, true);
+        checkCommand.expectedColumnWidth(SampleGridColumnIDs.REGISTRATOR,
                 2 * DEFAULT_COLUMN_WIDTH);
         checkCommand.expectedColumnsNumber(17);
         remoteConsole.prepare(checkCommand);
@@ -73,8 +73,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         loginAndGotoListSamplesTab();
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
-        table.expectedColumnHidden(CommonSampleColDefKind.CODE.name(), false);
-        table.expectedColumnWidth(CommonSampleColDefKind.REGISTRATOR.name(), DEFAULT_COLUMN_WIDTH);
+        table.expectedColumnHidden(SampleGridColumnIDs.CODE, false);
+        table.expectedColumnWidth(SampleGridColumnIDs.REGISTRATOR, DEFAULT_COLUMN_WIDTH);
         table.expectedRow(new SampleRow("MP001-1").identifier("CISD", "CISD").invalid()
                 .noExperiment().withInternalPropertyCell("PLATE_GEOMETRY",
                         DEFAULT_PLATE_GEOMETRY_VALUE));

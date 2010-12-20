@@ -20,13 +20,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -97,7 +97,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 createSectionId(DisplayTypeIDGenerator.CONTAINER_SAMPLES_SECTION));
         final CheckTableCommand checkComponentsTable =
                 checkSample.createComponentsTableCheck().expectedSize(2);
-        final String sampleSubcodeFieldIdent = CommonSampleColDefKind.SUBCODE.id();
+        final String sampleSubcodeFieldIdent = SampleGridColumnIDs.SUBCODE;
         checkComponentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A01", "WELL")
                 .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID).withCell(
                         sampleSubcodeFieldIdent, "A01"));

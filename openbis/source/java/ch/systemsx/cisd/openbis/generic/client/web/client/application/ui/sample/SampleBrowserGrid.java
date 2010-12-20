@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,9 +28,9 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -41,18 +44,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.SampleTypeDisplayID;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.AbstractParentSampleColDef;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListenerAndLinkGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
@@ -60,16 +61,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -77,20 +78,20 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * A {@link LayoutContainer} which contains the grid where the samples are displayed.
- * 
- * @author Christian Ribeaud
- * @author Tomasz Pylak
+ * Grid showing {@link Sample} instances.
+ *
+ * @author Franz-Josef Elmer
  */
-public class SampleBrowserGrid extends
-        AbstractEntityBrowserGrid<Sample, BaseEntityModel<Sample>, ListSampleDisplayCriteria>
+public class SampleBrowserGrid extends TypedTableGrid<Sample>
 {
     private static final String PREFIX = GenericConstants.ID_PREFIX + "sample-browser";
 
@@ -99,14 +100,17 @@ public class SampleBrowserGrid extends
 
     public static final String MAIN_GRID_ID = createGridId(MAIN_BROWSER_ID);
 
-    public static final String GRID_ID_SUFFIX = "_grid";
-
     public static final String EDIT_BUTTON_ID_SUFFIX = "_edit-button";
 
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
+    public static final String createGridId(final String browserId)
+    {
+        return browserId + GRID_POSTFIX;
+    }
+
     /** Creates a grid without additional toolbar buttons. It can serve as a entity chooser. */
-    public static DisposableEntityChooser<Sample> createChooser(
+    public static DisposableEntityChooser<TableModelRowWithObject<Sample>> createChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext, final boolean addShared,
             boolean addAll, final boolean excludeWithoutExperiment, SampleTypeDisplayID sampleTypeID)
     {
@@ -119,7 +123,7 @@ public class SampleBrowserGrid extends
                         DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
-                        protected void showEntityViewer(Sample sample, boolean editMode,
+                        protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode,
                                 boolean active)
                         {
                             // do nothing - avoid showing the details after double click
@@ -309,9 +313,6 @@ public class SampleBrowserGrid extends
 
     }
 
-    // property types used in the previous refresh operation or null if it has not occurred yet
-    private List<PropertyType> previousPropertyTypes;
-
     // provides property types which will be used to build property columns in the grid and
     // criteria to filter samples
     private final ISampleCriteriaProvider propertyTypesAndCriteriaProvider;
@@ -322,69 +323,293 @@ public class SampleBrowserGrid extends
             ISampleCriteriaProvider criteriaProvider, String browserId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, createGridId(browserId), refreshAutomatically, displayTypeIDGenerator);
-        this.propertyTypesAndCriteriaProvider = criteriaProvider;
-        this.previousPropertyTypes = null;
-
-        registerLinkClickListenerFor(CommonSampleColDefKind.SUBCODE.id(),
-                showEntityViewerLinkClickListener);
-        registerLinkClickListenerFor(CommonSampleColDefKind.SAMPLE_IDENTIFIER.id(),
-                showEntityViewerLinkClickListener);
-        ICellListener<Sample> experimentClickListener = new OpenEntityDetailsTabCellClickListener()
-            {
-                @Override
-                protected IEntityInformationHolderWithPermId getEntity(Sample rowItem)
-                {
-                    return rowItem.getExperiment();
-                }
-            };
-        registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
-                experimentClickListener);
-        registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
-                experimentClickListener);
-        registerLinkClickListenerFor(CommonSampleColDefKind.PROJECT.id(),
-                new ICellListener<Sample>()
-                    {
-                        public void handle(Sample rowItem, boolean keyPressed)
-                        {
-                            final Project project = rowItem.getExperiment().getProject();
-                            final String href = LinkExtractor.tryExtract(project);
-                            OpenEntityDetailsTabHelper.open(viewContext, project, keyPressed, href);
-                        }
-                    });
-        setId(browserId);
-    }
-
-    public static final String createGridId(final String browserId)
-    {
-        return browserId + GRID_ID_SUFFIX;
-    }
-
-    public static final String createChildComponentId(final String browserId,
-            final String childSuffix)
-    {
-        return browserId + childSuffix;
-    }
-
-    private final String createChildComponentId(final String childSuffix)
-    {
-        return createChildComponentId(getId(), childSuffix);
-    }
-
-    private abstract class OpenEntityDetailsTabCellClickListener implements ICellListener<Sample>
-    {
-        protected abstract IEntityInformationHolderWithPermId getEntity(Sample rowItem);
-
-        public final void handle(Sample rowItem, boolean keyPressed)
-        {
-            // don't need to check whether the value is null
-            // because there will not be a link for null value
-            final IEntityInformationHolderWithPermId entity = getEntity(rowItem);
-            new OpenEntityDetailsTabAction(entity, viewContext, keyPressed).execute();
-        }
+        super(viewContext, browserId, displayTypeIDGenerator);
+        propertyTypesAndCriteriaProvider = criteriaProvider;
+        linkSample();
+        linkExperiment();
+        linkProject();
+        linkParent();
+        linkContainer();
     }
 
     @Override
+    public String getGridDisplayTypeID()
+    {
+        ListSampleDisplayCriteria criteria = getCriteriaProvider().tryGetCriteria();
+        String suffix = createDisplayIdSuffix(EntityKind.SAMPLE, criteria == null ? null : criteria.tryGetSampleType());
+        return createGridDisplayTypeID(suffix);
+    }
+    
+    private static String createDisplayIdSuffix(EntityKind entityKindOrNull,
+            EntityType entityTypeOrNull)
+    {
+        String suffix = "";
+        if (entityKindOrNull != null)
+        {
+            suffix += "-" + entityKindOrNull.toString();
+        }
+        if (entityTypeOrNull != null)
+        {
+            suffix += "-" + entityTypeOrNull.getCode();
+        }
+        return suffix;
+    }
+    
+    private void linkSample()
+    {
+        ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull(), false, specialKeyPressed);
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            return LinkExtractor.tryExtract(entity);
+                        }
+                    };
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.CODE, listenerLinkGenerator);
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.SUBCODE, listenerLinkGenerator);
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.SAMPLE_IDENTIFIER,
+                listenerLinkGenerator);
+    }
+
+    private void linkExperiment()
+    {
+        ICellListenerAndLinkGenerator<Sample> listenerLinkGenerator =
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            Experiment experiment = rowItem.getObjectOrNull().getExperiment();
+                            new OpenEntityDetailsTabAction(experiment, viewContext,
+                                    specialKeyPressed).execute();
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            return LinkExtractor.tryExtract(entity.getExperiment());
+                        }
+                    };
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT, listenerLinkGenerator);
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.EXPERIMENT_IDENTIFIER,
+                listenerLinkGenerator);
+    }
+    
+    private void linkProject()
+    {
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.PROJECT,
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            final Project project =
+                                    rowItem.getObjectOrNull().getExperiment().getProject();
+                            final String href = LinkExtractor.tryExtract(project);
+                            OpenEntityDetailsTabHelper.open(viewContext, project,
+                                    specialKeyPressed, href);
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            final Experiment exp = entity.getExperiment();
+                            return exp == null ? null : LinkExtractor.tryExtract(exp.getProject());
+                        }
+                    });
+    }
+
+    private void linkParent()
+    {
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.PARENTS,
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            Sample parent = getParentOrNull(rowItem.getObjectOrNull());
+                            if (parent != null)
+                            {
+                                showEntityInformationHolderViewer(parent, false, specialKeyPressed);
+                            }
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            Sample parent = getParentOrNull(entity);
+                            return LinkExtractor.tryExtract(parent);
+                        }
+
+                        private Sample getParentOrNull(Sample entity)
+                        {
+                            if (entity.getParents().size() == 1)
+                            {
+                                return entity.getGeneratedFrom();
+                            }
+                            return null;
+                        }
+                    });
+    }
+
+    private void linkContainer()
+    {
+        registerListenerAndLinkGenerator(SampleGridColumnIDs.CONTAINER_SAMPLE,
+                new ICellListenerAndLinkGenerator<Sample>()
+                    {
+                        public void handle(TableModelRowWithObject<Sample> rowItem,
+                                boolean specialKeyPressed)
+                        {
+                            showEntityInformationHolderViewer(rowItem.getObjectOrNull().getContainer(), false,
+                                    specialKeyPressed);
+                        }
+
+                        public String tryGetLink(Sample entity,
+                                ISerializableComparable comparableValue)
+                        {
+                            Sample container = entity.getContainer();
+                            return LinkExtractor.tryExtract(container);
+                        }
+                    });
+    }
+
+    
+
+    @Override
+    protected GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
+    {
+        return LinkRenderer.createLinkRenderer(true);
+    }
+
+    @Override
+    protected String translateColumnIdToDictionaryKey(String columnID)
+    {
+        return columnID.toLowerCase();
+    }
+
+    @Override
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Sample>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<Sample>> definitions =
+                super.createColumnsDefinition();
+        definitions.setGridCellRendererFor(SampleGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
+        definitions.setGridCellRendererFor(SampleGridColumnIDs.SHOW_DETAILS_LINK_COLUMN_NAME,
+                createShowDetailsLinkCellRenderer());
+        return definitions;
+    }
+
+    protected final GridCellRenderer<BaseEntityModel<?>> createShowDetailsLinkCellRenderer()
+    {
+        return LinkRenderer.createExternalLinkRenderer(viewContext
+                .getMessage(Dict.SHOW_DETAILS_LINK_TEXT_VALUE));
+
+    }
+
+    @Override
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(SampleGridColumnIDs.CODE, SampleGridColumnIDs.EXPERIMENT, SampleGridColumnIDs.PROJECT);
+    }
+
+    @Override
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Sample>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Sample>> callback)
+    {
+        ListSampleDisplayCriteria c1 = getCriteriaProvider().tryGetCriteria();
+        ListSampleDisplayCriteria2 criteria;
+        if (c1.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE)
+        {
+            criteria = new ListSampleDisplayCriteria2(c1.getBrowseCriteria());
+        } else
+        {
+            criteria = new ListSampleDisplayCriteria2(c1.getSearchCriteria());
+        }
+        criteria.copyPagingConfig(resultSetConfig);
+        viewContext.getService().listSamples2(criteria, callback);
+    }
+
+    @Override
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria,
+            AbstractAsyncCallback<String> callback)
+    {
+        viewContext.getService().prepareExportSamples(exportCriteria, callback);
+    }
+
+    @Override
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        List<DatabaseModificationKind> relevantModifications =
+                new ArrayList<DatabaseModificationKind>();
+        SetUtils.addAll(relevantModifications, getCriteriaProvider().getRelevantModifications());
+        relevantModifications.addAll(getGridRelevantModifications());
+        return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
+    }
+
+    protected Set<DatabaseModificationKind> getGridRelevantModifications()
+    {
+        Set<DatabaseModificationKind> result = getGridRelevantModifications(ObjectKind.SAMPLE);
+        result.add(edit(ObjectKind.PROJECT));
+        return result;
+    }
+
+    protected final static Set<DatabaseModificationKind> getGridRelevantModifications(
+            ObjectKind entity)
+    {
+        Set<DatabaseModificationKind> result = new HashSet<DatabaseModificationKind>();
+        result.add(createOrDelete(entity));
+        result.add(edit(entity));
+        result.add(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
+        result.add(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT));
+        result.add(edit(ObjectKind.VOCABULARY_TERM));
+        return result;
+    }
+
+    @Override
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        getCriteriaProvider().update(observedModifications, new IDataRefreshCallback()
+            {
+                public void postRefresh(boolean wasSuccessful)
+                {
+                }
+            });
+        super.update(observedModifications);
+    }
+
+    /**
+     * Initializes criteria and refreshes the grid when criteria are fetched. <br>
+     * Note that in this way we do not refresh the grid automatically, but we wait until all the
+     * property types will be fetched from the server (criteria provider will be updated), to set
+     * the available grid columns.
+     */
+    protected void updateCriteriaProviderAndRefresh()
+    {
+        HashSet<DatabaseModificationKind> observedModifications =
+                new HashSet<DatabaseModificationKind>();
+        getCriteriaProvider().update(observedModifications, new IDataRefreshCallback()
+            {
+                public void postRefresh(boolean wasSuccessful)
+                {
+                    refresh();
+                }
+            });
+    }
+
+    private void addGridRefreshListener(SampleBrowserToolbar topToolbar)
+    {
+        topToolbar.setCriteriaChangedListeners(createGridRefreshDelegatedAction());
+    }
+
     protected ICriteriaProvider<ListSampleDisplayCriteria> getCriteriaProvider()
     {
         return propertyTypesAndCriteriaProvider;
@@ -433,17 +658,44 @@ public class SampleBrowserGrid extends
         final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
             {
                 @Override
-                protected Dialog createDialog(List<Sample> samples,
+                protected Dialog createDialog(List<TableModelRowWithObject<Sample>> samples,
                         IBrowserGridActionInvoker invoker)
                 {
-                    return new SampleListDeletionConfirmationDialog<Sample>(viewContext, samples,
-                            createDeletionCallback(invoker), getDisplayedAndSelectedItemsAction()
-                                    .execute());
+                    AsyncCallback<Void> callback = createDeletionCallback(invoker);
+                    DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> s =
+                            getDisplayedAndSelectedItemsAction().execute();
+                    return new SampleListDeletionConfirmationDialog<TableModelRowWithObject<Sample>>(
+                            viewContext, samples, callback, s);
                 }
             });
         changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
         addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple samples
+    }
+
+    protected final IDelegatedActionWithResult<DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>> getDisplayedAndSelectedItemsAction()
+    {
+        return new IDelegatedActionWithResult<DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>>()
+            {
+                public DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>> execute()
+                {
+                    TableExportCriteria<TableModelRowWithObject<Sample>> tableExportCriteria =
+                            createTableExportCriteria();
+                    List<TableModelRowWithObject<Sample>> selectedBaseObjects = getSelectedBaseObjects();
+                    return new DisplayedAndSelectedEntities<TableModelRowWithObject<Sample>>(selectedBaseObjects,
+                            tableExportCriteria, getTotalCount());
+                }
+            };
+    }
+    public static final String createChildComponentId(final String browserId,
+            final String childSuffix)
+    {
+        return browserId + childSuffix;
+    }
+
+    private final String createChildComponentId(final String childSuffix)
+    {
+        return createChildComponentId(getId(), childSuffix);
     }
 
     private void openSampleRegistrationTab()
@@ -488,206 +740,22 @@ public class SampleBrowserGrid extends
         }
     }
 
-    private void addGridRefreshListener(SampleBrowserToolbar topToolbar)
-    {
-        topToolbar.setCriteriaChangedListeners(createGridRefreshDelegatedAction());
-    }
-
     @Override
-    protected EntityType tryToGetEntityType()
+    protected void showEntityViewer(TableModelRowWithObject<Sample> row, boolean editMode, boolean inBackground)
     {
-        return criteria == null ? null : criteria.tryGetSampleType();
+        showEntityInformationHolderViewer(row.getObjectOrNull(), editMode, inBackground);
     }
-
-    @Override
-    protected void refresh()
+    
+    protected final IDelegatedAction createGridRefreshDelegatedAction()
     {
-        super.refresh();
-        previousPropertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
-            final AbstractAsyncCallback<ResultSet<Sample>> callback)
-    {
-        AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>> extendedCallback =
-                new AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>>(viewContext)
-                    {
-                        @Override
-                        protected void process(ResultSetWithEntityTypes<Sample> result)
-                        {
-                            propertyTypesAndCriteriaProvider
-                                    .setEntityTypes(extractAvailableSampleTypes(result));
-                            callback.onSuccess(result.getResultSet());
-                            refreshColumnsSettingsIfNecessary();
-                            previousPropertyTypes =
-                                    propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
-                        }
-
-                        private Set<SampleType> extractAvailableSampleTypes(
-                                ResultSetWithEntityTypes<Sample> result)
-                        {
-                            Set<SampleType> sampleTypes = new HashSet<SampleType>();
-                            for (BasicEntityType basicType : result.getAvailableEntityTypes())
-                            {
-                                assert basicType instanceof SampleType;
-                                sampleTypes.add((SampleType) basicType);
-                            }
-                            return sampleTypes;
-                        }
-
-                        @Override
-                        public void finishOnFailure(Throwable caught)
-                        {
-                            callback.finishOnFailure(caught);
-                        }
-
-                    };
-        criteria.copyPagingConfig(resultSetConfig);
-        viewContext.getService().listSamples(criteria, extendedCallback);
-    }
-
-    @Override
-    protected BaseEntityModel<Sample> createModel(GridRowModel<Sample> entity)
-    {
-        return SampleModelFactory.createModel(viewContext, entity, criteria.tryGetSampleType(),
-                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
-    }
-
-    @Override
-    protected List<IColumnDefinition<Sample>> getInitialFilters()
-    {
-        return asColumnFilters(new CommonSampleColDefKind[]
-            { CommonSampleColDefKind.CODE, CommonSampleColDefKind.EXPERIMENT,
-                    CommonSampleColDefKind.PROJECT });
-    }
-
-    @Override
-    protected void showEntityViewer(Sample sample, boolean editMode, boolean inBackground)
-    {
-        showEntityInformationHolderViewer(sample, editMode, inBackground);
-    }
-
-    @Override
-    protected void prepareExportEntities(TableExportCriteria<Sample> exportCriteria,
-            AbstractAsyncCallback<String> callback)
-    {
-        viewContext.getService().prepareExportSamples(exportCriteria, callback);
-    }
-
-    @Override
-    protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
-    {
-        assert criteria != null : "criteria not set!";
-        final List<PropertyType> propertyTypes =
-                propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
-        assert propertyTypes != null : "propertyTypes not set!";
-
-        final List<AbstractParentSampleColDef> parentColumnsSchema =
-                SampleModelFactory.createParentColumnsSchema(viewContext,
-                        criteria.tryGetSampleType());
-        assert parentColumnsSchema != null : "parentColumnsSchema not set!";
-
-        ColumnDefsAndConfigs<Sample> schema =
-                SampleModelFactory.createColumnsSchema(viewContext, propertyTypes,
-                        parentColumnsSchema);
-
-        schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
-                createShowDetailsLinkCellRenderer());
-
-        GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
-        schema.setGridCellRendererFor(CommonSampleColDefKind.SUBCODE.id(), linkCellRenderer);
-        schema.setGridCellRendererFor(CommonSampleColDefKind.SAMPLE_IDENTIFIER.id(),
-                linkCellRenderer);
-        schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT.id(), linkCellRenderer);
-        schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT_IDENTIFIER.id(),
-                linkCellRenderer);
-        schema.setGridCellRendererFor(CommonSampleColDefKind.PROJECT.id(), linkCellRenderer);
-        // setup link renderers and listeners on parent columns
-        GridCellRenderer<BaseEntityModel<?>> parentLinkCellRenderer =
-                createParentLinkCellRenderer();
-        for (final AbstractParentSampleColDef parentColDef : parentColumnsSchema)
-        {
-            schema.setGridCellRendererFor(parentColDef.getIdentifier(), parentLinkCellRenderer);
-            registerLinkClickListenerFor(parentColDef.getIdentifier(),
-                    new OpenEntityDetailsTabCellClickListener()
-                        {
-                            @Override
-                            protected IEntityInformationHolderWithPermId getEntity(Sample rowItem)
-                            {
-                                return parentColDef.tryGetParent(rowItem);
-                            }
-                        });
-        }
-
-        return schema;
-    }
-
-    protected final GridCellRenderer<BaseEntityModel<?>> createParentLinkCellRenderer()
-    {
-        return LinkRenderer.createLinkRenderer(true);
-    }
-
-    @Override
-    protected boolean hasColumnsDefinitionChanged(ListSampleDisplayCriteria newCriteria)
-    {
-        List<PropertyType> newPropertyTypes =
-                propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
-        if (newPropertyTypes == null)
-        {
-            return false; // we are before the first auto-refresh
-        }
-        if (previousPropertyTypes == null)
-        {
-            return true; // first refresh
-        }
-        if (previousPropertyTypes.equals(newPropertyTypes) == false)
-        {
-            return true;
-        }
-        EntityType newEntityType = newCriteria.tryGetSampleType();
-        EntityType prevEntityType = (criteria == null ? null : criteria.tryGetSampleType());
-        return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
-    }
-
-    @Override
-    protected Set<DatabaseModificationKind> getGridRelevantModifications()
-    {
-        Set<DatabaseModificationKind> result = getGridRelevantModifications(ObjectKind.SAMPLE);
-        result.add(edit(ObjectKind.PROJECT));
-        return result;
-    }
-
-    @Override
-    protected IColumnDefinitionKind<Sample>[] getStaticColumnsDefinition()
-    {
-        return CommonSampleColDefKind.values();
-    }
-
-    @Override
-    protected EntityKind getEntityKind()
-    {
-        return EntityKind.SAMPLE;
-    }
-
-    public final class DisplayedAndSelectedSamples extends DisplayedAndSelectedEntities<Sample>
-    {
-        public DisplayedAndSelectedSamples(List<Sample> selectedItems,
-                TableExportCriteria<Sample> displayedItemsConfig, int displayedItemsCount)
-        {
-            super(selectedItems, displayedItemsConfig, displayedItemsCount);
-        }
-
-    }
-
-    protected final IDelegatedActionWithResult<DisplayedAndSelectedSamples> getDisplayedAndSelectedItemsAction()
-    {
-        return new IDelegatedActionWithResult<DisplayedAndSelectedSamples>()
+        return new IDelegatedAction()
             {
-                public DisplayedAndSelectedSamples execute()
+                public void execute()
                 {
-                    return new DisplayedAndSelectedSamples(getSelectedBaseObjects(),
-                            createTableExportCriteria(), getTotalCount());
+                    if (getCriteriaProvider().tryGetCriteria() != null)
+                    {
+                        refreshGridWithFilters();
+                    }
                 }
             };
     }

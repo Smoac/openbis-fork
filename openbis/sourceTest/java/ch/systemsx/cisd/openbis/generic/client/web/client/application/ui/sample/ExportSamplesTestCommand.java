@@ -51,8 +51,8 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
 
     public void execute()
     {
-        SampleBrowserGrid2 sampleBrowserGrid =
-                (SampleBrowserGrid2) GWTTestUtil.getWidgetWithID(SampleBrowserGrid2.MAIN_BROWSER_ID);
+        SampleBrowserGrid sampleBrowserGrid =
+                (SampleBrowserGrid) GWTTestUtil.getWidgetWithID(SampleBrowserGrid.MAIN_BROWSER_ID);
         // we do not create view context earlier (e.g. in the class constructor), because we have to
         // wait until client is loaded and viewContext is available.
         IViewContext<ICommonClientServiceAsync> viewContext = getViewContext();

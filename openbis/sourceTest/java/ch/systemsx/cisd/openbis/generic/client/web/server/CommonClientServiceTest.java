@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -354,8 +355,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @Test
     public final void testPrepareExportSamples()
     {
-        final TableExportCriteria<Sample> criteria = new TableExportCriteria<Sample>();
-        final CacheManager<String, TableExportCriteria<Sample>> manager = createCacheManager();
+        final TableExportCriteria<TableModelRowWithObject<Sample>> criteria =
+                new TableExportCriteria<TableModelRowWithObject<Sample>>();
+        final CacheManager<String, TableExportCriteria<TableModelRowWithObject<Sample>>> manager =
+                createCacheManager();
         context.checking(new Expectations()
             {
                 {
@@ -370,7 +373,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     }
 
     private void prepareGetCacheManager(final Expectations exp,
-            final CacheManager<String, TableExportCriteria<Sample>> manager)
+            final CacheManager<String, TableExportCriteria<TableModelRowWithObject<Sample>>> manager)
     {
         prepareGetHttpSession(exp);
         exp.allowing(httpSession).getAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
