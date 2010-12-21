@@ -237,7 +237,7 @@ public class ImageChannelsUtils
 
         // resized the image if necessary
         Size sizeOrNull = imageReference.tryGetSize();
-        if (sizeOrNull != null)
+        if (sizeOrNull != null && isRescalingNeeded(image, sizeOrNull))
         {
             start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
             image = ImageUtil.createThumbnail(image, sizeOrNull.getWidth(), sizeOrNull.getHeight());
@@ -260,6 +260,12 @@ public class ImageChannelsUtils
             }
         }
         return image;
+    }
+
+    // we do not want to generate thumnnails which are larger in any dimension than the original
+    private static boolean isRescalingNeeded(BufferedImage image, Size size)
+    {
+        return image.getWidth() > size.getWidth() || image.getHeight() > size.getHeight();
     }
 
     private static BufferedImage loadImage(AbsoluteImageReference imageReference)
