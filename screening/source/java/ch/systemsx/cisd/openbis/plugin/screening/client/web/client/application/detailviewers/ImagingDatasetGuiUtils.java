@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -52,7 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorD
  */
 class ImagingDatasetGuiUtils
 {
-    private static final String UNKNOWN_DATASETS_LABEL = "Other data connected to this plate:";
+    private static final String UNKNOWN_DATASETS_LABEL = "Other connected datasets:";
 
     // --------
 
@@ -88,6 +89,7 @@ class ImagingDatasetGuiUtils
             return null;
         }
         LayoutContainer c = new LayoutContainer();
+        c.setLayout(new RowLayout());
         c.add(new Text(UNKNOWN_DATASETS_LABEL));
         for (DatasetReference dataset : unknownDatasets)
         {

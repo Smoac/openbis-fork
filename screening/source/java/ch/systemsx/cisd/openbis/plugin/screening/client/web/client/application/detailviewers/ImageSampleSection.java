@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.S
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingDatasetGuiUtils.IDatasetImagesReferenceUpdater;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -95,10 +96,21 @@ public class ImageSampleSection extends TabContent
                     setScrollMode(Scroll.AUTO);
 
                     addVisualisation(imageSampleContent);
+                    addUnknownDatasetLinks(imageSampleContent.getUnknownDatasets());
 
                     layout();
                 }
             };
+    }
+
+    private void addUnknownDatasetLinks(List<DatasetReference> unknownDatasets)
+    {
+        ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(viewContext);
+        Widget w = guiUtils.tryCreateUnknownDatasetsLinks(unknownDatasets);
+        if (w != null)
+        {
+            add(w, LayoutUtils.createRowLayoutSurroundingData());
+        }
     }
 
     private void addVisualisation(ImageSampleContent imageSampleContent)

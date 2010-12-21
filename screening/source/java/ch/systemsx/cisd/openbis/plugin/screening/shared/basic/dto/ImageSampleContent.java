@@ -33,19 +33,28 @@ public class ImageSampleContent implements ISerializable
 
     private List<LogicalImageInfo> logicalImages;
 
+    private List<DatasetReference> unknownDatasets;
+
     // GWT only
     @SuppressWarnings("unused")
     private ImageSampleContent()
     {
     }
 
-    public ImageSampleContent(List<LogicalImageInfo> logicalImages)
+    public ImageSampleContent(List<LogicalImageInfo> logicalImages,
+            List<DatasetReference> unknownDatasets)
     {
         this.logicalImages = logicalImages;
+        this.unknownDatasets = unknownDatasets;
     }
 
     public List<LogicalImageInfo> getLogicalImages()
     {
         return logicalImages;
+    }
+
+    public List<DatasetReference> getUnknownDatasets()
+    {
+        return unknownDatasets;
     }
 }

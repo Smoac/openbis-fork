@@ -178,7 +178,7 @@ public class PlateContentLoader
 
         List<DatasetImagesReference> imageDatasetReferences = fetchImageDatasets(datasets);
         List<FeatureVectorDataset> featureVectorDatasets = filterAndFetchFeatureVectors(datasets);
-        List<DatasetReference> unknownDatasetReferences = fetchUnknownDatasets(datasets);
+        List<DatasetReference> unknownDatasetReferences = extractUnknownDatasets(datasets);
 
         Geometry plateGeometry = PlateDimensionParser.getPlateGeometry(plate.getProperties());
         int rows = plateGeometry.getNumberOfRows();
@@ -188,7 +188,7 @@ public class PlateContentLoader
                 unknownDatasetReferences);
     }
 
-    private List<DatasetReference> fetchUnknownDatasets(List<ExternalDataPE> datasets)
+    private List<DatasetReference> extractUnknownDatasets(List<ExternalDataPE> datasets)
     {
         List<ExternalDataPE> unknownDatasets = ScreeningUtils.filterUnknownDatasets(datasets);
         List<DatasetReference> unknownDatasetReferences = createDatasetReferences(unknownDatasets);
@@ -396,6 +396,8 @@ public class PlateContentLoader
                             .getCode(), wellLocationOrNull);
             logicalImages.add(logicalImage);
         }
-        return new ImageSampleContent(logicalImages);
+
+        List<DatasetReference> unknownDatasetReferences = extractUnknownDatasets(datasets);
+        return new ImageSampleContent(logicalImages, unknownDatasetReferences);
     }
 }

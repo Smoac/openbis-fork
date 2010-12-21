@@ -85,7 +85,8 @@ public class ScreeningUtils
         for (ExternalDataPE dataset : datasets)
         {
             if (isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE) == false
-                    && isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_DATASET_TYPE) == false)
+                    && isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_DATASET_TYPE) == false
+                    && isTypeEqual(dataset, ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE) == false)
             {
                 chosenDatasets.add(dataset);
             }
