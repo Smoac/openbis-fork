@@ -179,7 +179,7 @@ public class BZDataSetInfoExtractor implements IDataSetInfoExtractor
 
     private static String getSampleCode(BZDatasetDirectoryNameTokenizer tokens)
     {
-        return "PLATE_" + tokens.getPlateBarcodeToken();
+        return tokens.getPlateBarcodeToken();
     }
 
     private static IEntityProperty[] createVocabularyProperty(String propertyTypeCode,
