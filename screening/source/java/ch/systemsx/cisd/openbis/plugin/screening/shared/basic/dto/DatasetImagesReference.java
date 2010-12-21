@@ -78,4 +78,16 @@ public class DatasetImagesReference implements ISerializable
     {
         return imageParameters;
     }
+
+    @Override
+    public int hashCode()
+    {
+        return getDatasetCode().hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Image dataset " + getDatasetCode();
+    }
 }

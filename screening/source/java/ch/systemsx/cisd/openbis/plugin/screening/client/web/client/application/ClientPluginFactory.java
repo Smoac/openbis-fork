@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateLocationsMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.WellSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImageSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample.LibrarySampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.ExperimentSearchCriteria;
@@ -95,10 +95,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         Set<String> types = new HashSet<String>();
         if (entityKind == EntityKind.SAMPLE)
         {
+            // -- plate layout
             types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
+            // -- library registration
             types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
-            // TODO 2010-12-13, Tomasz Pylak: to be exchanged by one *_WELL pattern
-            types.add(ScreeningConstants.CONTROL_WELL_CODE_MARKER);
+            // -- screening well
+            // TODO 2010-12-13, Tomasz Pylak: to be exchanged by the pattern:
+            // (*WELL* || *CONTROL* || CHAMBER || GENE || OLIGO)
+            types.add(ScreeningConstants.CONTROL_WELL_TYPE_CODE_MARKER);
             types.add("POSITIVE_CONTROL");
             types.add("NEGATIVE_CONTROL");
             types.add(ScreeningConstants.SIRNA_WELL_TYPE_CODE);
@@ -108,6 +112,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             types.add("GENE_WELL");
             types.add("OLIGO");
             types.add("GENE");
+            // -- microscopy sample
+            // To be exchanged by pattern
+            types.add(ScreeningConstants.IMAGE_SAMPLE_TYPE_CODE_MARKER);
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
@@ -354,14 +361,18 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             {
                 throw new UserFailureException("Cannot browse objects of the "
                         + ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE + " type.");
-            } else
+            } else if (sampleTypeCode.equals(ScreeningConstants.IMAGE_SAMPLE_TYPE_CODE_MARKER))
             {
-                return createWellViewer(entity);
+                return createImageSampleViewer(entity, false);
+            } else
+            // well sample
+            {
+                return createImageSampleViewer(entity, true);
             }
         }
 
-        private AbstractTabItemFactory createWellViewer(
-                final IEntityInformationHolderWithPermId entity)
+        private AbstractTabItemFactory createImageSampleViewer(
+                final IEntityInformationHolderWithPermId entity, final boolean isWellSample)
         {
             return new AbstractTabItemFactory()
                 {
@@ -369,7 +380,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
-                                WellSampleViewer.create(screeningViewContext, entity);
+                                ImageSampleViewer
+                                        .create(screeningViewContext, entity, isWellSample);
                         return createViewerTab(viewer, getTabTitle(), screeningViewContext);
                     }
 
@@ -389,7 +401,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                     @Override
                     public String getTabTitle()
                     {
-                        return getViewerTitle(Dict.WELL, entity, screeningViewContext);
+                        if (isWellSample)
+                        {
+                            return getViewerTitle(Dict.WELL, entity, screeningViewContext);
+                        } else
+                        {
+                            return getViewerTitle(Dict.SAMPLE, entity, screeningViewContext);
+                        }
                     }
 
                     @Override

@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,24 +35,22 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingDatasetGuiUtils.IDatasetImagesReferenceUpdater;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.PlateLayouter;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * A section of a well detail view which shows images for the well.
+ * A section of a detail view which shows images for the well or microscopy sample.
  * 
  * @author Tomasz Pylak
  */
-public class WellImageSampleSection extends TabContent
+public class ImageSampleSection extends TabContent
 {
 
     // --- GUI messages (to be moved to the dictionary)
-
-    private static final String TO_MANY_IMAGE_DATASETS_LABEL =
-            "More than one image dataset exists, go to a plate view and click on the well with a particular image dataset chosen.";
 
     private static final String NO_IMAGES_DATASET_LABEL = "No images data has been acquired.";
 
@@ -61,7 +64,7 @@ public class WellImageSampleSection extends TabContent
 
     private final WellLocation wellLocationOrNull;
 
-    public WellImageSampleSection(final ScreeningViewContext viewContext, final TechId sampleId,
+    public ImageSampleSection(final ScreeningViewContext viewContext, final TechId sampleId,
             WellLocation wellLocationOrNull)
     {
         super(WELL_IMAGE_SECTION_TITLE, viewContext, sampleId);
@@ -100,25 +103,85 @@ public class WellImageSampleSection extends TabContent
 
     private void addVisualisation(ImageSampleContent imageSampleContent)
     {
+        RowData margins = LayoutUtils.createRowLayoutSurroundingData();
         List<LogicalImageInfo> images = imageSampleContent.getLogicalImages();
         if (images.size() == 0)
         {
-            add(new Text(NO_IMAGES_DATASET_LABEL));
-        } else if (images.size() > 1)
-        {
-            add(new Text(TO_MANY_IMAGE_DATASETS_LABEL));
+            add(new Text(NO_IMAGES_DATASET_LABEL), margins);
         } else
         {
-            LogicalImageInfo imageInfo = images.get(0);
+            LogicalImageLayouter logicalImageLayouter =
+                    new LogicalImageLayouter(viewContext, wellLocationOrNull, images);
+            Widget imageDatasetsDetails =
+                    new ImagingDatasetGuiUtils(viewContext)
+                            .createImageDatasetDetailsRow(
+                                    logicalImageLayouter.getDatasetImagesReferences(),
+                                    logicalImageLayouter);
+
+            DatasetImagesReference firstImageDataset = images.get(0).getDatasetImagesReference();
+            logicalImageLayouter.changeDisplayedImageDataset(firstImageDataset);
+
+            add(imageDatasetsDetails, margins);
+            add(logicalImageLayouter, margins);
+        }
+    }
+
+    private static class LogicalImageLayouter extends LayoutContainer implements
+            IDatasetImagesReferenceUpdater
+    {
+        private final ScreeningViewContext viewContext;
+
+        private final WellLocation wellLocationOrNull;
+
+        private final Map<DatasetImagesReference, LogicalImageInfo> refsMap;
+
+        public LogicalImageLayouter(ScreeningViewContext viewContext,
+                WellLocation wellLocationOrNull, List<LogicalImageInfo> images)
+        {
+            this.viewContext = viewContext;
+            this.wellLocationOrNull = wellLocationOrNull;
+            this.refsMap = createRefsMap(images);
+        }
+
+        public void changeDisplayedImageDataset(DatasetImagesReference dataset)
+        {
+            LogicalImageInfo imageInfo = refsMap.get(dataset);
+            assert imageInfo != null : "cannot find logical image for " + dataset;
+
+            removeAll();
+            Widget viewerWidget = createImageViewer(imageInfo);
+            add(viewerWidget);
+            layout();
+        }
+
+        private Widget createImageViewer(LogicalImageInfo imageInfo)
+        {
             String experimentPermId = imageInfo.getDatasetReference().getExperimentPermId();
             LogicalImageReference logicalImageReference =
                     new LogicalImageReference(imageInfo.getDatasetImagesReference(),
                             wellLocationOrNull);
             LogicalImageViewer viewer =
-                    new LogicalImageViewer(logicalImageReference,
-                            WellImageSampleSection.this.viewContext, "", experimentPermId);
-            Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
-            add(viewerWidget, PlateLayouter.createRowLayoutSurroundingData());
+                    new LogicalImageViewer(logicalImageReference, viewContext, "", experimentPermId);
+            return viewer.getViewerWidget(imageInfo.getChannelStacks());
+        }
+
+        public List<DatasetImagesReference> getDatasetImagesReferences()
+        {
+            return new ArrayList<DatasetImagesReference>(refsMap.keySet());
+        }
+
+        private static Map<DatasetImagesReference, LogicalImageInfo> createRefsMap(
+                List<LogicalImageInfo> images)
+        {
+            Map<DatasetImagesReference, LogicalImageInfo> map =
+                    new HashMap<DatasetImagesReference, LogicalImageInfo>();
+            for (LogicalImageInfo imageInfo : images)
+            {
+                DatasetImagesReference ref = imageInfo.getDatasetImagesReference();
+                map.put(ref, imageInfo);
+            }
+            return map;
         }
     }
+
 }

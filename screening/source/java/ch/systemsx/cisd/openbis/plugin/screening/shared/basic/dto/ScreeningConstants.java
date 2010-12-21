@@ -45,7 +45,10 @@ public class ScreeningConstants
     public static final String HCS_IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
 
     // the well is considered to be a control well if its type code contains this string
-    public static final String CONTROL_WELL_CODE_MARKER = "CONTROL";
+    public static final String CONTROL_WELL_TYPE_CODE_MARKER = "CONTROL";
+
+    // the sample is considered to be a microscopy sample if its type code contains this string
+    public static final String IMAGE_SAMPLE_TYPE_CODE_MARKER = "IMG";
 
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 

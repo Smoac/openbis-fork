@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.PlateLayouter;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 
 /**
@@ -86,7 +85,7 @@ public class LogicalImageDatasetSection extends TabContent
                                     LogicalImageDatasetSection.this.viewContext, identifier,
                                     experimentPermId);
                     Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
-                    add(viewerWidget, PlateLayouter.createRowLayoutSurroundingData());
+                    add(viewerWidget, LayoutUtils.createRowLayoutSurroundingData());
 
                     layout();
                 }

@@ -31,16 +31,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.S
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * The <i>screening</i> well sample detail viewer.
+ * The sample detail viewer plugin for <i>screening</i> well and microscopy sample.
  * 
  * @author Tomasz Pylak
  */
-public final class WellSampleViewer extends GenericSampleViewer
+public final class ImageSampleViewer extends GenericSampleViewer
 {
     public static DatabaseModificationAwareComponent create(final ScreeningViewContext viewContext,
-            final IIdAndCodeHolder identifiable)
+            final IIdAndCodeHolder identifiable, boolean isWellSample)
     {
-        WellSampleViewer viewer = new WellSampleViewer(viewContext, identifiable);
+        ImageSampleViewer viewer = new ImageSampleViewer(viewContext, identifiable, isWellSample);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
@@ -49,12 +49,13 @@ public final class WellSampleViewer extends GenericSampleViewer
 
     private final WellLocation wellLocationOrNull;
 
-    public WellSampleViewer(final ScreeningViewContext viewContext,
-            final IIdAndCodeHolder identifiable)
+    private ImageSampleViewer(final ScreeningViewContext viewContext,
+            final IIdAndCodeHolder identifiable, boolean isWellSample)
     {
         super(viewContext, identifiable);
         this.screeningViewContext = viewContext;
-        this.wellLocationOrNull = WellLocation.tryParseLocationStr(getWellCode(identifiable));
+        this.wellLocationOrNull =
+                isWellSample ? WellLocation.tryParseLocationStr(getWellCode(identifiable)) : null;
     }
 
     private static String getWellCode(final IIdAndCodeHolder identifiable)
@@ -82,7 +83,7 @@ public final class WellSampleViewer extends GenericSampleViewer
     {
         List<TabContent> sections = new ArrayList<TabContent>();
 
-        sections.add(new WellImageSampleSection(screeningViewContext, sampleId, wellLocationOrNull));
+        sections.add(new ImageSampleSection(screeningViewContext, sampleId, wellLocationOrNull));
         return sections;
     }
 }
