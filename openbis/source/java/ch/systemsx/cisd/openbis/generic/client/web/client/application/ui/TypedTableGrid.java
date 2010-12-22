@@ -133,12 +133,6 @@ public abstract class TypedTableGrid<T extends ISerializable>
                 MaterialTableCell materialTableCell = (MaterialTableCell) value;
                 return LinkExtractor.tryExtract(materialTableCell.getMaterialIdentifier());
             }
-//            if (value instanceof VocabularyTermTableCell)
-//            {
-//                VocabularyTermTableCell vocabularyTermTableCell = (VocabularyTermTableCell) value;
-//                VocabularyTerm vocabularyTerm = vocabularyTermTableCell.getVocabularyTerm();
-//                return VocabularyPropertyColRenderer.renderTerm(vocabularyTerm);
-//            }
             return LinkExtractor.createPermlink(entityKind, value.toString());
         }
 
@@ -168,6 +162,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
     private String downloadURL;
 
     private Map<String, IColumnDefinition<TableModelRowWithObject<T>>> columnDefinitions;
+
+    private String currentGridDisplayTypeID;
 
     protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String browserId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
@@ -354,6 +350,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                         }
                     };
         listTableRows(resultSetConfig, extendedCallback);
+        currentGridDisplayTypeID = getGridDisplayTypeID();
     }
 
     @Override
@@ -362,10 +359,16 @@ public abstract class TypedTableGrid<T extends ISerializable>
         return true;
     }
 
+    /**
+     * Refreshes the browser if the grid display type ID has changed because this means a different
+     * set of display settings. Thus column models and filters should be refreshed before data
+     * loading.
+     */
     @Override
     protected void refresh()
     {
-        refresh(false);
+        String gridDisplayTypeID = getGridDisplayTypeID();
+        refresh(gridDisplayTypeID.equals(currentGridDisplayTypeID) == false);
     }
 
     @Override

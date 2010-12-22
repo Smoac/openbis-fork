@@ -260,22 +260,21 @@ public class DisplaySettingsManager
     {
         boolean refreshNeeded = false;
         List<ColumnConfig> newColumnConfigList = new ArrayList<ColumnConfig>();
-        Set<Integer> indices = new HashSet<Integer>();
+        Set<String> ids = new HashSet<String>();
         List<String> newFilteredColumnIds = new ArrayList<String>();
         for (int i = 0; i < columnSettings.size(); i++)
         {
             ColumnSetting columnSetting = columnSettings.get(i);
             // update column using the settings stored for it
             String columnID = columnSetting.getColumnID();
-            int index = columnModel.getIndexById(columnID);
-            if (index >= 0)
+            ColumnConfig columnConfig = columnModel.getColumnById(columnID);
+            if (columnConfig != null)
             {
-                if (i != index)
+                if (i != columnModel.getIndexById(columnID))
                 {
                     refreshNeeded = true;
                 }
-                indices.add(index);
-                ColumnConfig columnConfig = columnModel.getColumn(index);
+                ids.add(columnID);
                 boolean hidden = columnSetting.isHidden();
                 if (columnConfig.isHidden() != hidden)
                 {
@@ -298,9 +297,10 @@ public class DisplaySettingsManager
         // add columns for which no settings were stored at the end
         for (int i = 0; i < columnModel.getColumnCount(); i++)
         {
-            if (indices.contains(i) == false)
+            ColumnConfig column = columnModel.getColumn(i);
+            if (ids.contains(column.getId()) == false)
             {
-                newColumnConfigList.add(columnModel.getColumn(i));
+                newColumnConfigList.add(column);
             }
         }
         if (newFilteredColumnIds.equals(filteredColumnIds) == false)

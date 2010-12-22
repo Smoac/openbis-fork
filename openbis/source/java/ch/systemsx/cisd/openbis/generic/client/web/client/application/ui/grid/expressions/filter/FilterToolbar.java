@@ -76,7 +76,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private final static int MAX_FILTER_FIELDS_ROWS = 4;
 
-    private final static int MAX_FILTER_FIELDS = MAX_FILTER_FIELDS_COLUMNS * MAX_FILTER_FIELDS_ROWS;
+    public final static int MAX_FILTER_FIELDS = MAX_FILTER_FIELDS_COLUMNS * MAX_FILTER_FIELDS_ROWS;
 
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider, IDelegatedAction applyFiltersAction)

@@ -84,7 +84,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ComponentEventLogger.EventPair;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GridCustomColumnDefinition;
@@ -215,6 +214,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private IDataRefreshCallback refreshCallback;
 
     private LayoutContainer bottomToolbars;
+
+    private ColumnModel fullColumnModel;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
@@ -568,8 +569,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             pendingFetchManager.pushPendingFetchConfig(ResultSetFetchConfig
                     .createFetchFromCache(resultSetKeyOrNull));
         }
+        GridFilters<T> filters = filterToolbar.getFilters();
         final DefaultResultSetConfig<String, T> resultSetConfig =
-                createPagingConfig(loadConfig, filterToolbar.getFilters(), getGridDisplayTypeID());
+                createPagingConfig(loadConfig, filters, getGridDisplayTypeID());
         debug("create a refresh callback " + pendingFetchManager.tryTopPendingFetchConfig());
         final ListEntitiesCallback listCallback =
                 new ListEntitiesCallback(viewContext, callback, resultSetConfig);
@@ -1157,10 +1159,34 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void changeColumnModel(ColumnModel columnModel)
     {
+        fullColumnModel = columnModel;
         int logId = log("grid reconfigure");
-        grid.reconfigure(grid.getStore(), columnModel);
+        ColumnModel columnModelOfVisible = trimToVisibleColumns(columnModel);
+        grid.reconfigure(grid.getStore(), columnModelOfVisible);
         viewContext.logStop(logId);
         registerGridSettingsChangesListener();
+        // add listeners of full column model to trimmed model
+        List<Listener<? extends BaseEvent>> listeners =
+            fullColumnModel.getListeners(Events.WidthChange);
+        for (Listener<? extends BaseEvent> listener : listeners)
+        {
+            columnModelOfVisible.addListener(Events.WidthChange, listener);
+        }
+    }
+    
+    private ColumnModel trimToVisibleColumns(ColumnModel columnModel)
+    {
+        List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+        for (int i = 0, n = columnModel.getColumnCount(); i < n; i++)
+        {
+            ColumnConfig column = columnModel.getColumn(i);
+            if (column.isHidden() == false)
+            {
+                columns.add(column);
+            }
+        }
+        ColumnModel trimmedModel = createColumnModel(columns);
+        return trimmedModel;
     }
 
     private void registerGridSettingsChangesListener()
@@ -1190,7 +1216,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public ColumnModel getColumnModel()
                 {
-                    return AbstractBrowserGrid.this.getColumnModel();
+                    return AbstractBrowserGrid.this.getFullColumnModel();
                 }
 
                 public List<String> getFilteredColumnIds()
@@ -1294,8 +1320,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private List<IColumnDefinition<T>> getVisibleColumns(Set<IColumnDefinition<T>> availableColumns)
     {
         Map<String, IColumnDefinition<T>> availableColumnsMap = asColumnIdMap(availableColumns);
-        final ColumnModel columnModel = grid.getColumnModel();
-        return getVisibleColumns(availableColumnsMap, columnModel);
+        return getVisibleColumns(availableColumnsMap, fullColumnModel);
     }
 
     private void saveCacheKey(final String newResultSetKey)
@@ -1341,8 +1366,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // Default visibility so that friend classes can use -- should otherwise be considered private
     void saveColumnDisplaySettings()
     {
+        IDisplaySettingsGetter settingsUpdater = createDisplaySettingsUpdater();
         viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
-                createDisplaySettingsUpdater(), false);
+                settingsUpdater, false);
     }
 
     // @Private - for tests
@@ -1410,20 +1436,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     // ------- generic static helpers
 
-    // Default visibility so that friend classes can use -- should otherwise be considered private
-    static List<String> getFilteredColumnIds(List<ColumnDataModel> result)
-    {
-        List<String> filteredColumnsIds = new ArrayList<String>();
-        for (ColumnDataModel model : result)
-        {
-            if (model.hasFilter())
-            {
-                filteredColumnsIds.add(model.getColumnID());
-            }
-        }
-        return filteredColumnsIds;
-    }
-
     private static <T> List<String> extractColumnIds(List<IColumnDefinition<T>> columns)
     {
         List<String> columnsIds = new ArrayList<String>();
@@ -1432,51 +1444,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             columnsIds.add(column.getIdentifier());
         }
         return columnsIds;
-    }
-
-    /**
-     * Updates specified model (<code>cm</code>) with visibility and order settings from
-     * <code>columnModels</code>.
-     */
-    // Default visibility so that friend classes can use -- should otherwise be considered private
-    static void updateColumnsSettingsModel(final MoveableColumnModel cm,
-            List<ColumnDataModel> columnModels)
-    {
-        int newIndex = 0;
-        // do not fire events because of performance problems when hiding/unhiding all columns. View
-        // will be refreshed by refreshColumnsSettings() afterwards.
-        cm.setFiresEvents(false);
-        for (ColumnDataModel m : columnModels)
-        {
-            String columnID = m.getColumnID();
-            int oldIndex = cm.getIndexById(columnID);
-            if (oldIndex != -1)
-            {
-                cm.setHidden(oldIndex, m.isVisible() == false);
-                cm.move(oldIndex, newIndex++);
-            } else
-            { // new custom column has been added.
-                cm.addAt(newIndex++, createTemporaryColumnConfig(m));
-            }
-        }
-        // all deleted custom columns are now at the end starting from 'newIndex' - remove them
-        while (newIndex < cm.getColumnCount())
-        {
-            cm.remove(cm.getColumnCount() - 1);
-        }
-        cm.setFiresEvents(true);
-    }
-
-    // This column config is created just to make user settings persistent.
-    // It must have been a custom column.
-    // The config will be recreated in a proper form when data will be refreshed.
-    private static ColumnConfig createTemporaryColumnConfig(ColumnDataModel m)
-    {
-        ColumnConfig columnConfig =
-                new ColumnConfig(m.getColumnID(), m.getHeader(),
-                        AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH);
-        columnConfig.setHidden(m.isVisible() == false);
-        return columnConfig;
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
@@ -1560,17 +1527,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // this should be the only place where we create the grid column model.
-    private static MoveableColumnModel createColumnModel(List<ColumnConfig> columConfigs)
+    private static ColumnModel createColumnModel(List<ColumnConfig> columConfigs)
     {
-        return new MoveableColumnModel(columConfigs);
+        return new ColumnModel(columConfigs);
     }
 
     // Default visibility so that friend classes can use -- should otherwise be considered private
-    MoveableColumnModel getColumnModel()
+    ColumnModel getFullColumnModel()
     {
-        return (MoveableColumnModel) grid.getColumnModel();
+        return fullColumnModel;
     }
-
+    
     private static final class ExportEntitiesCallback extends AbstractAsyncCallback<String>
     {
         public ExportEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)

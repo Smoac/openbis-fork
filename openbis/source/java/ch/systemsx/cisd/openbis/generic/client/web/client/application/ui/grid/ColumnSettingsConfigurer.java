@@ -16,10 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
@@ -66,7 +76,7 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
     public void showDialog()
     {
         List<ColumnDataModel> settingsModel =
-                AbstractBrowserGrid.createColumnsSettingsModel(browserGrid.getColumnModel(),
+                AbstractBrowserGrid.createColumnsSettingsModel(browserGrid.getFullColumnModel(),
                         filterToolbar.extractFilteredColumnIds());
         AbstractColumnSettingsDataModelProvider provider =
                 new AbstractColumnSettingsDataModelProvider(settingsModel)
@@ -74,8 +84,32 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
                         @Override
                         public void onClose(List<ColumnDataModel> newColumnDataModels)
                         {
-                            MoveableColumnModel cm = browserGrid.getColumnModel();
-                            AbstractBrowserGrid.updateColumnsSettingsModel(cm, newColumnDataModels);
+                            final ColumnModel newColumnModel =
+                                    createNewColumnModel(newColumnDataModels);
+                            final List<String> filteredColumnIds =
+                                    getFilteredColumnIds(newColumnDataModels);
+                            String gridDisplayTypeID = browserGrid.getGridDisplayTypeID();
+                            DisplaySettingsManager displaySettingsManager =
+                                    viewContext.getDisplaySettingsManager();
+                            displaySettingsManager.storeSettings(gridDisplayTypeID,
+                                    new IDisplaySettingsGetter()
+                                        {
+
+                                            public Object getModifier()
+                                            {
+                                                return browserGrid;
+                                            }
+
+                                            public List<String> getFilteredColumnIds()
+                                            {
+                                                return filteredColumnIds;
+                                            }
+
+                                            public ColumnModel getColumnModel()
+                                            {
+                                                return newColumnModel;
+                                            }
+                                        }, false);
 
                             // refresh the whole grid if custom columns changed
                             List<GridCustomColumnInfo> newCustomColumns = tryGetCustomColumnsInfo();
@@ -86,15 +120,10 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
                             }
                             boolean customColumnsChanged =
                                     customColumnsMetadataProvider.getHasChangedAndSetFalse();
-                            if (customColumnsChanged)
-                            {
-                                browserGrid.recreateColumnModelAndRefreshColumnsWithFilters();
-                            }
+                            browserGrid.recreateColumnModelAndRefreshColumnsWithFilters();
 
                             boolean columnFiltersChanged =
-                                    browserGrid.rebuildFiltersFromIds(AbstractBrowserGrid
-                                            .getFilteredColumnIds(newColumnDataModels));
-                            browserGrid.saveColumnDisplaySettings();
+                                    browserGrid.rebuildFiltersFromIds(filteredColumnIds);
 
                             if (customColumnsChanged || columnFiltersChanged)
                             {
@@ -130,4 +159,52 @@ class ColumnSettingsConfigurer<T, M extends BaseEntityModel<T>>
                     };
         ColumnSettingsDialog.show(viewContext, provider, browserGrid.getGridDisplayTypeID());
     }
+
+    /**
+     * Creates a new column model based on the specified column data models and the old full column
+     * model as provided by {@link AbstractBrowserGrid#getFullColumnModel()}.
+     */
+    private ColumnModel createNewColumnModel(List<ColumnDataModel> newColumnDataModels)
+    {
+        Map<String, ColumnConfig> oldColumns = getOldColumns();
+        List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+        for (ColumnDataModel columnDataModel : newColumnDataModels)
+        {
+            String columnID = columnDataModel.getColumnID();
+            ColumnConfig column = oldColumns.get(columnID);
+            if (column == null)
+            {
+                String header = columnDataModel.getHeader();
+                column = new ColumnConfig(columnID, header, DEFAULT_COLUMN_WIDTH);
+            }
+            column.setHidden(columnDataModel.isVisible() == false);
+            columns.add(column);
+        }
+        return new ColumnModel(columns);
+    }
+    
+    private Map<String, ColumnConfig> getOldColumns()
+    {
+        List<ColumnConfig> columns = browserGrid.getFullColumnModel().getColumns();
+        HashMap<String, ColumnConfig> map = new HashMap<String, ColumnConfig>();
+        for (ColumnConfig columnConfig : columns)
+        {
+            map.put(columnConfig.getId(), columnConfig);
+        }
+        return map;
+    }
+    
+    private static List<String> getFilteredColumnIds(List<ColumnDataModel> result)
+    {
+        List<String> filteredColumnsIds = new ArrayList<String>();
+        for (ColumnDataModel model : result)
+        {
+            if (model.hasFilter() && filteredColumnsIds.size() < FilterToolbar.MAX_FILTER_FIELDS)
+            {
+                filteredColumnsIds.add(model.getColumnID());
+            }
+        }
+        return filteredColumnsIds;
+    }
+
 }
