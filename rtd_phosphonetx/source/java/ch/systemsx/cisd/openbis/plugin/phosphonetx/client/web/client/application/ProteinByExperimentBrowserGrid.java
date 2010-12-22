@@ -87,6 +87,10 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
 
     private List<AbundanceColumnDefinition> abundanceColumnDefinitions;
 
+    private boolean abundanceColumnDefinitionsChanged = true;
+
+    private ColumnDefsAndConfigs<ProteinInfo> columnDefinitionsAndConfigs;
+
     private IDataRefreshCallback postRefreshCallback = new IDataRefreshCallback()
         {
             public void postRefresh(boolean wasSuccessful)
@@ -182,6 +186,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         criteria.setTreatmentTypeCode(treatmentTypeCode);
         criteria.setAggregateOriginal(aggregateOriginal);
         abundanceColumnDefinitions = definitions;
+        abundanceColumnDefinitionsChanged  = true;
         refresh(postRefreshCallback, true);
     }
 
@@ -195,49 +200,53 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     {
         return ProteinColDefKind.values();
     }
-
+    
     @Override
     protected ColumnDefsAndConfigs<ProteinInfo> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<ProteinInfo> definitions = super.createColumnsDefinition();
-        List<IColumnDefinitionUI<ProteinInfo>> columns =
-                new ArrayList<IColumnDefinitionUI<ProteinInfo>>();
-        List<String> abundanceColumnIDs = new ArrayList<String>();
-        for (AbundanceColumnDefinition definition : abundanceColumnDefinitions)
+        if (columnDefinitionsAndConfigs == null || abundanceColumnDefinitionsChanged)
         {
-            String header = definition.getSampleCode();
-            Map<String, String> properties = new HashMap<String, String>();
-            properties.put(ABUNDANCE_PROPERTY_KEY, header);
-            List<Treatment> treatments = definition.getTreatments();
-            if (treatments.isEmpty() == false)
+            columnDefinitionsAndConfigs = super.createColumnsDefinition();
+            List<IColumnDefinitionUI<ProteinInfo>> columns =
+                new ArrayList<IColumnDefinitionUI<ProteinInfo>>();
+            List<String> abundanceColumnIDs = new ArrayList<String>();
+            for (AbundanceColumnDefinition definition : abundanceColumnDefinitions)
             {
-                header = "";
-                String delim = "";
-                for (Treatment treatment : treatments)
+                String header = definition.getSampleCode();
+                Map<String, String> properties = new HashMap<String, String>();
+                properties.put(ABUNDANCE_PROPERTY_KEY, header);
+                List<Treatment> treatments = definition.getTreatments();
+                if (treatments.isEmpty() == false)
                 {
-                    header += delim + treatment;
-                    delim = ", ";
-                    properties.put(treatment.getTypeCode(), treatment.getValue());
+                    header = "";
+                    String delim = "";
+                    for (Treatment treatment : treatments)
+                    {
+                        header += delim + treatment;
+                        delim = ", ";
+                        properties.put(treatment.getTypeCode(), treatment.getValue());
+                    }
                 }
-            }
-            final long sampleID = definition.getID();
-            IColumnDefinitionUI<ProteinInfo> columnDefinition =
+                final long sampleID = definition.getID();
+                IColumnDefinitionUI<ProteinInfo> columnDefinition =
                     new InternalAbundanceColumnDefinition(header, properties, 100, false, sampleID);
-            abundanceColumnIDs.add(columnDefinition.getIdentifier());
-            columns.add(columnDefinition);
-        }
-        definitions.addColumns(columns);
-        definitions.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
-                createInternalLinkCellRenderer());
-        RealNumberRenderer renderer =
+                abundanceColumnIDs.add(columnDefinition.getIdentifier());
+                columns.add(columnDefinition);
+            }
+            columnDefinitionsAndConfigs.addColumns(columns);
+            columnDefinitionsAndConfigs.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
+                    createInternalLinkCellRenderer());
+            RealNumberRenderer renderer =
                 new RealNumberRenderer(viewContext.getDisplaySettingsManager()
                         .getRealNumberFormatingParameters());
-        for (String abundanceColumneID : abundanceColumnIDs)
-        {
-            definitions.setGridCellRendererFor(abundanceColumneID, renderer);
+            for (String abundanceColumneID : abundanceColumnIDs)
+            {
+                columnDefinitionsAndConfigs.setGridCellRendererFor(abundanceColumneID, renderer);
+            }
+            columnDefinitionsAndConfigs.setGridCellRendererFor(ProteinColDefKind.COVERAGE.id(), renderer);
+            abundanceColumnDefinitionsChanged = false;
         }
-        definitions.setGridCellRendererFor(ProteinColDefKind.COVERAGE.id(), renderer);
-        return definitions;
+        return columnDefinitionsAndConfigs;
     }
 
     @Override
@@ -245,7 +254,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     {
         Set<IColumnDefinition<ProteinInfo>> columnDefs = createColumnsDefinition().getColumnDefs();
         return new BaseEntityModel<ProteinInfo>(entity,
-                new ArrayList<IColumnDefinition<ProteinInfo>>(columnDefs));
+                new ArrayList<IColumnDefinition<ProteinInfo>>(columnDefs), true);
     }
 
     @Override
