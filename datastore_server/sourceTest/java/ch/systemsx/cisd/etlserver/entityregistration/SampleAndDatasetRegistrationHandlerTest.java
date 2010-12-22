@@ -127,8 +127,8 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                         + "# Illegal empty identifier\n"
                         + "\t/MYSPACE/MYPROJ/EXP2\tVAL11\tVAL21\tVAL31\tFILE_TYPE\tVAL41\tVAL51\tds2/\n\n"
                         + "The following lines were successfully registered:\n"
-                        + "# /MYSPACE/S3\t/MYSPACE/MYPROJ/EXP3\tVAL12\tVAL22\tVAL32\tFILE_TYPE\tVAL42\tVAL52\tds3/\n"
-                        + "# /MYSPACE/S1\t/MYSPACE/MYPROJ/EXP1\tVAL10\tVAL20\tVAL30\tFILE_TYPE\tVAL40\tVAL50\tds1/\n";
+                        + "# /MYSPACE/S1\t/MYSPACE/MYPROJ/EXP1\tVAL10\tVAL20\tVAL30\tFILE_TYPE\tVAL40\tVAL50\tds1/\n"
+                        + "# /MYSPACE/S3\t/MYSPACE/MYPROJ/EXP3\tVAL12\tVAL22\tVAL32\tFILE_TYPE\tVAL42\tVAL52\tds3/\n";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();

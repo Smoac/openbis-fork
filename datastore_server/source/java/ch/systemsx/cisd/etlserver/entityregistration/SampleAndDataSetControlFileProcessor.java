@@ -52,11 +52,17 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
     private final File controlFile;
 
+    // Keep the errors as a map and array list for fast access and correct ordering
     private final HashMap<SampleDataSetPair, IRegistrationStatus> errorMap =
             new HashMap<SampleDataSetPair, IRegistrationStatus>();
 
+    private final ArrayList<SampleDataSetPair> errorPairs = new ArrayList<SampleDataSetPair>();
+
+    // Keep the successes as a map and array list for fast access and correct ordering
     private final HashMap<SampleDataSetPair, IRegistrationStatus> successMap =
             new HashMap<SampleDataSetPair, IRegistrationStatus>();
+
+    private final ArrayList<SampleDataSetPair> successPairs = new ArrayList<SampleDataSetPair>();
 
     private final HashSet<File> processedDataSetFiles = new HashSet<File>();
 
@@ -293,9 +299,11 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             if (result.isError())
             {
                 errorMap.put(sampleDataSet, result);
+                errorPairs.add(sampleDataSet);
             } else
             {
                 successMap.put(sampleDataSet, result);
+                successPairs.add(sampleDataSet);
             }
         }
 
@@ -348,7 +356,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
         StringBuilder sb = new StringBuilder();
         sb.append("Encountered errors in the following lines:\n");
-        for (SampleDataSetPair pair : errorMap.keySet())
+        for (SampleDataSetPair pair : errorPairs)
         {
             IRegistrationStatus error = errorMap.get(pair);
             sb.append("# ");
@@ -410,7 +418,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
         StringBuilder sb = new StringBuilder();
         sb.append("The following lines were successfully registered:\n");
-        for (SampleDataSetPair pair : successMap.keySet())
+        for (SampleDataSetPair pair : successPairs)
         {
             sb.append("# ");
             String[] tokens = pair.getTokens();
