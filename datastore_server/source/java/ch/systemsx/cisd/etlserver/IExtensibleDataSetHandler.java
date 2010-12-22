@@ -23,10 +23,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 
 /**
+ * An interface for data set handlers that give other code a chance to implement the registration of
+ * the new data object.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IExtensibleDataSetHandler extends IDataSetHandler
 {
+    /**
+     * Interface for code that is run to register a new data set.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
     public static interface IDataSetRegistrator
     {
         public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable;

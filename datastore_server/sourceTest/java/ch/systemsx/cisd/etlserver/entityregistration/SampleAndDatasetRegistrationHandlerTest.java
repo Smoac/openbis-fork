@@ -48,14 +48,19 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
 public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemTestCase
 {
+    private static final String SPACE_CODE = "MYSPACE";
+
     protected Mockery context;
 
     protected IEncapsulatedOpenBISService openbisService;
@@ -97,7 +102,11 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         final RecordingMatcher<NewSample> newSampleMatcher = new RecordingMatcher<NewSample>();
 
         setupOpenBisExpectations();
-        setupDataSetHandlerExpectations(dataSetInfoMatcher, newSampleMatcher);
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher);
+        setupUpdateSampleExistsExpectations("S1", false);
+        setupUpdateSampleExistsExpectations("S2", false);
+        setupUpdateSampleExistsExpectations("S3", false);
+        setupRegisterSampleAndDataSetExpectations(externalData, newSampleMatcher, 3);
 
         File workingCopy = createWorkingCopyOfTestFolder("basic-example");
 
@@ -108,6 +117,68 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
                         + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP1,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
                         + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP2,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL41}, NewProperty{property=prop2,value=VAL51}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP3,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL42}, NewProperty{property=prop2,value=VAL52}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]";
+        checkAppenderContent(logText, "basic-example");
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testOnlyUpdates()
+    {
+        final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
+                new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<SampleUpdatesDTO> sampleUpdatesMatcher =
+                new RecordingMatcher<SampleUpdatesDTO>();
+
+        setupOpenBisExpectations();
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher);
+        setupUpdateSampleExistsExpectations("S1", true);
+        setupUpdateSampleExistsExpectations("S2", true);
+        setupUpdateSampleExistsExpectations("S3", true);
+        setupUpdateSampleAndRegisterDataSetExpectations(externalData, sampleUpdatesMatcher, 3);
+
+        File workingCopy = createWorkingCopyOfTestFolder("basic-example");
+
+        initializeDefaultDataSetHandler();
+        handler.handleDataSet(workingCopy);
+
+        String logText =
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP1,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP2,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL41}, NewProperty{property=prop2,value=VAL51}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP3,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL42}, NewProperty{property=prop2,value=VAL52}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]";
+        checkAppenderContent(logText, "basic-example");
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRegisteringAndUpdates()
+    {
+        final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
+                new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<NewSample> newSampleMatcher = new RecordingMatcher<NewSample>();
+        final RecordingMatcher<SampleUpdatesDTO> sampleUpdatesMatcher =
+                new RecordingMatcher<SampleUpdatesDTO>();
+
+        setupOpenBisExpectations();
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher);
+        setupUpdateSampleExistsExpectations("S1", false);
+        setupUpdateSampleExistsExpectations("S2", true);
+        setupUpdateSampleExistsExpectations("S3", false);
+        setupRegisterSampleAndDataSetExpectations(externalData, newSampleMatcher, 2);
+        setupUpdateSampleAndRegisterDataSetExpectations(externalData, sampleUpdatesMatcher, 1);
+
+        File workingCopy = createWorkingCopyOfTestFolder("basic-example");
+
+        initializeDefaultDataSetHandler();
+        handler.handleDataSet(workingCopy);
+
+        String logText =
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP1,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Updated sample, registered data set SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP2,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL41}, NewProperty{property=prop2,value=VAL51}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
                         + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP3,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL42}, NewProperty{property=prop2,value=VAL52}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]";
         checkAppenderContent(logText, "basic-example");
 
@@ -129,7 +200,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(workingCopy);
 
         String errorText =
-                "Folder (no-control) for sample/dataset registration contains no control files with the required extension: .tsv.\n"
+                "Folder (no-control) for sample/dataset registration contains no control files matching the configured pattern: .*.[Tt][Ss][Vv].\n"
                         + "Folder contents:\n" + "\t.svn\n" + "\tnot-a-tsv.txt\n";
 
         // Check the log
@@ -155,7 +226,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         handler.handleDataSet(workingCopy);
 
         String errorText =
-                "Folder (empty-folder) for sample/dataset registration contains no control files with the required extension: .tsv.\n"
+                "Folder (empty-folder) for sample/dataset registration contains no control files matching the configured pattern: .*.[Tt][Ss][Vv].\n"
                         + "Folder contents:\n" + "\t.svn\n";
         // Check the log
         checkAppenderContent(errorText, "empty-folder");
@@ -244,10 +315,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
             });
     }
 
-    private void setupDataSetHandlerExpectations(
-            final RecordingMatcher<DataSetInformation> dataSetInfoMatcher,
-            final RecordingMatcher<NewSample> newSampleMatcher)
+    private NewExternalData setupDataSetHandlerExpectations(
+            final RecordingMatcher<DataSetInformation> dataSetInfoMatcher)
     {
+        final NewExternalData externalData = new NewExternalData();
         context.checking(new Expectations()
             {
                 {
@@ -255,13 +326,11 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                     final RecordingMatcher<IExtensibleDataSetHandler.IDataSetRegistrator> registratorMatcher =
                             new RecordingMatcher<IExtensibleDataSetHandler.IDataSetRegistrator>();
 
-                    final NewExternalData externalData = new NewExternalData();
-
                     for (int i = 1; i < 4; ++i)
                     {
                         ExperimentIdentifier experimentId =
                                 new ExperimentIdentifier(DatabaseInstanceIdentifier.HOME,
-                                        "MYSPACE", "MYPROJ", "EXP" + i);
+                                        SPACE_CODE, "MYPROJ", "EXP" + i);
                         oneOf(openbisService).tryToGetExperiment(experimentId);
                         Experiment exp = new Experiment();
                         exp.setIdentifier(experimentId.toString());
@@ -285,8 +354,55 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                                 return null;
                             }
                         });
-                    exactly(3).of(openbisService).registerSampleAndDataSet(with(newSampleMatcher),
-                            with(externalData), with("test"));
+                }
+            });
+        return externalData;
+    }
+
+    private void setupRegisterSampleAndDataSetExpectations(final NewExternalData externalData,
+            final RecordingMatcher<NewSample> newSampleMatcher, final int count)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(count).of(openbisService).registerSampleAndDataSet(
+                            with(newSampleMatcher), with(externalData), with("test"));
+                    will(returnValue(new Sample()));
+                }
+            });
+    }
+
+    private void setupUpdateSampleExistsExpectations(final String sampleCode, final boolean exists)
+    {
+        final SpaceIdentifier spaceId =
+                new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, SPACE_CODE);
+        // Decide if the samples exist
+        context.checking(new Expectations()
+            {
+                {
+
+                    oneOf(openbisService).tryGetSampleWithExperiment(
+                            new SampleIdentifier(spaceId, sampleCode));
+                    if (exists)
+                    {
+                        will(returnValue(new Sample()));
+                    } else
+                    {
+                        will(returnValue(null));
+                    }
+                }
+            });
+    }
+
+    private void setupUpdateSampleAndRegisterDataSetExpectations(
+            final NewExternalData externalData,
+            final RecordingMatcher<SampleUpdatesDTO> sampleUpdatesMatcher, final int count)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    exactly(count).of(openbisService).updateSampleAndRegisterDataSet(
+                            with(sampleUpdatesMatcher), with(externalData));
                     will(returnValue(new Sample()));
                 }
             });

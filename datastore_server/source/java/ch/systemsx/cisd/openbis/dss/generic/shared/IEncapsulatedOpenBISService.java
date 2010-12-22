@@ -303,4 +303,11 @@ public interface IEncapsulatedOpenBISService
      */
     public Sample registerSampleAndDataSet(NewSample newSample, NewExternalData externalData,
             String userIdOrNull);
+
+    /**
+     * Update a sample and register a data set in one transaction. Return the sample.
+     * {@link IETLLIMSService#updateSampleAndRegisterDataSet(String, SampleUpdatesDTO, NewExternalData)}
+     */
+    public Sample updateSampleAndRegisterDataSet(SampleUpdatesDTO newSample,
+            NewExternalData externalData);
 }

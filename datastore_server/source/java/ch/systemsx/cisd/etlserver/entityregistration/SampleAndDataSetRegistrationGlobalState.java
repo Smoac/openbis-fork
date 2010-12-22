@@ -56,6 +56,8 @@ class SampleAndDataSetRegistrationGlobalState
 
     private final List<String> errorEmailRecipientsOrNull;
 
+    private final String controlFilePattern;
+
     private final Logger operationLog;
 
     private IMailClient mailClient;
@@ -64,7 +66,7 @@ class SampleAndDataSetRegistrationGlobalState
             IEncapsulatedOpenBISService openbisService, SpaceIdentifier spaceIdentifierOrNull,
             SampleType sampleTypeOrNull, DataSetType dataSetTypeOrNull,
             SampleRegistrationMode sampleRegistrationMode, List<String> errorEmailRecipientsOrNull,
-            Logger operationLog)
+            String controlFilePattern, Logger operationLog)
     {
         this.delegator = delegator;
         this.openbisService = openbisService;
@@ -73,6 +75,7 @@ class SampleAndDataSetRegistrationGlobalState
         this.dataSetTypeOrNull = dataSetTypeOrNull;
         this.sampleRegistrationMode = sampleRegistrationMode;
         this.errorEmailRecipientsOrNull = errorEmailRecipientsOrNull;
+        this.controlFilePattern = controlFilePattern;
         this.operationLog = operationLog;
     }
 
@@ -165,5 +168,10 @@ class SampleAndDataSetRegistrationGlobalState
             }
         }
         return emailAddresses.toArray(new EMailAddress[emailAddresses.size()]);
+    }
+
+    public String getControlFilePattern()
+    {
+        return controlFilePattern;
     }
 }

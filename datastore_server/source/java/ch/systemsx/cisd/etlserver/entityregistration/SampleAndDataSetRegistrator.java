@@ -22,11 +22,14 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileRegistrationProperties;
+import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * Utitlity class for registering one sample/dataset combination
@@ -82,6 +85,9 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
     private final SampleDataSetPair sampleDataSetPair;
 
     // State that is updated during the registration
+    // The sample, if the sample exists, null otherwise.
+    private Sample sampleOrNull;
+
     private boolean didSucceed = false;
 
     private RegistrationErrorWrapper failureException = null;
@@ -106,6 +112,8 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         {
             checkDataSetFileNotEmpty(dataSetFile);
             checkExperimentExists();
+            retrieveSampleOrNull();
+            checkConformanceToMode();
         } catch (UserFailureException ex)
         {
             return new RegistrationErrorWrapper(ex);
@@ -124,12 +132,58 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         return failureException;
     }
 
+    /**
+     * If we are in REJECT_EXISTING, the sample should not exist. If we are in REJECT_NONEXISTING,
+     * the sample should exist.
+     */
+    private void checkConformanceToMode()
+    {
+        switch (globalState.getSampleRegistrationMode())
+        {
+            case REJECT_EXISTING:
+                if (isSampleKnown())
+                {
+                    throw new UserFailureException(
+                            "This drop box expects new samples. This sample has already been registered.");
+                }
+                break;
+            case REJECT_NONEXISTING:
+                if (false == isSampleKnown())
+                {
+                    throw new UserFailureException(
+                            "This drop box expects existing samples. This sample does not exist.");
+                }
+                break;
+            case ACCEPT_ALL:
+                break;
+        }
+    }
+
     private void checkDataSetFileNotEmpty(File dataSetFile)
     {
         if (0 == dataSetFile.list().length)
         {
             throw new UserFailureException("The data set folder cannot be empty");
         }
+    }
+
+    private void retrieveSampleOrNull()
+    {
+        String sampleIdString = sampleDataSetPair.getNewSample().getIdentifier();
+        if (null == sampleIdString)
+        {
+            throw new UserFailureException("A sample identifier must be specified");
+        }
+
+        SampleIdentifier sampleIdentifier =
+                new SampleIdentifierFactory(sampleIdString).createIdentifier();
+        if (null == sampleIdentifier)
+        {
+            throw new UserFailureException(
+                    "The sample identifier does not conform to the sample identifier format");
+        }
+
+        sampleOrNull = globalState.getOpenbisService().tryGetSampleWithExperiment(sampleIdentifier);
     }
 
     private void checkExperimentExists()
@@ -152,28 +206,35 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
 
     private void logDataRegistered()
     {
-        String message = String.format("Registered sample/data set pair %s", sampleDataSetPair);
+        String messageFormat =
+                (isSampleKnown()) ? "Updated sample, registered data set %s"
+                        : "Registered sample/data set pair %s";
+        String message = String.format(messageFormat, sampleDataSetPair);
         globalState.getOperationLog().info(message);
     }
 
     public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
     {
-        data.setDataSetType(properties.getDataSetType());
-        if (null != sampleDataSetPair.getFileFormatTypeCode())
-        {
-            FileFormatType fileFormatType =
-                    new FileFormatType(sampleDataSetPair.getFileFormatTypeCode());
-
-            data.setFileFormatType(fileFormatType);
-        }
+        syncDataToDataSetProperties(data);
         try
         {
-            Sample sample =
-                    globalState.getOpenbisService().registerSampleAndDataSet(
-                            sampleDataSetPair.getNewSample(), data,
-                            properties.getUser().getUserId());
+            Sample sample;
+            if (isSampleKnown())
+            {
+                sample =
+                        globalState.getOpenbisService().updateSampleAndRegisterDataSet(
+                                sampleDataSetPair.getSampleUpdates(sampleOrNull), data);
+            } else
+            {
+                sample =
+                        globalState.getOpenbisService().registerSampleAndDataSet(
+                                sampleDataSetPair.getNewSample(), data,
+                                properties.getUser().getUserId());
+            }
             // Update the data set information -- it will be needed later in the data set processing
-            sampleDataSetPair.getDataSetInformation().setSample(sample);
+            DataSetInformation dataSetInformation = sampleDataSetPair.getDataSetInformation();
+            dataSetInformation.setSampleCode(sample.getCode());
+            dataSetInformation.setSample(sample);
             didSucceed = true;
         } catch (UserFailureException e)
         {
@@ -188,6 +249,26 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             failureException = new RegistrationErrorWrapper(e);
             throw e;
         }
+    }
+
+    private void syncDataToDataSetProperties(NewExternalData data)
+    {
+        data.setDataSetType(properties.getDataSetType());
+        if (null != sampleDataSetPair.getFileFormatTypeCode())
+        {
+            FileFormatType fileFormatType =
+                    new FileFormatType(sampleDataSetPair.getFileFormatTypeCode());
+
+            data.setFileFormatType(fileFormatType);
+        }
+    }
+
+    /**
+     * Is the sample known to the database?
+     */
+    private boolean isSampleKnown()
+    {
+        return sampleOrNull != null;
     }
 
 }

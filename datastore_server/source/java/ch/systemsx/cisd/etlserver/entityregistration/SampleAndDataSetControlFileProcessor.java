@@ -266,7 +266,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         }
 
         String userId = properties.getUser().getUserId();
-        // If we are here, we have sucessfuly parsed the file
+        // If we are here, we have successfully parsed the file
         for (SampleDataSetPair sampleDataSet : loadedSampleDataSetPairs)
         {
             sampleDataSet.getDataSetInformation().setUploadingUserId(userId);
@@ -357,7 +357,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     private String createErrorEmailContent()
     {
         return String
-                .format("When trying to register the samples and data sets specified in the control file, %s, errors were encountered. These errors are detailed in the attachment.",
+                .format("Not all samples and data sets specified in the control file, %s, could be registered / updated. The errors are detailed in the attachment. Each faulty line is reproduced, preceded by a comment explaining the cause of the error.",
                         controlFile);
     }
 }

@@ -65,6 +65,10 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
 
     static final String ERROR_EMAIL_RECIPIENTS_PROPERTIES_KEY = "error-mail-recipients";
 
+    static final String CONTROL_FILE_REGEX_PATTERN = "control-file-regex-pattern";
+
+    private static final String DEFAULT_CONTROL_FILE_REGEX_PATTERN = ".*.[Tt][Ss][Vv]";
+
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleAndDataSetRegistrationHandler.class);
 
@@ -126,9 +130,13 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
         List<String> errorEmailRecipients =
                 PropertyUtils.tryGetList(specificProperties, ERROR_EMAIL_RECIPIENTS_PROPERTIES_KEY);
 
+        String controlFilePattern =
+                PropertyUtils.getProperty(specificProperties, CONTROL_FILE_REGEX_PATTERN,
+                        DEFAULT_CONTROL_FILE_REGEX_PATTERN);
+
         return new SampleAndDataSetRegistrationGlobalState(delegator, service, spaceIdentifier,
                 sampleTypeOrNull, dataSetTypeOrNull, registrationMode, errorEmailRecipients,
-                operationLog);
+                controlFilePattern, operationLog);
     }
 
     public void initializeMailClient(IMailClient mailClient)

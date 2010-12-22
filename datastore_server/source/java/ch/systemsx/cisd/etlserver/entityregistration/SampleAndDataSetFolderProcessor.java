@@ -17,13 +17,17 @@
 package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
+
+import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -38,8 +42,6 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 class SampleAndDataSetFolderProcessor extends AbstractSampleAndDataSetProcessor
 {
     static final String ERRORS_FILENAME = "errors.txt";
-
-    private static final String CONTROL_FILE_EXTENSION = ".tsv";
 
     private final ArrayList<File> controlFiles = new ArrayList<File>();
 
@@ -99,24 +101,28 @@ class SampleAndDataSetFolderProcessor extends AbstractSampleAndDataSetProcessor
         }
     }
 
+    private FileFilter getFileFilter()
+    {
+        return new RegexFileFilter(getControlFilePattern());
+    }
+
+    private String getControlFilePattern()
+    {
+        return globalState.getControlFilePattern();
+    }
+
     private void collectControlFilesOrThrowError() throws UserFailureException
     {
-        File[] files = folder.listFiles();
-        for (File file : files)
-        {
-            if (file.getName().endsWith(CONTROL_FILE_EXTENSION))
-            {
-                controlFiles.add(file);
-            }
-        }
+        File[] files = folder.listFiles(getFileFilter());
+        Collections.addAll(controlFiles, files);
 
         if (controlFiles.isEmpty())
         {
             StringBuilder sb = new StringBuilder();
             sb.append("Folder (");
             sb.append(folder.getName());
-            sb.append(") for sample/dataset registration contains no control files with the required extension: ");
-            sb.append(CONTROL_FILE_EXTENSION);
+            sb.append(") for sample/dataset registration contains no control files matching the configured pattern: ");
+            sb.append(getControlFilePattern());
             sb.append(".");
             sb.append("\nFolder contents:");
             for (String filename : folder.list())

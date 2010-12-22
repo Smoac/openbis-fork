@@ -833,4 +833,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                 .registerSampleAndDataSet(sessionToken, newSample, externalData, userIdOrNull);
     }
 
+    public Sample updateSampleAndRegisterDataSet(SampleUpdatesDTO newSample,
+            NewExternalData externalData)
+    {
+        return service.updateSampleAndRegisterDataSet(sessionToken, newSample, externalData);
+    }
+
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.entityregistration;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -23,10 +24,16 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * An object that represents a sample/data set pair defined in a file
@@ -157,6 +164,30 @@ public class SampleDataSetPair
         builder.append("sampleProperties", newSample.getProperties());
         builder.append("dataSetInformation", getDataSetInformation());
         return builder.toString();
+    }
+
+    public SampleUpdatesDTO getSampleUpdates(Sample sample)
+    {
+        SampleUpdatesDTO sampleUpdates = new SampleUpdatesDTO(TechId.create(sample), // db id
+                Arrays.asList(newSample.getProperties()), // List<IEntityProperty>
+                getExperimentIdentifier(), // ExperimentIdentifier
+                null, // Collection<NewAttachment>
+                sample.getModificationDate(), // Sample version
+                getSampleIdentifier(), // Sample Identifier
+                newSample.getContainerIdentifier(), // Container Identifier
+                newSample.getParentsOrNull() // Parent Identifiers
+                );
+        return sampleUpdates;
+    }
+
+    private SampleIdentifier getSampleIdentifier()
+    {
+        return new SampleIdentifierFactory(newSample.getIdentifier()).createIdentifier();
+    }
+
+    private ExperimentIdentifier getExperimentIdentifier()
+    {
+        return dataSetInformation.getExperimentIdentifier();
     }
 
 }
