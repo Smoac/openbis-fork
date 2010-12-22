@@ -98,6 +98,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
             }
         };
 
+    private List<IColumnDefinition<ProteinInfo>> visibleColumnDefinitions;
+
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             BasicEntityType experimentType, Experiment experiment)
@@ -250,11 +252,25 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     }
 
     @Override
+    protected void initializeModelCreation()
+    {
+        Set<String> visibleColumnIds = getIDsOfVisibleColumns();
+        visibleColumnDefinitions = new ArrayList<IColumnDefinition<ProteinInfo>>();
+        Set<IColumnDefinition<ProteinInfo>> columnDefs = createColumnsDefinition().getColumnDefs();
+        for (IColumnDefinition<ProteinInfo> columnDefinition : columnDefs)
+        {
+            if (columnDefinition instanceof IColumnDefinitionUI == false
+                    || visibleColumnIds.contains(columnDefinition.getIdentifier()))
+            {
+                visibleColumnDefinitions.add(columnDefinition);
+            }
+        }
+    }
+
+    @Override
     protected BaseEntityModel<ProteinInfo> createModel(GridRowModel<ProteinInfo> entity)
     {
-        Set<IColumnDefinition<ProteinInfo>> columnDefs = createColumnsDefinition().getColumnDefs();
-        return new BaseEntityModel<ProteinInfo>(entity,
-                new ArrayList<IColumnDefinition<ProteinInfo>>(columnDefs), true);
+        return new BaseEntityModel<ProteinInfo>(entity, visibleColumnDefinitions, true);
     }
 
     @Override

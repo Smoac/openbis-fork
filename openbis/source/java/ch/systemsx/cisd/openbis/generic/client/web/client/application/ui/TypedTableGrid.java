@@ -165,6 +165,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
 
     private String currentGridDisplayTypeID;
 
+    private List<IColumnDefinitionUI<TableModelRowWithObject<T>>> visibleColDefinitions;
+
     protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String browserId,
             boolean refreshAutomatically, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -254,10 +256,25 @@ public abstract class TypedTableGrid<T extends ISerializable>
     }
 
     @Override
+    protected void initializeModelCreation()
+    {
+        Set<String> visibleColumnIds = getIDsOfVisibleColumns();
+        List<IColumnDefinitionUI<TableModelRowWithObject<T>>> colDefinitions = createColDefinitions();
+        visibleColDefinitions = new ArrayList<IColumnDefinitionUI<TableModelRowWithObject<T>>>();
+        for (IColumnDefinitionUI<TableModelRowWithObject<T>> definition : colDefinitions)
+        {
+            if (visibleColumnIds.contains(definition.getIdentifier()))
+            {
+                visibleColDefinitions.add(definition);
+            }
+        }
+    }
+
+    @Override
     protected BaseEntityModel<TableModelRowWithObject<T>> createModel(
             GridRowModel<TableModelRowWithObject<T>> entity)
     {
-        return new BaseEntityModel<TableModelRowWithObject<T>>(entity, createColDefinitions());
+        return new BaseEntityModel<TableModelRowWithObject<T>>(entity, visibleColDefinitions);
     }
 
     /**

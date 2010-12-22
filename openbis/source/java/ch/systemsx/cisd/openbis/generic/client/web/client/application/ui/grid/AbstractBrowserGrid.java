@@ -774,6 +774,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         private List<M> createModels(final GridRowModels<T> gridRowModels)
         {
             final List<M> result = new ArrayList<M>();
+            initializeModelCreation();
             for (final GridRowModel<T> entity : gridRowModels)
             {
                 M model = createModel(entity);
@@ -788,6 +789,31 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             return grid.getId();
         }
+    }
+
+    /**
+     * Initializes creation of model from received data. This is a hook method called before {
+     * {@link AbstractBrowserGrid#createModel(GridRowModel)} is invoked for all rows. This
+     * implementation does nothing. Subclasses usually override this method by creating an instance
+     * attribute which holds a list of visible column definitions. This speeds up invocation of
+     * {@link AbstractBrowserGrid#createModel(GridRowModel)}.
+     */
+    protected void initializeModelCreation()
+    {
+    }
+
+    protected Set<String> getIDsOfVisibleColumns()
+    {
+        Set<String> visibleColumnIds = new HashSet<String>();
+        for (int i = 0, n = fullColumnModel.getColumnCount(); i < n; i++)
+        {
+            ColumnConfig column = fullColumnModel.getColumn(i);
+            if (column.isHidden() == false)
+            {
+                visibleColumnIds.add(column.getId());
+            }
+        }
+        return visibleColumnIds;
     }
 
     // wraps this browser into the interface appropriate for the toolbar. If this class would just
@@ -1532,8 +1558,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return new ColumnModel(columConfigs);
     }
 
-    // Default visibility so that friend classes can use -- should otherwise be considered private
-    ColumnModel getFullColumnModel()
+    protected ColumnModel getFullColumnModel()
     {
         return fullColumnModel;
     }

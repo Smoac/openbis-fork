@@ -49,6 +49,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 public class BaseEntityModel<T> extends SimplifiedBaseModelData
 {
     private static final long serialVersionUID = 1L;
+    
+    public static <T> BaseEntityModel<T> create(GridRowModel<T> entity, List<IColumnDefinitionUI<T>> columnDefinitions)
+    {
+        return null;
+    }
 
     public BaseEntityModel(final GridRowModel<T> entity,
             IColumnDefinitionKind<T>[] staticColumnDefinitions)
