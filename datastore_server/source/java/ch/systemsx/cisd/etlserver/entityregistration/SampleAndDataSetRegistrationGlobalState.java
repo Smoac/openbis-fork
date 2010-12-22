@@ -58,6 +58,10 @@ class SampleAndDataSetRegistrationGlobalState
 
     private final String controlFilePattern;
 
+    private final boolean alwaysCleanupAfterProcessing;
+
+    private final boolean unmentionedSubfolderIsFailure;
+
     private final Logger operationLog;
 
     private IMailClient mailClient;
@@ -66,7 +70,8 @@ class SampleAndDataSetRegistrationGlobalState
             IEncapsulatedOpenBISService openbisService, SpaceIdentifier spaceIdentifierOrNull,
             SampleType sampleTypeOrNull, DataSetType dataSetTypeOrNull,
             SampleRegistrationMode sampleRegistrationMode, List<String> errorEmailRecipientsOrNull,
-            String controlFilePattern, Logger operationLog)
+            String controlFilePattern, boolean alwaysCleanupAfterProcessing,
+            boolean unmentionedSubfolderIsFailure, Logger operationLog)
     {
         this.delegator = delegator;
         this.openbisService = openbisService;
@@ -76,6 +81,8 @@ class SampleAndDataSetRegistrationGlobalState
         this.sampleRegistrationMode = sampleRegistrationMode;
         this.errorEmailRecipientsOrNull = errorEmailRecipientsOrNull;
         this.controlFilePattern = controlFilePattern;
+        this.alwaysCleanupAfterProcessing = alwaysCleanupAfterProcessing;
+        this.unmentionedSubfolderIsFailure = unmentionedSubfolderIsFailure;
         this.operationLog = operationLog;
     }
 
@@ -173,5 +180,15 @@ class SampleAndDataSetRegistrationGlobalState
     public String getControlFilePattern()
     {
         return controlFilePattern;
+    }
+
+    public boolean alwaysCleanUpAfterProcessing()
+    {
+        return alwaysCleanupAfterProcessing;
+    }
+
+    public boolean areUnmentionedFoldersAnError()
+    {
+        return unmentionedSubfolderIsFailure;
     }
 }

@@ -67,7 +67,13 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
 
     static final String CONTROL_FILE_REGEX_PATTERN = "control-file-regex-pattern";
 
-    private static final String DEFAULT_CONTROL_FILE_REGEX_PATTERN = ".*.[Tt][Ss][Vv]";
+    private static final String DEFAULT_CONTROL_FILE_REGEX_PATTERN = ".*\\.[Tt][Ss][Vv]";
+
+    static final String CONTROL_FILE_ALWAYS_CLEANUP_AFTER_PROCESSING =
+            "always-cleanup-after-processing";
+
+    static final String CONTROL_FILE_UNMENTIONED_SUBFOLDER_IS_FAILURE =
+            "unmentioned-subfolder-is-failure";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleAndDataSetRegistrationHandler.class);
@@ -134,9 +140,18 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
                 PropertyUtils.getProperty(specificProperties, CONTROL_FILE_REGEX_PATTERN,
                         DEFAULT_CONTROL_FILE_REGEX_PATTERN);
 
+        boolean deleteFilesOnFailure =
+                PropertyUtils.getBoolean(specificProperties,
+                        CONTROL_FILE_ALWAYS_CLEANUP_AFTER_PROCESSING, true);
+
+        boolean unmentionedSubfolderIsFailure =
+                PropertyUtils.getBoolean(specificProperties,
+                        CONTROL_FILE_UNMENTIONED_SUBFOLDER_IS_FAILURE, true);
+
         return new SampleAndDataSetRegistrationGlobalState(delegator, service, spaceIdentifier,
                 sampleTypeOrNull, dataSetTypeOrNull, registrationMode, errorEmailRecipients,
-                controlFilePattern, operationLog);
+                controlFilePattern, deleteFilesOnFailure, unmentionedSubfolderIsFailure,
+                operationLog);
     }
 
     public void initializeMailClient(IMailClient mailClient)
@@ -158,8 +173,11 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
             throw new CheckedExceptionTunnel(ex);
         } finally
         {
-            FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(file);
-            logFileDeletion(file);
+            if (globalState.alwaysCleanUpAfterProcessing())
+            {
+                FileOperations.getMonitoredInstanceForCurrentThread().deleteRecursively(file);
+                logFileDeletion(file);
+            }
         }
         return createReturnValue();
     }

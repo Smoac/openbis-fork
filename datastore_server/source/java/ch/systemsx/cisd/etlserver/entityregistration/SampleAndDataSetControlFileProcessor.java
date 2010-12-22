@@ -21,7 +21,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.activation.DataHandler;
@@ -34,7 +36,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.utilities.UnicodeUtils;
-import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrator.RegistrationErrorWrapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -47,10 +48,26 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.GlobalPropertiesLoader;
  */
 class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProcessor
 {
+    private static final String SUCCESS_FILENAME = "registered.txt";
+
     private final File controlFile;
 
-    private final HashMap<SampleDataSetPair, RegistrationErrorWrapper> errorMap =
-            new HashMap<SampleDataSetPair, RegistrationErrorWrapper>();
+    private final HashMap<SampleDataSetPair, IRegistrationStatus> errorMap =
+            new HashMap<SampleDataSetPair, IRegistrationStatus>();
+
+    private final HashMap<SampleDataSetPair, IRegistrationStatus> successMap =
+            new HashMap<SampleDataSetPair, IRegistrationStatus>();
+
+    private final HashSet<File> processedDataSetFiles = new HashSet<File>();
+
+    // State that is filled out as a result of processing
+    private ControlFileRegistrationProperties properties;
+
+    private String failureLinesResultSectionOrNull;
+
+    private String unmentionedSubfoldersResultSectionOrNull;
+
+    private String successLinesResultSectionOrNull;
 
     /**
      * Utility class for accessing the properties defined in a control file.
@@ -226,8 +243,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
         logControlFileOverridePropertiesExtracted(overrideProperties);
 
-        ControlFileRegistrationProperties properties =
-                new ControlFileRegistrationProperties(overrideProperties, globalState);
+        properties = new ControlFileRegistrationProperties(overrideProperties, globalState);
 
         BisTabFileLoader<SampleDataSetPair> controlFileLoader =
                 new BisTabFileLoader<SampleDataSetPair>(
@@ -252,7 +268,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
                 throw e;
             }
 
-            sendEmailWithErrorMessage(properties, e.getMessage());
+            sendEmailWithErrorMessage(e.getMessage());
             return;
         } finally
         {
@@ -272,26 +288,69 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             sampleDataSet.getDataSetInformation().setUploadingUserId(userId);
             SampleAndDataSetRegistrator registrator =
                     new SampleAndDataSetRegistrator(folder, properties, sampleDataSet);
-            RegistrationErrorWrapper resultOrNull = registrator.register();
-            if (null != resultOrNull)
+            IRegistrationStatus result = registrator.register();
+            processedDataSetFiles.add(registrator.getDataSetFile());
+            if (result.isError())
             {
-                errorMap.put(sampleDataSet, resultOrNull);
+                errorMap.put(sampleDataSet, result);
+            } else
+            {
+                successMap.put(sampleDataSet, result);
             }
         }
-        if (false == errorMap.isEmpty())
-        {
-            sendEmailWithErrorMessage(properties, createErrorMessageFromErrorMap());
-        }
 
+        sendResultsEmail();
     }
 
-    private String createErrorMessageFromErrorMap()
+    private void sendResultsEmail()
     {
+
+        createFailureLinesSection();
+        createUnmentionedFoldersSection();
+        createSuccessfulLinesSection();
+
+        boolean wasSuccessful = true;
+
+        StringBuilder resultEmail = new StringBuilder();
+        if (null != failureLinesResultSectionOrNull)
+        {
+            resultEmail.append(failureLinesResultSectionOrNull);
+            resultEmail.append("\n");
+            wasSuccessful = false;
+        }
+        if (null != unmentionedSubfoldersResultSectionOrNull)
+        {
+            resultEmail.append(unmentionedSubfoldersResultSectionOrNull);
+            resultEmail.append("\n");
+            wasSuccessful = false;
+        }
+        if (null != successLinesResultSectionOrNull)
+        {
+            resultEmail.append(successLinesResultSectionOrNull);
+        }
+
+        if (wasSuccessful)
+        {
+            sendEmailWithSuccessMessage(resultEmail.toString());
+        } else
+        {
+            sendEmailWithErrorMessage(resultEmail.toString());
+        }
+    }
+
+    private void createFailureLinesSection()
+    {
+        if (errorMap.isEmpty())
+        {
+            failureLinesResultSectionOrNull = null;
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append("Encountered errors in the following lines:\n");
         for (SampleDataSetPair pair : errorMap.keySet())
         {
-            RegistrationErrorWrapper error = errorMap.get(pair);
+            IRegistrationStatus error = errorMap.get(pair);
             sb.append("# ");
             sb.append(error.getMessage());
             sb.append("\n");
@@ -308,17 +367,99 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
             }
             sb.append("\n");
         }
-        return sb.toString();
+        failureLinesResultSectionOrNull = sb.toString();
     }
 
-    private void logControlFileOverridePropertiesExtracted(ControlFileOverrideProperties properties)
+    private void createUnmentionedFoldersSection()
+    {
+        if (false == globalState.areUnmentionedFoldersAnError())
+        {
+            unmentionedSubfoldersResultSectionOrNull = null;
+            return;
+        }
+        // Make sure all folders were processed
+        ArrayList<File> unprocessedFiles = getUnprocessedDataSetList();
+
+        if (unprocessedFiles.isEmpty())
+        {
+            unmentionedSubfoldersResultSectionOrNull = null;
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("The following subfolders were in the uploaded folder, but were not mentioned in the control file:\n");
+        for (File file : unprocessedFiles)
+        {
+            sb.append(file.getName());
+            sb.append(",");
+        }
+
+        // remove the final comma
+        sb.deleteCharAt(sb.length() - 1);
+
+        unmentionedSubfoldersResultSectionOrNull = sb.toString();
+    }
+
+    private void createSuccessfulLinesSection()
+    {
+        if (errorMap.isEmpty())
+        {
+            successLinesResultSectionOrNull = null;
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("The following lines were successfully registered:\n");
+        for (SampleDataSetPair pair : successMap.keySet())
+        {
+            sb.append("# ");
+            String[] tokens = pair.getTokens();
+            int i = 0;
+            for (String token : tokens)
+            {
+                sb.append(token);
+                if (++i < tokens.length)
+                {
+                    sb.append("\t");
+                }
+            }
+            sb.append("\n");
+        }
+        successLinesResultSectionOrNull = sb.toString();
+    }
+
+    private void logControlFileOverridePropertiesExtracted(
+            ControlFileOverrideProperties overrideProperties)
     {
         String message =
                 String.format(
                         "Global properties extracted from file '%s': SAMPLE_TYPE(%s) DATA_SET_TYPE(%s) USER(%s)",
-                        controlFile.getName(), properties.trySampleType(),
-                        properties.tryDataSetType(), properties.tryUserString());
+                        controlFile.getName(), overrideProperties.trySampleType(),
+                        overrideProperties.tryDataSetType(), overrideProperties.tryUserString());
         logInfo(message);
+    }
+
+    /**
+     * Send an email message to the person who uploaded the file, telling them that everything went
+     * ok.
+     */
+    private void sendEmailWithSuccessMessage(String message)
+    {
+        // Create an email and send it.
+        try
+        {
+            String subject = createSuccessEmailSubject();
+            String content = createSuccessEmailContent();
+            String filename = SUCCESS_FILENAME;
+            EMailAddress recipient = new EMailAddress(properties.getUser().getEmail());
+            DataSource dataSource = new ByteArrayDataSource(message, "text/plain");
+
+            globalState.getMailClient().sendEmailMessageWithAttachment(subject, content, filename,
+                    new DataHandler(dataSource), null, null, recipient);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 
     /**
@@ -326,8 +467,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
      * have a valid email address to contact. Otherwise, errors are forwarded to a higher level for
      * handling.
      */
-    private void sendEmailWithErrorMessage(ControlFileRegistrationProperties properties,
-            String message)
+    private void sendEmailWithErrorMessage(String message)
     {
         // Log it
         logError(message);
@@ -359,5 +499,38 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         return String
                 .format("Not all samples and data sets specified in the control file, %s, could be registered / updated. The errors are detailed in the attachment. Each faulty line is reproduced, preceded by a comment explaining the cause of the error.",
                         controlFile);
+    }
+
+    private String createSuccessEmailSubject()
+    {
+        return String.format("Sample / Data Set Registration Succeeded -- %s", controlFile);
+    }
+
+    private String createSuccessEmailContent()
+    {
+        return String
+                .format("The registration/update of samples and the registration of data sets was successful specified in the control file, %s, was successful.",
+                        controlFile);
+    }
+
+    private ArrayList<File> getUnprocessedDataSetList()
+    {
+        File[] files = folder.listFiles();
+        ArrayList<File> unprcessedDataSets = new ArrayList<File>();
+        for (File file : files)
+        {
+            if (controlFile.equals(file))
+            {
+                continue;
+            }
+            // See if it was handled already
+            if (processedDataSetFiles.contains(file))
+            {
+                continue;
+            }
+            unprcessedDataSets.add(file);
+        }
+
+        return unprcessedDataSets;
     }
 }

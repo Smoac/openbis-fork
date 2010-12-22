@@ -40,57 +40,21 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         TransferredDataSetHandler.IDataSetRegistrator
 {
 
-    /**
-     * A wrapper around errors encountered during registration.
-     * 
-     * @author Chandrasekhar Ramakrishnan
-     */
-    static class RegistrationErrorWrapper
-    {
-        private final boolean isError;
-
-        private final Throwable errorOrNull;
-
-        RegistrationErrorWrapper(Throwable errorOrNull)
-        {
-            this.errorOrNull = errorOrNull;
-            isError = errorOrNull != null;
-        }
-
-        public boolean isError()
-        {
-            return isError;
-        }
-
-        public Throwable getErrorOrNull()
-        {
-            return errorOrNull;
-        }
-
-        public String getMessage()
-        {
-            if (isError)
-            {
-                return errorOrNull.getMessage();
-            } else
-            {
-                return "Success";
-            }
-        }
-
-    }
-
     private final ControlFileRegistrationProperties properties;
 
     private final SampleDataSetPair sampleDataSetPair;
 
     // State that is updated during the registration
+
+    // The file/folder to register
+    private File dataSetFile;
+
     // The sample, if the sample exists, null otherwise.
     private Sample sampleOrNull;
 
     private boolean didSucceed = false;
 
-    private RegistrationErrorWrapper failureException = null;
+    private IRegistrationStatus failureException = null;
 
     SampleAndDataSetRegistrator(File folder, ControlFileRegistrationProperties properties,
             SampleDataSetPair sampleDataSetPair)
@@ -105,18 +69,18 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
      * 
      * @return An exception if one was encountered, otherwise null.
      */
-    public RegistrationErrorWrapper register()
+    public IRegistrationStatus register()
     {
-        File dataSetFile = new File(folder, sampleDataSetPair.getFolderName());
+        dataSetFile = new File(folder, sampleDataSetPair.getFolderName());
         try
         {
-            checkDataSetFileNotEmpty(dataSetFile);
+            checkDataSetFileNotEmpty();
             checkExperimentExists();
             retrieveSampleOrNull();
             checkConformanceToMode();
         } catch (UserFailureException ex)
         {
-            return new RegistrationErrorWrapper(ex);
+            return new RegistrationError(ex);
         }
 
         if (globalState.getDelegator() instanceof IExtensibleDataSetHandler)
@@ -129,7 +93,22 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
                 logDataRegistered();
             }
         }
-        return failureException;
+        if (null == failureException)
+        {
+            return new RegistrationSuccess(sampleDataSetPair.getTokens());
+        } else
+        {
+            return failureException;
+        }
+    }
+
+    /**
+     * Return the file that we treat as a data set. This is only valid *after* register has been
+     * called.
+     */
+    public File getDataSetFile()
+    {
+        return dataSetFile;
     }
 
     /**
@@ -159,7 +138,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         }
     }
 
-    private void checkDataSetFileNotEmpty(File dataSetFile)
+    private void checkDataSetFileNotEmpty()
     {
         if (0 == dataSetFile.list().length)
         {
@@ -239,13 +218,13 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
         } catch (UserFailureException e)
         {
             didSucceed = false;
-            failureException = new RegistrationErrorWrapper(e);
+            failureException = new RegistrationError(e);
             throw e;
         } catch (Throwable e)
         {
             logError("Could not register " + sampleDataSetPair + " in openBIS", e);
             didSucceed = false;
-            failureException = new RegistrationErrorWrapper(e);
+            failureException = new RegistrationError(e);
             throw e;
         }
     }
