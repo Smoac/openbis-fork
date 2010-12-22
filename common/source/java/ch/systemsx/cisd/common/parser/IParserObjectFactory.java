@@ -53,7 +53,8 @@ public interface IParserObjectFactory<E>
                 };
 
     /**
-     * Parses given text line and returns an appropriate <i>Object</i>.
+     * Parses given text line and returns an appropriate <i>Object</i>. If null is return, the value
+     * is skipped. If an error is encountered, throw a ParserException.
      */
     public E createObject(final String[] lineTokens) throws ParserException;
 }

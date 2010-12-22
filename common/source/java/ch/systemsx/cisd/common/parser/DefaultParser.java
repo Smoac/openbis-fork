@@ -80,7 +80,11 @@ public class DefaultParser<E> implements IParser<E>
                 {
                     throw new ParsingException(parserException, tokens, number);
                 }
-                elements.add(object);
+                // Skip null values
+                if (null != object)
+                {
+                    elements.add(object);
+                }
             }
         }
         lineTokenizer.destroy();
