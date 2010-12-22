@@ -210,7 +210,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
                 (isSampleKnown()) ? "Updated sample, registered data set %s"
                         : "Registered sample/data set pair %s";
         String message = String.format(messageFormat, sampleDataSetPair);
-        globalState.getOperationLog().info(message);
+        logInfo(message);
     }
 
     public void registerDataSetInApplicationServer(NewExternalData data) throws Throwable
@@ -243,8 +243,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             throw e;
         } catch (Throwable e)
         {
-            globalState.getOperationLog().error(
-                    "Could not register " + sampleDataSetPair + " in openBIS", e);
+            logError("Could not register " + sampleDataSetPair + " in openBIS", e);
             didSucceed = false;
             failureException = new RegistrationErrorWrapper(e);
             throw e;

@@ -95,6 +95,43 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     }
 
     @Test
+    public void testRegisteringMissingSampleIdentifier()
+    {
+        final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
+                new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<NewSample> newSampleMatcher = new RecordingMatcher<NewSample>();
+
+        setupOpenBisExpectations();
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher, 2);
+        setupUpdateSampleExistsExpectations("S1", false);
+        setupUpdateSampleExistsExpectations("S3", false);
+        setupRegisterSampleAndDataSetExpectations(externalData, newSampleMatcher, 2);
+
+        // Error email on the line with the missing sample identifier
+        final RecordingMatcher<DataHandler> attachmentMatcher = new RecordingMatcher<DataHandler>();
+        final RecordingMatcher<EMailAddress[]> addressesMatcher =
+                new RecordingMatcher<EMailAddress[]>();
+        setupPartialSuccessErrorEmailExpectations(attachmentMatcher, addressesMatcher,
+                "missing-sample-identifier");
+
+        File workingCopy = createWorkingCopyOfTestFolder("missing-sample-identifier");
+
+        initializeDefaultDataSetHandler();
+        handler.handleDataSet(workingCopy);
+
+        String logText =
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP1,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP3,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL42}, NewProperty{property=prop2,value=VAL52}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Encountered errors in the following lines:\n"
+                        + "# Illegal empty identifier\n"
+                        + "\t/MYSPACE/MYPROJ/EXP2\tVAL11\tVAL21\tVAL31\tFILE_TYPE\tVAL41\tVAL51\tds2/\n";
+        checkAppenderContent(logText, "missing-sample-identifier");
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testRegisteringBasicControlFile()
     {
         final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
@@ -102,7 +139,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         final RecordingMatcher<NewSample> newSampleMatcher = new RecordingMatcher<NewSample>();
 
         setupOpenBisExpectations();
-        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher);
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher, 3);
         setupUpdateSampleExistsExpectations("S1", false);
         setupUpdateSampleExistsExpectations("S2", false);
         setupUpdateSampleExistsExpectations("S3", false);
@@ -124,6 +161,35 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     }
 
     @Test
+    public void testRegisteringWithEmptyLinesInControlFile()
+    {
+        final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
+                new RecordingMatcher<DataSetInformation>();
+        final RecordingMatcher<NewSample> newSampleMatcher = new RecordingMatcher<NewSample>();
+
+        setupOpenBisExpectations();
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher, 3);
+        setupUpdateSampleExistsExpectations("S1", false);
+        setupUpdateSampleExistsExpectations("S2", false);
+        setupUpdateSampleExistsExpectations("S3", false);
+        setupRegisterSampleAndDataSetExpectations(externalData, newSampleMatcher, 3);
+
+        File workingCopy = createWorkingCopyOfTestFolder("empty-lines");
+
+        initializeDefaultDataSetHandler();
+        handler.handleDataSet(workingCopy);
+
+        String logText =
+                "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP1,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S2,sampleProperties={prop1: VAL11,prop2: VAL21,prop3: VAL31},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP2,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL41}, NewProperty{property=prop2,value=VAL51}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
+                        + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S3,sampleProperties={prop1: VAL12,prop2: VAL22,prop3: VAL32},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP3,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL42}, NewProperty{property=prop2,value=VAL52}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]";
+        checkAppenderContent(logText, "empty-lines");
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testOnlyUpdates()
     {
         final RecordingMatcher<DataSetInformation> dataSetInfoMatcher =
@@ -132,7 +198,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new RecordingMatcher<SampleUpdatesDTO>();
 
         setupOpenBisExpectations();
-        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher);
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher, 3);
         setupUpdateSampleExistsExpectations("S1", true);
         setupUpdateSampleExistsExpectations("S2", true);
         setupUpdateSampleExistsExpectations("S3", true);
@@ -163,7 +229,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 new RecordingMatcher<SampleUpdatesDTO>();
 
         setupOpenBisExpectations();
-        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher);
+        NewExternalData externalData = setupDataSetHandlerExpectations(dataSetInfoMatcher, 3);
         setupUpdateSampleExistsExpectations("S1", false);
         setupUpdateSampleExistsExpectations("S2", true);
         setupUpdateSampleExistsExpectations("S3", false);
@@ -192,7 +258,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         final RecordingMatcher<EMailAddress[]> addressesMatcher =
                 new RecordingMatcher<EMailAddress[]>();
 
-        setupErrorEmailExpectations(attachmentMatcher, addressesMatcher, "no-control");
+        setupFailureErrorEmailExpectations(attachmentMatcher, addressesMatcher, "no-control");
 
         File workingCopy = createWorkingCopyOfTestFolder("no-control");
 
@@ -218,7 +284,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         final RecordingMatcher<EMailAddress[]> addressesMatcher =
                 new RecordingMatcher<EMailAddress[]>();
 
-        setupErrorEmailExpectations(attachmentMatcher, addressesMatcher, "empty-folder");
+        setupFailureErrorEmailExpectations(attachmentMatcher, addressesMatcher, "empty-folder");
 
         File workingCopy = createWorkingCopyOfTestFolder("empty-folder");
 
@@ -276,7 +342,8 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
         return workingCopy;
     }
 
-    private void setupErrorEmailExpectations(final RecordingMatcher<DataHandler> attachmentMatcher,
+    private void setupFailureErrorEmailExpectations(
+            final RecordingMatcher<DataHandler> attachmentMatcher,
             final RecordingMatcher<EMailAddress[]> addressesMatcher, final String folderName)
     {
         context.checking(new Expectations()
@@ -287,16 +354,45 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                     admin.setUserId("test");
                     one(openbisService).listAdministrators();
                     will(returnValue(Collections.singletonList(admin)));
-                    one(mailClient)
-                            .sendEmailMessageWithAttachment(
-                                    with("Sample / Data Set Registration Error -- targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
-                                            + folderName),
-                                    with("When trying to process the files in the folder, targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
-                                            + folderName
-                                            + ", errors were encountered. These errors are detailed in the attachment."),
-                                    with("errors.txt"), with(attachmentMatcher),
-                                    with(new IsNull<EMailAddress>()),
-                                    with(new IsNull<EMailAddress>()), with(addressesMatcher));
+                }
+            });
+        setupErrorEmailExpectations(
+                attachmentMatcher,
+                addressesMatcher,
+                "Sample / Data Set Registration Error -- targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
+                        + folderName,
+                "When trying to process the files in the folder, targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
+                        + folderName
+                        + ", errors were encountered. These errors are detailed in the attachment.",
+                folderName);
+    }
+
+    private void setupPartialSuccessErrorEmailExpectations(
+            final RecordingMatcher<DataHandler> attachmentMatcher,
+            final RecordingMatcher<EMailAddress[]> addressesMatcher, final String folderName)
+    {
+        setupErrorEmailExpectations(
+                attachmentMatcher,
+                addressesMatcher,
+                "Sample / Data Set Registration Error -- targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
+                        + folderName + "/control.tsv",
+                "Not all samples and data sets specified in the control file, targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
+                        + folderName
+                        + "/control.tsv, could be registered / updated. The errors are detailed in the attachment. Each faulty line is reproduced, preceded by a comment explaining the cause of the error.",
+                folderName);
+    }
+
+    private void setupErrorEmailExpectations(final RecordingMatcher<DataHandler> attachmentMatcher,
+            final RecordingMatcher<EMailAddress[]> addressesMatcher, final String emailSubject,
+            final String emailBody, final String folderName)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(mailClient).sendEmailMessageWithAttachment(with(emailSubject),
+                            with(emailBody), with("errors.txt"), with(attachmentMatcher),
+                            with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
+                            with(addressesMatcher));
                 }
             });
     }
@@ -316,7 +412,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
     }
 
     private NewExternalData setupDataSetHandlerExpectations(
-            final RecordingMatcher<DataSetInformation> dataSetInfoMatcher)
+            final RecordingMatcher<DataSetInformation> dataSetInfoMatcher, final int count)
     {
         final NewExternalData externalData = new NewExternalData();
         context.checking(new Expectations()
@@ -337,7 +433,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                         will(returnValue(exp));
                     }
 
-                    exactly(3).of(delegator).handleDataSet(with(fileMatcher),
+                    exactly(count).of(delegator).handleDataSet(with(fileMatcher),
                             with(dataSetInfoMatcher), with(registratorMatcher));
                     will(new CustomAction("Call registrator")
                         {

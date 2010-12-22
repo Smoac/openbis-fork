@@ -157,6 +157,22 @@ class SampleDataSetPairParserObjectFactory extends AbstractParserObjectFactory<S
     @Override
     public SampleDataSetPair createObject(final String[] lineTokens) throws ParserException
     {
+        boolean allTokensAreEmpty = true;
+        for (String token : lineTokens)
+        {
+            if (token.trim().length() > 0)
+            {
+                allTokensAreEmpty = false;
+                break;
+            }
+        }
+
+        // Skip empty lines
+        if (allTokensAreEmpty)
+        {
+            return null;
+        }
+
         final SampleDataSetPair newSampleDataSet = super.createObject(lineTokens);
         newSampleDataSet.setTokens(lineTokens);
         setProperties(newSampleDataSet, lineTokens);

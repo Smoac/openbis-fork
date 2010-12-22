@@ -92,7 +92,7 @@ public class SampleDataSetPair
         return dataSetInformation;
     }
 
-    @BeanProperty(label = SAMPLE_IDENTIFIER, optional = false)
+    @BeanProperty(label = SAMPLE_IDENTIFIER, optional = true)
     public void setSampleIdentifier(String sampleIdentifier)
     {
         this.newSample.setIdentifier(sampleIdentifier);

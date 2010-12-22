@@ -47,4 +47,9 @@ public class AbstractSampleAndDataSetProcessor
         globalState.getOperationLog().error(message);
     }
 
+    protected void logError(String message, Throwable e)
+    {
+        globalState.getOperationLog().error(message, e);
+    }
+
 }
