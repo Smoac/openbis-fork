@@ -20,7 +20,8 @@ import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**
- * Identifies one channel stack, by well and tile location or by the technical id.
+ * Identifies one channel stack in a dataset, by well and tile location in HCS, tile location in
+ * microscopy or by the technical id.
  * 
  * @author Tomasz Pylak
  */
