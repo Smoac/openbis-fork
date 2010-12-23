@@ -34,6 +34,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -42,6 +44,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSe
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
+import ch.systemsx.cisd.openbis.generic.server.util.CacheManager;
+import ch.systemsx.cisd.openbis.generic.server.util.ICacheManager;
+import ch.systemsx.cisd.openbis.generic.server.util.Key;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -49,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.Constants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
@@ -96,8 +102,10 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     public void afterPropertiesSet() throws Exception
     {
         WebClientConfiguration webClientConfiguration = getWebClientConfiguration();
+        IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
         final ICacheManager cacheManager =
-                new CacheManager(webClientConfiguration, SYSTEM_TIME_PROVIDER, CACHE_VERSION);
+                new CacheManager(webClientConfiguration, Constants.TECHNOLOGY_NAME,
+                        SYSTEM_TIME_PROVIDER, freeSpaceProvider, CACHE_VERSION);
         ProxyFactory proxyFactory = new ProxyFactory(server);
         proxyFactory.addInterface(IPhosphoNetXServer.class);
         AnnotationMatchingPointcut pointcut =
@@ -108,12 +116,12 @@ public class PhosphoNetXClientService extends AbstractClientService implements
                 {
                     // assuming first argument is sessionToken which shouldn't be a part of the key
                     Object[] arguments = methodInvocation.getArguments();
-                    Serializable[] keyArguments = new Serializable[arguments.length];
+                    Object[] keyArguments = new Serializable[arguments.length];
                     Method method = methodInvocation.getMethod();
                     keyArguments[0] = method.getName();
                     for (int i = 1; i < keyArguments.length; i++)
                     {
-                        keyArguments[i] = (Serializable) arguments[i];
+                        keyArguments[i] = arguments[i];
                     }
                     Key key = new Key(keyArguments);
                     Object data = cacheManager.tryToGetData(key);
@@ -155,7 +163,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            return getServerWithCache().getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
+            return server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
                     experimentID, treatmentTypeOrNull);
         } finally
         {
@@ -176,7 +184,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             AggregateFunction aggregateFunction = criteria.getAggregateFunction();
             String treatmentTypeCode = criteria.getTreatmentTypeCode();
             boolean aggregateOnOriginal = criteria.isAggregateOriginal();
-            return listEntities(criteria, new ListProteinOriginalDataProvider(getServerWithCache(), sessionToken,
+            return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
                     experimentID, fdr, aggregateFunction, treatmentTypeCode, aggregateOnOriginal));
         } finally
         {
@@ -285,11 +293,6 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     {
         proteomicsDataService.processRawData(getSessionToken(), dataSetProcessingKey,
                 rawDataSampleIDs, dataSetType);
-    }
-
-    private IPhosphoNetXServer getServerWithCache()
-    {
-        return server;
     }
 
 }

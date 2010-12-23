@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.highwatermark;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
 
 import org.apache.commons.io.FileSystemUtils;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 
 /**
  * A simple <code>IFreeSpaceProvider</code> implementation based on {@link FileSystemUtils}.

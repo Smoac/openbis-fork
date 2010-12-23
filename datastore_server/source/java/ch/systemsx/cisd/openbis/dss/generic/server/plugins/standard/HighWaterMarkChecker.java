@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
-import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.HighwaterMarkState;
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
+package ch.systemsx.cisd.openbis.generic.server.util;
 
 import java.io.Serializable;
 

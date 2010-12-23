@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.highwatermark;
 import java.io.File;
 
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningHandlerInterceptor;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask.IScannedStore;

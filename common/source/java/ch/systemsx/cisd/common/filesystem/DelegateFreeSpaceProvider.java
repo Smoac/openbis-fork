@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.highwatermark;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
 
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
+
 
 /**
  * A <code>IFreeSpaceProvider</code> implementation which delegates its job to the encapsulated

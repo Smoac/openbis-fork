@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.highwatermark;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.io.Serializable;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;
 
 /**

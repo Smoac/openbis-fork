@@ -32,6 +32,10 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.filesystem.NonHangingFreeSpaceProvider;
+import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
@@ -366,20 +370,6 @@ public final class HighwaterMarkWatcher implements Runnable
                         freeSpaceDisplayed));
             }
         }
-    }
-
-    /**
-     * Each implementation is able to return the free space on a drive or volume.
-     * 
-     * @author Christian Ribeaud
-     */
-    public static interface IFreeSpaceProvider
-    {
-
-        /**
-         * Returns the free space on a drive or volume in kilobytes by invoking the command line.
-         */
-        public long freeSpaceKb(final HostAwareFile path) throws IOException;
     }
 
 }

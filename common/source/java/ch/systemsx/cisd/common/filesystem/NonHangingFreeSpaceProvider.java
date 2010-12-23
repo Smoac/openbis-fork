@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.highwatermark;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -25,7 +25,6 @@ import java.util.concurrent.Future;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 
 /**
  * A <code>DelegateFreeSpaceProvider</code> which does not block, computing the free space in its

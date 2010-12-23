@@ -21,8 +21,8 @@ import java.io.IOException;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandBuilder;
-import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
 
 /**
  * Test cases for {@link RemoteFreeSpaceProvider}.

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.common.highwatermark;
+package ch.systemsx.cisd.common.filesystem;
 
 
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
+
 
 /**
  * An <code>IFreeSpaceProvider</code> implementation which returns {@link Long#MAX_VALUE} as free
