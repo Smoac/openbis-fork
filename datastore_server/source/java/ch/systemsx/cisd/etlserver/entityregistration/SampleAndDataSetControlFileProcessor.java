@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -524,6 +525,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     private ArrayList<File> getUnprocessedDataSetList()
     {
         File[] files = folder.listFiles();
+        Arrays.sort(files);
         ArrayList<File> unprcessedDataSets = new ArrayList<File>();
         for (File file : files)
         {
