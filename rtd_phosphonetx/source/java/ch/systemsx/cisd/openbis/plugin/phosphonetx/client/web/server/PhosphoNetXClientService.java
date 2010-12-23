@@ -16,11 +16,21 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.server;
 
+import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang.time.StopWatch;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -37,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
@@ -44,6 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.CacheData;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IProteomicsDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
@@ -61,16 +73,16 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
  */
 @Component(value = ResourceNames.PHOSPHONETX_PLUGIN_SERVICE)
 public class PhosphoNetXClientService extends AbstractClientService implements
-        IPhosphoNetXClientService
+        IPhosphoNetXClientService, InitializingBean
 {
+    private static final String CACHE_VERSION = "1"; // Sprint S97
+    
     @Resource(name = ResourceNames.PHOSPHONETX_PLUGIN_SERVER)
     private IPhosphoNetXServer server;
 
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
     private IProteomicsDataServiceInternal proteomicsDataService;
 
-    private IPhosphoNetXServer serverWithCache;
-    
     public PhosphoNetXClientService()
     {
         super();
@@ -79,6 +91,42 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     public PhosphoNetXClientService(IRequestContextProvider requestContextProvider)
     {
         super(requestContextProvider);
+    }
+
+    public void afterPropertiesSet() throws Exception
+    {
+        WebClientConfiguration webClientConfiguration = getWebClientConfiguration();
+        final ICacheManager cacheManager =
+                new CacheManager(webClientConfiguration, SYSTEM_TIME_PROVIDER, CACHE_VERSION);
+        ProxyFactory proxyFactory = new ProxyFactory(server);
+        proxyFactory.addInterface(IPhosphoNetXServer.class);
+        AnnotationMatchingPointcut pointcut =
+                AnnotationMatchingPointcut.forMethodAnnotation(CacheData.class);
+        proxyFactory.addAdvisor(new DefaultPointcutAdvisor(pointcut, new MethodInterceptor()
+            {
+                public Object invoke(MethodInvocation methodInvocation) throws Throwable
+                {
+                    // assuming first argument is sessionToken which shouldn't be a part of the key
+                    Object[] arguments = methodInvocation.getArguments();
+                    Serializable[] keyArguments = new Serializable[arguments.length];
+                    Method method = methodInvocation.getMethod();
+                    keyArguments[0] = method.getName();
+                    for (int i = 1; i < keyArguments.length; i++)
+                    {
+                        keyArguments[i] = (Serializable) arguments[i];
+                    }
+                    Key key = new Key(keyArguments);
+                    Object data = cacheManager.tryToGetData(key);
+                    if (data == null)
+                    {
+                        Object serverObject = methodInvocation.getThis();
+                        data = method.invoke(serverObject, arguments);
+                        cacheManager.storeData(key, data);
+                    }
+                    return data;
+                }
+            }));
+        server = (IPhosphoNetXServer) proxyFactory.getProxy();
     }
 
     @Override
@@ -241,11 +289,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
 
     private IPhosphoNetXServer getServerWithCache()
     {
-        if (serverWithCache == null)
-        {
-            serverWithCache = new ServerWithCache(server, getApplicationInfo().getWebClientConfiguration());
-        }
-        return serverWithCache;
+        return server;
     }
 
 }

@@ -105,7 +105,6 @@
         <property name="onlineHelpGenericPageTemplate" value="${onlinehelp.generic.page-template}"/>
         <property name="onlineHelpSpecificRootURL" value="${onlinehelp.specific.root-url}"/>
         <property name="onlineHelpSpecificPageTemplate" value="${onlinehelp.specific.page-template}"/>
-        <property name="webClientConfigurationProvider" ref="web-client-configuration-provider"/>
         <property name="maxResults" value="${hibernate.search.maxResults}" />
     </bean>
     

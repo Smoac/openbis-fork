@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Null;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -104,6 +105,7 @@ public abstract class AbstractClientService implements IClientService,
 
     private String onlineHelpSpecificPageTemplate;
 
+    @Resource(name = "web-client-configuration-provider")
     private WebClientConfigurationProvider webClientConfigurationProvider;
 
     private int maxResults;
@@ -213,12 +215,6 @@ public abstract class AbstractClientService implements IClientService,
         {
             operationLog.info("Set CIFEX URL for client to '" + cifexURL + "'.");
         }
-    }
-
-    public final void setWebClientConfigurationProvider(
-            WebClientConfigurationProvider webClientConfigurationProvider)
-    {
-        this.webClientConfigurationProvider = webClientConfigurationProvider;
     }
 
     public final void setCifexRecipient(String cifexRecipient)
@@ -415,8 +411,7 @@ public abstract class AbstractClientService implements IClientService,
             applicationInfo.setCIFEXURL(cifexURL);
             applicationInfo.setCifexRecipient(cifexRecipient);
             applicationInfo.setMaxResults(maxResults);
-            applicationInfo.setWebClientConfiguration(webClientConfigurationProvider
-                    .getWebClientConfiguration());
+            applicationInfo.setWebClientConfiguration(getWebClientConfiguration());
         } else
         {
             getApplicationInfoInvocationCount++;
@@ -431,6 +426,11 @@ public abstract class AbstractClientService implements IClientService,
         applicationInfo.setArchivingConfigured(isArchivingConfigured());
         applicationInfo.setVersion(getVersion());
         return applicationInfo;
+    }
+
+    protected WebClientConfiguration getWebClientConfiguration()
+    {
+        return webClientConfigurationProvider.getWebClientConfiguration();
     }
 
     protected String getVersion()

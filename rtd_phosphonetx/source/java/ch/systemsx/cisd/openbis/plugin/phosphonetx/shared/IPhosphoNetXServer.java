@@ -51,12 +51,14 @@ public interface IPhosphoNetXServer extends IServer
     
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @CacheData
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentID, String treatmentTypeOrNull) throws UserFailureException; 
     
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @CacheData
     public List<ProteinInfo> listProteinsByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId, double falseDiscoveryRate, AggregateFunction function,
