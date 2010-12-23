@@ -69,6 +69,8 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
     private IProteomicsDataServiceInternal proteomicsDataService;
 
+    private IPhosphoNetXServer serverWithCache;
+    
     public PhosphoNetXClientService()
     {
         super();
@@ -105,7 +107,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            return server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
+            return getServerWithCache().getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
                     experimentID, treatmentTypeOrNull);
         } finally
         {
@@ -126,14 +128,14 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             AggregateFunction aggregateFunction = criteria.getAggregateFunction();
             String treatmentTypeCode = criteria.getTreatmentTypeCode();
             boolean aggregateOnOriginal = criteria.isAggregateOriginal();
-            return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
+            return listEntities(criteria, new ListProteinOriginalDataProvider(getServerWithCache(), sessionToken,
                     experimentID, fdr, aggregateFunction, treatmentTypeCode, aggregateOnOriginal));
         } finally
         {
             operationLog.info(stopWatch.getTime() + " msec for listProteinsByExperiment");
         }
     }
-
+    
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
@@ -235,6 +237,15 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     {
         proteomicsDataService.processRawData(getSessionToken(), dataSetProcessingKey,
                 rawDataSampleIDs, dataSetType);
+    }
+
+    private IPhosphoNetXServer getServerWithCache()
+    {
+        if (serverWithCache == null)
+        {
+            serverWithCache = new ServerWithCache(server, getApplicationInfo().getWebClientConfiguration());
+        }
+        return serverWithCache;
     }
 
 }

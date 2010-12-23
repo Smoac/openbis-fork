@@ -21,18 +21,17 @@ import com.google.gwt.core.client.GWT;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractPluginViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.Constants;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
+ * View context for technology 'phosphonetx'.
  *
  * @author Franz-Josef Elmer
  */
 public class ViewContext extends AbstractPluginViewContext<IPhosphoNetXClientServiceAsync>
 {
-    private static final String TECHNOLOGY_NAME = "phosphonetx";
-    
     public ViewContext(IViewContext<ICommonClientServiceAsync> commonViewContext)
     {
         super(commonViewContext);
@@ -40,7 +39,7 @@ public class ViewContext extends AbstractPluginViewContext<IPhosphoNetXClientSer
 
     public String getTechnology()
     {
-        return TECHNOLOGY_NAME;
+        return Constants.TECHNOLOGY_NAME;
     }
     
 
