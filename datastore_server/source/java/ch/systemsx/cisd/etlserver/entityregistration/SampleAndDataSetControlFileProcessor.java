@@ -37,6 +37,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.io.DelegatedReader;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.utilities.UnicodeUtils;
+import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetRegistrationGlobalState.SampleRegistrationMode;
+import ch.systemsx.cisd.etlserver.entityregistration.SampleDataSetPair.SampleDataSetPairProcessing;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -360,9 +362,23 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
         for (SampleDataSetPair pair : errorPairs)
         {
             IRegistrationStatus error = errorMap.get(pair);
-            sb.append("# ");
-            sb.append(error.getMessage());
-            sb.append("\n");
+            if ((SampleRegistrationMode.IGNORE_EXISTING == globalState.getSampleRegistrationMode())
+                    && SampleDataSetPairProcessing.SKIPPED == pair.getProcessingApplied())
+            {
+                // In the ignore existing mode, this isn't an error, but we should notify the user
+                // of this case anyhow
+                sb.append("# ");
+                sb.append("Skipped existing sample");
+                sb.append("\n");
+                // Comment out the tokens, since this isn't an error
+                sb.append("# ");
+
+            } else
+            {
+                sb.append("# ");
+                sb.append(error.getMessage());
+                sb.append("\n");
+            }
 
             String[] tokens = pair.getTokens();
             int i = 0;
@@ -411,16 +427,27 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
 
     private void createSuccessfulLinesSection()
     {
-        if (errorMap.isEmpty())
+        if (successPairs.isEmpty())
         {
             successLinesResultSectionOrNull = null;
             return;
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("The following lines were successfully registered:\n");
+        sb.append("The following lines were successfully processed:\n");
         for (SampleDataSetPair pair : successPairs)
         {
+            switch (pair.getProcessingApplied())
+            {
+                case REGISTERED_SAMPLE_AND_DATA_SET:
+                    sb.append("# Registered sample and data set\n");
+                    break;
+                case UPDATED_SAMPLE_REGISTERED_DATA_SET:
+                    sb.append("# Updated sample and registered data set\n");
+                    break;
+                default:
+                    break;
+            }
             sb.append("# ");
             String[] tokens = pair.getTokens();
             int i = 0;
@@ -518,7 +545,7 @@ class SampleAndDataSetControlFileProcessor extends AbstractSampleAndDataSetProce
     private String createSuccessEmailContent()
     {
         return String
-                .format("The registration/update of samples and the registration of data sets was successful specified in the control file, %s, was successful.",
+                .format("The registration/update of samples and the registration of data sets specified in the control file, %s, was successful.",
                         controlFile);
     }
 

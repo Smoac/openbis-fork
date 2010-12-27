@@ -39,7 +39,7 @@ class SampleAndDataSetRegistrationGlobalState
 {
     enum SampleRegistrationMode
     {
-        ACCEPT_ALL, REJECT_EXISTING, REJECT_NONEXISTING
+        ACCEPT_ALL, IGNORE_EXISTING, REJECT_NONEXISTING
     }
 
     private final IDataSetHandler delegator;

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.entityregistration;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -26,6 +27,7 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
@@ -42,6 +44,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class SampleDataSetPair
 {
+    /**
+     * How was the SampleDataSetPair processed?
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    static enum SampleDataSetPairProcessing
+    {
+        PENDING, /* Has not been processed yet, the initial state */
+        REGISTERED_SAMPLE_AND_DATA_SET, /* Sample was created and a new data set was created */
+        UPDATED_SAMPLE_REGISTERED_DATA_SET, /* A sample was updated and a data set was created */
+        SKIPPED, /* This sample/data set pair was skipped */
+        FAILED
+        /* This sample/data set was not successfully processed */
+    }
+
     private final static String SAMPLE_IDENTIFIER = "S_identifier";
 
     private final static String SAMPLE_CONTAINER = "S_container";
@@ -65,6 +82,8 @@ public class SampleDataSetPair
     private String folderName;
 
     private String fileFormatTypeCode;
+
+    private SampleDataSetPairProcessing processingState = SampleDataSetPairProcessing.PENDING;
 
     public SampleDataSetPair()
     {
@@ -168,10 +187,11 @@ public class SampleDataSetPair
 
     public SampleUpdatesDTO getSampleUpdates(Sample sample)
     {
+        List<NewAttachment> attachments = Collections.emptyList();
         SampleUpdatesDTO sampleUpdates = new SampleUpdatesDTO(TechId.create(sample), // db id
                 Arrays.asList(newSample.getProperties()), // List<IEntityProperty>
                 getExperimentIdentifier(), // ExperimentIdentifier
-                null, // Collection<NewAttachment>
+                attachments, // Collection<NewAttachment>
                 sample.getModificationDate(), // Sample version
                 getSampleIdentifier(), // Sample Identifier
                 newSample.getContainerIdentifier(), // Container Identifier
@@ -188,6 +208,19 @@ public class SampleDataSetPair
     private ExperimentIdentifier getExperimentIdentifier()
     {
         return dataSetInformation.getExperimentIdentifier();
+    }
+
+    /**
+     * How was the this SampleDataSetPair processed? This is set by the SampleAndDataSetRegistrator.
+     */
+    public SampleDataSetPairProcessing getProcessingApplied()
+    {
+        return processingState;
+    }
+
+    public void setProcessingApplied(SampleDataSetPairProcessing processingApplied)
+    {
+        this.processingState = processingApplied;
     }
 
 }

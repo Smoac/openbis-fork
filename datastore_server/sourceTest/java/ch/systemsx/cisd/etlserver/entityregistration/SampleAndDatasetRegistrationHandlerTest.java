@@ -126,8 +126,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                         + "Encountered errors in the following lines:\n"
                         + "# Illegal empty identifier\n"
                         + "\t/MYSPACE/MYPROJ/EXP2\tVAL11\tVAL21\tVAL31\tFILE_TYPE\tVAL41\tVAL51\tds2/\n\n"
-                        + "The following lines were successfully registered:\n"
+                        + "The following lines were successfully processed:\n"
+                        + "# Registered sample and data set\n"
                         + "# /MYSPACE/S1\t/MYSPACE/MYPROJ/EXP1\tVAL10\tVAL20\tVAL30\tFILE_TYPE\tVAL40\tVAL50\tds1/\n"
+                        + "# Registered sample and data set\n"
                         + "# /MYSPACE/S3\t/MYSPACE/MYPROJ/EXP3\tVAL12\tVAL22\tVAL32\tFILE_TYPE\tVAL42\tVAL52\tds3/\n";
         checkAppenderContent(logText, folderName);
 
@@ -161,7 +163,10 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 "Global properties extracted from file 'control.tsv': SAMPLE_TYPE(MY_SAMPLE_TYPE) DATA_SET_TYPE(MY_DATA_SET_TYPE) USER(test@test.test)\n"
                         + "Registered sample/data set pair SampleDataSetPair[sampleIdentifier=/MYSPACE/S1,sampleProperties={prop1: VAL10,prop2: VAL20,prop3: VAL30},dataSetInformation=DataSetInformation{sampleCode=<null>,properties={},dataSetType=MY_DATA_SET_TYPE,instanceUUID=<null>,instanceCode=<null>,spaceCode=<null>,experimentIdentifier=/MYSPACE/MYPROJ/EXP1,isCompleteFlag=U,extractableData=ExtractableData{productionDate=<null>,dataProducerCode=<null>,parentDataSetCodes=[],dataSetProperties=[NewProperty{property=prop1,value=VAL40}, NewProperty{property=prop2,value=VAL50}],code=<null>},uploadingUserEmailOrNull=<null>,uploadingUserIdOrNull=test}]\n"
                         + "The following subfolders were in the uploaded folder, but were not mentioned in the control file:\n"
-                        + "ds2,ds3\n";
+                        + "ds2,ds3\n"
+                        + "The following lines were successfully processed:\n"
+                        + "# Registered sample and data set\n"
+                        + "# /MYSPACE/S1\t/MYSPACE/MYPROJ/EXP1\tVAL10\tVAL20\tVAL30\tFILE_TYPE\tVAL40\tVAL50\tds1/\n";
         checkAppenderContent(logText, folderName);
 
         context.assertIsSatisfied();
@@ -453,7 +458,7 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
                 addressesMatcher,
                 "Sample / Data Set Registration Succeeded -- targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
                         + folderName + "/control.tsv",
-                "The registration/update of samples and the registration of data sets was successful specified in the control file, targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
+                "The registration/update of samples and the registration of data sets specified in the control file, targets/unit-test-wd/ch.systemsx.cisd.etlserver.entityregistration.SampleAndDatasetRegistrationHandlerTest/"
                         + folderName + "/control.tsv, was successful.", "registered.txt",
                 folderName);
     }

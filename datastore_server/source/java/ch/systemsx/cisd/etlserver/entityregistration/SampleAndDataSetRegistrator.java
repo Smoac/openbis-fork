@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.IExtensibleDataSetHandler;
 import ch.systemsx.cisd.etlserver.TransferredDataSetHandler;
 import ch.systemsx.cisd.etlserver.entityregistration.SampleAndDataSetControlFileProcessor.ControlFileRegistrationProperties;
+import ch.systemsx.cisd.etlserver.entityregistration.SampleDataSetPair.SampleDataSetPairProcessing;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -32,7 +33,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * Utitlity class for registering one sample/dataset combination
+ * Utitlity class for registering one sample/dataset combination.
+ * <p>
+ * The processingApplied state of the sampleDataSetPair is updated upon completion of this object's
+ * register method.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -77,9 +81,18 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             checkDataSetFileNotEmpty();
             checkExperimentExists();
             retrieveSampleOrNull();
+        } catch (UserFailureException ex)
+        {
+            sampleDataSetPair.setProcessingApplied(SampleDataSetPairProcessing.FAILED);
+            return new RegistrationError(ex);
+        }
+
+        try
+        {
             checkConformanceToMode();
         } catch (UserFailureException ex)
         {
+            sampleDataSetPair.setProcessingApplied(SampleDataSetPairProcessing.SKIPPED);
             return new RegistrationError(ex);
         }
 
@@ -91,6 +104,16 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             if (didSucceed)
             {
                 logDataRegistered();
+
+                if (isSampleKnown())
+                {
+                    sampleDataSetPair
+                            .setProcessingApplied(SampleDataSetPairProcessing.UPDATED_SAMPLE_REGISTERED_DATA_SET);
+                } else
+                {
+                    sampleDataSetPair
+                            .setProcessingApplied(SampleDataSetPairProcessing.REGISTERED_SAMPLE_AND_DATA_SET);
+                }
             }
         }
         if (null == failureException)
@@ -98,6 +121,7 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
             return new RegistrationSuccess(sampleDataSetPair.getTokens());
         } else
         {
+            sampleDataSetPair.setProcessingApplied(SampleDataSetPairProcessing.FAILED);
             return failureException;
         }
     }
@@ -119,11 +143,10 @@ class SampleAndDataSetRegistrator extends AbstractSampleAndDataSetProcessor impl
     {
         switch (globalState.getSampleRegistrationMode())
         {
-            case REJECT_EXISTING:
+            case IGNORE_EXISTING:
                 if (isSampleKnown())
                 {
-                    throw new UserFailureException(
-                            "This drop box expects new samples. This sample has already been registered.");
+                    throw new UserFailureException("This sample has already been registered.");
                 }
                 break;
             case REJECT_NONEXISTING:
