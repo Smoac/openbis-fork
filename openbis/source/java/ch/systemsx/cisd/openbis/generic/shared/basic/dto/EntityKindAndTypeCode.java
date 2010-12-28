@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * Bean combining {@link EntityKind} with entity type code. It determines plug-ins.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class EntityKindAndTypeCode implements Serializable
 {
@@ -44,10 +44,19 @@ public final class EntityKindAndTypeCode implements Serializable
         this.entityTypeCode = entityTypeCode;
     }
 
+    public boolean entityKindsMatch(EntityKindAndTypeCode other)
+    {
+        return this.entityKind.equals(other.entityKind);
+    }
+
+    public String getEntityTypeCode()
+    {
+        return entityTypeCode;
+    }
+
     //
     // Object
     //
-
     @Override
     public final boolean equals(final Object obj)
     {

@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -39,8 +37,8 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
 {
     private final Set<IClientPluginFactory> pluginFactories = new HashSet<IClientPluginFactory>();
 
-    private final Map<EntityKindAndTypeCode, IClientPluginFactory> pluginFactoryByEntityKindAndTypeCode =
-            new HashMap<EntityKindAndTypeCode, IClientPluginFactory>();
+    private final WildcardSupportingPluginFactoryMap pluginFactoryMap =
+            new WildcardSupportingPluginFactoryMap();
 
     private final IClientPluginFactory genericPluginFactory;
 
@@ -55,8 +53,10 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(originalViewContext));
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
         // Automatically generated part - END
     }
 
@@ -69,8 +69,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
             for (final String entityType : pluginFactory.getEntityTypeCodes(entityKind))
             {
                 final EntityKindAndTypeCode key = new EntityKindAndTypeCode(entityKind, entityType);
-                final IClientPluginFactory previousValue =
-                        pluginFactoryByEntityKindAndTypeCode.put(key, pluginFactory);
+                final IClientPluginFactory previousValue = pluginFactoryMap.tryPluginFactory(key);
                 if (previousValue != null)
                 {
                     throw new IllegalArgumentException("There is already a client plugin factory '"
@@ -78,6 +77,22 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
                             + "'.");
 
                 }
+                pluginFactoryMap.addMapping(key, pluginFactory);
+            }
+        }
+    }
+
+    protected final void registerPluginFactory(
+            final IClientPluginFactoryUsingWildcards pluginFactory)
+    {
+        assert pluginFactory != null : "Unspecified client plugin factory.";
+        pluginFactories.add(pluginFactory);
+        for (final EntityKind entityKind : EntityKind.values())
+        {
+            for (final String entityType : pluginFactory.getOrderedEntityTypeCodes(entityKind))
+            {
+                final EntityKindAndTypeCode key = new EntityKindAndTypeCode(entityKind, entityType);
+                pluginFactoryMap.addMapping(key, pluginFactory);
             }
         }
     }
@@ -85,7 +100,6 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
     //
     // IClientPluginFactoryProvider
     //
-
     public final IClientPluginFactory getClientPluginFactory(final EntityKind entityKind,
             final BasicEntityType entityType)
     {
@@ -93,8 +107,8 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
         assert entityType != null : "Unspecified entity type.";
 
         final IClientPluginFactory pluginFactory =
-                pluginFactoryByEntityKindAndTypeCode.get(new EntityKindAndTypeCode(entityKind,
-                        entityType));
+                pluginFactoryMap
+                        .tryPluginFactory(new EntityKindAndTypeCode(entityKind, entityType));
         if (pluginFactory != null)
         {
             return pluginFactory;
@@ -118,6 +132,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
 
     public void registerModuleInitializationObserver(IModuleInitializationObserver observer)
     {
-        ModuleInitializationController.createAndInitialize(getUninitializedModules()).addObserver(observer);
+        ModuleInitializationController.createAndInitialize(getUninitializedModules()).addObserver(
+                observer);
     }
 }
