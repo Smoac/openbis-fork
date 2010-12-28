@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.user.client.ui.Widget;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryUsingWildcards;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
@@ -68,6 +71,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
  * @author Tomasz Pylak
  */
 public final class ClientPluginFactory extends AbstractClientPluginFactory<ScreeningViewContext>
+        implements IClientPluginFactoryUsingWildcards
 {
 
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -87,16 +91,16 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
     }
 
     //
-    // IClientPluginFactory
+    // IClientPluginFactoryUsingWildcards
     //
 
-    public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
+    public List<String> getOrderedEntityTypeCodes(EntityKind entityKind)
     {
-        Set<String> types = new HashSet<String>();
+        ArrayList<String> types = new ArrayList<String>();
         if (entityKind == EntityKind.SAMPLE)
         {
             // -- plate layout
-            types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
+            types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE_WITH_WILDCARDS);
             // -- library registration
             types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
             // -- screening well
@@ -113,7 +117,6 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             types.add("OLIGO");
             types.add("GENE");
             // -- microscopy sample
-            // To be exchanged by pattern
             types.add(ScreeningConstants.IMAGE_SAMPLE_TYPE_CODE_MARKER);
         } else if (entityKind == EntityKind.MATERIAL)
         {
@@ -129,8 +132,15 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         } else if (entityKind == EntityKind.DATA_SET)
         {
             types.add(ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE);
-            types.add(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE);
+            types.add(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_PLUGIN_TYPE_CODE);
         }
+        return types;
+    }
+
+    public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
+    {
+        Set<String> types = new HashSet<String>();
+        types.addAll(getOrderedEntityTypeCodes(entityKind));
         return types;
     }
 
@@ -246,10 +256,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 final IEntityInformationHolderWithPermId entity)
         {
             String datasetTypeCode = entity.getEntityType().getCode();
-            if (datasetTypeCode.equals(ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE))
+            if (datasetTypeCode.matches(ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE))
             {
                 return createHCSImageDatasetTabItemFactory(entity);
-            } else if (datasetTypeCode.equals(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE))
+            } else if (datasetTypeCode
+                    .matches(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_PLUGIN_TYPE_CODE))
             {
                 return createMicroscopyImageDatasetTabItemFactory(entity);
             } else
@@ -354,14 +365,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 final IEntityInformationHolderWithPermId entity)
         {
             String sampleTypeCode = entity.getEntityType().getCode();
-            if (sampleTypeCode.equals(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE))
+            if (sampleTypeCode.matches(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE_WITH_WILDCARDS))
             {
                 return createPlateViewer(entity);
             } else if (sampleTypeCode.equals(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE))
             {
                 throw new UserFailureException("Cannot browse objects of the "
                         + ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE + " type.");
-            } else if (sampleTypeCode.equals(ScreeningConstants.IMAGE_SAMPLE_TYPE_CODE_MARKER))
+            } else if (sampleTypeCode.matches(ScreeningConstants.IMAGE_SAMPLE_TYPE_CODE_MARKER))
             {
                 return createImageSampleViewer(entity, false);
             } else

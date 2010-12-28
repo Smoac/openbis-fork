@@ -48,9 +48,11 @@ public class ScreeningConstants
     public static final String CONTROL_WELL_TYPE_CODE_MARKER = "CONTROL";
 
     // the sample is considered to be a microscopy sample if its type code contains this string
-    public static final String IMAGE_SAMPLE_TYPE_CODE_MARKER = "IMG";
+    public static final String IMAGE_SAMPLE_TYPE_CODE_MARKER = "IMG|MIC_.+";
 
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
+
+    public static final String PLATE_PLUGIN_TYPE_CODE_WITH_WILDCARDS = ".*PLATE.*";
 
     public static final String LIBRARY_PLUGIN_TYPE_CODE = "LIBRARY";
 
@@ -67,7 +69,11 @@ public class ScreeningConstants
 
     public static final String DESCRIPTION = "DESCRIPTION";
 
-    public static final String HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE = HCS_IMAGE_DATASET_TYPE;
+    public static final String HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE = ".*" + HCS_IMAGE_DATASET_TYPE
+            + ".*";
+
+    public static final String MICROSCOPY_IMAGE_DATASET_PLUGIN_TYPE_CODE =
+            MICROSCOPY_IMAGE_DATASET_TYPE + "|.*MIC_IMAGE.*";
 
     // ---- required DSS servlets
 

@@ -69,9 +69,11 @@ public class ScreeningUtils
     {
         List<ExternalDataPE> allDatasets = new ArrayList<ExternalDataPE>();
         List<ExternalDataPE> hcsDatasets =
-                filterDatasetsByType(datasets, ScreeningConstants.HCS_IMAGE_DATASET_TYPE);
+                filterDatasetsByTypePattern(datasets,
+                        ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE);
         List<ExternalDataPE> micDatasets =
-                filterDatasetsByType(datasets, ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE);
+                filterDatasetsByTypePattern(datasets,
+                        ScreeningConstants.MICROSCOPY_IMAGE_DATASET_PLUGIN_TYPE_CODE);
 
         allDatasets.addAll(hcsDatasets);
         allDatasets.addAll(micDatasets);
@@ -87,6 +89,20 @@ public class ScreeningUtils
             if (isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE) == false
                     && isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_DATASET_TYPE) == false
                     && isTypeEqual(dataset, ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE) == false)
+            {
+                chosenDatasets.add(dataset);
+            }
+        }
+        return chosenDatasets;
+    }
+
+    public static List<ExternalDataPE> filterDatasetsByTypePattern(List<ExternalDataPE> datasets,
+            String datasetTypeCodePattern)
+    {
+        List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();
+        for (ExternalDataPE dataset : datasets)
+        {
+            if (dataset.getDataSetType().getCode().matches(datasetTypeCodePattern))
             {
                 chosenDatasets.add(dataset);
             }
