@@ -20,42 +20,42 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
+import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 
 /**
  * A class which is configured from properties and is able to execute a script from the command line
  * using the configured path.
  * 
- * @author Izabela Adamczyk
+ * @author Chandrasekhar Ramakrishnan
  */
-public class PostRegistrationExecutor extends AbstractPreOrPostRegistrationExecutor implements
-        IPostRegistrationAction
+public class PreRegistrationExecutor extends AbstractPreOrPostRegistrationExecutor implements
+        IPreRegistrationAction
 {
+    final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
+            PreRegistrationExecutor.class);
 
-    private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            PostRegistrationExecutor.class);
+    final static Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
+            PreRegistrationExecutor.class);
 
-    private final static Logger machineLog = LogFactory.getLogger(LogCategory.MACHINE,
-            PostRegistrationExecutor.class);
-
-    private static class PostRegistrationEmptyScriptExecutor extends EmptyScriptExecutor implements
-            IPostRegistrationAction
+    private static class PreRegistrationEmptyScriptExecutor extends EmptyScriptExecutor implements
+            IPreRegistrationAction
     {
+
     }
 
-    public static IPostRegistrationAction create(String scriptPath)
+    public static IPreRegistrationAction create(String scriptPath)
     {
         if (scriptPath != null)
         {
-            return new PostRegistrationExecutor(scriptPath);
+            return new PreRegistrationExecutor(scriptPath);
         } else
         {
-            operationLog.debug("No post-registration script found, skipping execution.");
-            return new PostRegistrationEmptyScriptExecutor();
+            operationLog.debug("No pre-registration script found, skipping execution.");
+            return new PreRegistrationEmptyScriptExecutor();
         }
     }
 
-    private PostRegistrationExecutor(String script)
+    private PreRegistrationExecutor(String script)
     {
         super(script);
         operationLog.info(getExecutorAdjectivalDescription() + " script: " + script);
@@ -70,7 +70,7 @@ public class PostRegistrationExecutor extends AbstractPreOrPostRegistrationExecu
     @Override
     protected String getExecutorAdjectivalDescription()
     {
-        return "post-registration";
+        return "pre-registration";
     }
 
 }
