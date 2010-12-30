@@ -264,7 +264,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         handler =
                 new TransferredDataSetHandler("dss", storageProcessor, plugin,
                         authorizedLimsService, mailClient, dataSetValidator, true, true, false,
-                        null);
+                        null, null);
 
         dataSetInformation = new DataSetInformation();
         dataSetInformation.setDataSetType(DATA_SET_TYPE);

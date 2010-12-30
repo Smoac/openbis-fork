@@ -79,16 +79,20 @@ public abstract class DataSetRegistrationAlgorithm
 
     protected final File storeRoot;
 
+    private final IPreRegistrationAction preRegistrationAction;
+
+    private final IPostRegistrationAction postRegistrationAction;
+
     protected BaseDirectoryHolder baseDirectoryHolder;
 
     protected String errorMessageTemplate;
 
-    private IPostRegistrationAction postRegistrationAction;
-
     public DataSetRegistrationAlgorithm(File incomingDataSetFile,
             IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+            IPreRegistrationAction preRegistrationAction,
             IPostRegistrationAction postRegistrationAction)
     {
+        this.preRegistrationAction = preRegistrationAction;
         this.postRegistrationAction = postRegistrationAction;
         this.errorMessageTemplate = DataSetRegistrationAlgorithm.DATA_SET_STORAGE_FAILURE_TEMPLATE;
         this.incomingDataSetFile = incomingDataSetFile;
@@ -243,6 +247,7 @@ public abstract class DataSetRegistrationAlgorithm
             {
                 errorMessageTemplate =
                         DataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
+                preRegistrationAction.execute(data.getCode(), absolutePath);
                 plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
                 postRegistrationAction.execute(data.getCode(), absolutePath);
                 clean();

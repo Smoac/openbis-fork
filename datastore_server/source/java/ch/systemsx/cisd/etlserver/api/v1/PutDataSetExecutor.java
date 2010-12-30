@@ -49,6 +49,7 @@ import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IDataStrategyStore;
 import ch.systemsx.cisd.etlserver.IETLServerPlugin;
 import ch.systemsx.cisd.etlserver.IPostRegistrationAction;
+import ch.systemsx.cisd.etlserver.IPreRegistrationAction;
 import ch.systemsx.cisd.etlserver.IStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
@@ -412,6 +413,15 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         }
     }
 
+    private static class PreRegistrationAction implements IPreRegistrationAction
+    {
+
+        public boolean execute(String dataSetCode, String dataSetAbsolutePathInStore)
+        {
+            return true;// do nothing
+        }
+    }
+
     private static class CleanAfterwardsAction implements IDelegatedActionWithResult<Boolean>
     {
         public Boolean execute()
@@ -482,7 +492,8 @@ class PutDataSetExecutor implements IDataSetHandlerRpc
         public RegistrationHelper(PutDataSetService service, IETLServerPlugin plugin,
                 File incomingDataSetFile)
         {
-            super(incomingDataSetFile, new CleanAfterwardsAction(), new PostRegistrationAction());
+            super(incomingDataSetFile, new CleanAfterwardsAction(), new PreRegistrationAction(),
+                    new PostRegistrationAction());
         }
 
         @Override

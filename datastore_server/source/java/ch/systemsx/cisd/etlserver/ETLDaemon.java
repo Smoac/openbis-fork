@@ -313,6 +313,7 @@ public final class ETLDaemon
         return new TransferredDataSetHandler(dssCode, plugin, openBISService, mailClient,
                 dataSetValidator, notifySuccessfulRegistration,
                 threadParameters.useIsFinishedMarkerFile(), deleteUnidentified,
+                threadParameters.tryGetPreRegistrationScript(),
                 threadParameters.tryGetPostRegistrationScript());
     }
 

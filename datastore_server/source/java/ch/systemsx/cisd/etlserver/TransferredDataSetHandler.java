@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.etlserver.utils.PostRegistrationExecutor;
+import ch.systemsx.cisd.etlserver.utils.PreRegistrationExecutor;
 import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -102,6 +103,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private final IDataSetValidator dataSetValidator;
 
+    private final IPreRegistrationAction preRegistrationAction;
+
     private final IPostRegistrationAction postRegistrationAction;
 
     /**
@@ -109,17 +112,18 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
      * @param useIsFinishedMarkerFile if true, file/directory is processed when a marker file for it
      *            appears. Otherwise processing starts if the file/directory is not modified for a
      *            certain amount of time (so called "quiet period").
+     * @param postRegistrationScriptOrNull
      */
     public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
             final IEncapsulatedOpenBISService limsService, final IMailClient mailClient,
             IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified,
-            String postRegistrationScriptOrNull)
+            String preRegistrationScriptOrNull, String postRegistrationScriptOrNull)
 
     {
         this(dssCode, plugin.getStorageProcessor(), plugin, limsService, mailClient,
                 dataSetValidator, notifySuccessfulRegistration, useIsFinishedMarkerFile,
-                deleteUnidentified, postRegistrationScriptOrNull);
+                deleteUnidentified, preRegistrationScriptOrNull, postRegistrationScriptOrNull);
     }
 
     TransferredDataSetHandler(String dssCode,
@@ -127,7 +131,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
             final IMailClient mailClient, IDataSetValidator dataSetValidator,
             final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
-            boolean deleteUnidentified, String postRegistrationScriptOrNull)
+            boolean deleteUnidentified, String preRegistrationScriptOrNull,
+            String postRegistrationScriptOrNull)
 
     {
         assert dssCode != null : "Unspecified data store code";
@@ -155,6 +160,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
         this.deleteUnidentified = deleteUnidentified;
+        this.preRegistrationAction = PreRegistrationExecutor.create(preRegistrationScriptOrNull);
         this.postRegistrationAction = PostRegistrationExecutor.create(postRegistrationScriptOrNull);
     }
 
@@ -309,7 +315,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         if (null != registrator)
         {
             return new OverridingRegistrationHelper(this, incomingDataSetFile,
-                    cleanAftrewardsAction, createPostRegistrationAction(), registrator)
+                    cleanAftrewardsAction, preRegistrationAction, postRegistrationAction,
+                    registrator)
                 {
                     @Override
                     protected DataSetInformation extractDataSetInformation(File incomingDataSetPath)
@@ -321,13 +328,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         } else
         {
             return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
-                    createPostRegistrationAction());
+                    preRegistrationAction, postRegistrationAction);
         }
-    }
-
-    private IPostRegistrationAction createPostRegistrationAction()
-    {
-        return postRegistrationAction;
     }
 
     private DataSetRegistrationAlgorithm createRegistrationHelperWithQuietPeriodFilter(
@@ -345,7 +347,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         if (registrator != null)
         {
             return new OverridingRegistrationHelper(this, incomingDataSetFile,
-                    cleanAftrewardsAction, createPostRegistrationAction(), registrator)
+                    cleanAftrewardsAction, preRegistrationAction, postRegistrationAction,
+                    registrator)
                 {
                     @Override
                     protected DataSetInformation extractDataSetInformation(File incomingDataSetPath)
@@ -357,7 +360,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         } else
         {
             return new RegistrationHelper(this, incomingDataSetFile, cleanAftrewardsAction,
-                    createPostRegistrationAction());
+                    preRegistrationAction, postRegistrationAction);
         }
     }
 
@@ -423,9 +426,11 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         RegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
                 File incomingDataSetFile,
                 IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+                IPreRegistrationAction preRegistrationAction,
                 IPostRegistrationAction postRegistrationAction)
         {
-            super(incomingDataSetFile, cleanAftrewardsAction, postRegistrationAction);
+            super(incomingDataSetFile, cleanAftrewardsAction, preRegistrationAction,
+                    postRegistrationAction);
         }
 
         // state accessors
@@ -589,10 +594,11 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         OverridingRegistrationHelper(TransferredDataSetHandler transferredDataSetHandler,
                 File incomingDataSetFile,
                 IDelegatedActionWithResult<Boolean> cleanAftrewardsAction,
+                IPreRegistrationAction preRegistrationAction,
                 IPostRegistrationAction postRegistrationAction, IDataSetRegistrator registrator)
         {
             super(transferredDataSetHandler, incomingDataSetFile, cleanAftrewardsAction,
-                    postRegistrationAction);
+                    preRegistrationAction, postRegistrationAction);
             this.registrator = registrator;
         }
 

@@ -40,6 +40,14 @@ public final class ThreadParameters
 {
 
     /**
+     * A path to a script which should be called from command line before data set registration. The
+     * script gets two parameters: data set code and absolute path to the data set in the data
+     * store.
+     */
+    @Private
+    static final String PRE_REGISTRATION_SCRIPT_KEY = "pre-registration-script";
+
+    /**
      * A path to a script which should be called from command line after successful data set
      * registration. The script gets two parameters: data set code and absolute path to the data set
      * in the data store.
@@ -85,6 +93,8 @@ public final class ThreadParameters
 
     private final String groupCode;
 
+    private final String preRegistrationScript;
+
     private final String postRegistrationScript;
 
     private final boolean useIsFinishedMarkerFile;
@@ -104,6 +114,7 @@ public final class ThreadParameters
                 PropertyUtils.getBoolean(threadProperties, INCOMING_DIR_CREATE, false);
         this.plugin = new PropertiesBasedETLServerPlugin(threadProperties);
         this.groupCode = tryGetGroupCode(threadProperties);
+        this.preRegistrationScript = tryGetPreRegistrationScript(threadProperties);
         this.postRegistrationScript = tryGetPostRegistartionScript(threadProperties);
         String completenessCondition =
                 PropertyUtils.getProperty(threadProperties, INCOMING_DATA_COMPLETENESS_CONDITION,
@@ -174,6 +185,12 @@ public final class ThreadParameters
     }
 
     @Private
+    static final String tryGetPreRegistrationScript(final Properties properties)
+    {
+        return nullIfEmpty(PropertyUtils.getProperty(properties, PRE_REGISTRATION_SCRIPT_KEY));
+    }
+
+    @Private
     static final String tryGetPostRegistartionScript(final Properties properties)
     {
         return nullIfEmpty(PropertyUtils.getProperty(properties, POST_REGISTRATION_SCRIPT_KEY));
@@ -190,6 +207,11 @@ public final class ThreadParameters
     final String tryGetGroupCode()
     {
         return groupCode;
+    }
+
+    public final String tryGetPreRegistrationScript()
+    {
+        return preRegistrationScript;
     }
 
     public final String tryGetPostRegistrationScript()
