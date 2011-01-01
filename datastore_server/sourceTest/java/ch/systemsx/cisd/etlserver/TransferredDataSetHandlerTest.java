@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -212,6 +213,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private IDataSetValidator dataSetValidator;
 
+    private IETLServerPlugin plugin;
+
+    private EncapsulatedOpenBISService authorizedLimsService;
+
     @BeforeTest
     public void init()
     {
@@ -251,10 +256,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         storageProcessor = context.mock(IStorageProcessor.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);
-        final IETLServerPlugin plugin =
+        plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
-        final EncapsulatedOpenBISService authorizedLimsService =
+        authorizedLimsService =
                 new EncapsulatedOpenBISService(new SessionTokenManager(), limsService,
                         PluginUtilTest.createPluginTaskProviders(new File(storeRoot)));
         authorizedLimsService.setUsername("u");
@@ -747,6 +752,57 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         appender.verifyLogHasNotHappened();
         appender2.verifyLogHasHappened();
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testPreRegistrationScript()
+    {
+        handler =
+                new TransferredDataSetHandler("dss", storageProcessor, plugin,
+                        authorizedLimsService, mailClient, dataSetValidator, true, true, false,
+                        "sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh", null);
+
+        final Sample baseSample = createBaseSample(dataSetInformation);
+        final Experiment baseExperiment = baseSample.getExperiment();
+        final File baseDir = targetFolder;
+        prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
+        prepareForRegistration(data1);
+        context.checking(new Expectations()
+            {
+                {
+                    one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
+                            with(equal(dataSetInformation.getSampleIdentifier())),
+                            with(new ExternalDataMatcher(targetData1)));
+
+                    checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
+                            baseExperiment.getRegistrator().getEmail());
+
+                    allowing(storageProcessor).getStorageFormat();
+                    will(returnValue(StorageFormat.BDS_DIRECTORY));
+                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                            data1, baseDir);
+                    final File finalDataSetPath = new File(baseDir, DATA1_NAME);
+                    will(returnValue(finalDataSetPath));
+                    one(storageProcessor).commit(data1, baseDir);
+                }
+            });
+        final LogMonitoringAppender appender =
+                LogMonitoringAppender.addAppender(LogCategory.OPERATION,
+                        createLogMsgOfSuccess(dataSetInformation));
+        final LogMonitoringAppender preRegistrationAppender =
+                LogMonitoringAppender
+                        .addAppender(
+                                LogCategory.OPERATION,
+                                "P0-{test-script.sh} had command line: [sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh, 4711-42, /Users/cramakri/Documents/_streams/Local/Eclipse/workspace3_5/datastore_server/targets/unit-test-wd/ch.systemsx.cisd.etlserver.TransferredDataSetHandlerTest/1111-2222/7e/74/3e/4711-42/data1]",
+                                "P0-{test-script.sh} process returned with exit value 1.");
+
+        handler.handle(isFinishedData1);
+        final File dataSetPath = createDatasetDir(baseDir);
+        assertEquals(true, dataSetPath.isDirectory());
+        appender.verifyLogHasHappened();
+        preRegistrationAppender.verifyLogHasHappened();
+        System.out.println(Arrays.toString(dataSetPath.list()));
         context.assertIsSatisfied();
     }
 
