@@ -795,7 +795,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 LogMonitoringAppender
                         .addAppender(
                                 LogCategory.OPERATION,
-                                Pattern.compile("P[0-9]-\\{test-script.sh\\} had command line: \\[sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh, 4711-42, /Users/cramakri/Documents/_streams/Local/Eclipse/workspace3_5/datastore_server/targets/unit-test-wd/ch.systemsx.cisd.etlserver.TransferredDataSetHandlerTest/1111-2222/7e/74/3e/4711-42/data1\\]"),
+                                Pattern.compile("P[0-9]-\\{test-script.sh\\} had command line: \\[sourceTest/java/ch/systemsx/cisd/etlserver/utils/test-script.sh, 4711-42, .*/datastore_server/targets/unit-test-wd/ch.systemsx.cisd.etlserver.TransferredDataSetHandlerTest/1111-2222/7e/74/3e/4711-42/data1\\]"),
                                 Pattern.compile("P[0-9]-\\{test-script.sh\\} process returned with exit value 1."));
 
         handler.handle(isFinishedData1);
