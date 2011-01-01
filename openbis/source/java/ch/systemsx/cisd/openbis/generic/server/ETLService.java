@@ -857,6 +857,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     private ISampleBO updateSampleInternal(SampleUpdatesDTO updates, final Session session)
     {
+        // TODO 2010-12-21, CR: Refactor this into an object, SampleUpdater
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.update(updates);
         sampleBO.save();
