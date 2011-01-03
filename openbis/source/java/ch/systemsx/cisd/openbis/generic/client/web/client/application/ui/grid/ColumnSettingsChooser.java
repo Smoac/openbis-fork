@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.dnd.DND.Feedback;
+import com.extjs.gxt.ui.client.dnd.GridDragSource;
+import com.extjs.gxt.ui.client.dnd.GridDropTarget;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -15,6 +18,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.CheckColumnConfig;
@@ -29,10 +33,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * Allows to change visibility and order of the grid columns.
@@ -46,22 +51,25 @@ class ColumnSettingsChooser
 
     private final AbstractColumnSettingsDataModelProvider columnDataModelProvider;
 
+    private final int maxVisibleColumns;
+
     public ColumnSettingsChooser(AbstractColumnSettingsDataModelProvider columnDataModelProvider,
-            IMessageProvider messageProvider)
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.columnDataModelProvider = columnDataModelProvider;
+        this.maxVisibleColumns =
+                viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
+                        .getMaxVisibleColumns();
 
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
-        CheckColumnConfig isVisibleColumn =
-                new CheckColumnConfig(ColumnDataModel.IS_VISIBLE, messageProvider
-                        .getMessage(Dict.GRID_IS_COLUMN_VISIBLE_HEADER), 55);
+        CheckColumnConfig isVisibleColumn = createIsVisibleColumnConfig(viewContext);
         CheckColumnConfig hasFilterColumn =
-                new CheckColumnConfig(ColumnDataModel.HAS_FILTER, messageProvider
-                        .getMessage(Dict.GRID_COLUMN_HAS_FILTER_HEADER), 75);
+                new CheckColumnConfig(ColumnDataModel.HAS_FILTER,
+                        viewContext.getMessage(Dict.GRID_COLUMN_HAS_FILTER_HEADER), 75);
         ColumnConfig nameColumn =
-                new ColumnConfig(ColumnDataModel.HEADER, messageProvider
-                        .getMessage(Dict.GRID_COLUMN_NAME_HEADER), 300);
+                new ColumnConfig(ColumnDataModel.HEADER,
+                        viewContext.getMessage(Dict.GRID_COLUMN_NAME_HEADER), 300);
         configs.add(isVisibleColumn);
         configs.add(hasFilterColumn);
         configs.add(nameColumn);
@@ -75,12 +83,77 @@ class ColumnSettingsChooser
         grid.setHideHeaders(false);
         grid.addPlugin(isVisibleColumn);
         grid.addPlugin(hasFilterColumn);
-        grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        // drag & drop support
+        new GridDragSource(grid);
+        GridDropTarget target = new GridDropTarget(grid);
+        target.setAllowSelfAsSource(true);
+        target.setFeedback(Feedback.INSERT);
+    }
+
+    private String createLimitVisibleColumnsMsg(int limit)
+    {
+        return "Limit of " + limit + " visible columns can't be exceeded.";
+    }
+
+    private CheckColumnConfig createIsVisibleColumnConfig(
+            IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        return new CheckColumnConfig(ColumnDataModel.IS_VISIBLE,
+                viewContext.getMessage(Dict.GRID_IS_COLUMN_VISIBLE_HEADER), 55)
+            {
+
+                @Override
+                protected void onMouseDown(GridEvent<ModelData> ge)
+                {
+                    // modified version of CheckColumnConfig implementation
+                    String cls = ge.getTarget().getClassName();
+                    if (cls != null && cls.indexOf("x-grid3-cc-" + getId()) != -1
+                            && cls.indexOf("disabled") == -1)
+                    {
+                        ge.stopEvent();
+                        int index = grid.getView().findRowIndex(ge.getTarget());
+                        ModelData m = grid.getStore().getAt(index);
+                        Record r = grid.getStore().getRecord(m);
+                        boolean b = (Boolean) m.get(getDataIndex());
+                        if (b == false)
+                        {
+                            int counter = countVisible();
+                            if (counter >= maxVisibleColumns)
+                            {
+                                MessageBox.alert("Warning",
+                                        createLimitVisibleColumnsMsg(maxVisibleColumns), null);
+                            } else
+                            {
+                                r.set(getDataIndex(), !b);
+                            }
+                        } else
+                        {
+                            r.set(getDataIndex(), !b);
+                        }
+                    }
+                }
+
+                private int countVisible()
+                {
+                    int counter = 0;
+                    for (ModelData m : grid.getStore().getModels())
+                    {
+                        Record r = grid.getStore().getRecord(m);
+                        Object visible = r.get(Selectable.VISIBLE.columnName);
+                        if (Boolean.parseBoolean(visible.toString()))
+                        {
+                            counter++;
+                        }
+                    }
+                    return counter;
+                }
+            };
     }
 
     private void enableButtonOnGridSelectedItem(final Button button, final String enabledTitle)
     {
-        final String disabledTitle = "Select a table row first.";
+        final String disabledTitle = "Select a single table row first or drag selected rows.";
         button.disable();
         GWTUtils.setToolTip(button, disabledTitle);
 
@@ -172,7 +245,8 @@ class ColumnSettingsChooser
         public BottomToolbar()
         {
             add(new LabelToolItem("Select:"));
-            add(new WidgetComponent(createLink(Selectable.VISIBLE, true)));
+            add(new WidgetComponent(createLink(Selectable.VISIBLE, true, maxVisibleColumns,
+                    createLimitVisibleColumnsMsg(maxVisibleColumns))));
             add(new SeparatorToolItem());
             add(new WidgetComponent(createLink(Selectable.VISIBLE, false)));
             add(new SeparatorToolItem());
@@ -206,6 +280,35 @@ class ColumnSettingsChooser
                         {
                             Record r = grid.getStore().getRecord(m);
                             r.set(selectable.columnName, select);
+                        }
+                    }
+                });
+        }
+
+        private Widget createLink(final Selectable selectable, final boolean select,
+                final int limit, final String limitExceededMsg)
+        {
+            String prefix = select ? "All" : "No";
+            String suffix = selectable.title + "s";
+            String title = prefix + " " + suffix;
+            return LinkRenderer.getLinkWidget(title, new ClickHandler()
+                {
+
+                    public void onClick(ClickEvent event)
+                    {
+                        int counter = 0;
+                        for (ColumnDataModel m : grid.getStore().getModels())
+                        {
+                            Record r = grid.getStore().getRecord(m);
+                            if (counter == limit)
+                            {
+                                MessageBox.alert("Warning", limitExceededMsg, null);
+                                break;
+                            } else
+                            {
+                                r.set(selectable.columnName, select);
+                                counter++;
+                            }
                         }
                     }
                 });

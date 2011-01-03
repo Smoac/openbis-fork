@@ -1217,14 +1217,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         String msg =
                 viewContext.getMessage(Dict.TOO_MANY_VISIBLE_COLUMNS_MSG, maxVisibleColumns,
                         visibleColumnsCount);
-        MessageBox.info(title, msg, new Listener<MessageBoxEvent>()
+        MessageBox.alert(title, msg, new Listener<MessageBoxEvent>()
             {
-
                 public void handleEvent(MessageBoxEvent be)
                 {
                     configureColumnSettings();
                 }
-
             });
     }
 
