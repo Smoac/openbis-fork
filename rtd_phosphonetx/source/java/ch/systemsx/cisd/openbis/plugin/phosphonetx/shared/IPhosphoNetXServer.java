@@ -67,6 +67,7 @@ public interface IPhosphoNetXServer extends IServer
     
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @CacheData
     public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
             throws UserFailureException;
