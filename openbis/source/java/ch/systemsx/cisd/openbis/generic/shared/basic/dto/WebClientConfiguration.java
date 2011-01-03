@@ -43,6 +43,8 @@ public class WebClientConfiguration implements ISerializable
 
     private ViewMode defaultViewMode;
 
+    private int maxVisibleColumns;
+
     public String getPropertyOrNull(String technology, String key)
     {
         Map<String, String> properties = technologyProperties.get(technology);
@@ -82,6 +84,16 @@ public class WebClientConfiguration implements ISerializable
     public void setDataSetTypesWithImageOverview(Set<String> dataSetTypesWithImageOverview)
     {
         this.dataSetTypesWithImageOverview = dataSetTypesWithImageOverview;
+    }
+
+    public int getMaxVisibleColumns()
+    {
+        return maxVisibleColumns;
+    }
+
+    public void setMaxVisibleColumns(int maxVisibleColumns)
+    {
+        this.maxVisibleColumns = maxVisibleColumns;
     }
 
     public WebClientConfiguration()

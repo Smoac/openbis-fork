@@ -359,8 +359,7 @@ public abstract class AbstractExternalDataGrid
                     final String dssBaseURL = dataset.getDataStore().getHostUrl();
                     final String typeCode = dataset.getDataSetType().getCode();
                     final Set<String> typesWithImageOverview =
-                            viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
-                                    .getDataSetTypesWithImageOverview();
+                            getWebClientConfiguration().getDataSetTypesWithImageOverview();
                     if (typesWithImageOverview.contains(typeCode))
                     {
                         return DatasetImageOverviewUtilities.createEmbededImageHtml(dssBaseURL,

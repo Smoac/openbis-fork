@@ -217,7 +217,7 @@ public abstract class Dict
     public static final String IS_INVALID = "is_invalid";
 
     public static final String GROUP = "group";
-    
+
     public static final String SPACE = "space";
 
     public static final String GROUPS = "groups";
@@ -411,7 +411,7 @@ public abstract class Dict
     //
 
     public static final String ADD_ATTACHMENT_TITLE = "add_attachment_title";
-    
+
     public static final String ATTACHMENTS = "attachments";
 
     public static final String FILE_NAME = "file_name";
@@ -795,6 +795,10 @@ public abstract class Dict
     public static final String GRID_IS_COLUMN_VISIBLE_HEADER = "GRID_IS_COLUMN_VISIBLE_HEADER";
 
     public static final String GRID_COLUMN_HAS_FILTER_HEADER = "GRID_COLUMN_HAS_FILTER_HEADER";
+
+    public static final String TOO_MANY_VISIBLE_COLUMNS_TITLE = "TOO_MANY_VISIBLE_COLUMNS_TITLE";
+
+    public static final String TOO_MANY_VISIBLE_COLUMNS_MSG = "TOO_MANY_VISIBLE_COLUMNS_MSG";
 
     //
     // User Settings Dialog

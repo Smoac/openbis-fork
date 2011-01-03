@@ -39,6 +39,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -110,6 +111,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebClientConfiguration;
 
 /**
  * @author Tomasz Pylak
@@ -1186,20 +1188,46 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private void changeColumnModel(ColumnModel columnModel)
     {
         fullColumnModel = columnModel;
-        int logId = log("grid reconfigure");
-        ColumnModel columnModelOfVisible = trimToVisibleColumns(columnModel);
-        grid.reconfigure(grid.getStore(), columnModelOfVisible);
-        viewContext.logStop(logId);
-        registerGridSettingsChangesListener();
-        // add listeners of full column model to trimmed model
-        List<Listener<? extends BaseEvent>> listeners =
-            fullColumnModel.getListeners(Events.WidthChange);
-        for (Listener<? extends BaseEvent> listener : listeners)
+        int maxVisibleColumns = getWebClientConfiguration().getMaxVisibleColumns();
+        int visibleColumnsCount = fullColumnModel.getColumnCount(true);
+        if (visibleColumnsCount > maxVisibleColumns)
         {
-            columnModelOfVisible.addListener(Events.WidthChange, listener);
+            limitVisibleColumns(maxVisibleColumns, visibleColumnsCount);
+        } else
+        {
+            int logId = log("grid reconfigure");
+            ColumnModel columnModelOfVisible = trimToVisibleColumns(columnModel);
+
+            grid.reconfigure(grid.getStore(), columnModelOfVisible);
+            viewContext.logStop(logId);
+            registerGridSettingsChangesListener();
+            // add listeners of full column model to trimmed model
+            List<Listener<? extends BaseEvent>> listeners =
+                    fullColumnModel.getListeners(Events.WidthChange);
+            for (Listener<? extends BaseEvent> listener : listeners)
+            {
+                columnModelOfVisible.addListener(Events.WidthChange, listener);
+            }
         }
     }
-    
+
+    private void limitVisibleColumns(int maxVisibleColumns, int visibleColumnsCount)
+    {
+        String title = viewContext.getMessage(Dict.TOO_MANY_VISIBLE_COLUMNS_TITLE);
+        String msg =
+                viewContext.getMessage(Dict.TOO_MANY_VISIBLE_COLUMNS_MSG, maxVisibleColumns,
+                        visibleColumnsCount);
+        MessageBox.info(title, msg, new Listener<MessageBoxEvent>()
+            {
+
+                public void handleEvent(MessageBoxEvent be)
+                {
+                    configureColumnSettings();
+                }
+
+            });
+    }
+
     private ColumnModel trimToVisibleColumns(ColumnModel columnModel)
     {
         List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
@@ -1460,6 +1488,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return LinkRenderer.createLinkRenderer();
     }
 
+    protected WebClientConfiguration getWebClientConfiguration()
+    {
+        return viewContext.getModel().getApplicationInfo().getWebClientConfiguration();
+    }
+
     // ------- generic static helpers
 
     private static <T> List<String> extractColumnIds(List<IColumnDefinition<T>> columns)
@@ -1562,7 +1595,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         return fullColumnModel;
     }
-    
+
     private static final class ExportEntitiesCallback extends AbstractAsyncCallback<String>
     {
         public ExportEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)

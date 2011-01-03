@@ -83,7 +83,9 @@ public class DataTypeUtils
                 }
             }
         },
-        DATE(DataTypeCode.TIMESTAMP)
+        STRING(DataTypeCode.VARCHAR, DataTypeCode.MULTILINE_VARCHAR, DataTypeCode.BOOLEAN,
+                DataTypeCode.XML, DataTypeCode.CONTROLLEDVOCABULARY, DataTypeCode.MATERIAL,
+                DataTypeCode.HYPERLINK, DataTypeCode.TIMESTAMP)
         {
             @Override
             public ISerializableComparable doConversion(String value)
@@ -91,21 +93,6 @@ public class DataTypeUtils
                 return new StringTableCell(value);
             }
 
-            @Override
-            public Serializable doSimpleConversion(String value)
-            {
-                return value;
-            }
-        },
-        STRING(DataTypeCode.VARCHAR, DataTypeCode.MULTILINE_VARCHAR, DataTypeCode.BOOLEAN, DataTypeCode.XML,
-                DataTypeCode.CONTROLLEDVOCABULARY, DataTypeCode.MATERIAL, DataTypeCode.HYPERLINK)
-        {
-            @Override
-            public ISerializableComparable doConversion(String value)
-            {
-                return new StringTableCell(value);
-            }
-            
             @Override
             public Serializable doSimpleConversion(String value)
             {
@@ -141,13 +128,14 @@ public class DataTypeUtils
             }
             return doConversion(value);
         }
-        
+
         public Serializable convertValue(String value)
         {
             return StringUtils.isBlank(value) ? null : doSimpleConversion(value);
         }
 
         protected abstract ISerializableComparable doConversion(String value);
+
         protected abstract Serializable doSimpleConversion(String value);
     }
 
@@ -159,7 +147,6 @@ public class DataTypeUtils
         return Converter.resolve(dataTypeCode).convert(value);
     }
 
-    
     /**
      * Converts the specified string value into a data value in accordance with specified data type.
      */
@@ -167,7 +154,7 @@ public class DataTypeUtils
     {
         return Converter.resolve(dataTypeCode).convertValue(value);
     }
-    
+
     /**
      * Returns a data type which is compatible with the previous data type and the new data type.
      */
