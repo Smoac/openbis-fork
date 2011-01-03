@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -336,7 +336,7 @@ public class CacheManager implements ICacheManager
             }
         } else
         {
-            operationLog.warn("For key " + key + " removed from cache caused some unknown error: " + file);
+            operationLog.warn("For key " + key + " removing from cache caused some unknown error: " + file);
         }
     }
     

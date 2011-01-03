@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 /**
  * Interface of a manager of objects which are stored in a cache using a unique {@link Key}.
