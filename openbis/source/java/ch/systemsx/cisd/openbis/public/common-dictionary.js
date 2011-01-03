@@ -34,6 +34,7 @@ var common = {
   permlink_column_name: "Permlink",
   overview_column_name: "Overview",
   show_details_link: "Show Details Link",
+  show_details_link_column_name: "Permlink",
   show_details_link_text_value: "Permlink",
   table_operations: "Table:",
   entity_operations: "Entity:",
