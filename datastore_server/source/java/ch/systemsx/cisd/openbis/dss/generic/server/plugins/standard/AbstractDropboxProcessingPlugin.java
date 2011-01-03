@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -73,7 +74,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDropboxProcessingPlugin.class);
 
-    private static final String SEND_DETAILED_EMAIL_KEY = "send-detailed-email";
+    @Private static final String SEND_DETAILED_EMAIL_KEY = "send-detailed-email";
 
     private final static String MISSING_DIRECTORY_MSG = "with missing directory";
 

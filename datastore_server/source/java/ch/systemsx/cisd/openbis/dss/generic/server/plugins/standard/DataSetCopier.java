@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 
 /**
@@ -56,14 +58,16 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
     public DataSetCopier(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
+        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory(),
+                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    @Private DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
-            ISshCommandExecutorFactory sshCommandExecutorFactory)
+    @Private
+    DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
+            ISshCommandExecutorFactory sshCommandExecutorFactory, ITimeProvider timeProvider)
     {
         super(properties, storeRoot, new Copier(properties, pathCopierFactory,
-                sshCommandExecutorFactory));
+                sshCommandExecutorFactory), timeProvider);
     }
 
     public DataSetCopier(Properties properties, File storeRoot,

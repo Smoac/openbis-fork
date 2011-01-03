@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.hamcrest.core.IsNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -40,6 +41,10 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
+import ch.systemsx.cisd.common.mail.EMailAddress;
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -47,9 +52,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = DataSetCopier.class)
+@Friend(toClasses = {DataSetCopier.class, AbstractDropboxProcessingPlugin.class})
 public class DataSetCopierTest extends AbstractFileSystemTestCase
 {
+    private static final String USER_EMAIL = "a@bc.de";
+
     private static final String DS1_LOCATION = "ds1";
 
     private static final String DS2_LOCATION = "ds2";
@@ -94,10 +101,16 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private DataSetProcessingContext dummyContext;
 
+    private ITimeProvider timeProvider;
+
+    private IMailClient mailClient;
+
     @BeforeMethod
     public void beforeMethod() throws IOException
     {
         context = new Mockery();
+        timeProvider = context.mock(ITimeProvider.class);
+        mailClient = context.mock(IMailClient.class);
         pathFactory = context.mock(IPathCopierFactory.class);
         sshFactory = context.mock(ISshCommandExecutorFactory.class);
         copier = context.mock(IPathCopier.class);
@@ -111,39 +124,54 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
-        ds1 = createDataSetDescription("ds1", DS1_LOCATION);
+        ds1 = createDataSetDescription("ds1", DS1_LOCATION, true);
         File ds1Folder = new File(storeRoot, DS1_LOCATION + "/original");
         ds1Folder.mkdirs();
         ds1Data = new File(ds1Folder, "data.txt");
         ds1Data.createNewFile();
-        ds2 = createDataSetDescription("ds2", DS2_LOCATION);
+        ds2 = createDataSetDescription("ds2", DS2_LOCATION, true);
         File ds2Folder = new File(storeRoot, DS2_LOCATION + "/original");
         ds2Folder.mkdirs();
         ds2Data = new File(ds2Folder, "images");
         ds2Data.mkdirs();
-        ds3 = createDataSetDescription("ds3", DS3_LOCATION);
+        ds3 = createDataSetDescription("ds3", DS3_LOCATION, false);
         File ds3Folder = new File(storeRoot, DS3_LOCATION + "/original");
         ds3Folder.mkdirs();
         ds3Data = new File(ds3Folder, "existing");
         ds3Data.createNewFile();
-        ds4 = createDataSetDescription("ds4", DS4_LOCATION);
+        ds4 = createDataSetDescription("ds4", DS4_LOCATION, false);
         File ds4Folder = new File(storeRoot, DS4_LOCATION + "/original");
         ds4Folder.mkdirs();
         ds4Data = new File(ds4Folder, "existing");
         ds4Data.mkdirs();
-        dummyContext = new DataSetProcessingContext(null, null, null);
+        dummyContext = new DataSetProcessingContext(null, mailClient, USER_EMAIL);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(42L));
+                }
+            });
     }
 
-    private DatasetDescription createDataSetDescription(String dataSetCode, String location)
+    private DatasetDescription createDataSetDescription(String dataSetCode, String location, boolean withSample)
     {
         DatasetDescription description = new DatasetDescription();
         description.setDatasetCode(dataSetCode);
+        description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
         description.setDatabaseInstanceCode("i");
         description.setGroupCode("g");
         description.setProjectCode("p");
         description.setExperimentCode("e");
-        description.setSampleCode("s");
+        description.setExperimentIdentifier("/g/p/e");
+        description.setExperimentTypeCode("MY_EXPERIMENT");
+        if (withSample)
+        {
+            description.setSampleCode("s");
+            description.setSampleIdentifier("/g/s");
+            description.setSampleTypeCode("MY_SAMPLE");
+        }
         return description;
     }
 
@@ -160,7 +188,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     {
         try
         {
-            new DataSetCopier(new Properties(), storeRoot, pathFactory, sshFactory);
+            properties.clear();
+            createCopier();
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -177,7 +206,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         rsyncExecutableDummy.delete();
         try
         {
-            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+            createCopier();
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -195,7 +224,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         sshExecutableDummy.delete();
         try
         {
-            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+            createCopier();
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -213,7 +242,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
         prepareCreateAndCheckCopier("host", null, 1, false);
         DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+                createCopier();
 
         try
         {
@@ -234,7 +263,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
         prepareCreateAndCheckCopier("host", "abc", 1, false);
         DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+                createCopier();
 
         try
         {
@@ -264,8 +293,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+        DataSetCopier dataSetCopier = createCopier();
 
         ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
         assertNoErrors(processingStatus);
@@ -273,7 +301,167 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testCopyDataSetAndSendDetailedEMails()
+    {
+        properties.setProperty(DESTINATION_KEY, "tmp/test");
+        properties.setProperty(AbstractDropboxProcessingPlugin.SEND_DETAILED_EMAIL_KEY, "true");
+        prepareCreateAndCheckCopier(null, null, 1, true);
+        final RecordingMatcher<String> subjectRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<EMailAddress[]> recipientsRecorder =
+                new RecordingMatcher<EMailAddress[]>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
+                    will(returnValue(Status.OK));
 
+                    one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
+                            with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
+                            with(recipientsRecorder));
+                }
+            });
+        DataSetCopier dataSetCopier = createCopier();
+
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds3), dummyContext);
+        assertNoErrors(processingStatus);
+        assertSuccessful(processingStatus, ds3);
+        assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
+        assertEquals("Data set ds3 [MY_DATA] successfully processed",
+                subjectRecorder.recordedObject());
+        assertEquals("Data set ds3 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] "
+                + "has been successfully processed.\n"
+                + "Processing description: Copy to tmp/test\n"
+                + "Processing started at 1970-01-01 01:00:00 +0100.\n"
+                + "Processing finished at 1970-01-01 01:00:00 +0100.",
+                contentRecorder.recordedObject());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCopyDataSetWithErrorAndSendDetailedEMails()
+    {
+        properties.setProperty(DESTINATION_KEY, "tmp/test");
+        properties.setProperty(AbstractDropboxProcessingPlugin.SEND_DETAILED_EMAIL_KEY, "true");
+        prepareCreateAndCheckCopier(null, null, 1, true);
+        final RecordingMatcher<String> subjectRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<EMailAddress[]> recipientsRecorder =
+                new RecordingMatcher<EMailAddress[]>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(copier).copyToRemote(ds3Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
+                    will(returnValue(Status.createError("Oophs!")));
+
+                    one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
+                            with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
+                            with(recipientsRecorder));
+                }
+            });
+        DataSetCopier dataSetCopier = createCopier();
+
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds3), dummyContext);
+        Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        assertError(processingStatus, errorStatus, ds3);
+        assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
+        assertEquals("Processing of data set ds3 [MY_DATA] failed",
+                subjectRecorder.recordedObject());
+        assertEquals(
+                "Processing data set ds3 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] failed."
+                        + " Reason: copying failed\n"
+                        + "Processing description: Copy to tmp/test\n"
+                        + "Processing started at 1970-01-01 01:00:00 +0100.\n"
+                        + "Processing finished at 1970-01-01 01:00:00 +0100.",
+                contentRecorder.recordedObject());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCopyDataSetsWithSampleAndSendDetailedEMails()
+    {
+        properties.setProperty(DESTINATION_KEY, "tmp/test");
+        properties.setProperty(AbstractDropboxProcessingPlugin.SEND_DETAILED_EMAIL_KEY, "true");
+        prepareCreateAndCheckCopier(null, null, 1, true);
+        final RecordingMatcher<String> subjectRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<EMailAddress[]> recipientsRecorder =
+                new RecordingMatcher<EMailAddress[]>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
+                    will(returnValue(Status.OK));
+
+                    one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
+                            with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
+                            with(recipientsRecorder));
+                }
+            });
+        DataSetCopier dataSetCopier = createCopier();
+
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
+        assertNoErrors(processingStatus);
+        assertSuccessful(processingStatus, ds1);
+        assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
+        assertEquals("Data set ds1 [MY_DATA] successfully processed",
+                subjectRecorder.recordedObject());
+        assertEquals("Data set ds1 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] "
+                + "and sample /g/s [MY_SAMPLE] has been successfully processed.\n"
+                + "Processing description: Copy to tmp/test\n"
+                + "Processing started at 1970-01-01 01:00:00 +0100.\n"
+                + "Processing finished at 1970-01-01 01:00:00 +0100.",
+                contentRecorder.recordedObject());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCopyDataSetWithErrorWithSampleAndSendDetailedEMails()
+    {
+        properties.setProperty(DESTINATION_KEY, "tmp/test");
+        properties.setProperty(AbstractDropboxProcessingPlugin.SEND_DETAILED_EMAIL_KEY, "true");
+        prepareCreateAndCheckCopier(null, null, 1, true);
+        final RecordingMatcher<String> subjectRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<String> contentRecorder = new RecordingMatcher<String>();
+        final RecordingMatcher<EMailAddress[]> recipientsRecorder = new RecordingMatcher<EMailAddress[]>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null,
+                            null);
+                    will(returnValue(Status.createError("Oophs!")));
+
+                    one(mailClient).sendEmailMessage(with(subjectRecorder), with(contentRecorder),
+                            with(new IsNull<EMailAddress>()), with(new IsNull<EMailAddress>()),
+                            with(recipientsRecorder));
+                }
+            });
+        DataSetCopier dataSetCopier = createCopier();
+
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
+        Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        assertError(processingStatus, errorStatus, ds1);
+        assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
+        assertEquals("Processing of data set ds1 [MY_DATA] failed",
+                subjectRecorder.recordedObject());
+        assertEquals("Processing data set ds1 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] "
+                + "and sample /g/s [MY_SAMPLE] failed." + " Reason: copying failed\n"
+                + "Processing description: Copy to tmp/test\n"
+                + "Processing started at 1970-01-01 01:00:00 +0100.\n"
+                + "Processing finished at 1970-01-01 01:00:00 +0100.",
+                contentRecorder.recordedObject());
+
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testCopyLocallyFails()
     {
@@ -296,7 +484,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 }
             });
         DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+                createCopier();
 
         ProcessingStatus processingStatus =
                 dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), dummyContext);
@@ -330,7 +518,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 }
             });
         DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+                createCopier();
 
         ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
         assertNoErrors(processingStatus);
@@ -369,7 +557,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 }
             });
         DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+                createCopier();
 
         ProcessingStatus processingStatus =
                 dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4), dummyContext);
@@ -403,7 +591,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 }
             });
         DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+                createCopier();
 
         ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1), dummyContext);
         assertNoErrors(processingStatus);
@@ -437,7 +625,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 }
             });
         DataSetCopier dataSetCopier =
-                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+                createCopier();
 
         ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2), dummyContext);
 
@@ -532,4 +720,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
+    
+    private DataSetCopier createCopier()
+    {
+        return new DataSetCopier(properties, storeRoot, pathFactory, sshFactory, timeProvider);
+    }
+
 }
