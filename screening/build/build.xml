@@ -345,8 +345,7 @@
         <include name="ch/systemsx/cisd/common/api/**/*.class" />
         <exclude name="ch/systemsx/cisd/common/api/server/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class" />
-      	<exclude name="ch/systemsx/cisd/openbis/dss/client/api/v1/impl/**/*.class" />
-       	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
+      	<include name="ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/dss/screening/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/generic/shared/api/v1/**/*.class" />
       	<include name="ch/systemsx/cisd/openbis/plugin/screening/shared/api/v1/**/*.class" />
