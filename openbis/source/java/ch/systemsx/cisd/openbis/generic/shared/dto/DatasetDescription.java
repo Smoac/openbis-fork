@@ -36,6 +36,10 @@ public class DatasetDescription implements Serializable
     private String dataSetLocation;
 
     private String sampleCode;
+    
+    private String sampleIdentifier;
+    
+    private String sampleTypeCode;
 
     private String groupCode;
 
@@ -44,6 +48,10 @@ public class DatasetDescription implements Serializable
     private String instanceCode;
 
     private String experimentCode;
+    
+    private String experimentIdentifier;
+    
+    private String experimentTypeCode;
 
     private String mainDataSetPattern;
 
@@ -123,6 +131,26 @@ public class DatasetDescription implements Serializable
         this.sampleCode = sampleCode;
     }
     
+    public void setSampleIdentifier(String sampleIdentifier)
+    {
+        this.sampleIdentifier = sampleIdentifier;
+    }
+
+    public String getSampleIdentifier()
+    {
+        return sampleIdentifier;
+    }
+
+    public void setSampleTypeCode(String sampleTypeCode)
+    {
+        this.sampleTypeCode = sampleTypeCode;
+    }
+
+    public String getSampleTypeCode()
+    {
+        return sampleTypeCode;
+    }
+
     public String getGroupCode()
     {
         return groupCode;
@@ -163,12 +191,32 @@ public class DatasetDescription implements Serializable
         this.experimentCode = experimentCode;
     }
     
+    public void setExperimentIdentifier(String experimentIdentifier)
+    {
+        this.experimentIdentifier = experimentIdentifier;
+    }
+
+    public String getExperimentIdentifier()
+    {
+        return experimentIdentifier;
+    }
+
+    public void setExperimentTypeCode(String experimentTypeCode)
+    {
+        this.experimentTypeCode = experimentTypeCode;
+    }
+
+    public String getExperimentTypeCode()
+    {
+        return experimentTypeCode;
+    }
+
     @Override
     public String toString()
     {
         return String.format("Dataset '%s'", datasetCode);
     }
-
+    
 }
 
 

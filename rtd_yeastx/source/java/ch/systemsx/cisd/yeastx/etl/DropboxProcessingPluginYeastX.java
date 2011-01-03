@@ -74,4 +74,10 @@ public class DropboxProcessingPluginYeastX extends AbstractDropboxProcessingPlug
         }
     }
 
+    @Override
+    protected String getProcessingDescription()
+    {
+        return "Copy to " + properties.getProperty(DROPBOX_INCOMING_DIRECTORY_PROPERTY);
+    }
+
 }

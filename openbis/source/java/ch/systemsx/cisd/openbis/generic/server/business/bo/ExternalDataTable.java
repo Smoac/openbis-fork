@@ -492,8 +492,15 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         description.setDatasetCode(dataSet.getCode());
         description.setDataSetLocation(dataSet.getLocation());
         SamplePE sample = dataSet.tryGetSample();
-        description.setSampleCode(sample == null ? null : sample.getCode());
+        if (sample != null)
+        {
+            description.setSampleCode(sample.getCode());
+            description.setSampleIdentifier(sample.getIdentifier());
+            description.setSampleTypeCode(sample.getSampleType().getCode());
+        }
         ExperimentPE experiment = dataSet.getExperiment();
+        description.setExperimentIdentifier(experiment.getIdentifier());
+        description.setExperimentTypeCode(experiment.getExperimentType().getCode());
         description.setExperimentCode(experiment.getCode());
         ProjectPE project = experiment.getProject();
         description.setProjectCode(project.getCode());

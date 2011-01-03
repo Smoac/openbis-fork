@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.phosphonetx.server.plugins;
 
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.DESTINATION_KEY;
+
 import java.io.File;
 import java.util.Properties;
 
@@ -46,4 +48,11 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
         super(properties, storeRoot, new LocalAndRemoteCopier(properties, pathCopierFactory,
                 sshCommandExecutorFactory));
     }
+
+    @Override
+    protected String getProcessingDescription()
+    {
+        return "Copy to " + properties.getProperty(DESTINATION_KEY);
+    }
+    
 }

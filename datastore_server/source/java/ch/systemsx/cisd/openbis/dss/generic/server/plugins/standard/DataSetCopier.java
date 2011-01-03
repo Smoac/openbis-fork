@@ -72,4 +72,10 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
         super(properties, storeRoot, dropboxHandler);
     }
 
+    @Override
+    protected String getProcessingDescription()
+    {
+        return "Copy to " + properties.getProperty(DESTINATION_KEY);
+    }
+
 }
