@@ -97,9 +97,10 @@ public class CinaUtilitiesFacade implements ICinaUtilities
     }
 
     private static IDssComponent createDssComponent(IETLLIMSService openbisService,
-            String sessionTokenOrNull)
+            IGeneralInformationService generalInformationService, String sessionTokenOrNull)
     {
-        return new DssComponent(openbisService, new DssServiceRpcFactory(), sessionTokenOrNull);
+        return new DssComponent(generalInformationService,
+                new DssServiceRpcFactory(), sessionTokenOrNull);
     }
 
     /** The interface for accessing the remote services. */
@@ -141,7 +142,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
 
     {
         this(generalInformationService, openbisService, createDssComponent(openbisService,
-                sessionTokenOrNull), sessionTokenOrNull);
+                generalInformationService, sessionTokenOrNull), sessionTokenOrNull);
     }
 
     /**
@@ -203,8 +204,8 @@ public class CinaUtilitiesFacade implements ICinaUtilities
         state.login(user, password);
         state =
                 new AuthenticatedState(generalInformationService, openbisService,
-                        createDssComponent(openbisService, state.getSessionToken()),
-                        state.getSessionToken());
+                        createDssComponent(openbisService, generalInformationService,
+                                state.getSessionToken()), state.getSessionToken());
     }
 
     public void logout()

@@ -735,21 +735,6 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
-    public String getDefaultPutDataStoreBaseURL(String sessionToken)
-    {
-        checkSession(sessionToken);
-        IDataStoreDAO dataStoreDAO = daoFactory.getDataStoreDAO();
-        List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
-        if (dataStores.size() != 1)
-        {
-            throw new UserFailureException(
-                    String.format(
-                            "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
-                            dataStores.size()));
-        }
-        return dataStores.get(0).getDownloadUrl();
-    }
-
     public ExternalData tryGetDataSetForServer(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

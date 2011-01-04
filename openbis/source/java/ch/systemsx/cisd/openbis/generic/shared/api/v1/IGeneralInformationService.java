@@ -66,6 +66,15 @@ public interface IGeneralInformationService extends IRpcService
     public void logout(String sessionToken);
 
     /**
+     * Returns true if session with the specified token is still active, false otherwise. Available
+     * since minor version 4.
+     * 
+     * @since 1.4
+     */
+    @Transactional(readOnly = true)
+    public boolean isSessionActive(String sessionToken);
+
+    /**
      * Returns all named role sets. The name is the key of the returned map.
      */
     @Transactional(readOnly = true)
@@ -130,5 +139,26 @@ public interface IGeneralInformationService extends IRpcService
     @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded);
+
+    /**
+     * Returns the URL for the default data store server for this openBIS AS. Available since minor
+     * version 4.
+     * 
+     * @since 1.4
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public String getDefaultPutDataStoreBaseURL(String sessionToken);
+
+    /**
+     * Returns the download URL for the data store of specified data set or null if such data set
+     * does not exist. Available since minor version 4.
+     * 
+     * @since 1.4
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(value =
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode);
 
 }

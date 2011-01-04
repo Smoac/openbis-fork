@@ -30,11 +30,14 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
@@ -51,13 +54,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -91,6 +96,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     {
         SessionContextDTO session = tryToAuthenticate(userID, userPassword);
         return session == null ? null : session.getSessionToken();
+    }
+
+    public boolean isSessionActive(String sessionToken)
+    {
+        return tryGetSession(sessionToken) != null;
     }
 
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken)
@@ -301,5 +311,34 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             dataSets.add(Translator.translate(externalDatum));
         }
         return dataSets;
+    }
+
+    public String getDefaultPutDataStoreBaseURL(String sessionToken)
+    {
+        checkSession(sessionToken);
+        IDataStoreDAO dataStoreDAO = getDAOFactory().getDataStoreDAO();
+        List<DataStorePE> dataStores = dataStoreDAO.listDataStores();
+        if (dataStores.size() != 1)
+        {
+            throw EnvironmentFailureException
+                    .fromTemplate(
+                            "Expected exactly one Data Store Server to be registered in openBIS but found %s.",
+                            dataStores.size());
+        }
+        return dataStores.get(0).getDownloadUrl();
+    }
+
+    public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
+    {
+        checkSession(sessionToken);
+
+        IExternalDataDAO dataDAO = getDAOFactory().getExternalDataDAO();
+        DataPE data = dataDAO.tryToFindDataSetByCode(dataSetCode);
+        if (data == null)
+        {
+            return null;
+        }
+
+        return data.getDataStore().getDownloadUrl();
     }
 }

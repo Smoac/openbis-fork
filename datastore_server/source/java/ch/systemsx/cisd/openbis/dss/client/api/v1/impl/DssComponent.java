@@ -29,6 +29,7 @@ import org.springframework.remoting.RemoteConnectFailureException;
 import ch.systemsx.cisd.common.api.IRpcServiceFactory;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceDTO;
 import ch.systemsx.cisd.common.api.RpcServiceInterfaceVersionDTO;
+import ch.systemsx.cisd.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -42,12 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.DataStoreApiUrlUtiliti
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.OpenBisServiceFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
  * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and
@@ -60,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class DssComponent implements IDssComponent
 {
-    private final IETLLIMSService openBisService;
+    private final IGeneralInformationService generalOpenBisService;
 
     private final IRpcServiceFactory dssServiceFactory;
 
@@ -108,9 +104,14 @@ public class DssComponent implements IDssComponent
         return component;
     }
 
-    private static IETLLIMSService createOpenBisService(String openBISURL)
+    private static IGeneralInformationService createGeneralInformationService(String openBISURL)
     {
-        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL).createService();
+        ServiceFinder generalInformationServiceFinder =
+                new ServiceFinder("openbis", IGeneralInformationService.SERVICE_URL);
+        IGeneralInformationService service =
+                generalInformationServiceFinder.createService(IGeneralInformationService.class,
+                        openBISURL);
+        return service;
     }
 
     /**
@@ -125,7 +126,8 @@ public class DssComponent implements IDssComponent
      */
     private DssComponent(String openBISURL, String sessionTokenOrNull)
     {
-        this(createOpenBisService(openBISURL), new DssServiceRpcFactory(), sessionTokenOrNull);
+        this(createGeneralInformationService(openBISURL), new DssServiceRpcFactory(),
+                sessionTokenOrNull);
     }
 
     /**
@@ -136,10 +138,10 @@ public class DssComponent implements IDssComponent
      * @param sessionTokenOrNull A session token, if the user has already logged in, or null
      *            otherwise.
      */
-    public DssComponent(IETLLIMSService service, IRpcServiceFactory dssServiceFactory,
+    public DssComponent(IGeneralInformationService service, IRpcServiceFactory dssServiceFactory,
             String sessionTokenOrNull)
     {
-        this.openBisService = service;
+        this.generalOpenBisService = service;
         this.dssServiceFactory = dssServiceFactory;
         if (sessionTokenOrNull == null)
         {
@@ -170,7 +172,7 @@ public class DssComponent implements IDssComponent
     {
         // logout and transition to the unauthenticated state
         state.logout();
-        state = new UnauthenticatedState(openBisService);
+        state = new UnauthenticatedState(generalOpenBisService);
     }
 
     /**
@@ -185,7 +187,9 @@ public class DssComponent implements IDssComponent
     {
         // login and transition to the authenticated state
         state.login(user, password);
-        state = new AuthenticatedState(openBisService, dssServiceFactory, state.getSessionToken());
+        state =
+                new AuthenticatedState(generalOpenBisService, dssServiceFactory,
+                        state.getSessionToken());
     }
 
     public IDataSetDss putDataSet(NewDataSetDTO newDataset, File dataSetFile)
@@ -205,9 +209,9 @@ public class DssComponent implements IDssComponent
  */
 abstract class AbstractDssComponentState implements IDssComponent
 {
-    protected final IETLLIMSService service;
+    protected final IGeneralInformationService service;
 
-    AbstractDssComponentState(IETLLIMSService service)
+    AbstractDssComponentState(IGeneralInformationService service)
     {
         this.service = service;
     }
@@ -252,19 +256,19 @@ abstract class AbstractDssComponentState implements IDssComponent
  */
 class UnauthenticatedState extends AbstractDssComponentState
 {
-    private SessionContextDTO sessionOrNull;
+    private String sessionTokenOrNull;
 
-    UnauthenticatedState(IETLLIMSService service)
+    UnauthenticatedState(IGeneralInformationService generalOpenBisService)
     {
-        super(service);
+        super(generalOpenBisService);
     }
 
     @Override
     public String getSessionToken()
     {
-        if (sessionOrNull == null)
+        if (sessionTokenOrNull == null)
             throw new IllegalStateException("Please log in");
-        return sessionOrNull.getSessionToken();
+        return sessionTokenOrNull;
     }
 
     @Override
@@ -273,12 +277,12 @@ class UnauthenticatedState extends AbstractDssComponentState
     {
         try
         {
-            sessionOrNull = service.tryToAuthenticate(user, password);
+            sessionTokenOrNull = service.tryToAuthenticateForAllServices(user, password);
         } catch (RemoteConnectFailureException e)
         {
             throw new EnvironmentFailureException("Could not connect to server", e);
         }
-        if (sessionOrNull == null)
+        if (sessionTokenOrNull == null)
             throw new AuthorizationFailureException("Login or Password invalid");
     }
 
@@ -300,13 +304,10 @@ class AuthenticatedState extends AbstractDssComponentState
 
     private final IRpcServiceFactory dssServiceFactory;
 
-    /**
-     * @param service
-     */
-    AuthenticatedState(IETLLIMSService service, IRpcServiceFactory dssServiceFactory,
-            String sessionToken)
+    AuthenticatedState(IGeneralInformationService generalOpenBisService,
+            IRpcServiceFactory dssServiceFactory, String sessionToken)
     {
-        super(service);
+        super(generalOpenBisService);
         this.dssServiceFactory = dssServiceFactory;
         this.sessionToken = sessionToken;
     }
@@ -320,7 +321,7 @@ class AuthenticatedState extends AbstractDssComponentState
     @Override
     public void checkSession()
     {
-        if (null == service.tryGetSession(getSessionToken()))
+        if (service.isSessionActive(getSessionToken()) == false)
         {
             throw new InvalidSessionException("Session has expired");
         }
@@ -332,22 +333,22 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     @Override
-    public IDataSetDss getDataSet(String code) throws IllegalArgumentException,
+    public IDataSetDss getDataSet(String dataSetCode) throws IllegalArgumentException,
             EnvironmentFailureException, RemoteAccessException
     {
         // Contact openBIS to find out which DSS server manages the data set
-        ExternalData dataSetOpenBis = service.tryGetDataSet(getSessionToken(), code);
-        if (null == dataSetOpenBis)
+        String url =
+                getDataStoreUrlFromDataStore(service.tryGetDataStoreBaseURL(getSessionToken(),
+                        dataSetCode));
+        if (null == url)
         {
-            throw new IllegalArgumentException("Could not retrieve data set with code " + code);
+            throw new IllegalArgumentException("Could not retrieve data set with code "
+                    + dataSetCode);
         }
-        DataStore dataStore = dataSetOpenBis.getDataStore();
-
-        String url = getDataStoreUrlFromDataStore(dataStore);
 
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         // Return a proxy to the data set
-        return new DataSetDss(code, dssService, this);
+        return new DataSetDss(dataSetCode, dssService, this);
     }
 
     @Override
@@ -355,7 +356,7 @@ class AuthenticatedState extends AbstractDssComponentState
             throws IllegalStateException, EnvironmentFailureException
     {
         String url = service.getDefaultPutDataStoreBaseURL(sessionToken);
-        url = DataStoreApiUrlUtilities.getDataStoreUrlFromServerUrl(url);
+        url = DataStoreApiUrlUtilities.getDataStoreUrlFromDownloadUrl(url);
         IDssServiceRpcGeneric dssService = getDssServiceForUrl(url);
         ConcatenatedContentInputStream fileInputStream =
                 new ConcatenatedContentInputStream(true, getContentForFileInfos(
@@ -524,9 +525,9 @@ class AuthenticatedState extends AbstractDssComponentState
     /**
      * The data store only stores the download url, get the data store url
      */
-    private String getDataStoreUrlFromDataStore(DataStore dataStore)
+    private String getDataStoreUrlFromDataStore(String dataStoreDownloadUrl)
     {
-        return DataStoreApiUrlUtilities.getDataStoreUrlFromDataStore(dataStore);
+        return DataStoreApiUrlUtilities.getDataStoreUrlFromDownloadUrl(dataStoreDownloadUrl);
     }
 
     @Override

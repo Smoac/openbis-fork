@@ -50,6 +50,11 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    public boolean isSessionActive(String sessionToken)
+    {
+        return false;
+    }
+
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken)
     {
         logAccess(sessionToken, "list-role-sets");
@@ -59,7 +64,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull)
     {
-        logAccess(sessionToken, "list-spaces", "DATABSE_INSTANCE(%s)", databaseInstanceCodeOrNull);
+        logAccess(sessionToken, "list-spaces", "DATABASE_INSTANCE(%s)", databaseInstanceCodeOrNull);
         return null;
     }
 
@@ -99,4 +104,17 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
                 areOnlyDirectlyConnectedIncluded);
         return null;
     }
+
+    public String getDefaultPutDataStoreBaseURL(String sessionToken)
+    {
+        logAccess(sessionToken, "get-default-put-data-store-url");
+        return null;
+    }
+
+    public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
+    {
+        logAccess(sessionToken, "get-data-store-base-url", "DATA_SET(%s)", dataSetCode);
+        return null;
+    }
+
 }

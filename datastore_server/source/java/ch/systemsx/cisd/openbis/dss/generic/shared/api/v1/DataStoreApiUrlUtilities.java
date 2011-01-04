@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.api.v1;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-
 /**
  * @author Chandrasekhar Ramakrishnan
  */
@@ -35,17 +33,9 @@ public class DataStoreApiUrlUtilities
     /**
      * Converts the download url to a server url.
      */
-    public static String getDataStoreUrlFromDataStore(DataStore dataStore)
+    public static String getDataStoreUrlFromDownloadUrl(String dataStoreDownloadUrl)
     {
-        return getDataStoreUrlFromServerUrl(dataStore.getDownloadUrl());
-    }
-
-    /**
-     * Converts the download url to a server url.
-     */
-    public static String getDataStoreUrlFromServerUrl(String dataStoreServerUrl)
-    {
-        String datastoreUrl = dataStoreServerUrl;
+        String datastoreUrl = dataStoreDownloadUrl;
 
         // The url objained form a DataStore object is the *download* url. Convert this to the
         // datastore URL

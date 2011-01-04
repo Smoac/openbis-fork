@@ -57,9 +57,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
-import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
@@ -73,7 +71,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
     private Mockery context;
 
-    private IETLLIMSService openBisService;
+    private IGeneralInformationService openBisService;
 
     private IRpcServiceFactory dssServiceFactory;
 
@@ -87,7 +85,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             + GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
     private static final String DUMMY_DSS_URL = DataStoreApiUrlUtilities
-            .getDataStoreUrlFromServerUrl(DUMMY_DSS_DOWNLOAD_URL);
+            .getDataStoreUrlFromDownloadUrl(DUMMY_DSS_DOWNLOAD_URL);
 
     private IDssServiceRpcGeneric dssServiceV1_0;
 
@@ -130,7 +128,7 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     {
         super.setUp();
         context = new Mockery();
-        openBisService = context.mock(IETLLIMSService.class);
+        openBisService = context.mock(IGeneralInformationService.class);
         dssServiceFactory = context.mock(IRpcServiceFactory.class);
         dssComponent = new DssComponent(openBisService, dssServiceFactory, null);
         randomDataFile = getFileWithRandomData(1);
@@ -152,8 +150,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(openBisService).tryToAuthenticate("foo", "bar");
-                    will(returnValue(session));
+                    one(openBisService).tryToAuthenticateForAllServices("foo", "bar");
+                    will(returnValue(session.getSessionToken()));
                 }
             });
 
@@ -178,7 +176,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
     @Test
     public void testListDataSetFilesNoLogin() throws IOException
     {
-        dssComponent = new DssComponent(openBisService, dssServiceFactory, DUMMY_SESSSION_TOKEN);
+        dssComponent =
+                new DssComponent(openBisService, dssServiceFactory, DUMMY_SESSSION_TOKEN);
         setupExpectationsNoLogin();
         IDataSetDss dataSetProxy = dssComponent.getDataSet(DUMMY_DATA_SET_CODE);
         FileInfoDssDTO[] fileInfos = dataSetProxy.listFiles("/", true);
@@ -331,11 +330,6 @@ public class DssComponentTest extends AbstractFileSystemTestCase
             boolean isDataSetAccessible, boolean returnEarlierVersion) throws IOException
     {
         final SessionContextDTO session = getDummySession();
-        final ExternalData dataSetExternalData = new ExternalData();
-        DataStore dataStore = new DataStore();
-        dataStore.setDownloadUrl(DUMMY_DSS_DOWNLOAD_URL);
-        dataStore.setHostUrl(DUMMY_DSS_URL);
-        dataSetExternalData.setDataStore(dataStore);
 
         ArrayList<FileInfoDssDTO> list = new ArrayList<FileInfoDssDTO>();
         FileInfoDssBuilder builder =
@@ -379,11 +373,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
 
                     if (needsLogin)
                     {
-                        one(openBisService).tryToAuthenticate("foo", "bar");
-                        will(returnValue(session));
+                        one(openBisService).tryToAuthenticateForAllServices("foo", "bar");
+                        will(returnValue(session.getSessionToken()));
                     }
-                    allowing(openBisService).tryGetDataSet(DUMMY_SESSSION_TOKEN, dataSetCode);
-                    will(returnValue(dataSetExternalData));
+                    allowing(openBisService).tryGetDataStoreBaseURL(
+                            session.getSessionToken(), dataSetCode);
+                    will(returnValue(DUMMY_DSS_DOWNLOAD_URL));
                     allowing(dssServiceFactory).getSupportedInterfaces(DUMMY_DSS_URL, false);
                     will(returnValue(ifaces));
 
