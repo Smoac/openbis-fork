@@ -16,14 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.server.plugin.IServerPluginWithWildcards;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.AbstractSampleServerPlugin;
@@ -40,27 +43,34 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * @author Tomasz Pylak
  */
 @Component(ResourceNames.SCREENING_SAMPLE_SERVER_PLUGIN)
-public final class ScreeningSampleServerPlugin extends AbstractSampleServerPlugin
+public final class ScreeningSampleServerPlugin extends AbstractSampleServerPlugin implements
+        IServerPluginWithWildcards
 {
     private ScreeningSampleServerPlugin()
     {
     }
 
     //
-    // ISampleServerPlugin
+    // ISampleServerPluginWithWildcards
     //
 
-    public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
+    public final List<String> getOrderedEntityTypeCodes(final EntityKind entityKind)
     {
         if (entityKind == EntityKind.SAMPLE)
         {
-            Set<String> types = new HashSet<String>();
-            // TODO 2011-01-03, Tomasz Pylak: change to PLATE_PLUGIN_TYPE_CODE_WITH_WILDCARDS
-            types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
+            List<String> types = new ArrayList<String>();
+            types.add(ScreeningConstants.HCS_PLATE_SAMPLE_TYPE_PATTERN);
             types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
             return types;
         }
-        return Collections.emptySet();
+        return Collections.emptyList();
+    }
+
+    public final Set<String> getEntityTypeCodes(final EntityKind entityKind)
+    {
+        Set<String> types = new HashSet<String>();
+        types.addAll(getOrderedEntityTypeCodes(entityKind));
+        return types;
     }
 
     public final ISampleTypeSlaveServerPlugin getSlaveServer()
