@@ -59,7 +59,6 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -750,8 +749,10 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private boolean isImageDataset(ExternalData dataset)
     {
-        return ScreeningUtils.isTypeMatching(dataset,
-                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
+        // return ScreeningUtils.isTypeMatching(dataset,
+        // ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
+        return dataset.getDataSetType().getCode()
+                .matches(ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     private List<ImgFeatureDefDTO> getFeatureDefinitions(IDatasetIdentifier identifier)
