@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
@@ -73,7 +74,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -90,8 +90,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    public static final String PROPERTIES_ID_PREFIX =
-            GenericConstants.ID_PREFIX + "generic-sample-properties-viewer_";
+    public static final String PROPERTIES_ID_PREFIX = GenericConstants.ID_PREFIX
+            + "generic-sample-properties-viewer_";
 
     public static final String SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX =
             "-show_only_directly_connected_checkbox";
@@ -152,6 +152,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         }
         addToolBarButton(createDeleteButton(new IDelegatedAction()
             {
+                @SuppressWarnings("unchecked")
                 public void execute()
                 {
                     new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
@@ -246,12 +247,12 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         final Sample[] generated = sampleGeneration.getDerived();
         properties.put(messageProvider.getMessage(Dict.SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER),
                 sample.getIdentifier());
-        properties.put(messageProvider.getMessage(Dict.PERM_ID), new ExternalHyperlink(sample
-                .getPermId(), sample.getPermlink()));
+        properties.put(messageProvider.getMessage(Dict.PERM_ID),
+                new ExternalHyperlink(sample.getPermId(), sample.getPermlink()));
         properties.put(messageProvider.getMessage(Dict.SAMPLE_TYPE), sampleType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
-        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample
-                .getRegistrationDate());
+        properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
+                sample.getRegistrationDate());
         if (invalidation != null)
         {
             properties.put(messageProvider.getMessage(Dict.INVALIDATION), invalidation);
@@ -315,16 +316,16 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     {
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
-                .createPersonPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
-                .createSampleTypePropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Sample.class, PropertyValueRenderers
-                .createSamplePropertyValueRenderer(viewContext, true));
-        propertyGrid.registerPropertyValueRenderer(Invalidation.class, PropertyValueRenderers
-                .createInvalidationPropertyValueRenderer(viewContext));
-        propertyGrid.registerPropertyValueRenderer(Project.class, PropertyValueRenderers
-                .createProjectPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Person.class,
+                PropertyValueRenderers.createPersonPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(SampleType.class,
+                PropertyValueRenderers.createSampleTypePropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Sample.class,
+                PropertyValueRenderers.createSamplePropertyValueRenderer(viewContext, true));
+        propertyGrid.registerPropertyValueRenderer(Invalidation.class,
+                PropertyValueRenderers.createInvalidationPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Project.class,
+                PropertyValueRenderers.createProjectPropertyValueRenderer(viewContext));
         final IPropertyValueRenderer<IEntityProperty> propertyValueRenderer =
                 PropertyValueRenderers.createEntityPropertyPropertyValueRenderer(viewContext);
         propertyGrid.registerPropertyValueRenderer(EntityProperty.class, propertyValueRenderer);
@@ -334,8 +335,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
                 propertyValueRenderer);
         propertyGrid.registerPropertyValueRenderer(MaterialValueEntityProperty.class,
                 propertyValueRenderer);
-        propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
-                .createExperimentPropertyValueRenderer(viewContext));
+        propertyGrid.registerPropertyValueRenderer(Experiment.class,
+                PropertyValueRenderers.createExperimentPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
         propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
 
