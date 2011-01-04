@@ -446,13 +446,6 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class) List<String> datasetCodes);
 
     /**
-     * Returns the URL for the default data store server for this openBIS AS.
-     */
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public String getDefaultPutDataStoreBaseURL(String sessionToken);
-
-    /**
      * Check if the user has USER access on the space
      * 
      * @param sessionToken The user's session token.
