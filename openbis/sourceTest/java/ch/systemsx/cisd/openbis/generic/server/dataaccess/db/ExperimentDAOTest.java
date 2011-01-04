@@ -87,6 +87,20 @@ public class ExperimentDAOTest extends AbstractDAOTest
     }
 
     @Test
+    public void testListExperimentsWithPropertiesForEmptySet() throws Exception
+    {
+        List<ExperimentPE> list = daoFactory.getExperimentDAO().listExperimentsWithProperties(Collections.<Long>emptySet());
+        assertEquals(0, list.size());
+    }
+    
+    @Test
+    public void testListByPermIDForEmptySet() throws Exception
+    {
+        List<ExperimentPE> list = daoFactory.getExperimentDAO().listByPermID(Collections.<String>emptySet());
+        assertEquals(0, list.size());
+    }
+    
+    @Test
     public void testListExperimentsFromProject() throws Exception
     {
         List<ExperimentPE> experiments = daoFactory.getExperimentDAO().listExperiments();

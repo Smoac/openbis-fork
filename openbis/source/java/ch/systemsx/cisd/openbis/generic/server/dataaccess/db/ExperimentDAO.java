@@ -93,6 +93,10 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     public List<ExperimentPE> listExperimentsWithProperties(Collection<Long> experimentIDs)
             throws DataAccessException
     {
+        if (experimentIDs == null || experimentIDs.isEmpty())
+        {
+            return new ArrayList<ExperimentPE>();
+        }
         DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.in("id", experimentIDs));
         criteria.setFetchMode("experimentProperties", FetchMode.JOIN);

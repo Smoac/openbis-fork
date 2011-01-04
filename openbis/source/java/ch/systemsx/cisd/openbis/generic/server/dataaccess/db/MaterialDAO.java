@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -139,6 +140,10 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
     public List<MaterialPE> listMaterialsById(final List<Long> ids)
     {
+        if (ids == null || ids.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.in("id", ids));
         final List<MaterialPE> list = cast(criteria.list());
