@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
+package ch.systemsx.cisd.openbis.generic.server.plugin;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.WildcardSupportingMap;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKindAndTypeCode;
 
 /**
  * Utility class that manages mappings from entity types/codes (possibly including wildcards) to
- * IClientPluginFactory objects.
+ * IServerPlugin objects.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class WildcardSupportingPluginFactoryMap extends WildcardSupportingMap<IClientPluginFactory>
+
+public class WildcardSupportingPluginMap<T extends IServerPlugin> extends WildcardSupportingMap<T>
 {
 
     /**
      * Add a mapping from the entity kind/code to a factory.
      */
-    public void addMapping(EntityKindAndTypeCode entityKindAndCode, IClientPluginFactory factory)
+    public void addMapping(EntityKindAndTypeCode entityKindAndCode, T plugin)
     {
-        addThingMapping(entityKindAndCode, factory);
+        addThingMapping(entityKindAndCode, plugin);
     }
 
     /**
      * Return the first factory that matches the given entityKindAndCode, or null if none is found.
      */
-    public IClientPluginFactory tryPluginFactory(EntityKindAndTypeCode entityKindAndCode)
+    public T tryPlugin(EntityKindAndTypeCode entityKindAndCode)
     {
         return tryThing(entityKindAndCode);
     }

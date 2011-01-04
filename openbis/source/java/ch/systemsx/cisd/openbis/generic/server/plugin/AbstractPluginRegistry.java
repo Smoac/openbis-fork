@@ -35,20 +35,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
  * <p>
  * It implements {@link BeanFactoryAware} to set the field <code>genericServerPlugin</code>.
  * </p>
- *
+ * 
  * @author Christian Ribeaud
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFactoryAware
 {
     private final Logger operationLog;
-    private final Map<EntityKindAndTypeCode, P> plugins = new LinkedHashMap<EntityKindAndTypeCode, P>();
+
+    private final WildcardSupportingPluginMap<P> pluginMap = new WildcardSupportingPluginMap<P>();
+
+    private final Map<EntityKindAndTypeCode, P> plugins =
+            new LinkedHashMap<EntityKindAndTypeCode, P>();
 
     private P genericServerPlugin;
-    
+
     protected AbstractPluginRegistry()
     {
-        operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());        
+        operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
     }
 
     /**
@@ -56,13 +60,44 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
      */
     public final synchronized void registerPlugin(final P plugin)
     {
+        if (plugin instanceof IServerPluginWithWildcards)
+        {
+            registerPluginWithWildcards(plugin);
+        } else
+        {
+            registerPluginWithoutWildcards(plugin);
+        }
+    }
+
+    /**
+     * Registers specified plug-in.
+     */
+    private final synchronized void registerPluginWithWildcards(final P plugin)
+    {
+        assert plugin != null : "Unspecified plugin.";
+        for (EntityKind entityKind : EntityKind.values())
+        {
+            for (String entityTypeCode : ((IServerPluginWithWildcards) plugin)
+                    .getOrderedEntityTypeCodes(entityKind))
+            {
+                EntityKindAndTypeCode key = new EntityKindAndTypeCode(entityKind, entityTypeCode);
+                pluginMap.addMapping(key, plugin);
+            }
+        }
+    }
+
+    /**
+     * Registers specified plug-in.
+     */
+    private final synchronized void registerPluginWithoutWildcards(final P plugin)
+    {
         assert plugin != null : "Unspecified plugin.";
         for (EntityKind entityKind : EntityKind.values())
         {
             for (String entityTypeCode : plugin.getEntityTypeCodes(entityKind))
             {
                 EntityKindAndTypeCode key = new EntityKindAndTypeCode(entityKind, entityTypeCode);
-                P previousPlugin = plugins.put(key, plugin);
+                final P previousPlugin = pluginMap.tryPlugin(key);
                 if (previousPlugin != null)
                 {
                     operationLog.error(String.format(
@@ -75,6 +110,8 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
                             + "entity kind '%s' and entity type '%s.'",
                             plugin.getClass().getName(), entityKind, entityTypeCode));
                 }
+
+                pluginMap.addMapping(key, plugin);
             }
         }
     }
@@ -89,7 +126,7 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
     {
         assert entityKind != null : "Unspecified entity kind.";
         assert entityType != null : "Unspecified entity type.";
-        
+
         P serverPlugin = plugins.get(new EntityKindAndTypeCode(entityKind, entityType.getCode()));
         return serverPlugin == null ? genericServerPlugin : serverPlugin;
     }
@@ -103,9 +140,9 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
     {
         genericServerPlugin = (P) beanFactory.getBean(getBeanNameOfGenericPlugin());
     }
-    
+
     /**
-     * Returns the name of the Spring bean where the generic server plug-in is bound to.  
+     * Returns the name of the Spring bean where the generic server plug-in is bound to.
      */
     protected abstract String getBeanNameOfGenericPlugin();
 
