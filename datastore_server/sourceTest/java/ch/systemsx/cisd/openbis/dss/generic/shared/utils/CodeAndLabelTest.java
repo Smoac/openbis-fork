@@ -43,7 +43,7 @@ public class CodeAndLabelTest extends AssertJUnit
     @Test
     public void testConstructor()
     {
-        assertCodeAndTitle("ABC_1_2_3_4", "abc", CodeAndLabelUtil.create("<abc?1=2-3+4> abc"));
+        assertCodeAndTitle("ABC_1_2-3_4", "abc", CodeAndLabelUtil.create("<abc?1=2-3+4> abc"));
         assertCodeAndTitle("ABC_123_", "abc<123>", CodeAndLabelUtil.create("abc<123>"));
         assertCodeAndTitle("ABC", "ABC", CodeAndLabelUtil.create("<abc> "));
     }
