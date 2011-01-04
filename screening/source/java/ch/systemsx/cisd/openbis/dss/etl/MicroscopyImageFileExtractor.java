@@ -36,7 +36,7 @@ public class MicroscopyImageFileExtractor extends AbstractImageFileExtractor
 
     public MicroscopyImageFileExtractor(Properties properties)
     {
-        super(properties);
+        super(properties, true);
         if (this.tileMapperOrNull == null)
         {
             throw new ConfigurationFailureException("Tile mapping property not defined: "

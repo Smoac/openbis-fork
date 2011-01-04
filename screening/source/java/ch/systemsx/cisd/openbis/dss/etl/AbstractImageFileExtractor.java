@@ -19,9 +19,13 @@ package ch.systemsx.cisd.openbis.dss.etl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -88,29 +92,42 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     // -----------------------------------------
 
-    private final List<ChannelDescription> channelDescriptions;
+    private final List<ChannelDescription> channelDescriptionsOrNull;
 
     private final List<ColorComponent> channelColorComponentsOrNull;
+
+    private final boolean skipChannelsWithoutImages;
 
     protected final TileMapper tileMapperOrNull;
 
     protected final Geometry wellGeometry;
 
-    protected AbstractImageFileExtractor(Properties properties)
+    protected AbstractImageFileExtractor(Properties properties, boolean skipChannelsWithoutImages)
     {
-        this(extractChannelDescriptions(properties), getWellGeometry(properties), properties);
+        this(extractChannelDescriptions(properties), getWellGeometry(properties),
+                skipChannelsWithoutImages, properties);
     }
 
-    protected AbstractImageFileExtractor(List<ChannelDescription> channelDescriptions,
-            Geometry wellGeometry, Properties properties)
+    /**
+     * @param skipChannelsWithoutImages if true channel names are derived from a set of channel
+     *            codes in the extracted images. In this way we do not restrict available channel
+     *            codes and we have no channels without images. Channel labels are taken from
+     *            channel descriptions anyway. Should be set to true only for microscopy, in HCS
+     *            each dataset of one experiment should have the same set of channels even if they
+     *            are not present in some datasets.
+     */
+    protected AbstractImageFileExtractor(List<ChannelDescription> channelDescriptionsOrNull,
+            Geometry wellGeometry, boolean skipChannelsWithoutImages, Properties properties)
     {
         assert wellGeometry != null : "wel geometry is null";
-        assert channelDescriptions != null : "channelDescriptions is null";
 
-        this.channelDescriptions = channelDescriptions;
         this.wellGeometry = wellGeometry;
+
+        this.channelDescriptionsOrNull = channelDescriptionsOrNull;
         this.channelColorComponentsOrNull = tryGetChannelComponents(properties);
+        this.skipChannelsWithoutImages = skipChannelsWithoutImages;
         checkChannelsAndColorComponents();
+
         this.tileMapperOrNull =
                 TileMapper.tryCreate(properties.getProperty(TILE_MAPPING_PROPERTY), wellGeometry);
     }
@@ -145,8 +162,19 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     private void checkChannelsAndColorComponents()
     {
-        if (channelColorComponentsOrNull != null
-                && channelColorComponentsOrNull.size() != channelDescriptions.size())
+        if (skipChannelsWithoutImages == false && channelDescriptionsOrNull == null)
+        {
+            throw ConfigurationFailureException
+                    .fromTemplate("Channel names are not specified and extraction of channels from images is switched off!");
+        }
+        if (channelColorComponentsOrNull != null && channelDescriptionsOrNull == null)
+        {
+            throw ConfigurationFailureException
+                    .fromTemplate("Channels are not specified although color components are given!");
+        }
+
+        if (channelColorComponentsOrNull != null && channelDescriptionsOrNull != null
+                && channelColorComponentsOrNull.size() != channelDescriptionsOrNull.size())
         {
             throw ConfigurationFailureException.fromTemplate(
                     "There should be exactly one color component for each channel name."
@@ -190,7 +218,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
             }
         }
         return new ImageFileExtractionResult(acquiredImages,
-                Collections.unmodifiableList(invalidFiles), getAllChannels());
+                Collections.unmodifiableList(invalidFiles), getAllChannels(acquiredImages));
 
     }
 
@@ -198,28 +226,86 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
     {
         checkChannelsAndColorComponents();
 
-        if (channelColorComponentsOrNull != null)
+        if (channelColorComponentsOrNull != null && channelDescriptionsOrNull != null)
         {
             List<AcquiredSingleImage> images = new ArrayList<AcquiredSingleImage>();
             for (int i = 0; i < channelColorComponentsOrNull.size(); i++)
             {
                 ColorComponent colorComponent = channelColorComponentsOrNull.get(i);
-                ChannelDescription channelDescription = channelDescriptions.get(i);
+                ChannelDescription channelDescription = channelDescriptionsOrNull.get(i);
                 imageInfo.setChannelCode(channelDescription.getCode());
                 images.add(createImage(imageInfo, colorComponent));
             }
             return images;
         } else
         {
-            ensureChannelExist(channelDescriptions, imageInfo.getChannelCode());
+            ensureChannelExist(channelDescriptionsOrNull, imageInfo.getChannelCode());
             return createImagesWithNoColorComponent(imageInfo);
         }
 
     }
 
-    private List<Channel> getAllChannels()
+    private List<Channel> getAllChannels(List<AcquiredSingleImage> acquiredImages)
     {
-        return createChannels(channelDescriptions);
+        if (channelDescriptionsOrNull != null && skipChannelsWithoutImages == false)
+        {
+            return createChannels(channelDescriptionsOrNull);
+        } else
+        {
+            if (skipChannelsWithoutImages)
+            {
+                return createChannels(extractChannelDescriptions(acquiredImages,
+                        channelDescriptionsOrNull));
+            } else
+            {
+                throw new IllegalStateException(
+                        "extractChannelsFromImages is false, channelDescriptionsOrNull is null");
+            }
+        }
+    }
+
+    private static List<ChannelDescription> extractChannelDescriptions(
+            List<AcquiredSingleImage> acquiredImages,
+            List<ChannelDescription> channelDescriptionsOrNull)
+    {
+        Map<String, String> channelCodeToLabel =
+                createChannelCodeToLabelMap(channelDescriptionsOrNull);
+        Set<String> channelCodes = new HashSet<String>();
+        for (AcquiredSingleImage image : acquiredImages)
+        {
+            channelCodes.add(image.getChannelCode());
+        }
+
+        List<ChannelDescription> descs = new ArrayList<ChannelDescription>();
+        for (String channelCode : channelCodes)
+        {
+            String label = channelCodeToLabel.get(channelCode);
+            ChannelDescription desc;
+            if (label != null)
+            {
+                desc = new ChannelDescription(channelCode, label);
+            } else
+            {
+                desc = new ChannelDescription(channelCode);
+            }
+            descs.add(desc);
+        }
+        return descs;
+    }
+
+    private static Map<String, String> createChannelCodeToLabelMap(
+            List<ChannelDescription> channelDescriptionsOrNull)
+    {
+        Map<String, String> map = new HashMap<String, String>();
+        if (channelDescriptionsOrNull == null)
+        {
+            return map;
+        }
+        for (ChannelDescription desc : channelDescriptionsOrNull)
+        {
+            map.put(desc.getCode(), desc.getLabel());
+        }
+        return map;
     }
 
     // ------- static helper methods
@@ -252,6 +338,8 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
 
     protected final static List<Channel> createChannels(List<ChannelDescription> channelDescriptions)
     {
+        assert channelDescriptions != null : "channelDescriptions is null";
+
         List<Channel> channels = new ArrayList<Channel>();
         for (ChannelDescription channelDescription : channelDescriptions)
         {
@@ -267,10 +355,14 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         return PlateStorageProcessor.extractChannelDescriptions(properties);
     }
 
-    protected final static void ensureChannelExist(List<ChannelDescription> channelDescriptions,
-            String channelCode)
+    protected final static void ensureChannelExist(
+            List<ChannelDescription> channelDescriptionsOrNull, String channelCode)
     {
-        for (ChannelDescription channelDescription : channelDescriptions)
+        if (channelDescriptionsOrNull == null)
+        {
+            return;
+        }
+        for (ChannelDescription channelDescription : channelDescriptionsOrNull)
         {
             if (channelDescription.getCode().equals(channelCode))
             {
@@ -279,7 +371,7 @@ abstract public class AbstractImageFileExtractor implements IImageFileExtractor
         }
         throw UserFailureException.fromTemplate(
                 "Channel '%s' is not one of: %s. Change the configuration.", channelCode,
-                channelDescriptions);
+                channelDescriptionsOrNull);
     }
 
     protected final static List<AcquiredSingleImage> createImagesWithNoColorComponent(

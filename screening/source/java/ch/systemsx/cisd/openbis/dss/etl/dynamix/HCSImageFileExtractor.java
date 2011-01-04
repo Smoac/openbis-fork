@@ -55,7 +55,7 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
 
     public HCSImageFileExtractor(final Properties properties)
     {
-        super(properties);
+        super(properties, false);
         this.wellLocationMapCache = new HashMap<File, Map<DynamixWellPosition, WellLocation>>();
         this.firstMeasurementDateCache = new HashMap<File, Date>();
     }

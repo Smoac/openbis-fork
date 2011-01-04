@@ -49,7 +49,7 @@ public class HCSImageFileExtractor extends AbstractImageFileExtractor
 
     public HCSImageFileExtractor(final Properties properties)
     {
-        super(properties);
+        super(properties, false);
         this.shouldValidatePlateName =
                 PropertyUtils.getBoolean(properties, CHECK_PLATE_NAME_FLAG_PROPERTY_NAME, true);
     }
