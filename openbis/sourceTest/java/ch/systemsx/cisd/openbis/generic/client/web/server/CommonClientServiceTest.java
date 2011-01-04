@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -57,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -263,12 +266,12 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final Project project2 = new Project();
         project1.setIdentifier("p2");
         List<Project> entities = Arrays.asList(project1, project2);
-        final DefaultResultSetConfig<String, Project> criteria =
-                DefaultResultSetConfig.createFetchAll();
-        prepareListEntities(entities, criteria);
+        prepareListEntities2(entities, DefaultResultSetConfig.<String, TableModelRowWithObject<Project>>createFetchAll());
 
-        final ResultSet<Project> resultSet = commonClientService.listProjects(criteria);
-        assertEqualEntities(entities, resultSet);
+        final DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria =
+            DefaultResultSetConfig.createFetchAll();
+        final TypedTableResultSet<Project> resultSet = commonClientService.listProjects(criteria);
+        assertEqualEntities2(entities, resultSet);
         context.assertIsSatisfied();
     }
 
@@ -308,6 +311,31 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
             });
     }
 
+    private final <T extends ISerializable> void prepareListEntities2(List<T> entities,
+            final DefaultResultSetConfig<String, TableModelRowWithObject<T>> criteria)
+    {
+        final String resultSetKey = "131";
+        List<TableModelRowWithObject<T>> rows = new ArrayList<TableModelRowWithObject<T>>();
+        for (T entity : entities)
+        {
+            rows.add(new TableModelRowWithObject<T>(entity, Collections.<ISerializableComparable>emptyList()));
+        }
+        GridRowModels<TableModelRowWithObject<T>> rowModels = createGridRowModels(rows);
+        final DefaultResultSet<String, TableModelRowWithObject<T>> resultSet =
+            new DefaultResultSet<String, TableModelRowWithObject<T>>(resultSetKey, rowModels, entities.size());
+        context.checking(new Expectations()
+        {
+            {
+                prepareGetHttpSession(this);
+                prepareGetSessionToken(this);
+                prepareGetResultSetManager(this);
+                
+                prepareGetResultSet(this, criteria);
+                will(returnValue(resultSet));
+            }
+        });
+    }
+    
     private <T> GridRowModels<T> createGridRowModels(List<T> entities)
     {
         return CachedResultSetManagerTest.createGridRowModels(entities);
@@ -331,6 +359,17 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         assertEquals(entities.size(), resultSet.getTotalLength());
     }
 
+    private <T extends ISerializable> void assertEqualEntities2(List<T> entities, final TypedTableResultSet<T> resultSet)
+    {
+        GridRowModels<TableModelRowWithObject<T>> resultSetList = resultSet.getResultSet().getList();
+        assertEquals(entities.size(), resultSetList.size());
+        for (int i = 0; i < entities.size(); i++)
+        {
+            assertEquals(entities.get(i), resultSetList.get(i).getOriginalObject().getObjectOrNull());
+        }
+        assertEquals(entities.size(), resultSet.getResultSet().getTotalLength());
+    }
+    
     @Test
     public final void testListDataTypes()
     {

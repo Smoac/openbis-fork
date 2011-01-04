@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -42,33 +45,32 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * Grid displaying projects.
  * 
  * @author Tomasz Pylak
  */
-public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
+public class ProjectGrid extends TypedTableGrid<Project>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "project-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "-show-details";
 
@@ -84,7 +86,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
 
     private ProjectGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
     }
 
     private void extendBottomToolbar()
@@ -105,10 +107,12 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
         addButton(addButton);
 
         Button showDetailsButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
-                        new ISelectedEntityInvoker<BaseEntityModel<Project>>()
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Project>>>()
                             {
-                                public void invoke(BaseEntityModel<Project> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<Project>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     showEntityViewer(selectedItem.getBaseObject(), false,
@@ -119,10 +123,12 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
         addButton(showDetailsButton);
 
         Button editButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<Project>>()
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Project>>>()
                             {
-                                public void invoke(BaseEntityModel<Project> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<Project>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     showEntityViewer(selectedItem.getBaseObject(), true, keyPressed);
@@ -136,11 +142,16 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<Project> projects,
+                                protected Dialog createDialog(List<TableModelRowWithObject<Project>> rows,
                                         IBrowserGridActionInvoker invoker)
                                 {
+                                    List<Project> projects = new ArrayList<Project>();
+                                    for (TableModelRowWithObject<Project> row : rows)
+                                    {
+                                        projects.add(row.getObjectOrNull());
+                                    }
                                     return new ProjectListDeletionConfirmationDialog(viewContext,
-                                            projects, createDeletionCallback(invoker));
+                                            projects , createDeletionCallback(invoker));
                                 }
                             });
         addButton(deleteButton);
@@ -150,46 +161,40 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     }
 
     @Override
-    protected IColumnDefinitionKind<Project>[] getStaticColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Project>> createColumnsDefinition()
     {
-        return ProjectColDefKind.values();
-    }
-
-    @Override
-    protected ColumnDefsAndConfigs<Project> createColumnsDefinition()
-    {
-        ColumnDefsAndConfigs<Project> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(ProjectColDefKind.CODE.id(), createInternalLinkCellRenderer());
-        schema.setGridCellRendererFor(ProjectColDefKind.DESCRIPTION.id(),
+        ColumnDefsAndConfigs<TableModelRowWithObject<Project>> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(ProjectGridColumnIDs.CODE, createInternalLinkCellRenderer());
+        schema.setGridCellRendererFor(ProjectGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
         return schema;
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, Project> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Project>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Project>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Project>> callback)
     {
         viewContext.getService().listProjects(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Project> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportProjects(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<Project>> getInitialFilters()
+    protected List<String> getColumnIdsOfFilters()
     {
-        return asColumnFilters(new ProjectColDefKind[]
-            { ProjectColDefKind.CODE, ProjectColDefKind.GROUP });
+        return Arrays.asList(ProjectGridColumnIDs.CODE, ProjectGridColumnIDs.SPACE);
     }
 
     @Override
-    protected void showEntityViewer(final Project project, boolean editMode, boolean inBackground)
+    protected void showEntityViewer(final TableModelRowWithObject<Project> row, boolean editMode, boolean inBackground)
     {
-        showEntityViewer(project, editMode, viewContext, inBackground);
+        showEntityViewer(row.getObjectOrNull(), editMode, viewContext, inBackground);
     }
 
     public static void showEntityViewer(final Project project, boolean editMode,
@@ -275,6 +280,7 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

@@ -268,11 +268,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listProjects(DefaultResultSetConfig) */
-    public void listProjects(DefaultResultSetConfig<String, Project> criteria,
-            final AsyncCallback<ResultSet<Project>> asyncCallback);
+    public void listProjects(DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria,
+            final AsyncCallback<TypedTableResultSet<Project>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportProjects(TableExportCriteria) */
-    public void prepareExportProjects(TableExportCriteria<Project> exportCriteria,
+    public void prepareExportProjects(TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**

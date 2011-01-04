@@ -326,13 +326,13 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all projects.
      */
-    public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)
+    public TypedTableResultSet<Project> listProjects(DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
      */
-    public String prepareExportProjects(final TableExportCriteria<Project> criteria)
+    public String prepareExportProjects(final TableExportCriteria<TableModelRowWithObject<Project>> criteria)
             throws UserFailureException;
 
     /**

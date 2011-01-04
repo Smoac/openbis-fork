@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -62,12 +63,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * {@link LayoutContainer} containing a {@link TreeGrid} with projects loaded from the server. Main
@@ -384,7 +386,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private void loadData()
     {
-        DefaultResultSetConfig<String, Project> config = DefaultResultSetConfig.createFetchAll();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config = DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
     }
 
@@ -406,7 +408,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     //
     // Helper classes
     //
-    private final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
+    private final class ListProjectsCallback extends AbstractAsyncCallback<TypedTableResultSet<Project>>
     {
         ListProjectsCallback(final IViewContext<?> viewContext)
         {
@@ -414,10 +416,15 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         }
 
         @Override
-        protected void process(final ResultSet<Project> result)
+        protected void process(final TypedTableResultSet<Project> result)
         {
-            List<Project> projects = result.getList().extractOriginalObjects();
-            rebuildTree(projects);
+            List<TableModelRowWithObject<Project>> rows = result.getResultSet().getList().extractOriginalObjects();
+            List<Project> projects = new ArrayList<Project>();
+            for (TableModelRowWithObject<Project> row : rows)
+            {
+                projects.add(row.getObjectOrNull());
+            }
+            rebuildTree(projects );
 
             String identifierOrNull = tryGetProjectIdentifierToSelect();
             if (identifierOrNull != null)

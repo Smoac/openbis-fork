@@ -30,11 +30,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Simp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * {@link ComboBox} containing list of projects loaded from the server.
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * @author Izabela Adamczyk
  */
 public final class ProjectSelectionWidget extends
-        DropDownList<ProjectSelectionWidget.ProjectComboModel, Project>
+        DropDownList<ProjectSelectionWidget.ProjectComboModel, TableModelRowWithObject<Project>>
 {
     private static final String EMPTY_RESULT_SUFFIX = "projects";
 
@@ -113,10 +114,11 @@ public final class ProjectSelectionWidget extends
      */
     public final Project tryGetSelectedProject()
     {
-        return super.tryGetSelected();
+        Object selected = super.tryGetSelected();
+        return selected instanceof Project ? (Project) selected : null;
     }
 
-    private final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
+    private final class ListProjectsCallback extends AbstractAsyncCallback<TypedTableResultSet<Project>>
     {
         ListProjectsCallback(final IViewContext<?> viewContext)
         {
@@ -124,11 +126,11 @@ public final class ProjectSelectionWidget extends
         }
 
         @Override
-        protected void process(final ResultSet<Project> result)
+        protected void process(final TypedTableResultSet<Project> result)
         {
             final ListStore<ProjectComboModel> projectStore = getStore();
             projectStore.removeAll();
-            projectStore.add(convertItems(result.getList().extractOriginalObjects()));
+            projectStore.add(convertItems(result.getResultSet().getList().extractOriginalObjects()));
             if (projectStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));
@@ -156,14 +158,14 @@ public final class ProjectSelectionWidget extends
     }
 
     @Override
-    protected List<ProjectComboModel> convertItems(List<Project> projects)
+    protected List<ProjectComboModel> convertItems(List<TableModelRowWithObject<Project>> projects)
     {
         final List<ProjectComboModel> result = new ArrayList<ProjectComboModel>();
-        for (final Project p : projects)
+        for (final TableModelRowWithObject<Project> p : projects)
         {
-            if (matchesTheGroup(p))
+            if (matchesTheGroup(p.getObjectOrNull()))
             {
-                result.add(new ProjectComboModel(p));
+                result.add(new ProjectComboModel(p.getObjectOrNull()));
             }
         }
         return result;
@@ -180,9 +182,9 @@ public final class ProjectSelectionWidget extends
     }
 
     @Override
-    protected void loadData(AbstractAsyncCallback<List<Project>> callback)
+    protected void loadData(AbstractAsyncCallback<List<TableModelRowWithObject<Project>>> callback)
     {
-        DefaultResultSetConfig<String, Project> config = DefaultResultSetConfig.createFetchAll();
+        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> config = DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
         callback.ignore();
     }

@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentVersions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * 
@@ -48,9 +50,9 @@ public class AttachmentUploadTest extends SystemTestCase
     public void testUploadProjectAttachment()
     {
         SessionContext sessionContext = logIntoCommonClientService();
-        ResultSet<Project> projects =
-                commonClientService.listProjects(new DefaultResultSetConfig<String, Project>());
-        Project project = projects.getList().extractOriginalObjects().get(0);
+        TypedTableResultSet<Project> projects =
+                commonClientService.listProjects(new DefaultResultSetConfig<String, TableModelRowWithObject<Project>>());
+        Project project = projects.getResultSet().getList().extractOriginalObjects().get(0).getObjectOrNull();
         TechId projectID = TechId.create(project);
 
         uploadFile(FILE_NAME, FILE_CONTENT);

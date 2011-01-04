@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProvider
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
@@ -442,7 +443,7 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportProjects(TableExportCriteria<Project> criteria)
+    public String prepareExportProjects(TableExportCriteria<TableModelRowWithObject<Project>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -754,30 +755,13 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<Project> listProjects(DefaultResultSetConfig<String, Project> criteria)
+    public TypedTableResultSet<Project> listProjects(DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Project>()
-            {
-                public List<Project> getOriginalData() throws UserFailureException
-                {
-                    return listProjects();
-                }
-            });
-    }
-
-    private List<Project> listProjects()
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<Project> projects = commonServer.listProjects(sessionToken);
-            return projects;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
+        ProjectsProvider projectsProvider = new ProjectsProvider(commonServer, getSessionToken());
+        DataProviderAdapter<Project> dataProvider = new DataProviderAdapter<Project>(projectsProvider);
+        ResultSet<TableModelRowWithObject<Project>> resultSet = listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<Project>(resultSet);
     }
 
     public ResultSet<Vocabulary> listVocabularies(final boolean withTerms,
