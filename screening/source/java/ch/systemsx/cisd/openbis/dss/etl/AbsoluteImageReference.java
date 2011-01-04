@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
  * 
  * @author Tomasz Pylak
  */
+// TODO 2010-12-23, Tomasz Pylak: rename to ImageContent
 public class AbsoluteImageReference extends AbstractImageReference
 {
     private final IContent content;
@@ -35,19 +36,24 @@ public class AbsoluteImageReference extends AbstractImageReference
     private final Size thumbnailSizeOrNull;
 
     private IImageTransformerFactory transformerFactory;
-    
+
     private IImageTransformerFactory transformerFactoryForMergedChannels;
+
+    // This is an artificial value which helps to keep coloring channels constant. Starts with 0.
+    // Unique for a given experiment or dataset (if channels are per dataset).
+    private int channelIndex;
 
     /**
      * @param content the content before choosing the color component and the page
      */
     public AbsoluteImageReference(IContent content, String uniqueId, Integer pageOrNull,
-            ColorComponent colorComponentOrNull, Size thumbnailSizeOrNull)
+            ColorComponent colorComponentOrNull, Size thumbnailSizeOrNull, int channelIndex)
     {
         super(pageOrNull, colorComponentOrNull);
         this.content = content;
         this.uniqueId = uniqueId;
         this.thumbnailSizeOrNull = thumbnailSizeOrNull;
+        this.channelIndex = channelIndex;
     }
 
     /**
@@ -79,6 +85,11 @@ public class AbsoluteImageReference extends AbstractImageReference
         return transformerFactoryForMergedChannels;
     }
 
+    public int getChannelIndex()
+    {
+        return channelIndex;
+    }
+
     public final void setTransformerFactoryForMergedChannels(
             IImageTransformerFactory transformerFactoryForMergedChannels)
     {
@@ -95,7 +106,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         ColorComponent colorComponent = null;
         AbsoluteImageReference ref =
                 new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
-                        thumbnailSizeOrNull);
+                        thumbnailSizeOrNull, channelIndex);
         ref.setTransformerFactory(transformerFactory);
         ref.setTransformerFactoryForMergedChannels(transformerFactoryForMergedChannels);
         return ref;

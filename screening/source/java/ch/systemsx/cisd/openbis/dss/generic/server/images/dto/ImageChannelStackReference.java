@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.images;
+package ch.systemsx.cisd.openbis.dss.generic.server.images.dto;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.utilities.AbstractHashable;

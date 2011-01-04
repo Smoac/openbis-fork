@@ -115,8 +115,8 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
 
     protected abstract AbstractMigrationDecision createMigrationDecision(File dataset);
 
-    protected abstract AbstractImageDbImporter createImporter(
-            HCSContainerDatasetInfo dataSetInfo, File fileToMigrate);
+    protected abstract AbstractImageDbImporter createImporter(HCSContainerDatasetInfo dataSetInfo,
+            File fileToMigrate);
 
     private HCSContainerDatasetInfo createScreeningDatasetInfo(
             SimpleDataSetInformationDTO dataSetInfo)
@@ -216,8 +216,8 @@ public abstract class AbstractFeatureVectorMigrator implements IMigrator
             }
 
             // Only import this data set if it is of an analysis type
-            if (false == ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE.equals(getDataSetInfo()
-                    .getDataSetType()))
+            if (false == getDataSetInfo().getDataSetType().matches(
+                    ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN))
             {
                 shouldMigrate = false;
                 return;

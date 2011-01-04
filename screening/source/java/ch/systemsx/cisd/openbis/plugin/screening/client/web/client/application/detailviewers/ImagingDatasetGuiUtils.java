@@ -36,14 +36,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.LinkExtractor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.SimpleModelComboBox;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.SimpleModelComboBox.SimpleComboboxItem;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 
 /**
  * GUI utilities to create links and choosers of connected datasets: image datasets, feature vector
@@ -70,7 +70,7 @@ class ImagingDatasetGuiUtils
     protected static interface IDatasetImagesReferenceUpdater
     {
         /** changes the image dataset from which images on the well detail view are displayed */
-        void changeDisplayedImageDataset(DatasetImagesReference dataset);
+        void changeDisplayedImageDataset(ImageDatasetEnrichedReference dataset);
     }
 
     // ---
@@ -171,11 +171,11 @@ class ImagingDatasetGuiUtils
                             createDatasetLabels(asFeatureVectorReferences(featureVectorDatasets)));
             final Anchor datasetDetailsButton = createImageAnalysisDetailsButton(datasetChooser);
             datasetChooser
-                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<SimpleComboboxItem<FeatureVectorDataset>>>()
+                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<FeatureVectorDataset>>>()
                         {
                             @Override
                             public void selectionChanged(
-                                    SelectionChangedEvent<SimpleComboValue<SimpleComboboxItem<FeatureVectorDataset>>> se)
+                                    SelectionChangedEvent<SimpleComboValue<LabeledItem<FeatureVectorDataset>>> se)
                             {
                                 FeatureVectorDataset chosenDataset =
                                         SimpleModelComboBox.getChosenItem(se);
@@ -246,7 +246,8 @@ class ImagingDatasetGuiUtils
         }
     }
 
-    public final Widget createImageDatasetDetailsRow(List<DatasetImagesReference> imageDatasets,
+    public final Widget createImageDatasetDetailsRow(
+            List<ImageDatasetEnrichedReference> imageDatasets,
             IDatasetImagesReferenceUpdater datasetUpdater)
     {
         return ImageDatasetDetails.createImageDatasetDetailsRow(imageDatasets, datasetUpdater,
@@ -257,7 +258,7 @@ class ImagingDatasetGuiUtils
     {
 
         public static Widget createImageDatasetDetailsRow(
-                List<DatasetImagesReference> imageDatasets,
+                List<ImageDatasetEnrichedReference> imageDatasets,
                 IDatasetImagesReferenceUpdater datasetUpdater, IViewContext<?> viewContext)
         {
             return new ImageDatasetDetails(viewContext).createImageDatasetDetailsRow(imageDatasets,
@@ -285,7 +286,7 @@ class ImagingDatasetGuiUtils
         }
 
         private final Widget createImageDatasetDetailsRow(
-                List<DatasetImagesReference> imageDatasets,
+                List<ImageDatasetEnrichedReference> imageDatasets,
                 IDatasetImagesReferenceUpdater datasetUpdater)
         {
             if (imageDatasets.size() == 0)
@@ -293,51 +294,50 @@ class ImagingDatasetGuiUtils
                 return new Text(NO_IMAGES_DATASET_LABEL);
             } else if (imageDatasets.size() == 1)
             {
-                DatasetImagesReference datasetImagesReference = imageDatasets.get(0);
-                return createAndConnectImageDatasetInfo(datasetImagesReference, datasetUpdater);
+                ImageDatasetEnrichedReference imageDataset = imageDatasets.get(0);
+                return createAndConnectImageDatasetInfo(imageDataset, datasetUpdater);
             } else
             {
                 return createAndConnectImageDatasetChooser(imageDatasets, datasetUpdater);
             }
         }
 
-        private Widget createAndConnectImageDatasetInfo(
-                DatasetImagesReference datasetImagesReference,
+        private Widget createAndConnectImageDatasetInfo(ImageDatasetEnrichedReference imageDataset,
                 IDatasetImagesReferenceUpdater datasetUpdater)
         {
             Widget datasetDetailsButton =
-                    createDatasetDetailsLink(datasetImagesReference.getDatasetReference(),
+                    createDatasetDetailsLink(imageDataset.getImageDataset().getDatasetReference(),
                             SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON, viewContext);
             Widget imageDatasetDetailsRow =
                     withLabel(datasetDetailsButton, SINGLE_IMAGE_DATASET_DETAILS_LABEL);
-            datasetUpdater.changeDisplayedImageDataset(datasetImagesReference);
+            datasetUpdater.changeDisplayedImageDataset(imageDataset);
             return imageDatasetDetailsRow;
         }
 
         private Widget createAndConnectImageDatasetChooser(
-                List<DatasetImagesReference> imageDatasets,
+                List<ImageDatasetEnrichedReference> imageDatasets,
                 final IDatasetImagesReferenceUpdater datasetUpdater)
         {
-            final SimpleModelComboBox<DatasetImagesReference> datasetChooser =
+            final SimpleModelComboBox<ImageDatasetEnrichedReference> datasetChooser =
                     createDatasetChooserComboBox(viewContext, imageDatasets,
                             createDatasetLabels(asReferences(imageDatasets)));
 
             final Anchor datasetDetailsButton = createImageDetailsButton(datasetChooser);
             datasetChooser
-                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<SimpleComboboxItem<DatasetImagesReference>>>()
+                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<ImageDatasetEnrichedReference>>>()
                         {
                             @Override
                             public void selectionChanged(
-                                    SelectionChangedEvent<SimpleComboValue<SimpleComboboxItem<DatasetImagesReference>>> se)
+                                    SelectionChangedEvent<SimpleComboValue<LabeledItem<ImageDatasetEnrichedReference>>> se)
                             {
-                                DatasetImagesReference chosenDataset =
+                                ImageDatasetEnrichedReference chosenDataset =
                                         SimpleModelComboBox.getChosenItem(se);
                                 datasetUpdater.changeDisplayedImageDataset(chosenDataset);
                                 updateImageDatasetSimpleViewModeLink(datasetChooser,
                                         datasetDetailsButton);
                             }
                         });
-            DatasetImagesReference chosenDataset = datasetChooser.getChosenItem();
+            ImageDatasetEnrichedReference chosenDataset = datasetChooser.getChosenItem();
             datasetUpdater.changeDisplayedImageDataset(chosenDataset);
 
             return GuiUtils.renderInRow(withLabel(datasetChooser, IMAGES_DATASET_CHOOSER_LABEL),
@@ -345,7 +345,7 @@ class ImagingDatasetGuiUtils
         }
 
         private Anchor createImageDetailsButton(
-                final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser)
+                final SimpleModelComboBox<ImageDatasetEnrichedReference> imageDatasetChooser)
         {
             return LinkRenderer.getLinkAnchor(SHOW_CHOSEN_IMAGE_DATASET_DETAILS_BUTTON,
                     new ClickHandler()
@@ -359,7 +359,7 @@ class ImagingDatasetGuiUtils
         }
 
         private void updateImageDatasetSimpleViewModeLink(
-                final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser,
+                final SimpleModelComboBox<ImageDatasetEnrichedReference> imageDatasetChooser,
                 final Anchor anchor)
         {
             if (viewContext.isSimpleMode())
@@ -369,15 +369,15 @@ class ImagingDatasetGuiUtils
         }
 
         private static String createImageDatasetSimpleViewModeHref(
-                final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser)
+                final SimpleModelComboBox<ImageDatasetEnrichedReference> imageDatasetChooser)
         {
             return LinkExtractor.tryExtract(getChosenDatasetReference(imageDatasetChooser));
         }
 
         private static DatasetReference getChosenDatasetReference(
-                final SimpleModelComboBox<DatasetImagesReference> imageDatasetChooser)
+                final SimpleModelComboBox<ImageDatasetEnrichedReference> imageDatasetChooser)
         {
-            return imageDatasetChooser.getChosenItem().getDatasetReference();
+            return imageDatasetChooser.getChosenItem().getImageDataset().getDatasetReference();
         }
 
     }
@@ -435,12 +435,13 @@ class ImagingDatasetGuiUtils
         return container;
     }
 
-    private static List<DatasetReference> asReferences(List<DatasetImagesReference> imageDatasets)
+    private static List<DatasetReference> asReferences(
+            List<ImageDatasetEnrichedReference> imageDatasets)
     {
         List<DatasetReference> refs = new ArrayList<DatasetReference>();
-        for (DatasetImagesReference dataset : imageDatasets)
+        for (ImageDatasetEnrichedReference dataset : imageDatasets)
         {
-            refs.add(dataset.getDatasetReference());
+            refs.add(dataset.getImageDataset().getDatasetReference());
         }
         return refs;
     }

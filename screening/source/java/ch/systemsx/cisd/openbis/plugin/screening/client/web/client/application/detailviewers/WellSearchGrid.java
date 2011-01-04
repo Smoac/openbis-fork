@@ -77,7 +77,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplaySettingsManager;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelWidgetWithListener.ISimpleChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
@@ -610,14 +610,16 @@ public class WellSearchGrid extends TypedTableGrid<WellContent>
                         return null;
                     }
                     ImageDatasetParameters imageParameters = images.getImageParameters();
-                    final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
-                        {
-                            public Widget create(String channel)
-                            {
-                                return WellContentDialog.createImageViewerForChannel(viewContext,
-                                        entity, IMAGE_WIDTH_PX, IMAGE_HEIGHT_PX, channel);
-                            }
-                        };
+                    final ISimpleChanneledViewerFactory viewerFactory =
+                            new ISimpleChanneledViewerFactory()
+                                {
+                                    public Widget create(String channel)
+                                    {
+                                        return WellContentDialog.createImageViewerForChannel(
+                                                viewContext, entity, IMAGE_WIDTH_PX,
+                                                IMAGE_HEIGHT_PX, channel);
+                                    }
+                                };
                     ChannelWidgetWithListener widgetWithListener =
                             new ChannelWidgetWithListener(viewerFactory);
                     widgetWithListener.update(channelChooser.getSimpleValue());

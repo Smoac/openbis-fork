@@ -49,8 +49,8 @@ import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor;
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -103,6 +103,10 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         }
     }
 
+    private static final String DATASET_CODE = "ds1";
+
+    private static final String CHANNEL_CODE = "GFP";
+
     private static final String EXPERIMENT_PERM_ID = "exp-123";
 
     private static final long EXPERIMENT_ID = 333;
@@ -138,13 +142,15 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         transformerDAO = context.mock(IImagingTransformerDAO.class);
         imageLoader = context.mock(IImagingDatasetLoader.class);
         transformerFactory = new ImageTransformerFactory();
-        featureVectorDatasetIdentifier1 = create("ds1");
+        featureVectorDatasetIdentifier1 = create(DATASET_CODE);
         featureVectorDatasetIdentifier2 = create("ds2");
         final ImageDatasetParameters imageParameters = new ImageDatasetParameters();
         imageParameters.setRowsNum(7);
         imageParameters.setColsNum(4);
         imageParameters.setTileRowsNum(1);
         imageParameters.setTileColsNum(2);
+        imageParameters.setDatasetCode(DATASET_CODE);
+        imageParameters.setChannelsCodes(Arrays.asList(CHANNEL_CODE));
         context.checking(new Expectations()
             {
                 {
@@ -189,7 +195,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testListPlateImageReferences()
     {
-        final DatasetIdentifier ds = new DatasetIdentifier("ds1", URL1);
+        final DatasetIdentifier ds = new DatasetIdentifier(DATASET_CODE, URL1);
         final List<WellPosition> wellPositions = Arrays.asList(new WellPosition(1, 3));
         final String channel = "dapi";
         prepareGetHomeDatabaseInstance();
@@ -233,7 +239,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 {
                     one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
-                            Arrays.asList("ds1", "ds2"));
+                            Arrays.asList(DATASET_CODE, "ds2"));
                 }
             });
 
@@ -254,7 +260,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     public void testLoadFeatures()
     {
         prepareAssetDataSetsAreAccessible();
-        FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference("ds1");
+        FeatureVectorDatasetReference r1 = createFeatureVectorDatasetReference(DATASET_CODE);
         FeatureVectorDatasetReference r2 = createFeatureVectorDatasetReference("ds2");
         prepareCreateFeatureVectorDataSet(1, "F1", "F2");
         prepareCreateFeatureVectorDataSet(2, "F2");
@@ -282,7 +288,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testLoadImages() throws IOException
     {
-        final String channel = "GFP";
+        final String channel = CHANNEL_CODE;
         prepareGetHomeDatabaseInstance();
         context.checking(new Expectations()
             {
@@ -293,19 +299,20 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(1, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.jpg"), "img1", null,
-                            null, thumbnailSize)));
+                            null, thumbnailSize, 0)));
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),
                                     new Location(2, 1)), thumbnailSize);
                     will(returnValue(new AbsoluteImageReference(image("img1.gif"), "img1", null,
-                            null, thumbnailSize)));
+                            null, thumbnailSize, 0)));
                 }
             });
 
         InputStream images =
-                screeningService.loadImages(SESSION_TOKEN, new DatasetIdentifier("ds1", "url1"),
-                        Arrays.asList(new WellPosition(1, 3)), channel, new ImageSize(2, 1));
+                screeningService.loadImages(SESSION_TOKEN, new DatasetIdentifier(DATASET_CODE,
+                        "url1"), Arrays.asList(new WellPosition(1, 3)), channel,
+                        new ImageSize(2, 1));
 
         ConcatenatedFileOutputStreamWriter imagesWriter =
                 new ConcatenatedFileOutputStreamWriter(images);
@@ -330,7 +337,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testGetImageTransformerFactoryForChannel()
     {
-        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         final String channel = "dapi";
         prepareGetExperimentPermIDs(ds1, ds2);
@@ -357,7 +364,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testGetImageTransformerFactoryForExperiment()
     {
-        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         prepareGetExperimentPermIDs(ds1, ds2);
         context.checking(new Expectations()
@@ -383,7 +390,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testSaveImageTransformerFactoryForDatasetChannel()
     {
-        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         final DatasetIdentifier ds2 = new DatasetIdentifier("ds2", "url1");
         final String channel = "dapi";
         context.checking(new Expectations()
@@ -394,7 +401,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     long datasetId = 123;
                     ImgDatasetDTO dataset = createDataset(datasetId);
 
-                    one(dao).tryGetDatasetByPermId("ds1");
+                    one(dao).tryGetDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
                     one(dao).tryGetDatasetByPermId("ds2");
                     will(returnValue(dataset));
@@ -422,7 +429,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
     @Test
     public void testSaveImageTransformerFactoryForExperiment()
     {
-        final DatasetIdentifier ds1 = new DatasetIdentifier("ds1", "url1");
+        final DatasetIdentifier ds1 = new DatasetIdentifier(DATASET_CODE, "url1");
         context.checking(new Expectations()
             {
                 {
@@ -438,7 +445,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
                     ImgContainerDTO container = new ImgContainerDTO(null, null, null, experimentId);
                     container.setId(containerId);
 
-                    one(dao).tryGetDatasetByPermId("ds1");
+                    one(dao).tryGetDatasetByPermId(DATASET_CODE);
                     will(returnValue(dataset));
 
                     one(dao).getContainerById(containerId);
@@ -576,7 +583,7 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
             {
                 {
                     one(service).checkDataSetCollectionAccess(SESSION_TOKEN,
-                            Arrays.asList("ds1", "ds2"));
+                            Arrays.asList(DATASET_CODE, "ds2"));
                 }
             });
     }

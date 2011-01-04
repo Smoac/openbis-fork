@@ -21,10 +21,10 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureValue;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorValues;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
@@ -42,7 +42,7 @@ class PlateLayouterModel
 
     // --- internal dynamix state
 
-    private DatasetImagesReference imageDatasetOrNull;
+    private ImageDatasetEnrichedReference imageDatasetOrNull;
 
     private List<String> featureLabelsOrNull;
 
@@ -66,12 +66,12 @@ class PlateLayouterModel
         return wellList;
     }
 
-    public DatasetImagesReference tryGetImageDataset()
+    public ImageDatasetEnrichedReference tryGetImageDataset()
     {
         return imageDatasetOrNull;
     }
 
-    public void setImageDataset(DatasetImagesReference imageDataset)
+    public void setImageDataset(ImageDatasetEnrichedReference imageDataset)
     {
         this.imageDatasetOrNull = imageDataset;
     }

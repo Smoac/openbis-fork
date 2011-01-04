@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -40,8 +42,17 @@ public class LogicalImageReference
 
     private final WellLocation wellLocationOrNull;
 
-    public LogicalImageReference(DatasetImagesReference imageDataset,
+    private final List<DatasetImagesReference> overlayDatasets;
+
+    public LogicalImageReference(ImageDatasetEnrichedReference imageEnrichedDataset,
             WellLocation wellLocationOrNull)
+    {
+        this(imageEnrichedDataset.getImageDataset(), imageEnrichedDataset.getOverlayDatasets(),
+                wellLocationOrNull);
+    }
+
+    private LogicalImageReference(DatasetImagesReference imageDataset,
+            List<DatasetImagesReference> overlayDatasets, WellLocation wellLocationOrNull)
     {
         assert imageDataset != null : "image dataset is null";
         this.datasetCode = imageDataset.getDatasetCode();
@@ -49,6 +60,7 @@ public class LogicalImageReference
         this.datastoreHostUrl = imageDataset.getDatastoreHostUrl();
         this.imageParameters = imageDataset.getImageParameters();
         this.wellLocationOrNull = wellLocationOrNull;
+        this.overlayDatasets = overlayDatasets;
     }
 
     public LogicalImageReference(String datasetCode, String datastoreCode, String datastoreHostUrl,
@@ -59,6 +71,7 @@ public class LogicalImageReference
         this.datastoreHostUrl = datastoreHostUrl;
         this.imageParameters = imageParameters;
         this.wellLocationOrNull = null;
+        this.overlayDatasets = new ArrayList<DatasetImagesReference>();
     }
 
     public WellLocation tryGetWellLocation()
@@ -106,4 +119,8 @@ public class LogicalImageReference
         return imageParameters.getTransformerFactorySignatureOrNull(channelCode);
     }
 
+    public List<DatasetImagesReference> getOverlayDatasets()
+    {
+        return overlayDatasets;
+    }
 }

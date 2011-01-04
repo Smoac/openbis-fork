@@ -35,7 +35,7 @@ public class PlateContent implements ISerializable
 
     private PlateMetadata plateMetadata;
 
-    private List<DatasetImagesReference> imagesDatasets;
+    private List<ImageDatasetEnrichedReference> imagesDatasets;
 
     private List<FeatureVectorDataset> featureVectorDatasets;
 
@@ -47,7 +47,8 @@ public class PlateContent implements ISerializable
     {
     }
 
-    public PlateContent(PlateMetadata plateMetadata, List<DatasetImagesReference> imagesDatasets,
+    public PlateContent(PlateMetadata plateMetadata,
+            List<ImageDatasetEnrichedReference> imagesDatasets,
             List<FeatureVectorDataset> featureVectorDatasets, List<DatasetReference> unknownDatasets)
     {
         this.plateMetadata = plateMetadata;
@@ -61,7 +62,7 @@ public class PlateContent implements ISerializable
         return plateMetadata;
     }
 
-    public List<DatasetImagesReference> getImageDatasets()
+    public List<ImageDatasetEnrichedReference> getImageDatasets()
     {
         return imagesDatasets;
     }

@@ -22,7 +22,8 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils.IDatasetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageResolutionKind;
 
@@ -52,10 +53,11 @@ public class MergingImagesDownloadServlet extends AbstractImagesDownloadServlet 
      * @throws EnvironmentFailureException if image does not exist
      **/
     @Override
-    protected final ResponseContentStream createImageResponse(TileImageReference params,
-            File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException
+    protected final ResponseContentStream createImageResponse(ImageGenerationDescription params,
+            IDatasetDirectoryProvider datasetDirectoryProvider)
+            throws IOException, EnvironmentFailureException
     {
-        return ImageChannelsUtils.getImageStream(datasetRoot, datasetCode, params);
+        return ImageChannelsUtils.getImageStream(params, datasetDirectoryProvider);
     }
 
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(200, 120);

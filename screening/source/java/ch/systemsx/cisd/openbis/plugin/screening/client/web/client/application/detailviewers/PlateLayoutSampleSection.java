@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingDatasetGuiUtils.IFeatureVectorDatasetReferenceUpdater;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.PlateLayouter;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 
@@ -115,7 +115,7 @@ public class PlateLayoutSampleSection extends TabContent
         PlateMetadata plateMetadata = plateContent.getPlateMetadata();
         PlateLayouter plateLayouter = new PlateLayouter(viewContext, plateMetadata);
 
-        List<DatasetImagesReference> imageDatasets = plateContent.getImageDatasets();
+        List<ImageDatasetEnrichedReference> imageDatasets = plateContent.getImageDatasets();
         ImagingDatasetGuiUtils guiUtils = new ImagingDatasetGuiUtils(viewContext);
         Widget imageDatasetDetailsRow =
                 guiUtils.createImageDatasetDetailsRow(imageDatasets,
@@ -150,7 +150,8 @@ public class PlateLayoutSampleSection extends TabContent
     {
         return new IDatasetImagesReferenceUpdater()
             {
-                public void changeDisplayedImageDataset(DatasetImagesReference newImageDatasetOrNull)
+                public void changeDisplayedImageDataset(
+                        ImageDatasetEnrichedReference newImageDatasetOrNull)
                 {
                     plateLayouter.changeDisplayedImageDataset(newImageDatasetOrNull);
                 }

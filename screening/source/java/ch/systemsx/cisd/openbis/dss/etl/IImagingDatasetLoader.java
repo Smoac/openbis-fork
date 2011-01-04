@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.bds.hcs.Location;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 

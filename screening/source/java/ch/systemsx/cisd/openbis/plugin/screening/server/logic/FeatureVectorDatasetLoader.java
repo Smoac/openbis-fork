@@ -51,9 +51,9 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             Collection<? extends PlateIdentifier> plates)
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
-                ScreeningConstants.HCS_IMAGE_DATASET_TYPE,
-                ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE);
-        featureVectorDatasetTypeCode = ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE;
+                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN,
+                ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN);
+        featureVectorDatasetTypeCode = ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN;
     }
 
     public static class FeatureVectorExternalData
@@ -108,10 +108,12 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
         List<ExternalData> imageDatasets = new ArrayList<ExternalData>();
         for (ExternalData dataset : getDatasets())
         {
-            if (ScreeningUtils.isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE))
+            if (ScreeningUtils.isTypeMatching(dataset,
+                    ScreeningConstants.HCS_IMAGE_ANALYSIS_DATASET_TYPE_PATTERN))
             {
                 featureVectorDatasetSet.put(dataset.getId(), dataset);
-            } else if (ScreeningUtils.isTypeEqual(dataset, ScreeningConstants.HCS_IMAGE_DATASET_TYPE))
+            } else if (ScreeningUtils.isTypeMatching(dataset,
+                    ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN))
             {
                 imageDatasets.add(dataset);
             }
@@ -144,7 +146,8 @@ class FeatureVectorDatasetLoader extends ImageDatasetLoader
             Collection<Long> imageDatasetIds)
     {
         List<ExternalData> datasets = datasetLister.listByParentTechIds(imageDatasetIds);
-        return ScreeningUtils.filterExternalDataByType(datasets, featureVectorDatasetTypeCode);
+        return ScreeningUtils.filterExternalDataByTypePattern(datasets,
+                featureVectorDatasetTypeCode);
     }
 
     private static Map<Long/* feature vector dataset id */, List<ExternalData/* image dataset */>> createFeatureVectorToImageDatasetsMap(

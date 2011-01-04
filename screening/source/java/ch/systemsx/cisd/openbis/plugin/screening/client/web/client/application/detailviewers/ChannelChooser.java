@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -24,68 +27,212 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.CheckBoxGroupWithModel.CheckBoxGroupListner;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.ImageDatasetChannel;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
 /**
- * Handles displaying images in different channels.
+ * Handles displaying images in different channels and allows to choose the overlays.
  * 
  * @author Tomasz Pylak
  */
 class ChannelChooser
 {
-    public static interface IChanneledViewerFactory
-    {
-        Widget create(String channelCode);
-    }
-
     public static LayoutContainer createViewerWithChannelChooser(
-            final IChanneledViewerFactory viewerFactory,
-            final IDefaultChannelState defaultChannelState, List<String> channelCodes)
+            IChanneledViewerFactory viewerFactory, IDefaultChannelState defaultChannelState,
+            LogicalImageReference logicalImageReference)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
+        container.setScrollMode(Scroll.AUTO);
 
-        if (channelCodes.size() == 0)
+        RowData layoutData = new RowData();
+        layoutData.setMargins(new Margins(3, 0, 0, 0));
+        container.add(new Text(""), layoutData); // separator
+
+        List<String> channels = logicalImageReference.getChannelsCodes();
+        if (channels.size() == 0)
         {
-            container.add(new Label("No images available"));
+            container.add(new Label(NO_IMAGES_AVAILABLE));
             return container;
         }
+
+        String initialChannelCode = getInitialChannelCode(defaultChannelState, channels);
+        ChannelChooser channelChooser =
+                new ChannelChooser(logicalImageReference, viewerFactory, initialChannelCode);
+        channelChooser.addViewer(container, defaultChannelState);
+
+        return container;
+    }
+
+    public static interface IChanneledViewerFactory
+    {
+        Widget create(LogicalImageChannelsReference channelReferences);
+    }
+
+    // ---
+
+    private static final String NO_IMAGES_AVAILABLE = "No images available";
+
+    private static final String OVERLAYS_MSG = "Overlays:";
+
+    private static final String CHANNEL_MSG = "Channel:";
+
+    // ---
+
+    private final LogicalImageReference basicImage;
+
+    private final IChanneledViewerFactory viewerFactory;
+
+    private final LayoutContainer imageContainer;
+
+    // --- state
+
+    private Set<ImageDatasetChannel> selectedOverlayChannels;
+
+    private String basicImageChannelCode;
+
+    private ChannelChooser(LogicalImageReference basicImage, IChanneledViewerFactory viewerFactory,
+            String initialChannelCode)
+    {
+        this.basicImage = basicImage;
+        this.viewerFactory = viewerFactory;
+        this.imageContainer = new LayoutContainer();
+
+        this.basicImageChannelCode = initialChannelCode;
+        this.selectedOverlayChannels = new HashSet<ImageDatasetChannel>();
+    }
+
+    private void updateState(LayoutContainer container)
+    {
+        LogicalImageChannelsReference state =
+                new LogicalImageChannelsReference(basicImage, basicImageChannelCode,
+                        selectedOverlayChannels);
+        Widget view = viewerFactory.create(state);
+        imageContainer.removeAll();
+        imageContainer.add(view);
+
+        container.layout();
+    }
+
+    private void addViewer(LayoutContainer container, IDefaultChannelState defaultChannelState)
+    {
+        List<DatasetImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
+        if (overlayDatasets.size() > 0)
+        {
+            container.add(createOverlayChannelsChooser(overlayDatasets, container));
+        }
+
+        List<String> channels = basicImage.getChannelsCodes();
+        if (channels.size() > 1)
+        {
+            Widget channelChooserWithLabel =
+                    createBasicChannelChooser(channels, defaultChannelState, container);
+            container.add(channelChooserWithLabel);
+        }
+        container.add(imageContainer);
+
+        updateState(container);
+    }
+
+    private Widget createOverlayChannelsChooser(List<DatasetImagesReference> overlayDatasets,
+            final LayoutContainer container)
+    {
+        List<LabeledItem<ImageDatasetChannel>> overlayChannelItems =
+                createOverlayChannelItems(overlayDatasets);
+        CheckBoxGroupWithModel<ImageDatasetChannel> checkBoxGroup =
+                new CheckBoxGroupWithModel<ImageDatasetChannel>(overlayChannelItems);
+        checkBoxGroup.setFieldLabel(OVERLAYS_MSG);
+        checkBoxGroup.addListener(new CheckBoxGroupListner<ImageDatasetChannel>()
+            {
+                public void onChange(Set<ImageDatasetChannel> selected)
+                {
+                    selectedOverlayChannels = selected;
+                    updateState(container);
+                }
+            });
+        return checkBoxGroup;
+    }
+
+    private static List<LabeledItem<ImageDatasetChannel>> createOverlayChannelItems(
+            List<DatasetImagesReference> overlayDatasets)
+    {
+        List<LabeledItem<ImageDatasetChannel>> items =
+                new ArrayList<LabeledItem<ImageDatasetChannel>>();
+        for (DatasetImagesReference overlayDataset : overlayDatasets)
+        {
+            ImageDatasetParameters imageParams = overlayDataset.getImageParameters();
+            List<String> channelsCodes = imageParams.getChannelsCodes();
+            List<String> channelsLabels = imageParams.getChannelsLabels();
+            for (int i = 0; i < imageParams.getChannelsNumber(); i++)
+            {
+                String channelCode = channelsCodes.get(i);
+                String channelLabel = channelsLabels.get(i);
+                LabeledItem<ImageDatasetChannel> item =
+                        createLabeledItem(overlayDataset, channelCode, channelLabel);
+                items.add(item);
+            }
+        }
+        return items;
+    }
+
+    private static LabeledItem<ImageDatasetChannel> createLabeledItem(
+            DatasetImagesReference overlayDataset, String channelCode, String channelLabel)
+    {
+        ImageDatasetChannel overlayChannel = createImageDatasetChannel(overlayDataset, channelCode);
+        return new LabeledItem<ImageDatasetChannel>(overlayChannel, channelLabel);
+    }
+
+    private static ImageDatasetChannel createImageDatasetChannel(DatasetImagesReference dataset,
+            String channelCode)
+    {
+        return new ImageDatasetChannel(dataset.getDatasetCode(), dataset.getDatastoreHostUrl(),
+                channelCode);
+    }
+
+    private Widget createBasicChannelChooser(List<String> channels,
+            final IDefaultChannelState defaultChannelState, final LayoutContainer container)
+    {
+        ComboBox<SimpleComboValue<String>> channelChooser =
+                new ChannelComboBox(channels, defaultChannelState);
+        channelChooser
+                .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
+                    {
+                        @Override
+                        public void selectionChanged(
+                                SelectionChangedEvent<SimpleComboValue<String>> se)
+                        {
+                            String selectedChannelCode = se.getSelectedItem().getValue();
+                            basicImageChannelCode = selectedChannelCode;
+                            updateState(container);
+                        }
+                    });
+        return GuiUtils.withLabel(channelChooser, CHANNEL_MSG);
+    }
+
+    private static String getInitialChannelCode(IDefaultChannelState defaultChannelState,
+            List<String> channels)
+    {
         String initialChannel = defaultChannelState.tryGetDefaultChannel();
-        if (initialChannel == null || channelCodes.indexOf(initialChannel) == -1)
+        if (initialChannel == null || channels.indexOf(initialChannel) == -1)
         {
             initialChannel =
-                    channelCodes.size() > 1 ? ScreeningConstants.MERGED_CHANNELS : channelCodes
-                            .get(0);
+                    channels.size() > 1 ? ScreeningConstants.MERGED_CHANNELS : channels.get(0);
         }
-        if (channelCodes.size() > 1)
-        {
-            ComboBox<SimpleComboValue<String>> channelChooser =
-                    new ChannelComboBox(channelCodes, defaultChannelState);
-            channelChooser
-                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
-                        {
-                            @Override
-                            public void selectionChanged(
-                                    SelectionChangedEvent<SimpleComboValue<String>> se)
-                            {
-                                String value = se.getSelectedItem().getValue();
-                                Widget viewerWidget = viewerFactory.create(value);
-                                GuiUtils.replaceLastItem(container, viewerWidget);
-                            }
-                        });
-            RowData channelLayoutData = new RowData();
-            channelLayoutData.setMargins(new Margins(10, 0, 0, 0));
-            container.add(GuiUtils.withLabel(channelChooser, "Channel:"), channelLayoutData);
-        }
-        container.add(viewerFactory.create(initialChannel));
-        container.setScrollMode(Scroll.AUTO);
-        return container;
+        return initialChannel;
     }
 }

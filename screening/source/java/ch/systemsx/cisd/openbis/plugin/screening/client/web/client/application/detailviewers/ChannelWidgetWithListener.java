@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 
 /**
@@ -36,9 +35,14 @@ public class ChannelWidgetWithListener
 {
     final private LayoutContainer container;
 
-    final private IChanneledViewerFactory viewerFactory;
+    final private ISimpleChanneledViewerFactory viewerFactory;
 
-    public ChannelWidgetWithListener(final IChanneledViewerFactory viewerFactory)
+    interface ISimpleChanneledViewerFactory
+    {
+        Widget create(String channelCode);
+    }
+
+    public ChannelWidgetWithListener(final ISimpleChanneledViewerFactory viewerFactory)
     {
         this.container = new LayoutContainer();
         this.viewerFactory = viewerFactory;

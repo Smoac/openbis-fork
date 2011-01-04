@@ -55,6 +55,7 @@ public final class ScreeningSampleServerPlugin extends AbstractSampleServerPlugi
         if (entityKind == EntityKind.SAMPLE)
         {
             Set<String> types = new HashSet<String>();
+            // TODO 2011-01-03, Tomasz Pylak: change to PLATE_PLUGIN_TYPE_CODE_WITH_WILDCARDS
             types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE);
             types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
             return types;

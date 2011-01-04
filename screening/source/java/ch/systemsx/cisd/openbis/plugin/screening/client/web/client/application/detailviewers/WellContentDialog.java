@@ -53,12 +53,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ui.columns.specific.ScreeningLinkExtractor;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -90,7 +91,7 @@ public class WellContentDialog extends Dialog
      * A dialog which shows the content of the well (static or a timepoints movie).
      */
     public static void showContentDialog(final WellData wellData,
-            DatasetImagesReference imageDatasetOrNull,
+            ImageDatasetEnrichedReference imageDatasetOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         final WellContentDialog contentDialog = createContentDialog(wellData, viewContext);
@@ -98,7 +99,7 @@ public class WellContentDialog extends Dialog
     }
 
     private static void showContentDialog(final WellContentDialog contentDialog,
-            final DatasetImagesReference imagesOrNull,
+            final ImageDatasetEnrichedReference imagesOrNull,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
         if (imagesOrNull != null)
@@ -135,7 +136,7 @@ public class WellContentDialog extends Dialog
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final WellContent wellContent, int imageWidthPx, int imageHeightPx, String channel)
     {
-        final DatasetImagesReference imageDataset = wellContent.tryGetImageDataset();
+        final ImageDatasetEnrichedReference imageDataset = tryGetImageDataset(wellContent);
         if (imageDataset == null)
         {
             return new Text(NO_IMAGE_DATASETS_LABEL);
@@ -145,7 +146,7 @@ public class WellContentDialog extends Dialog
         {
             return new Text(INCORRECT_WELL_CODE_LABEL);
         }
-        ImageDatasetParameters imageParameters = imageDataset.getImageParameters();
+        ImageDatasetParameters imageParameters = imageDataset.getImageDatasetParameters();
         if (imageParameters.getChannelsCodes().contains(channel) == false
                 && channel.equals(ScreeningConstants.MERGED_CHANNELS) == false)
         {
@@ -156,9 +157,11 @@ public class WellContentDialog extends Dialog
         String sessionId = getSessionId(viewContext);
         final LogicalImageReference wellImages =
                 new LogicalImageReference(imageDataset, locationOrNull);
+        LogicalImageChannelsReference channelReferences =
+                LogicalImageChannelsReference.createWithoutOverlays(wellImages, channel);
         LayoutContainer staticTilesGrid =
-                LogicalImageViewer.createRepresentativeImage(wellImages, channel, sessionId,
-                        imageWidthPx, imageHeightPx, createImageLinks);
+                LogicalImageViewer.createTilesGrid(channelReferences, sessionId, imageWidthPx,
+                        imageHeightPx, createImageLinks);
 
         if (imageParameters.isMultidimensional())
         {
@@ -176,8 +179,19 @@ public class WellContentDialog extends Dialog
         return staticTilesGrid;
     }
 
+    private static ImageDatasetEnrichedReference tryGetImageDataset(final WellContent wellContent)
+    {
+        if (wellContent.tryGetImageDataset() != null)
+        {
+            return new ImageDatasetEnrichedReference(wellContent.tryGetImageDataset());
+        } else
+        {
+            return null;
+        }
+    }
+
     private static void showContentDialog(IViewContext<IScreeningClientServiceAsync> viewContext,
-            WellContent wellContent, DatasetImagesReference imageDatasetOrNull)
+            WellContent wellContent, ImageDatasetEnrichedReference imageDatasetOrNull)
     {
         WellContentDialog contentDialog =
                 new WellContentDialog(wellContent.getWell(), null, wellContent.tryGetLocation(),
@@ -186,7 +200,7 @@ public class WellContentDialog extends Dialog
         showContentDialog(contentDialog, imageDatasetOrNull, viewContext);
     }
 
-    private LogicalImageViewer createImageViewer(DatasetImagesReference imageDatasetOrNull)
+    private LogicalImageViewer createImageViewer(ImageDatasetEnrichedReference imageDatasetOrNull)
     {
         final LogicalImageReference imagesOrNull =
                 new LogicalImageReference(imageDatasetOrNull, wellLocationOrNull);

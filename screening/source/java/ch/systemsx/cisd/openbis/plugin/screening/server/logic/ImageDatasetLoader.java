@@ -43,7 +43,7 @@ class ImageDatasetLoader extends PlateDatasetLoader
     {
         super(session, businessObjectFactory, homeSpaceOrNull, plates,
                 (datasetTypeCodes.length == 0) ? new String[]
-                    { ScreeningConstants.HCS_IMAGE_DATASET_TYPE } : datasetTypeCodes);
+                    { ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN } : datasetTypeCodes);
     }
 
     /**
@@ -68,7 +68,8 @@ class ImageDatasetLoader extends PlateDatasetLoader
         List<ExternalData> result = new ArrayList<ExternalData>();
         for (ExternalData externalData : getDatasets())
         {
-            if (ScreeningUtils.isTypeEqual(externalData, ScreeningConstants.HCS_IMAGE_DATASET_TYPE))
+            if (ScreeningUtils.isTypeMatching(externalData,
+                    ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN))
             {
                 result.add(externalData);
             }

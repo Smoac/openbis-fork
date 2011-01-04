@@ -30,6 +30,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -98,10 +100,16 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             WellLocation wellLocationOrNull, AsyncCallback<LogicalImageInfo> abstractAsyncCallback);
 
     /**
+     * @see IScreeningClientService#getImageDatasetReference(DatasetReference)
+     */
+    public void getImageDatasetReference(DatasetReference imageDataset,
+            AsyncCallback<ImageDatasetEnrichedReference> abstractAsyncCallback);
+
+    /**
      * @see IScreeningClientService#getImageDatasetInfosForSample(TechId, WellLocation)
      */
-    public void getImageDatasetInfosForSample(TechId sampleId,
-            WellLocation wellLocationOrNull, AsyncCallback<ImageSampleContent> abstractAsyncCallback);
+    public void getImageDatasetInfosForSample(TechId sampleId, WellLocation wellLocationOrNull,
+            AsyncCallback<ImageSampleContent> abstractAsyncCallback);
 
     /**
      * @see IScreeningClientService#registerLibrary(LibraryRegistrationInfo)

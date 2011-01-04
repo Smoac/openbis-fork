@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 
@@ -42,12 +43,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelSt
 class LogicalImageSeriesGrid
 {
     public static LayoutContainer create(String sessionId,
-            List<ImageChannelStack> channelStackImages, LogicalImageReference images,
-            String channel, int imageWidth, int imageHeight)
+            List<ImageChannelStack> channelStackImages,
+            LogicalImageChannelsReference channelReferences, int imageWidth, int imageHeight)
     {
         LogicalImageSeriesViewerModel model = new LogicalImageSeriesViewerModel(channelStackImages);
         List<LayoutContainer> frames =
-                createTimepointFrames(model.getSortedChannelStackSeriesPoints(), images, channel,
+                createTimepointFrames(model.getSortedChannelStackSeriesPoints(), channelReferences,
                         sessionId, imageWidth, imageHeight);
 
         return createMoviePlayer(frames, model.getSortedPoints());
@@ -109,7 +110,7 @@ class LogicalImageSeriesGrid
      */
     private static List<LayoutContainer> createTimepointFrames(
             List<List<ImageChannelStack>> sortedChannelStackSeriesPoints,
-            LogicalImageReference images, String channel, String sessionId, int imageWidth,
+            LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
             int imageHeight)
     {
         final List<LayoutContainer> frames = new ArrayList<LayoutContainer>();
@@ -117,7 +118,7 @@ class LogicalImageSeriesGrid
         for (List<ImageChannelStack> seriesPointStacks : sortedChannelStackSeriesPoints)
         {
             final LayoutContainer container =
-                    createTilesGridForTimepoint(seriesPointStacks, images, channel, sessionId,
+                    createTilesGridForTimepoint(seriesPointStacks, channelReferences, sessionId,
                             imageWidth, imageHeight);
             frames.add(container);
             if (counter > 0)
@@ -138,9 +139,11 @@ class LogicalImageSeriesGrid
     }
 
     private static LayoutContainer createTilesGridForTimepoint(
-            List<ImageChannelStack> seriesPointStacks, LogicalImageReference images,
-            String channel, String sessionId, int imageWidth, int imageHeight)
+            List<ImageChannelStack> seriesPointStacks,
+            LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
+            int imageHeight)
     {
+        LogicalImageReference images = channelReferences.getBasicImage();
         final LayoutContainer container =
                 new LayoutContainer(new TableLayout(images.getTileColsNum()));
 
@@ -153,7 +156,7 @@ class LogicalImageSeriesGrid
                 ImageChannelStack stackRef = tilesMap[row - 1][col - 1];
                 if (stackRef != null)
                 {
-                    ImageUrlUtils.addImageUrlWidget(container, sessionId, images, channel,
+                    ImageUrlUtils.addImageUrlWidget(container, sessionId, channelReferences,
                             stackRef, imageWidth, imageHeight);
                 } else
                 {

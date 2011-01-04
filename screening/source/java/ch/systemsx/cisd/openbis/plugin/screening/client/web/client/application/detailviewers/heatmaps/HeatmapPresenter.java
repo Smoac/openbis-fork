@@ -268,7 +268,7 @@ class HeatmapPresenter
 
         private static boolean isControl(String label)
         {
-            return label.toUpperCase().indexOf(ScreeningConstants.CONTROL_WELL_TYPE_CODE_MARKER) != -1;
+            return label.toUpperCase().matches(ScreeningConstants.CONTROL_WELL_SAMPLE_TYPE_PATTERN);
         }
 
         private WellMetadataHeatmapRenderer(List<String> uniqueValues, List<Color> colorsOrNull)

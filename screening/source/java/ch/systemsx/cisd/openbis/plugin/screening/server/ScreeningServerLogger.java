@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -105,6 +106,14 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         logAccess(sessionToken, "getImageDatasetInfo", "dataset(%s) well(%s)", datasetCode,
                 wellLocationOrNull);
+        return null;
+    }
+
+    public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
+            String datasetCode, String datastoreCode)
+    {
+        logAccess(sessionToken, "getImageDatasetReference", "dataset(%s) datastore(%s)",
+                datasetCode, datastoreCode);
         return null;
     }
 
@@ -249,5 +258,4 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     {
         return ScreeningServer.MINOR_VERSION;
     }
-
 }

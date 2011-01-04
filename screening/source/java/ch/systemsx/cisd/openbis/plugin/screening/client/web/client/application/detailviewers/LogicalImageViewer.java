@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.S
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageChannelsReference;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageChannelStack;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
@@ -151,18 +152,18 @@ public class LogicalImageViewer
     {
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public LayoutContainer create(String channel)
+                public LayoutContainer create(LogicalImageChannelsReference channelReferences)
                 {
-                    currentlySelectedChannelCode = channel;
+                    currentlySelectedChannelCode = channelReferences.getBasicImageChannelCode();
                     String sessionId = getSessionId(viewContext);
                     int imageWidth = getImageWidth(logicalImageReference);
                     int imageHeight = getImageHeight(logicalImageReference);
                     return LogicalImageSeriesGrid.create(sessionId, channelStackImages,
-                            logicalImageReference, channel, imageWidth, imageHeight);
+                            channelReferences, imageWidth, imageHeight);
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                logicalImageReference.getChannelsCodes());
+                logicalImageReference);
     }
 
     /** Creates a widget which displays images which has no series. */
@@ -171,20 +172,15 @@ public class LogicalImageViewer
 
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
             {
-                public LayoutContainer create(String channel)
+                public LayoutContainer create(LogicalImageChannelsReference channelReferences)
                 {
-                    currentlySelectedChannelCode = channel;
+                    currentlySelectedChannelCode = channelReferences.getBasicImageChannelCode();
                     String sessionId = getSessionId(viewContext);
-                    return createTilesGrid(logicalImageReference, channel, sessionId);
+                    return createTilesGrid(channelReferences, sessionId);
                 }
             };
         return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState,
-                logicalImageReference.getChannelsCodes());
-    }
-
-    protected void setCurrentChannel(String channel)
-    {
-        this.currentlySelectedChannelCode = channel;
+                logicalImageReference);
     }
 
     private static IDefaultChannelState createDefaultChannelState(
@@ -240,25 +236,25 @@ public class LogicalImageViewer
         Window.open(urlParams.toString(), "_blank", "resizable=yes,scrollbars=yes,dependent=yes");
     }
 
-    private static LayoutContainer createTilesGrid(final LogicalImageReference images,
-            String channel, String sessionId)
+    private static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,
+            String sessionId)
     {
-        return createRepresentativeImage(images, channel, sessionId, getImageWidth(images),
+        LogicalImageReference images = channelReferences.getBasicImage();
+        return createTilesGrid(channelReferences, sessionId, getImageWidth(images),
                 getImageHeight(images), true);
     }
 
     /** Creates a widget with a representative image of the specified logical image. */
-    // TODO 2010-12-10, Tomasz Pylak: change the implementation to use representative images
-    public static LayoutContainer createRepresentativeImage(LogicalImageReference images,
-            String channel, String sessionId, int imageWidth, int imageHeight,
-            boolean createImageLinks)
+    public static LayoutContainer createTilesGrid(LogicalImageChannelsReference channelReferences,
+            String sessionId, int imageWidth, int imageHeight, boolean createImageLinks)
     {
+        LogicalImageReference images = channelReferences.getBasicImage();
         LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
         for (int row = 1; row <= images.getTileRowsNum(); row++)
         {
             for (int col = 1; col <= images.getTileColsNum(); col++)
             {
-                ImageUrlUtils.addImageUrlWidget(container, sessionId, images, channel, row, col,
+                ImageUrlUtils.addImageUrlWidget(container, sessionId, channelReferences, row, col,
                         imageWidth, imageHeight, createImageLinks);
             }
         }

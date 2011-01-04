@@ -37,8 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.D
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ImagingDatasetGuiUtils.IDatasetImagesReferenceUpdater;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.LogicalImageReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -130,7 +130,7 @@ public class ImageSampleSection extends TabContent
                                     logicalImageLayouter.getDatasetImagesReferences(),
                                     logicalImageLayouter);
 
-            DatasetImagesReference firstImageDataset = images.get(0).getDatasetImagesReference();
+            ImageDatasetEnrichedReference firstImageDataset = images.get(0).getImageDataset();
             logicalImageLayouter.changeDisplayedImageDataset(firstImageDataset);
 
             add(imageDatasetsDetails, margins);
@@ -145,7 +145,7 @@ public class ImageSampleSection extends TabContent
 
         private final WellLocation wellLocationOrNull;
 
-        private final Map<DatasetImagesReference, LogicalImageInfo> refsMap;
+        private final Map<ImageDatasetEnrichedReference, LogicalImageInfo> refsMap;
 
         public LogicalImageLayouter(ScreeningViewContext viewContext,
                 WellLocation wellLocationOrNull, List<LogicalImageInfo> images)
@@ -155,7 +155,7 @@ public class ImageSampleSection extends TabContent
             this.refsMap = createRefsMap(images);
         }
 
-        public void changeDisplayedImageDataset(DatasetImagesReference dataset)
+        public void changeDisplayedImageDataset(ImageDatasetEnrichedReference dataset)
         {
             LogicalImageInfo imageInfo = refsMap.get(dataset);
             assert imageInfo != null : "cannot find logical image for " + dataset;
@@ -168,28 +168,27 @@ public class ImageSampleSection extends TabContent
 
         private Widget createImageViewer(LogicalImageInfo imageInfo)
         {
-            String experimentPermId = imageInfo.getDatasetReference().getExperimentPermId();
+            String experimentPermId = imageInfo.getExperimentPermId();
             LogicalImageReference logicalImageReference =
-                    new LogicalImageReference(imageInfo.getDatasetImagesReference(),
-                            wellLocationOrNull);
+                    new LogicalImageReference(imageInfo.getImageDataset(), wellLocationOrNull);
             LogicalImageViewer viewer =
                     new LogicalImageViewer(logicalImageReference, viewContext, "", experimentPermId);
             return viewer.getViewerWidget(imageInfo.getChannelStacks());
         }
 
-        public List<DatasetImagesReference> getDatasetImagesReferences()
+        public List<ImageDatasetEnrichedReference> getDatasetImagesReferences()
         {
-            return new ArrayList<DatasetImagesReference>(refsMap.keySet());
+            return new ArrayList<ImageDatasetEnrichedReference>(refsMap.keySet());
         }
 
-        private static Map<DatasetImagesReference, LogicalImageInfo> createRefsMap(
+        private static Map<ImageDatasetEnrichedReference, LogicalImageInfo> createRefsMap(
                 List<LogicalImageInfo> images)
         {
-            Map<DatasetImagesReference, LogicalImageInfo> map =
-                    new HashMap<DatasetImagesReference, LogicalImageInfo>();
+            Map<ImageDatasetEnrichedReference, LogicalImageInfo> map =
+                    new HashMap<ImageDatasetEnrichedReference, LogicalImageInfo>();
             for (LogicalImageInfo imageInfo : images)
             {
-                DatasetImagesReference ref = imageInfo.getDatasetImagesReference();
+                ImageDatasetEnrichedReference ref = imageInfo.getImageDataset();
                 map.put(ref, imageInfo);
             }
             return map;

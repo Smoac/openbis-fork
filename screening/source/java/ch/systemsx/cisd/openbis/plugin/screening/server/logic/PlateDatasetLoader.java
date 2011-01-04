@@ -51,7 +51,7 @@ class PlateDatasetLoader
     // Parameter state
     private final Collection<? extends PlateIdentifier> plates;
 
-    private final String[] datasetTypeCodes;
+    private final String[] datasetTypeCodePatterns;
 
     private String homeSpaceOrNull;
 
@@ -74,7 +74,7 @@ class PlateDatasetLoader
         this.businessObjectFactory = businessObjectFactory;
         this.homeSpaceOrNull = (homeSpaceOrNull != null) ? ("/" + homeSpaceOrNull + "/") : null;
         this.plates = plates;
-        this.datasetTypeCodes = datasetTypeCodes;
+        this.datasetTypeCodePatterns = datasetTypeCodes;
     }
 
     protected List<ExternalData> getDatasets()
@@ -117,7 +117,8 @@ class PlateDatasetLoader
         List<Long> sampleIds = extractSampleIds();
         IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         datasets = datasetLister.listBySampleIds(sampleIds);
-        datasets = ScreeningUtils.filterExternalDataByType(datasets, datasetTypeCodes);
+        datasets =
+                ScreeningUtils.filterExternalDataByTypePattern(datasets, datasetTypeCodePatterns);
     }
 
     private void initializeSampleMaps()

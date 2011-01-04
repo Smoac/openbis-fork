@@ -18,17 +18,19 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.TileImageReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils.IDatasetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * ABstract class for servlets which allow to download screening images in a chosen size for a
@@ -43,147 +45,34 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
     /**
      * @throw EnvironmentFailureException if image does not exist
      */
-    protected abstract ResponseContentStream createImageResponse(TileImageReference params,
-            File datasetRoot, String datasetCode) throws IOException, EnvironmentFailureException;
-
-    protected static class RequestParams extends TileImageReference
-    {
-        // -- optional servlet parameters
-
-        private final static String MERGE_CHANNELS_PARAM = "mergeChannels";
-
-        // -- mandatory servlet parameters
-
-        private final static String DATASET_CODE_PARAM = "dataset";
-
-        private final static String CHANNEL_STACK_ID_PARAM = "channelStackId";
-
-        private final static String WELL_ROW_PARAM = "wellRow";
-
-        private final static String WELL_COLUMN_PARAM = "wellCol";
-
-        private final static String TILE_ROW_PARAM = "tileRow";
-
-        private final static String TILE_COL_PARAM = "tileCol";
-
-        private final static String CHANNEL_PARAM = "channel";
-
-        public static TileImageReference createTileImageReference(HttpServletRequest request)
-        {
-            return new RequestParams(request);
-        }
-
-        private RequestParams(HttpServletRequest request)
-        {
-            this.sessionId = getParam(request, Utils.SESSION_ID_PARAM);
-
-            String displayModeText = request.getParameter(DISPLAY_MODE_PARAM);
-            String displayMode = displayModeText == null ? "" : displayModeText;
-            this.thumbnailSizeOrNull = tryAsThumbnailDisplayMode(displayMode);
-            this.datasetCode = getParam(request, DATASET_CODE_PARAM);
-            this.channelStackReference = getImageChannelStackReference(request);
-
-            this.channel = getParam(request, CHANNEL_PARAM);
-            String mergeChannelsText = request.getParameter(MERGE_CHANNELS_PARAM);
-            this.mergeAllChannels =
-                    (mergeChannelsText == null) ? false : mergeChannelsText
-                            .equalsIgnoreCase("true");
-        }
-
-        private ImageChannelStackReference getImageChannelStackReference(HttpServletRequest request)
-        {
-            Integer channelStackId = tryGetIntParam(request, CHANNEL_STACK_ID_PARAM);
-            if (channelStackId == null)
-            {
-                int tileRow = getIntParam(request, TILE_ROW_PARAM);
-                int tileCol = getIntParam(request, TILE_COL_PARAM);
-                Location tileLocation = new Location(tileCol, tileRow);
-
-                Integer wellRow = tryGetIntParam(request, WELL_ROW_PARAM);
-                Integer wellCol = tryGetIntParam(request, WELL_COLUMN_PARAM);
-                if (wellRow != null && wellCol != null)
-                {
-                    Location wellLocation = new Location(wellCol, wellRow);
-                    return ImageChannelStackReference.createHCSFromLocations(wellLocation,
-                            tileLocation);
-                } else if (wellRow == null && wellCol == null)
-                {
-                    return ImageChannelStackReference.createMicroscopyFromLocations(tileLocation);
-                } else
-                {
-                    throw new UserFailureException(
-                            "well reference is not complete, row and column must be specified!");
-                }
-            } else
-            {
-                return ImageChannelStackReference.createFromId(channelStackId);
-            }
-        }
-
-        private static int getIntParam(HttpServletRequest request, String paramName)
-        {
-
-            Integer value = tryGetIntParam(request, paramName);
-            if (value == null)
-            {
-                throw new UserFailureException("parameter " + paramName
-                        + " should be an integer, but is: " + value);
-            }
-            return value.intValue();
-        }
-
-        private static Integer tryGetIntParam(HttpServletRequest request, String paramName)
-        {
-            String value = request.getParameter(paramName);
-            if (value == null)
-            {
-                return null;
-            }
-            try
-            {
-                return Integer.valueOf(value);
-            } catch (NumberFormatException e)
-            {
-                return null;
-            }
-        }
-
-        private static String getParam(final HttpServletRequest request, String paramName)
-        {
-            String value = request.getParameter(paramName);
-            if (value == null)
-            {
-                throw new UserFailureException("no value for the parameter " + paramName
-                        + " found in the URL");
-            }
-            return value;
-        }
-    }
+    protected abstract ResponseContentStream createImageResponse(ImageGenerationDescription params,
+            IDatasetDirectoryProvider datasetDirectoryProvider) throws IOException,
+            EnvironmentFailureException;
 
     @Override
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
     {
-        TileImageReference reference = null;
+        ImageGenerationDescription imageGenDesc = null;
         try
         {
-            reference = RequestParams.createTileImageReference(request);
-            HttpSession session = tryGetOrCreateSession(request, reference.getSessionId());
+            HttpSession session =
+                    tryGetOrCreateSession(request,
+                            ImageGenerationDescriptionFactory.getSessionId(request));
             if (session == null)
             {
                 printSessionExpired(response);
             } else
             {
-                deliverFile(response, reference, session);
+                imageGenDesc = ImageGenerationDescriptionFactory.create(request);
+                deliverFile(response, imageGenDesc, session);
             }
         } catch (Exception e)
         {
             String message = "Error: Couldn't deliver image";
-            if (reference != null)
+            if (imageGenDesc != null)
             {
-                message +=
-                        " for data set " + reference.getDatasetCode() + " and channel "
-                                + reference.getChannel();
+                message += " for " + imageGenDesc;
             }
             operationLog.error(message, e);
             printErrorResponse(response, message);
@@ -191,17 +80,16 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
 
     }
 
-    protected void deliverFile(HttpServletResponse response, TileImageReference params,
+    protected void deliverFile(HttpServletResponse response, ImageGenerationDescription params,
             HttpSession session) throws IOException
     {
-        ensureDatasetAccessible(params.getDatasetCode(), session, params.getSessionId());
-        File datasetRoot = createDataSetRootDirectory(params.getDatasetCode(), session);
+        ensureDatasetsAccessible(params, session, params.getSessionId());
 
         long start = System.currentTimeMillis();
         ResponseContentStream responseStream;
         try
         {
-            responseStream = createImageResponse(params, datasetRoot, params.getDatasetCode());
+            responseStream = createImageResponse(params, createDatasetDirectoryProvider(session));
         } catch (EnvironmentFailureException e)
         {
             operationLog.warn(e.getMessage());
@@ -212,13 +100,44 @@ abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServ
         writeResponseContent(responseStream, response);
     }
 
-    protected final static void logImageDelivery(TileImageReference params,
+    private IDatasetDirectoryProvider createDatasetDirectoryProvider(HttpSession session)
+    {
+        final DatabaseInstance databaseInstance = getDatabaseInstance(session);
+        final File storeRootPath = getStoreRootPath();
+        return new IDatasetDirectoryProvider()
+            {
+                public File getDatasetRoot(String datasetCode)
+                {
+                    return DatasetLocationUtil.getDatasetLocationPathCheckingIfExists(datasetCode,
+                            databaseInstance, storeRootPath);
+                }
+            };
+    }
+
+    private void ensureDatasetsAccessible(ImageGenerationDescription params, HttpSession session,
+            String sessionId)
+    {
+        ensureDatasetAccessible(params.tryGetImageChannels(), session, sessionId);
+        List<DatasetAcquiredImagesReference> overlayChannels = params.getOverlayChannels();
+        for (DatasetAcquiredImagesReference dataset : overlayChannels)
+        {
+            ensureDatasetAccessible(dataset, session, sessionId);
+        }
+    }
+
+    private void ensureDatasetAccessible(DatasetAcquiredImagesReference dataset,
+            HttpSession session, String sessionId)
+    {
+        ensureDatasetAccessible(dataset.getDatasetCode(), session, sessionId);
+    }
+
+    protected final static void logImageDelivery(ImageGenerationDescription params,
             ResponseContentStream responseStream, long timeTaken)
     {
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("For data set '" + params.getDatasetCode() + "' delivering image ("
-                    + responseStream.getSize() + " bytes) took " + timeTaken + " msec");
+            operationLog.info("For '" + params + "' delivering image (" + responseStream.getSize()
+                    + " bytes) took " + timeTaken + " msec");
         }
     }
 }

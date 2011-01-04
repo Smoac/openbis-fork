@@ -100,15 +100,13 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         if (entityKind == EntityKind.SAMPLE)
         {
             // -- plate layout
-            types.add(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE_WITH_WILDCARDS);
+            types.add(ScreeningConstants.HCS_PLATE_SAMPLE_TYPE_PATTERN);
             // -- library registration
             types.add(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE);
             // -- screening well
             // TODO 2010-12-13, Tomasz Pylak: to be exchanged by the pattern:
-            // (*WELL* || *CONTROL* || CHAMBER || GENE || OLIGO)
-            types.add(ScreeningConstants.CONTROL_WELL_TYPE_CODE_MARKER);
-            types.add("POSITIVE_CONTROL");
-            types.add("NEGATIVE_CONTROL");
+            // (*WELL* || CHAMBER || GENE || OLIGO)
+            types.add(ScreeningConstants.CONTROL_WELL_SAMPLE_TYPE_PATTERN);
             types.add(ScreeningConstants.SIRNA_WELL_TYPE_CODE);
             types.add("CHAMBER");
             types.add("WELL");
@@ -117,7 +115,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             types.add("OLIGO");
             types.add("GENE");
             // -- microscopy sample
-            types.add(ScreeningConstants.IMAGE_SAMPLE_TYPE_CODE_MARKER);
+            types.add(ScreeningConstants.IMAGE_SAMPLE_TYPE_PATTERN);
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
@@ -131,8 +129,8 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
 
         } else if (entityKind == EntityKind.DATA_SET)
         {
-            types.add(ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE);
-            types.add(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_PLUGIN_TYPE_CODE);
+            types.add(ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
+            types.add(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN);
         }
         return types;
     }
@@ -256,11 +254,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 final IEntityInformationHolderWithPermId entity)
         {
             String datasetTypeCode = entity.getEntityType().getCode();
-            if (datasetTypeCode.matches(ScreeningConstants.HCS_IMAGE_DATASET_PLUGIN_TYPE_CODE))
+            if (datasetTypeCode.matches(ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN))
             {
                 return createHCSImageDatasetTabItemFactory(entity);
             } else if (datasetTypeCode
-                    .matches(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_PLUGIN_TYPE_CODE))
+                    .matches(ScreeningConstants.MICROSCOPY_IMAGE_DATASET_TYPE_PATTERN))
             {
                 return createMicroscopyImageDatasetTabItemFactory(entity);
             } else
@@ -365,14 +363,14 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
                 final IEntityInformationHolderWithPermId entity)
         {
             String sampleTypeCode = entity.getEntityType().getCode();
-            if (sampleTypeCode.matches(ScreeningConstants.PLATE_PLUGIN_TYPE_CODE_WITH_WILDCARDS))
+            if (sampleTypeCode.matches(ScreeningConstants.HCS_PLATE_SAMPLE_TYPE_PATTERN))
             {
                 return createPlateViewer(entity);
             } else if (sampleTypeCode.equals(ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE))
             {
                 throw new UserFailureException("Cannot browse objects of the "
                         + ScreeningConstants.LIBRARY_PLUGIN_TYPE_CODE + " type.");
-            } else if (sampleTypeCode.matches(ScreeningConstants.IMAGE_SAMPLE_TYPE_CODE_MARKER))
+            } else if (sampleTypeCode.matches(ScreeningConstants.IMAGE_SAMPLE_TYPE_PATTERN))
             {
                 return createImageSampleViewer(entity, false);
             } else

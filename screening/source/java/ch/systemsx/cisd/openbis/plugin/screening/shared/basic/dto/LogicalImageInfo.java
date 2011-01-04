@@ -31,7 +31,7 @@ public class LogicalImageInfo implements ISerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private DatasetImagesReference datasetImagesReference;
+    private ImageDatasetEnrichedReference imageDataset;
 
     private List<ImageChannelStack> channelStacks;
 
@@ -41,26 +41,26 @@ public class LogicalImageInfo implements ISerializable
     {
     }
 
-    public LogicalImageInfo(DatasetImagesReference datasetImagesReference,
+    public LogicalImageInfo(ImageDatasetEnrichedReference imageDataset,
             List<ImageChannelStack> channelStacks)
     {
-        this.datasetImagesReference = datasetImagesReference;
+        this.imageDataset = imageDataset;
         this.channelStacks = channelStacks;
     }
 
-    public DatasetImagesReference getDatasetImagesReference()
+    public ImageDatasetEnrichedReference getImageDataset()
     {
-        return datasetImagesReference;
+        return imageDataset;
     }
 
     public ImageDatasetParameters getImageParameters()
     {
-        return datasetImagesReference.getImageParameters();
+        return imageDataset.getImageDatasetParameters();
     }
 
-    public DatasetReference getDatasetReference()
+    public String getExperimentPermId()
     {
-        return datasetImagesReference.getDatasetReference();
+        return imageDataset.getImageDataset().getDatasetReference().getExperimentPermId();
     }
 
     public List<ImageChannelStack> getChannelStacks()

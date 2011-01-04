@@ -71,6 +71,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -166,6 +167,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return PlateContentLoader.getImageDatasetInfo(session, businessObjectFactory, datasetCode,
                 datastoreCode, wellLocationOrNull);
+    }
+
+    public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
+            String datasetCode, String datastoreCode)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader.getImageDatasetReference(session, businessObjectFactory,
+                datasetCode, datastoreCode);
     }
 
     public ImageSampleContent getImageDatasetInfosForSample(String sessionToken, TechId sampleId,
@@ -308,5 +317,4 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         return MINOR_VERSION;
     }
-
 }

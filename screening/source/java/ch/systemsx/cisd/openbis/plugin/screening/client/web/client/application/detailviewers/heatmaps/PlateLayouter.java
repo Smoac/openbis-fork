@@ -37,9 +37,10 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.IRealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.LabeledItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleModelComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.LayoutUtils;
@@ -48,11 +49,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.dto.WellData;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.heatmaps.dto.Color;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.SimpleModelComboBox;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.SimpleModelComboBox.SimpleComboboxItem;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.PlateUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.FeatureVectorDataset;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
 
@@ -63,13 +62,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
  */
 public class PlateLayouter
 {
-    /** @return widget with plate visualization - all the wells and possibility to browse images. */
+    /**
+     * Visualization of one image dataset. Note that image overlays will not be shown.
+     * 
+     * @return widget with plate visualization - all the wells and possibility to browse images.
+     */
     public static Widget createVisualization(PlateImages plateImages,
             ScreeningViewContext viewContext)
     {
         PlateLayouter plateLayouter =
                 new PlateLayouter(viewContext, plateImages.getPlateMetadata());
-        plateLayouter.changeDisplayedImageDataset(plateImages.getImagesDataset());
+        ImageDatasetEnrichedReference imageDataset =
+                new ImageDatasetEnrichedReference(plateImages.getImagesDataset());
+        plateLayouter.changeDisplayedImageDataset(imageDataset);
         return plateLayouter.getView();
     }
 
@@ -149,7 +154,7 @@ public class PlateLayouter
     }
 
     /** changes the image dataset from which images on the well detail view are displayed */
-    public void changeDisplayedImageDataset(DatasetImagesReference newImageDatasetOrNull)
+    public void changeDisplayedImageDataset(ImageDatasetEnrichedReference newImageDatasetOrNull)
     {
         this.model.setImageDataset(newImageDatasetOrNull);
     }
@@ -325,7 +330,7 @@ public class PlateLayouter
                 public void handleEvent(BaseEvent ce)
                 {
                     IScreeningClientServiceAsync service = screeningViewContext.getService();
-                    DatasetImagesReference dataset = model.tryGetImageDataset();
+                    ImageDatasetEnrichedReference dataset = model.tryGetImageDataset();
                     if (dataset == null)
                     {
                         WellContentDialog.showContentDialog(wellData, null, screeningViewContext);
@@ -335,16 +340,18 @@ public class PlateLayouter
                         // image transformer factory has changed. For the image URL the
                         // signature of the factory is needed to distinguish them. This is important
                         // because Web browser caches images.
-                        service.getPlateContentForDataset(new TechId(dataset.getDatasetId()),
-                                new AbstractAsyncCallback<PlateImages>(screeningViewContext)
+                        service.getImageDatasetReference(dataset.getImageDataset()
+                                .getDatasetReference(),
+                                new AbstractAsyncCallback<ImageDatasetEnrichedReference>(
+                                        screeningViewContext)
                                     {
                                         @Override
-                                        protected void process(PlateImages plateContent)
+                                        protected void process(
+                                                ImageDatasetEnrichedReference refreshedDataset)
                                         {
-                                            DatasetImagesReference ds =
-                                                    plateContent.getImagesDataset();
-                                            WellContentDialog.showContentDialog(wellData, ds,
-                                                    screeningViewContext);
+                                            model.setImageDataset(refreshedDataset);
+                                            WellContentDialog.showContentDialog(wellData,
+                                                    refreshedDataset, screeningViewContext);
                                         }
                                     });
                     }
@@ -364,15 +371,15 @@ public class PlateLayouter
     private static SimpleModelComboBox<Integer> createHeatmapKindComboBox(
             final HeatmapPresenter presenter, IMessageProvider messageProvider)
     {
-        List<SimpleComboboxItem<Integer>> items = createHeatmapKindModel(null);
+        List<LabeledItem<Integer>> items = createHeatmapKindModel(null);
         final SimpleModelComboBox<Integer> chooser =
                 new SimpleModelComboBox<Integer>(messageProvider, items,
                         HEATMAP_KIND_COMBOBOX_CHOOSER_WIDTH_PX);
-        chooser.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<SimpleComboboxItem<Integer>>>()
+        chooser.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<LabeledItem<Integer>>>()
             {
                 @Override
                 public void selectionChanged(
-                        SelectionChangedEvent<SimpleComboValue<SimpleComboboxItem<Integer>>> se)
+                        SelectionChangedEvent<SimpleComboValue<LabeledItem<Integer>>> se)
                 {
                     Integer value = SimpleModelComboBox.getChosenItem(se);
                     if (value == null)
@@ -390,24 +397,24 @@ public class PlateLayouter
     private static void updateHeatmapKindComboBox(SimpleModelComboBox<Integer> chooser,
             List<String> featureLabelsOrNull)
     {
-        List<SimpleComboboxItem<Integer>> items = createHeatmapKindModel(featureLabelsOrNull);
+        List<LabeledItem<Integer>> items = createHeatmapKindModel(featureLabelsOrNull);
         chooser.removeAll();
         chooser.add(items);
-        GuiUtils.autoselect(chooser, false);
+        GWTUtils.autoselect(chooser, false);
     }
 
-    private static List<SimpleComboboxItem<Integer>> createHeatmapKindModel(
+    private static List<LabeledItem<Integer>> createHeatmapKindModel(
             List<String> featureLabelsOrNull)
     {
-        List<SimpleComboboxItem<Integer>> items = new ArrayList<SimpleComboboxItem<Integer>>();
-        items.add(new SimpleComboboxItem<Integer>(null, METADATA_HEATMAP_KIND_MSG));
+        List<LabeledItem<Integer>> items = new ArrayList<LabeledItem<Integer>>();
+        items.add(new LabeledItem<Integer>(null, METADATA_HEATMAP_KIND_MSG));
         if (featureLabelsOrNull != null)
         {
             int i = 0;
             for (String featureLabel : featureLabelsOrNull)
             {
                 String label = FEATURE_HEATMAP_KIND_PREFIX_MSG + featureLabel;
-                items.add(new SimpleComboboxItem<Integer>(i, label));
+                items.add(new LabeledItem<Integer>(i, label));
                 i++;
             }
         }

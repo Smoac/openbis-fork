@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellContentValidator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.authorization.WellSearchCriteriaPredicate;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -99,6 +100,12 @@ public interface IScreeningServer extends IServer
     public LogicalImageInfo getImageDatasetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull);
+
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String datasetCode,
+            String datastoreCode);
 
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)

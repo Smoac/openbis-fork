@@ -48,8 +48,8 @@ import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDssServiceRpc;
-import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreen
 import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
@@ -749,7 +750,8 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private boolean isImageDataset(ExternalData dataset)
     {
-        return dataset.getDataSetType().getCode().equals(ScreeningConstants.HCS_IMAGE_DATASET_TYPE);
+        return ScreeningUtils.isTypeMatching(dataset,
+                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
     }
 
     private List<ImgFeatureDefDTO> getFeatureDefinitions(IDatasetIdentifier identifier)
