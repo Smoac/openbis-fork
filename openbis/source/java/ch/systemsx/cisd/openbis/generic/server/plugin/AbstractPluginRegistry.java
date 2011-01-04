@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.plugin;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -44,9 +41,6 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
     private final Logger operationLog;
 
     private final WildcardSupportingPluginMap<P> pluginMap = new WildcardSupportingPluginMap<P>();
-
-    private final Map<EntityKindAndTypeCode, P> plugins =
-            new LinkedHashMap<EntityKindAndTypeCode, P>();
 
     private P genericServerPlugin;
 
@@ -127,7 +121,8 @@ abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFa
         assert entityKind != null : "Unspecified entity kind.";
         assert entityType != null : "Unspecified entity type.";
 
-        P serverPlugin = plugins.get(new EntityKindAndTypeCode(entityKind, entityType.getCode()));
+        P serverPlugin =
+                pluginMap.tryPlugin(new EntityKindAndTypeCode(entityKind, entityType.getCode()));
         return serverPlugin == null ? genericServerPlugin : serverPlugin;
     }
 
