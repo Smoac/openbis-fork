@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
@@ -161,12 +162,21 @@ public class ProjectGrid extends TypedTableGrid<Project>
     }
 
     @Override
+    protected String translateColumnIdToDictionaryKey(String columnID)
+    {
+        return columnID.toLowerCase();
+    }
+    
+    @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<Project>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<TableModelRowWithObject<Project>> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<Project>> schema =
+                super.createColumnsDefinition();
         schema.setGridCellRendererFor(ProjectGridColumnIDs.CODE, createInternalLinkCellRenderer());
         schema.setGridCellRendererFor(ProjectGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
+        schema.setGridCellRendererFor(ProjectGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
         return schema;
     }
 
