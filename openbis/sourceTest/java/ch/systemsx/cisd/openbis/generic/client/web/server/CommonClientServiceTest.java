@@ -266,10 +266,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final Project project2 = new Project();
         project1.setIdentifier("p2");
         List<Project> entities = Arrays.asList(project1, project2);
-        prepareListEntities2(entities, DefaultResultSetConfig.<String, TableModelRowWithObject<Project>>createFetchAll());
+        DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria =
+                DefaultResultSetConfig.<String, TableModelRowWithObject<Project>> createFetchAll();
+        prepareListEntities2(entities, criteria);
 
-        final DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria =
-            DefaultResultSetConfig.createFetchAll();
         final TypedTableResultSet<Project> resultSet = commonClientService.listProjects(criteria);
         assertEqualEntities2(entities, resultSet);
         context.assertIsSatisfied();

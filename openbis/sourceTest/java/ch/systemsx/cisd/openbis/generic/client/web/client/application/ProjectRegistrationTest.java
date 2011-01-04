@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.ProjectColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.CheckProjectTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.FillProjectRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ProjectGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -43,8 +43,8 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.PROJECT_MENU_BROWSE));
         final CheckProjectTable table = new CheckProjectTable();
-        table.expectedRow(new Row().withCell(ProjectColDefKind.CODE.id(), PROJECT_CODE_HER_MAJESTY)
-                .withCell(ProjectColDefKind.DESCRIPTION.id(), DESCRIPTION_PROJECT_007));
+        table.expectedRow(new Row().withCell(ProjectGridColumnIDs.CODE, PROJECT_CODE_HER_MAJESTY)
+                .withCell(ProjectGridColumnIDs.DESCRIPTION, DESCRIPTION_PROJECT_007));
         remoteConsole.prepare(table.expectedSize(5));
 
         launchTest();
