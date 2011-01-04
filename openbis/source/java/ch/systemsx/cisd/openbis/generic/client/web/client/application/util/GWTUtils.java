@@ -192,6 +192,32 @@ public final class GWTUtils
     }
 
     /**
+     * Selects first element of the specified combobox if nothing was selected before.
+     */
+    public static <T extends ModelData> void autoselect(ComboBox<T> combo)
+    {
+        autoselect(combo, true);
+    }
+
+    /**
+     * Selects first element of the specified combobox.
+     * 
+     * @onlyIfEmpty if true nothing is done if something is already selected
+     */
+    public static <T extends ModelData> void autoselect(ComboBox<T> combo, boolean onlyIfEmpty)
+    {
+        if (onlyIfEmpty && combo.getValue() != null)
+        {
+            return;
+        }
+        List<T> models = combo.getStore().getModels();
+        if (models.size() > 0)
+        {
+            combo.setValue(models.get(0));
+        }
+    }
+
+    /**
      * Returns true if given <var>value</var> is in given <var>comboBox</var> list.
      */
     public final static <T extends ModelData> boolean isPropertyNotInList(
