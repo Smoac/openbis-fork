@@ -145,7 +145,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             // openbis.
             // CR, 2010-08-30, LMS-1706, Logging
             StringBuilder sb = new StringBuilder();
-            sb.append("Could not create a servlet session since no existing servlet session is available, " 
+            sb.append("Could not create a servlet session since no existing servlet session is available, "
                     + "and the openBIS session ID was not provided as a parameter:");
             appendRequestParameters(request, sb);
             appendServletSessionTimeout(sb);
@@ -305,22 +305,18 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     protected final File createDataSetRootDirectory(String dataSetCode, HttpSession session)
     {
-        DatabaseInstance databaseInstance = getDatabaseInstance(session);
-        File storeDir = applicationContext.getConfigParameters().getStorePath();
-        String databaseUuid = databaseInstance.getUuid();
+        return DatasetLocationUtil.getDatasetLocationPathCheckingIfExists(dataSetCode,
+                getDatabaseInstance(session), getStoreRootPath());
+    }
 
-        File dataSetRootDirectory =
-                DatasetLocationUtil.getDatasetLocationPath(storeDir, dataSetCode, databaseUuid);
-        if (dataSetRootDirectory.exists() == false)
-        {
-            throw new UserFailureException("Data set '" + dataSetCode + "' not found in the store.");
-        }
-        return dataSetRootDirectory;
+    protected final File getStoreRootPath()
+    {
+        return applicationContext.getConfigParameters().getStorePath();
     }
 
     // ---
 
-    private DatabaseInstance getDatabaseInstance(HttpSession session)
+    protected final DatabaseInstance getDatabaseInstance(HttpSession session)
     {
         DatabaseInstance databaseInstance =
                 (DatabaseInstance) session.getAttribute(DATABASE_INSTANCE_SESSION_KEY);

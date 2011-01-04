@@ -18,13 +18,34 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * @author Tomasz Pylak
  */
 public class DatasetLocationUtil
 {
+    /**
+     * Creates a location where a dataset can be found in a specified base directory.
+     * 
+     * @throws UserFailureException if the dataset directory does not exist.
+     */
+    public static File getDatasetLocationPathCheckingIfExists(String dataSetCode,
+            DatabaseInstance databaseInstance, File storeDir)
+    {
+        String databaseUuid = databaseInstance.getUuid();
+
+        File dataSetRootDirectory =
+                DatasetLocationUtil.getDatasetLocationPath(storeDir, dataSetCode, databaseUuid);
+        if (dataSetRootDirectory.exists() == false)
+        {
+            throw new UserFailureException("Data set '" + dataSetCode + "' not found in the store.");
+        }
+        return dataSetRootDirectory;
+    }
+
     /** Creates a location where a dataset can be found in a specified base directory. */
     public static File getDatasetLocationPath(final File baseDir, String dataSetCode,
             final String instanceUUID)
