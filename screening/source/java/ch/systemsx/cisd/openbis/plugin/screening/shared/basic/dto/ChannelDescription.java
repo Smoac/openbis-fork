@@ -52,7 +52,7 @@ public class ChannelDescription implements ISerializable
         {
             return null;
         }
-        return name.toUpperCase().replaceAll("[^A-Z0-9]", "_");
+        return name.toUpperCase().replaceAll("[^A-Z0-9-]", "_");
     }
 
     public ChannelDescription(String code, String label)

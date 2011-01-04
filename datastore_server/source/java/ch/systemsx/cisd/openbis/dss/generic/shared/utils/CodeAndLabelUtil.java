@@ -55,14 +55,14 @@ public class CodeAndLabelUtil
 
     /**
      * Normalizes the specified code. That is lower-case characters are turned to upper case and any
-     * symbol which isn't from A-Z or 0-9 is replaced by an underscore character.
+     * symbol which isn't from A-Z, 0-9 or '-' is replaced by an underscore character.
      */
     public static String normalize(String code)
     {
         StringBuilder builder = new StringBuilder(code.toUpperCase().trim());
         for (int i = 0, n = builder.length(); i < n; i++)
         {
-            if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".indexOf(builder.charAt(i)) < 0)
+            if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-".indexOf(builder.charAt(i)) < 0)
             {
                 builder.setCharAt(i, '_');
             }
