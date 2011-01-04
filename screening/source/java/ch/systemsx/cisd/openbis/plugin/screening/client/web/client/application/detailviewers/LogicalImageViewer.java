@@ -57,7 +57,7 @@ public class LogicalImageViewer
 
     private static final int ONE_IMAGE_HEIGHT_PX = 120;
 
-    private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 70;
+    private static final int CHANNEL_SPLITER_AND_LABEL_HEIGHT_PX = 90;
 
     // ----------------
 
@@ -114,6 +114,11 @@ public class LogicalImageViewer
         final LayoutContainer container = new LayoutContainer();
         container.add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
         container.setLayout(new RowLayout());
+
+        // We have set the height explicitly here because the viewer shows images which have zero
+        // height before they are loaded. This prevents us from calculating the reasonable height
+        // for the dialog. Later on we set the height to null to avoid cutting images if the
+        // calculation was not precise.
         container.setHeight(getSeriesImageWidgetHeight());
 
         // loads the channel stacks asynchroniously, when done replaces the "Loading..." message
@@ -132,6 +137,7 @@ public class LogicalImageViewer
                             if (channelStackImages.size() > 0)
                             {
                                 container.add(createSeriesImageWidget(channelStackImages));
+                                container.setHeight(null);
                             } else
                             {
                                 container.add(new Text(NO_IMAGES_AVAILABLE_MSG));
