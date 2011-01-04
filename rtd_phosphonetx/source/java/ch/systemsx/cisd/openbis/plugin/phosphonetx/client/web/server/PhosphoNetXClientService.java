@@ -33,6 +33,7 @@ import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
@@ -84,7 +85,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     private static final String CACHE_VERSION = "1"; // Sprint S97
     
     @Resource(name = ResourceNames.PHOSPHONETX_PLUGIN_SERVER)
-    private IPhosphoNetXServer server;
+    @Private IPhosphoNetXServer server;
 
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
     private IProteomicsDataServiceInternal proteomicsDataService;

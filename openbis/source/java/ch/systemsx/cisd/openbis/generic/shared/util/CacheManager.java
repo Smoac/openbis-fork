@@ -105,7 +105,7 @@ public class CacheManager implements ICacheManager
     }
 
     private static final int DAY = 24 * 60 * 60 * 1000;
-    @Private static final String CACHE_FOLDER_KEY = "cache-folder";
+    @Private public static final String CACHE_FOLDER_KEY = "cache-folder";
     private static final String CACHE_FOLDER_DEFAULT_VALUE = "cache";
     @Private static final String MINIMUM_FREE_DISK_SPACE_KEY = "minimum-free-disk-space-in-MB";
     private static final int MINIMUM_FREE_DISK_SPACE_DEFAULT_VALUE = 1024;

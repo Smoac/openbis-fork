@@ -76,7 +76,7 @@ public class WebClientConfigurationProvider
         init(properties);
     }
 
-    WebClientConfigurationProvider(Properties properties)
+    public WebClientConfigurationProvider(Properties properties)
     {
         init(properties);
     }

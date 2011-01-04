@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -85,7 +86,7 @@ public abstract class AbstractClientService implements IClientService,
             AbstractClientService.class);
 
     @Resource(name = "request-context-provider")
-    private IRequestContextProvider requestContextProvider;
+    @Private public IRequestContextProvider requestContextProvider;
 
     @Resource(name = "common-service")
     protected ICommonClientService commonClientService;
@@ -106,7 +107,7 @@ public abstract class AbstractClientService implements IClientService,
     private String onlineHelpSpecificPageTemplate;
 
     @Resource(name = "web-client-configuration-provider")
-    private WebClientConfigurationProvider webClientConfigurationProvider;
+    @Private public WebClientConfigurationProvider webClientConfigurationProvider;
 
     private int maxResults;
 
