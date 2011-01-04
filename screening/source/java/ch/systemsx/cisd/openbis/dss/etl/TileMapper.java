@@ -63,8 +63,8 @@ class TileMapper
         if (rows == null || rows.length != geometry.getRows())
         {
             throw new IllegalArgumentException(String.format(
-                    "Mapping does not match geometry. Number of rows expected: %s, but was: %s",
-                    geometry.getRows(), rows));
+                    "Mapping does not match geometry. Number of rows expected: %d, but was: %d",
+                    geometry.getRows(), rows == null ? "null" : rows.length));
         }
         for (int r = 0; r < rows.length; r++)
         {
@@ -72,10 +72,9 @@ class TileMapper
             if (columns == null || columns.length != geometry.getColumns())
             {
                 throw new IllegalArgumentException(
-                        String
-                                .format(
-                                        "Mapping does not match geometry. Number of columns expected: %s, but was: %s",
-                                        geometry.getColumns(), columns));
+                        String.format(
+                                "Mapping does not match geometry. Number of columns expected: %s, but was: %s",
+                                geometry.getColumns(), columns == null ? "null" : columns.length));
             }
             for (int c = 0; c < columns.length; c++)
             {
