@@ -63,11 +63,18 @@ public class ChannelComboBox extends SimpleComboBox<String>
     /**
      * Creates {@link ChannelComboBox} with initial list of values and selects given initial value.
      */
-    public ChannelComboBox(List<String> names, IDefaultChannelState defaultChannelState)
+    public ChannelComboBox(List<String> names, IDefaultChannelState defaultChannelState,
+            String selectedChannelOrNull)
     {
         this(defaultChannelState);
         addUniqueCodes(names);
-        autoselect();
+        if (selectedChannelOrNull == null)
+        {
+            autoselect();
+        } else
+        {
+            setSimpleValue(selectedChannelOrNull);
+        }
     }
 
     /**

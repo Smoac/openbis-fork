@@ -28,7 +28,6 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -131,12 +130,7 @@ class ChannelChooser
 
     private void addViewer(LayoutContainer container, IDefaultChannelState defaultChannelState)
     {
-        List<DatasetImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
-        if (overlayDatasets.size() > 0)
-        {
-            container.add(createOverlayChannelsChooser(overlayDatasets, container));
-        }
-
+        // basic channels
         List<String> channels = basicImage.getChannelsCodes();
         if (channels.size() > 1)
         {
@@ -144,6 +138,13 @@ class ChannelChooser
                     createBasicChannelChooser(channels, defaultChannelState, container);
             container.add(channelChooserWithLabel);
         }
+        // overlays
+        List<DatasetImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
+        if (overlayDatasets.size() > 0)
+        {
+            container.add(createOverlayChannelsChooser(overlayDatasets, container));
+        }
+        // images
         container.add(imageContainer);
 
         updateState(container);
@@ -156,7 +157,6 @@ class ChannelChooser
                 createOverlayChannelItems(overlayDatasets);
         CheckBoxGroupWithModel<ImageDatasetChannel> checkBoxGroup =
                 new CheckBoxGroupWithModel<ImageDatasetChannel>(overlayChannelItems);
-        checkBoxGroup.setFieldLabel(OVERLAYS_MSG);
         checkBoxGroup.addListener(new CheckBoxGroupListner<ImageDatasetChannel>()
             {
                 public void onChange(Set<ImageDatasetChannel> selected)
@@ -165,7 +165,7 @@ class ChannelChooser
                     updateState(container);
                 }
             });
-        return checkBoxGroup;
+        return GuiUtils.withLabel(checkBoxGroup, OVERLAYS_MSG);
     }
 
     private static List<LabeledItem<ImageDatasetChannel>> createOverlayChannelItems(
@@ -207,8 +207,8 @@ class ChannelChooser
     private Widget createBasicChannelChooser(List<String> channels,
             final IDefaultChannelState defaultChannelState, final LayoutContainer container)
     {
-        ComboBox<SimpleComboValue<String>> channelChooser =
-                new ChannelComboBox(channels, defaultChannelState);
+        ChannelComboBox channelChooser =
+                new ChannelComboBox(channels, defaultChannelState, basicImageChannelCode);
         channelChooser
                 .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
                     {
