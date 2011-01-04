@@ -147,7 +147,6 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     public void define(NewExternalData data, SamplePE sample, SourceType sourceType)
     {
         assert sample != null : "Undefined sample.";
-        assert data.getParentDataSetCodes() == null || data.getParentDataSetCodes().isEmpty();
 
         final DataStorePE dataStore = define(data, sourceType);
         final ExperimentPE experiment = sample.getExperiment();
