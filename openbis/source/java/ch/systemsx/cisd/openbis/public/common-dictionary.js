@@ -107,6 +107,11 @@ var common = {
   
   tooltip_vocabulary_managed_internally: "This operation is not available for a vocabulary that is managed internally.",
   
+  export_all_columns: "All Columns",
+  export_visible_columns: "Visible Columns",
+	tooltip_export_all_columns: "Export the table with all (visible and hidden) columns to an Excel file",
+	tooltip_export_visible_columns: "Export the table with visible columns to an Excel file",  
+  
   //
   // LoginWidget
   //

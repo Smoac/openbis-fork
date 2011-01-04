@@ -23,10 +23,14 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.LoadEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
+import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
@@ -47,11 +51,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 public final class BrowserGridPagingToolBar extends PagingToolBar
 {
     // @Private
-    public static final String REFRESH_BUTTON_ID =
-            GenericConstants.ID_PREFIX + "paged-grid-refresh-button";
+    public static final String REFRESH_BUTTON_ID = GenericConstants.ID_PREFIX
+            + "paged-grid-refresh-button";
 
-    public static final String CONFIG_BUTTON_ID =
-            GenericConstants.ID_PREFIX + "paged-grid-config-button";
+    public static final String CONFIG_BUTTON_ID = GenericConstants.ID_PREFIX
+            + "paged-grid-config-button";
 
     private final IViewContext<?> messageProvider;
 
@@ -196,12 +200,11 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
             button.setEnabled(isEnabled);
             if (isEnabled)
             {
-                GWTUtils
-                        .setToolTip(button, messageProvider.getMessage(Dict.TOOLTIP_CONFIG_ENABLED));
+                GWTUtils.setToolTip(button, messageProvider.getMessage(Dict.TOOLTIP_CONFIG_ENABLED));
             } else
             {
-                GWTUtils.setToolTip(button, messageProvider
-                        .getMessage(Dict.TOOLTIP_CONFIG_DISABLED));
+                GWTUtils.setToolTip(button,
+                        messageProvider.getMessage(Dict.TOOLTIP_CONFIG_DISABLED));
             }
         }
     }
@@ -217,12 +220,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
             refreshButton.setEnabled(isEnabled);
             if (isEnabled)
             {
-                GWTUtils.setToolTip(refreshButton, messageProvider
-                        .getMessage(Dict.TOOLTIP_REFRESH_ENABLED));
+                GWTUtils.setToolTip(refreshButton,
+                        messageProvider.getMessage(Dict.TOOLTIP_REFRESH_ENABLED));
             } else
             {
-                GWTUtils.setToolTip(refreshButton, messageProvider
-                        .getMessage(Dict.TOOLTIP_REFRESH_DISABLED));
+                GWTUtils.setToolTip(refreshButton,
+                        messageProvider.getMessage(Dict.TOOLTIP_REFRESH_DISABLED));
             }
         }
     }
@@ -231,9 +234,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     {
         if (exportButton.isEnabled() == false)
         {
-            exportButton.enable();
-            String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_ENABLED);
-            GWTUtils.setToolTip(exportButton, title);
+            exportButton.enable(); // tooltip is updated automatically
         }
     }
 
@@ -271,17 +272,93 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     public static Button createExportButton(IMessageProvider messageProvider,
             final IBrowserGridActionInvoker invoker)
     {
-        final Button button =
-                new Button(messageProvider.getMessage(Dict.BUTTON_EXPORT_TABLE),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    invoker.export();
-                                }
-                            });
+        final Button button = new ExportButtonMenu(messageProvider, invoker);
         return button;
+    }
+
+    private static class ExportButtonMenu extends SplitButton
+    {
+        private final IMessageProvider messageProvider;
+
+        private final CheckMenuItem exportVisibleColumnsMenuItem;
+
+        private final CheckMenuItem exportAllColumnsMenuItem;
+
+        public ExportButtonMenu(final IMessageProvider messageProvider,
+                final IBrowserGridActionInvoker invoker)
+        {
+            super(messageProvider.getMessage(Dict.BUTTON_EXPORT_TABLE));
+            this.messageProvider = messageProvider;
+
+            final Menu exportMenu = new Menu();
+            exportVisibleColumnsMenuItem =
+                    new CheckMenuItem(messageProvider.getMessage(Dict.EXPORT_VISIBLE_COLUMNS));
+            exportAllColumnsMenuItem =
+                    new CheckMenuItem(messageProvider.getMessage(Dict.EXPORT_ALL_COLUMNS));
+
+            exportVisibleColumnsMenuItem.setToolTip(messageProvider
+                    .getMessage(Dict.TOOLTIP_EXPORT_VISIBLE_COLUMNS));
+            exportAllColumnsMenuItem.setToolTip(messageProvider
+                    .getMessage(Dict.TOOLTIP_EXPORT_ALL_COLUMNS));
+
+            exportVisibleColumnsMenuItem.setGroup("exportType");
+            exportAllColumnsMenuItem.setGroup("exportType");
+
+            exportMenu.add(exportVisibleColumnsMenuItem);
+            exportMenu.add(exportAllColumnsMenuItem);
+
+            setMenu(exportMenu);
+
+            addSelectionListener(new SelectionListener<ButtonEvent>()
+                {
+                    @Override
+                    public void componentSelected(ButtonEvent be)
+                    {
+                        invoker.export(isExportAllColumns());
+                    }
+                });
+
+            SelectionListener<MenuEvent> menuEventListener = new SelectionListener<MenuEvent>()
+                {
+                    @Override
+                    public void componentSelected(MenuEvent ce)
+                    {
+                        boolean isExportAllColumns = isExportAllColumns();
+                        invoker.export(isExportAllColumns);
+                        setText(messageProvider.getMessage(Dict.BUTTON_EXPORT_TABLE)
+                                + (isExportAllColumns ? " All" : ""));
+                        updateTooltip();
+                    }
+
+                };
+            exportVisibleColumnsMenuItem.addSelectionListener(menuEventListener);
+            exportAllColumnsMenuItem.addSelectionListener(menuEventListener);
+
+            // select export visible columns by default
+            exportVisibleColumnsMenuItem.setChecked(true);
+        }
+
+        private boolean isExportAllColumns()
+        {
+            return exportAllColumnsMenuItem.isChecked();
+        }
+
+        private void updateTooltip()
+        {
+            String enabledButtonMessageKey =
+                    isExportAllColumns() ? Dict.TOOLTIP_EXPORT_ALL_COLUMNS
+                            : Dict.TOOLTIP_EXPORT_VISIBLE_COLUMNS;
+            String title = messageProvider.getMessage(enabledButtonMessageKey);
+            GWTUtils.setToolTip(this, title);
+        }
+
+        @Override
+        public void enable()
+        {
+            super.enable();
+            updateTooltip();
+        }
+
     }
 
     /**

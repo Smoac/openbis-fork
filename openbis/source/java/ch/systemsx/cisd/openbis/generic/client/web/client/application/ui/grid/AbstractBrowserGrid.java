@@ -825,9 +825,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final AbstractBrowserGrid<T, M> delegate = this;
         return new IBrowserGridActionInvoker()
             {
-                public void export()
+                public void export(boolean allColumns)
                 {
-                    delegate.export();
+                    delegate.export(allColumns);
                 }
 
                 public void refresh()
@@ -1396,10 +1396,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 new VoidAsyncCallback<Void>(viewContext));
     }
 
-    /** Export always deals with data from the previous refresh operation */
-    private void export()
+    /**
+     * Export always deals with data from the previous refresh operation
+     * 
+     * @param allColumns whether all columns should be exported
+     */
+    private void export(boolean allColumns)
     {
-        export(new ExportEntitiesCallback(viewContext));
+        export(allColumns, new ExportEntitiesCallback(viewContext));
     }
 
     /**
@@ -1424,19 +1428,27 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     // @Private - for tests
-    public final void export(final AbstractAsyncCallback<String> callback)
+    public final void export(boolean allColumns, final AbstractAsyncCallback<String> callback)
     {
-        final TableExportCriteria<T> exportCriteria = createTableExportCriteria();
+        final TableExportCriteria<T> exportCriteria = createTableExportCriteria(allColumns);
 
         prepareExportEntities(exportCriteria, callback);
     }
 
+    // for visible columns
     protected final TableExportCriteria<T> createTableExportCriteria()
+    {
+        return createTableExportCriteria(false);
+    }
+
+    protected final TableExportCriteria<T> createTableExportCriteria(boolean allColumns)
     {
         assert columnDefinitions != null : "refresh before exporting!";
         assert resultSetKeyOrNull != null : "refresh before exporting, resultSetKey is null!";
 
-        final List<IColumnDefinition<T>> columnDefs = getVisibleColumns(columnDefinitions);
+        final List<IColumnDefinition<T>> columnDefs =
+                allColumns ? new ArrayList<IColumnDefinition<T>>(columnDefinitions)
+                        : getVisibleColumns(columnDefinitions);
         SortInfo<T> sortInfo = getGridSortInfo();
         final TableExportCriteria<T> exportCriteria =
                 new TableExportCriteria<T>(resultSetKeyOrNull, sortInfo,

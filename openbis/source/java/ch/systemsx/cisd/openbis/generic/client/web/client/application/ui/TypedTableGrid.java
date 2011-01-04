@@ -92,15 +92,14 @@ public abstract class TypedTableGrid<T extends ISerializable>
             final IViewContext<ICommonClientServiceAsync> viewContext,
             final TypedTableGrid<E> browser)
     {
-        final List<TableModelRowWithObject<E>> selectedEntities =
-                browser.getSelectedBaseObjects();
+        final List<TableModelRowWithObject<E>> selectedEntities = browser.getSelectedBaseObjects();
         final TableExportCriteria<TableModelRowWithObject<E>> displayedEntities =
                 browser.createTableExportCriteria();
         if (selectedEntities.isEmpty())
         {
             // no entity selected - show datasets related to all displayed
             RelatedDataSetCriteria<E> relatedCriteria =
-                    RelatedDataSetCriteria.<E>createDisplayedEntities(displayedEntities);
+                    RelatedDataSetCriteria.<E> createDisplayedEntities(displayedEntities);
             ShowRelatedDatasetsDialog.showRelatedDatasetsTab(viewContext, relatedCriteria);
         } else
         {
@@ -109,7 +108,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
                     browser.getTotalCount()).show();
         }
     }
-    
+
     private final class CellListenerAndLinkGenerator implements ICellListenerAndLinkGenerator<T>
     {
         private final EntityKind entityKind;
@@ -238,7 +237,7 @@ public abstract class TypedTableGrid<T extends ISerializable>
         switch (dataType)
         {
             case CONTROLLEDVOCABULARY:
-                return new VocabularyTermStringCellRenderer(columnIndex); 
+                return new VocabularyTermStringCellRenderer(columnIndex);
             case HYPERLINK:
                 return LinkRenderer.createExternalLinkRenderer();
             case REAL:
@@ -259,7 +258,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
     protected void initializeModelCreation()
     {
         Set<String> visibleColumnIds = getIDsOfVisibleColumns();
-        List<IColumnDefinitionUI<TableModelRowWithObject<T>>> colDefinitions = createColDefinitions();
+        List<IColumnDefinitionUI<TableModelRowWithObject<T>>> colDefinitions =
+                createColDefinitions();
         visibleColDefinitions = new ArrayList<IColumnDefinitionUI<TableModelRowWithObject<T>>>();
         for (IColumnDefinitionUI<TableModelRowWithObject<T>> definition : colDefinitions)
         {

@@ -56,7 +56,7 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
         // we do not create view context earlier (e.g. in the class constructor), because we have to
         // wait until client is loaded and viewContext is available.
         IViewContext<ICommonClientServiceAsync> viewContext = getViewContext();
-        sampleBrowserGrid.export(new PrepareExportSamplesCallbackTest(viewContext));
+        sampleBrowserGrid.export(false, new PrepareExportSamplesCallbackTest(viewContext));
     }
 
     private IViewContext<ICommonClientServiceAsync> getViewContext()
