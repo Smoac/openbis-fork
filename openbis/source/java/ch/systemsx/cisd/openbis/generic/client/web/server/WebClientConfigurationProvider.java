@@ -55,6 +55,8 @@ public class WebClientConfigurationProvider
 
     private static final String DEFAULT_VIEW_MODE = "default-view-mode";
 
+    private static final ViewMode DEFAULT_VIEW_MODE_VALUE = ViewMode.NORMAL;
+
     private static final String MAX_VISIBLE_COLUMNS = "max-visible-columns";
 
     private static final int DEFAULT_MAX_VISIBLE_COLUMNS = 50;
@@ -70,6 +72,7 @@ public class WebClientConfigurationProvider
     {
         if (configurationFile.equals(CONFIGURATION_FILE_NOT_PROVIDED))
         {
+            initDefaultValues();
             return;
         }
         Properties properties = PropertyUtils.loadProperties(configurationFile);
@@ -79,6 +82,13 @@ public class WebClientConfigurationProvider
     public WebClientConfigurationProvider(Properties properties)
     {
         init(properties);
+    }
+
+    // sets default configuration values (to be used when configuration file is not specified)
+    private void initDefaultValues()
+    {
+        webClientConfiguration.setDefaultViewMode(DEFAULT_VIEW_MODE_VALUE);
+        webClientConfiguration.setMaxVisibleColumns(DEFAULT_MAX_VISIBLE_COLUMNS);
     }
 
     private void init(Properties properties)
@@ -167,7 +177,8 @@ public class WebClientConfigurationProvider
     private ViewMode extractDefaultViewMode(Properties properties)
     {
         String viewMode =
-                PropertyUtils.getProperty(properties, DEFAULT_VIEW_MODE, ViewMode.NORMAL.name());
+                PropertyUtils.getProperty(properties, DEFAULT_VIEW_MODE,
+                        DEFAULT_VIEW_MODE_VALUE.name());
         try
         {
             return ViewMode.valueOf(viewMode.toUpperCase());
