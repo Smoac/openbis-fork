@@ -199,7 +199,7 @@ public class ImagingDatabaseHelper
 
     public static class ImagingChannelsMap
     {
-        private final Map<String/* channel code */, Long/* (tech id */> channelsMap;
+        private final Map<String/* channel code */, Long/* tech id */> channelsMap;
 
         public ImagingChannelsMap(Map<String, Long> channelsMap)
         {
