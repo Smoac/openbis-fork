@@ -92,7 +92,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 3;
+    public static final int MINOR_VERSION = 4;
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
