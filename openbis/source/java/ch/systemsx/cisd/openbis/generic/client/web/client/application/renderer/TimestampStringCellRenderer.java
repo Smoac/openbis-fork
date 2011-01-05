@@ -48,8 +48,14 @@ public class TimestampStringCellRenderer implements GridCellRenderer<BaseEntityM
             return originalValue;
         } else
         {
-            Date date = DateRenderer.DEFAULT_DATE_TIME_FORMAT.parse(originalValue);
-            return DateRenderer.renderDate(date);
+            try
+            {
+                Date date = DateRenderer.DEFAULT_DATE_TIME_FORMAT.parse(originalValue);
+                return DateRenderer.renderDate(date);
+            } catch (Exception ex)
+            {
+                return originalValue;
+            }
         }
     }
 }
