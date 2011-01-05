@@ -223,6 +223,7 @@ public abstract class DataSetRegistrationAlgorithm
             final StopWatch watch = new StopWatch();
             watch.start();
             NewExternalData data = createExternalData();
+            preRegistrationAction.execute(data.getCode(), incomingDataSetFile.getAbsolutePath());
             File dataFile =
                     getStorageProcessor().storeData(dataSetInformation, getTypeExtractor(),
                             getMailClient(), incomingDataSetFile,
@@ -247,7 +248,6 @@ public abstract class DataSetRegistrationAlgorithm
             {
                 errorMessageTemplate =
                         DataSetRegistrationAlgorithm.DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
-                preRegistrationAction.execute(data.getCode(), absolutePath);
                 plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
                 postRegistrationAction.execute(data.getCode(), absolutePath);
                 clean();
