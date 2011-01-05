@@ -79,13 +79,16 @@ public class DetailedSearchCriteria implements ISerializable
     public String toString()
     {
         final StringBuilder sb = new StringBuilder();
-        for (final DetailedSearchCriterion element : getCriteria())
+        if (criteria != null)
         {
-            if (sb.length() > 0)
+            for (final DetailedSearchCriterion element : criteria)
             {
-                sb.append(" " + getConnection().name() + " ");
+                if (sb.length() > 0)
+                {
+                    sb.append(" " + getConnection().name() + " ");
+                }
+                sb.append(element);
             }
-            sb.append(element);
         }
         sb.append(" (" + (isUseWildcardSearchMode() ? "with" : "without") + " wildcards)");
         return sb.toString();

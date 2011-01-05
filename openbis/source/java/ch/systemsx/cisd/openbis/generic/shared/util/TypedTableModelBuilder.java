@@ -36,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
@@ -124,6 +126,36 @@ public class TypedTableModelBuilder<T extends ISerializable>
             return column;
         }
 
+        public void addColumnsForAssignedProperties(EntityType entityType)
+        {
+            addColumnsForAssignedProperties(groupKey, entityType);
+        }
+
+        public void addColumnsForAssignedProperties(String idPrefix, EntityType entityType)
+        {
+            List<? extends EntityTypePropertyType<?>> propertyTypes = entityType.getAssignedPropertyTypes();
+            for (EntityTypePropertyType<?> propertyType : propertyTypes)
+            {
+                addColumn(idPrefix, propertyType.getPropertyType());
+            }
+        }
+        
+        private IColumn addColumn(String idPrefix, PropertyType propertyType)
+        {
+            String label = propertyType.getLabel();
+            boolean internalNamespace = propertyType.isInternalNamespace();
+            String code =
+                    idPrefix + (internalNamespace ? "INTERN" : "USER") + "-"
+                            + propertyType.getSimpleCode();
+            DataTypeCode dataType = propertyType.getDataType().getCode();
+            IColumn column = column(code).withTitle(label).withDataType(dataType);
+            if (dataType == DataTypeCode.MATERIAL)
+            {
+                column.withEntityKind(EntityKind.MATERIAL);
+            }
+            return column;
+        }
+
         public void addProperties(Collection<IEntityProperty> properties)
         {
             addProperties(groupKey, properties);
@@ -134,19 +166,13 @@ public class TypedTableModelBuilder<T extends ISerializable>
             for (IEntityProperty property : properties)
             {
                 PropertyType propertyType = property.getPropertyType();
-                String label = propertyType.getLabel();
-                boolean internalNamespace = propertyType.isInternalNamespace();
-                String code =
-                        idPrefix + (internalNamespace ? "INTERN" : "USER") + "-"
-                                + propertyType.getSimpleCode();
-                IColumn column = column(code).withTitle(label);
+                IColumn column = addColumn(idPrefix, propertyType);
                 DataTypeCode dataType = propertyType.getDataType().getCode();
                 ISerializableComparable value;
                 switch (dataType)
                 {
                     case MATERIAL:
                         value = new MaterialTableCell(property.getMaterial());
-                        column.withEntityKind(EntityKind.MATERIAL);
                         break;
                     case CONTROLLEDVOCABULARY:
                         value = new VocabularyTermTableCell(property.getVocabularyTerm());
@@ -154,7 +180,7 @@ public class TypedTableModelBuilder<T extends ISerializable>
                     default:
                         value = DataTypeUtils.convertTo(dataType, property.tryGetAsString());
                 }
-                column.withDataType(dataType).addValue(value);
+                column.addValue(value);
             }
         }
     }

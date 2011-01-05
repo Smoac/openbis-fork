@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuil
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.MaterialBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PersonBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
 
 /**
  * 
@@ -60,6 +61,16 @@ public class SampleProviderTest extends AssertJUnit
     {
         context = new Mockery();
         server = context.mock(ICommonServer.class);
+        context.checking(new Expectations()
+            {
+                {
+                    one(server).listSampleTypes(SESSION_TOKEN);
+                    SampleTypeBuilder st1 = new SampleTypeBuilder().code("ALPHA");
+                    st1.propertyType("TEXT", "text", DataTypeCode.MULTILINE_VARCHAR);
+                    st1.propertyType("NUMBER", "number", DataTypeCode.REAL);
+                    will(returnValue(Arrays.asList(st1.getSampleType())));
+                }
+            });
     }
 
     @AfterMethod
@@ -95,21 +106,21 @@ public class SampleProviderTest extends AssertJUnit
                 + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
                 + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
                 + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
-                + "property-USER-NAME, property-USER-MY-MATERIAL, property-USER-NUMBER]",
+                + "property-USER-NUMBER, property-USER-NAME, property-USER-MY-MATERIAL, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
         assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
                 + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
-                + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, MATERIAL, REAL]",
+                + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, REAL, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
         assertEquals("[null, null, null, null, null, null, null, null, null, null, null, null, "
-                + "null, null, null, null, null, null, MATERIAL, null]",
+                + "null, null, null, null, null, null, null, MATERIAL, null]",
                 getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
-        assertEquals("[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , , , , , "
+        assertEquals("[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , , , , , , "
                 + "hello, WATER (FLUID), ]", rows.get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
-        assertEquals("[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , , , , , , 2.5]", rows.get(1)
+        assertEquals("[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , , , , 2.5, , , ]", rows.get(1)
                 .getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
@@ -144,22 +155,22 @@ public class SampleProviderTest extends AssertJUnit
                 + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
                 + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
                 + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
-                + "property-USER-NAME]", getHeaderIDs(tableModel).toString());
+                + "property-USER-NAME, property-USER-NUMBER, property-USER-TEXT]", getHeaderIDs(tableModel).toString());
         assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
                 + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
-                + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR]", getHeaderDataTypes(tableModel)
+                + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, REAL, MULTILINE_VARCHAR]", getHeaderDataTypes(tableModel)
                 .toString());
         assertEquals("[null, null, null, null, null, null, null, null, null, null, null, null, "
-                + "null, null, null, null, null, null]", getHeaderEntityKinds(tableModel)
+                + "null, null, null, null, null, null, null, null]", getHeaderEntityKinds(tableModel)
                 .toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
         assertEquals("[S1, S1, DB, , DB:/S1, ALPHA, yes, yes, Einstein, Albert, "
-                + "Thu Jan 01 01:00:04 CET 1970, , , , 123, http, /AB/CD, , hello]", rows.get(0)
+                + "Thu Jan 01 01:00:04 CET 1970, , , , 123, http, /AB/CD, , hello, , ]", rows.get(0)
                 .getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
         assertEquals("[S:2, 2, DB, MY-SPACE, DB:/MY-SPACE/S:2, BETA, no, no, , , EXP1, "
-                + "DB:/SPACE1/P1/EXP1, P1, , , /AB/CD\n/DE/FG\n, DB:/A/B, ]", rows.get(1)
+                + "DB:/SPACE1/P1/EXP1, P1, , , /AB/CD\n/DE/FG\n, DB:/A/B, , , ]", rows.get(1)
                 .getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();

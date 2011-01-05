@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.Collection;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
@@ -32,6 +33,20 @@ public interface IColumnGroup
      * Gets or creates a column with specified identifier.
      */
     public IColumn column(String id);
+
+    /**
+     * Adds for all assigned property types of the specified entity type a column. The group name is
+     * used as a prefix which combined with the property type code to determine the column id. The
+     * property type label is used as column title.
+     */
+    public void addColumnsForAssignedProperties(EntityType entityType);
+
+    /**
+     * Adds for all assigned property types of the specified entity type a column. The specified
+     * identifier prefix is used as a prefix which combined with the property type code to determine
+     * the column id. The property type label is used as column title.
+     */
+    public void addColumnsForAssignedProperties(String idPrefix, EntityType entityType);
     
     /**
      * Adds all specified properties. The group name is used as a prefix which combined with the property

@@ -37,12 +37,15 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridC
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.common.collections.IKeyExtractor;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
@@ -53,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
  */
 public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
 {
+    private static final String PROPERTIES_GROUP = "property-";
     private static final int MAX_PARENTS = 4;
     private final ListSampleDisplayCriteria2 criteria;
 
@@ -84,6 +88,7 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         builder.addColumn(SHOW_DETAILS_LINK_COLUMN_NAME).hideByDefault();
         builder.addColumn(PARENTS);
         builder.addColumn(CONTAINER_SAMPLE);
+        TableMap<String, SampleType> sampleTypes = getSampleTypes();
         for (Sample sample : samples)
         {
             builder.addRow(sample);
@@ -104,9 +109,27 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             builder.column(SHOW_DETAILS_LINK_COLUMN_NAME).addString(sample.getPermlink());
             builder.column(PARENTS).addString(getParents(sample));
             builder.column(CONTAINER_SAMPLE).addString(getContainer(sample));
-            builder.columnGroup("property-").addProperties(sample.getProperties());
+            SampleType sampleType = sampleTypes.tryGet(sample.getSampleType().getCode());
+            if (sampleType != null)
+            {
+                builder.columnGroup(PROPERTIES_GROUP).addColumnsForAssignedProperties(sampleType);
+            }
+            builder.columnGroup(PROPERTIES_GROUP).addProperties(sample.getProperties());
         }
         return builder.getModel();
+    }
+
+    protected TableMap<String, SampleType> getSampleTypes()
+    {
+        List<SampleType> sampleTypes = commonServer.listSampleTypes(sessionToken);
+        TableMap<String, SampleType> sampleTypMap = new TableMap<String, SampleType>(sampleTypes, new IKeyExtractor<String, SampleType>()
+            {
+                public String getKey(SampleType e)
+                {
+                    return e.getCode();
+                }
+            });
+        return sampleTypMap;
     }
 
     private String getParents(Sample sample)
