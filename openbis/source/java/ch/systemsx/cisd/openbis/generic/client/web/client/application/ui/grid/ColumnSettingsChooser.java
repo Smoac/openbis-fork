@@ -316,18 +316,17 @@ class ColumnSettingsChooser
                     public void onClick(ClickEvent event)
                     {
                         int counter = 0;
+                        boolean limitReached = false;
                         for (ColumnDataModel m : grid.getStore().getModels())
                         {
                             Record r = grid.getStore().getRecord(m);
                             if (counter == limit)
                             {
+                                limitReached = true;
                                 MessageBox.alert("Warning", limitExceededMsg, null);
-                                break;
-                            } else
-                            {
-                                r.set(selectable.columnName, select);
-                                counter++;
                             }
+                            r.set(selectable.columnName, limitReached ? !select : select);
+                            counter++;
                         }
                     }
                 });
