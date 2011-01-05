@@ -18,6 +18,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -53,9 +54,12 @@ class ColumnSettingsChooser
 
     private final int maxVisibleColumns;
 
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
     public ColumnSettingsChooser(AbstractColumnSettingsDataModelProvider columnDataModelProvider,
             IViewContext<ICommonClientServiceAsync> viewContext)
     {
+        this.viewContext = viewContext;
         this.columnDataModelProvider = columnDataModelProvider;
         this.maxVisibleColumns =
                 viewContext.getModel().getApplicationInfo().getWebClientConfiguration()
@@ -63,7 +67,7 @@ class ColumnSettingsChooser
 
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
-        CheckColumnConfig isVisibleColumn = createIsVisibleColumnConfig(viewContext);
+        CheckColumnConfig isVisibleColumn = createIsVisibleColumnConfig();
         CheckColumnConfig hasFilterColumn =
                 new CheckColumnConfig(ColumnDataModel.HAS_FILTER,
                         viewContext.getMessage(Dict.GRID_COLUMN_HAS_FILTER_HEADER), 75);
@@ -91,13 +95,17 @@ class ColumnSettingsChooser
         target.setFeedback(Feedback.INSERT);
     }
 
-    private String createLimitVisibleColumnsMsg(int limit)
+    private String createVisibleColumnsLimitExceededMsg(int limit)
     {
-        return "Limit of " + limit + " visible columns can't be exceeded.";
+        return viewContext.getMessage(Dict.VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG, limit);
     }
 
-    private CheckColumnConfig createIsVisibleColumnConfig(
-            IViewContext<ICommonClientServiceAsync> viewContext)
+    private String createVisibleColumnsLimitReachedMsg(int limit)
+    {
+        return viewContext.getMessage(Dict.VISIBLE_COLUMNS_LIMIT_REACHED_MSG, limit);
+    }
+
+    private CheckColumnConfig createIsVisibleColumnConfig()
     {
         return new CheckColumnConfig(ColumnDataModel.IS_VISIBLE,
                 viewContext.getMessage(Dict.GRID_IS_COLUMN_VISIBLE_HEADER), 55)
@@ -116,19 +124,30 @@ class ColumnSettingsChooser
                         ModelData m = grid.getStore().getAt(index);
                         Record r = grid.getStore().getRecord(m);
                         boolean b = (Boolean) m.get(getDataIndex());
+                        int counter = countVisible();
                         if (b == false)
                         {
-                            int counter = countVisible();
+                            if (counter == maxVisibleColumns - 1)
+                            {
+                                Info.display(
+                                        createVisibleColumnsLimitReachedMsg(maxVisibleColumns), "");
+                            }
                             if (counter >= maxVisibleColumns)
                             {
                                 MessageBox.alert("Warning",
-                                        createLimitVisibleColumnsMsg(maxVisibleColumns), null);
+                                        createVisibleColumnsLimitExceededMsg(maxVisibleColumns),
+                                        null);
                             } else
                             {
                                 r.set(getDataIndex(), !b);
                             }
                         } else
                         {
+                            if (counter == maxVisibleColumns + 1)
+                            {
+                                Info.display(
+                                        createVisibleColumnsLimitReachedMsg(maxVisibleColumns), "");
+                            }
                             r.set(getDataIndex(), !b);
                         }
                     }
@@ -246,7 +265,7 @@ class ColumnSettingsChooser
         {
             add(new LabelToolItem("Select:"));
             add(new WidgetComponent(createLink(Selectable.VISIBLE, true, maxVisibleColumns,
-                    createLimitVisibleColumnsMsg(maxVisibleColumns))));
+                    createVisibleColumnsLimitExceededMsg(maxVisibleColumns))));
             add(new SeparatorToolItem());
             add(new WidgetComponent(createLink(Selectable.VISIBLE, false)));
             add(new SeparatorToolItem());

@@ -808,6 +808,12 @@ public abstract class Dict
 
     public static final String TOO_MANY_VISIBLE_COLUMNS_MSG = "TOO_MANY_VISIBLE_COLUMNS_MSG";
 
+    public static final String VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG =
+            "VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG";
+
+    public static final String VISIBLE_COLUMNS_LIMIT_REACHED_MSG =
+            "VISIBLE_COLUMNS_LIMIT_REACHED_MSG";
+
     //
     // User Settings Dialog
     //

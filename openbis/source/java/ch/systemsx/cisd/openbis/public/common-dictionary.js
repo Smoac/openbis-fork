@@ -652,6 +652,8 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
   GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
   TOO_MANY_VISIBLE_COLUMNS_TITLE: "Too many columns visible",
   TOO_MANY_VISIBLE_COLUMNS_MSG: "Limit the number of visible columns to {0} (from {1}).",
+  VISIBLE_COLUMNS_LIMIT_REACHED_MSG: "Limit of {0} visible columns has been reached.",
+  VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG: "Limit of {0} visible columns can't be exceeded.",
   
   message_no_external_upload_service: "External upload service (CIFEX) has not been configured. Ask the administrator for more details.",
  
