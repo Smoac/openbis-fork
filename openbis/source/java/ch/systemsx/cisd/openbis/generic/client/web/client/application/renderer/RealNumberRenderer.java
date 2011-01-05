@@ -83,12 +83,12 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
             Grid<BaseEntityModel<?>> grid)
     {
-        String value = String.valueOf(model.get(property));
-        if (value == null)
+        Object obj = model.get(property);
+        if (obj == null)
         {
             return "";
         }
-        return render(value, realNumberFormatingParameters);
+        return render(obj.toString(), realNumberFormatingParameters);
     }
 
 }

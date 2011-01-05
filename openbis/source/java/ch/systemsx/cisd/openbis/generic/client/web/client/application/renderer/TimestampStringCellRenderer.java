@@ -41,7 +41,8 @@ public class TimestampStringCellRenderer implements GridCellRenderer<BaseEntityM
             int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
             Grid<BaseEntityModel<?>> grid)
     {
-        String originalValue = String.valueOf(model.get(property));
+        Object obj = model.get(property);
+        String originalValue = obj == null ? null : obj.toString();
         if (StringUtils.isBlank(originalValue))
         {
             return originalValue;
