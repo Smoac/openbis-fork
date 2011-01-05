@@ -376,6 +376,8 @@ public abstract class TypedTableGrid<T extends ISerializable>
         return true;
     }
 
+    boolean ignoreVisibleColumnsLimit = false;
+
     /**
      * Refreshes the browser if the grid display type ID has changed because this means a different
      * set of display settings. Thus column models and filters should be refreshed before data
@@ -384,8 +386,16 @@ public abstract class TypedTableGrid<T extends ISerializable>
     @Override
     protected void refresh()
     {
+        ignoreVisibleColumnsLimit = true; // WORKAROUND don't check limit of visible columns twice
         String gridDisplayTypeID = getGridDisplayTypeID();
         refresh(gridDisplayTypeID.equals(currentGridDisplayTypeID) == false);
+        ignoreVisibleColumnsLimit = false;
+    }
+
+    @Override
+    protected boolean isLimitVisibleColumnsEnabled()
+    {
+        return ignoreVisibleColumnsLimit == false;
     }
 
     @Override

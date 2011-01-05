@@ -1188,9 +1188,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private void changeColumnModel(ColumnModel columnModel)
     {
         fullColumnModel = columnModel;
+
         int maxVisibleColumns = getWebClientConfiguration().getMaxVisibleColumns();
         int visibleColumnsCount = fullColumnModel.getColumnCount(true);
-        if (visibleColumnsCount > maxVisibleColumns)
+        if (isLimitVisibleColumnsEnabled() && visibleColumnsCount > maxVisibleColumns)
         {
             limitVisibleColumns(maxVisibleColumns, visibleColumnsCount);
         } else
@@ -1209,6 +1210,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 columnModelOfVisible.addListener(Events.WidthChange, listener);
             }
         }
+    }
+
+    protected boolean isLimitVisibleColumnsEnabled()
+    {
+        return true;
     }
 
     private void limitVisibleColumns(int maxVisibleColumns, int visibleColumnsCount)
