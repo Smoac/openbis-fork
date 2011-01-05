@@ -57,20 +57,6 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
 
     private static final long serialVersionUID = 1L;
 
-    private static final String EMAIL_MESSAGE_TEMPLATE_LINE1 =
-            "Data set ${data-set} of experiment ${experiment} has been successfully processed.\n";
-
-    private static final String EMAIL_MESSAGE_TEMPLATE_LINE1_WITH_SAMPLE =
-            "Data set ${data-set} of experiment ${experiment} and sample ${sample}"
-                    + " has been successfully processed.\n";
-
-    private static final String EMAIL_MESSAGE_TEMPLATE_LINE1_WITH_ERROR =
-            "Processing data set ${data-set} of experiment ${experiment} failed. Reason: ${error}\n";
-
-    private static final String EMAIL_MESSAGE_TEMPLATE_LINE1_WITH_ERROR_WITH_SAMPLE =
-            "Processing data set ${data-set} of experiment ${experiment} and sample ${sample}"
-                    + " failed. Reason: ${error}\n";
-
     final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDropboxProcessingPlugin.class);
 
@@ -163,17 +149,17 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         EMailAddress eMailAddress = new EMailAddress(context.getUserEmailOrNull());
         mailClient.sendEmailMessage(subject, template.createText(), null, null, eMailAddress);
     }
-    
+
     private Template getEMailMessageTemplate(boolean withError, boolean withSample)
     {
         return new Template(
-                (withError ? (withSample ? EMAIL_MESSAGE_TEMPLATE_LINE1_WITH_ERROR_WITH_SAMPLE
-                        : EMAIL_MESSAGE_TEMPLATE_LINE1_WITH_ERROR)
-                        : (withSample ? EMAIL_MESSAGE_TEMPLATE_LINE1_WITH_SAMPLE
-                                : EMAIL_MESSAGE_TEMPLATE_LINE1))
-                        + "Processing description: ${processing-description}\n"
-                        + "Processing started at ${start-time}.\n"
-                        + "Processing finished at ${end-time}.");
+                (withError ? "Processing of data set ${data-set} failed.\nReason: ${error}"
+                        : "Successfully processed data set ${data-set}.")
+                        + "\n\nProcessing details:\n"
+                        + "Description: ${processing-description}\n"
+                        + "Experiment: ${experiment}\n"
+                        + (withSample ? "Sample: ${sample}\n" : "")
+                        + "Started: ${start-time}.\n" + "Finished: ${end-time}.");
     }
     
     /**

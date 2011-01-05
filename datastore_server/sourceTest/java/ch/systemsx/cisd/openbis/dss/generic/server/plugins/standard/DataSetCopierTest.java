@@ -332,11 +332,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
         assertEquals("Data set ds3 [MY_DATA] successfully processed",
                 subjectRecorder.recordedObject());
-        assertEquals("Data set ds3 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] "
-                + "has been successfully processed.\n"
-                + "Processing description: Copy to tmp/test\n"
-                + "Processing started at 1970-01-01 01:00:00 +0100.\n"
-                + "Processing finished at 1970-01-01 01:00:00 +0100.",
+        assertEquals("Successfully processed data set ds3 [MY_DATA].\n\n"
+                + "Processing details:\n"
+                + "Description: Copy to tmp/test\n"
+                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.",
                 contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
@@ -372,12 +373,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
         assertEquals("Processing of data set ds3 [MY_DATA] failed",
                 subjectRecorder.recordedObject());
-        assertEquals(
-                "Processing data set ds3 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] failed."
-                        + " Reason: copying failed\n"
-                        + "Processing description: Copy to tmp/test\n"
-                        + "Processing started at 1970-01-01 01:00:00 +0100.\n"
-                        + "Processing finished at 1970-01-01 01:00:00 +0100.",
+        assertEquals("Processing of data set ds3 [MY_DATA] failed.\nReason: copying failed\n\n"
+                + "Processing details:\n"
+                + "Description: Copy to tmp/test\n"
+                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.",
                 contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
@@ -413,11 +414,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
         assertEquals("Data set ds1 [MY_DATA] successfully processed",
                 subjectRecorder.recordedObject());
-        assertEquals("Data set ds1 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] "
-                + "and sample /g/s [MY_SAMPLE] has been successfully processed.\n"
-                + "Processing description: Copy to tmp/test\n"
-                + "Processing started at 1970-01-01 01:00:00 +0100.\n"
-                + "Processing finished at 1970-01-01 01:00:00 +0100.",
+        assertEquals("Successfully processed data set ds1 [MY_DATA].\n\n"
+                + "Processing details:\n"
+                + "Description: Copy to tmp/test\n"
+                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Sample: /g/s [MY_SAMPLE]\n"
+                + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.",
                 contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
@@ -452,11 +455,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         assertEquals(USER_EMAIL, recipientsRecorder.recordedObject()[0].tryGetEmailAddress());
         assertEquals("Processing of data set ds1 [MY_DATA] failed",
                 subjectRecorder.recordedObject());
-        assertEquals("Processing data set ds1 [MY_DATA] of experiment /g/p/e [MY_EXPERIMENT] "
-                + "and sample /g/s [MY_SAMPLE] failed." + " Reason: copying failed\n"
-                + "Processing description: Copy to tmp/test\n"
-                + "Processing started at 1970-01-01 01:00:00 +0100.\n"
-                + "Processing finished at 1970-01-01 01:00:00 +0100.",
+        assertEquals("Processing of data set ds1 [MY_DATA] failed.\nReason: copying failed\n\n"
+                + "Processing details:\n"
+                + "Description: Copy to tmp/test\n"
+                + "Experiment: /g/p/e [MY_EXPERIMENT]\n"
+                + "Sample: /g/s [MY_SAMPLE]\n"
+                + "Started: 1970-01-01 01:00:00 +0100.\n"
+                + "Finished: 1970-01-01 01:00:00 +0100.",
                 contentRecorder.recordedObject());
 
         context.assertIsSatisfied();
