@@ -143,6 +143,14 @@ public class ScreeningUtils
         return dataset.getDataSetType().getCode().matches(datasetTypeCodePattern);
     }
 
+    public static boolean isBasicHcsImageDataset(ExternalData externalData)
+    {
+        return ScreeningUtils.isTypeMatching(externalData,
+                ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN)
+                && isTypeMatching(externalData,
+                        ScreeningConstants.IMAGE_OVERLAY_DATASET_TYPE_PATTERN) == false;
+    }
+
     public static boolean isTypeMatching(ExternalData dataset, String datasetTypeCodePattern)
     {
         return dataset.getDataSetType().getCode().matches(datasetTypeCodePattern);

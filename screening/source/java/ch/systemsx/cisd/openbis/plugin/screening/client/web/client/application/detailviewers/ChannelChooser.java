@@ -130,6 +130,12 @@ class ChannelChooser
 
     private void addViewer(LayoutContainer container, IDefaultChannelState defaultChannelState)
     {
+        // overlays
+        List<DatasetImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
+        if (overlayDatasets.size() > 0)
+        {
+            container.add(createOverlayChannelsChooser(overlayDatasets, container));
+        }
         // basic channels
         List<String> channels = basicImage.getChannelsCodes();
         if (channels.size() > 1)
@@ -137,12 +143,6 @@ class ChannelChooser
             Widget channelChooserWithLabel =
                     createBasicChannelChooser(channels, defaultChannelState, container);
             container.add(channelChooserWithLabel);
-        }
-        // overlays
-        List<DatasetImagesReference> overlayDatasets = basicImage.getOverlayDatasets();
-        if (overlayDatasets.size() > 0)
-        {
-            container.add(createOverlayChannelsChooser(overlayDatasets, container));
         }
         // images
         container.add(imageContainer);

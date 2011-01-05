@@ -68,8 +68,7 @@ class ImageDatasetLoader extends PlateDatasetLoader
         List<ExternalData> result = new ArrayList<ExternalData>();
         for (ExternalData externalData : getDatasets())
         {
-            if (ScreeningUtils.isTypeMatching(externalData,
-                    ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN))
+            if (ScreeningUtils.isBasicHcsImageDataset(externalData))
             {
                 result.add(externalData);
             }
