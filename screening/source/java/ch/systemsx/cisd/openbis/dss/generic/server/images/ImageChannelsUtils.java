@@ -383,10 +383,12 @@ public class ImageChannelsUtils
         return image;
     }
 
-    // we do not want to generate thumnnails which are larger in any dimension than the original
+    // Do not rescale if the image is already of the right size.
+    // NOTE: this may cause generating thumbnails which are larger than the original.
+    // But otherwise features live image overlays could be broken.
     private static boolean isRescalingNeeded(BufferedImage image, Size size)
     {
-        return image.getWidth() > size.getWidth() || image.getHeight() > size.getHeight();
+        return image.getWidth() != size.getWidth() || image.getHeight() != size.getHeight();
     }
 
     private static BufferedImage loadImage(AbsoluteImageReference imageReference)
