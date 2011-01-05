@@ -749,8 +749,6 @@ public class DssServiceRpcScreening extends AbstractDssServiceRpc<IDssServiceRpc
 
     private boolean isImageDataset(ExternalData dataset)
     {
-        // return ScreeningUtils.isTypeMatching(dataset,
-        // ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
         return dataset.getDataSetType().getCode()
                 .matches(ScreeningConstants.HCS_IMAGE_DATASET_TYPE_PATTERN);
     }
