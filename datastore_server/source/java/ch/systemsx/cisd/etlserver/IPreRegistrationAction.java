@@ -17,12 +17,13 @@
 package ch.systemsx.cisd.etlserver;
 
 /**
- * The interface is exactliy the same as {@link IPostRegistrationAction}.
+ * The interface is almost the same as {@link IPostRegistrationAction}, except that the second
+ * argument is the path in the dropbox (not the path in the store).
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 public interface IPreRegistrationAction
 {
-    boolean execute(String dataSetCode, String dataSetAbsolutePathInStore);
+    boolean execute(String dataSetCode, String dataSetAbsolutePathInDropbox);
 
 }
