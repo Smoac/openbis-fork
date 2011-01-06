@@ -51,12 +51,14 @@ import javax.swing.text.JTextComponent;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade.IImageOutputStreamProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IDatasetIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateImageReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
 /**
@@ -180,14 +182,37 @@ public class ScreeningClientApiTester
         
         private void loadPlates()
         {
-            List<Plate> plates = facade.listPlates();
             content.removeAll();
             final JPanel panel = new JPanel();
             panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
             content.add(panel, BorderLayout.CENTER);
-            for (Plate plate : plates)
+            List<Plate> plates = facade.listPlates();
+            for (int i = 0, n = Math.min(10, plates.size()); i < n; i++)
             {
-                panel.add(new JLabel(plate.toString()));
+                Plate plate = plates.get(i);
+                final List<WellIdentifier> listPlateWells = facade.listPlateWells(plate);
+                JButton button = new JButton(plate.toString() + " " + listPlateWells.size() + " wells");
+                button.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            if (listPlateWells.isEmpty())
+                            {
+                                return;
+                            }
+                            for (WellIdentifier wellIdentifier : listPlateWells)
+                            {
+                                List<IDataSetDss> dataSets = facade.getDataSets(wellIdentifier);
+                                if (dataSets.isEmpty() == false)
+                                {
+                                    JOptionPane.showMessageDialog(TesterFrame.this, "Well "
+                                            + wellIdentifier + " has " + dataSets.size() + " data sets");
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                panel.add(button);
             }
             validate(panel);
         }
