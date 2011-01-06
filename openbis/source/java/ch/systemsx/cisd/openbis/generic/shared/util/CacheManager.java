@@ -59,17 +59,15 @@ public class CacheManager implements ICacheManager
         private static final String FILE_NAME_FORMAT = "{0,date," + TIME_STAMP_FORMAT + "}"
                 + DELIMITER + "{1}";
 
-        private final Date timeStamp;
+        private Date timeStamp;
 
-        private final String fileName;
+        private String fileName;
 
         private int counter;
 
         FileName(ITimeProvider timeProvider)
         {
-            timeStamp = new Date(timeProvider.getTimeInMilliseconds());
-            fileName = new MessageFormat(FILE_NAME_FORMAT).format(new Object[]
-                { timeStamp, counter++ });
+            createTimeStampAndFileName(timeProvider);
         }
 
         FileName(String fileName)
@@ -96,12 +94,31 @@ public class CacheManager implements ICacheManager
             return timeStamp;
         }
 
+        void touch(File cacheFolder, ITimeProvider timeProvider)
+        {
+            String oldFileName = fileName;
+            createTimeStampAndFileName(timeProvider);
+            rename(cacheFolder, oldFileName, KEY_FILE_TYPE);
+            rename(cacheFolder, oldFileName, DATA_FILE_TYPE);
+        }
+
+        protected void rename(File cacheFolder, String oldFileName, String fileType)
+        {
+            new File(cacheFolder, oldFileName + fileType).renameTo(new File(cacheFolder, fileName + fileType));
+        }
+
+        private void createTimeStampAndFileName(ITimeProvider timeProvider)
+        {
+            timeStamp = new Date(timeProvider.getTimeInMilliseconds());
+            fileName = new MessageFormat(FILE_NAME_FORMAT).format(new Object[]
+                { timeStamp, counter++ });
+        }
+        
         @Override
         public String toString()
         {
             return fileName;
         }
-
     }
 
     private static final int DAY = 24 * 60 * 60 * 1000;
@@ -237,6 +254,7 @@ public class CacheManager implements ICacheManager
                             + bytes.length + " bytes) for key " + key + " from file "
                             + dataFile);
                 }
+                fileName.touch(cacheFolder, timeProvider);
                 return object;
             } catch (IOException ex)
             {

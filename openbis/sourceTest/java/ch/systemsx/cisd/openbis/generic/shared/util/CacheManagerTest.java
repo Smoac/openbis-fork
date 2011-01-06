@@ -114,7 +114,7 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
     @Test
     public void testStoreAndRetrieveFromCache()
     {
-        prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L);
+        prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
         prepareFreeSpaceProvider(2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
         
@@ -122,16 +122,17 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         cacheManager.storeData(new Key("a"), data);
         
         assertEquals(data, cacheManager.tryToGetData(new Key("a")));
+        checkCacheFolder(CACHE_VERSION, "19700101010000007-1");
         assertEquals(data, cacheManager.tryToGetData(new Key("a")));
         assertEquals(null, cacheManager.tryToGetData(new Key("b")));
-        checkCacheFolder(CACHE_VERSION, "19700101010000001-0");
+        checkCacheFolder(CACHE_VERSION, "19700101010000010-2");
         context.assertIsSatisfied();
     }
     
     @Test
     public void testStoreShutdownAndRetrieveFromCache()
     {
-        prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L);
+        prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L);
         prepareFreeSpaceProvider(2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
         
@@ -141,7 +142,7 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         cacheManager = createCacheManager();
         assertEquals(data, cacheManager.tryToGetData(new Key("a")));
         assertEquals(null, cacheManager.tryToGetData(new Key("b")));
-        checkCacheFolder(CACHE_VERSION, "19700101010000001-0");
+        checkCacheFolder(CACHE_VERSION, "19700101010000007-0");
         context.assertIsSatisfied();
     }
     
@@ -164,7 +165,7 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
     @Test
     public void testCleanUpForLargeFiles()
     {
-        prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L);
+        prepareTimeProvider(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L);
         prepareFreeSpaceProvider(2048L, 2048L, 0L, 2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
         
@@ -175,14 +176,14 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         
         assertEquals(null, cacheManager.tryToGetData(new Key("a")));
         assertEquals(data2, cacheManager.tryToGetData(new Key("b")));
-        checkCacheFolder(CACHE_VERSION, "19700101010000005-0");
+        checkCacheFolder(CACHE_VERSION, "19700101010000011-1");
         context.assertIsSatisfied();
     }
     
     @Test
     public void testCleanUpForOldFiles()
     {
-        prepareTimeProvider(1L, 2L, 3L, 4L, DAY + 5L, DAY + 6L, DAY + 7L, DAY + 8L, DAY + 9L, DAY + 10L);
+        prepareTimeProvider(1L, 2L, 3L, 4L, DAY + 5L, DAY + 6L, DAY + 7L, DAY + 8L, DAY + 9L, DAY + 10L, DAY + 11L);
         prepareFreeSpaceProvider(2048L, 2048L, 2048L, 2048L);
         CacheManager cacheManager = createCacheManager();
         
@@ -193,7 +194,7 @@ public class CacheManagerTest extends AbstractFileSystemTestCase
         
         assertEquals(null, cacheManager.tryToGetData(new Key("a")));
         assertEquals(data2, cacheManager.tryToGetData(new Key("b")));
-        checkCacheFolder(CACHE_VERSION, "19700102010000005-0");
+        checkCacheFolder(CACHE_VERSION, "19700102010000011-1");
         context.assertIsSatisfied();
     }
     
