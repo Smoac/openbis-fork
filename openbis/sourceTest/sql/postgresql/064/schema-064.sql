@@ -3,7 +3,6 @@ SET standard_conforming_strings = off;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET escape_string_warning = off;
-CREATE OR REPLACE PROCEDURAL LANGUAGE plpgsql;
 SET search_path = public, pg_catalog;
 CREATE DOMAIN archiving_status AS character varying(100)
 	CONSTRAINT archiving_status_check CHECK (((VALUE)::text = ANY (ARRAY[('LOCKED'::character varying)::text, ('AVAILABLE'::character varying)::text, ('ARCHIVED'::character varying)::text, ('ARCHIVE_PENDING'::character varying)::text, ('UNARCHIVE_PENDING'::character varying)::text])));
