@@ -51,12 +51,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -509,7 +509,7 @@ public class ExternalDataBOTest extends AbstractBOTest
 
                     one(propertiesConverter).updateProperties(
                             Collections.<DataSetPropertyPE> emptySet(), dataSet.getDataSetType(),
-                            null, ManagerTestTool.EXAMPLE_PERSON, Collections.<String> emptySet());
+                            null, ManagerTestTool.EXAMPLE_PERSON);
                     will(returnValue(Collections.emptySet()));
 
                     one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.api.v1;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,9 +38,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -104,8 +105,15 @@ public class GeneralInformationServiceTest extends SystemTestCase
         sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*"));
         List<Sample> result = generalInformationService.searchForSamples(sessionToken, sc);
         assertEquals(true, result.size() > 0);
-        Sample resultSample = result.get(0);
-        assertEquals("CISD:/CISD/CL1", resultSample.getIdentifier());
+        String expectedSampleIdentifier = "CISD:/CISD/CL1";
+        for (Sample sample : result)
+        {
+            if (expectedSampleIdentifier.equals(sample.getIdentifier()))
+            {
+                return;
+            }
+        }
+        fail("result didn't contain sample " + expectedSampleIdentifier);
     }
 
     @Test
