@@ -355,7 +355,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         final PersonPE registrator = findRegistrator();
         externalData.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
                 type, Arrays.asList(convertToDataSetProperties(propertyUpdates)), registrator,
-                propertyUpdatesCodes, extractDynamicProperties(type)));
+                propertyUpdatesCodes));
     }
 
     private List<NewProperty> extractNewPropertiesToUpdate(List<NewProperty> properties,

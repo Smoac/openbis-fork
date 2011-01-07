@@ -68,8 +68,7 @@ public interface IEntityPropertiesConverter
 
     /** Updates Set<T> of properties. */
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
-            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
-            Set<String> dynamicProperties);
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator);
 
     /**
      * Updates Set<T> of properties but preserve those old properties which codes are not among
@@ -77,7 +76,7 @@ public interface IEntityPropertiesConverter
      */
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
-            Set<String> propertiesToUpdate, Set<String> dynamicProperties);
+            Set<String> propertiesToUpdate);
 
     /**
      * Checks whether all mandatory properties are provided.

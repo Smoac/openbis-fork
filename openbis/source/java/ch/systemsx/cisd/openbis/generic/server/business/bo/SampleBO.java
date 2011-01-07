@@ -272,7 +272,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         final SampleTypePE type = sample.getSampleType();
         final PersonPE registrator = findRegistrator();
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator, extractDynamicProperties(type)));
+                properties, registrator));
     }
 
     private void updateParents(SampleUpdatesDTO updates)

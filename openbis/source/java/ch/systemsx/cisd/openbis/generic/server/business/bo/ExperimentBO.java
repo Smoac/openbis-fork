@@ -45,13 +45,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -565,7 +564,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final ExperimentTypePE type = experiment.getExperimentType();
         final PersonPE registrator = findRegistrator();
         experiment.setProperties(propertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator, extractDynamicProperties(type)));
+                properties, registrator));
     }
 
     public void setGeneratedCode()
@@ -574,16 +573,4 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         experiment.setCode(code);
     }
 
-    protected Set<String> extractDynamicProperties(final ExperimentTypePE type)
-    {
-        Set<String> dynamicProperties = new HashSet<String>();
-        for (ExperimentTypePropertyTypePE etpt : type.getExperimentTypePropertyTypes())
-        {
-            if (etpt.isDynamic())
-            {
-                dynamicProperties.add(etpt.getPropertyType().getCode());
-            }
-        }
-        return dynamicProperties;
-    }
 }

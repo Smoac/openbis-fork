@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -44,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
@@ -280,9 +280,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
         final SampleTypePE type = sample.getSampleType();
         final PersonPE registrator = findRegistrator();
-        Set<String> dynamicProperties = extractDynamicProperties(type);
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
-                properties, registrator, propertiesToUpdate, dynamicProperties));
+                properties, registrator, propertiesToUpdate));
     }
 
     public void prepareForUpdate(List<SampleBatchUpdatesDTO> updates)

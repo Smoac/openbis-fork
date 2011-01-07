@@ -16,15 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -63,19 +58,6 @@ public class AbstractMaterialBusinessObject extends AbstractBusinessObject
                     materialId));
         }
         return result;
-    }
-
-    protected Set<String> extractDynamicProperties(final MaterialTypePE type)
-    {
-        Set<String> dynamicProperties = new HashSet<String>();
-        for (MaterialTypePropertyTypePE etpt : type.getMaterialTypePropertyTypes())
-        {
-            if (etpt.isDynamic())
-            {
-                dynamicProperties.add(etpt.getPropertyType().getCode());
-            }
-        }
-        return dynamicProperties;
     }
 
 }

@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
@@ -47,8 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -556,19 +555,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                 toVisit = nextToVisit;
             }
         }
-    }
-
-    protected Set<String> extractDynamicProperties(final SampleTypePE type)
-    {
-        Set<String> dynamicProperties = new HashSet<String>();
-        for (SampleTypePropertyTypePE etpt : type.getSampleTypePropertyTypes())
-        {
-            if (etpt.isDynamic())
-            {
-                dynamicProperties.add(etpt.getPropertyType().getCode());
-            }
-        }
-        return dynamicProperties;
     }
 
     protected List<SamplePE> listSamplesByIdentifiers(

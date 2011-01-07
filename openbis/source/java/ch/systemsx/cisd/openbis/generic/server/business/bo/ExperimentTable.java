@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -228,23 +227,9 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         final Set<ExperimentPropertyPE> existingProperties = experiment.getProperties();
         final ExperimentTypePE type = experiment.getExperimentType();
         final PersonPE registrator = findRegistrator();
-        Set<String> dynamicProperties = extractDynamicProperties(type);
         experiment.setProperties(entityPropertiesConverter.updateProperties(existingProperties,
-                type, properties, registrator, propertiesToUpdate, dynamicProperties));
+                type, properties, registrator, propertiesToUpdate));
 
-    }
-
-    protected Set<String> extractDynamicProperties(final ExperimentTypePE type)
-    {
-        Set<String> dynamicProperties = new HashSet<String>();
-        for (ExperimentTypePropertyTypePE etpt : type.getExperimentTypePropertyTypes())
-        {
-            if (etpt.isDynamic())
-            {
-                dynamicProperties.add(etpt.getPropertyType().getCode());
-            }
-        }
-        return dynamicProperties;
     }
 
     private List<ExperimentPE> loadExperiments(List<ExperimentBatchUpdatesDTO> updates)

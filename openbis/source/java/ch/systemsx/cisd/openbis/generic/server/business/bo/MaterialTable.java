@@ -190,8 +190,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         final PersonPE registrator = findRegistrator();
         final Set<String> propertiesToUpdateNames = extractCodes(propertiesToUpdate);
         return entityPropertiesConverter.updateProperties(existingProperties, type,
-                propertiesToUpdate, registrator, propertiesToUpdateNames,
-                extractDynamicProperties(type));
+                propertiesToUpdate, registrator, propertiesToUpdateNames);
     }
 
     private static Set<String> extractCodes(List<IEntityProperty> propertiesToUpdate)

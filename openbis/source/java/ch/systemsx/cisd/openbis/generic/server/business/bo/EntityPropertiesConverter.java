@@ -376,8 +376,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
-            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
-            Set<String> dynamicProperties)
+            EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator)
     {
         final List<T> convertedProperties =
                 convertProperties(newProperties, entityType.getCode(), registrator);
@@ -400,12 +399,10 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
 
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE registrator,
-            Set<String> propertiesToUpdate, Set<String> dynamicProperties)
+            Set<String> propertiesToUpdate)
     {
         // all new properties should be among propertiesToUpdate (no need to check it)
-        final Set<T> set =
-                updateProperties(oldProperties, entityType, newProperties, registrator,
-                        dynamicProperties);
+        final Set<T> set = updateProperties(oldProperties, entityType, newProperties, registrator);
         // add old properties that are not among propertiesToUpdate (preserve those properties)
         for (T oldProperty : oldProperties)
         {
