@@ -264,14 +264,38 @@ CREATE INDEX space_pers_registered_by_fk_i ON spaces USING btree (pers_id_regist
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
-CREATE TRIGGER controlled_vocabulary_check BEFORE INSERT OR UPDATE ON property_types FOR EACH ROW EXECUTE PROCEDURE controlled_vocabulary_check();
-CREATE TRIGGER data_set_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON data_set_properties FOR EACH ROW EXECUTE PROCEDURE data_set_property_with_material_data_type_check();
-CREATE TRIGGER experiment_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON experiment_properties FOR EACH ROW EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
-CREATE TRIGGER external_data_storage_format_check BEFORE INSERT OR UPDATE ON external_data FOR EACH ROW EXECUTE PROCEDURE external_data_storage_format_check();
-CREATE TRIGGER material_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON material_properties FOR EACH ROW EXECUTE PROCEDURE material_property_with_material_data_type_check();
-CREATE TRIGGER sample_code_uniqueness_check BEFORE INSERT OR UPDATE ON samples FOR EACH ROW EXECUTE PROCEDURE sample_code_uniqueness_check();
-CREATE TRIGGER sample_property_with_material_data_type_check BEFORE INSERT OR UPDATE ON sample_properties FOR EACH ROW EXECUTE PROCEDURE sample_property_with_material_data_type_check();
-CREATE TRIGGER sample_subcode_uniqueness_check BEFORE INSERT OR UPDATE ON samples FOR EACH ROW EXECUTE PROCEDURE sample_subcode_uniqueness_check();
+CREATE TRIGGER controlled_vocabulary_check
+    BEFORE INSERT OR UPDATE ON property_types
+    FOR EACH ROW
+    EXECUTE PROCEDURE controlled_vocabulary_check();
+CREATE TRIGGER data_set_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON data_set_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE data_set_property_with_material_data_type_check();
+CREATE TRIGGER experiment_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON experiment_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE experiment_property_with_material_data_type_check();
+CREATE TRIGGER external_data_storage_format_check
+    BEFORE INSERT OR UPDATE ON external_data
+    FOR EACH ROW
+    EXECUTE PROCEDURE external_data_storage_format_check();
+CREATE TRIGGER material_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON material_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE material_property_with_material_data_type_check();
+CREATE TRIGGER sample_code_uniqueness_check
+    BEFORE INSERT OR UPDATE ON samples
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_code_uniqueness_check();
+CREATE TRIGGER sample_property_with_material_data_type_check
+    BEFORE INSERT OR UPDATE ON sample_properties
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_property_with_material_data_type_check();
+CREATE TRIGGER sample_subcode_uniqueness_check
+    BEFORE INSERT OR UPDATE ON samples
+    FOR EACH ROW
+    EXECUTE PROCEDURE sample_subcode_uniqueness_check();
 ALTER TABLE ONLY authorization_groups
     ADD CONSTRAINT ag_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY authorization_groups

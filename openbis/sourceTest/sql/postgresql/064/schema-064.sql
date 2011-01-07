@@ -268,8 +268,8 @@ $$;
 CREATE SEQUENCE attachment_content_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('attachment_content_id_seq', 7, true);
 SET default_tablespace = '';
@@ -281,8 +281,8 @@ CREATE TABLE attachment_contents (
 CREATE SEQUENCE attachment_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('attachment_id_seq', 7, true);
 CREATE TABLE attachments (
@@ -302,8 +302,8 @@ CREATE TABLE attachments (
 CREATE SEQUENCE authorization_group_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('authorization_group_id_seq', 1, false);
 CREATE TABLE authorization_group_persons (
@@ -322,8 +322,8 @@ CREATE TABLE authorization_groups (
 CREATE SEQUENCE code_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('code_seq', 1, false);
 CREATE TABLE controlled_vocabularies (
@@ -342,8 +342,8 @@ CREATE TABLE controlled_vocabularies (
 CREATE SEQUENCE controlled_vocabulary_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('controlled_vocabulary_id_seq', 5, true);
 CREATE TABLE controlled_vocabulary_terms (
@@ -360,8 +360,8 @@ CREATE TABLE controlled_vocabulary_terms (
 CREATE SEQUENCE cvte_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('cvte_id_seq', 15, true);
 CREATE TABLE data (
@@ -383,8 +383,8 @@ CREATE TABLE data (
 CREATE SEQUENCE data_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_id_seq', 12, true);
 CREATE TABLE data_set_properties (
@@ -402,15 +402,15 @@ CREATE TABLE data_set_properties (
 CREATE SEQUENCE data_set_property_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_set_property_id_seq', 13, true);
 CREATE SEQUENCE data_set_relationship_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_set_relationship_id_seq', 1, false);
 CREATE TABLE data_set_relationships (
@@ -420,8 +420,8 @@ CREATE TABLE data_set_relationships (
 CREATE SEQUENCE data_set_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_set_type_id_seq', 3, true);
 CREATE TABLE data_set_type_property_types (
@@ -450,8 +450,8 @@ CREATE TABLE data_set_types (
 CREATE SEQUENCE data_store_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_store_id_seq', 1, true);
 CREATE TABLE data_store_service_data_set_types (
@@ -469,8 +469,8 @@ CREATE TABLE data_store_services (
 CREATE SEQUENCE data_store_services_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_store_services_id_seq', 1, false);
 CREATE TABLE data_stores (
@@ -487,8 +487,8 @@ CREATE TABLE data_stores (
 CREATE SEQUENCE data_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('data_type_id_seq', 10, true);
 CREATE TABLE data_types (
@@ -499,8 +499,8 @@ CREATE TABLE data_types (
 CREATE SEQUENCE database_instance_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('database_instance_id_seq', 1, true);
 CREATE TABLE database_instances (
@@ -521,22 +521,22 @@ CREATE TABLE database_version_logs (
 CREATE SEQUENCE dstpt_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('dstpt_id_seq', 4, true);
 CREATE SEQUENCE etpt_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('etpt_id_seq', 7, true);
 CREATE SEQUENCE event_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('event_id_seq', 1, false);
 CREATE TABLE events (
@@ -553,8 +553,8 @@ CREATE TABLE events (
 CREATE SEQUENCE experiment_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('experiment_id_seq', 20, true);
 CREATE TABLE experiment_properties (
@@ -572,15 +572,15 @@ CREATE TABLE experiment_properties (
 CREATE SEQUENCE experiment_property_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('experiment_property_id_seq', 19, true);
 CREATE SEQUENCE experiment_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('experiment_type_id_seq', 2, true);
 CREATE TABLE experiment_type_property_types (
@@ -630,8 +630,8 @@ CREATE TABLE external_data (
 CREATE SEQUENCE file_format_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('file_format_type_id_seq', 8, true);
 CREATE TABLE file_format_types (
@@ -643,8 +643,8 @@ CREATE TABLE file_format_types (
 CREATE SEQUENCE filter_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('filter_id_seq', 1, false);
 CREATE TABLE filters (
@@ -675,15 +675,15 @@ CREATE TABLE grid_custom_columns (
 CREATE SEQUENCE grid_custom_columns_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('grid_custom_columns_id_seq', 1, false);
 CREATE SEQUENCE invalidation_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('invalidation_id_seq', 4, true);
 CREATE TABLE invalidations (
@@ -695,8 +695,8 @@ CREATE TABLE invalidations (
 CREATE SEQUENCE locator_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('locator_type_id_seq', 1, true);
 CREATE TABLE locator_types (
@@ -707,8 +707,8 @@ CREATE TABLE locator_types (
 CREATE SEQUENCE material_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('material_id_seq', 3734, true);
 CREATE TABLE material_properties (
@@ -726,15 +726,15 @@ CREATE TABLE material_properties (
 CREATE SEQUENCE material_property_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('material_property_id_seq', 9321, true);
 CREATE SEQUENCE material_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('material_type_id_seq', 7, true);
 CREATE TABLE material_type_property_types (
@@ -770,22 +770,22 @@ CREATE TABLE materials (
 CREATE SEQUENCE mtpt_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('mtpt_id_seq', 22, true);
 CREATE SEQUENCE perm_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('perm_id_seq', 1035, true);
 CREATE SEQUENCE person_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('person_id_seq', 4, true);
 CREATE TABLE persons (
@@ -803,8 +803,8 @@ CREATE TABLE persons (
 CREATE SEQUENCE project_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('project_id_seq', 4, true);
 CREATE TABLE projects (
@@ -820,8 +820,8 @@ CREATE TABLE projects (
 CREATE SEQUENCE property_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('property_type_id_seq', 26, true);
 CREATE TABLE property_types (
@@ -857,15 +857,15 @@ CREATE TABLE queries (
 CREATE SEQUENCE query_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('query_id_seq', 1, false);
 CREATE SEQUENCE relationship_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('relationship_type_id_seq', 2, true);
 CREATE TABLE relationship_types (
@@ -884,8 +884,8 @@ CREATE TABLE relationship_types (
 CREATE SEQUENCE role_assignment_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('role_assignment_id_seq', 7, true);
 CREATE TABLE role_assignments (
@@ -903,8 +903,8 @@ CREATE TABLE role_assignments (
 CREATE SEQUENCE sample_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('sample_id_seq', 1044, true);
 CREATE TABLE sample_properties (
@@ -922,15 +922,15 @@ CREATE TABLE sample_properties (
 CREATE SEQUENCE sample_property_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('sample_property_id_seq', 50, true);
 CREATE SEQUENCE sample_relationship_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('sample_relationship_id_seq', 44, true);
 CREATE TABLE sample_relationships (
@@ -942,8 +942,8 @@ CREATE TABLE sample_relationships (
 CREATE SEQUENCE sample_type_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('sample_type_id_seq', 6, true);
 CREATE TABLE sample_type_property_types (
@@ -992,8 +992,8 @@ CREATE TABLE samples (
 CREATE SEQUENCE script_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('script_id_seq', 3, true);
 CREATE TABLE scripts (
@@ -1010,8 +1010,8 @@ CREATE TABLE scripts (
 CREATE SEQUENCE space_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('space_id_seq', 2, true);
 CREATE TABLE spaces (
@@ -1025,8 +1025,8 @@ CREATE TABLE spaces (
 CREATE SEQUENCE stpt_id_seq
     START WITH 1
     INCREMENT BY 1
-    NO MINVALUE
     NO MAXVALUE
+    NO MINVALUE
     CACHE 1;
 SELECT pg_catalog.setval('stpt_id_seq', 13, true);
 
