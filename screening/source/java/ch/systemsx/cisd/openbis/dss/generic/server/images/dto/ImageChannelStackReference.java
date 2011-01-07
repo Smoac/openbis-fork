@@ -54,6 +54,12 @@ public class ImageChannelStackReference extends AbstractHashable
         {
             return tileLocation;
         }
+
+        @Override
+        public String toString()
+        {
+            return "[well=" + wellLocation + ", tile=" + tileLocation + "]";
+        }
     }
 
     /**
@@ -74,6 +80,12 @@ public class ImageChannelStackReference extends AbstractHashable
         public Location getTileLocation()
         {
             return tileLocation;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "[tile=" + tileLocation + "]";
         }
     }
 
@@ -128,6 +140,21 @@ public class ImageChannelStackReference extends AbstractHashable
     public MicroscopyChannelStackByLocationReference tryGetMicroscopyChannelStack()
     {
         return microscopyRefOrNull;
+    }
+
+    @Override
+    public String toString()
+    {
+        if (idRefOrNull != null)
+        {
+            return "stackId=" + idRefOrNull + "";
+        } else if (microscopyRefOrNull != null)
+        {
+            return "micStack=" + microscopyRefOrNull;
+        } else
+        {
+            return "hcsStack=" + hcsRefOrNull;
+        }
     }
 
 }

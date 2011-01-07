@@ -69,8 +69,10 @@ public class ImageGenerationDescription
     @Override
     public String toString()
     {
-        return "ImageGenerationDescription [image channels=" + imageChannelsOrNull
-                + (overlayChannels == null ? "" : ", overlay channels=" + overlayChannels) + ", "
+        return "ImageGenerationDescription [image channels="
+                + imageChannelsOrNull
+                + (overlayChannels == null || overlayChannels.size() == 0 ? ""
+                        : ", overlay channels=" + overlayChannels) + ", "
                 + (thumbnailSizeOrNull == null ? "original size" : "size=" + thumbnailSizeOrNull)
                 + "]";
     }
