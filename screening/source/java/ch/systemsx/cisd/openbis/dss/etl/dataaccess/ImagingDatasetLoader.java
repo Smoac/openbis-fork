@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.HCSChannelStackByLocationReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference.MicroscopyChannelStackByLocationReference;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -58,7 +58,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
      * @return image (with absolute path, page and color)
      */
     public AbsoluteImageReference tryGetImage(String chosenChannelCode,
-            ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull)
+            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize)
     {
         if (StringUtils.isBlank(chosenChannelCode))
         {
@@ -73,28 +73,27 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         }
 
         long datasetId = getDataset().getId();
-        boolean thumbnailPrefered = thumbnailSizeOrNull != null;
+        boolean thumbnailPrefered = imageSize.isThumbnailRequired();
         ImgImageDTO imageDTO =
                 tryGetImageDTO(channelStackReference, thumbnailPrefered, channel.getId(), datasetId);
         if (imageDTO == null)
         {
             return null;
         }
-        AbsoluteImageReference imgRef =
-                createAbsoluteImageReference(imageDTO, channel, thumbnailSizeOrNull);
+        AbsoluteImageReference imgRef = createAbsoluteImageReference(imageDTO, channel, imageSize);
 
         return imgRef;
     }
 
     private AbsoluteImageReference createAbsoluteImageReference(ImgImageDTO imageDTO,
-            ImgChannelDTO channel, Size thumbnailSizeOrNull)
+            ImgChannelDTO channel, RequestedImageSize imageSize)
     {
         String path = imageDTO.getFilePath();
         IContent content = contentRepository.getContent(path);
         ColorComponent colorComponent = imageDTO.getColorComponent();
         AbsoluteImageReference imgRef =
                 new AbsoluteImageReference(content, path, imageDTO.getPage(), colorComponent,
-                        thumbnailSizeOrNull, getChannelIndex(channel));
+                        imageSize, getChannelIndex(channel));
         imgRef.setTransformerFactoryForMergedChannels(tryGetImageTransformerFactoryForMergedChannels());
         imgRef.setTransformerFactory(channel.getImageTransformerFactory());
         return imgRef;
@@ -260,7 +259,7 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
     }
 
     public AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
-            Location wellLocationOrNull, Size thumbnailSizeOrNull)
+            Location wellLocationOrNull, RequestedImageSize imageSize)
     {
         ImgChannelDTO channel = tryLoadChannel(channelCode);
         if (channel == null)
@@ -269,11 +268,11 @@ public class ImagingDatasetLoader extends HCSDatasetLoader implements IImagingDa
         }
         ImgImageDTO imageDTO =
                 tryGetRepresentativeImageDTO(channel.getId(), wellLocationOrNull,
-                        thumbnailSizeOrNull != null);
+                        imageSize.isThumbnailRequired());
         if (imageDTO == null)
         {
             return null;
         }
-        return createAbsoluteImageReference(imageDTO, channel, thumbnailSizeOrNull);
+        return createAbsoluteImageReference(imageDTO, channel, imageSize);
     }
 }

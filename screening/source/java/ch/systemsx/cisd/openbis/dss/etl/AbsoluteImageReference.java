@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.io.IContent;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -33,7 +33,7 @@ public class AbsoluteImageReference extends AbstractImageReference
 
     private final String uniqueId;
 
-    private final Size thumbnailSizeOrNull;
+    private final RequestedImageSize imageSize;
 
     private IImageTransformerFactory transformerFactory;
 
@@ -47,12 +47,13 @@ public class AbsoluteImageReference extends AbstractImageReference
      * @param content the content before choosing the color component and the page
      */
     public AbsoluteImageReference(IContent content, String uniqueId, Integer pageOrNull,
-            ColorComponent colorComponentOrNull, Size thumbnailSizeOrNull, int channelIndex)
+            ColorComponent colorComponentOrNull, RequestedImageSize imageSize, int channelIndex)
     {
         super(pageOrNull, colorComponentOrNull);
+        assert imageSize != null : "image size is null";
         this.content = content;
         this.uniqueId = uniqueId;
-        this.thumbnailSizeOrNull = thumbnailSizeOrNull;
+        this.imageSize = imageSize;
         this.channelIndex = channelIndex;
     }
 
@@ -70,9 +71,9 @@ public class AbsoluteImageReference extends AbstractImageReference
         return content;
     }
 
-    public Size tryGetSize()
+    public RequestedImageSize getRequestedSize()
     {
-        return thumbnailSizeOrNull;
+        return imageSize;
     }
 
     public final IImageTransformerFactory getTransformerFactory()
@@ -106,7 +107,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         ColorComponent colorComponent = null;
         AbsoluteImageReference ref =
                 new AbsoluteImageReference(content, uniqueId, tryGetPage(), colorComponent,
-                        thumbnailSizeOrNull, channelIndex);
+                        imageSize, channelIndex);
         ref.setTransformerFactory(transformerFactory);
         ref.setTransformerFactoryForMergedChannels(transformerFactoryForMergedChannels);
         return ref;

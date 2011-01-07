@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdv
 import ch.systemsx.cisd.openbis.dss.generic.server.DssServiceRpcAuthorizationAdvisor.DssServiceRpcAuthorizationMethodInterceptor;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtilsTest;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
@@ -293,7 +294,8 @@ public class DssServiceRpcScreeningTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    Size thumbnailSize = new Size(2, 1);
+                    RequestedImageSize thumbnailSize =
+                            new RequestedImageSize(new Size(2, 1), false);
                     one(imageLoader).tryGetImage(
                             channel,
                             ImageChannelStackReference.createHCSFromLocations(new Location(3, 1),

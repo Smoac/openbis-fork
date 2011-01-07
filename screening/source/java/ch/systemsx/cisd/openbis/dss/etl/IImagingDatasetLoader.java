@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.dss.etl;
 
 import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoader;
 
 /**
@@ -30,11 +30,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
 public interface IImagingDatasetLoader extends IImageDatasetLoader
 {
     /**
-     * @param chosenChannelCode start from 1
+     * @param channelCode start from 1
+     * @param imageSize required image size, specified so that an image with the closest size to the
+     *            required is returned (e.g. a thumbnail version if available). Note that this
+     *            method does no image resizing and the result will most probably not have the
+     *            required size.
      * @return image (with original file content, page and color)
      */
-    AbsoluteImageReference tryGetImage(String chosenChannelCode,
-            ImageChannelStackReference channelStackReference, Size thumbnailSizeOrNull);
+    AbsoluteImageReference tryGetImage(String channelCode,
+            ImageChannelStackReference channelStackReference, RequestedImageSize imageSize);
 
     /**
      * Finds representative image of this dataset in a given channel.
@@ -42,9 +46,12 @@ public interface IImagingDatasetLoader extends IImageDatasetLoader
      * @param channelCode channel code for which representative image is requested
      * @param wellLocationOrNull if not null the returned images are restricted to one well.
      *            Otherwise the dataset is assumed to have no container and spots.
-     * @param thumbnailSizeOrNull if not null the thumbnail in th especified size will be returned.
+     * @param imageSize required image size, specified so that an image with the closest size to the
+     *            required is returned (e.g. a thumbnail version if available). Note that this
+     *            method does no image resizing and the result will most probably not have the
+     *            required size.
      */
     AbsoluteImageReference tryGetRepresentativeImage(String channelCode,
-            Location wellLocationOrNull, Size thumbnailSizeOrNull);
+            Location wellLocationOrNull, RequestedImageSize imageSize);
 
 }

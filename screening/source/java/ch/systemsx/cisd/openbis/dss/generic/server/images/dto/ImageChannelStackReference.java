@@ -147,13 +147,13 @@ public class ImageChannelStackReference extends AbstractHashable
     {
         if (idRefOrNull != null)
         {
-            return "stackId=" + idRefOrNull + "";
+            return "StackReference{id=" + idRefOrNull + "}";
         } else if (microscopyRefOrNull != null)
         {
-            return "micStack=" + microscopyRefOrNull;
+            return "StackReference{micStack=" + microscopyRefOrNull + "}";
         } else
         {
-            return "hcsStack=" + hcsRefOrNull;
+            return "StackReference{hcsStack=" + hcsRefOrNull + "}";
         }
     }
 

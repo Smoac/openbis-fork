@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
 import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetParameters;
@@ -107,14 +108,12 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
         try
         {
-            ImageChannelsUtils.calculateBufferedImage(imageRef, loader, null, true);
+            createImageChannelsUtils(null).calculateBufferedImage(imageRef, true);
             fail("EnvironmentFailureException expected");
         } catch (EnvironmentFailureException ex)
         {
-            assertEquals(
-                    "No image found for channel stack "
-                            + "ImageChannelStackReference{hcsRefOrNull=<null>,microscopyRefOrNull=<null>,idRefOrNull=4711} "
-                            + "and channel GFP", ex.getMessage());
+            assertEquals("No image found for channel stack StackReference{id=4711} "
+                    + "and channel GFP", ex.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -124,28 +123,32 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     public void testGetTiffImage()
     {
         AbsoluteImageReference absoluteImageReference =
-                new AbsoluteImageReference(image("img1.tiff"), "id42", null, null, null, 0);
-        performTest(absoluteImageReference, getImageContentDescription(image("img1.png")));
+                new AbsoluteImageReference(image("img1.tiff"), "id42", null, null,
+                        RequestedImageSize.createOriginal(), 0);
+        performTest(absoluteImageReference, getImageContentDescription(image("img1.png")), null);
         context.assertIsSatisfied();
     }
 
     @Test
     public void testGetJpgImageAsPngThumbnail()
     {
+        Size size = new Size(4, 2);
         AbsoluteImageReference absoluteImageReference =
-                new AbsoluteImageReference(image("img1.jpg"), "id42", null, null, new Size(4, 2), 0);
-        performTest(absoluteImageReference, "cde cde\ncde cde\n");
+                new AbsoluteImageReference(image("img1.jpg"), "id42", null, null,
+                        new RequestedImageSize(size, false), 0);
+        performTest(absoluteImageReference, "cde cde\ncde cde\n", size);
         context.assertIsSatisfied();
     }
 
     private void performTest(final AbsoluteImageReference absoluteImageReference,
-            String expectedImageContentDescription)
+            String expectedImageContentDescription, Size thumbnailSizeOrNull)
     {
         final DatasetAcquiredImagesReference imageRef = createDatasetAcquiredImagesReference();
         prepareExpectations(absoluteImageReference, imageRef);
 
         BufferedImage image =
-                ImageChannelsUtils.calculateBufferedImage(imageRef, loader, null, true);
+                createImageChannelsUtils(thumbnailSizeOrNull)
+                        .calculateBufferedImage(imageRef, true);
         assertEquals(expectedImageContentDescription, getImageContentDescription(image));
 
         context.assertIsSatisfied();
@@ -162,8 +165,12 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                     imgParams.setChannelsCodes(Arrays.asList(CHANNEL));
                     will(returnValue(imgParams));
 
+                    RequestedImageSize requestedSize =
+                            absoluteImageReferenceOrNull == null ? RequestedImageSize
+                                    .createOriginal() : absoluteImageReferenceOrNull
+                                    .getRequestedSize();
                     one(loader).tryGetImage(imageRef.getChannelCodes().get(0),
-                            imageRef.getChannelStackReference(), null);
+                            imageRef.getChannelStackReference(), requestedSize);
                     will(returnValue(absoluteImageReferenceOrNull));
                 }
             });
@@ -184,7 +191,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
     {
         final DatasetAcquiredImagesReference imageRef = createDatasetAcquiredImagesReference();
         AbsoluteImageReference imgRef =
-                new AbsoluteImageReference(image("img1.gif"), "id42", null, null, null, 0);
+                new AbsoluteImageReference(image("img1.gif"), "id42", null, null,
+                        RequestedImageSize.createOriginal(), 0);
         imgRef.setTransformerFactory(transformerFactory);
 
         prepareExpectations(imgRef, imageRef);
@@ -196,12 +204,16 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 }
             });
 
-        BufferedImage image =
-                ImageChannelsUtils.calculateBufferedImage(imageRef, loader, null, true);
+        BufferedImage image = createImageChannelsUtils(null).calculateBufferedImage(imageRef, true);
         assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n" + "f00 c00 c00 f00\n"
                 + "e00 f00 f00 e00\n", getImageContentDescription(image));
 
         context.assertIsSatisfied();
+    }
+
+    private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
+    {
+        return new ImageChannelsUtils(loader, new RequestedImageSize(thumbnailSizeOrNull, false));
     }
 
     public void assertPNG(IContent image)

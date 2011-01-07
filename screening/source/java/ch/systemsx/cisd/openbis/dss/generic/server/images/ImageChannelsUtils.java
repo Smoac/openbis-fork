@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.images;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageGenerationDescription;
+import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -71,6 +74,23 @@ public class ImageChannelsUtils
         File getDatasetRoot(String datasetCode);
     }
 
+    private final IImagingDatasetLoader imageAccessor;
+
+    private final RequestedImageSize imageSizeLimit;
+
+    @Private
+    ImageChannelsUtils(IImagingDatasetLoader imageAccessor, RequestedImageSize imageSizeLimit)
+    {
+        this.imageAccessor = imageAccessor;
+        this.imageSizeLimit = imageSizeLimit;
+    }
+
+    @Private
+    ImageChannelsUtils(IImagingDatasetLoader imageAccessor, Size imageSizeLimitOrNull)
+    {
+        this(imageAccessor, new RequestedImageSize(imageSizeLimitOrNull, false));
+    }
+
     /**
      * Returns content of image for the specified tile in the specified size and for the requested
      * channel or with all channels merged.
@@ -86,25 +106,65 @@ public class ImageChannelsUtils
         DatasetAcquiredImagesReference imageChannels = params.tryGetImageChannels();
         if (imageChannels != null)
         {
-            image =
-                    calculateBufferedImage(imageChannels, datasetDirectoryProvider,
-                            thumbnailSizeOrNull);
+            RequestedImageSize imageSize = new RequestedImageSize(thumbnailSizeOrNull, false);
+            image = calculateBufferedImage(imageChannels, datasetDirectoryProvider, imageSize);
         }
 
+        RequestedImageSize overlaySize = calcOverlaySize(image, thumbnailSizeOrNull);
         for (DatasetAcquiredImagesReference overlayChannels : params.getOverlayChannels())
         {
-            BufferedImage overlayImage =
-                    calculateBufferedImage(overlayChannels, datasetDirectoryProvider,
-                            thumbnailSizeOrNull);
-            if (image != null)
+            // NOTE: never merges the overlays, draws each channel separately (merging looses
+            // transparency and is slower)
+            List<BufferedImage> overlayImages =
+                    getSingleImages(overlayChannels, overlaySize, datasetDirectoryProvider);
+            for (BufferedImage overlayImage : overlayImages)
             {
-                drawOverlay(image, overlayImage);
-            } else
-            {
-                image = overlayImage;
+                if (image != null)
+                {
+                    drawOverlay(image, overlayImage);
+                } else
+                {
+                    image = overlayImage;
+                }
             }
         }
         return createResponseContentStream(image, null);
+    }
+
+    private static List<BufferedImage> getSingleImages(
+            DatasetAcquiredImagesReference imagesReference, RequestedImageSize imageSize,
+            IDatasetDirectoryProvider datasetDirectoryProvider)
+    {
+        ImageChannelsUtils utils =
+                createImageChannelsUtils(imagesReference, datasetDirectoryProvider, imageSize);
+        boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
+        List<AbsoluteImageReference> imageContents =
+                utils.fetchImageContents(imagesReference, mergeAllChannels);
+        return calculateSingleImages(imageContents);
+    }
+
+    private static RequestedImageSize getSize(BufferedImage img)
+    {
+        return new RequestedImageSize(new Size(img.getWidth(), img.getHeight()), true);
+    }
+
+    private static RequestedImageSize calcOverlaySize(BufferedImage imageOrNull,
+            Size thumbnailSizeOrNull)
+    {
+        if (thumbnailSizeOrNull == null)
+        {
+            // thumbnais are not used, so use the original size even if it does not match
+            return RequestedImageSize.createOriginal();
+        }
+        if (imageOrNull != null)
+        {
+            // all overlays have to be of the same size as the basic image
+            return getSize(imageOrNull);
+        } else
+        {
+            // if there is no basic image yet, enlarging too small images is not necessary
+            return new RequestedImageSize(thumbnailSizeOrNull, false);
+        }
     }
 
     private static ResponseContentStream createResponseContentStream(BufferedImage image,
@@ -116,28 +176,35 @@ public class ImageChannelsUtils
 
     private static BufferedImage calculateBufferedImage(
             DatasetAcquiredImagesReference imageChannels,
-            IDatasetDirectoryProvider datasetDirectoryProvider, Size thumbnailSizeOrNull)
+            IDatasetDirectoryProvider datasetDirectoryProvider, RequestedImageSize imageSizeLimit)
+    {
+        ImageChannelsUtils imageChannelsUtils =
+                createImageChannelsUtils(imageChannels, datasetDirectoryProvider, imageSizeLimit);
+        return imageChannelsUtils.calculateBufferedImage(imageChannels, true);
+    }
+
+    private static ImageChannelsUtils createImageChannelsUtils(
+            DatasetAcquiredImagesReference imageChannels,
+            IDatasetDirectoryProvider datasetDirectoryProvider, RequestedImageSize imageSizeLimit)
     {
         IImagingDatasetLoader imageAccessor =
                 createImageAccessor(imageChannels, datasetDirectoryProvider);
-        return calculateBufferedImage(imageChannels, imageAccessor, thumbnailSizeOrNull, true);
+        return new ImageChannelsUtils(imageAccessor, imageSizeLimit);
     }
 
     @Private
-    static BufferedImage calculateBufferedImage(DatasetAcquiredImagesReference imageChannels,
-            IImagingDatasetLoader imageAccessor, Size thumbnailSizeOrNull, boolean transform)
+    BufferedImage calculateBufferedImage(DatasetAcquiredImagesReference imageChannels,
+            boolean transform)
     {
-        boolean mergeAllChannels = isMergeAllChannels(imageChannels, imageAccessor);
+        boolean mergeAllChannels = isMergeAllChannels(imageChannels);
         List<AbsoluteImageReference> imageContents =
-                fetchImageContents(imageAccessor, imageChannels, thumbnailSizeOrNull,
-                        mergeAllChannels);
+                fetchImageContents(imageChannels, mergeAllChannels);
         return mergeChannels(imageContents, transform, mergeAllChannels);
     }
 
     // We want to treat the case where merged channels were requested in the same way as the case
     // where all channel names have been enumerated.
-    private static boolean isMergeAllChannels(DatasetAcquiredImagesReference imageChannels,
-            IImagingDatasetLoader imageAccessor)
+    private boolean isMergeAllChannels(DatasetAcquiredImagesReference imageChannels)
     {
         if (imageChannels.isMergeAllChannels())
         {
@@ -160,17 +227,15 @@ public class ImageChannelsUtils
         return true;
     }
 
-    private static List<AbsoluteImageReference> fetchImageContents(
-            IImagingDatasetLoader imageAccessor, DatasetAcquiredImagesReference imagesReference,
-            Size thumbnailSizeOrNull, boolean mergeAllChannels)
+    private List<AbsoluteImageReference> fetchImageContents(
+            DatasetAcquiredImagesReference imagesReference, boolean mergeAllChannels)
     {
-        List<String> channelCodes = getChannelCodes(imagesReference, imageAccessor);
+        List<String> channelCodes = getChannelCodes(imagesReference);
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
         for (String channelCode : channelCodes)
         {
             AbsoluteImageReference image =
-                    getImageReference(imageAccessor, imagesReference.getChannelStackReference(),
-                            channelCode, thumbnailSizeOrNull);
+                    getImageReference(imagesReference.getChannelStackReference(), channelCode);
             images.add(image);
         }
 
@@ -197,8 +262,7 @@ public class ImageChannelsUtils
         return HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
     }
 
-    private static List<String> getChannelCodes(DatasetAcquiredImagesReference imagesReference,
-            IImagingDatasetLoader imageAccessor)
+    private List<String> getChannelCodes(DatasetAcquiredImagesReference imagesReference)
     {
         if (imagesReference.isMergeAllChannels())
         {
@@ -213,20 +277,20 @@ public class ImageChannelsUtils
      * Returns content of the image which is representative for the given dataset.
      */
     public static ResponseContentStream getRepresentativeImageStream(File datasetRoot,
-            String datasetCode, Location wellLocationOrNull, Size thumbnailSizeOrNull)
+            String datasetCode, Location wellLocationOrNull, Size imageSizeLimitOrNull)
     {
         IImagingDatasetLoader imageAccessor =
                 HCSImageDatasetLoaderFactory.create(datasetRoot, datasetCode);
         List<AbsoluteImageReference> imageReferences =
-                getRepresentativeImageReferences(imageAccessor, wellLocationOrNull,
-                        thumbnailSizeOrNull);
+                new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull)
+                        .getRepresentativeImageReferences(wellLocationOrNull);
         BufferedImage image = mergeChannels(imageReferences, true, true);
-        String name = createFileName(datasetCode, wellLocationOrNull, thumbnailSizeOrNull);
+        String name = createFileName(datasetCode, wellLocationOrNull, imageSizeLimitOrNull);
         return createResponseContentStream(image, name);
     }
 
     private static String createFileName(String datasetCode, Location wellLocationOrNull,
-            Size thumbnailSizeOrNull)
+            Size imageSizeLimitOrNull)
     {
         String name = "dataset_" + datasetCode;
         if (wellLocationOrNull != null)
@@ -234,7 +298,7 @@ public class ImageChannelsUtils
             name += "_row" + wellLocationOrNull.getY();
             name += "_col" + wellLocationOrNull.getX();
         }
-        if (thumbnailSizeOrNull != null)
+        if (imageSizeLimitOrNull != null)
         {
             name += "_small";
         }
@@ -253,7 +317,7 @@ public class ImageChannelsUtils
      */
     public static IContent getImage(IImagingDatasetLoader imageAccessor,
             ImageChannelStackReference channelStackReference, String chosenChannelCode,
-            Size thumbnailSizeOrNull, boolean convertToPng)
+            Size imageSizeLimitOrNull, boolean convertToPng)
     {
         String datasetCode = imageAccessor.getImageParameters().getDatasetCode();
         boolean isMergedChannels =
@@ -263,10 +327,11 @@ public class ImageChannelsUtils
         DatasetAcquiredImagesReference imagesReference =
                 new DatasetAcquiredImagesReference(datasetCode, channelStackReference, channelCodes);
 
-        boolean mergeAllChannels = isMergeAllChannels(imagesReference, imageAccessor);
+        ImageChannelsUtils imageChannelsUtils =
+                new ImageChannelsUtils(imageAccessor, imageSizeLimitOrNull);
+        boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
         List<AbsoluteImageReference> imageContents =
-                fetchImageContents(imageAccessor, imagesReference, thumbnailSizeOrNull,
-                        mergeAllChannels);
+                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels);
 
         IContent rawContent = tryGetRawContent(convertToPng, imageContents);
         if (rawContent != null)
@@ -277,15 +342,17 @@ public class ImageChannelsUtils
         return createPngContent(image, null);
     }
 
-    // optimization: maybe the original raw content is the appropriate answer?
+    // optimization: if there is exactly one image reference, maybe its original raw content is the
+    // appropriate answer?
     private static IContent tryGetRawContent(boolean convertToPng,
             List<AbsoluteImageReference> imageContents)
     {
-        if (convertToPng == false && imageContents.size() == 1)
+        if (imageContents.size() == 1 && convertToPng == false)
         {
             AbsoluteImageReference imageReference = imageContents.get(0);
             if (imageReference.tryGetColorComponent() == null
-                    && imageReference.tryGetPage() == null && imageReference.tryGetSize() == null)
+                    && imageReference.tryGetPage() == null
+                    && imageReference.getRequestedSize().isThumbnailRequired() == false)
             {
                 return imageReference.getContent();
             }
@@ -293,17 +360,15 @@ public class ImageChannelsUtils
         return null;
     }
 
-    private static List<AbsoluteImageReference> getRepresentativeImageReferences(
-            IImagingDatasetLoader imageAccessor, Location wellLocationOrNull,
-            Size thumbnailSizeOrNull)
+    private List<AbsoluteImageReference> getRepresentativeImageReferences(
+            Location wellLocationOrNull)
     {
         List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
 
         for (String chosenChannel : imageAccessor.getImageParameters().getChannelsCodes())
         {
             AbsoluteImageReference image =
-                    getRepresentativeImageReference(imageAccessor, chosenChannel,
-                            wellLocationOrNull, thumbnailSizeOrNull);
+                    getRepresentativeImageReference(chosenChannel, wellLocationOrNull);
             images.add(image);
         }
         return images;
@@ -312,21 +377,21 @@ public class ImageChannelsUtils
     /**
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    private static AbsoluteImageReference getRepresentativeImageReference(
-            IImagingDatasetLoader imageAccessor, String channelCode, Location wellLocationOrNull,
-            Size thumbnailSizeOrNull)
+    private AbsoluteImageReference getRepresentativeImageReference(String channelCode,
+            Location wellLocationOrNull)
     {
         AbsoluteImageReference image =
                 imageAccessor.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
-                        thumbnailSizeOrNull);
+                        imageSizeLimit);
         if (image != null)
         {
             return image;
         } else
         {
-            throw EnvironmentFailureException.fromTemplate("No representative "
-                    + (thumbnailSizeOrNull != null ? "thumbnail" : "image")
-                    + " found for well %s and channel %s", wellLocationOrNull, channelCode);
+            throw EnvironmentFailureException.fromTemplate(
+                    "No representative "
+                            + (imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image")
+                            + " found for well %s and channel %s", wellLocationOrNull, channelCode);
         }
     }
 
@@ -357,11 +422,15 @@ public class ImageChannelsUtils
         }
 
         // resized the image if necessary
-        Size sizeOrNull = imageReference.tryGetSize();
-        if (sizeOrNull != null && isRescalingNeeded(image, sizeOrNull))
+        RequestedImageSize requestedSize = imageReference.getRequestedSize();
+
+        Size size = requestedSize.tryGetThumbnailSize();
+        if (size != null)
         {
             start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
-            image = ImageUtil.createThumbnail(image, sizeOrNull.getWidth(), sizeOrNull.getHeight());
+            image =
+                    ImageUtil.rescale(image, size.getWidth(), size.getHeight(),
+                            requestedSize.enlargeIfNecessary(), true);
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));
@@ -381,14 +450,6 @@ public class ImageChannelsUtils
             }
         }
         return image;
-    }
-
-    // Do not rescale if the image is already of the right size.
-    // NOTE: this may cause generating thumbnails which are larger than the original.
-    // But otherwise features live image overlays could be broken.
-    private static boolean isRescalingNeeded(BufferedImage image, Size size)
-    {
-        return image.getWidth() != size.getWidth() || image.getHeight() != size.getHeight();
     }
 
     private static BufferedImage loadImage(AbsoluteImageReference imageReference)
@@ -492,11 +553,12 @@ public class ImageChannelsUtils
         BufferedImage newImage = createNewImage(images.get(0));
         int width = newImage.getWidth();
         int height = newImage.getHeight();
+        int colorBuffer[] = new int[4];
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                int mergedRGB = mergeRGBColor(images, imageReferences, x, y);
+                int mergedRGB = mergeRGBColor(images, imageReferences, x, y, colorBuffer);
                 newImage.setRGB(x, y, mergedRGB);
             }
         }
@@ -505,48 +567,29 @@ public class ImageChannelsUtils
 
     private static void drawOverlay(BufferedImage image, BufferedImage overlayImage)
     {
-        int width = Math.min(image.getWidth(), overlayImage.getWidth());
-        int height = Math.min(image.getHeight(), overlayImage.getHeight());
-
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                int imageRGB = image.getRGB(x, y);
-                int overlayRGB = overlayImage.getRGB(x, y);
-                int overlayedRGB = overlayRGBColor(imageRGB, overlayRGB);
-                image.setRGB(x, y, overlayedRGB);
-            }
-        }
-    }
-
-    // creates a color with a maximum value of each component
-    private static int overlayRGBColor(int imageRGB, int overlayRGB)
-    {
-        Color imageColor = new Color(imageRGB);
-        Color overlayColor = new Color(overlayRGB);
-
-        int r = Math.max(imageColor.getRed(), overlayColor.getRed());
-        int g = Math.max(imageColor.getGreen(), overlayColor.getGreen());
-        int b = Math.max(imageColor.getBlue(), overlayColor.getBlue());
-        return new Color(r, g, b).getRGB();
+        Graphics2D graphics = image.createGraphics();
+        AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+        graphics.setComposite(ac);
+        graphics.drawImage(overlayImage, null, null);
     }
 
     private static int mergeRGBColor(List<BufferedImage> images,
-            List<AbsoluteImageReference> imageReferences, int x, int y)
+            List<AbsoluteImageReference> imageReferences, int x, int y, int colorBuffer[])
     {
-        int color[] = new int[]
-            { 0, 0, 0 };
+        Arrays.fill(colorBuffer, 0);
         for (int index = 0; index < images.size(); index++)
         {
             int rgb = images.get(index).getRGB(x, y);
+            Color singleColor = new Color(rgb, true);
             int channelIndex = imageReferences.get(index).getChannelIndex();
             for (int i : getRGBColorIndexes(channelIndex))
             {
-                color[i] = Math.max(color[i], extractMaxColorIngredient(rgb));
+                colorBuffer[i] = Math.max(colorBuffer[i], extractMaxColorIngredient(singleColor));
             }
+            // merge alpha channel
+            colorBuffer[3] = Math.max(colorBuffer[3], singleColor.getAlpha());
         }
-        return asRGB(color);
+        return asRGB(colorBuffer);
     }
 
     // --------- common
@@ -554,21 +597,19 @@ public class ImageChannelsUtils
     /**
      * @throw {@link EnvironmentFailureException} when image does not exist
      */
-    private static AbsoluteImageReference getImageReference(IImagingDatasetLoader imageAccessor,
-            ImageChannelStackReference channelStackReference, String chosenChannelCode,
-            Size thumbnailSizeOrNull)
+    private AbsoluteImageReference getImageReference(
+            ImageChannelStackReference channelStackReference, String chosenChannelCode)
     {
         AbsoluteImageReference image =
-                imageAccessor.tryGetImage(chosenChannelCode, channelStackReference,
-                        thumbnailSizeOrNull);
+                imageAccessor.tryGetImage(chosenChannelCode, channelStackReference, imageSizeLimit);
         if (image != null)
         {
             return image;
         } else
         {
-            throw EnvironmentFailureException.fromTemplate("No "
-                    + (thumbnailSizeOrNull != null ? "thumbnail" : "image")
-                    + " found for channel stack %s and channel %s", channelStackReference,
+            throw EnvironmentFailureException.fromTemplate(
+                    "No " + (imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image")
+                            + " found for channel stack %s and channel %s", channelStackReference,
                     chosenChannelCode);
         }
     }
@@ -594,6 +635,8 @@ public class ImageChannelsUtils
         return newImage;
     }
 
+    // NOTE: drawing on this image will not preserve transparency - but we do not need it and the
+    // image is smaller
     private static BufferedImage createNewImage(RenderedImage bufferedImage)
     {
         BufferedImage newImage =
@@ -634,16 +677,14 @@ public class ImageChannelsUtils
     }
 
     // returns the max ingredient for the color
-    private static int extractMaxColorIngredient(int rgb)
+    private static int extractMaxColorIngredient(Color c)
     {
-        Color c = new Color(rgb);
-        int maxIngredient = Math.max(Math.max(c.getBlue(), c.getGreen()), c.getRed());
-        return maxIngredient;
+        return Math.max(Math.max(c.getBlue(), c.getGreen()), c.getRed());
     }
 
     private static int asRGB(int[] rgb)
     {
-        return new Color(rgb[0], rgb[1], rgb[2]).getRGB();
+        return new Color(rgb[0], rgb[1], rgb[2], rgb[3]).getRGB();
     }
 
     private static IContent createPngContent(BufferedImage image, String nameOrNull)

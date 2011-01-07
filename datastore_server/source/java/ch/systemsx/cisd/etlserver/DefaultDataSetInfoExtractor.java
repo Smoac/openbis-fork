@@ -225,7 +225,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     @Private
     static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
 
-    private static final class Index
+    protected static final class Index
     {
         private final boolean undefined;
 
@@ -259,7 +259,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     private final Index indexOfGroupCode;
 
-    private final Index indexOfParentDataSetCodes;
+    protected final Index indexOfParentDataSetCodes;
 
     private final Index indexOfDataProducerCode;
 
