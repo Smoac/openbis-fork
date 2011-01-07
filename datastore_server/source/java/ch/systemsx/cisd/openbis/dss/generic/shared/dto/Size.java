@@ -51,11 +51,17 @@ public final class Size
         {
             return true;
         }
-         if (obj instanceof Size == false)
+        if (obj instanceof Size == false)
         {
             return false;
         }
         Size size = (Size) obj;
         return size.width == width && size.height == height;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[w=" + width + ",h=" + height + "]";
     }
 }
