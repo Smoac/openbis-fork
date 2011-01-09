@@ -1005,7 +1005,7 @@ CREATE TABLE scripts (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     entity_kind entity_kind,
-    script_type script_type NOT NULL
+    script_type script_type DEFAULT 'DYNAMIC_PROPERTY'::character varying NOT NULL
 );
 CREATE SEQUENCE space_id_seq
     START WITH 1
