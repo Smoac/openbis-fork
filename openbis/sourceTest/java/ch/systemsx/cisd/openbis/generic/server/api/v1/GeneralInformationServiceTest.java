@@ -44,16 +44,18 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -205,18 +207,14 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 {
                     one(commonServer).searchForSamples(with(SESSION_TOKEN),
                             with(any(DetailedSearchCriteria.class)));
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample returnSample =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
-                    SampleType returnSampleType = new SampleType();
-                    returnSample.setId(new Long(1));
-                    returnSample.setPermId("permId");
-                    returnSample.setCode("code");
-                    returnSample.setIdentifier("/space/code");
-                    returnSampleType.setId(new Long(1));
-                    returnSampleType.setCode("sample-type");
-                    returnSample.setSampleType(returnSampleType);
-                    returnSample.setProperties(new ArrayList<IEntityProperty>());
-                    will(returnValue(Collections.singletonList(returnSample)));
+                    SampleBuilder sample =
+                            new SampleBuilder("/space/code")
+                                    .id(1L)
+                                    .permID("permId")
+                                    .code("code")
+                                    .type(new SampleTypeBuilder().id(1L).code("sample-type")
+                                            .getSampleType());
+                    will(returnValue(Collections.singletonList(sample.getSample())));
                 }
             });
     }
@@ -236,25 +234,16 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
                     one(commonServer).listRelatedDataSets(with(SESSION_TOKEN),
                             with(any(DataSetRelatedEntities.class)));
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData returnData =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData();
-                    DataSetType returnDataSetType = new DataSetType();
-                    returnDataSetType.setCode("ds-type");
-                    returnData.setCode("ds-code");
-                    returnData.setDataSetType(returnDataSetType);
-                    returnData.setDataSetProperties(new ArrayList<IEntityProperty>());
-
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
-                    experiment.setIdentifier("/space/project/exp");
-                    returnData.setExperiment(experiment);
-
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
-                    sample.setIdentifier("/space/code");
-                    returnData.setSample(sample);
-
-                    will(returnValue(Collections.singletonList(returnData)));
+                    DataSetBuilder dataSet =
+                            new DataSetBuilder()
+                                    .type("ds-type")
+                                    .code("ds-code")
+                                    .experiment(
+                                            new ExperimentBuilder()
+                                                    .identifier("/space/project/exp")
+                                                    .getExperiment())
+                                    .sample(new SampleBuilder("/space/code").getSample());
+                    will(returnValue(Collections.singletonList(dataSet.getDataSet())));
                 }
             });
 
@@ -282,10 +271,8 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
             {
                 {
                     one(commonServer).listSampleTypes(SESSION_TOKEN);
-                    SampleType returnSampleType = new SampleType();
-                    returnSampleType.setId(new Long(1));
-                    returnSampleType.setCode("sample-type");
-                    will(returnValue(Collections.singletonList(returnSampleType)));
+                    SampleTypeBuilder sampleType = new SampleTypeBuilder().id(1L).code("sample-type");
+                    will(returnValue(Collections.singletonList(sampleType.getSampleType())));
 
                     one(commonServer).listRelatedDataSets(with(SESSION_TOKEN),
                             with(any(DataSetRelatedEntities.class)));
@@ -307,25 +294,16 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                 {
                     one(commonServer).listSampleExternalData(with(SESSION_TOKEN),
                             with(new TechId(1)), with(true));
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData returnData =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData();
-                    DataSetType returnDataSetType = new DataSetType();
-                    returnDataSetType.setCode("ds-type");
-                    returnData.setCode("ds-code");
-                    returnData.setDataSetType(returnDataSetType);
-                    returnData.setDataSetProperties(new ArrayList<IEntityProperty>());
-
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
-                    experiment.setIdentifier("/space/project/exp");
-                    returnData.setExperiment(experiment);
-
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
-                    sample.setIdentifier("/space/code");
-                    returnData.setSample(sample);
-
-                    will(returnValue(Collections.singletonList(returnData)));
+                    DataSetBuilder dataSet =
+                            new DataSetBuilder()
+                                    .type("ds-type")
+                                    .code("ds-code")
+                                    .experiment(
+                                            new ExperimentBuilder()
+                                                    .identifier("/space/project/exp")
+                                                    .getExperiment())
+                                    .sample(new SampleBuilder("/space/code").getSample());
+                    will(returnValue(Collections.singletonList(dataSet.getDataSet())));
                 }
             });
 
@@ -381,15 +359,11 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     one(commonServer).listExperiments(SESSION_TOKEN, returnExperimentType,
                             projectIdentifier);
 
-                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment returnExperiment =
-                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
-                    returnExperiment.setId(new Long(1));
-                    returnExperiment.setPermId("EXP-PERMID");
-                    returnExperiment.setCode("EXP-CODE");
-                    returnExperiment.setIdentifier("/SPACE-1/PROJECT-1/EXP-CODE");
-                    returnExperiment.setExperimentType(returnExperimentType);
-                    returnExperiment.setProperties(new ArrayList<IEntityProperty>());
-                    will(returnValue(Collections.singletonList(returnExperiment)));
+                    ExperimentBuilder experiment =
+                            new ExperimentBuilder().id(1L).code("EXP-CODE").permID("EXP-PERMID")
+                                    .identifier("/SPACE-1/PROJECT-1/EXP-CODE")
+                                    .type(returnExperimentType.getCode());
+                    will(returnValue(Collections.singletonList(experiment.getExperiment())));
                 }
             });
     }

@@ -96,6 +96,11 @@ public class SampleBuilder
     {
         SampleType sampleType = new SampleType();
         sampleType.setCode(typeCode);
+        return type(sampleType);
+    }
+
+    public SampleBuilder type(SampleType sampleType)
+    {
         sample.setSampleType(sampleType);
         return this;
     }

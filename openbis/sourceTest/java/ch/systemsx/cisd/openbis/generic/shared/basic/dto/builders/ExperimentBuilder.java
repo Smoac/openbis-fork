@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -41,6 +42,14 @@ public class ExperimentBuilder
     public ExperimentBuilder()
     {
         experiment.setProperties(new ArrayList<IEntityProperty>());
+    }
+    
+    public ExperimentBuilder type(String experimentTypeCode)
+    {
+        ExperimentType experimentType = new ExperimentType();
+        experimentType.setCode(experimentTypeCode);
+        experiment.setExperimentType(experimentType);
+        return this;
     }
     
     public ExperimentBuilder id(long id)
@@ -67,6 +76,12 @@ public class ExperimentBuilder
         project.setSpace(space);
         experiment.setProject(project);
         experiment.setIdentifier(identifier);
+        return this;
+    }
+    
+    public ExperimentBuilder permID(String permID)
+    {
+        experiment.setPermId(permID);
         return this;
     }
     
