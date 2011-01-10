@@ -100,7 +100,7 @@ class ImageGenerationDescriptionFactory
             HttpServletRequest request)
     {
         Map<String, List<String>> datasetToChannelsMap = new HashMap<String, List<String>>();
-        Enumeration params = request.getParameterNames();
+        Enumeration<?> params = request.getParameterNames();
         while (params.hasMoreElements())
         {
             String paramName = (String) params.nextElement();
