@@ -29,11 +29,12 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjection
 
 /**
  * Example of usage of Proteomics Data API.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ProteomicsDataApiTest
 {
+    @SuppressWarnings("deprecation")
     public static void main(String[] args)
     {
         if (args.length != 4)
@@ -47,7 +48,7 @@ public class ProteomicsDataApiTest
         String password = args[2];
         String userID = args[3];
         IProteomicsDataApiFacade facade = FacadeFactory.create(serverURL, loginID, password);
-        
+
         System.out.println("MS_INJECTION samples:");
         List<MsInjectionDataInfo> rawDataSamples = facade.listRawDataSamples(userID);
         for (MsInjectionDataInfo info : rawDataSamples)
@@ -61,11 +62,11 @@ public class ProteomicsDataApiTest
                 Experiment experiment = info.getBiologicalExperiment();
                 if (experiment != null)
                 {
-                    System.out.println("   biological experiment: "
-                            + experiment.getCode() + " "
+                    System.out.println("   biological experiment: " + experiment.getCode() + " "
                             + experiment.getProperties());
                 }
-                System.out.println("   latest data sets: " + info.getLatestDataSetRegistrationDates());
+                System.out.println("   latest data sets: "
+                        + info.getLatestDataSetRegistrationDates());
                 Set<DataSet> dataSets = info.getDataSets();
                 for (DataSet dataSet : dataSets)
                 {
@@ -73,9 +74,10 @@ public class ProteomicsDataApiTest
                 }
             }
         }
-        
+
         System.out.println("DSS processing plugins:");
-        List<DataStoreServerProcessingPluginInfo> infos = facade.listDataStoreServerProcessingPluginInfos();
+        List<DataStoreServerProcessingPluginInfo> infos =
+                facade.listDataStoreServerProcessingPluginInfos();
         String dataSetProcessingKey = null;
         for (DataStoreServerProcessingPluginInfo info : infos)
         {
@@ -86,14 +88,14 @@ public class ProteomicsDataApiTest
                 dataSetProcessingKey = info.getKey();
             }
         }
-        
+
         System.out.println("Projects:");
         List<Project> projects = facade.listProjects(userID);
         for (Project project : projects)
         {
             System.out.println(project);
         }
-        
+
         System.out.println("Search Experiments:");
         List<Experiment> experiments = facade.listSearchExperiments(userID);
         long[] ids = new long[experiments.size()];
@@ -105,16 +107,16 @@ public class ProteomicsDataApiTest
                     + experiment.getRegistrationDate() + "] " + experiment.getProperties());
             ids[i] = experiment.getId();
         }
-        
+
         if (dataSetProcessingKey != null)
         {
             System.out.println("Process search data of " + ids.length + " experiments");
-            facade.processSearchData(userID, dataSetProcessingKey , ids);
+            facade.processSearchData(userID, dataSetProcessingKey, ids);
         }
-        
+
         facade.logout();
     }
-    
+
     private static void print(DataSet dataSet, String indentation)
     {
         System.out.println(indentation + dataSet.getCode() + " " + dataSet.getType() + " "

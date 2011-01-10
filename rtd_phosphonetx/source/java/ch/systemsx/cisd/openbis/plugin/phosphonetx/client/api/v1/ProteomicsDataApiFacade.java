@@ -31,18 +31,20 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.MsInjectionDataInfo;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
 {
     private static final String USER_ROLE_SET = "SPACE_USER";
+
     private final IProteomicsDataService service;
+
     private final IGeneralInformationService generalInfoService;
+
     private final String sessionToken;
 
-    ProteomicsDataApiFacade(IProteomicsDataService service, IGeneralInformationService generalInfoService, String sessionToken)
+    ProteomicsDataApiFacade(IProteomicsDataService service,
+            IGeneralInformationService generalInfoService, String sessionToken)
     {
         this.service = service;
         this.generalInfoService = generalInfoService;
@@ -64,6 +66,7 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
         return service.listRawDataSamples(sessionToken, userID);
     }
 
+    @SuppressWarnings("deprecation")
     public void processingRawData(String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
@@ -85,7 +88,7 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
         {
             throw new IllegalStateException("Role set " + USER_ROLE_SET + " not known.");
         }
-        
+
         List<SpaceWithProjectsAndRoleAssignments> spaces =
                 generalInfoService.listSpacesWithProjectsAndRoleAssignments(sessionToken, null);
         List<Project> projects = new ArrayList<Project>();
@@ -105,32 +108,36 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
         return projects;
     }
 
+    @SuppressWarnings("deprecation")
     public List<Experiment> listSearchExperiments(String userID)
     {
         return service.listSearchExperiments(sessionToken, userID);
     }
 
-    public List<Experiment> listExperiments(String sessionToken, String userID,
-            String experimentTypeCode)
+    public List<Experiment> listExperiments(@SuppressWarnings("hiding") String sessionToken,
+            String userID, String experimentTypeCode)
     {
         return service.listExperiments(sessionToken, userID, experimentTypeCode);
     }
 
+    @SuppressWarnings("deprecation")
     public void processSearchData(String userID, String dataSetProcessingKey,
             long[] searchExperimentIDs)
     {
         service.processSearchData(sessionToken, userID, dataSetProcessingKey, searchExperimentIDs);
     }
 
-    public void processProteinResultDataSets(String sessionToken, String userID,
-            String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs)
+    public void processProteinResultDataSets(@SuppressWarnings("hiding") String sessionToken,
+            String userID, String dataSetProcessingKey, String experimentTypeCode,
+            long[] experimentIDs)
     {
-        service.processProteinResultDataSets(sessionToken, userID, dataSetProcessingKey, experimentTypeCode, experimentIDs);
+        service.processProteinResultDataSets(sessionToken, userID, dataSetProcessingKey,
+                experimentTypeCode, experimentIDs);
     }
 
     public void logout()
     {
         generalInfoService.logout(sessionToken);
     }
-    
+
 }

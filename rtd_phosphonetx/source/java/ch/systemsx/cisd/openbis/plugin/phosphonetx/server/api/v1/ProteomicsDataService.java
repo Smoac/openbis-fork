@@ -62,9 +62,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.MsInjectionSample;
  * @author Franz-Josef Elmer
  */
 @Component(Constants.PROTEOMICS_DATA_SERVICE)
-public class ProteomicsDataService extends AbstractServer<IProteomicsDataService> implements IProteomicsDataService
+public class ProteomicsDataService extends AbstractServer<IProteomicsDataService> implements
+        IProteomicsDataService
 {
     private static final String MS_SEARCH = "MS_SEARCH";
+
     @Resource(name = Constants.PROTEOMICS_DATA_SERVICE_INTERNAL)
     private IProteomicsDataServiceInternal service;
 
@@ -139,7 +141,8 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         Map<String, Date> latestDataSetRegistrationDates = new HashMap<String, Date>();
         for (Entry<String, ExternalData> entry : sample.getLatestDataSets().entrySet())
         {
-            latestDataSetRegistrationDates.put(entry.getKey(), entry.getValue().getRegistrationDate());
+            latestDataSetRegistrationDates.put(entry.getKey(), entry.getValue()
+                    .getRegistrationDate());
         }
         info.setLatestDataSetRegistrationDates(latestDataSetRegistrationDates);
         return info;
@@ -169,7 +172,8 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
     {
         checkSession(sessionToken);
 
-        List<DataStoreServerProcessingPluginInfo> result = new ArrayList<DataStoreServerProcessingPluginInfo>();
+        List<DataStoreServerProcessingPluginInfo> result =
+                new ArrayList<DataStoreServerProcessingPluginInfo>();
         List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
         for (DataStorePE dataStore : dataStores)
         {
@@ -198,6 +202,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         return new DataStoreServerProcessingPluginInfo(key, label, translatedCodes);
     }
 
+    @SuppressWarnings("deprecation")
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
             long[] rawDataSampleIDs, String dataSetType)
     {
@@ -240,7 +245,8 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         SessionContextDTO session = login(userID);
         try
         {
-            List<Experiment> experiments = service.listExperiments(session.getSessionToken(), experimentTypeCode);
+            List<Experiment> experiments =
+                    service.listExperiments(session.getSessionToken(), experimentTypeCode);
             List<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment> result =
                     new ArrayList<ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.api.v1.dto.Experiment>();
             for (Experiment experiment : experiments)
@@ -276,7 +282,7 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         processProteinResultDataSets(sessionToken, userID, dataSetProcessingKey, MS_SEARCH,
                 searchExperimentIDs);
     }
-    
+
     public void processProteinResultDataSets(String sessionToken, String userID,
             String dataSetProcessingKey, String experimentTypeCode, long[] experimentIDs)
     {
@@ -284,8 +290,8 @@ public class ProteomicsDataService extends AbstractServer<IProteomicsDataService
         SessionContextDTO session = login(userID);
         try
         {
-            service.processProteinResultDataSets(session.getSessionToken(), dataSetProcessingKey, experimentTypeCode,
-                    experimentIDs);
+            service.processProteinResultDataSets(session.getSessionToken(), dataSetProcessingKey,
+                    experimentTypeCode, experimentIDs);
         } finally
         {
             service.logout(session.getSessionToken());

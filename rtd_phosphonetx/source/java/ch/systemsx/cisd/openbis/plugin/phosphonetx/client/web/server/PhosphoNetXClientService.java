@@ -83,9 +83,10 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         IPhosphoNetXClientService, InitializingBean
 {
     private static final String CACHE_VERSION = "1"; // Sprint S97
-    
+
     @Resource(name = ResourceNames.PHOSPHONETX_PLUGIN_SERVER)
-    @Private IPhosphoNetXServer server;
+    @Private
+    IPhosphoNetXServer server;
 
     @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
     private IProteomicsDataServiceInternal proteomicsDataService;
@@ -192,7 +193,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
             operationLog.info(stopWatch.getTime() + " msec for listProteinsByExperiment");
         }
     }
-    
+
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
@@ -284,11 +285,13 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return new TypedTableResultSet<Sample>(resultSet);
     }
 
-    public String prepareExportRawDataSamples(TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria)
+    public String prepareExportRawDataSamples(
+            TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria)
     {
         return prepareExportEntities(exportCriteria);
     }
 
+    @SuppressWarnings("deprecation")
     public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs,
             String dataSetType)
     {
