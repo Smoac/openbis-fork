@@ -46,7 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Piotr Buczek
  */
-@Test(groups = "system test")
+// @Test(groups = "system test")
+@Test(groups = "broken")
 public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 {
     private static final String CELL_PLATE = "CELL_PLATE";
@@ -73,7 +74,7 @@ public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
                 defaultValue, section, ordinal, dynamic, false, script);
     }
 
-    @Test(groups = "broken")
+    @Test
     public void testRegisterDynamicPropertyAssignment()
     {
         logIntoCommonClientService();
