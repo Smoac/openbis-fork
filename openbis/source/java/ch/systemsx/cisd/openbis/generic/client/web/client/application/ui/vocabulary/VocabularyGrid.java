@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -43,10 +44,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -56,11 +56,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
@@ -68,12 +69,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
+public class VocabularyGrid extends TypedTableGrid<Vocabulary>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
 
@@ -105,10 +106,12 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
         addButton(addButton);
 
         Button showDetailsButton =
-                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
-                        new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
                             {
-                                public void invoke(BaseEntityModel<Vocabulary> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
                                         boolean keyPressed)
                                 {
                                     showEntityViewer(selectedItem.getBaseObject(), false,
@@ -119,13 +122,14 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
         addButton(showDetailsButton);
 
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
                     {
 
-                        public void invoke(BaseEntityModel<Vocabulary> selectedItem,
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
                                 boolean keyPressed)
                         {
-                            Vocabulary vocabulary = selectedItem.getBaseObject();
+                            Vocabulary vocabulary = selectedItem.getBaseObject().getObjectOrNull();
                             if (vocabulary.isManagedInternally())
                             {
                                 String errorMsg = "Internally managed vocabulary cannot be edited.";
@@ -143,7 +147,8 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                     {
 
                         @Override
-                        protected Dialog createDialog(List<Vocabulary> vocabularies,
+                        protected Dialog createDialog(
+                                List<TableModelRowWithObject<Vocabulary>> vocabularies,
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new VocabularyListDeletionConfirmationDialog(viewContext,
@@ -151,12 +156,13 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                         }
 
                         @Override
-                        protected boolean validateSelectedData(List<Vocabulary> data)
+                        protected boolean validateSelectedData(
+                                List<TableModelRowWithObject<Vocabulary>> data)
                         {
                             String errorMsg = "Internally managed vocabularies cannot be deleted.";
-                            for (Vocabulary vocabulary : data)
+                            for (TableModelRowWithObject<Vocabulary> vocabulary : data)
                             {
-                                if (vocabulary.isManagedInternally())
+                                if (vocabulary.getObjectOrNull().isManagedInternally())
                                 {
                                     MessageBox.alert("Error", errorMsg, null);
                                     return false;
@@ -173,51 +179,56 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 
     private VocabularyGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.VOCABULARY_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.VOCABULARY_BROWSER_GRID);
         postEditionCallback = createRefreshGridAction();
     }
 
     @Override
-    protected IColumnDefinitionKind<Vocabulary>[] getStaticColumnsDefinition()
+    protected String translateColumnIdToDictionaryKey(String columnID)
     {
-        return VocabularyColDefKind.values();
+        return columnID.toLowerCase();
     }
 
     @Override
-    protected ColumnDefsAndConfigs<Vocabulary> createColumnsDefinition()
-    {
-        ColumnDefsAndConfigs<Vocabulary> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(VocabularyColDefKind.CODE.id(),
-                createInternalLinkCellRenderer());
-        schema.setGridCellRendererFor(VocabularyColDefKind.DESCRIPTION.id(),
-                createMultilineStringCellRenderer());
-        return schema;
-    }
-
-    @Override
-    protected List<IColumnDefinition<Vocabulary>> getInitialFilters()
-    {
-        return asColumnFilters(new VocabularyColDefKind[]
-            { VocabularyColDefKind.CODE });
-    }
-
-    @Override
-    protected void listEntities(DefaultResultSetConfig<String, Vocabulary> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Vocabulary>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<Vocabulary>> callback)
     {
         viewContext.getService().listVocabularies(false, false, resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Vocabulary> exportCriteria,
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<Vocabulary>> createColumnsDefinition()
+    {
+        ColumnDefsAndConfigs<TableModelRowWithObject<Vocabulary>> schema =
+                super.createColumnsDefinition();
+        schema.setGridCellRendererFor(VocabularyGridColumnIDs.CODE,
+                createInternalLinkCellRenderer());
+        schema.setGridCellRendererFor(VocabularyGridColumnIDs.DESCRIPTION,
+                createMultilineStringCellRenderer());
+        schema.setGridCellRendererFor(VocabularyGridColumnIDs.REGISTRATOR,
+                PersonRenderer.REGISTRATOR_RENDERER);
+
+        return schema;
+    }
+
+    @Override
+    protected List<String> getColumnIdsOfFilters()
+    {
+        return Arrays.asList(VocabularyGridColumnIDs.CODE);
+    }
+
+    @Override
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<Vocabulary>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportVocabularies(exportCriteria, callback);
     }
 
     @Override
-    protected void showEntityViewer(final Vocabulary vocabulary, boolean editMode,
-            boolean inBackground)
+    protected void showEntityViewer(final TableModelRowWithObject<Vocabulary> vocabulary,
+            boolean editMode, boolean inBackground)
     {
         final AbstractTabItemFactory tabFactory = new AbstractTabItemFactory()
             {
@@ -225,14 +236,14 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 public ITabItem create()
                 {
                     IDisposableComponent component =
-                            VocabularyTermGrid.create(viewContext, vocabulary);
+                            VocabularyTermGrid.create(viewContext, vocabulary.getObjectOrNull());
                     return DefaultTabItem.create(getTabTitle(), component, viewContext);
                 }
 
                 @Override
                 public String getId()
                 {
-                    return VocabularyTermGrid.createBrowserId(vocabulary);
+                    return VocabularyTermGrid.createBrowserId(vocabulary.getObjectOrNull());
                 }
 
                 @Override
@@ -244,8 +255,8 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 @Override
                 public String getTabTitle()
                 {
-                    return viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER,
-                            vocabulary.getCode());
+                    return viewContext.getMessage(Dict.VOCABULARY_TERMS_BROWSER, vocabulary
+                            .getObjectOrNull().getCode());
                 }
 
                 @Override
@@ -335,6 +346,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
             };
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]

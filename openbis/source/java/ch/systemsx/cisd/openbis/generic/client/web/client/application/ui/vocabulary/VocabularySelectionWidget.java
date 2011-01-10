@@ -30,10 +30,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * A {@link ComboBox} extension for selecting a {@link Vocabulary}.
@@ -90,19 +91,26 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     @Override
     protected void loadData(final AbstractAsyncCallback<List<Vocabulary>> callback)
     {
-        DefaultResultSetConfig<String, Vocabulary> criteria =
+        DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria =
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getService().listVocabularies(false, true, criteria,
-                new AsyncCallback<ResultSet<Vocabulary>>()
+                new AsyncCallback<TypedTableResultSet<Vocabulary>>()
                     {
                         public void onFailure(Throwable caught)
                         {
                             callback.onFailure(caught);
                         }
 
-                        public void onSuccess(ResultSet<Vocabulary> result)
+                        public void onSuccess(TypedTableResultSet<Vocabulary> result)
                         {
-                            callback.onSuccess(result.getList().extractOriginalObjects());
+                            List<TableModelRowWithObject<Vocabulary>> rows =
+                                    result.getResultSet().getList().extractOriginalObjects();
+                            List<Vocabulary> vocabularies = new ArrayList<Vocabulary>();
+                            for (TableModelRowWithObject<Vocabulary> row : rows)
+                            {
+                                vocabularies.add(row.getObjectOrNull());
+                            }
+                            callback.onSuccess(vocabularies);
                         }
                     });
     }

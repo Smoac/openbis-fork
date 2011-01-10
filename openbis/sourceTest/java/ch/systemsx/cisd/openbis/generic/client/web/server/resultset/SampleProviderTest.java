@@ -16,26 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.testng.AssertJUnit;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria2;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
@@ -45,22 +38,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleTypeBuilder;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class SampleProviderTest extends AssertJUnit
+public class SampleProviderTest extends AbstractProviderTest
 {
-    private static final String SESSION_TOKEN = "token";
-    
-    private Mockery context;
-    private ICommonServer server;
-
     @BeforeMethod
-    public final void setUp()
+    public final void setUpExpectations()
     {
-        context = new Mockery();
-        server = context.mock(ICommonServer.class);
         context.checking(new Expectations()
             {
                 {
@@ -72,14 +56,6 @@ public class SampleProviderTest extends AssertJUnit
                     will(returnValue(Arrays.asList(st1.getSampleType())));
                 }
             });
-    }
-
-    @AfterMethod
-    public final void tearDown()
-    {
-        // To following line of code should also be called at the end of each test method.
-        // Otherwise one do not known which test failed.
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -101,29 +77,33 @@ public class SampleProviderTest extends AssertJUnit
                     will(returnValue(Arrays.asList(s1.getSample(), s2.getSample())));
                 }
             });
-        
+
         TypedTableModel<Sample> tableModel = sampleProvider.getTableModel();
-        
-        assertEquals("[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
-                + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
-                + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
-                + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
-                + "property-USER-NUMBER, property-USER-TIMESTAMP, property-USER-NAME, property-USER-MY-MATERIAL, property-USER-TEXT]",
+
+        assertEquals(
+                "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
+                        + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
+                        + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
+                        + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
+                        + "property-USER-NUMBER, property-USER-TIMESTAMP, property-USER-NAME, property-USER-MY-MATERIAL, property-USER-TEXT]",
                 getHeaderIDs(tableModel).toString());
-        assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
-                + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
-                + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, REAL, TIMESTAMP, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
+        assertEquals(
+                "[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
+                        + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
+                        + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, REAL, TIMESTAMP, VARCHAR, MATERIAL, MULTILINE_VARCHAR]",
                 getHeaderDataTypes(tableModel).toString());
         assertEquals("[null, null, null, null, null, null, null, null, null, null, null, null, "
                 + "null, null, null, null, null, null, null, null, MATERIAL, null]",
                 getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
-        assertEquals("[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , , , , , , , "
-                + "hello, WATER (FLUID), ]", rows.get(0).getValues().toString());
+        assertEquals(
+                "[S1, S1, DB, MY-SPACE, DB:/MY-SPACE/S1, ALPHA, no, no, , , , , , , , , , , , "
+                        + "hello, WATER (FLUID), ]", rows.get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
-        assertEquals("[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , , , , 2.5, 1970-01-01 01:00:00 +0100, , , ]", rows.get(1)
-                .getValues().toString());
+        assertEquals(
+                "[S2, S2, DB, MY-SPACE, DB:/MY-SPACE/S2, BETA, no, no, , , , , , , , , , 2.5, 1970-01-01 01:00:00 +0100, , , ]",
+                rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
     }
@@ -150,65 +130,36 @@ public class SampleProviderTest extends AssertJUnit
                     will(returnValue(Arrays.asList(s1.getSample(), s2.getSample())));
                 }
             });
-        
+
         TypedTableModel<Sample> tableModel = sampleProvider.getTableModel();
-        
-        assertEquals("[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
-                + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
-                + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
-                + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
-                + "property-USER-NAME, property-USER-TIMESTAMP, property-USER-NUMBER, property-USER-TEXT]", getHeaderIDs(tableModel).toString());
-        assertEquals("[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
-                + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
-                + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, REAL, MULTILINE_VARCHAR]", getHeaderDataTypes(tableModel)
-                .toString());
-        assertEquals("[null, null, null, null, null, null, null, null, null, null, null, null, null, "
-                + "null, null, null, null, null, null, null, null]", getHeaderEntityKinds(tableModel)
-                .toString());
+
+        assertEquals(
+                "[CODE, SUBCODE, DATABASE_INSTANCE, SPACE, SAMPLE_IDENTIFIER, SAMPLE_TYPE, "
+                        + "IS_INSTANCE_SAMPLE, IS_INVALID, REGISTRATOR, REGISTRATION_DATE, "
+                        + "EXPERIMENT, EXPERIMENT_IDENTIFIER, PROJECT, "
+                        + "PERM_ID, SHOW_DETAILS_LINK, generatedFromParent, containerParent, "
+                        + "property-USER-NAME, property-USER-TIMESTAMP, property-USER-NUMBER, property-USER-TEXT]",
+                getHeaderIDs(tableModel).toString());
+        assertEquals(
+                "[VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, "
+                        + "VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, VARCHAR, VARCHAR, VARCHAR, "
+                        + "VARCHAR, VARCHAR, VARCHAR, VARCHAR, VARCHAR, TIMESTAMP, REAL, MULTILINE_VARCHAR]",
+                getHeaderDataTypes(tableModel).toString());
+        assertEquals(
+                "[null, null, null, null, null, null, null, null, null, null, null, null, null, "
+                        + "null, null, null, null, null, null, null, null]",
+                getHeaderEntityKinds(tableModel).toString());
         List<TableModelRowWithObject<Sample>> rows = tableModel.getRows();
         assertSame(s1.getSample(), rows.get(0).getObjectOrNull());
         assertEquals("[S1, S1, DB, , DB:/S1, ALPHA, yes, yes, Einstein, Albert, "
-                + "Thu Jan 01 01:00:04 CET 1970, , , , 123, http, /AB/CD, , hello, , , ]", rows.get(0)
-                .getValues().toString());
+                + "Thu Jan 01 01:00:04 CET 1970, , , , 123, http, /AB/CD, , hello, , , ]", rows
+                .get(0).getValues().toString());
         assertSame(s2.getSample(), rows.get(1).getObjectOrNull());
         assertEquals("[S:2, 2, DB, MY-SPACE, DB:/MY-SPACE/S:2, BETA, no, no, , , EXP1, "
                 + "DB:/SPACE1/P1/EXP1, P1, , , /AB/CD\n/DE/FG\n, DB:/A/B, , , , ]", rows.get(1)
                 .getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
-    }
-    
-    private List<String> getHeaderIDs(TypedTableModel<?> tableModel)
-    {
-        List<String> result = new ArrayList<String>();
-        List<TableModelColumnHeader> headers = tableModel.getHeader();
-        for (TableModelColumnHeader header : headers)
-        {
-            result.add(header.getId());
-        }
-        return result;
-    }
-    
-    private List<DataTypeCode> getHeaderDataTypes(TypedTableModel<?> tableModel)
-    {
-        List<DataTypeCode> result = new ArrayList<DataTypeCode>();
-        List<TableModelColumnHeader> headers = tableModel.getHeader();
-        for (TableModelColumnHeader header : headers)
-        {
-            result.add(header.getDataType());
-        }
-        return result;
-    }
-    
-    private List<EntityKind> getHeaderEntityKinds(TypedTableModel<?> tableModel)
-    {
-        List<EntityKind> result = new ArrayList<EntityKind>();
-        List<TableModelColumnHeader> headers = tableModel.getHeader();
-        for (TableModelColumnHeader header : headers)
-        {
-            result.add(header.tryGetEntityKind());
-        }
-        return result;
     }
 
 }

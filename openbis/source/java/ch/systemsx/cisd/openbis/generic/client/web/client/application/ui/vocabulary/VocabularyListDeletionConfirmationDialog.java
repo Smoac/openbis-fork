@@ -24,10 +24,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 public final class VocabularyListDeletionConfirmationDialog extends
-        AbstractDataListDeletionConfirmationDialog<Vocabulary>
+        AbstractDataListDeletionConfirmationDialog<TableModelRowWithObject<Vocabulary>>
 {
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
@@ -35,7 +36,8 @@ public final class VocabularyListDeletionConfirmationDialog extends
     private final AbstractAsyncCallback<Void> callback;
 
     public VocabularyListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, List<Vocabulary> vocabularies,
+            IViewContext<ICommonClientServiceAsync> viewContext,
+            List<TableModelRowWithObject<Vocabulary>> vocabularies,
             AbstractAsyncCallback<Void> callback)
     {
         super(viewContext, vocabularies);

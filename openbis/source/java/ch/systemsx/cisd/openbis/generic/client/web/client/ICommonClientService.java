@@ -236,7 +236,7 @@ public interface ICommonClientService extends IClientService
      */
     public TypedTableResultSet<Sample> listSamples2(final ListSampleDisplayCriteria2 criteria)
             throws UserFailureException;
-    
+
     /**
      * Returns a key which can be used be the export servlet (and eventually
      * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
@@ -244,7 +244,7 @@ public interface ICommonClientService extends IClientService
     public String prepareExportSamples(
             final TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
             throws UserFailureException;
-    
+
     /**
      * Returns a list of experiments.
      */
@@ -282,7 +282,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for matching entites.
      */
-    public String prepareExportMatchingEntities(final TableExportCriteria<TableModelRowWithObject<MatchingEntity>> criteria)
+    public String prepareExportMatchingEntities(
+            final TableExportCriteria<TableModelRowWithObject<MatchingEntity>> criteria)
             throws UserFailureException;
 
     /**
@@ -326,13 +327,15 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of all projects.
      */
-    public TypedTableResultSet<Project> listProjects(DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria)
+    public TypedTableResultSet<Project> listProjects(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria)
             throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for projects.
      */
-    public String prepareExportProjects(final TableExportCriteria<TableModelRowWithObject<Project>> criteria)
+    public String prepareExportProjects(
+            final TableExportCriteria<TableModelRowWithObject<Project>> criteria)
             throws UserFailureException;
 
     /**
@@ -341,13 +344,16 @@ public interface ICommonClientService extends IClientService
      * Note that the vocabulary terms are included/loaded.
      * </p>
      */
-    public ResultSet<Vocabulary> listVocabularies(boolean withTerms, boolean excludeInternal,
-            DefaultResultSetConfig<String, Vocabulary> criteria) throws UserFailureException;
+    public TypedTableResultSet<Vocabulary> listVocabularies(boolean withTerms,
+            boolean excludeInternal,
+            DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria)
+            throws UserFailureException;
 
     /**
      * Like {@link #prepareExportSamples(TableExportCriteria)}, but for Vocabularies.
      */
-    public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
+    public String prepareExportVocabularies(
+            final TableExportCriteria<TableModelRowWithObject<Vocabulary>> criteria)
             throws UserFailureException;
 
     /**
@@ -611,8 +617,8 @@ public interface ICommonClientService extends IClientService
     public void deleteSamples(List<TechId> sampleIds, String reason) throws UserFailureException;
 
     /** Deletes the specified samples. */
-    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria, String reason)
-            throws UserFailureException;
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
+            String reason) throws UserFailureException;
 
     /** Deletes the specified sample. */
     public void deleteSample(TechId sampleId, String reason) throws UserFailureException;
@@ -757,7 +763,7 @@ public interface ICommonClientService extends IClientService
      */
     public void addAttachment(TechId holderId, String sessionKey, AttachmentHolderKind holderKind,
             NewAttachment attachment) throws UserFailureException;
-    
+
     /**
      * For given {@link DataStoreServiceKind} returns a list of all corresponding
      * {@link DatastoreServiceDescription}s.

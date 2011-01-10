@@ -22,10 +22,10 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyTermGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.VocabularyGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -49,7 +49,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
         CheckTableCommand table = new CheckTableCommand(VocabularyGrid.GRID_ID);
-        table.expectedColumn(VocabularyColDefKind.CODE.id(), VOCABULARY_CODE);
+        table.expectedColumn(VocabularyGridColumnIDs.CODE, VOCABULARY_CODE);
         remoteConsole.prepare(table.expectedSize(5));
 
         launchTest();
@@ -97,7 +97,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
             final Widget widget = GWTTestUtil.getWidgetWithID(VocabularyGrid.GRID_ID);
             final Grid<BaseEntityModel<Vocabulary>> table =
                     (Grid<BaseEntityModel<Vocabulary>>) widget;
-            GridTestUtils.fireSelectRow(table, VocabularyColDefKind.CODE.id(), vocabularyCode);
+            GridTestUtils.fireSelectRow(table, VocabularyGridColumnIDs.CODE, vocabularyCode);
             GWTTestUtil.clickButtonWithID(VocabularyGrid.SHOW_DETAILS_BUTTON_ID);
         }
     }

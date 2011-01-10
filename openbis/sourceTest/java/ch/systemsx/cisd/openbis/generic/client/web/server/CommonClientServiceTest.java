@@ -279,15 +279,17 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     public final void testListVocabularies()
     {
         final Vocabulary vocabulary = VocabularyTranslator.translate(createVocabulary());
-        final List<Vocabulary> entities = Collections.singletonList(vocabulary);
+        final List<TableModelRowWithObject<Vocabulary>> entities =
+                Collections.singletonList(new TableModelRowWithObject<Vocabulary>(vocabulary,
+                        Collections.<ISerializableComparable> emptyList()));
         final boolean excludeInternals = true;
-        final DefaultResultSetConfig<String, Vocabulary> criteria =
+        final DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria =
                 DefaultResultSetConfig.createFetchAll();
         prepareListEntities(entities, criteria);
 
-        ResultSet<Vocabulary> resultSet =
+        TypedTableResultSet<Vocabulary> resultSet =
                 commonClientService.listVocabularies(false, excludeInternals, criteria);
-        assertEqualEntities(entities, resultSet);
+        assertEqualEntities(entities, resultSet.getResultSet());
         context.assertIsSatisfied();
     }
 
@@ -318,24 +320,26 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         List<TableModelRowWithObject<T>> rows = new ArrayList<TableModelRowWithObject<T>>();
         for (T entity : entities)
         {
-            rows.add(new TableModelRowWithObject<T>(entity, Collections.<ISerializableComparable>emptyList()));
+            rows.add(new TableModelRowWithObject<T>(entity, Collections
+                    .<ISerializableComparable> emptyList()));
         }
         GridRowModels<TableModelRowWithObject<T>> rowModels = createGridRowModels(rows);
         final DefaultResultSet<String, TableModelRowWithObject<T>> resultSet =
-            new DefaultResultSet<String, TableModelRowWithObject<T>>(resultSetKey, rowModels, entities.size());
+                new DefaultResultSet<String, TableModelRowWithObject<T>>(resultSetKey, rowModels,
+                        entities.size());
         context.checking(new Expectations()
-        {
             {
-                prepareGetHttpSession(this);
-                prepareGetSessionToken(this);
-                prepareGetResultSetManager(this);
-                
-                prepareGetResultSet(this, criteria);
-                will(returnValue(resultSet));
-            }
-        });
+                {
+                    prepareGetHttpSession(this);
+                    prepareGetSessionToken(this);
+                    prepareGetResultSetManager(this);
+
+                    prepareGetResultSet(this, criteria);
+                    will(returnValue(resultSet));
+                }
+            });
     }
-    
+
     private <T> GridRowModels<T> createGridRowModels(List<T> entities)
     {
         return CachedResultSetManagerTest.createGridRowModels(entities);
@@ -359,17 +363,20 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         assertEquals(entities.size(), resultSet.getTotalLength());
     }
 
-    private <T extends ISerializable> void assertEqualEntities2(List<T> entities, final TypedTableResultSet<T> resultSet)
+    private <T extends ISerializable> void assertEqualEntities2(List<T> entities,
+            final TypedTableResultSet<T> resultSet)
     {
-        GridRowModels<TableModelRowWithObject<T>> resultSetList = resultSet.getResultSet().getList();
+        GridRowModels<TableModelRowWithObject<T>> resultSetList =
+                resultSet.getResultSet().getList();
         assertEquals(entities.size(), resultSetList.size());
         for (int i = 0; i < entities.size(); i++)
         {
-            assertEquals(entities.get(i), resultSetList.get(i).getOriginalObject().getObjectOrNull());
+            assertEquals(entities.get(i), resultSetList.get(i).getOriginalObject()
+                    .getObjectOrNull());
         }
         assertEquals(entities.size(), resultSet.getResultSet().getTotalLength());
     }
-    
+
     @Test
     public final void testListDataTypes()
     {

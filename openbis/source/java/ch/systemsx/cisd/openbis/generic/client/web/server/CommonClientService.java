@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.ProjectsProv
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SampleProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.SpacesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.TableDataProviderFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabulariesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.VocabularyTermsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator.Escape;
@@ -449,7 +450,8 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportVocabularies(final TableExportCriteria<Vocabulary> criteria)
+    public String prepareExportVocabularies(
+            final TableExportCriteria<TableModelRowWithObject<Vocabulary>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -769,17 +771,19 @@ public final class CommonClientService extends AbstractClientService implements
         return new TypedTableResultSet<Project>(resultSet);
     }
 
-    public ResultSet<Vocabulary> listVocabularies(final boolean withTerms,
-            final boolean excludeInternal, DefaultResultSetConfig<String, Vocabulary> criteria)
-            throws UserFailureException
+    public TypedTableResultSet<Vocabulary> listVocabularies(boolean withTerms,
+            boolean excludeInternal,
+            DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new AbstractOriginalDataProviderWithoutHeaders<Vocabulary>()
-            {
-                public List<Vocabulary> getOriginalData() throws UserFailureException
-                {
-                    return listVocabularies(withTerms, excludeInternal);
-                }
-            });
+        VocabulariesProvider provider =
+                new VocabulariesProvider(commonServer, getSessionToken(), withTerms,
+                        excludeInternal);
+        DataProviderAdapter<Vocabulary> dataProvider =
+                new DataProviderAdapter<Vocabulary>(provider);
+        ResultSet<TableModelRowWithObject<Vocabulary>> resultSet =
+                listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<Vocabulary>(resultSet);
     }
 
     private List<Vocabulary> listVocabularies(final boolean withTerms, boolean excludeInternal)

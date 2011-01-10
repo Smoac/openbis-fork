@@ -197,7 +197,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listSamples2(final ListSampleDisplayCriteria2 criteria,
             AsyncCallback<TypedTableResultSet<Sample>> asyncCallback);
-    
+
     /** @see ICommonClientService#prepareExportSamples(TableExportCriteria) */
     public void prepareExportSamples(
             TableExportCriteria<TableModelRowWithObject<Sample>> exportCriteria,
@@ -258,32 +258,38 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, boolean,
      *      IResultSetConfig)
      */
-    public void listMatchingEntities(final SearchableEntity searchableEntity,
-            final String queryText, final boolean useWildcardSearchMode,
+    public void listMatchingEntities(
+            final SearchableEntity searchableEntity,
+            final String queryText,
+            final boolean useWildcardSearchMode,
             final IResultSetConfig<String, TableModelRowWithObject<MatchingEntity>> resultSetConfig,
             final AsyncCallback<TypedTableResultSet<MatchingEntity>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportMatchingEntities(TableExportCriteria) */
-    public void prepareExportMatchingEntities(TableExportCriteria<TableModelRowWithObject<MatchingEntity>> exportCriteria,
+    public void prepareExportMatchingEntities(
+            TableExportCriteria<TableModelRowWithObject<MatchingEntity>> exportCriteria,
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listProjects(DefaultResultSetConfig) */
-    public void listProjects(DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria,
+    public void listProjects(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria,
             final AsyncCallback<TypedTableResultSet<Project>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportProjects(TableExportCriteria) */
-    public void prepareExportProjects(TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
+    public void prepareExportProjects(
+            TableExportCriteria<TableModelRowWithObject<Project>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
      * @see ICommonClientService#listVocabularies(boolean, boolean, DefaultResultSetConfig)
      */
     public void listVocabularies(final boolean withTerms, boolean excludeInternal,
-            DefaultResultSetConfig<String, Vocabulary> criteria,
-            final AsyncCallback<ResultSet<Vocabulary>> asyncCallback);
+            DefaultResultSetConfig<String, TableModelRowWithObject<Vocabulary>> criteria,
+            final AsyncCallback<TypedTableResultSet<Vocabulary>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportVocabularies(TableExportCriteria) */
-    public void prepareExportVocabularies(TableExportCriteria<Vocabulary> exportCriteria,
+    public void prepareExportVocabularies(
+            TableExportCriteria<TableModelRowWithObject<Vocabulary>> exportCriteria,
             AsyncCallback<String> callback);
 
     /**
@@ -463,7 +469,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#searchForDataSets(RelatedDataSetCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
+    public void searchForDataSets(
+            RelatedDataSetCriteria<? extends IEntityInformationHolder> criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
             final AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
 
@@ -516,8 +523,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSamples(DisplayedOrSelectedIdHolderCriteria, String) */
-    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria, String value,
-            AsyncCallback<Void> asyncCallback);
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
+            String value, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteSample(TechId, String) */
     public void deleteSample(TechId sampleIs, String value, AsyncCallback<Void> asyncCallback);
@@ -650,7 +657,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#updateAttachment(TechId, AttachmentHolderKind, Attachment) */
     public void updateAttachment(TechId holderId, AttachmentHolderKind holderKind,
             Attachment attachment, AsyncCallback<Void> asyncCallback);
-    
+
     /** @see ICommonClientService#addAttachment(TechId, String, AttachmentHolderKind, NewAttachment) */
     public void addAttachment(TechId holderId, String sessionKey, AttachmentHolderKind holderKind,
             NewAttachment attachment, AsyncCallback<Void> asyncCallback);
