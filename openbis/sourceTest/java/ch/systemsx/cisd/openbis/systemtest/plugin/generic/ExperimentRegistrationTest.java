@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.systemtest.plugin.generic;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.utilities.UnicodeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -214,7 +216,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     }
 
     @Test
-    public void testBulkUpdateExperiments()
+    public void testBulkUpdateExperiments() throws UnsupportedEncodingException
     {
         logIntoCommonClientService();
 
@@ -228,7 +230,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         // Update the experiments
-        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt",
+                bulkUpdateString.getBytes(UnicodeUtils.DEFAULT_UNICODE_CHARSET));
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("SIRNA_HCS");
         List<BatchRegistrationResult> results =
@@ -244,7 +247,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
     }
 
     @Test
-    public void testBulkUpdateExperimentsWithProjectChanges()
+    public void testBulkUpdateExperimentsWithProjectChanges() throws UnsupportedEncodingException
     {
         logIntoCommonClientService();
 
@@ -258,7 +261,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String bulkUpdateString = createBulkUpdateString(expIds, "/cisd/nemo", codes, values);
 
         // Update the experiments
-        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt",
+                bulkUpdateString.getBytes(UnicodeUtils.DEFAULT_UNICODE_CHARSET));
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("SIRNA_HCS");
         List<BatchRegistrationResult> results =
@@ -373,6 +377,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
 
     @Test
     public void testBulkUpdateExperimentsDeletingNonMandatoryProperty()
+            throws UnsupportedEncodingException
     {
         logIntoCommonClientService();
 
@@ -386,7 +391,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         // Add/Modify some properties
-        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt",
+                bulkUpdateString.getBytes(UnicodeUtils.DEFAULT_UNICODE_CHARSET));
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("SIRNA_HCS");
 
@@ -400,7 +406,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             { "--DELETE--" };
         bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
-        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
+        addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt",
+                bulkUpdateString.getBytes(UnicodeUtils.DEFAULT_UNICODE_CHARSET));
         genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
 
         verifyBulkUpdate(expIds, new String[]
