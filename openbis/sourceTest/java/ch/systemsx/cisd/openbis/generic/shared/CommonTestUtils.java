@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -42,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -91,27 +91,26 @@ public class CommonTestUtils
 
     public static String FILENAME = "oneCellOrganismData.txt";
 
-    public static VocabularyPE ORGAN =
-            createVocabulary("USER.ORGAN", Arrays.asList(HEAD, LEG, BRAIN));
+    public static VocabularyPE ORGAN = createVocabulary("USER.ORGAN",
+            Arrays.asList(HEAD, LEG, BRAIN));
 
     public static class ExamplePropertyTypes
     {
 
-        public static PropertyTypePE INFECTED_ORGAN =
-                createPropertyType("USER.INFECTED_ORGAN", DataTypeCode.CONTROLLEDVOCABULARY, ORGAN,
-                        null);
+        public static PropertyTypePE INFECTED_ORGAN = createPropertyType("USER.INFECTED_ORGAN",
+                DataTypeCode.CONTROLLEDVOCABULARY, ORGAN, null);
 
-        public static PropertyTypePE INFECTING_VIRUS =
-                createPropertyType("USER.INFECTING_VIRUS", DataTypeCode.MATERIAL, null, VIRUS);
+        public static PropertyTypePE INFECTING_VIRUS = createPropertyType("USER.INFECTING_VIRUS",
+                DataTypeCode.MATERIAL, null, VIRUS);
 
-        public static PropertyTypePE DESCRIPTION =
-                createPropertyType("USER.DESCRIPTION", DataTypeCode.VARCHAR, null, null);
+        public static PropertyTypePE DESCRIPTION = createPropertyType("USER.DESCRIPTION",
+                DataTypeCode.VARCHAR, null, null);
 
-        public static PropertyTypePE NOTES =
-                createPropertyType("USER.NOTES", DataTypeCode.VARCHAR, null, null);
+        public static PropertyTypePE NOTES = createPropertyType("USER.NOTES", DataTypeCode.VARCHAR,
+                null, null);
 
-        public static PropertyTypePE CATEGORY_DESCRIPTION =
-                createPropertyType("USER.CATEGORY_DESCRIPTION", DataTypeCode.VARCHAR, null, null);
+        public static PropertyTypePE CATEGORY_DESCRIPTION = createPropertyType(
+                "USER.CATEGORY_DESCRIPTION", DataTypeCode.VARCHAR, null, null);
     }
 
     public static ExperimentPropertyPE createCategoryProperty(ExperimentTypePE experimentType)
@@ -175,6 +174,7 @@ public class CommonTestUtils
         person.setLastName(principal.getLastName());
         person.setEmail(principal.getEmail());
         person.setDatabaseInstance(createHomeDatabaseInstance());
+
         return person;
     }
 
@@ -252,8 +252,8 @@ public class CommonTestUtils
     {
         final ProjectPE project = new ProjectPE();
         project.setCode(pi.getProjectCode());
-        project.setSpace(createGroup(pi.getSpaceCode(), createDatabaseInstance(pi
-                .getDatabaseInstanceCode())));
+        project.setSpace(createGroup(pi.getSpaceCode(),
+                createDatabaseInstance(pi.getDatabaseInstanceCode())));
         return project;
     }
 
@@ -341,10 +341,11 @@ public class CommonTestUtils
         sampleTypePE.setSubcodeUnique(false);
         sampleTypePE.setGeneratedFromHierarchyDepth(0);
         sampleTypePE.setContainerHierarchyDepth(0);
-        connectAndFill(code, code + "ST", dataType, value, propertyPE, entityTypePropertyTypePE, sampleTypePE);
+        connectAndFill(code, code + "ST", dataType, value, propertyPE, entityTypePropertyTypePE,
+                sampleTypePE);
         return propertyPE;
     }
-    
+
     public final static ExperimentPropertyPE createExperimentPropertyPE(final String code,
             String type, final DataTypeCode dataType, final String value)
     {
