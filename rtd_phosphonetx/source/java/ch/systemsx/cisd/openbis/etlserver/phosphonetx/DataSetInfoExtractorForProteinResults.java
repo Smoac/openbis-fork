@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,9 +31,12 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
@@ -48,6 +53,7 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
     @Private static final String DEFAULT_SEPARATOR = "&";
     @Private static final String DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME = "search.properties";
     @Private static final String PARENT_DATA_SET_CODES = "parent-data-set-codes";
+    @Private static final String EXPERIMENT_IDENTIFIER_KEY = "base-experiment";
     
     private final String separator;
     private final String experimentPropertiesFileName;
@@ -97,6 +103,26 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         if (parentDataSetCodesOrNull != null)
         {
             info.setParentDataSetCodes(Arrays.asList(StringUtils.split(parentDataSetCodesOrNull)));
+        } else 
+        {
+            String baseExperimentIdentifier = properties.getProperty(EXPERIMENT_IDENTIFIER_KEY);
+            if (baseExperimentIdentifier != null)
+            {
+                ExperimentIdentifier identifier = new ExperimentIdentifierFactory(baseExperimentIdentifier).createIdentifier();
+                Experiment baseExperiment = service.tryToGetExperiment(identifier);
+                if (baseExperiment == null)
+                {
+                    throw new UserFailureException("Property " + EXPERIMENT_IDENTIFIER_KEY
+                            + " specifies an unknown experiment: " + baseExperimentIdentifier);
+                }
+                List<ExternalData> dataSets = service.listDataSetsByExperimentID(baseExperiment.getId());
+                List<String> parentDataSetCodes = new ArrayList<String>();
+                for (ExternalData dataSet : dataSets)
+                {
+                    parentDataSetCodes.add(dataSet.getCode());
+                }
+                info.setParentDataSetCodes(parentDataSetCodes);
+            }
         }
         return info;
     }

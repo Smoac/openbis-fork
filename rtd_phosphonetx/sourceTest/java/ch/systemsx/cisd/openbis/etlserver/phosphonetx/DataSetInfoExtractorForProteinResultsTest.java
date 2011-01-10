@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.DEFAULT_EXPERIMENT_TYPE_CODE;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.EXPERIMENT_IDENTIFIER_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.EXPERIMENT_PROPERTIES_FILE_NAME_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.EXPERIMENT_TYPE_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForProteinResults.PARENT_DATA_SET_CODES;
@@ -40,11 +41,17 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
 /**
  * 
@@ -80,6 +87,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     {
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP_TO_BE_IGNORED\n"
                 + PARENT_DATA_SET_CODES + "=1 2  3   4\n");
         Properties properties = new Properties();
         String experimentType = "MY_EXPERIMENT";
@@ -162,6 +170,44 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
             assertEquals("The following mandatory properties are missed: [answer]", ex.getMessage());
         }
         
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testWithParentDataSetsDefinedByBaseExperiment()
+    {
+        String propertiesFile = "my.properties";
+        FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
+                + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n");
+        Properties properties = new Properties();
+        String experimentType = "MY_EXPERIMENT";
+        properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
+        properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        prepare(experimentType);
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryToGetExperiment(
+                            new ExperimentIdentifier(new ProjectIdentifier("TEST", "PROJECT"),
+                                    "EXP1"));
+                    Experiment experiment = new ExperimentBuilder().id(123789L).getExperiment();
+                    will(returnValue(experiment));
+                    
+                    one(service).listDataSetsByExperimentID(experiment.getId());
+                    ExternalData ds1 = new DataSetBuilder().code("ds1").getDataSet();
+                    ExternalData ds2 = new DataSetBuilder().code("ds2").getDataSet();
+                    will(returnValue(Arrays.asList(ds1, ds2)));
+                    
+                    one(service).registerExperiment(with(any(NewExperiment.class)));
+                }
+            });
+
+        IDataSetInfoExtractor extractor = createExtractor(properties);
+        
+        DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
+        
+        assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
+        assertEquals("[ds1, ds2]", info.getParentDataSetCodes().toString());
         context.assertIsSatisfied();
     }
     
