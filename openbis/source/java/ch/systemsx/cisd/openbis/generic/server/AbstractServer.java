@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -258,14 +260,17 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         // If only one user (system user), then this is the first logged user.
         final boolean isFirstLoggedUser = (persons.size() == 1);
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(session.getUserName());
+        final Set<RoleAssignmentPE> roles;
         if (person == null)
         {
             final PersonPE systemUser = getSystemUser(persons);
             final DisplaySettings defaultDisplaySettings = getDefaultDisplaySettings(sessionToken);
             person = createPerson(session.getPrincipal(), systemUser, defaultDisplaySettings);
+            roles = Collections.emptySet();
         } else
         {
-            HibernateUtils.initialize(person.getAllPersonRoles());
+            roles = person.getAllPersonRoles();
+            HibernateUtils.initialize(roles);
         }
         if (session.tryGetPerson() == null)
         {
@@ -282,6 +287,12 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                         createInstanceAdminRoleAssigment(systemUser, person);
                 daoFactory.getRoleAssignmentDAO().createRoleAssignment(roleAssignment);
             }
+        } else if (roles.isEmpty())
+        {
+            authenticationLog.info(String.format(
+                    "User '%s' has no role assignments and thus is not permitted to login.",
+                    person.getUserId()));
+            return null;
         }
         return asDTO(session);
     }
