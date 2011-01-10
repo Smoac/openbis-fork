@@ -35,6 +35,8 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -52,7 +54,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DefaultBatchDynamicPropertyEvaluator.class);
 
-    private static String ID_PROPERTY_NAME = "id";
+    private static String ID_PROPERTY_NAME = ColumnNames.ID_COLUMN;
 
     private final static Map<Class<? extends IEntityInformationWithPropertiesHolder>, EntityKind> entityKindsByClass;
 
@@ -261,7 +263,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
 
     /**
      * Retains only those elements in the <code>ids</code> list that are ids of entities of given
-     * class that have a dynamic property.
+     * class that have a dynamic property (connected with one of specified scripts).
      */
     private static <T extends IEntityInformationWithPropertiesHolder> void retainDynamicIds(
             final Session hibernateSession, final Class<T> clazz, final List<Long> ids)
@@ -282,9 +284,11 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
             EntityKind entityKind) throws DataAccessException
     {
         final String query =
-                String.format("SELECT DISTINCT pv.entity.id FROM %s pa join pa.propertyValues pv "
-                        + "WHERE pa.dynamic = true", entityKind
-                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+                String.format("SELECT DISTINCT pv.entity.id FROM %s pa JOIN pa.propertyValues pv "
+                        + "WHERE pa.script IS NOT NULL                                           "
+                        + "AND pa.script.scriptType = '%s'", entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName(),
+                        ScriptType.DYNAMIC_PROPERTY);
         final List<Long> list = list(hibernateSession.createQuery(query));
 
         if (operationLog.isDebugEnabled())

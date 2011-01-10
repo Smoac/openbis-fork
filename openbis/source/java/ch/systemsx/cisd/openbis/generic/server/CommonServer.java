@@ -660,9 +660,27 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypePropertyTypeBO etptBO =
                 businessObjectFactory.createEntityTypePropertyTypeBO(session, kind);
         etptBO.createAssignment(assignment);
+
         return String.format("%s property type '%s' successfully assigned to %s type '%s'",
-                assignment.isMandatory() ? "Mandatory" : "Optional",
-                assignment.getPropertyTypeCode(), kind.getLabel(), assignment.getEntityTypeCode());
+                getAssignmentType(assignment), assignment.getPropertyTypeCode(), kind.getLabel(),
+                assignment.getEntityTypeCode());
+    }
+
+    private String getAssignmentType(NewETPTAssignment assignment)
+    {
+        if (assignment.isDynamic())
+        {
+            return "Dynamic";
+        } else if (assignment.isManaged())
+        {
+            return "Managed";
+        } else if (assignment.isMandatory())
+        {
+            return "Mandatory";
+        } else
+        {
+            return "Optional";
+        }
     }
 
     public void updatePropertyTypeAssignment(final String sessionToken,

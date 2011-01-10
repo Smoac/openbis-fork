@@ -46,8 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Piotr Buczek
  */
-// @Test(groups = "system test")
-@Test(groups = "broken")
+@Test(groups = "system test")
 public class DynamicPropertiesEvaluationTest extends GenericSystemTestCase
 {
     private static final String CELL_PLATE = "CELL_PLATE";
