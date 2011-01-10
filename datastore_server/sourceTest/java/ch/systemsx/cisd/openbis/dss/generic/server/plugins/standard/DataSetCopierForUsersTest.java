@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatu
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
 
 /**
  * @author Franz-Josef Elmer
@@ -95,14 +96,10 @@ public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
-        ds = new DatasetDescription();
-        ds.setDatasetCode("ds1");
-        ds.setDataSetLocation(DS_LOCATION);
-        ds.setSampleCode("s");
-        ds.setGroupCode("g");
-        ds.setProjectCode("p");
-        ds.setExperimentCode("e");
-        ds.setDatabaseInstanceCode("i");
+        DatasetDescriptionBuilder dsb =
+                new DatasetDescriptionBuilder("ds1").location(DS_LOCATION).sample("s").space("g")
+                        .project("p").experiment("e").databaseInstance("i");
+        ds = dsb.getDatasetDescription();
         File ds1Folder = new File(storeRoot, DS_LOCATION + "/original");
         ds1Folder.mkdirs();
         dsData = new File(ds1Folder, "data.txt");
