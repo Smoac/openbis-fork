@@ -145,6 +145,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -415,8 +416,7 @@ public final class CommonClientService extends AbstractClientService implements
     // --------- methods preparing exported content. Note: GWT does not support
     // generic methods :(
 
-    public String prepareExportSamples(
-            TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
+    public String prepareExportSamples(TableExportCriteria<TableModelRowWithObject<Sample>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -443,7 +443,8 @@ public final class CommonClientService extends AbstractClientService implements
         return prepareExportEntities(criteria);
     }
 
-    public String prepareExportProjects(TableExportCriteria<TableModelRowWithObject<Project>> criteria)
+    public String prepareExportProjects(
+            TableExportCriteria<TableModelRowWithObject<Project>> criteria)
     {
         return prepareExportEntities(criteria);
     }
@@ -664,18 +665,19 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 public List<Script> getOriginalData() throws UserFailureException
                 {
-                    return listScripts(criteria.tryGetEntityKind());
+                    return listScripts(criteria.tryGetScriptType(), criteria.tryGetEntityKind());
                 }
             });
     }
 
-    private List<Script> listScripts(EntityKind entityKindOrNull)
+    private List<Script> listScripts(ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final List<Script> scripts = commonServer.listScripts(sessionToken, entityKindOrNull);
+            final List<Script> scripts =
+                    commonServer.listScripts(sessionToken, scriptTypeOrNull, entityKindOrNull);
             return scripts;
         } catch (final UserFailureException e)
         {
@@ -755,12 +757,15 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public TypedTableResultSet<Project> listProjects(DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria)
+    public TypedTableResultSet<Project> listProjects(
+            DefaultResultSetConfig<String, TableModelRowWithObject<Project>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         ProjectsProvider projectsProvider = new ProjectsProvider(commonServer, getSessionToken());
-        DataProviderAdapter<Project> dataProvider = new DataProviderAdapter<Project>(projectsProvider);
-        ResultSet<TableModelRowWithObject<Project>> resultSet = listEntities(criteria, dataProvider);
+        DataProviderAdapter<Project> dataProvider =
+                new DataProviderAdapter<Project>(projectsProvider);
+        ResultSet<TableModelRowWithObject<Project>> resultSet =
+                listEntities(criteria, dataProvider);
         return new TypedTableResultSet<Project>(resultSet);
     }
 
@@ -1616,7 +1621,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria, String reason)
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<? extends IIdHolder> criteria,
+            String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -2068,8 +2074,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void addAttachment(final TechId holderId, String sessionKey, final AttachmentHolderKind holderKind,
-            final NewAttachment attachment)
+    public void addAttachment(final TechId holderId, String sessionKey,
+            final AttachmentHolderKind holderKind, final NewAttachment attachment)
     {
         final String sessionToken = getSessionToken();
 
@@ -2101,7 +2107,7 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
-    
+
     public List<DatastoreServiceDescription> listDataStoreServices(
             DataStoreServiceKind dataStoreServiceKind)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -2386,7 +2392,7 @@ public final class CommonClientService extends AbstractClientService implements
                     displayedOrSelectedEntitiesCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
             List<T> entities = fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
-            
+
             List<TechId> ids = new ArrayList<TechId>();
             for (T entity : entities)
             {

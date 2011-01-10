@@ -113,8 +113,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         ScriptPE scriptOrNull = tryFindScript(newAssignment);
         assignment =
                 createAssignment(newAssignment.isMandatory(), newAssignment.getSection(),
-                        newAssignment.getOrdinal(), entityType, propertyType,
-                        newAssignment.isDynamic(), scriptOrNull);
+                        newAssignment.getOrdinal(), entityType, propertyType, scriptOrNull);
         String defaultValue = newAssignment.getDefaultValue();
         if (newAssignment.isDynamic())
         {
@@ -264,7 +263,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
 
     private EntityTypePropertyTypePE createAssignment(final boolean mandatory,
             final String section, final Long previousETPTOrdinal, final EntityTypePE entityType,
-            final PropertyTypePE propertyType, boolean dynamic, ScriptPE scriptOrNull)
+            final PropertyTypePE propertyType, ScriptPE scriptOrNull)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
         // need to shift existing etpts to create space for new one
@@ -279,7 +278,6 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         etpt.setMandatory(mandatory);
         etpt.setSection(section);
         etpt.setOrdinal(currentOrdinal);
-        etpt.setDynamic(dynamic);
         etpt.setScript(scriptOrNull);
 
         try

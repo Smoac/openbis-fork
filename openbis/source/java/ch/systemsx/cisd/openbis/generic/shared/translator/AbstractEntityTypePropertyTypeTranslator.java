@@ -92,6 +92,7 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
         result.setOrdinal(etptPE.getOrdinal());
         result.setSection(etptPE.getSection());
         result.setDynamic(etptPE.isDynamic());
+        result.setManaged(etptPE.isManaged());
         result.setScript(ScriptTranslator.translate(etptPE.getScript()));
         return result;
     }

@@ -262,6 +262,8 @@ public final class ColumnNames
 
     public static final String QUERY_TYPE = "query_type";
 
+    public static final String SCRIPT_TYPE = "script_type";
+
     private ColumnNames()
     {
         // Can not be instantiated.

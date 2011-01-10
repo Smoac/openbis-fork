@@ -30,6 +30,8 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
 
     private Long id;
 
+    private ScriptType scriptType;
+
     private String name;
 
     private String description;
@@ -40,6 +42,10 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
 
     private EntityKind entityKind;
 
+    public Script()
+    {
+    }
+
     public EntityKind getEntityKind()
     {
         return entityKind;
@@ -48,10 +54,6 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
     public void setEntityKind(EntityKind entityKind)
     {
         this.entityKind = entityKind;
-    }
-
-    public Script()
-    {
     }
 
     public String getScript()
@@ -97,6 +99,16 @@ public class Script extends AbstractRegistrationHolder implements Comparable<Scr
     public Long getId()
     {
         return id;
+    }
+
+    public ScriptType getScriptType()
+    {
+        return scriptType;
+    }
+
+    public void setScriptType(ScriptType scriptType)
+    {
+        this.scriptType = scriptType;
     }
 
     @Override

@@ -41,9 +41,12 @@ public class NewETPTAssignment implements ISerializable
 
     private Long ordinal;
 
+    // TODO 2011-01-07, Piotr Buczek: use Script DTO here instead of 3 fields
     private String scriptName;
 
     private boolean dynamic;
+
+    private boolean managed;
 
     public NewETPTAssignment()
     {
@@ -51,7 +54,7 @@ public class NewETPTAssignment implements ISerializable
 
     public NewETPTAssignment(EntityKind entityKind, String propertyTypeCode, String entityTypeCode,
             boolean mandatory, String defaultValue, String section, Long ordinal, boolean dynamic,
-            String scriptOrNull)
+            boolean managed, String scriptOrNull)
     {
         this.entityKind = entityKind;
         this.propertyTypeCode = propertyTypeCode;
@@ -61,6 +64,7 @@ public class NewETPTAssignment implements ISerializable
         this.section = section;
         this.ordinal = ordinal;
         this.dynamic = dynamic;
+        this.managed = managed;
         this.scriptName = scriptOrNull;
     }
 
@@ -152,6 +156,16 @@ public class NewETPTAssignment implements ISerializable
     public void setDynamic(boolean dynamic)
     {
         this.dynamic = dynamic;
+    }
+
+    public boolean isManaged()
+    {
+        return managed;
+    }
+
+    public void setManaged(boolean managed)
+    {
+        this.managed = managed;
     }
 
 }

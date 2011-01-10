@@ -27,8 +27,8 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for {@link ScriptDAO}.
@@ -127,7 +127,8 @@ public final class ScriptDAOTest extends AbstractDAOTest
     public void testListSampleCompatibleScripts()
     {
         EntityKind entityKind = EntityKind.SAMPLE;
-        int initialNumberOfScripts = daoFactory.getScriptDAO().listEntities(entityKind).size();
+        int initialNumberOfScripts =
+                daoFactory.getScriptDAO().listEntities(null, entityKind).size();
         int scriptNumber = 1;
         createScriptInDB(createScriptName(scriptNumber), createScriptText(scriptNumber),
                 createScriptDescription(scriptNumber), entityKind);

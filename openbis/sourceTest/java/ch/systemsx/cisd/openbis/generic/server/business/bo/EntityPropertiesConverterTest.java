@@ -208,7 +208,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
 
                     final SampleTypePE sampleType = createSampleType(SAMPLE_TYPE_CODE);
                     final SampleTypePropertyTypePE sampleTypePropertyTypePE =
-                            createETPT(VARCHAR_PROPERTY_TYPE_CODE, false, sampleType);
+                            createETPT(VARCHAR_PROPERTY_TYPE_CODE, sampleType);
 
                     this.allowing(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
                     this.will(Expectations.returnValue(entityPropertyTypeDAO));
@@ -260,8 +260,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private SampleTypePropertyTypePE createETPT(String code, boolean dynamic,
-            final SampleTypePE sampleType)
+    private SampleTypePropertyTypePE createETPT(String code, final SampleTypePE sampleType)
     {
         final SampleTypePropertyTypePE sampleTypePropertyTypePE = new SampleTypePropertyTypePE();
         sampleTypePropertyTypePE.setEntityType(sampleType);
@@ -270,7 +269,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
         propertyType.setCode(code);
         sampleTypePropertyTypePE.setPropertyType(propertyType);
         sampleTypePropertyTypePE.setMandatory(false);
-        sampleTypePropertyTypePE.setDynamic(dynamic);
         return sampleTypePropertyTypePE;
     }
 

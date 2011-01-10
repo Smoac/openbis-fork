@@ -225,6 +225,8 @@ public final class ValidationMessages
 
     public static final String QUERY_TYPE_NOT_NULL_MESSAGE = "Query Type" + CAN_NOT_BE_NULL;
 
+    public static final String SCRIPT_TYPE_NOT_NULL_MESSAGE = "Script Type" + CAN_NOT_BE_NULL;
+
     private ValidationMessages()
     {
         // Can not be instantiated.

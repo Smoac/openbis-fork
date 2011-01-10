@@ -78,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -323,9 +324,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
-    public final List<Script> listScripts(final String sessionToken, EntityKind entityKindOrNull)
+    public final List<Script> listScripts(final String sessionToken, ScriptType scriptTypeOrNull,
+            EntityKind entityKindOrNull)
     {
-        logAccess(sessionToken, "list_scripts");
+        logAccess(sessionToken, "list_scripts", "SCRIPT_TYPE(%s) ENTITY_KIND(%s)",
+                scriptTypeOrNull, entityKindOrNull);
         return null;
     }
 
@@ -750,10 +753,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void addExperimentAttachment(String sessionToken, TechId experimentId,
             NewAttachment attachment)
     {
-        logTracking(sessionToken, "add_experiment_attachment",
-                "EXPERIMENT_ID(%s) ATTACHMENT(%s)", experimentId, attachment.getFileName());
+        logTracking(sessionToken, "add_experiment_attachment", "EXPERIMENT_ID(%s) ATTACHMENT(%s)",
+                experimentId, attachment.getFileName());
     }
-    
+
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment)
     {
@@ -767,7 +770,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "add_project_attachment", "PROJECT_ID(%s) ATTACHMENT(%s)",
                 projectId, attachment.getFileName());
     }
-    
+
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
     {
         logTracking(sessionToken, "update_sample_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
@@ -779,7 +782,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "add_sample_attachment", "SAMPLE_ID(%s) ATTACHMENT(%s)",
                 sampleId, attachment.getFileName());
     }
-    
+
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {

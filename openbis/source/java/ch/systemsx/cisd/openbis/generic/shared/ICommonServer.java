@@ -102,6 +102,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -129,14 +130,15 @@ public interface ICommonServer extends IServer
     public void keepSessionAlive(String sessionToken);
 
     /**
-     * Returns scripts compatible with selected {@link EntityKind} and all the scripts if
-     * {@link EntityKind} is not specified.
+     * Returns scripts of specified type compatible with selected {@link EntityKind}. If script type
+     * or entity kind is not specified no restriction on them is set.
      * 
      * @return a sorted list of {@link Script}s.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<Script> listScripts(String sessionToken, EntityKind entityKindOrNull);
+    public List<Script> listScripts(String sessionToken, ScriptType scriptTypeOrNull,
+            EntityKind entityKindOrNull);
 
     /**
      * Returns all spaces which belong to the specified database instance. *
@@ -950,7 +952,7 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void addExperimentAttachment(String sessionToken, TechId experimentId,
             NewAttachment attachment);
-    
+
     /**
      * Updates the sample attachment.
      */
@@ -966,7 +968,7 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void addSampleAttachments(String sessionToken, TechId sampleId, NewAttachment attachment);
-    
+
     /**
      * Updates the project attachment.
      */
@@ -975,15 +977,16 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment);
-    
+
     /**
      * Adds the project attachment.
      */
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @DatabaseUpdateModification(value = ObjectKind.PROJECT)
-    public void addProjectAttachments(String sessionToken, TechId projectId, NewAttachment attachment);
-    
+    public void addProjectAttachments(String sessionToken, TechId projectId,
+            NewAttachment attachment);
+
     /** Lists all available datastore services of the specified kind */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)

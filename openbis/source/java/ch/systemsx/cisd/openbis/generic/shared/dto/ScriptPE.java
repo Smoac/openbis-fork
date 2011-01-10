@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.collections.UnmodifiableListDecorator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -61,6 +62,8 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     protected Long id;
+
+    private ScriptType scriptType = ScriptType.DYNAMIC_PROPERTY;
 
     private String name;
 
@@ -277,6 +280,31 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     public void setEntityKind(EntityKind entityKind)
     {
         this.entityKind = entityKind;
+    }
+
+    @NotNull(message = ValidationMessages.SCRIPT_TYPE_NOT_NULL_MESSAGE)
+    @Column(name = ColumnNames.SCRIPT_TYPE)
+    @Enumerated(EnumType.STRING)
+    public ScriptType getScriptType()
+    {
+        return scriptType;
+    }
+
+    public void setScriptType(ScriptType scriptType)
+    {
+        this.scriptType = scriptType;
+    }
+
+    @Transient
+    public boolean isDynamic()
+    {
+        return scriptType == ScriptType.DYNAMIC_PROPERTY;
+    }
+
+    @Transient
+    public boolean isManaged()
+    {
+        return scriptType == ScriptType.MANAGED_PROPERTY;
     }
 
 }

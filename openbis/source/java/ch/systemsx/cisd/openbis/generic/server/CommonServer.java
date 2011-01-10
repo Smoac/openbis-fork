@@ -135,6 +135,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
@@ -157,7 +158,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -172,6 +172,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -1214,7 +1215,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             throw createUserFailureException(ex);
         }
     }
-    
+
     public void deleteSampleAttachments(String sessionToken, TechId sampleId,
             List<String> fileNames, String reason)
     {
@@ -1724,7 +1725,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     }
 
-    public void addProjectAttachments(String sessionToken, TechId projectId, NewAttachment attachment)
+    public void addProjectAttachments(String sessionToken, TechId projectId,
+            NewAttachment attachment)
     {
         Session session = getSession(sessionToken);
         try
@@ -1875,11 +1877,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return AuthorizationGroupTranslator.translate(persons);
     }
 
-    public List<Script> listScripts(String sessionToken, EntityKind entityKindOrNull)
+    public List<Script> listScripts(String sessionToken, ScriptType scriptTypeOrNull,
+            EntityKind entityKindOrNull)
     {
         checkSession(sessionToken);
         final List<ScriptPE> scripts =
-                getDAOFactory().getScriptDAO().listEntities(entityKindOrNull);
+                getDAOFactory().getScriptDAO().listEntities(scriptTypeOrNull, entityKindOrNull);
         Collections.sort(scripts);
         return ScriptTranslator.translate(scripts);
     }
@@ -2170,4 +2173,5 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         }
         return entity;
     }
+
 }

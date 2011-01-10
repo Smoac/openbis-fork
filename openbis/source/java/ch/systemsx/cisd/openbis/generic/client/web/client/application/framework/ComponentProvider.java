@@ -244,7 +244,7 @@ public final class ComponentProvider
                 @Override
                 public ITabItem create()
                 {
-                    IDisposableComponent component = ScriptGrid.create(viewContext, null);
+                    IDisposableComponent component = ScriptGrid.create(viewContext, null, null);
                     return createTab(getTabTitle(), component);
                 }
 
@@ -521,7 +521,7 @@ public final class ComponentProvider
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                        ExperimentBatchRegistrationPanel.create(viewContext, true);
+                            ExperimentBatchRegistrationPanel.create(viewContext, true);
                     return createRegistrationTab(getTabTitle(), component);
                 }
 

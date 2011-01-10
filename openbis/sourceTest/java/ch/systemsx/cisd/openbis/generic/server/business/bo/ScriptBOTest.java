@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
@@ -240,10 +241,10 @@ public final class ScriptBOTest extends AbstractBOTest
         scriptPE.setName(name + 1);
         scriptPE.setScript(script + 1);
         scriptPE.setDescription(description + 1);
+        scriptPE.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         final SampleTypePropertyTypePE etpt = new SampleTypePropertyTypePE();
         SampleTypePE sampleType = new SampleTypePE();
         etpt.setEntityType(sampleType);
-        etpt.setDynamic(true);
         etpt.setScript(scriptPE);
         scriptPE.getSampleAssignments().add(etpt);
 

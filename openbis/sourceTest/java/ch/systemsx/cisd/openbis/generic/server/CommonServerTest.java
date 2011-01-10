@@ -1163,7 +1163,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String section = "section 1";
         final NewETPTAssignment newAssignment =
                 new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode, mandatory,
-                        value, section, 1L, false, null);
+                        value, section, 1L, false, false, null);
         context.checking(new Expectations()
             {
                 {

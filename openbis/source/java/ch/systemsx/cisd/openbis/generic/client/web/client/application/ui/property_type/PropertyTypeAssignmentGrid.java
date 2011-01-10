@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -67,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
  * Grid with 'entity type' - 'property type' assignments.
@@ -242,21 +242,13 @@ public class PropertyTypeAssignmentGrid extends
 
     private static ScriptChooserField createScriptChooserField(
             final IViewContext<ICommonClientServiceAsync> viewContext, String initialValue,
-            boolean visible, EntityKind entityKindOrNull)
+            boolean visible, ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
     {
         ScriptChooserField field =
                 ScriptChooserField.create(viewContext.getMessage(Dict.SCRIPT), true, initialValue,
-                        viewContext, entityKindOrNull);
+                        viewContext, scriptTypeOrNull, entityKindOrNull);
         FieldUtil.setVisibility(visible, field);
         return field;
-    }
-
-    private CheckBox createDynamicCheckbox(boolean initialValue)
-    {
-        final CheckBoxField dynamicCheckbox =
-                new CheckBoxField(viewContext.getMessage(Dict.DYNAMIC), false);
-        dynamicCheckbox.setValue(initialValue);
-        return dynamicCheckbox;
     }
 
     private Window createEditDialog(final EntityTypePropertyType<?> etpt)
@@ -275,12 +267,7 @@ public class PropertyTypeAssignmentGrid extends
                     setScrollMode(Scroll.NONE);
                 }
 
-                final CheckBox dynamicCheckbox = createDynamicCheckbox(etpt.isDynamic());
-
                 Script script = etpt.getScript();
-
-                final ScriptChooserField scriptChooser = createScriptChooserField(viewContext,
-                        script != null ? script.getName() : null, etpt.isDynamic(), entityKind);
 
                 private final boolean originalIsMandatory;
 
@@ -292,6 +279,8 @@ public class PropertyTypeAssignmentGrid extends
 
                 private final Field<?> defaultValueField;
 
+                private final ScriptChooserField scriptChooser;
+
                 {
                     originalIsMandatory = etpt.isMandatory();
 
@@ -299,18 +288,16 @@ public class PropertyTypeAssignmentGrid extends
                             new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
                     mandatoryCheckbox.setValue(originalIsMandatory);
 
-                    if (dynamicCheckbox.getValue())
+                    if (script != null)
                     {
-                        dynamicCheckbox.disable();
                         mandatoryCheckbox.setVisible(false);
-                    } else
-                    {
-                        dynamicCheckbox.setVisible(false);
                     }
                     addField(mandatoryCheckbox);
 
-                    addField(dynamicCheckbox);
-
+                    scriptChooser =
+                            createScriptChooserField(viewContext, script != null ? script.getName()
+                                    : null, script != null, script != null ? script.getScriptType()
+                                    : null, entityKind);
                     addField(scriptChooser);
 
                     // default value needs to be specified only if currently property is optional
@@ -329,32 +316,14 @@ public class PropertyTypeAssignmentGrid extends
                                 public void handleEvent(FieldEvent be)
                                 {
                                     defaultValueField.setVisible(getMandatoryValue()
-                                            && dynamicCheckbox.getValue() == false);
+                                            && etpt.isDynamic() == false);
                                 }
                             });
                         mandatoryCheckbox.fireEvent(Events.Change);
-                        dynamicCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
-                            {
-                                public void handleEvent(BaseEvent be)
-                                {
-                                    defaultValueField.setVisible(getMandatoryValue()
-                                            && dynamicCheckbox.getValue() == false);
-
-                                }
-                            });
-
                     } else
                     {
                         defaultValueField = null;
                     }
-
-                    dynamicCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
-                        {
-                            public void handleEvent(BaseEvent be)
-                            {
-                                FieldUtil.setVisibility(dynamicCheckbox.getValue(), scriptChooser);
-                            }
-                        });
 
                     final List<EntityTypePropertyType<?>> etpts =
                             getEntityTypePropertyTypes(etpt.getEntityType());
@@ -422,7 +391,7 @@ public class PropertyTypeAssignmentGrid extends
 
                 private String tryGetScriptNameValue()
                 {
-                    if (dynamicCheckbox.getValue() == false || scriptChooser == null)
+                    if (scriptChooser == null)
                     {
                         return null;
                     } else
@@ -451,7 +420,7 @@ public class PropertyTypeAssignmentGrid extends
                     viewContext.getService().updatePropertyTypeAssignment(
                             new NewETPTAssignment(entityKind, propertyTypeCode, entityTypeCode,
                                     getMandatoryValue(), getDefaultValue(), getSectionValue(),
-                                    getPreviousETPTOrdinal(), dynamicCheckbox.getValue(),
+                                    getPreviousETPTOrdinal(), etpt.isDynamic(), etpt.isManaged(),
                                     tryGetScriptNameValue()), registrationCallback);
                 }
 

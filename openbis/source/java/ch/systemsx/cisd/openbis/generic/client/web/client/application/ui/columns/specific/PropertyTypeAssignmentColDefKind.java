@@ -121,6 +121,15 @@ public enum PropertyTypeAssignmentColDefKind implements
             }
         }),
 
+    IS_MANAGED(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.IS_MANAGED)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isManaged());
+            }
+        }),
+
     SCRIPT(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.SCRIPT)
         {
             @Override

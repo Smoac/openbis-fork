@@ -44,6 +44,8 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements IS
 
     private boolean dynamic;
 
+    private boolean managed;
+
     private Script script;
 
     public Script getScript()
@@ -74,6 +76,16 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements IS
     public final void setDynamic(final boolean dynamic)
     {
         this.dynamic = dynamic;
+    }
+
+    public final boolean isManaged()
+    {
+        return managed;
+    }
+
+    public final void setManaged(final boolean managed)
+    {
+        this.managed = managed;
     }
 
     public final boolean isMandatory()

@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
  * Grid displaying scripts.
@@ -77,19 +78,23 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
 
     private final EntityKind entityKindOrNull;
 
+    private final ScriptType scriptTypeOrNull;
+
     public static DisposableEntityChooser<Script> create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKindOrNull)
+            final IViewContext<ICommonClientServiceAsync> viewContext, ScriptType scriptTypeOrNull,
+            EntityKind entityKindOrNull)
     {
-        final ScriptGrid grid = new ScriptGrid(viewContext, entityKindOrNull);
+        final ScriptGrid grid = new ScriptGrid(viewContext, scriptTypeOrNull, entityKindOrNull);
         grid.extendBottomToolbar();
         return grid.asDisposableWithoutToolbar();
     }
 
     private ScriptGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            EntityKind entityKindOrNull)
+            ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.SCRIPTS_BROWSER_GRID);
         this.entityKindOrNull = entityKindOrNull;
+        this.scriptTypeOrNull = scriptTypeOrNull;
     }
 
     private void extendBottomToolbar()
@@ -164,6 +169,7 @@ public class ScriptGrid extends AbstractSimpleBrowserGrid<Script>
     {
         ListScriptsCriteria criteria = new ListScriptsCriteria();
         criteria.copyPagingConfig(resultSetConfig);
+        criteria.setScriptType(scriptTypeOrNull);
         criteria.setEntityKind(entityKindOrNull);
         viewContext.getService().listScripts(criteria, callback);
     }

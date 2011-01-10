@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.dynamic_property.calc
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -503,7 +504,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
     {
         final SampleTypePropertyTypePE assignment = new SampleTypePropertyTypePE();
         assignment.setPropertyType(propertyType);
-        assignment.setDynamic(true);
+        script.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         assignment.setScript(script);
         assignment.setEntityType(new SampleTypePE());
         return assignment;

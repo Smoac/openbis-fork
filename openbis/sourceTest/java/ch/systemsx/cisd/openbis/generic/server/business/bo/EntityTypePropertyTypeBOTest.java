@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -144,7 +145,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 new NewETPTAssignment(
                         ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.EXPERIMENT,
                         propertyType.getCode(), experimentType.getCode(), mandatory, defaultValue,
-                        section, 1L, false, null);
+                        section, 1L, false, false, null);
         bo.createAssignment(newAssignment);
 
         context.assertIsSatisfied();
@@ -159,9 +160,9 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         final ExperimentTypePropertyTypePE etpt = new ExperimentTypePropertyTypePE();
         final ScriptPE script1 = new ScriptPE();
         script1.setName("name1");
+        script1.setScriptType(ScriptType.DYNAMIC_PROPERTY);
         final ScriptPE script2 = new ScriptPE();
         script2.setName("name2");
-        etpt.setDynamic(true);
         etpt.setScript(script1);
         etpt.setOrdinal(1L);
 
@@ -187,7 +188,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 new NewETPTAssignment(
                         ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind.EXPERIMENT,
                         propertyType.getCode(), experimentType.getCode(), false, null, "s",
-                        etpt.getOrdinal() - 1, true, script2.getName());
+                        etpt.getOrdinal() - 1, true, false, script2.getName());
         bo.updateLoadedAssignment(updatedAssignment);
     }
 

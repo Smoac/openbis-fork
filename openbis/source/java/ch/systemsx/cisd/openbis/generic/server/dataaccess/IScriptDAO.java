@@ -21,6 +21,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
@@ -44,6 +45,7 @@ public interface IScriptDAO extends IGenericDAO<ScriptPE>
     /**
      * Returns entities.
      */
-    public List<ScriptPE> listEntities(EntityKind entityKindOrNull) throws DataAccessException;
+    public List<ScriptPE> listEntities(ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
+            throws DataAccessException;
 
 }

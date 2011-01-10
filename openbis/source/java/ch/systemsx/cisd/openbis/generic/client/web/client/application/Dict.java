@@ -344,6 +344,8 @@ public abstract class Dict
 
     public static final String IS_DYNAMIC = "is_dynamic";
 
+    public static final String IS_MANAGED = "is_managed";
+
     public static final String SCRIPT = "script";
 
     public static final String SCRIPT_REGISTRATION = "script_registration";
@@ -377,6 +379,8 @@ public abstract class Dict
     public static final String MANDATORY = "mandatory";
 
     public static final String DYNAMIC = "dynamic";
+
+    public static final String MANAGED = "managed";
 
     public static final String SECTION_TOOLTIP = "section_tooltip";
 
@@ -773,6 +777,8 @@ public abstract class Dict
     // Script Browser
     //
     public static final String SCRIPT_BROWSER = "script_browser";
+
+    public static final String SCRIPT_TYPE = "script_type";
 
     //
     // Material Chooser

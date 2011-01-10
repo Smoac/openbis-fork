@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
@@ -78,9 +79,15 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
         return (ScriptPE) criteria.uniqueResult();
     }
 
-    public List<ScriptPE> listEntities(EntityKind entityKindOrNull) throws DataAccessException
+    public List<ScriptPE> listEntities(ScriptType scriptTypeOrNull, EntityKind entityKindOrNull)
+            throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(ScriptPE.class);
+        if (scriptTypeOrNull != null)
+        {
+            criteria.add(Restrictions.or(Restrictions.isNull("scriptType"),
+                    Restrictions.eq("scriptType", scriptTypeOrNull)));
+        }
         if (entityKindOrNull != null)
         {
             criteria.add(Restrictions.or(Restrictions.isNull("entityKind"),

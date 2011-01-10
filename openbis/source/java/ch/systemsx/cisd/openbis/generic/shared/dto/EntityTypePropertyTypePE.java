@@ -71,8 +71,6 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
 
     private ScriptPE script;
 
-    private boolean dynamic;
-
     final public static <T extends EntityTypePropertyTypePE> T createEntityTypePropertyType(
             final EntityKind entityKind)
     {
@@ -107,21 +105,22 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         this.propertyValues = propertyValues;
     }
 
-    @NotNull
-    @Column(name = ColumnNames.IS_DYNAMIC)
+    @Transient
+    public boolean isScriptable()
+    {
+        return getScript() != null;
+    }
+
+    @Transient
     public boolean isDynamic()
     {
-        return dynamic;
+        return isScriptable() && getScript().isDynamic();
     }
 
-    public void setDynamic(final boolean dynamic)
+    @Transient
+    public boolean isManaged()
     {
-        this.dynamic = dynamic;
-    }
-
-    public void setScript(final ScriptPE script)
-    {
-        this.script = script;
+        return isScriptable() && getScript().isManaged();
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -129,6 +128,11 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     public ScriptPE getScript()
     {
         return script;
+    }
+
+    public void setScript(final ScriptPE script)
+    {
+        this.script = script;
     }
 
     @NotNull

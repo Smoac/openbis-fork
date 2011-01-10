@@ -282,7 +282,9 @@ var common = {
   // Property Type Assignments Browser
   //
   dynamic: "Dynamic",
+  managed: "Managed",
   is_dynamic: "Dynamic?",
+  is_managed: "Managed?",
   script: "Script",
   unassign_button_label: "Release Assignment",
   unassignment_confirmation_dialog_title: "Unassignment Confirmation",
@@ -708,8 +710,9 @@ default_group: "Default Space",
 // Script Browser
 //
 add_script_title: "Add a new script",
-title_choose_script: "Choose a Script",
+title_choose_script: "Choose a {0} Script",
 script_browser: "Scripts",
+script_type: "Script Type",
 ADMINISTRATION_MENU_SCRIPTS: "Scripts",
 script_registration: "Script Registration",
 evaluation_result: "Evaluation Result",

@@ -64,6 +64,15 @@ public enum ScriptColDefKind implements IColumnDefinitionKind<Script>
             }
         }),
 
+    SCRIPT_TYPE(new AbstractColumnDefinitionKind<Script>(Dict.SCRIPT_TYPE)
+        {
+            @Override
+            public String tryGetValue(Script entity)
+            {
+                return entity.getScriptType().getDescription();
+            }
+        }),
+
     REGISTRATOR(new AbstractColumnDefinitionKind<Script>(Dict.REGISTRATOR)
         {
             @Override

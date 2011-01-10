@@ -434,9 +434,7 @@ CREATE TABLE data_set_type_property_types (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     section description_2000,
     ordinal ordinal_int NOT NULL,
-    is_dynamic boolean DEFAULT false NOT NULL,
-    script_id tech_id,
-    CONSTRAINT dstpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
+    script_id tech_id
 );
 CREATE TABLE data_set_types (
     id tech_id NOT NULL,
@@ -593,9 +591,7 @@ CREATE TABLE experiment_type_property_types (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     section description_2000,
     ordinal ordinal_int NOT NULL,
-    is_dynamic boolean DEFAULT false NOT NULL,
-    script_id tech_id,
-    CONSTRAINT etpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
+    script_id tech_id
 );
 CREATE TABLE experiment_types (
     id tech_id NOT NULL,
@@ -747,9 +743,7 @@ CREATE TABLE material_type_property_types (
     pers_id_registerer tech_id NOT NULL,
     section description_2000,
     ordinal ordinal_int NOT NULL,
-    is_dynamic boolean DEFAULT false NOT NULL,
-    script_id tech_id,
-    CONSTRAINT mtpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
+    script_id tech_id
 );
 CREATE TABLE material_types (
     id tech_id NOT NULL,
@@ -957,9 +951,7 @@ CREATE TABLE sample_type_property_types (
     is_displayed boolean_char DEFAULT true NOT NULL,
     section description_2000,
     ordinal ordinal_int NOT NULL,
-    is_dynamic boolean DEFAULT false NOT NULL,
-    script_id tech_id,
-    CONSTRAINT stpt_ck CHECK ((((is_dynamic IS TRUE) AND (script_id IS NOT NULL)) OR ((is_dynamic IS FALSE) AND (script_id IS NULL))))
+    script_id tech_id
 );
 CREATE TABLE sample_types (
     id tech_id NOT NULL,
@@ -1005,7 +997,7 @@ CREATE TABLE scripts (
     registration_timestamp time_stamp_dfl DEFAULT now() NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     entity_kind entity_kind,
-    script_type script_type DEFAULT 'DYNAMIC_PROPERTY'::character varying NOT NULL
+    script_type script_type NOT NULL
 );
 CREATE SEQUENCE space_id_seq
     START WITH 1
