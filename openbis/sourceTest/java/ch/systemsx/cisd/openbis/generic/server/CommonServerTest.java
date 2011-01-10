@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.hamcrest.core.IsEqual;
@@ -29,6 +31,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
@@ -71,7 +74,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -81,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -179,7 +182,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String password = "password";
         final Session session = createSession(user);
         final PersonPE systemPerson = createSystemUser();
-        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
                 {
@@ -226,7 +229,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String password = "password";
         final Session session = createSession(user);
         final PersonPE systemPerson = createSystemUser();
-        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
                 {
@@ -252,7 +255,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
 
-        assertEquals(person.getUserId(), s.getUserName());
+        assertNull(s);
         context.assertIsSatisfied();
     }
 
@@ -263,7 +266,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String password = "password";
         final Session session = createSession(user);
         final PersonPE systemPerson = createSystemUser();
-        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         context.checking(new Expectations()
             {
                 {
@@ -291,7 +294,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListGroups()
     {
-        final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
         final SpacePE g1 = CommonTestUtils.createGroup("g1", homeDatabaseInstance);
         final SpacePE g2 = CommonTestUtils.createGroup("g2", homeDatabaseInstance);
@@ -345,7 +348,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testListPersons()
     {
-        final PersonPE personPE = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+        final PersonPE personPE = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         final Person person = PersonTranslator.translate(personPE);
         prepareGetSession();
         context.checking(new Expectations()
@@ -418,8 +421,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
 
                     one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
-                    will(returnValue(Arrays.asList(CommonTestUtils
-                            .createPersonFromPrincipal(PRINCIPAL))));
+                    will(returnValue(Arrays
+                            .asList(createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL))));
                 }
             });
 
@@ -434,6 +437,21 @@ public final class CommonServerTest extends AbstractServerTestCase
         }
 
         context.assertIsSatisfied();
+    }
+
+    private PersonPE createPersonWithRoleAssignmentsFromPrincipal(Principal principal)
+    {
+        PersonPE person = CommonTestUtils.createPersonFromPrincipal(principal);
+        setRoleAssignments(person);
+        return person;
+    }
+
+    private void setRoleAssignments(PersonPE person)
+    {
+        // users without any roles cannot login
+        Set<RoleAssignmentPE> rolesAssignments = new HashSet<RoleAssignmentPE>();
+        rolesAssignments.add(new RoleAssignmentPE());
+        person.setRoleAssignments(rolesAssignments);
     }
 
     @Test
