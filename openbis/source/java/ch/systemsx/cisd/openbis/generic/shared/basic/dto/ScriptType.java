@@ -37,10 +37,4 @@ public enum ScriptType implements ISerializable
         return description;
     }
 
-    @Override
-    // used when displayed in combo box
-    public String toString()
-    {
-        return description;
-    }
 }
