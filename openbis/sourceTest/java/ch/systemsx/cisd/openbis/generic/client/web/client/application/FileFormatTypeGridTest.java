@@ -21,10 +21,10 @@ import com.extjs.gxt.ui.client.event.Events;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatTypeGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -40,7 +40,7 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
         CheckTableCommand table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
-        table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "XML"));
+        table.expectedRow(new Row().withCell(FileFormatTypeGridColumnIDs.CODE, "XML"));
         remoteConsole.prepare(table.expectedSize(8));
 
         launchTest();
@@ -54,8 +54,8 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
         remoteConsole.prepare(table);
         remoteConsole.prepare(addNewTypeCommand());
         table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
-        table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "MY-TYPE").withCell(
-                TypeColDefKind.DESCRIPTION.id(), "hello"));
+        table.expectedRow(new Row().withCell(FileFormatTypeGridColumnIDs.CODE, "MY-TYPE").withCell(
+                FileFormatTypeGridColumnIDs.DESCRIPTION, "hello"));
         table.expectedSize(9);
         remoteConsole.prepare(table);
 

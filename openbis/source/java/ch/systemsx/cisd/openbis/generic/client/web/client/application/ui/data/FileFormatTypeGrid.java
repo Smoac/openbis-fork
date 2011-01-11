@@ -34,11 +34,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.TypedTableGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
@@ -46,21 +44,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.FileFormatTypeGridColumnIDs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
+public class FileFormatTypeGrid extends TypedTableGrid<FileFormatType>
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "file-format-type-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
+    public static final String GRID_ID = BROWSER_ID + TypedTableGrid.GRID_POSTFIX;
 
     public static final String ADD_NEW_TYPE_BUTTON_ID = GRID_ID + "-" + Dict.ADD_NEW_TYPE_BUTTON;
 
@@ -75,7 +74,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
 
     private FileFormatTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID,
+        super(viewContext, BROWSER_ID, true,
                 DisplayTypeIDGenerator.FILE_FORMAT_TYPE_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
@@ -100,13 +99,15 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
         addButton(createItem);
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.EDIT_TYPE_BUTTON),
-                        new ISelectedEntityInvoker<BaseEntityModel<AbstractType>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<FileFormatType>>>()
                             {
 
-                                public void invoke(BaseEntityModel<AbstractType> selectedItem,
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<FileFormatType>> selectedItem,
                                         boolean keyPressed)
                                 {
-                                    AbstractType entityType = selectedItem.getBaseObject();
+                                    FileFormatType entityType =
+                                            selectedItem.getBaseObject().getObjectOrNull();
                                     createEditEntityTypeDialog(entityType).show();
                                 }
 
@@ -144,15 +145,16 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    List<BaseEntityModel<AbstractType>> types = getSelectedItems();
+                    List<BaseEntityModel<TableModelRowWithObject<FileFormatType>>> types =
+                            getSelectedItems();
                     if (types.isEmpty())
                     {
                         return;
                     }
                     final List<String> selectedTypeCodes = new ArrayList<String>();
-                    for (BaseEntityModel<AbstractType> model : types)
+                    for (BaseEntityModel<TableModelRowWithObject<FileFormatType>> model : types)
                     {
-                        AbstractType term = model.getBaseObject();
+                        FileFormatType term = model.getBaseObject().getObjectOrNull();
                         selectedTypeCodes.add(term.getCode());
                     }
                     ConfirmationDialog confirmationDialog =
@@ -175,7 +177,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
         return deleteButton;
     }
 
-    private Window createEditEntityTypeDialog(final AbstractType type)
+    private Window createEditEntityTypeDialog(final FileFormatType type)
     {
         final String code = type.getCode();
         String title =
@@ -214,43 +216,47 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
     }
 
     @Override
-    protected IColumnDefinitionKind<AbstractType>[] getStaticColumnsDefinition()
+    protected ColumnDefsAndConfigs<TableModelRowWithObject<FileFormatType>> createColumnsDefinition()
     {
-        return TypeColDefKind.values();
-    }
-
-    @Override
-    protected ColumnDefsAndConfigs<AbstractType> createColumnsDefinition()
-    {
-        ColumnDefsAndConfigs<AbstractType> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(TypeColDefKind.DESCRIPTION.id(),
+        ColumnDefsAndConfigs<TableModelRowWithObject<FileFormatType>> schema =
+                super.createColumnsDefinition();
+        schema.setGridCellRendererFor(FileFormatTypeGridColumnIDs.DESCRIPTION,
                 createMultilineStringCellRenderer());
         return schema;
     }
 
     @Override
-    protected List<IColumnDefinition<AbstractType>> getInitialFilters()
+    protected List<IColumnDefinition<TableModelRowWithObject<FileFormatType>>> getInitialFilters()
     {
         return Collections.emptyList();
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, AbstractType> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<AbstractType>> callback)
+    protected void listTableRows(
+            DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> resultSetConfig,
+            AsyncCallback<TypedTableResultSet<FileFormatType>> callback)
     {
         viewContext.getService().listFileTypes(resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<AbstractType> exportCriteria,
+    protected void prepareExportEntities(
+            TableExportCriteria<TableModelRowWithObject<FileFormatType>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportFileTypes(exportCriteria, callback);
     }
 
+    @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[] {};
+    }
+
+    @Override
+    protected String translateColumnIdToDictionaryKey(String columnID)
+    {
+        return columnID.toLowerCase();
     }
 
 }

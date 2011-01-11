@@ -342,12 +342,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /** @see ICommonClientService#listFileTypes(DefaultResultSetConfig) */
-    public void listFileTypes(DefaultResultSetConfig<String, AbstractType> criteria,
-            final AsyncCallback<ResultSet<AbstractType>> asyncCallback)
+    public void listFileTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> criteria,
+            final AsyncCallback<TypedTableResultSet<FileFormatType>> asyncCallback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /** @see ICommonClientService#prepareExportFileTypes(TableExportCriteria) */
-    public void prepareExportFileTypes(TableExportCriteria<AbstractType> criteria,
+    public void prepareExportFileTypes(
+            TableExportCriteria<TableModelRowWithObject<FileFormatType>> criteria,
             AsyncCallback<String> callback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 

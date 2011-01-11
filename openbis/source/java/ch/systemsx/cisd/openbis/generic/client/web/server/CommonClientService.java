@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.ITableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DataProviderAdapter;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.FileFormatTypesProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MatchingEntitiesProvider;
@@ -786,21 +787,6 @@ public final class CommonClientService extends AbstractClientService implements
         return new TypedTableResultSet<Vocabulary>(resultSet);
     }
 
-    private List<Vocabulary> listVocabularies(final boolean withTerms, boolean excludeInternal)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            final List<Vocabulary> vocabularies =
-                    commonServer.listVocabularies(sessionToken, withTerms, excludeInternal);
-            return vocabularies;
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-    }
-
     public TypedTableResultSet<VocabularyTermWithStats> listVocabularyTerms(
             final Vocabulary vocabulary,
             DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> criteria)
@@ -867,18 +853,17 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<FileFormatType> listFileTypes(
-            DefaultResultSetConfig<String, FileFormatType> criteria)
+    public TypedTableResultSet<FileFormatType> listFileTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria,
-                new AbstractOriginalDataProviderWithoutHeaders<FileFormatType>()
-                    {
-                        public List<FileFormatType> getOriginalData() throws UserFailureException
-                        {
-                            return listFileTypes();
-                        }
-                    });
+        FileFormatTypesProvider provider =
+                new FileFormatTypesProvider(commonServer, getSessionToken());
+        DataProviderAdapter<FileFormatType> dataProvider =
+                new DataProviderAdapter<FileFormatType>(provider);
+        ResultSet<TableModelRowWithObject<FileFormatType>> resultSet =
+                listEntities(criteria, dataProvider);
+        return new TypedTableResultSet<FileFormatType>(resultSet);
     }
 
     public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,

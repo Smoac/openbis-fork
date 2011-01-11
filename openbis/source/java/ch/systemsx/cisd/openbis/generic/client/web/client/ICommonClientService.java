@@ -410,8 +410,9 @@ public interface ICommonClientService extends IClientService
     public String prepareExportDataSetTypes(final TableExportCriteria<DataSetType> criteria)
             throws UserFailureException;
 
-    public ResultSet<FileFormatType> listFileTypes(
-            DefaultResultSetConfig<String, FileFormatType> criteria) throws UserFailureException;
+    public TypedTableResultSet<FileFormatType> listFileTypes(
+            DefaultResultSetConfig<String, TableModelRowWithObject<FileFormatType>> criteria)
+            throws UserFailureException;
 
     public List<FileFormatType> listFileTypes() throws UserFailureException;
 

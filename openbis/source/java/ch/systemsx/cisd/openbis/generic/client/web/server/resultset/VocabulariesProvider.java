@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
- * @author kaloyane
+ * @author Kaloyan Enimanev
  */
 public class VocabulariesProvider extends AbstractCommonTableModelProvider<Vocabulary>
 {

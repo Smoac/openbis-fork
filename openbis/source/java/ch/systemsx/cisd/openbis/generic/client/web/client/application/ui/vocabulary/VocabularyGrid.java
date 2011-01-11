@@ -88,95 +88,6 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
         return grid.asDisposableWithoutToolbar();
     }
 
-    private void extendBottomToolbar()
-    {
-        addEntityOperationsLabel();
-
-        final Button addButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Vocabulary"),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
-                                            viewContext).getVocabularyRegistration());
-                                }
-                            });
-        addButton(addButton);
-
-        Button showDetailsButton =
-                createSelectedItemButton(
-                        viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
-                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
-                            {
-                                public void invoke(
-                                        BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
-                                        boolean keyPressed)
-                                {
-                                    showEntityViewer(selectedItem.getBaseObject(), false,
-                                            keyPressed);
-                                }
-                            });
-        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
-        addButton(showDetailsButton);
-
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
-                    {
-
-                        public void invoke(
-                                BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
-                                boolean keyPressed)
-                        {
-                            Vocabulary vocabulary = selectedItem.getBaseObject().getObjectOrNull();
-                            if (vocabulary.isManagedInternally())
-                            {
-                                String errorMsg = "Internally managed vocabulary cannot be edited.";
-                                MessageBox.alert("Error", errorMsg, null);
-                            } else
-                            {
-                                createEditEntityDialog(vocabulary).show();
-                            }
-                        }
-
-                    }));
-
-        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
-                new AbstractCreateDialogListener()
-                    {
-
-                        @Override
-                        protected Dialog createDialog(
-                                List<TableModelRowWithObject<Vocabulary>> vocabularies,
-                                IBrowserGridActionInvoker invoker)
-                        {
-                            return new VocabularyListDeletionConfirmationDialog(viewContext,
-                                    vocabularies, createDeletionCallback(invoker));
-                        }
-
-                        @Override
-                        protected boolean validateSelectedData(
-                                List<TableModelRowWithObject<Vocabulary>> data)
-                        {
-                            String errorMsg = "Internally managed vocabularies cannot be deleted.";
-                            for (TableModelRowWithObject<Vocabulary> vocabulary : data)
-                            {
-                                if (vocabulary.getObjectOrNull().isManagedInternally())
-                                {
-                                    MessageBox.alert("Error", errorMsg, null);
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }
-                    }));
-
-        allowMultipleSelection(); // we allow deletion of multiple vocabularies
-
-        addEntityOperationsSeparator();
-    }
-
     private VocabularyGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, true, DisplayTypeIDGenerator.VOCABULARY_BROWSER_GRID);
@@ -268,6 +179,96 @@ public class VocabularyGrid extends TypedTableGrid<Vocabulary>
         tabFactory.setInBackground(inBackground);
         DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
+    
+    private void extendBottomToolbar()
+    {
+        addEntityOperationsLabel();
+
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Vocabulary"),
+                        new SelectionListener<ButtonEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ButtonEvent ce)
+                                {
+                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                            viewContext).getVocabularyRegistration());
+                                }
+                            });
+        addButton(addButton);
+
+        Button showDetailsButton =
+                createSelectedItemButton(
+                        viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
+                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
+                            {
+                                public void invoke(
+                                        BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
+                                        boolean keyPressed)
+                                {
+                                    showEntityViewer(selectedItem.getBaseObject(), false,
+                                            keyPressed);
+                                }
+                            });
+        showDetailsButton.setId(SHOW_DETAILS_BUTTON_ID);
+        addButton(showDetailsButton);
+
+        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<Vocabulary>>>()
+                    {
+
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<Vocabulary>> selectedItem,
+                                boolean keyPressed)
+                        {
+                            Vocabulary vocabulary = selectedItem.getBaseObject().getObjectOrNull();
+                            if (vocabulary.isManagedInternally())
+                            {
+                                String errorMsg = "Internally managed vocabulary cannot be edited.";
+                                MessageBox.alert("Error", errorMsg, null);
+                            } else
+                            {
+                                createEditEntityDialog(vocabulary).show();
+                            }
+                        }
+
+                    }));
+
+        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                new AbstractCreateDialogListener()
+                    {
+
+                        @Override
+                        protected Dialog createDialog(
+                                List<TableModelRowWithObject<Vocabulary>> vocabularies,
+                                IBrowserGridActionInvoker invoker)
+                        {
+                            return new VocabularyListDeletionConfirmationDialog(viewContext,
+                                    vocabularies, createDeletionCallback(invoker));
+                        }
+
+                        @Override
+                        protected boolean validateSelectedData(
+                                List<TableModelRowWithObject<Vocabulary>> data)
+                        {
+                            String errorMsg = "Internally managed vocabularies cannot be deleted.";
+                            for (TableModelRowWithObject<Vocabulary> vocabulary : data)
+                            {
+                                if (vocabulary.getObjectOrNull().isManagedInternally())
+                                {
+                                    MessageBox.alert("Error", errorMsg, null);
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                    }));
+
+        allowMultipleSelection(); // we allow deletion of multiple vocabularies
+
+        addEntityOperationsSeparator();
+    }
+   
 
     private Component createEditEntityDialog(final Vocabulary vocabulary)
     {
