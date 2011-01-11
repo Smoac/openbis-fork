@@ -89,7 +89,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
-            { property("DESCRIPTION", "my éxpériment") });
+            { property("DESCRIPTION", "my √©xp√©riment") });
         genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
                 newExperiment);
 
@@ -100,7 +100,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         List<IEntityProperty> properties = experiment.getProperties();
         assertEquals("DESCRIPTION", properties.get(0).getPropertyType().getCode());
         // Make sure the string is escaped
-        assertEquals(StringEscapeUtils.escapeHtml("my éxpériment"), properties.get(0)
+        assertEquals(StringEscapeUtils.escapeHtml("my √©xp√©riment"), properties.get(0)
                 .tryGetAsString());
         assertEquals(1, properties.size());
     }
@@ -226,7 +226,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String[] codes = new String[]
             { "DESCRIPTION" };
         String[] values = new String[]
-            { "New déscription" };
+            { "New d√©scription" };
         String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         // Update the experiments
@@ -257,7 +257,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String[] codes = new String[]
             { "DESCRIPTION" };
         String[] values = new String[]
-            { "New déscription" };
+            { "New d√©scription" };
         String bulkUpdateString = createBulkUpdateString(expIds, "/cisd/nemo", codes, values);
 
         // Update the experiments
@@ -387,7 +387,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String[] codes = new String[]
             { "DESCRIPTION", "GENDER" };
         String[] values = new String[]
-            { "New déscription", "MALE" };
+            { "New d√©scription", "MALE" };
         String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         // Add/Modify some properties
@@ -412,7 +412,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
 
         verifyBulkUpdate(expIds, new String[]
             { "DESCRIPTION" }, new String[]
-            { "New déscription" });
+            { "New d√©scription" });
     }
 
     /**
@@ -427,7 +427,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             String experimentIdentifier = "/cisd/default/" + experimentCode;
             NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
             newExperiment.setProperties(new IEntityProperty[]
-                { property("DESCRIPTION", "my éxpériment") });
+                { property("DESCRIPTION", "my √©xp√©riment") });
             genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
                     newExperiment);
             expIds.add(experimentIdentifier);

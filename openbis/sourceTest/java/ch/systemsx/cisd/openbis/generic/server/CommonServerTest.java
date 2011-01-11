@@ -896,7 +896,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     @Test
     public void testAddVocabularyTerms()
     {
-        final List<String> terms = Arrays.asList("aöé", "büç");
+        final List<String> terms = Arrays.asList("a√∂√©", "b√º√ß");
         final TechId vocabularyId = CommonTestUtils.TECH_ID;
         final Long previousTermOrdinal = 0L;
         prepareGetSession();

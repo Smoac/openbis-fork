@@ -97,7 +97,7 @@ public class columnMapper
             Boolean haveUnits = false;
             if (commonUnits)
             {
-                units.append("mm^2 g µm^2 ");
+                units.append("mm^2 g Âµm^2 ");
                 haveUnits = true;
             }
 

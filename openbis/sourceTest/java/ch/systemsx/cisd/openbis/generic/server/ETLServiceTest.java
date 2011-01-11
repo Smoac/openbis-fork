@@ -465,7 +465,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     private SamplePropertyPE setAnyProperty(SamplePE top)
     {
         SamplePropertyPE property =
-                createSamplePropertyPE("type code", DataTypeCode.VARCHAR, "The Valüe");
+                createSamplePropertyPE("type code", DataTypeCode.VARCHAR, "The Val√ºe");
 
         top.setProperties(new LinkedHashSet<SamplePropertyPE>(Arrays.asList(property)));
         return property;

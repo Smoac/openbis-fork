@@ -241,7 +241,7 @@ final class Parameters
     /**
      * Returns <code>true</code>, if the password should be changed.
      * <p>
-     * The new password is supposed to be read from the console.�
+     * The new password is supposed to be read from the console.ÔøΩ
      */
     final boolean isChangePassword()
     {
