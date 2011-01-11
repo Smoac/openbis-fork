@@ -54,19 +54,6 @@ class LogicalImageSeriesGrid
         return createMoviePlayer(frames, model.getSortedPoints());
     }
 
-    private static List<List<ImageChannelStack>> getSortedSeries(
-            Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries,
-            List<ImageSeriesPoint> sortedPoints)
-    {
-        List<List<ImageChannelStack>> sortedSeries = new ArrayList<List<ImageChannelStack>>();
-        for (ImageSeriesPoint point : sortedPoints)
-        {
-            List<ImageChannelStack> series = channelStackImagesBySeries.get(point);
-            sortedSeries.add(series);
-        }
-        return sortedSeries;
-    }
-
     private static List<ImageSeriesPoint> sortPoints(Set<ImageSeriesPoint> points)
     {
         ArrayList<ImageSeriesPoint> pointsList = new ArrayList<ImageSeriesPoint>(points);
@@ -80,7 +67,7 @@ class LogicalImageSeriesGrid
         final LayoutContainer mainContainer = new LayoutContainer();
         addAll(mainContainer, frames);
 
-        final Slider slider = createTimepointsSlider(frames.size(), new Listener<SliderEvent>()
+        final Slider slider = createSeriesSlider(frames.size(), new Listener<SliderEvent>()
             {
                 public void handleEvent(SliderEvent e)
                 {
@@ -92,13 +79,13 @@ class LogicalImageSeriesGrid
                     }
                     frames.get(newValue - 1).show();
                     mainContainer.remove(mainContainer.getItem(0));
-                    mainContainer
-                            .insert(new Label(createTimepointLabel(sortedPoints, newValue)), 0);
+                    mainContainer.insert(new Label(createSeriesPointLabel(sortedPoints, newValue)),
+                            0);
                     mainContainer.layout();
                 }
             });
         mainContainer.insert(slider, 0);
-        mainContainer.insert(new Label(createTimepointLabel(sortedPoints, 1)), 0);
+        mainContainer.insert(new Label(createSeriesPointLabel(sortedPoints, 1)), 0);
         slider.setValue(1);
 
         return mainContainer;
@@ -118,7 +105,7 @@ class LogicalImageSeriesGrid
         for (List<ImageChannelStack> seriesPointStacks : sortedChannelStackSeriesPoints)
         {
             final LayoutContainer container =
-                    createTilesGridForTimepoint(seriesPointStacks, channelReferences, sessionId,
+                    createFrameForSeriesPoint(seriesPointStacks, channelReferences, sessionId,
                             imageWidth, imageHeight);
             frames.add(container);
             if (counter > 0)
@@ -138,7 +125,7 @@ class LogicalImageSeriesGrid
         }
     }
 
-    private static LayoutContainer createTilesGridForTimepoint(
+    private static LayoutContainer createFrameForSeriesPoint(
             List<ImageChannelStack> seriesPointStacks,
             LogicalImageChannelsReference channelReferences, String sessionId, int imageWidth,
             int imageHeight)
@@ -188,7 +175,7 @@ class LogicalImageSeriesGrid
         container.add(dummy);
     }
 
-    private static String createTimepointLabel(List<ImageSeriesPoint> sortedPoints,
+    private static String createSeriesPointLabel(List<ImageSeriesPoint> sortedPoints,
             int sequenceNumber)
     {
         ImageSeriesPoint point = sortedPoints.get(sequenceNumber - 1);
@@ -196,7 +183,7 @@ class LogicalImageSeriesGrid
         return point.getLabel() + " (" + sequenceNumber + "/" + numberOfSequences + ")";
     }
 
-    private static final Slider createTimepointsSlider(int maxValue, Listener<SliderEvent> listener)
+    private static final Slider createSeriesSlider(int maxValue, Listener<SliderEvent> listener)
     {
         final Slider slider = new Slider();
         // we do not want the slider to be long when there are just few points
@@ -362,6 +349,19 @@ class LogicalImageSeriesGrid
                 imageReferences.add(ref);
             }
             return result;
+        }
+
+        private static List<List<ImageChannelStack>> getSortedSeries(
+                Map<ImageSeriesPoint, List<ImageChannelStack>> channelStackImagesBySeries,
+                List<ImageSeriesPoint> sortedPoints)
+        {
+            List<List<ImageChannelStack>> sortedSeries = new ArrayList<List<ImageChannelStack>>();
+            for (ImageSeriesPoint point : sortedPoints)
+            {
+                List<ImageChannelStack> series = channelStackImagesBySeries.get(point);
+                sortedSeries.add(series);
+            }
+            return sortedSeries;
         }
 
         public List<ImageSeriesPoint> getSortedPoints()
