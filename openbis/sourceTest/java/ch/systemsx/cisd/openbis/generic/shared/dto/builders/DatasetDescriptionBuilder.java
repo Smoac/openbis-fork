@@ -59,7 +59,7 @@ public class DatasetDescriptionBuilder
     
     public DatasetDescriptionBuilder space(String spaceCode)
     {
-        datasetDescription.setGroupCode(spaceCode);
+        datasetDescription.setSpaceCode(spaceCode);
         return this;
     }
     

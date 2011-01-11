@@ -144,7 +144,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         description.setDatasetCode(".");
         description.setDataSetLocation("3123123123-123");
         description.setSampleCode("sampleCode");
-        description.setGroupCode("groupCode");
+        description.setSpaceCode("groupCode");
         description.setProjectCode("projCode");
         description.setExperimentCode("expCode");
         description.setDatabaseInstanceCode("instance");

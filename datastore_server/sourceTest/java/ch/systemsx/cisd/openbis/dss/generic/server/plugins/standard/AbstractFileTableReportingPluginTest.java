@@ -102,7 +102,7 @@ public class AbstractFileTableReportingPluginTest extends AssertJUnit
         description.setDatasetCode("Cod");
         description.setDataSetLocation("Loc");
         description.setSampleCode("Sam");
-        description.setGroupCode("Spa");
+        description.setSpaceCode("Spa");
         description.setProjectCode("Pro");
         description.setExperimentCode("Exp");
         description.setDatabaseInstanceCode("Ins");

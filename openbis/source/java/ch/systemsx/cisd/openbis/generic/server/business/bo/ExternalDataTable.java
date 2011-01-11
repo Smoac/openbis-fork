@@ -505,7 +505,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         ProjectPE project = experiment.getProject();
         description.setProjectCode(project.getCode());
         SpacePE group = project.getSpace();
-        description.setGroupCode(group.getCode());
+        description.setSpaceCode(group.getCode());
         description.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
         DataSetTypePE dataSetType = dataSet.getDataSetType();
         description.setMainDataSetPath(dataSetType.getMainDataSetPath());

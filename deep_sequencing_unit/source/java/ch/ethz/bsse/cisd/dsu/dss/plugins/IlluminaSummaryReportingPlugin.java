@@ -183,7 +183,7 @@ public class IlluminaSummaryReportingPlugin extends AbstractTableModelReportingP
 
     private static Sample getSample(DatasetDescription dataset)
     {
-        String spaceCode = dataset.getGroupCode();
+        String spaceCode = dataset.getSpaceCode();
         String sampleCode = dataset.getSampleCode();
         String databaseInstanceCode = dataset.getDatabaseInstanceCode();
         SampleIdentifier sampleIdentifier =

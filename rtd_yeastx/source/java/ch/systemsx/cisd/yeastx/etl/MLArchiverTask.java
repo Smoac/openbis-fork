@@ -141,7 +141,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
         // NOTE: we assume that it is not a shared sample
         SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new SpaceIdentifier(dataset.getDatabaseInstanceCode(), dataset
-                        .getGroupCode()), dataset.getSampleCode());
+                        .getSpaceCode()), dataset.getSampleCode());
         sample = ServiceProvider.getOpenBISService().tryGetSampleWithExperiment(sampleIdentifier);
         return sample;
     }
@@ -153,7 +153,7 @@ public class MLArchiverTask extends AbstractArchiverProcessingPlugin
             return sample.getExperiment();
         }
         ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(dataset.getDatabaseInstanceCode(), dataset.getGroupCode(),
+                new ExperimentIdentifier(dataset.getDatabaseInstanceCode(), dataset.getSpaceCode(),
                         dataset.getProjectCode(), dataset.getExperimentCode());
         Experiment experiment =
                 ServiceProvider.getOpenBISService().tryToGetExperiment(experimentIdentifier);

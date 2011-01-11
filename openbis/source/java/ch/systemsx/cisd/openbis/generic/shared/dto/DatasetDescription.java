@@ -41,7 +41,7 @@ public class DatasetDescription implements Serializable
     
     private String sampleTypeCode;
 
-    private String groupCode;
+    private String spaceCode;
 
     private String projectCode;
 
@@ -151,14 +151,14 @@ public class DatasetDescription implements Serializable
         return sampleTypeCode;
     }
 
-    public String getGroupCode()
+    public String getSpaceCode()
     {
-        return groupCode;
+        return spaceCode;
     }
 
-    public void setGroupCode(String groupCode)
+    public void setSpaceCode(String groupCode)
     {
-        this.groupCode = groupCode;
+        this.spaceCode = groupCode;
     }
     
     public String getProjectCode()

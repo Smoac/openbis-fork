@@ -161,7 +161,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         description.setDatasetTypeCode("MY_DATA");
         description.setDataSetLocation(location);
         description.setDatabaseInstanceCode("i");
-        description.setGroupCode("g");
+        description.setSpaceCode("g");
         description.setProjectCode("p");
         description.setExperimentCode("e");
         description.setExperimentIdentifier("/g/p/e");

@@ -104,7 +104,7 @@ public class IterativeTableModelBuilderTest
         description.setDatasetCode("code");
         description.setDataSetLocation("location");
         description.setSampleCode("sampleCode");
-        description.setGroupCode("groupCode");
+        description.setSpaceCode("groupCode");
         description.setProjectCode("projCode");
         description.setExperimentCode("expCode");
         description.setDatabaseInstanceCode("instance");
