@@ -26,6 +26,8 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -37,10 +39,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ScriptField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.ScriptTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 
 /**
  * {@link AbstractRegistrationForm} for registering and editing scripts.
@@ -51,6 +55,8 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
 {
 
     protected final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    protected final ScriptTypeSelectionWidget scriptTypeChooserOrNull;
 
     protected final TextField<String> nameField;
 
@@ -74,12 +80,31 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
         this(viewContext, null, entityKindOrNull);
     }
 
+    public AbstractScriptEditRegisterForm(IViewContext<ICommonClientServiceAsync> viewContext,
+            ScriptTypeSelectionWidget scriptTypeChooser, EntityKind entityKindOrNull)
+    {
+        this(viewContext, null, scriptTypeChooser, entityKindOrNull);
+    }
+
     protected AbstractScriptEditRegisterForm(
             final IViewContext<ICommonClientServiceAsync> viewContext, TechId scriptIdOrNull,
-            EntityKind entityKindOrNull)
+            ScriptTypeSelectionWidget scriptTypeChooserOrNull, EntityKind entityKindOrNull)
     {
         super(viewContext, createId(scriptIdOrNull), DEFAULT_LABEL_WIDTH + 20, DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
+
+        this.scriptTypeChooserOrNull = scriptTypeChooserOrNull;
+        if (scriptTypeChooserOrNull != null)
+        {
+            scriptTypeChooserOrNull.setWidth(200);
+            final ToolBar toolBar = new ToolBar();
+            toolBar.add(new LabelToolItem(scriptTypeChooserOrNull.getFieldLabel()
+                    + GenericConstants.LABEL_SEPARATOR));
+            toolBar.add(scriptTypeChooserOrNull);
+            setTopComponent(toolBar);
+            scriptTypeChooserOrNull.addSelectionChangedListener(createScriptTypeChangedListener());
+        }
+
         this.nameField = new VarcharField(viewContext.getMessage(Dict.NAME), true);
         this.scriptExecution =
                 new ScriptExecutionFramework(viewContext, asValidable(formPanel), entityKindOrNull);
@@ -106,6 +131,27 @@ abstract public class AbstractScriptEditRegisterForm extends AbstractRegistratio
                     scriptExecution.update(scriptField.getValue());
                 }
             });
+    }
+
+    private SelectionChangedListener<SimpleComboValue<ScriptType>> createScriptTypeChangedListener()
+    {
+        return new SelectionChangedListener<SimpleComboValue<ScriptType>>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<SimpleComboValue<ScriptType>> se)
+                {
+                    SimpleComboValue<ScriptType> selectedItem = se.getSelectedItem();
+                    if (selectedItem != null)
+                    {
+                        onScriptTypeChanged(selectedItem.getValue());
+                    }
+                }
+            };
+    }
+
+    protected void onScriptTypeChanged(ScriptType scriptType)
+    {
+        rightPanel.setVisible(scriptType == ScriptType.DYNAMIC_PROPERTY);
     }
 
     private IValidable asValidable(final FormPanel panel)

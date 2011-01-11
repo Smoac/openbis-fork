@@ -119,9 +119,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private CheckBox mandatoryCheckbox;
 
-    private CheckBox dynamicCheckbox;
-
-    private CheckBox managedCheckbox;
+    private CheckBox scriptableCheckbox;
 
     private SectionSelectionWidget sectionSelectionWidget;
 
@@ -138,6 +136,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     private final EntityKind entityKind;
 
     private final ScriptChooserField scriptChooser;
+
+    private final ScriptTypeSelectionWidget scriptTypeChooser;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKind)
@@ -157,6 +157,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         setScrollMode(Scroll.AUTO);
         add(infoBox = createInfoBox());
         add(formPanel = createFormPanel());
+        scriptTypeChooser = createScriptTypeChooserField(viewContext);
         scriptChooser =
                 createScriptChooserField(viewContext, createScriptTypeProvider(), entityKind);
     }
@@ -165,21 +166,22 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     {
         return new IScriptTypeProvider()
             {
-
                 public ScriptType tryGetScriptType()
                 {
-                    if (dynamicCheckbox.getValue())
-                    {
-                        return ScriptType.DYNAMIC_PROPERTY;
-                    } else if (managedCheckbox.getValue())
-                    {
-                        return ScriptType.MANAGED_PROPERTY;
-                    } else
-                    {
-                        return null;
-                    }
+                    return scriptTypeChooser.getSimpleValue();
                 }
             };
+    }
+
+    private static ScriptTypeSelectionWidget createScriptTypeChooserField(
+            IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        ScriptTypeSelectionWidget field =
+                ScriptTypeSelectionWidget.createPropertyScriptTypes(viewContext);
+        FieldUtil.setVisibility(false, field);
+        FieldUtil.markAsMandatory(field);
+        GWTUtils.autoselect(field);
+        return field;
     }
 
     private static ScriptChooserField createScriptChooserField(
@@ -295,49 +297,10 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         return result;
     }
 
-    private CheckBox getManagedCheckbox()
-    {
-        if (managedCheckbox == null)
-        {
-            managedCheckbox = new CheckBoxField(viewContext.getMessage(Dict.MANAGED), false);
-            managedCheckbox.setValue(false);
-            managedCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
-                {
-                    public void handleEvent(BaseEvent be)
-                    {
-                        updateVisibilityOfDynamicRelatedFields();
-                    }
-                });
-        }
-        return managedCheckbox;
-    }
-
-    private CheckBox getDynamicCheckbox()
-    {
-        if (dynamicCheckbox == null)
-        {
-            dynamicCheckbox = new CheckBoxField(viewContext.getMessage(Dict.DYNAMIC), false);
-            dynamicCheckbox.setValue(false);
-            dynamicCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
-                {
-                    public void handleEvent(BaseEvent be)
-                    {
-                        updateVisibilityOfDynamicRelatedFields();
-                    }
-                });
-        }
-        return dynamicCheckbox;
-    }
-
-    private boolean isScriptable()
-    {
-        return dynamicCheckbox.getValue() || managedCheckbox.getValue();
-    }
-
-    private void updateVisibilityOfDynamicRelatedFields()
+    private void updateVisibilityOfScriptRelatedFields()
     {
         boolean scriptable = isScriptable();
-        FieldUtil.setVisibility(scriptable, scriptChooser);
+        FieldUtil.setVisibility(scriptable, scriptTypeChooser, scriptChooser);
         if (defaultValueField != null)
         {
             FieldUtil.setVisibility(scriptable == false, defaultValueField.get());
@@ -357,9 +320,31 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             mandatoryCheckbox.setFireChangeEventOnSetValue(false);
             mandatoryCheckbox.setValue(false);
             mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
-            FieldUtil.setVisibility(dynamicCheckbox.getValue() == false, mandatoryCheckbox);
+            FieldUtil.setVisibility(isScriptable() == false, mandatoryCheckbox);
         }
         return mandatoryCheckbox;
+    }
+
+    private CheckBox getScriptableCheckbox()
+    {
+        if (scriptableCheckbox == null)
+        {
+            scriptableCheckbox = new CheckBoxField(viewContext.getMessage(Dict.SCRIPTABLE), false);
+            scriptableCheckbox.setValue(false);
+            scriptableCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        updateVisibilityOfScriptRelatedFields();
+                    }
+                });
+        }
+        return scriptableCheckbox;
+    }
+
+    private boolean isScriptable()
+    {
+        return scriptableCheckbox.getValue();
     }
 
     private final FormPanel createFormPanel()
@@ -449,8 +434,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         DropDownList<?, ?> typeSelectionWidget = getTypeSelectionWidget();
         formPanel.add(propertyTypeWidget);
         formPanel.add(typeSelectionWidget);
-        formPanel.add(getDynamicCheckbox());
-        formPanel.add(getManagedCheckbox());
+        formPanel.add(getScriptableCheckbox());
+        formPanel.add(scriptTypeChooser);
         formPanel.add(scriptChooser);
         formPanel.add(getMandatoryCheckbox());
         updatePropertyTypeRelatedFields();
@@ -510,7 +495,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                     viewContext.getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
             defaultValueField = fieldHolder;
             defaultValueField.get().show();
-            FieldUtil.setVisibility(dynamicCheckbox.getValue() == false, defaultValueField.get());
+            FieldUtil.setVisibility(isScriptable() == false, defaultValueField.get());
             formPanel.add(defaultValueField.get());
         }
         updateEntityTypePropertyTypeRelatedFields();
@@ -581,7 +566,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     String tryGetScriptNameValue()
     {
-        if (dynamicCheckbox.getValue() == false || scriptChooser == null)
+        if (scriptChooser == null)
         {
             return null;
         } else
@@ -590,19 +575,30 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         }
     }
 
+    boolean isDynamic()
+    {
+        ScriptType scriptTypeOrNull = scriptTypeChooser.getSimpleValue();
+        return scriptTypeOrNull != null && scriptTypeOrNull == ScriptType.DYNAMIC_PROPERTY;
+    }
+
+    boolean isManaged()
+    {
+        ScriptType scriptTypeOrNull = scriptTypeChooser.getSimpleValue();
+        return scriptTypeOrNull != null && scriptTypeOrNull == ScriptType.MANAGED_PROPERTY;
+    }
+
     //
 
     private final void submitForm()
     {
         if (formPanel.isValid())
         {
-            boolean dynamic = dynamicCheckbox.getValue();
             NewETPTAssignment newAssignment =
                     new NewETPTAssignment(entityKind,
                             propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
                             getSelectedEntityCode(), getMandatoryCheckbox().getValue(),
                             getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
-                            dynamic, false, tryGetScriptNameValue());
+                            isDynamic(), isManaged(), tryGetScriptNameValue());
             viewContext.getService().assignPropertyType(newAssignment,
                     new AssignPropertyTypeCallback(viewContext));
         }

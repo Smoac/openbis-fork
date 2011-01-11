@@ -41,7 +41,7 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
 
     protected ScriptEditForm(IViewContext<ICommonClientServiceAsync> viewContext, TechId scriptId)
     {
-        super(viewContext, scriptId, null);
+        super(viewContext, scriptId, null, null);
         this.scriptId = scriptId;
     }
 
@@ -92,6 +92,7 @@ public class ScriptEditForm extends AbstractScriptEditRegisterForm
     void setOriginalScript(Script script)
     {
         this.originalScript = script;
+        onScriptTypeChanged(script.getScriptType());
     }
 
     private final class ScriptEditCallback extends

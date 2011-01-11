@@ -63,7 +63,7 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
 
     protected Long id;
 
-    private ScriptType scriptType = ScriptType.DYNAMIC_PROPERTY;
+    private ScriptType scriptType;
 
     private String name;
 

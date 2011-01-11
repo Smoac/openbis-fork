@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ISerializable;
  */
 public enum ScriptType implements ISerializable
 {
-    DYNAMIC_PROPERTY("Dynamic Property"), MANAGED_PROPERTY("Managed Property");
+    DYNAMIC_PROPERTY("Dynamic Property Evaluator"), MANAGED_PROPERTY("Managed Property Handler");
 
     private final String description;
 
@@ -33,6 +33,13 @@ public enum ScriptType implements ISerializable
     }
 
     public final String getDescription()
+    {
+        return description;
+    }
+
+    @Override
+    // used when displayed in combo box
+    public String toString()
     {
         return description;
     }

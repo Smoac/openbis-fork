@@ -69,7 +69,13 @@ public final class ScriptBOTest extends AbstractBOTest
     }
 
     @Test
-    public final void testDefineAndSave()
+    public final void testDefineAndSaveDynamicProperty()
+    {
+        testDefineAndSave(ScriptType.DYNAMIC_PROPERTY);
+        testDefineAndSave(ScriptType.MANAGED_PROPERTY);
+    }
+
+    public final void testDefineAndSave(ScriptType scriptType)
     {
         final ScriptBO scriptBO = createScriptBO();
         final DatabaseInstancePE instance = createDatabaseInstance();
@@ -78,6 +84,7 @@ public final class ScriptBOTest extends AbstractBOTest
         newScript.setDescription(DESCRIPTION);
         newScript.setName(NAME);
         newScript.setScript(SCRIPT);
+        newScript.setScriptType(scriptType);
 
         final ScriptPE scriptPE = new ScriptPE();
 
@@ -96,6 +103,7 @@ public final class ScriptBOTest extends AbstractBOTest
         scriptBO.define(newScript);
         scriptBO.save();
 
+        assertEquals(scriptType, scriptPE.getScriptType());
         assertEquals(newScript.getDescription(), scriptPE.getDescription());
         assertEquals(newScript.getName(), scriptPE.getName());
         assertEquals(ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), scriptPE.getRegistrator());
@@ -184,6 +192,12 @@ public final class ScriptBOTest extends AbstractBOTest
     @Test
     public void testUpdateScriptNotChanged() throws Exception
     {
+        testUpdateScriptNotChanged(ScriptType.DYNAMIC_PROPERTY);
+        testUpdateScriptNotChanged(ScriptType.MANAGED_PROPERTY);
+    }
+
+    public void testUpdateScriptNotChanged(ScriptType scriptType) throws Exception
+    {
         final ScriptBO scriptBO = createScriptBO();
 
         final Script updates = new Script();
@@ -199,6 +213,7 @@ public final class ScriptBOTest extends AbstractBOTest
         scriptPE.setName(name + 1);
         scriptPE.setScript(script);
         scriptPE.setDescription(description + 1);
+        scriptPE.setScriptType(scriptType);
 
         context.checking(new Expectations()
             {
@@ -222,9 +237,15 @@ public final class ScriptBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testUpdateScriptChanged() throws Exception
+    {
+        testUpdateScriptChanged(ScriptType.DYNAMIC_PROPERTY);
+        testUpdateScriptChanged(ScriptType.MANAGED_PROPERTY);
+    }
+
+    @SuppressWarnings("deprecation")
+    public void testUpdateScriptChanged(final ScriptType scriptType) throws Exception
     {
         final ScriptBO scriptBO = createScriptBO();
 
@@ -241,7 +262,7 @@ public final class ScriptBOTest extends AbstractBOTest
         scriptPE.setName(name + 1);
         scriptPE.setScript(script + 1);
         scriptPE.setDescription(description + 1);
-        scriptPE.setScriptType(ScriptType.DYNAMIC_PROPERTY);
+        scriptPE.setScriptType(scriptType);
         final SampleTypePropertyTypePE etpt = new SampleTypePropertyTypePE();
         SampleTypePE sampleType = new SampleTypePE();
         etpt.setEntityType(sampleType);
@@ -256,10 +277,13 @@ public final class ScriptBOTest extends AbstractBOTest
 
                     one(scriptDAO).createOrUpdate(scriptPE);
 
-                    one(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
-                    will(returnValue(entityPropertyTypeDAO));
+                    if (scriptType == ScriptType.DYNAMIC_PROPERTY)
+                    {
+                        one(daoFactory).getEntityPropertyTypeDAO(EntityKind.SAMPLE);
+                        will(returnValue(entityPropertyTypeDAO));
 
-                    one(entityPropertyTypeDAO).scheduleDynamicPropertiesEvaluation(etpt);
+                        one(entityPropertyTypeDAO).scheduleDynamicPropertiesEvaluation(etpt);
+                    }
                 }
             });
 

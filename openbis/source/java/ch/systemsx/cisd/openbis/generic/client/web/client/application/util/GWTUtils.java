@@ -119,7 +119,7 @@ public final class GWTUtils
                     int maxLabelWidth = 0;
                     for (ModelData model : comboBox.getStore().getModels())
                     {
-                        String displayedString = model.get(displayField);
+                        String displayedString = model.get(displayField).toString();
                         maxLabelWidth = Math.max(maxLabelWidth, metrics.getWidth(displayedString));
                     }
                     // It makes sense to limit width of the list because it doesn't look good

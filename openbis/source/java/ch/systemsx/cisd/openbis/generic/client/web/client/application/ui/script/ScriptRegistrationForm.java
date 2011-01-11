@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.script
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.ScriptTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
@@ -31,13 +32,15 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
     public static ScriptRegistrationForm create(
             IViewContext<ICommonClientServiceAsync> viewContext, EntityKind entityKindOrNull)
     {
-        return new ScriptRegistrationForm(viewContext, entityKindOrNull);
+        ScriptTypeSelectionWidget scriptTypeChooser =
+                ScriptTypeSelectionWidget.createAllScriptTypes(viewContext);
+        return new ScriptRegistrationForm(viewContext, scriptTypeChooser, entityKindOrNull);
     }
 
     protected ScriptRegistrationForm(IViewContext<ICommonClientServiceAsync> viewContext,
-            EntityKind entityKindOrNull)
+            ScriptTypeSelectionWidget scriptTypeChooser, EntityKind entityKindOrNull)
     {
-        super(viewContext, entityKindOrNull);
+        super(viewContext, scriptTypeChooser, entityKindOrNull);
     }
 
     @Override
@@ -55,6 +58,7 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
         newScript.setDescription(descriptionField.getValue());
         newScript.setName(nameField.getValue());
         newScript.setScript(scriptField.getValue());
+        newScript.setScriptType(scriptTypeChooserOrNull.getSimpleValue());
         newScript.setEntityKind(entityKindField.tryGetEntityKind());
         return newScript;
     }
@@ -92,5 +96,4 @@ public class ScriptRegistrationForm extends AbstractScriptEditRegisterForm
     {
         initGUI();
     }
-
 }

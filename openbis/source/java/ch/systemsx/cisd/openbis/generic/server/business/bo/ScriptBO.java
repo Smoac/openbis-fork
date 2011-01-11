@@ -113,6 +113,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         script.setDescription(newScript.getDescription());
         script.setRegistrator(findRegistrator());
         script.setScript(newScript.getScript());
+        script.setScriptType(newScript.getScriptType());
         script.setEntityKind(newScript.getEntityKind());
     }
 
@@ -128,7 +129,7 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
             script.setScript(updates.getScript());
         }
         getScriptDAO().createOrUpdate(script);
-        if (scriptChanged)
+        if (scriptChanged && script.isDynamic())
         {
             for (EntityTypePropertyTypePE assignment : script.getPropertyAssignments())
             {

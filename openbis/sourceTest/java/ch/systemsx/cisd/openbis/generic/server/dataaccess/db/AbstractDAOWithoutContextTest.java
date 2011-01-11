@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
@@ -53,13 +54,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -230,18 +231,21 @@ public abstract class AbstractDAOWithoutContextTest extends
         return createSpace(spaceCode, databaseInstance);
     }
 
-    protected ScriptPE createScriptInDB(final String name, String script, String description,
+    protected ScriptPE createScriptInDB(final ScriptType scriptType, final String name,
+            String script, String description,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind)
     {
-        final ScriptPE result = createScriptPE(name, script, description, kind);
+        final ScriptPE result = createScriptPE(scriptType, name, script, description, kind);
         daoFactory.getScriptDAO().createOrUpdate(result);
         return result;
     }
 
-    protected ScriptPE createScriptPE(final String name, String script, String description,
+    protected ScriptPE createScriptPE(final ScriptType scriptType, final String name,
+            String script, String description,
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind)
     {
         final ScriptPE result = new ScriptPE();
+        result.setScriptType(scriptType);
         result.setName(name);
         result.setScript(script);
         result.setDescription(description);
