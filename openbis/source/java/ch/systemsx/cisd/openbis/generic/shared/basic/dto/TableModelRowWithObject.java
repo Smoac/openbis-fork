@@ -83,24 +83,40 @@ public class TableModelRowWithObject<T extends ISerializable> extends TableModel
     public boolean equals(Object obj)
     {
         if (this == obj)
+        {
             return true;
+        }
         if (obj == null)
+        {
             return false;
-        if (!(obj instanceof TableModelRowWithObject))
+        }
+        if (false == (obj instanceof TableModelRowWithObject))
+        {
             return false;
+        }
+
         TableModelRowWithObject<?> other = (TableModelRowWithObject<?>) obj;
         if (id == null)
         {
             if (other.id != null)
+            {
                 return false;
-        } else if (!id.equals(other.id))
+            }
+        } else if (false == id.equals(other.id))
+        {
             return false;
+        }
+
         if (objectOrNull == null)
         {
             if (other.objectOrNull != null)
+            {
                 return false;
-        } else if (!objectOrNull.equals(other.objectOrNull))
+            }
+        } else if (false == objectOrNull.equals(other.objectOrNull))
+        {
             return false;
+        }
         return true;
     }
 
